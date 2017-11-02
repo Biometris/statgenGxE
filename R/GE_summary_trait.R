@@ -37,11 +37,12 @@
 #' @examples
 #' mydat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
 #'                      env="env!", genotype="genotype!", trait="yld")
-#' names(mydat)=c("env", "genotype","yld") 
-#' GE.summary.trait(data=mydat, trait="yld", env="env", genotype="genotype", 
+#' names(mydat)=c("env", "genotype","yld")
+#' GE.summary.trait(data=mydat, trait="yld", env="env", genotype="genotype",
 #'                  envSelect=c("HN96b", "IS92a", "IS94a", "LN96a",
 #'                   "LN96b", "NS92a", "SS92a", "SS94a"))
 #'
+#' @import graphics grDevices
 #' @export
 GE.summary.trait = function(data, trait, env, genotype, envSelect=NA,
     NVals = F, NNVals = T, NMiss = T,
@@ -52,7 +53,7 @@ GE.summary.trait = function(data, trait, env, genotype, envSelect=NA,
     Skew = F, SESkew = F, Kurt = F, SEKurt = F,
     Boxplot = F, Histogram = F,
     Corplot = T, Scatterplot= T, all = F){
-    
+
 #    load(datname)
 #    data = GE.data
 
@@ -65,13 +66,13 @@ GE.summary.trait = function(data, trait, env, genotype, envSelect=NA,
     }else{
         envSelect <- levels(data[[env]])
     }
-    
+
     if (all){
       NVals=NNVals=NMiss=Mean=Median=Min=Max=
       Range=LowerQ=UpperQ=SD=SEMean=Var=SEVar=CV=Sum=SumSq=
       UncorSumSq=Skew=SESkew=Kurt=SEKurt=CorMat=Boxplot=Histogram=Corplot=Scatterplot= TRUE
     }
-    
+
     #a matrix to store the values
     stats=matrix(NA,length(envSelect), 22)
     rownames(stats)=envSelect
@@ -120,11 +121,11 @@ GE.summary.trait = function(data, trait, env, genotype, envSelect=NA,
     if(Histogram){
       f0 <- as.formula(paste('~',trait,"|",env))
       dev.new()
-      print(histogram(x = f0 , data = data,
+      print(lattice::histogram(x = f0 , data = data,
           main = "Histograms by Enviroment",
           xlab = trait))
     }
-             
+
     if (Scatterplot){
       ## put (absolute) correlations on the upper panels,
       ## with size proportional to the correlations.
@@ -170,13 +171,13 @@ GE.summary.trait = function(data, trait, env, genotype, envSelect=NA,
             cormat
           }else{
             stop("Numbers of observations for all environments are not equal.\n")
-          } 
+          }
         }
       }
       dev.new()
-      print(levelplot(cormat[nrow(cormat):1,], xlab="", ylab="",
+      print(lattice::levelplot(cormat[nrow(cormat):1,], xlab="", ylab="",
       main=paste("Correlation of environments for", trait)))
-      
+
     }
     na.col <- apply(stats, 2, function(x) all(is.na(x)))
     stats2 <- stats[,!na.col]

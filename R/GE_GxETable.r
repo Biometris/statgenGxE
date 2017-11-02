@@ -11,16 +11,18 @@
 #' @examples
 #' mydat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
 #'                      env="env!", genotype="genotype!", trait="yld")
-#' names(mydat)=c("env", "genotype","yld") 
-#' Y <- GE.megaenvironment(Y=mydat, trait="yld", genotype="genotype", 
+#' names(mydat)=c("env", "genotype","yld")
+#' Y <- GE.megaenvironment(Y=mydat, trait="yld", genotype="genotype",
 #'                         env="env", megaenv="megaenv")
-#' GE.GxETable(trait="yld", genotype="genotype", env="env", year=NULL, 
+#' GE.GxETable(trait="yld", genotype="genotype", env="env", year=NULL,
 #'             megaenv="megaenv", data=Y)
-#'             
-#' @export             
+#'
+#' @import utils
+#' @importFrom methods slot
+#' @export
 
 GE.GxETable <- function(trait, genotype, env, year=NULL, megaenv, data,...){
-  
+
   if (!trait %in% names(data))
     stop(trait," not found in ", data)
   if (!genotype %in% names(data))
@@ -29,7 +31,7 @@ GE.GxETable <- function(trait, genotype, env, year=NULL, megaenv, data,...){
     stop(env, " not found in ", data)
   if (!megaenv %in% names(data))
     stop(megaenv, " not found in ", data)
-  
+
   ok <- require(asreml, quietly = T)
   if (ok){
     if (is.null(year)){
@@ -96,14 +98,14 @@ GE.GxETable <- function(trait, genotype, env, year=NULL, megaenv, data,...){
         ng = length(unique(slot(mr,"flist")[[genotype]]))
         reff = lme4::ranef(mr,drop=T)[[genotype]]
         blo = mean(c(cr, 0))
-        
+
         # Predictions BLUPs
         predictions.blups = fe[1] + blo + reff
-        
+
         # Compute se.blups
         if(class(mr) == 'lmerMod') se.blups = t(sqrt(apply(attr(lme4::ranef(mr,condVar=T)[[genotype]], "postVar"),3, diag)))
         if(class(mr) == 'mer') se.blups = t(sqrt(apply(attr(lme4::ranef(mr,postVar=T)[[genotype]], "postVar"),3, diag)))
-        
+
         predVals <- predictions.blups
         se <- data.frame(se.blups, row.names = rownames(predVals), check.names = FALSE)
         names(se) <- names(predVals) <- megaenvlevels
@@ -112,7 +114,7 @@ GE.GxETable <- function(trait, genotype, env, year=NULL, megaenv, data,...){
       stop("Either asreml or lme4 is not loaded correctly.")
     }
   }
-  
+
   result <- new.env()
   result$predicted.value <- predVals
   result$standard.error <- se

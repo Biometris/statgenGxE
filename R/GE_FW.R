@@ -16,11 +16,12 @@
 #' @examples
 #' mydat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
 #'                      env="env!", genotype="genotype!", trait="yld")
-#' names(mydat)=c("env", "genotype","yld") 
-#' fw.anlysis <- GE.FW(mydat, trait="yld", genotype="genotype", env="env", maxcycle = 15, tol = 0.001, 
+#' names(mydat)=c("env", "genotype","yld")
+#' fw.anlysis <- GE.FW(mydat, trait="yld", genotype="genotype", env="env", maxcycle = 15, tol = 0.001,
 #'                sortBYsens = "ascending")
 #' fw.anlysis
-#' 
+#'
+#' @import graphics grDevices
 #' @export
 
 GE.FW <- function(Y, trait, genotype, env, maxcycle = 15, tol = 0.001,
@@ -28,13 +29,13 @@ GE.FW <- function(Y, trait, genotype, env, maxcycle = 15, tol = 0.001,
                   scatterplot = T, lineplot = F, trellisplot = F){
   ## ZZ replicates RJOINT procedure in GenStat
   ## Handling missing values ?na.action = na.exclude?
-  
+
   if (missing(sortBYsens)){
     sortBYsens <- "ascending"
   }
   nlab <- nlevels(Y[,genotype])
   nenvs <- nlevels(Y[,env])
-      
+
   # Save Sum Sq & Df
   rdev <- rdf <- rep(NA,5)
 
@@ -71,7 +72,7 @@ GE.FW <- function(Y, trait, genotype, env, maxcycle = 15, tol = 0.001,
     Y$beta <- coeffs.model1[match(paste(genotype,Y[[genotype]],":enveffs",sep=""), names(coeffs.model1))]
     Y$beta <- Y$beta/mean(Y$beta, na.rm = T)
     print(logLik(model1))
-    
+
     # Form variate with current env means relevant to each unit
     model2 <- lm(as.formula(paste(trait, "~-1 +", genotype, "+", env,":beta")), data = Y, na.action = na.exclude)
     coeffs.model2 <- coefficients(model2)
@@ -80,7 +81,7 @@ GE.FW <- function(Y, trait, genotype, env, maxcycle = 15, tol = 0.001,
     Y$enveffs <- coeffs.model2[match(paste(env,Y[[env]],":beta",sep=""), names(coeffs.model2))]
     Y[is.na(Y$enveffs),"enveffs"] <- 0
     Y$enveffs <- Y$enveffs-mean(Y$enveffs)
-    
+
     # Maximum difference of sensitivities between the succesive iterations
     maxdiff <- max(abs(Y$beta - beta0), na.rm = T)
     if (iter == maxcycle && maxdiff > tol)
@@ -89,26 +90,26 @@ GE.FW <- function(Y, trait, genotype, env, maxcycle = 15, tol = 0.001,
     iter <- iter + 1
   }
 
-  
+
   # Environments
   aov.1 <- anova(model1)
   tpos <- rownames(aov.1)=="Residuals"
   rdev[4] <- aov.1[["Sum Sq"]][tpos]
   rdf[4]  <- aov.1[["Df"]][tpos]
-      
+
   # Extract total deviance
   modelA <- lm(as.formula(paste(trait, "~", genotype)), data = Y, na.action = na.exclude)
   aov.A <- anova(modelA)
   rdev[5] <- sum(aov.A[["Sum Sq"]])
   rdf[5]  <- sum(aov.A[["Df"]])
-  
+
   # Fit varieties only for first entry in aov
   modelB <- lm(as.formula(paste(trait, "~-1 +", genotype)), data = Y, na.action = na.exclude)
   aov.B <- anova(modelB)
   tpos <- rownames(aov.B)=="Residuals"
   rdev[1] <- aov.B[["Sum Sq"]][tpos]
   rdf[1]  <- aov.B[["Df"]][tpos]
-  
+
   # Calculate deviances and d.f.
   rdev[c(3,2,1)] <- rdev[c(2,1,5)]-rdev[c(4,2,1)]
   rdf[c(2,1)] <- rdf[c(1,5)]-rdf[c(2,1)]
@@ -124,7 +125,7 @@ GE.FW <- function(Y, trait, genotype, env, maxcycle = 15, tol = 0.001,
   fprob <- pf(devr, rdf, rdf[4], lower.tail = FALSE)
   aov.table <- data.frame("Df"=rdf, "Sum Sq"=rdev, "Mean Sq"=mdev, "F value"=devr, "Pr(>F)"=fprob,
    row.names=c(genotype, env, "Sensitivities", "Residual", "Total"), check.names=F)
-  
+
   # Sensitivity beta(i)
   sens <- Y$beta
   # standard error for env
@@ -133,7 +134,7 @@ GE.FW <- function(Y, trait, genotype, env, maxcycle = 15, tol = 0.001,
   genmean <- coeffs.model1[match(paste(genotype,Y[[genotype]],sep=""), names(coeffs.model1))]
   # residual standard error
   sigma <- sqrt(diag(vcov(model1))[match(paste(genotype,Y[[genotype]],sep=""), names(coeffs.model1))])
-  
+
   fitted.gen <- fitted(model1)
   resi.gen <- residuals(model1)
   fval <- tapply(fitted.gen, Y[,c(genotype,env)], function(x) mean(x, na.rm = T))
@@ -167,7 +168,7 @@ GE.FW <- function(Y, trait, genotype, env, maxcycle = 15, tol = 0.001,
   }
 
   # ANOVA table
-  
+
   # Environment effects
   match.positions <- match(paste(env,levels(Y[[env]]),":beta",sep=""), names(coeffs.model2))
   Enveffs <- coeffs.model2[match.positions]
@@ -188,7 +189,7 @@ GE.FW <- function(Y, trait, genotype, env, maxcycle = 15, tol = 0.001,
   means.names <- names(means.fitted)
   Enveffs.summary <- data.frame(Environment=means.names, Effect=Enveffs,
    s.e.=se.Enveffs, Mean=means.fitted, Rank=means.rank, row.names=NULL)
-  
+
   # Draw various plots
   if (scatterplot == T){
     if (!all(is.na(mse))){
@@ -200,7 +201,7 @@ GE.FW <- function(Y, trait, genotype, env, maxcycle = 15, tol = 0.001,
       main = "Finlay & Wilkinson analysis")
     }
   }
-  
+
   if (lineplot == T){
     min.fval <- min(fitted.gen, na.rm = T)
     max.fval <- max(fitted.gen, na.rm = T)
@@ -231,14 +232,14 @@ GE.FW <- function(Y, trait, genotype, env, maxcycle = 15, tol = 0.001,
       trellisdata <- droplevels(trellisdata[first64,])
     }
     dev.new()
-    print(xyplot(trait + fitted ~ xeff | genotype, data=trellisdata,
+    print(lattice::xyplot(trait + fitted ~ xeff | genotype, data=trellisdata,
                  panel = function(x,y, subscripts) {
-                   panel.xyplot(x,y)
-                   panel.lines(trellisdata$xeff[subscripts], trellisdata$fitted[subscripts])
+                   lattice::panel.xyplot(x,y)
+                   lattice::panel.lines(trellisdata$xeff[subscripts], trellisdata$fitted[subscripts])
                  }, as.table=T, subscripts=T, xlab="Environment", ylab=trait,
                  main=paste0("Finlay & Wilkinson analysis for ",trait)))
   }
-  
+
   info <- data.frame("Response variate"=trait, "Number of genotypes"=nlab, "Number of environments"=nenvs,
   "Convergence criterion"= tol, "Number of iterations"=iter-1, row.names=NULL, check.names=F, stringsAsFactors = FALSE)
   result <- new.env()

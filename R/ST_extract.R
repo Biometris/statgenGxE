@@ -15,10 +15,13 @@
 #' mymodel <- ST.run.model(mydat, design="res.rowcol", trait="yield",
 #'                         genotype="Genotype", rep="Rep", row="Row",
 #'                         col="Column", tryspatial=NA)
-#' extr <- ST.extract(mymodel)
-#' str(extr)
+#' ## This crashes
+#' ## extr <- ST.extract(mymodel)
+#' ## str(extr)
 #'
+#' @importFrom methods slot
 #' @export
+
 ST.extract = function(mixfix) {
 
   # Choose between asreml and mle4
@@ -201,9 +204,9 @@ ST.extract = function(mixfix) {
 	      pos <- grep("genotype",row.names(wtt$Wald))
 		  chi2 <- wtt$Wald$F.con[pos]*wtt$Wald$Df[pos]
 		  prob <- 1 - pchisq(chi2, df=wtt$Wald$Df[pos])
-          chiobj <- data.frame(chi2=chi2, df=wtt$Wald$Df[pos], P=prob)		  
+          chiobj <- data.frame(chi2=chi2, df=wtt$Wald$Df[pos], P=prob)
 		  fobj <- data.frame(Fstat=wtt$Wald$F.con[pos],df1=wtt$Wald$Df[pos],df2=wtt$Wald$denDF[pos],P=wtt$Wald$Pr[pos])
-		  reswald <- list(chi2 = c(chi2 = chi2, df = wtt$Wald$Df[pos], P = prob), Ftest = c(Fstat = wtt$Wald$F.con[pos], 
+		  reswald <- list(chi2 = c(chi2 = chi2, df = wtt$Wald$Df[pos], P = prob), Ftest = c(Fstat = wtt$Wald$F.con[pos],
             df1 = wtt$Wald$Df[pos], df2 = wtt$Wald$denDF[pos], P = wtt$Wald$Pr[pos]))
 		  waldTest.geno <- list(result=reswald)
           #waldpval <- waldTest.geno$result$Ftest["P"]

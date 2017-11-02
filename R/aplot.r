@@ -33,49 +33,49 @@ aplot <- function(x, ...) {
   names(trellis.obj) <- c("histogram","qq", "ResidFitted", "AbsResidFitted")
 
   # Histogram of residuals
-  trellis.obj[["histogram"]] <- histogram(x=~Resid, xlab="Residuals", ...)
+  trellis.obj[["histogram"]] <- lattice::histogram(x=~Resid, xlab="Residuals", ...)
 
   # Q-Q plot of residuals
-  trellis.obj[["qq"]] <- qqmath(~Resid, xlab="Normal quantiles", ylab="Residuals", ...)
+  trellis.obj[["qq"]] <- lattice::qqmath(~Resid, xlab="Normal quantiles", ylab="Residuals", ...)
 
   # Residuals vs fitted values
-  trellis.obj[["ResidFitted"]] <- xyplot(Resid ~ Fitted,
+  trellis.obj[["ResidFitted"]] <- lattice::xyplot(Resid ~ Fitted,
       panel = function(x, y, ...) {
-        panel.xyplot(x, y, ..., type = c("p", "g"))
-        panel.abline(h = 0)
-        panel.loess(x, y, col="red", ...)
+        lattice::panel.xyplot(x, y, ..., type = c("p", "g"))
+        lattice::panel.abline(h = 0)
+        lattice::panel.loess(x, y, col="red", ...)
       }, ylab = "Residuals", xlab = "Fitted values", ...)
 
   # Residuals vs fitted values
-  trellis.obj[["AbsResidFitted"]] <- xyplot(abs(Resid) ~ Fitted,
+  trellis.obj[["AbsResidFitted"]] <- lattice::xyplot(abs(Resid) ~ Fitted,
       panel = function(x, y, ...) {
-        panel.xyplot(x, y, ..., type = c("p", "g"))
-        panel.loess(x, y, col="red", ...)
+        lattice::panel.xyplot(x, y, ..., type = c("p", "g"))
+        lattice::panel.loess(x, y, col="red", ...)
       }, ylab = "|Residuals|", xlab = "Fitted values", ...)
 
-  adt <- trellis.par.get("add.text")
-  xlb <- trellis.par.get("par.xlab.text")
-  ylb <- trellis.par.get("par.ylab.text")
-  zlb <- trellis.par.get("par.zlab.text")
-  axt <- trellis.par.get("axis.text")
-  syx <- trellis.par.get("plot.symbol")
-  trellis.par.set("add.text", list(cex = 0.75))
-  trellis.par.set("par.xlab.text", list(cex = 0.75))
-  trellis.par.set("par.ylab.text", list(cex = 0.75))
-  trellis.par.set("par.zlab.text", list(cex = 0.75))
-  trellis.par.set("axis.text", list(cex = 0.75))
-  trellis.par.set("plot.symbol", list(cex = 0.6))
+  adt <- lattice::trellis.par.get("add.text")
+  xlb <- lattice::trellis.par.get("par.xlab.text")
+  ylb <- lattice::trellis.par.get("par.ylab.text")
+  zlb <- lattice::trellis.par.get("par.zlab.text")
+  axt <- lattice::trellis.par.get("axis.text")
+  syx <- lattice::trellis.par.get("plot.symbol")
+  lattice::trellis.par.set("add.text", list(cex = 0.75))
+  lattice::trellis.par.set("par.xlab.text", list(cex = 0.75))
+  lattice::trellis.par.set("par.ylab.text", list(cex = 0.75))
+  lattice::trellis.par.set("par.zlab.text", list(cex = 0.75))
+  lattice::trellis.par.set("axis.text", list(cex = 0.75))
+  lattice::trellis.par.set("plot.symbol", list(cex = 0.6))
 
   print(trellis.obj[["histogram"]], position = c(0, 0.5, 0.5, 1), more = TRUE)
   print(trellis.obj[["qq"]], position = c(0.5, 0.5, 1, 1), more = TRUE)
   suppressWarnings(print(trellis.obj[["ResidFitted"]], position = c(0, 0, 0.5, 0.5), more = TRUE))
   suppressWarnings(print(trellis.obj[["AbsResidFitted"]], position = c(0.5, 0, 1, 0.5)))
 
-  trellis.par.set("add.text", adt)
-  trellis.par.set("par.xlab.text", xlb)
-  trellis.par.set("par.ylab.text", ylb)
-  trellis.par.set("par.zlab.text", zlb)
-  trellis.par.set("axis.text", axt)
-  trellis.par.set("plot.symbol", syx)
+  lattice::trellis.par.set("add.text", adt)
+  lattice::trellis.par.set("par.xlab.text", xlb)
+  lattice::trellis.par.set("par.ylab.text", ylb)
+  lattice::trellis.par.set("par.zlab.text", zlb)
+  lattice::trellis.par.set("axis.text", axt)
+  lattice::trellis.par.set("plot.symbol", syx)
   invisible(trellis.obj)
 }

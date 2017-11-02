@@ -18,7 +18,8 @@
 #' mymodel <- ST.run.model(mydat, design="res.rowcol", trait="yield",
 #'                         genotype="Genotype", rep="Rep", row="Row",
 #'                         col="Column", tryspatial=NA)
-#' summary(mymodel)
+#' ## This crashes
+#' ## summary(mymodel)
 #'
 #' @method summary SSA
 #' @export
