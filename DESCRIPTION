@@ -1,0 +1,14 @@
+Package: RAP
+Type: Package
+Title: R Analysis Pipeline (RAP)
+Version: 1.1-0
+Date: 2015-05-22
+Author: VSN international and Biometris Wageningen UR
+Depends: R (>=  3.0.0)
+Imports: lattice
+Suggests: lme4
+Enhances: asreml, psych, GPArotation
+Maintainer: VSN international <support@vsni.co.uk>
+Description: The R Analytical Pipeline (RAP), commissioned by the Generation Challenge Program (GCP), is being developed to streamline the analysis of typical plant breeding experiments, including both phenotypic analysis of field trials and genotype by environment analysis.
+License: file LICENSE
+RoxygenNote: 6.0.1
