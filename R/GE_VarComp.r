@@ -1,6 +1,6 @@
 #' Selects the best variance-covariance model for a set of environments
 #'
-#' This function selects the best covariance structure for genetic correlations between environments. It fits a 
+#' This function selects the best covariance structure for genetic correlations between environments. It fits a
 #' range of variance-covariance models to compare (e.g., identity, compound symmetry,
 #' diagonal, heterogeneous compound symmetry, first order factor analysis, second order factor analysis, unstructured),
 #' and selects the best one using a goodness-of-fit criterion.
@@ -18,18 +18,22 @@
 #' @examples
 #' mydat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
 #'                      env="env!", genotype="genotype!", trait="yld")
-#' names(mydat)=c("env", "genotype","yld") 
-#' model1 <- GE.VarComp(mydat, trait="yld", genotype="genotype", env="env", 
+#' names(mydat)=c("env", "genotype","yld")
+#' model1 <- GE.VarComp(mydat, trait="yld", genotype="genotype", env="env",
 #'                      engine = "lme4", #engine = "asreml",
 #'                      criterion = "BIC")
 #' model1$BIC
 #' model1$choice
 #' summary(model1$model[[model1$choice]], nice=TRUE)
-#' 
+#'
 #' @export
-GE.VarComp <- function(Y, trait, genotype, env, engine="asreml",
-                       criterion="BIC", ...){
-                       
+GE.VarComp <- function(Y,
+                       trait,
+                       genotype,
+                       env,
+                       engine = "asreml",
+                       criterion = "BIC",
+                       ...) {
   # keep NA values
   Y <- droplevels(Y[,c(env, genotype, trait)])
   na.entries <- which(is.na(tapply(rep(1, nrow(Y)), Y[, c(genotype,env)], identity)),  arr.ind =T)
@@ -39,37 +43,37 @@ GE.VarComp <- function(Y, trait, genotype, env, engine="asreml",
     names(Y.ext) <- tempnames
     Y <- rbind(Y, Y.ext)
   }
-  
+
   #sort data in order of genotype, env
   Y <- Y[order(Y[[genotype]], Y[[env]]),]
-  
+
   qvinitial <- function(Y, trait, genotype, env, uniterror = NA,
   vcmodel=c("identity", "cs", "diagonal", "hcs", "outside", "fa", "fa2", "unstructured"), fixed=NULL, unitfactor=NA, ...){
     # Replicates '_QVINITIAL' procedure (S. J. Welham 15/05/09) in GenStat
     # TODO: factanal() ? fa()
-    
+
     # First, form estimate of unstructured matrix
-    
+
     # exclude the rows including NA
     X <- na.omit(Y[,c(trait,genotype,env)])
-    
+
     nenv <- nlevels(X[,env])
     ngen <- nlevels(X[,genotype])
-      
+
     # Get fixed df by stealth - in absence of other info, share among environments
     P <- 1
     if (!is.null(fixed)){
        mr <- asreml::asreml(fixed=fixed, rcov = ~id(units), data=X,...)
        P <- length(mr$fitted.values)-(1+mr$nedf)
     }
-    
+
     # Get number of effects contributing to each sum of squares
     tmptable <- table(X[,c(env,genotype)])
     nobs_env <- rowSums(tmptable)
     Rnobs <- Cnobs <- matrix(nobs_env, nrow=nenv, ncol=nenv,byrow=T)
     Cnobs <- t(Rnobs)
     Nobs <- Rnobs*(Rnobs-Cnobs<0) + Cnobs*(Cnobs-Rnobs<=0)
-    
+
     if (!is.na(uniterror)){
       # This case is trickier, becuase of partitioning between two random tems,
       # but use of the diag structure is better than nothing!
@@ -110,14 +114,14 @@ GE.VarComp <- function(Y, trait, genotype, env, engine="asreml",
     Rmat <- Ores
     Evcov <- matrix(,nenv,nenv)
     Evcov <- t(Rmat)%*%Rmat/(Nobs-(P/nenv))
-    
+
     # Get off-diagonal elements of Evcov only
     Offdiag <- Evcov
     diag(Offdiag) <- NA
     # Get off-diagonal elements of cor(Evcov) only
     Offcorr <- cor(Evcov)
     diag(Offcorr) <- NA
-    
+
     #Get initial values for each model
     if (vcmodel == "identity"){
       vcinitial <- list(vge = mean(diag(Evcov)))
@@ -293,7 +297,7 @@ GE.VarComp <- function(Y, trait, genotype, env, engine="asreml",
           }
           n.par <- length(levels(Y[,env]))+1
         }
-     
+
         if (nlevels(Y[[env]])>4){
           if (choices[i] == "fa"){
             init.vals <- asreml::asreml(fixed=as.formula(paste(trait,"~",env)), random = as.formula(paste("~",genotype,":fa(",env,",1)")),
@@ -428,7 +432,7 @@ GE.VarComp <- function(Y, trait, genotype, env, engine="asreml",
         BestTab <- BestTab[order(BestTab[, "AIC"]), ]
       else
         BestTab <- BestTab[order(BestTab[, "BIC"]), ]
-      
+
       # Outputs
       res$choice <- best.choice
       res$summaryTab <- BestTab

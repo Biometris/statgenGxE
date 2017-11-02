@@ -10,66 +10,66 @@
 #' @param megaenv A character string specifying the name of an mega-environment column.
 #' This column is to be added into \code{Y}.
 #' @param method A criterion to determine the best trait, either \code{"max"} or \code{"min"}.
-#' @param summary.table A logical specifying whether a summary table will be returned.
+#' @param summaryTable A logical specifying whether a summary table will be returned.
 #' @return A data frame object, consisting of Y and a mega-environment factor.
 #' @examples
 #' mydat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
 #'                      env="env!", genotype="genotype!", trait="yld")
-#' names(mydat)=c("env", "genotype","yld") 
-#' Y <- GE.megaenvironment(Y=mydat, trait="yld", genotype="genotype", 
+#' names(mydat)=c("env", "genotype","yld")
+#' Y <- GE.megaenvironment(Y=mydat, trait="yld", genotype="genotype",
 #'                         env="env", megaenv="megaenv")
 #' str(Y)
-#' 
+#'
 #' @export
 
-GE.megaenvironment <- function(Y, trait, genotype, env, megaenv,
-method="max", summary.table = T){
-
+GE.megaenvironment <- function(Y,
+                               trait,
+                               genotype,
+                               env,
+                               megaenv,
+                               method="max",
+                               summaryTable = TRUE) {
   #drop factor levels
   Y[[genotype]] <- droplevels(Y[[genotype]])
   Y[[env]] <- droplevels(Y[[env]])
-    
   #use AMMI2
-  anal <- GE.AMMI(Y, trait, genotype, env, nPC=2, AMMI2plot=F)
+  anal <- GE.AMMI(Y, trait, genotype, env, nPC = 2, AMMI2plot = FALSE)
   fitted <- anal$fitted
-  
-  genonames <- rownames(fitted)
-  envnames  <- colnames(fitted)
-  
+  genoNames <- rownames(fitted)
+  envNames  <- colnames(fitted)
   if (method == "max"){
-    win.position <- apply(fitted, 2, which.max)
-  }else{
-    if (method == "min")
-      win.position <- apply(fitted, 2, which.min)
-    else
-      stop('Please choose either "max" or "min" as method.')
+    winPosition <- apply(X = fitted, MARGIN = 2, FUN = which.max)
+  } else if (method == "min") {
+    winPosition <- apply(X = fitted, MARGIN = 2, FUN = which.min)
+  } else {
+    stop('Please choose either "max" or "min" as method.')
   }
-  win.geno <- genonames[win.position]
-  win.geno.unique <- unique(win.geno)
-  ngeno.unique <- length(win.geno.unique)
-  megalabels <- 1:ngeno.unique
-  megafactor <-  factor(win.geno, labels=megalabels)
+  winGeno <- genoNames[winPosition]
+  winGenoUnique <- unique(winGeno)
+  nGenoUnique <- length(winGenoUnique)
+  megaLabels <- 1:nGenoUnique
+  megaFactor <- factor(winGeno, labels = megaLabels)
   # re-labelling
-  levels(megafactor) <- unique(as.integer(megafactor))
-  
+  levels(megaFactor) <- unique(as.integer(megaFactor))
   # merge factor levels
   megaEnvFactor <- Y[[env]]
-  levels(megaEnvFactor) <- as.character(megafactor)
+  levels(megaEnvFactor) <- as.character(megaFactor)
   Y[[megaenv]] <- megaEnvFactor
   # re-labelling
   levels(Y[[megaenv]]) <- 1:nlevels(megaEnvFactor)
-  
-  if (summary.table){
-    summTab <- matrix(NA, nrow=length(envnames), ncol=4)
+  if (summaryTable){
+    summTab <- matrix(nrow = length(envNames), ncol = 4)
     colnames(summTab) <- c("Mega env", env, genotype, "AMMI estimates")
-    megaorder <- order(megafactor)
-    summTab[,1] <- megafactor
-    summTab[,2] <- envnames
-    summTab[,3] <- win.geno
-    summTab[,4] <- sapply(1:length(envnames), function(x) signif(fitted[win.position[x],x],5))
-    summTab <- as.data.frame(summTab[megaorder,], stringsAsFactors = F)
-    summTab[,4] <- as.numeric(summTab[,4])
+    megaOrder <- order(megaFactor)
+    summTab[, 1] <- megaFactor
+    summTab[, 2] <- envNames
+    summTab[, 3] <- winGeno
+    summTab[, 4] <- sapply(X = 1:length(envNames), FUN = function(x) {
+      signif(fitted[winPosition[x], x], 5)
+    })
+    summTab <- as.data.frame(summTab[megaOrder, ], stringsAsFactors = FALSE)
+    summTab[, 4] <- as.numeric(summTab[, 4])
     attr(Y, "summary") <- summTab
   }
-  Y
+  return(Y)
 }
