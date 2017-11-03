@@ -2,7 +2,7 @@
 #'
 #' Draws a biplot on the current graphics device.
 #' @param x A data frame or a matrix containing the data.
-#' @param centre  A logical value indicating whether the variables
+#' @param center  A logical value indicating whether the variables
 #'  should be shifted to be zero centred. Alternately, a vector of
 #'  length equal to the number of columns of \code{x} can be supplied.
 #'  The value is passed to \code{scale}.
@@ -13,27 +13,29 @@
 #'  equal to the number of columns of \code{x} can be supplied.  The
 #'  value is passed to \code{\link{scale}}.
 #' @param ... Additional arguments to be passed to \code{\link{biplot.default}}.
-#' 
+#'
 #' @export
 
-ST.biplot=function(x, centre=TRUE, scale=FALSE,...){
-    
-    X=as.matrix(x)
-    gnames=rownames(X)
-    if (is.null(gnames)) gnames=1:nrow(X)
-    ngnames=sapply(as.character(gnames),nchar)
-    if (mean(ngnames)<=5){
-      rownames(X) = gnames
-    }else{
-      rownames(X) = 1:length(gnames)
-    }
-    pca=prcomp(x=na.omit(X),center=centre, scale.=scale)
-    cump2=summary(pca)$importance[3,2]
-    prop.pc1=summary(pca)$importance[2,1]
-    prop.pc2=summary(pca)$importance[2,2]
-  
-    biplot(pca, main=paste("Principal components biplot (",round(cump2*100,1),"%)",sep=""),
-      xlab=paste("PC1 (",round(prop.pc1*100,1),"%)",sep=""),
-      ylab=paste("PC2 (",round(prop.pc2*100,1),"%)",sep=""),...)
-    
+ST.biplot=function(x,
+                   center = TRUE,
+                   scale = FALSE,
+                   ...) {
+  X <- as.matrix(x)
+  gNames <- rownames(X)
+  if (is.null(gNames)) {
+    gNames <- 1:nrow(X)
+  }
+  nGNames <- sapply(X = as.character(gNames), FUN = nchar)
+  if (mean(nGNames) <= 5) {
+    rownames(X) <- gNames
+  } else {
+    rownames(X) <- 1:length(gNames)
+  }
+  pca <- prcomp(x = na.omit(X), center = center, scale. = scale)
+  cump2 <- summary(pca)$importance[3, 2]
+  propPC1 <- summary(pca)$importance[2, 1]
+  propPC2 <- summary(pca)$importance[2, 2]
+  biplot(pca, main = paste0("Principal components biplot (", round(cump2 * 100, 1), "%)"),
+         xlab = paste0("PC1 (", round(propPC1 * 100, 1), "%)"),
+         ylab = paste0("PC2 (", round(propPC2 * 100, 1), "%)") ,...)
 }
