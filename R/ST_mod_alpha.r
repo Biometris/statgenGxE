@@ -18,9 +18,9 @@
 #' @param ... Further arguments to be passed to either \code{asreml} or \code{lme4}.
 #' @return a list with fields \code{mmix}, \code{mfix} and \code{Data}.
 #' @examples
-#' mydat <- ST.read.csv(file.path(path.package("RAP"),"SB_yield.csv"),
-#'                      factor.names=c("Env","Genotype","Rep","Subblock"),
-#'                      trait.names="yield", env ="Env",rowSelect="HEAT05",
+#' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
+#'                      factorNames=c("Env","Genotype","Rep","Subblock"),
+#'                      traitNames="yield", env ="Env",rowSelect="HEAT05",
 #'                      colSelect=c("Env","Genotype","Rep","Subblock","yield"))
 #' mymodel <- ST.mod.alpha(Y=mydat, subDesign="res.ibd", trait="yield",
 #'                         genotype="Genotype", rep="Rep", subBlock="Subblock",
@@ -65,7 +65,7 @@ ST.mod.alpha = function(Y,
   #check validility of column names of Y
   YNames <- names(Y)
   if (all(iNames %in% YNames)) {
-    vNameTest <- is_valid_variable_name(iNames)
+    vNameTest <- isValidVariableName(iNames)
     if(!all(vNameTest)) {
       warning(paste(iNames[!vNameTest], collapse = ","), " not syntactically valid name(s)")
     }

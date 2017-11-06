@@ -48,9 +48,9 @@
 #' (\code{blupsLineTester}) and a data frame object containing tests for combinability
 #' effects (\code{testCombinability}).
 #' @examples
-#' mydat <- ST.read.csv(file.path(path.package("RAP"),"VLIN-1.csv"),
-#'                      factor.names=c("Replicates","Blocks","Controls","Lines","Testers"),
-#'                      trait.names="yield", env ="Env")
+#' mydat <- ST.read.csv(system.file("extdata", "VLIN-1.csv", package = "RAP"),
+#'                      factorNames=c("Replicates","Blocks","Controls","Lines","Testers"),
+#'                      traitNames="yield", env ="Env")
 #' #library(lme4)
 #' lxt1 <- ST.lineXtester(fixed=yield~1, random=~Replicates/Blocks, lines="Lines",
 #'                        testers="Testers", controls="Controls", data=mydat, engine="lme4")

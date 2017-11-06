@@ -15,7 +15,7 @@
 #' @param plot A logical value indicating whether to produce a plot of stability against the mean.
 #' @return A list of measures of stability.
 #' @examples
-#' mydat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
+#' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env="env!", genotype="genotype!", trait="yld")
 #' names(mydat)=c("env", "genotype","yld")
 #' GE.stability(Y=mydat, trait="yld", genotype="genotype", env="env",

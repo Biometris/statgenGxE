@@ -9,16 +9,15 @@
 #' \code{\link{ST.run.model}}, \code{\link{ST.mod.rcbd}}, \code{\link{ST.mod.alpha}} and
 #' \code{\link{ST.mod.rowcol}}
 #' @examples
-#' mydat <- ST.read.csv(file.path(path.package("RAP"),"SB_yield.csv"),
-#'                      factor.names=c("Env","Genotype","Rep","Subblock","Row","Column"),
-#'                      trait.names="yield", env ="Env",rowSelect="HEAT05",
+#' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
+#'                      factorNames=c("Env","Genotype","Rep","Subblock","Row","Column"),
+#'                      traitNames="yield", env ="Env",rowSelect="HEAT05",
 #'                      colSelect=c("Env","Genotype","Rep","Row","Column","yield"))
 #' mymodel <- ST.run.model(mydat, design="res.rowcol", trait="yield",
 #'                         genotype="Genotype", rep="Rep", row="Row",
 #'                         col="Column", tryspatial=NA)
-#' ## This crashes
-#' ## extr <- ST.extract(mymodel)
-#' ## str(extr)
+#' ##extr <- ST.extract(mymodel)
+#' ##str(extr)
 #'
 #' @importFrom methods slot
 #' @export
@@ -32,7 +31,7 @@ ST.extract = function(mixfix) {
   # Extract statistics from mixed and fixed models in list mixfix
   mr <- mixfix$mmix
   mf <- mixfix$mfix
-  Y <- mixfix$Data
+  Y <- mixfix$data
   # Use lme4 as an engine for mixed modelling
   if (engine == "lme4"){
     # Extract coeffcients mf
@@ -99,9 +98,9 @@ ST.extract = function(mixfix) {
     se <- se0
     #calculate wald test for genotype coeffients
     if (length(rNA) > 0) {
-      waldTestGeno <- wald.test(b = fe[-rNA], Sigma = vcov(mf), positions = rg)
+      waldTestGeno <- waldTest(b = fe[-rNA], Sigma = vcov(mf), positions = rg)
     } else {
-      waldTestGeno <- wald.test(b = fe, Sigma = vcov(mf), positions = rg)
+      waldTestGeno <- waldTest(b = fe, Sigma = vcov(mf), positions = rg)
     }
     #waldpval <- waldTestGeno$result$chi2["P"]
     #calculate Coefficient of Variation
@@ -251,7 +250,7 @@ ST.extract = function(mixfix) {
       se <- c(se[1], se)
       #calculate wald test for genotype coeffients
       df <- mf$df.residual
-      waldTestGeno <- wald.test(b = fe, Sigma = V, positions = rg, df = df)
+      waldTestGeno <- waldTest(b = fe, Sigma = V, positions = rg, df = df)
       #waldpval <- waldTestGeno$result$Ftest["P"]
       #calculate Coefficient of Variation
       CV <- 100 * summary(mf)$sigma / mean(fitted(mf))

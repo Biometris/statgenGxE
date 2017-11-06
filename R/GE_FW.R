@@ -19,7 +19,7 @@
 #' is produced.
 #'
 #' @examples
-#' mydat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
+#' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env="env!", genotype="genotype!", trait="yld")
 #' names(mydat)=c("env", "genotype","yld")
 #' fw.anlysis <- GE.FW(mydat, trait="yld", genotype="genotype", env="env", maxcycle = 15, tol = 0.001,

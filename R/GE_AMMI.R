@@ -24,7 +24,7 @@
 #' an object of class \code{\link[stats]{anova}},
 #' and a matrix of the fitted values from the AMMI model.
 #' @examples
-#' mydat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
+#' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env="env!", genotype="genotype!", trait="yld")
 #' names(mydat)=c("env", "genotype","yld")
 #' GE.AMMI(Y=mydat, trait="yld", genotype="genotype", env="env", nPC = 2,

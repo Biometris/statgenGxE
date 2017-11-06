@@ -10,7 +10,7 @@
 #' @param data A data frame object.
 #' @param ... Other parameters passed to either \code{asreml()} or \code{lmer()}.
 #' @examples
-#' mydat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
+#' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env="env!", genotype="genotype!", trait="yld")
 #' names(mydat)=c("env", "genotype","yld")
 #' Y <- GE.megaenvironment(Y=mydat, trait="yld", genotype="genotype",

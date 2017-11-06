@@ -7,16 +7,16 @@
 #' @param colNames A logical specifying if the column names are to be included.
 #' @param upperLeft A character string specifying the entry at the upper left corner.
 #' @param class A character string specifying the HTML global class attribute.
+#'
 #' @examples
-#' mydat <- ST.read.csv(file.path(path.package("RAP"),"SB_yield.csv"),
-#'                      factor.names=c("Env","Genotype","Rep","Subblock","Row","Column"),
-#'                      trait.names="yield", env ="Env", rowSelect="HEAT06",
+#' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
+#'                      factorNames=c("Env","Genotype","Rep","Subblock","Row","Column"),
+#'                      traitNames="yield", env ="Env", rowSelect="HEAT06",
 #'                      colSelect=c("Env","Genotype","Rep","Row","Column","yield"))
 #' stats <- ST.summary.trait(data=mydat, trait="yield", all=TRUE)
 #' RAP.htmlTable(stats)
 #'
 #' @export
-
 
 RAP.htmlTable <- function(x,
                           rowNames = TRUE,

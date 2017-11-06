@@ -36,7 +36,7 @@
 #' @param Scatterplot A logical value indicating if a scatter plot is drawn.
 #' @param all A logical, if \code{all=TRUE}, all the statistics will be calculated.
 #' @examples
-#' myDat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
+#' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env="env!", genotype="genotype!", trait="yld")
 #' names(myDat)=c("env", "genotype","yld")
 #' GE.summary.trait(data=myDat, trait="yld", env="env", genotype="genotype",
@@ -123,14 +123,14 @@ GE.summary.trait = function(data,
     if (UpperQ) stats[i, 12] <- quantile(y, prob =.75, na.rm = TRUE)
     if (Sum) stats[i, 13] <- sum(y, na.rm = TRUE)
     if (SEMean) stats[i, 14] <- sd(y, na.rm = TRUE) / sqrt(length(y) - sum(is.na(y)))
-    if (SEVar) stats[i, 15] <- se.var(y, na.rm = TRUE)
+    if (SEVar) stats[i, 15] <- seVar(y, na.rm = TRUE)
     if (CV) stats[i, 16] <- 100 * sd(y, na.rm = TRUE) / mean(y, na.rm = TRUE)
     if (SumSq) stats[i, 17] <- sum((na.omit(y) - mean(y, na.rm = TRUE)) ^ 2)
     if (UncorSumSq) stats[i, 18] <- sum(y ^ 2, na.rm = TRUE)
     if (Skew) stats[i, 19]  <- skewness(y, na.rm = TRUE)
-    if (SESkew) stats[i, 20] <- se.skewness(length(na.omit(y)))
+    if (SESkew) stats[i, 20] <- seSkewness(length(na.omit(y)))
     if (Kurt) stats[i, 21] <- kurtosis(y, na.rm = TRUE)
-    if (SEKurt) stats[i, 22] <- se.kurtosis(length(na.omit(y)))
+    if (SEKurt) stats[i, 22] <- seKurtosis(length(na.omit(y)))
   }
   if (Boxplot) {
     f0 <- as.formula(paste(trait,'~',env))

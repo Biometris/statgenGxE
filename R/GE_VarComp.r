@@ -17,7 +17,7 @@
 #' @return A list object consisting of the fitted model objects, a string specifying
 #' the best model and its related goodness-of-fit criterion.
 #' @examples
-#' mydat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
+#' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env="env!", genotype="genotype!", trait="yld")
 #' names(mydat)=c("env", "genotype","yld")
 #' model1 <- GE.VarComp(mydat, trait="yld", genotype="genotype", env="env",

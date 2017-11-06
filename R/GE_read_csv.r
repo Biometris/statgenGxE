@@ -35,7 +35,7 @@
 #' @note a header is needed in the csv file which the data are to be read from.
 #'
 #' @examples
-#' myDat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
+#' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env="env!", genotype="genotype!", trait="yld")
 #' str(myDat)
 #'

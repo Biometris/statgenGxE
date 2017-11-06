@@ -24,7 +24,7 @@
 #' class \code{\link[stats]{anova}}.
 #'
 #' @examples
-#' mydat <- GE.read.csv(file.path(path.package("RAP"),"F2maize_pheno.csv"),
+#' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env="env!", genotype="genotype!", trait="yld")
 #' names(mydat)=c("env", "genotype","yld")
 #' GE.GGE(Y=mydat, trait="yld", genotype="genotype", env="env", scaleBiplot=1)
