@@ -7,7 +7,7 @@
 #' @param trait A character string specifying the name of a trait column
 #' @param genotype A character string specifying the name of a genotype column.
 #' @param env A character string specifying the name of an environment column.
-#' @param megaenv A character string specifying the name of an mega-environment column.
+#' @param megaEnv A character string specifying the name of an mega-environment column.
 #' This column is to be added into \code{Y}.
 #' @param method A criterion to determine the best trait, either \code{"max"} or \code{"min"}.
 #' @param summaryTable A logical specifying whether a summary table will be returned.
@@ -16,18 +16,18 @@
 #' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env="env!", genotype="genotype!", trait="yld")
 #' names(mydat)=c("env", "genotype","yld")
-#' Y <- GE.megaenvironment(Y=mydat, trait="yld", genotype="genotype",
-#'                         env="env", megaenv="megaenv")
+#' Y <- GE.megaEnvironment(Y=mydat, trait="yld", genotype="genotype",
+#'                         env="env", megaEnv="megaEnv")
 #' str(Y)
 #'
 #' @export
 
-GE.megaenvironment <- function(Y,
+GE.megaEnvironment <- function(Y,
                                trait,
                                genotype,
                                env,
-                               megaenv,
-                               method="max",
+                               megaEnv,
+                               method = "max",
                                summaryTable = TRUE) {
   #drop factor levels
   Y[[genotype]] <- droplevels(Y[[genotype]])
@@ -54,9 +54,9 @@ GE.megaenvironment <- function(Y,
   # merge factor levels
   megaEnvFactor <- Y[[env]]
   levels(megaEnvFactor) <- as.character(megaFactor)
-  Y[[megaenv]] <- megaEnvFactor
+  Y[[megaEnv]] <- megaEnvFactor
   # re-labelling
-  levels(Y[[megaenv]]) <- 1:nlevels(megaEnvFactor)
+  levels(Y[[megaEnv]]) <- 1:nlevels(megaEnvFactor)
   if (summaryTable){
     summTab <- matrix(nrow = length(envNames), ncol = 4)
     colnames(summTab) <- c("Mega env", env, genotype, "AMMI estimates")

@@ -1,18 +1,21 @@
 #' Calculates stability coefficients for genotype-by-environment data
 #'
-#' This function calculate difference measures of stability, such as the cultivar-superiority measure of Lin & Binns (1988),
-#' Shukla's (1972) stability variance and Wricke's (1962) ecovalence.
+#' This function calculate difference measures of stability, such as the cultivar-superiority
+#' measure of Lin & Binns (1988), Shukla's (1972) stability variance and Wricke's (1962) ecovalence.
 #'
 #' @param Y A data frame object.
 #' @param trait A character string specifying a trait column of the data.
 #' @param genotype A character string specifying a genotype column of the data.
 #' @param env A character string specifying the environment column of the data.
-#' @param method A character string specifying (a) measure(s) of stability. By default, \code{method = c("superiority","static","wricke")}.
-#' @param superiorityBestMethod A character string specifying the criterion to define the best genotype ("max","min").
-#' By default, \code{superiorityBestMethod="max"}.
-#' @param sorted A character string specifying whether the results are sorted by increasing (or decreasing) order of stability coefficients.
-#' By default, \code{sortBYsens = "descending"}. Other options are \code{"ascending"} and \code{NA}.
+#' @param method A character string specifying (a) measure(s) of stability. By default,
+#' \code{method = c("superiority","static","wricke")}.
+#' @param superiorityBestMethod A character string specifying the criterion to define the best
+#' genotype ("max","min"). By default, \code{superiorityBestMethod="max"}.
+#' @param sorted A character string specifying whether the results are sorted by increasing
+#' (or decreasing) order of stability coefficients. By default, \code{sortBYsens = "descending"}.
+#' Other options are \code{"ascending"} and \code{NA}.
 #' @param plot A logical value indicating whether to produce a plot of stability against the mean.
+#'
 #' @return A list of measures of stability.
 #' @examples
 #' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),

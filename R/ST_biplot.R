@@ -16,10 +16,10 @@
 #'
 #' @export
 
-ST.biplot=function(x,
-                   center = TRUE,
-                   scale = FALSE,
-                   ...) {
+ST.biplot <- function(x,
+                      center = TRUE,
+                      scale = FALSE,
+                      ...) {
   X <- as.matrix(x)
   gNames <- rownames(X)
   if (is.null(gNames)) {

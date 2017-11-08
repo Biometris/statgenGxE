@@ -22,9 +22,9 @@
 #' @param ... Further arguments to be passed to either \code{asreml} or \code{lme4}.
 #'
 #' @return S3 \code{model} object; a list consists of:
-#'   \item{mmix}{an asreml or an lme4 class object.}
-#'   \item{mfix}{an asreml or an lme4 class object.}
-#'   \item{Data}{a list of 4 fields, data.frame: data containing traits, environment
+#'   \item{mMix}{an asreml or an lme4 class object.}
+#'   \item{mFix}{an asreml or an lme4 class object.}
+#'   \item{data}{a list of 4 fields, data.frame: data containing traits, environment
 #'   and design factors, character: time created, character: meta information, data.frame: checks.}
 #' The object also has the following attributes:
 #'   \item{attr(*, "Trait")}{character: a name specifying trait;}
@@ -32,6 +32,7 @@
 #'   \item{attr(*, "Engine")}{character: a mixed modelling engine;}
 #'   \item{attr(*, "genotype")}{character: a name specifying genotype;}
 #'   \item{attr(*, "rep")}{character: a name specifying rep;}
+#'
 #' @examples
 #' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
 #'                      factorNames=c("Env","Genotype","Rep","Subblock","Row","Column"),

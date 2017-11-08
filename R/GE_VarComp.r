@@ -13,9 +13,12 @@
 #' @param engine A string specifying the name of a mixed modelling engine to be used.
 #' @param criterion A string specifying a goodness-of-fit criterion, i.e., "AIC" or "BIC".
 #' @param ... Further arguments to be passed to \code{asreml}.
+#'
 #' @note If \code{engine="lme4"}, only the compound symmetry model can be fitted.
+#'
 #' @return A list object consisting of the fitted model objects, a string specifying
 #' the best model and its related goodness-of-fit criterion.
+#'
 #' @examples
 #' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env="env!", genotype="genotype!", trait="yld")
@@ -171,7 +174,7 @@ GE.VarComp <- function(Y,
     } else if (vcmodel == "fa2") {
       if (requireNamespace("psych", quietly = TRUE) &&
           requireNamespace("GPArotation", quietly = TRUE)) {
-        factorAnalysis <- try(psych::fa(r = Evcov, nfactors = 2, fm ="mle"), silent = TRUE)
+        factorAnalysis <- try(psych::fa(r = Evcov, nfactors = 2, fm = "mle"), silent = TRUE)
         if (inherits(factorAnalysis, "try-error")) {
           factorAnalysis <- psych::fa(r = Evcov, nfactors = 2, fm = "minres")
         }
@@ -215,7 +218,7 @@ GE.VarComp <- function(Y,
     if (requireNamespace("asreml", quietly = TRUE)) {
       choices <- c("identity", "cs", "diagonal", "hcs", "outside",
                    "fa", "fa2", "unstructured")
-      bestTab <- matrix(nrow = 8,ncol = 4)
+      bestTab <- matrix(nrow = 8, ncol = 4)
       colnames(bestTab) <- c("AIC", "BIC", "Deviance", "NParameters")
       rownames(bestTab) <- choices
       res <- new.env()

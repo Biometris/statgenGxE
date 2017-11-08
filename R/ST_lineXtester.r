@@ -2,6 +2,7 @@
 #'
 #' This function does a mixed-model analysis of data from a line-by-tester trial,
 #' using either \code{asreml} or \code{lme4}.
+#'
 #' @param fixed a formula specifying fixed model terms, in addition to the \code{testers}
 #' main effect and any control comparisons.
 #' @param random a formula specifying random model terms, in addition to the terms involving
@@ -42,11 +43,12 @@
 #' @param verbose logical. Whether to display a summary of the line-by-tester analysis on
 #' screen; Default, \code{TRUE}.
 #' @param ... other parameters to be passed on either \code{asreml} or \code{lme4}.
-#' @return
-#' a list consists of the fitted model object (\code{lxtmodel}), a data frame object containing
-#' the GCA effects (\code{blupsLine}), a data frame object containing SCA effects
-#' (\code{blupsLineTester}) and a data frame object containing tests for combinability
+#'
+#' @return a list consisting of the fitted model object (\code{lxtmodel}), a data frame
+#' object containing the GCA effects (\code{blupsLine}), a data frame object containing
+#' SCA effects (\code{blupsLineTester}) and a data frame object containing tests for combinability
 #' effects (\code{testCombinability}).
+#'
 #' @examples
 #' mydat <- ST.read.csv(system.file("extdata", "VLIN-1.csv", package = "RAP"),
 #'                      factorNames=c("Replicates","Blocks","Controls","Lines","Testers"),
@@ -97,7 +99,7 @@ ST.lineXtester <- function(fixed,
       tFTerms <- gsub(pattern = "\\s$", replacement = "", x = tFTerms)
       tFTerms <- unique(tFTerms)
       if (!all(tFTerms %in% names(data))) {
-        stop(paste(tFTerms[!(tFTerms %in% names(data))], collapse=","),
+        stop(paste(tFTerms[!(tFTerms %in% names(data))], collapse = ","),
              " not found in column names of data")
       }
       if (attr(fTerms, "intercept") == 0L) {
@@ -119,14 +121,14 @@ ST.lineXtester <- function(fixed,
       #add CONTROLS to FIXED model, unless already included in RANDOM
       fTerms <- c(fTerms, controls)
     }
-    lTerm <- paste(controls, lines, sep=":")
-    tTerm <- paste(controls, testers, sep=":")
-    ltTerm<- paste(controls, lines, testers, sep=":")
+    lTerm <- paste(controls, lines, sep = ":")
+    tTerm <- paste(controls, testers, sep = ":")
+    ltTerm<- paste(controls, lines, testers, sep = ":")
     ltModel <- c(lTerm, ltTerm)
   } else{
     lTerm <- lines
     tTerm <- testers
-    ltTerm <- paste(lines, testers, sep=":")
+    ltTerm <- paste(lines, testers, sep = ":")
     ltModel <- c(lTerm, ltTerm)
   }
   RTerms <- unique(c(RTerms, ltModel))
@@ -143,8 +145,7 @@ ST.lineXtester <- function(fixed,
       lxtModel1 <- try(asreml::asreml(fixed = as.formula(paste(resp,
                                                                paste(fTerms, collapse = "+"),
                                                                sep = "~")),
-                                      random = as.formula(paste("~", paste(RTerms, collapse = "+"),
-                                                                sep="")),
+                                      random = as.formula(paste0("~", paste(RTerms, collapse = "+"))),
                                       aom = TRUE, data = data, na.method.Y = naMethodY,
                                       na.method.X = naMethodX, ...),
                        silent = TRUE)

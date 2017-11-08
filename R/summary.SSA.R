@@ -23,7 +23,6 @@
 #'                         col="Column", tryspatial=NA)
 #' ##summary(mymodel)
 #'
-#' @method summary SSA
 #' @export
 summary.SSA <- function(object,
                         digits = max(getOption("digits") - 2, 3),

@@ -3,7 +3,7 @@
 #' This function is to extract and calculate various results such as
 #' heritabilities, genotypic means, unit errors etc.
 #'
-#' @param mixfix A list of model results with fields \code{mmix}, \code{mfix} and \code{Data}.
+#' @param mixfix A list of model results with fields \code{mMix}, \code{mFix} and \code{data}.
 #' @return A list of extracted statistics.
 #' @seealso
 #' \code{\link{ST.run.model}}, \code{\link{ST.mod.rcbd}}, \code{\link{ST.mod.alpha}} and
@@ -29,11 +29,11 @@ ST.extract = function(mixfix) {
   genotype <- attr(mixfix, "genotype")
   rep <- attr(mixfix, "rep")
   # Extract statistics from mixed and fixed models in list mixfix
-  mr <- mixfix$mmix
-  mf <- mixfix$mfix
+  mr <- mixfix$mMix
+  mf <- mixfix$mFix
   Y <- mixfix$data
   # Use lme4 as an engine for mixed modelling
-  if (engine == "lme4"){
+  if (engine == "lme4") {
     # Extract coeffcients mf
     if (class(mf) == "lmerMod") {
       fe <- lme4::fixef(mf)
@@ -174,9 +174,8 @@ ST.extract = function(mixfix) {
     result$waldTestGeno <- waldTestGeno
     result$CV <- CV
     result$rdf <- rdf
-  }
-  # Use asreml as an engine for mixed modelling
-  if (engine == "asreml") {
+  } else if (engine == "asreml") {
+    # Use asreml as an engine for mixed modelling
     if (class(mf) == "asreml") {
       # Extract coeffcients
       fe <- mf$coe$fixed
@@ -250,7 +249,7 @@ ST.extract = function(mixfix) {
       se <- c(se[1], se)
       #calculate wald test for genotype coeffients
       df <- mf$df.residual
-      waldTestGeno <- waldTest(b = fe, Sigma = V, positions = rg, df = df)
+      waldTestGeno <- waldTest(Sigma = V, b = fe, positions = rg, df = df)
       #waldpval <- waldTestGeno$result$Ftest["P"]
       #calculate Coefficient of Variation
       CV <- 100 * summary(mf)$sigma / mean(fitted(mf))

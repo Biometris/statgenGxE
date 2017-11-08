@@ -1,7 +1,8 @@
 #' AMMI analysis
 #'
-#' This function fits a model which involves the Additive Main effects (i.e. genotype and environment) along
-#' with the Multiplicative Interaction effects of principal component analysis (PCA).
+#' This function fits a model which involves the Additive Main effects (i.e. genotype and
+#' environment) along with the Multiplicative Interaction effects of principal
+#' component analysis (PCA).
 #'
 #' @param Y A data frame object.
 #' @param trait A character string specifying a trait column of the data.
@@ -15,20 +16,24 @@
 #'  be scaled to have unit variance before the analysis takes
 #'  place. The default is \code{FALSE}.
 #' @param AMMI2plot A logical value specifying whether an AMMI2 biplot is drawn.
-#' @param scaleAMMI2 The variables are scaled by \code{lambda ^ scale} and the observations are scaled by \code{lambda ^ (1-scale)}
-#' where \code{lambda} are the singular values as computed by \code{\link[stats]{princomp}}. Normally \code{0 <= scale <= 1},
-#' and a warning will be issued if the specified scale is outside this range.
-#' @param AMMI1plot A logical value determining whether the AMMI1 biplot (genotypes and environments means vs PC1) is drawn.
-#' @param scale.AMMI1 as same as described in \code{scaleAMMI2}.
-#' @return A list of three object, a data frame object of environment scores, a data frame object of genotype scores and
-#' an object of class \code{\link[stats]{anova}},
-#' and a matrix of the fitted values from the AMMI model.
+#' @param scaleAMMI2 The variables are scaled by \code{lambda ^ scale} and the observations
+#' are scaled by \code{lambda ^ (1-scale)}
+#' where \code{lambda} are the singular values as computed by \code{\link[stats]{princomp}}.
+#' Normally \code{0 <= scale <= 1}, and a warning will be issued if the specified scale is
+#' outside this range.
+#' @param AMMI1plot A logical value determining whether the AMMI1 biplot (genotypes and
+#' environments means vs PC1) is drawn.
+#' @param scaleAMMI1 as same as described in \code{scaleAMMI2}.
+#' @return A list of three objects, a data frame object of environment scores, a data frame
+#' object of genotype scores and an object of class \code{\link[stats]{anova}}, and a
+#' matrix of the fitted values from the AMMI model.
+#'
 #' @examples
 #' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env="env!", genotype="genotype!", trait="yld")
-#' names(mydat)=c("env", "genotype","yld")
-#' GE.AMMI(Y=mydat, trait="yld", genotype="genotype", env="env", nPC = 2,
-#'         center = TRUE, scale = FALSE, AMMI2plot = TRUE, scaleAMMI2=1)
+#'                      env ="env!", genotype ="genotype!", trait = "yld")
+#' names(mydat) <- c("env", "genotype","yld")
+#' GE.AMMI(Y = mydat, trait = "yld", genotype = "genotype", env = "env", nPC = 2,
+#'         center = TRUE, scale = FALSE, AMMI2plot = TRUE, scaleAMMI2 = 1)
 #'
 #' @import stats graphics grDevices
 #' @export
@@ -43,7 +48,7 @@ GE.AMMI <- function(Y,
                     AMMI2plot = TRUE,
                     scaleAMMI2 = 1,
                     AMMI1plot = FALSE,
-                    scale.AMMI1 = 1) {
+                    scaleAMMI1 = 1) {
   #drop factor levels
   Y[[genotype]] <- droplevels(Y[[genotype]])
   Y[[env]] <- droplevels(Y[[env]])
@@ -52,12 +57,12 @@ GE.AMMI <- function(Y,
   nTrait <- nrow(Y)
   # requre number of environments >=3
   if (nEnv < 3) {
-    stop("Requires number of environments greater and equal than 3 for running the AMMI model")
+    stop("Requires number of environments greater and equal than 3 for running the AMMI model.\n")
   }
   #check if the supplied data contains the genotype by environment means
   if (nTrait != nGeno * nEnv) {
     stop("Only allows the genotype by environment means, \ni.e., one trait value per
-         genotype per enviroment")
+         genotype per enviroment.\n")
   }
   if (any(is.na(Y[[trait]]))) {
     y0 <- tapply(X = Y[[trait]], INDEX = Y[, c(genotype, env)], FUN = identity)
@@ -73,7 +78,7 @@ GE.AMMI <- function(Y,
   genoMean <- tapply(X =Y[[trait]], INDEX = Y[[genotype]], FUN = mean)
   overallMean <- mean(Y[[trait]])
   # Fit the linear model
-  model <- lm(as.formula(paste(trait,"~",genotype, "+", env)), data = Y)
+  model <- lm(as.formula(paste(trait, "~", genotype, "+", env)), data = Y)
   # calculate residuals & fitted values of the linear model
   X <- tapply(X = resid(model), INDEX = Y[, c(genotype, env)], FUN = identity)
   fittedVals <- tapply(X = fitted(model), INDEX = Y[, c(genotype, env)], FUN = identity)
@@ -84,9 +89,9 @@ GE.AMMI <- function(Y,
   }
   # Use R in-built prcomp
   pca <- prcomp(x = X, retx = TRUE, center = center, scale. = scale)
-  cump2 <- summary(pca)$importance[3,2]
-  propPc1 <- summary(pca)$importance[2,1]
-  propPc2 <- summary(pca)$importance[2,2]
+  cump2 <- summary(pca)$importance[3, 2]
+  propPc1 <- summary(pca)$importance[2, 1]
+  propPc2 <- summary(pca)$importance[2, 2]
   loadings <- pca$rotation
   scores <- pca$x
   if (AMMI2plot){
@@ -113,11 +118,11 @@ GE.AMMI <- function(Y,
       n <- 1
     }
     lam <- lam * sqrt(n)
-    if (scale.AMMI1 < 0 || scale.AMMI1 > 1) {
+    if (scaleAMMI1 < 0 || scaleAMMI1 > 1) {
       warning("'scale' is outside [0, 1]")
     }
-    if (scale.AMMI1 != 0) {
-      lam <- lam ^ scale.AMMI1
+    if (scaleAMMI1 != 0) {
+      lam <- lam ^ scaleAMMI1
     } else {
       lam <- 1
     }

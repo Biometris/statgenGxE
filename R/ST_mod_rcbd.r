@@ -12,7 +12,9 @@
 #' @param checkId (Optional) a string specifying the column name of the check ID(s).
 #' @param engine A string specifying the name of the mixed modelling engine to use.
 #' @param ... Further arguments to be passed to either \code{asreml} or \code{lme4}.
-#' @return a list with fields \code{mmix}, \code{mfix} and \code{Data}.
+#'
+#' @return an object of class \code{\link{SSA}}.
+#'
 #' @examples
 #' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
 #'                      factorNames=c("Env","Genotype","Rep"),
@@ -128,12 +130,11 @@ ST.mod.rcbd <- function(Y,
   } else {
     stop("Please use either asreml or lme4 for engine")
   }
-  model <- list(mmix = mr, mfix = mf, data = Y)
+  model = createSSA(mMix = mr, mFix = mf, data = Y)
   attr(model, "Trait") <- trait
   attr(model, "Design") <- "rcbd"
   attr(model, "Engine") <- engine
   attr(model, "genotype") <- genotype
   attr(model, "rep") <- rep
-  class(model) <- "SSA"
   return(model)
 }

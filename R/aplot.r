@@ -12,10 +12,10 @@
 #' mymodel <- ST.run.model(data=mydat, design="res.rowcol", trait="yield",
 #'                         genotype="Genotype", rep="Rep", row="Row", col="Column",
 #'                         tryspatial="always")
-#' aplot(mymodel$mfix)
-#' #aplot(mymodel$mmix)
+#' aplot(mymodel$mFix)
+#' #aplot(mymodel$mMix)
 #' #c.f. in-built plot for "asreml" or "lme4"
-#' #plot(mymodel$mfix)
+#' #plot(mymodel$mFix)
 #'
 #' @export
 aplot <- function(x,

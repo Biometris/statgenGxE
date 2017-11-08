@@ -93,7 +93,7 @@ GE.summary.trait = function(data,
   if (all) {
     NVals <- NNVals <- NMiss <- Mean <- Median <- Min <- Max <-
       Range <- LowerQ <- UpperQ <- SD <- SEMean <- Var <- SEVar <- CV <- Sum <-
-      SumSq <- UncorSumSq <- Skew <- SESkew <- Kurt <- SEKurt <- CorMat <- Boxplot <-
+      SumSq <- UncorSumSq <- Skew <- SESkew <- Kurt <- SEKurt <- corMat <- Boxplot <-
       Histogram <- Corplot <- Scatterplot <- TRUE
   }
   #a matrix to store the values
@@ -185,16 +185,16 @@ GE.summary.trait = function(data,
           myDat <- RAP.multmissing(myDat, maxcycle = 10, na.strings = NA)
         }
         if (is.matrix(myDat)) {
-          cormat <- cor(myDat)
-          cormat[upper.tri(cormat, diag = FALSE)] <- NA
-          cormat
+          corMat <- cor(myDat)
+          corMat[upper.tri(corMat, diag = FALSE)] <- NA
+          corMat
         } else{
           stop("Numbers of observations for all environments are not equal.\n")
         }
       }
     }
     dev.new()
-    print(lattice::levelplot(cormat[nrow(cormat):1, ], xlab = "", ylab = "",
+    print(lattice::levelplot(corMat[nrow(corMat):1, ], xlab = "", ylab = "",
                              main = paste("Correlation of environments for", trait)))
   }
   naCol <- apply(X = stats, MARGIN = 2, FUN = function(x) {

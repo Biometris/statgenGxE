@@ -22,7 +22,7 @@
 #' @param criterion A string specifies a goodness of fit criterion, i.e., "AIC" or "BIC".
 #' @param ... Further arguments to be passed to \code{asreml}.
 #'
-#' @return a list with fields \code{mmix}, \code{mfix} and \code{Data}.
+#' @return an object of class \code{\link{SSA}}.
 #'
 #' @note This function can only be used if asreml is installed. If \code{trySpatial} is set
 #' to "always" or "ifregular", the names for \code{rowCoordinates} and \code{colCoordinates}
@@ -427,6 +427,6 @@ ST.Varowcol <- function(Y,
   }
   sink()
   unlink(tmp)
-  res <- list(mmix = bestModel, mfix = mf, data = Y)
+  res <- createSSA(mMix = bestModel, mFix = mf, data = Y)
   return(res)
 }

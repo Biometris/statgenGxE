@@ -6,7 +6,7 @@
 #' @param stdRes A data frame object containing the standardised residuals obtained
 #' from the mixed modelling analysis.
 #' @param rDf An integer (vector) specifying the residual degrees of freedom.
-#' @param rLimit An interger specifying a limit for detection of large standardized residuals;
+#' @param rLimit An integer specifying a limit for detection of large standardized residuals;
 #' if this is not set, the limit is set automatically according to the number of residual
 #' degrees of freedom.
 #' @param trait A string (vector) specifying the column name(s) of the trait(s).
@@ -32,16 +32,16 @@
 #' sb.lmer <- ST.mod.rowcol(Y=mydat, subDesign="res.rowcol", trait="yield",
 #'                          genotype="Genotype", rep="Rep", row="Row", col="Column",
 #'                          engine="lme4")
-#' stdResid0 <- resid(sb.lmer$mfix, scaled=TRUE)
-#' rdf0 <- nrow(model.frame(sb.lmer$mfix))-length(lme4::fixef(sb.lmer$mfix))
+#' stdResid0 <- resid(sb.lmer$mFix, scaled=TRUE)
+#' rdf0 <- nrow(model.frame(sb.lmer$mFix))-length(lme4::fixef(sb.lmer$mFix))
 #' vcheck0 <- ST.vcheck(data=mydat, stdRes=stdResid0, rDf=rdf0, trait="yield",
 #'                      genotype="Genotype", rep="Rep", plotNo="Plot",
 #'                      row="Row", col="Column", verbose=TRUE, commonFactor=c("Genotype", "Row"))
 #' sb.asr <- ST.mod.rowcol(Y=mydat, subDesign="res.rowcol", trait="yield",
 #'                         genotype="Genotype", rep="Rep", row="Row", col="Column",
 #'                         engine="asreml")
-#' stdResid1 <- residuals(sb.asr$mfix, type="stdCond")
-#' rdf1 <- sb.asr$mfix$nedf
+#' stdResid1 <- residuals(sb.asr$mFix, type="stdCond")
+#' rdf1 <- sb.asr$mFix$nedf
 #' vcheck1 <- ST.vcheck(data=mydat, stdRes=stdResid1, rDf=rdf1, trait="yield",
 #'                      genotype="Genotype", rep="Rep", plotNo="Plot",
 #'                      row="Row", col="Column", verbose=TRUE)

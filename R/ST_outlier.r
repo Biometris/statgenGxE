@@ -1,6 +1,6 @@
 #' Identifying outliers
 #'
-#' This function is to find observations that exceed 1.5 times the inerquartile range.
+#' This function is to find observations that exceed 1.5 times the interquartile range.
 #'
 #' @param data A string path where the data list is saved.
 #' @param trait A string (vector) specifying the column name(s) of the trait(s).
@@ -11,14 +11,20 @@
 #' @param subBlock A string specifying the column name of the sub-blocks.
 #' @param row A string specifies the column name of the rows.
 #' @param col A string specifies the column name of the columns.
-#' @param rowCoordinates A string specifying row coordinates for fitting spatial models; default, \code{NA}.
-#' @param colCoordinates A string specifying col coordinates for fitting spatial models; default, \code{NA}.
-#' @param commonFactor A string vector specifying factors to define similar units; default, \code{commonFactor=genotype}.
+#' @param rowCoordinates A string specifying row coordinates for fitting spatial models;
+#' default, \code{NA}.
+#' @param colCoordinates A string specifying col coordinates for fitting spatial models;
+#' default, \code{NA}.
+#' @param commonFactor A string vector specifying factors to define similar units;
+#' default, \code{commonFactor=genotype}.
 #' @param coef this determines how far the plot 'whiskers' extend out from the box.
 #' If \code{coef} is positive, the whiskers extend to the most extreme data point which
 #' is no more than coef times the length of the box away from the box.
 #' A value of zero causes the whiskers to extend to the data extremes (and no outliers be returned).
-#' @return a data frame object containing logical values to determine if the observation is an outlier.
+#'
+#' @return a data frame object containing logical values to determine if the observation is
+#' an outlier.
+#'
 #' @examples
 #' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
 #'                      factorNames=c("Env","Genotype","Rep","Row"),
@@ -109,7 +115,7 @@ ST.outlier <- function(data,
       if (!is.na(row)) {
         pmat0$row <- data[genoOut, row]
       } else {
-        pmat0$row <- rep(NA,nn)
+        pmat0$row <- rep(NA, nn)
       }
       if (!is.na(col)) {
         pmat0$column <- data[genoOut, col]
