@@ -2,6 +2,8 @@
 #'
 #' Function for creating objects of S3 class AMMI.
 #'
+#' \code{\link{print}} and \code{\link{plot}} methods are available.
+#'
 #' @param envScores a matrix containing environment scores
 #' @param genoScores a matrix containing genotypic scores
 #' @param importance a data.frame containing the importance of the principal components
@@ -11,7 +13,7 @@
 #' @param envMean a numerical vector containing the means per environment
 #' @param genoMean a numerical vector containing the means per genotype
 #' @param overallMean a numberical value containing the overall mean
-#' @param x \code{R} object
+#' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -23,24 +25,24 @@ NULL
 #' @rdname AMMI
 #' @export
 createAMMI <- function(envScores,
-                      genoScores,
-                      importance,
-                      anova,
-                      fitted,
-                      trait = trait,
-                      envMean = envMean,
-                      genoMean = genoMean,
-                      overallMean = overallMean) {
+                       genoScores,
+                       importance,
+                       anova,
+                       fitted,
+                       trait,
+                       envMean,
+                       genoMean,
+                       overallMean) {
   AMMI <- structure(list(envScores = envScores,
-                        genoScores = genoScores,
-                        importance = importance,
-                        anova = anova,
-                        fitted = fitted,
-                        trait = trait,
-                        envMean = envMean,
-                        genoMean = genoMean,
-                        overallMean = overallMean),
-                   class = "AMMI")
+                         genoScores = genoScores,
+                         importance = importance,
+                         anova = anova,
+                         fitted = fitted,
+                         trait = trait,
+                         envMean = envMean,
+                         genoMean = genoMean,
+                         overallMean = overallMean),
+                    class = "AMMI")
   return(AMMI)
 }
 
@@ -49,3 +51,21 @@ createAMMI <- function(envScores,
 is.AMMI <- function(x) {
   inherits(x, "AMMI")
 }
+
+#' @export
+print.AMMI <- function(x, ...) {
+  cat("Principal components",
+      "\n====================\n")
+  print(x$importance)
+  cat("\nAnova",
+      "\n=====\n")
+  printCoefmat(x$anova)
+  cat("\nEnvironment scores",
+      "\n==================\n")
+  print(x$envScores, ...)
+  cat("\nGenotypic scores",
+      "\n================\n")
+  print(x$genoScores, ..., max.print = 50)
+}
+
+

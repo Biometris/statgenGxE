@@ -10,23 +10,18 @@
 #' By default, \code{maxcycle = 15}.
 #' @param tol A small positive numerical value specifying convergence tolerance.
 #' By default, \code{tol = 0.001}.
-#' @param sortBYsens A character string specifying whether the results are to be sorted
+#' @param sortBySens A character string specifying whether the results are to be sorted
 #' in an increasing (or decreasing) order of sensitivities.
-#' By default, \code{sortBYsens = "ascending"}. Other options are "descending" and NA.
-#' @param scatterplot A logical value specifying if a scatterplot of sensitivities is produced.
-#' @param lineplot A logical value specifying if a fitted line for each genotype is produced.
-#' @param trellisplot A logical value specifying if the trellis plot of the individual genotype slopes
-#' is produced.
-#'
+#' By default, \code{sortBySens = "ascending"}. Other options are "descending" and NA.
+
 #' @examples
 #' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env="env!", genotype="genotype!", trait="yld")
 #' names(mydat)=c("env", "genotype","yld")
 #' fw.anlysis <- GE.FW(mydat, trait="yld", genotype="genotype", env="env", maxcycle = 15, tol = 0.001,
-#'                sortBYsens = "ascending")
+#'                sortBySens = "ascending")
 #' fw.anlysis
 #'
-#' @import graphics grDevices
 #' @export
 
 GE.FW <- function(Y,
@@ -35,14 +30,11 @@ GE.FW <- function(Y,
                   env,
                   maxcycle = 15,
                   tol = 0.001,
-                  sortBYsens = c("ascending", "descending", NA),
-                  scatterplot = TRUE,
-                  lineplot = FALSE,
-                  trellisplot = FALSE) {
+                  sortBySens = c("ascending", "descending", NA)) {
   ## ZZ replicates RJOINT procedure in GenStat
   ## Handling missing values ?na.action = na.exclude?
-  if (missing(sortBYsens)) {
-    sortBYsens <- "ascending"
+  if (missing(sortBySens)) {
+    sortBySens <- "ascending"
   }
   nLab <- nlevels(Y[, genotype])
   nEnvs <- nlevels(Y[, env])
@@ -145,9 +137,6 @@ GE.FW <- function(Y,
                                          names(coeffsModel1))])
   fittedGen <- fitted(model1)
   resiGen <- residuals(model1)
-  fVal <- tapply(X = fittedGen, INDEX = Y[, c(genotype, env)], FUN = function(x) {
-    mean(x, na.rm = TRUE)
-  })
   # mean squared error (MSE) of the trait means for each genotype
   mse <- tapply(X = resiGen, INDEX = Y[, genotype], FUN = function(x) {
     checkG <- length(x)
@@ -171,11 +160,11 @@ GE.FW <- function(Y,
   sigma <- tapply(X = sigma, INDEX = Y[, genotype], FUN = function(x) {
     mean(x, na.rm = TRUE)
   })
-  if (sortBYsens == "ascending") {
+  if (sortBySens == "ascending") {
     orderSens <- order(sens)
     res <- data.frame(G, sens, sigmaE, genMean, sigma, mse,
                       row.names = 1:length(sens))[orderSens, ]
-  } else if (sortBYsens == "descending") {
+  } else if (sortBySens == "descending") {
     orderSens <- order(sens, decreasing = TRUE)
     res <- data.frame(G, sens, sigmaE, genMean, sigma, mse,
                       row.names=1:length(sens))[orderSens, ]
@@ -205,63 +194,8 @@ GE.FW <- function(Y,
   envEffsSummary <- data.frame(Environment = meansNames, Effect = envEffs,
                                s.e. = seEnvEffs, Mean = meansFitted,
                                Rank = meansRank, row.names = NULL)
-  # Draw various plots
-  if (scatterplot) {
-    if (!all(is.na(mse))) {
-      xx <- cbind(genMean, mse, sens)
-      colnames(xx) <- c("Mean", "m.s.deviation", "Sensitivity")
-      pairs(xx, upper.panel = NULL, main = "Finlay & Wilkinson analysis")
-    } else {
-      plot(x = genMean, y = sens, xlab = "Mean", ylab = "Sensitivity",
-           main = "Finlay & Wilkinson analysis")
-    }
-  }
-  if (lineplot){
-    minFVal <- min(fittedGen, na.rm = TRUE)
-    maxFVal <- max(fittedGen, na.rm = TRUE)
-    xEff <- envEffs
-    minXEff <- min(xEff, na.rm = TRUE)
-    maxXEff <- max(xEff, na.rm = TRUE)
-    dev.new()
-    plot(x = NA, xlim = c(minXEff, maxXEff), ylim = c(minFVal, maxFVal),
-         ylab = trait, xlab = "Environment", xaxt = "n")
-    axis(side = 1, xEff, levels(Y[, env]), las = 2, cex.axis = .75)
-    colour <- 1
-    for (i in 1:nLab) {
-      if (!is.na(sortBYsens)) {
-        xfVal <- fVal[orderSens[i], ]
-      } else {
-        xfVal <- fVal[i, ]
-      }
-      lines(xEff[order(xEff)], xfVal[order(xEff)], col = colour)
-      colour <- colour + 1
-    }
-  }
-  if (trellisplot){
-    trellisdata <- data.frame(genotype = Y[[genotype]], trait = Y[[trait]],
-                              fitted = fittedGen, xEff = rep(envEffs, nLab))
-    if (nLab > 64) {
-      first64 <- levels(Y[[genotype]])[1:64]
-      first64 <- Y[[genotype]] %in% first64
-      trellisdata <- droplevels(trellisdata[first64, ])
-    }
-    dev.new()
-    print(lattice::xyplot(trait + fitted ~ xEff | genotype, data = trellisdata,
-                          panel = function(x, y, subscripts) {
-                            lattice::panel.xyplot(x,y)
-                            lattice::panel.lines(trellisdata$xEff[subscripts],
-                                                 trellisdata$fitted[subscripts])
-                          }, as.table = TRUE, subscripts = TRUE,
-                          xlab = "Environment", ylab = trait,
-                          main = paste0("Finlay & Wilkinson analysis for ", trait)))
-  }
-  info <- data.frame("Response variate" = trait,
-                     "Number of genotypes" = nLab,
-                     "Number of environments" = nEnvs,
-                     "Convergence criterion" = tol,
-                     "Number of iterations" = iter - 1,
-                     row.names = NULL, check.names = FALSE, stringsAsFactors = FALSE)
-  result <- list(estimates = res, aovTable = aovtable, envEffs = envEffsSummary)
-  attr(result, "info") <- info
-  return(result)
+  return(createFW(estimates = res, anova = aovtable, envEffs = envEffsSummary,
+                  data = Y, fittedGeno = fittedGen,
+                  trait = trait, nGeno = nLab, nEnv = nEnvs, tol = tol,
+                  iter = iter - 1))
 }
