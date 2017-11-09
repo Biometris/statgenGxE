@@ -27,7 +27,7 @@
 #' mymodel <- ST.mod.alpha(Y=mydat, subDesign="res.ibd", trait="yield",
 #'                         genotype="Genotype", rep="Rep", subBlock="Subblock",
 #'                         engine="lme4") #engine="asreml"
-#' #summary(mymodel)
+#' summary(mymodel)
 #'
 #' @export
 ST.mod.alpha = function(Y,

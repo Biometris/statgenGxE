@@ -275,7 +275,7 @@ ST.lineXtester <- function(fixed,
         cat("\n")
         print(summary(lxtModel2))
         cat("\n")
-        print(asreml::wald(lxtModel2))
+        print(asreml::wald.asreml(lxtModel2))
         cat("\n")
       }
     } else {

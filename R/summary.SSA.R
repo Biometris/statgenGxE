@@ -12,7 +12,7 @@
 #' are put last; if FALSE, they are put first; if NA, they are removed.
 #' @param decreasing Logical. Should the sort order be increasing or decreasing?
 #' @param ... Further arguments passed to \code{\link[stats]{printCoefmat}}.
-#' @details summarize the results obtained from a single site analysis.
+#'
 #' @examples
 #' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
 #'                      factorNames=c("Env","Genotype","Rep","Subblock","Row","Column"),
@@ -21,7 +21,7 @@
 #' mymodel <- ST.run.model(mydat, design="res.rowcol", trait="yield",
 #'                         genotype="Genotype", rep="Rep", row="Row",
 #'                         col="Column", tryspatial=NA)
-#' ##summary(mymodel)
+#' summary(mymodel)
 #'
 #' @export
 summary.SSA <- function(object,

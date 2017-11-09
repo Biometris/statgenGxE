@@ -15,27 +15,15 @@
 #' @param scale A logical value indicating whether the variables should
 #'  be scaled to have unit variance before the analysis takes
 #'  place. The default is \code{FALSE}.
-#' @param AMMI2plot A logical value specifying whether an AMMI2 biplot is drawn.
-#' @param scaleAMMI2 The variables are scaled by \code{lambda ^ scale} and the observations
-#' are scaled by \code{lambda ^ (1-scale)}
-#' where \code{lambda} are the singular values as computed by \code{\link[stats]{princomp}}.
-#' Normally \code{0 <= scale <= 1}, and a warning will be issued if the specified scale is
-#' outside this range.
-#' @param AMMI1plot A logical value determining whether the AMMI1 biplot (genotypes and
-#' environments means vs PC1) is drawn.
-#' @param scaleAMMI1 as same as described in \code{scaleAMMI2}.
-#' @return A list of three objects, a data frame object of environment scores, a data frame
-#' object of genotype scores and an object of class \code{\link[stats]{anova}}, and a
-#' matrix of the fitted values from the AMMI model.
 #'
 #' @examples
 #' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env ="env!", genotype ="genotype!", trait = "yld")
 #' names(mydat) <- c("env", "genotype","yld")
 #' GE.AMMI(Y = mydat, trait = "yld", genotype = "genotype", env = "env", nPC = 2,
-#'         center = TRUE, scale = FALSE, AMMI2plot = TRUE, scaleAMMI2 = 1)
+#'         center = TRUE, scale = FALSE)
 #'
-#' @import stats graphics grDevices
+#' @import stats
 #' @export
 
 GE.AMMI <- function(Y,
@@ -44,11 +32,7 @@ GE.AMMI <- function(Y,
                     env,
                     nPC = 2,
                     center = TRUE,
-                    scale = FALSE,
-                    AMMI2plot = TRUE,
-                    scaleAMMI2 = 1,
-                    AMMI1plot = FALSE,
-                    scaleAMMI1 = 1) {
+                    scale = FALSE) {
   #drop factor levels
   Y[[genotype]] <- droplevels(Y[[genotype]])
   Y[[env]] <- droplevels(Y[[env]])
@@ -75,7 +59,7 @@ GE.AMMI <- function(Y,
   }
   # Descriptive statistics
   envMean <- tapply(X = Y[[trait]], INDEX = Y[[env]], FUN = mean)
-  genoMean <- tapply(X =Y[[trait]], INDEX = Y[[genotype]], FUN = mean)
+  genoMean <- tapply(X = Y[[trait]], INDEX = Y[[genotype]], FUN = mean)
   overallMean <- mean(Y[[trait]])
   # Fit the linear model
   model <- lm(as.formula(paste(trait, "~", genotype, "+", env)), data = Y)
@@ -89,64 +73,14 @@ GE.AMMI <- function(Y,
   }
   # Use R in-built prcomp
   pca <- prcomp(x = X, retx = TRUE, center = center, scale. = scale)
-  cump2 <- summary(pca)$importance[3, 2]
-  propPc1 <- summary(pca)$importance[2, 1]
-  propPc2 <- summary(pca)$importance[2, 2]
   loadings <- pca$rotation
   scores <- pca$x
-  if (AMMI2plot){
-    if (scaleAMMI2 == 1) {
-      info <- "environment scaling"
-    } else if (scaleAMMI2 == 0) {
-      info <- "genotype scaling"
-    } else if (scaleAMMI2 == 0.5) {
-      info <- "symmetric scaling"
-    } else {
-      info <- paste0(round(cump2 * 100, 1), "%")
-    }
-    oldPar <- par(xpd = NA)
-    biplot(pca, scale = scaleAMMI2, col = c("orange3", "navyblue"),
-           main = paste0("AMMI2 biplot for ", trait, " (", info, ")"),
-           xlab = paste0("PC1 (", round(propPc1 * 100, 1), "%)"),
-           ylab = paste0("PC2 (", round(propPc2 * 100, 1), "%)"))
-    par(oldPar)
-  }
-  if (AMMI1plot){
-    # calculate lambda scale
-    lam <- pca$sdev[1]
-    if (is.null(n <- pca$n.obs)) {
-      n <- 1
-    }
-    lam <- lam * sqrt(n)
-    if (scaleAMMI1 < 0 || scaleAMMI1 > 1) {
-      warning("'scale' is outside [0, 1]")
-    }
-    if (scaleAMMI1 != 0) {
-      lam <- lam ^ scaleAMMI1
-    } else {
-      lam <- 1
-    }
-    dev.new()
-    oldPar <- par(xpd = NA)
-    plot(x = 1, type = 'n', xlim = range(c(envMean, genoMean)),
-         ylim = range(c(loadings[, 1] * lam, scores[, 1] / lam)),
-         xlab = "Main Effects", ylab = paste0("PC1 (", round(propPc1 * 100, 1), "%)"),
-         main = paste0("AMMI1 biplot for ", trait))
-    points(x = envMean, y = loadings[, 1] * lam, type = "n", col = "navyblue", lwd = 5)
-    text(x = envMean, y = loadings[, 1] * lam, labels = row.names(envMean),
-         adj = c(0.5, 0.5), col = "navyblue")
-    points(x = genoMean, y = scores[, 1] / lam, type = "n", col = "orange3", lwd = 5)
-    text(x = genoMean, y = scores[, 1] / lam, labels = row.names(genoMean),
-         adj = c(0.5, 0.5), col = "orange3")
-    abline(h = 0, v = overallMean, lty = 5)
-    par(oldPar)
-  }
   # calculating the AMMI-estimates per genotype per environment
-  mterms <- matrix(data = 0, nrow = nGeno, ncol = nEnv)
+  mTerms <- matrix(data = 0, nrow = nGeno, ncol = nEnv)
   for (ii in 1:nPC) {
-    mterms <- mterms + outer(scores[, ii], loadings[, ii])
+    mTerms <- mTerms + outer(scores[, ii], loadings[, ii])
   }
-  fitted <- fittedVals + mterms
+  fitted <- fittedVals + mTerms
   # ANOVA table for linear model
   a1 <- anova(model)
   tNames <- rownames(a1)
@@ -160,8 +94,8 @@ GE.AMMI <- function(Y,
   nGeno <- nlevels(Y[, genotype])
   nEnv  <- nlevels(Y[, env])
   dfPC <- nGeno + nEnv - 3 - (2 * (1:nPC - 1))
-  dfresid <- a1["Interactions", "Df"] - sum(dfPC)
-  addTbl[,"Df"] <- c(dfPC, dfresid)
+  dfResid <- a1["Interactions", "Df"] - sum(dfPC)
+  addTbl[,"Df"] <- c(dfPC, dfResid)
   # Add the sum of squares for PC scores and residuals
   PCAVar <- pca$sdev ^ 2
   totalVar <- sum(PCAVar)
@@ -181,8 +115,11 @@ GE.AMMI <- function(Y,
   })
   # ANOVA table for AMMI model
   a0 <- rbind(a1, as.data.frame(addTbl))
-  return(list(environmentScores = pca$rotation, genotypeScores = pca$x,
-              ANOVA = a0, fitted = fitted))
+  return(createAMMI(envScores = pca$rotation, genoScores = pca$x,
+                    importance = as.data.frame(summary(pca)$importance),
+                    anova = a0, fitted = fitted,
+                    trait = trait, envMean = envMean, genoMean = genoMean,
+                    overallMean = overallMean))
 }
 
 ## explicitly use singular value decomposition to compute pca

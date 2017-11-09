@@ -4,10 +4,13 @@
 #' heritabilities, genotypic means, unit errors etc.
 #'
 #' @param mixfix A list of model results with fields \code{mMix}, \code{mFix} and \code{data}.
+#'
 #' @return A list of extracted statistics.
+#'
 #' @seealso
 #' \code{\link{ST.run.model}}, \code{\link{ST.mod.rcbd}}, \code{\link{ST.mod.alpha}} and
 #' \code{\link{ST.mod.rowcol}}
+#'
 #' @examples
 #' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
 #'                      factorNames=c("Env","Genotype","Rep","Subblock","Row","Column"),
@@ -16,8 +19,8 @@
 #' mymodel <- ST.run.model(mydat, design="res.rowcol", trait="yield",
 #'                         genotype="Genotype", rep="Rep", row="Row",
 #'                         col="Column", tryspatial=NA)
-#' ##extr <- ST.extract(mymodel)
-#' ##str(extr)
+#' extr <- ST.extract(mymodel)
+#' str(extr)
 #'
 #' @importFrom methods slot
 #' @export
@@ -171,7 +174,7 @@ ST.extract = function(mixfix) {
     result$ranef <- rEff
     result$model <- attr(mixfix, "Design")
     result$engine <- "lme4"
-    result$waldTestGeno <- waldTestGeno
+    # result$waldTestGeno <- waldTestGeno
     result$CV <- CV
     result$rdf <- rdf
   } else if (engine == "asreml") {
@@ -198,16 +201,16 @@ ST.extract = function(mixfix) {
       if (!requireNamespace("asreml", quietly = TRUE)) {
         stop("asreml cannot be successfully loaded.\n")
       }
-      wtt <- asreml::wald.asreml(mf, ssType = "conditional", denDF = "numeric")
-      pos <- grep(pattern = "genotype", x = row.names(wtt$Wald))
-      chi2 <- wtt$Wald$F.con[pos] * wtt$Wald$Df[pos]
-      prob <- 1 - pchisq(q = chi2, df = wtt$Wald$Df[pos])
-      resWald <- list(chi2 = c(chi2 = chi2, df = wtt$Wald$Df[pos], P = prob),
-                      Ftest = c(Fstat = wtt$Wald$F.con[pos],
-                                df1 = wtt$Wald$Df[pos],
-                                df2 = wtt$Wald$denDF[pos],
-                                P = wtt$Wald$Pr[pos]))
-      waldTestGeno <- list(result = resWald)
+      # wtt <- asreml::wald.asreml(mf, ssType = "conditional", denDF = "numeric")
+      # pos <- grep(pattern = "genotype", x = row.names(wtt$Wald))
+      # chi2 <- wtt$Wald$F.con[pos] * wtt$Wald$Df[pos]
+      # prob <- 1 - pchisq(q = chi2, df = wtt$Wald$Df[pos])
+      # resWald <- list(chi2 = c(chi2 = chi2, df = wtt$Wald$Df[pos], P = prob),
+      #                 Ftest = c(Fstat = wtt$Wald$F.con[pos],
+      #                           df1 = wtt$Wald$Df[pos],
+      #                           df2 = wtt$Wald$denDF[pos],
+      #                           P = wtt$Wald$Pr[pos]))
+      # waldTestGeno <- list(result = resWald)
       #waldpval <- waldTestGeno$result$Ftest["P"]
       #calculate Coefficient of Variation
       CV <- 100 * summary(mf)$sigma / mean(fitted(mf))
@@ -297,7 +300,7 @@ ST.extract = function(mixfix) {
     result$ranef <- rEff
     result$model <- attr(mixfix, "Design") #"alpha"
     result$engine <- "asreml"
-    result$waldTestGeno <- waldTestGeno
+    # result$waldTestGeno <- waldTestGeno
     result$CV <- CV
   }
   if (!is.null(rep)) {

@@ -33,7 +33,7 @@ GE.megaEnvironment <- function(Y,
   Y[[genotype]] <- droplevels(Y[[genotype]])
   Y[[env]] <- droplevels(Y[[env]])
   #use AMMI2
-  anal <- GE.AMMI(Y, trait, genotype, env, nPC = 2, AMMI2plot = FALSE)
+  anal <- GE.AMMI(Y, trait, genotype, env, nPC = 2)
   fitted <- anal$fitted
   genoNames <- rownames(fitted)
   envNames  <- colnames(fitted)
