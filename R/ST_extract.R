@@ -27,10 +27,10 @@
 
 ST.extract = function(mixfix) {
   # Choose between asreml and mle4
-  engine <- attr(mixfix, "Engine")
-  trait <- attr(mixfix, "Trait")
-  genotype <- attr(mixfix, "genotype")
-  rep <- attr(mixfix, "rep")
+  engine <- mixfix$engine
+  trait <- mixfix$trait
+  genotype <- mixfix$genotype
+  rep <- mixfix$rep
   # Extract statistics from mixed and fixed models in list mixfix
   mr <- mixfix$mMix
   mf <- mixfix$mFix

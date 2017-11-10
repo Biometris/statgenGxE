@@ -57,19 +57,16 @@ is.FW <- function(x) {
 }
 
 #' @export
-# print.FW <- function(x, ...) {
-#   cat("Principal components",
-#       "\n====================\n")
-#   print(x$importance)
-#   cat("\nAnova",
-#       "\n=====\n")
-#   printCoefmat(x$anova)
-#   cat("\nEnvironment scores",
-#       "\n==================\n")
-#   print(x$envScores, ...)
-#   cat("\nGenotypic scores",
-#       "\n================\n")
-#   print(x$genoScores, ..., max.print = 50)
-# }
+print.FW <- function(x, ...) {
+  cat("Environmental effects",
+      "\n===================\n")
+  print(x$envEffs)
+  cat("\nAnova",
+      "\n=====\n")
+  printCoefmat(x$anova)
+  cat("\nEstimates",
+      "\n=========\n")
+  print(x$estimates, ..., row.names = FALSE)
+}
 
 

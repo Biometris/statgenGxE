@@ -110,6 +110,7 @@ ST.mod.rowcol <- function(Y,
     }
     model$mFix$call$data <- substitute(Y)
     model$mMix$call$data <- substitute(Y)
+    model$design = subDesign
   } else if (engine == "lme4") {
     if (subDesign  == "res.rowcol") {
       if (checks) {
@@ -158,16 +159,12 @@ ST.mod.rowcol <- function(Y,
       }
       mf <- lme4::lmer(ffm, data = Y, ...)
     }
-    model = createSSA(mMix = mr, mFix = mf, data = Y)
+    model = createSSA(mMix = mr, mFix = mf, data = Y, trait = trait,
+                      genotype = genotype,
+                      rep = ifelse(subDesign == "res.rowcol", rep, NULL),
+                      design = subDesign, engine = engine)
   } else {
     stop("Please use either asreml or lme4 for engine")
-  }
-  attr(model, "Trait") <- trait
-  attr(model, "Design") <- subDesign
-  attr(model, "Engine") <- engine
-  attr(model, "genotype") <- genotype
-  if (subDesign == "res.rowcol") {
-    attr(model, "rep") <- rep
   }
   return(model)
 }

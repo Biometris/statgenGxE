@@ -33,8 +33,8 @@ summary.SSA <- function(object,
                         ...) {
   # get summary stats for raw data
   data <- object$data
-  trait <- attr(object, "Trait")
-  stats <- ST.summary.trait(data = data, trait = trait, printTable = FALSE)
+  trait <- object$trait
+  stats <- summary.TD(object = data, trait = trait)
   stats <- na.omit(stats)
   attr(stats, "na.action") <- NULL
   # get predicted means (BLUEs & BLUPs)
@@ -65,7 +65,7 @@ summary.SSA <- function(object,
     cat("\n")
   }
   printCoefmat(meanTab, digits = digits, ...)
-  if(attr(object, "Engine") == "asreml" && !is.null(extr$predictionsSed) &&
+  if(object$engine == "asreml" && !is.null(extr$predictionsSed) &&
      !is.null(extr$predictionsLsd)) {
     cat("\nStandard Error of Difference (genotypes modelled as fixed effect)\n",
         "===================================================================\n", sep = "")

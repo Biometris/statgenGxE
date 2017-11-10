@@ -16,7 +16,6 @@
 #'
 #' @import graphics grDevices
 #' @export
-
 plot.FW <- function(x,
                     ...,
                     plotType = c("scatter", "line", "trellis"),
@@ -40,7 +39,6 @@ plot.FW <- function(x,
     }
   }
   if ("line" %in% plotType) {
-    #fittedGen, , Y, env, , fVal, orderSens) {
     minFVal <- min(x$fittedGeno, na.rm = TRUE)
     maxFVal <- max(x$fittedGeno, na.rm = TRUE)
     minXEff <- min(envEffs, na.rm = TRUE)
@@ -63,7 +61,7 @@ plot.FW <- function(x,
     trellisdata <- data.frame(genotype = x$data[["genotype"]], trait = x$data[[x$trait]],
                               fitted = x$fittedGen, xEff = rep(envEffs, x$nGeno))
     if (x$nGeno > 64) {
-      first64 <- levels(x$estimates$G)[1:64]
+      first64 <- levels(x$estimates$genotype)[1:64]
       first64 <- x$data[["genotype"]] %in% first64
       trellisdata <- droplevels(trellisdata[first64, ])
     }

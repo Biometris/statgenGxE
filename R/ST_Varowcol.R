@@ -427,6 +427,8 @@ ST.Varowcol <- function(Y,
   }
   sink()
   unlink(tmp)
-  res <- createSSA(mMix = bestModel, mFix = mf, data = Y)
+  res = createSSA(mMix = bestModel, mFix = mf, data = Y, trait = trait,
+                  genotype = genotype, rep = ifelse(tryRep, rep, NULL),
+                  engine = "asreml")
   return(res)
 }

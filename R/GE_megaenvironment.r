@@ -57,7 +57,7 @@ GE.megaEnvironment <- function(Y,
   Y[[megaEnv]] <- megaEnvFactor
   # re-labelling
   levels(Y[[megaEnv]]) <- 1:nlevels(megaEnvFactor)
-  if (summaryTable){
+  if (summaryTable) {
     summTab <- matrix(nrow = length(envNames), ncol = 4)
     colnames(summTab) <- c("Mega env", env, genotype, "AMMI estimates")
     megaOrder <- order(megaFactor)

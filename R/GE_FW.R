@@ -162,14 +162,15 @@ GE.FW <- function(Y,
   })
   if (sortBySens == "ascending") {
     orderSens <- order(sens)
-    res <- data.frame(G, sens, sigmaE, genMean, sigma, mse,
+    res <- data.frame(genotype = G, sens, sigmaE, genMean, sigma, mse,
                       row.names = 1:length(sens))[orderSens, ]
   } else if (sortBySens == "descending") {
     orderSens <- order(sens, decreasing = TRUE)
-    res <- data.frame(G, sens, sigmaE, genMean, sigma, mse,
-                      row.names=1:length(sens))[orderSens, ]
+    res <- data.frame(genotype = G, sens, sigmaE, genMean, sigma, mse,
+                      row.names = 1:length(sens))[orderSens, ]
   } else {
-    res <- data.frame(G, sens, sigmaE, genMean, sigma, mse, row.names=1:length(sens))
+    res <- data.frame(genotype = G, sens, sigmaE, genMean, sigma, mse,
+                      row.names = 1:length(sens))
   }
   # ANOVA table
   # Environment effects

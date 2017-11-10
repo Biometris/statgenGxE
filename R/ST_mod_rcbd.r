@@ -130,11 +130,8 @@ ST.mod.rcbd <- function(Y,
   } else {
     stop("Please use either asreml or lme4 for engine")
   }
-  model = createSSA(mMix = mr, mFix = mf, data = Y)
-  attr(model, "Trait") <- trait
-  attr(model, "Design") <- "rcbd"
-  attr(model, "Engine") <- engine
-  attr(model, "genotype") <- genotype
-  attr(model, "rep") <- rep
+  model = createSSA(mMix = mr, mFix = mf, data = Y, trait = trait,
+                    genotype = genotype, rep = rep,
+                    design = "rcbd", engine = engine)
   return(model)
 }

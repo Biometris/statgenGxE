@@ -13,7 +13,7 @@
 #'                      factorNames=c("Env","Genotype","Rep","Subblock","Row","Column"),
 #'                      traitNames="yield", env ="Env", rowSelect="HEAT06",
 #'                      colSelect=c("Env","Genotype","Rep","Row","Column","yield"))
-#' stats <- ST.summary.trait(data=mydat, trait="yield", all=TRUE)
+#' stats <- summary.TD(object = mydat, trait = "yield", all=TRUE)
 #' RAP.htmlTable(stats)
 #'
 #' @export

@@ -208,13 +208,8 @@ ST.mod.alpha = function(Y,
       stop("Please use either asreml or lme4 for engine")
     }
   }
-  model = createSSA(mMix = mr, mFix = mf, data = Y)
-  attr(model, "Trait") <- trait
-  attr(model, "Design") <- subDesign
-  attr(model, "Engine") <- engine
-  attr(model, "genotype") <- genotype
-  if (subDesign == "res.ibd") {
-    attr(model, "rep") <- rep
-  }
+  model = createSSA(mMix = mr, mFix = mf, data = Y, trait = trait,
+                    genotype = genotype, rep = ifelse(subDesign == "res.ibd", rep, NULL),
+                    design = subDesign, engine = engine)
   return(model)
 }

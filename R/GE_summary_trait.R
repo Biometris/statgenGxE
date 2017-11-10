@@ -77,8 +77,6 @@ GE.summary.trait = function(data,
                             Corplot = TRUE,
                             Scatterplot= TRUE,
                             all = FALSE) {
-  #    load(datname)
-  #    data = GE.data
   if (!all(is.na(envSelect))) {
     data <- data[data[[env]] %in% envSelect, ]
     data <- droplevels(data)
@@ -108,7 +106,7 @@ GE.summary.trait = function(data,
                        "Uncorrected sum of squares", "Skewness", "Standard Error of Skewness",
                        "Kurtosis", "Standard Error of Kurtosis")
   for (i in 1:length(envSelect)) {
-    y <- data[which(data[,env] == envSelect[i]), trait]
+    y <- data[which(data[, env] == envSelect[i]), trait]
     if (NVals) stats[i, 1] <- length(y)
     if (NNVals) stats[i, 2] <- length(y) - sum(is.na(y))
     if (NMiss) stats[i, 3] <- sum(is.na(y))
@@ -140,7 +138,6 @@ GE.summary.trait = function(data,
   }
   if (Histogram) {
     f0 <- as.formula(paste('~',trait,"|",env))
-    dev.new()
     print(lattice::histogram(x = f0 , data = data,
                              main = "Histograms by Enviroment",
                              xlab = trait))
@@ -172,7 +169,6 @@ GE.summary.trait = function(data,
     if (any(is.na(X))) {
       X <- RAP.multmissing(X, maxcycle = 10, na.strings = NA)
     }
-    dev.new()
     pairs(X, upper.panel = panelCor, diag.panel = panelHist,
           main = paste("Scatterplot matrix and correlations by enviroment:", trait))
   }
@@ -193,7 +189,6 @@ GE.summary.trait = function(data,
         }
       }
     }
-    dev.new()
     print(lattice::levelplot(corMat[nrow(corMat):1, ], xlab = "", ylab = "",
                              main = paste("Correlation of environments for", trait)))
   }
