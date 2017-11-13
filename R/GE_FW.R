@@ -14,9 +14,9 @@
 
 #' @examples
 #' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env ="env!", genotype ="genotype!", trait = "yld")
+#'                      env = "env!", genotype = "genotype!", trait = "yld")
 #' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
-#' fw.analysis <- GE.FW(myTD, trait="yld", maxcycle = 15, tol = 0.001, sortBySens = "ascending")
+#' fw.analysis <- GE.FW(myTD, trait = "yld", maxcycle = 15, tol = 0.001, sortBySens = "ascending")
 #' fw.analysis
 #'
 #' @export

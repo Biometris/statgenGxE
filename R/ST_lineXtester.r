@@ -51,17 +51,17 @@
 #'
 #' @examples
 #' mydat <- ST.read.csv(system.file("extdata", "VLIN-1.csv", package = "RAP"),
-#'                      factorNames=c("Replicates","Blocks","Controls","Lines","Testers"),
-#'                      traitNames="yield", env ="Env")
+#'                      factorNames = c("Replicates","Blocks","Controls","Lines","Testers"),
+#'                      traitNames = "yield", env = "Env")
 #' #library(lme4)
-#' lxt1 <- ST.lineXtester(fixed=yield~1, random=~Replicates/Blocks, lines="Lines",
-#'                        testers="Testers", controls="Controls", data=mydat, engine="lme4")
+#' lxt1 <- ST.lineXtester(fixed = yield~1, random = ~Replicates/Blocks, lines = "Lines",
+#'                        testers = "Testers", controls = "Controls", data = mydat, engine = "lme4")
 #' #library(asreml)
-#' lxt2 <- ST.lineXtester(fixed=yield~1, random=~Replicates/Blocks, lines="Lines",
-#'                        testers="Testers", controls="Controls",
-#'                        data=mydat, engine="asreml", maxiter=30)
-#' lxt3 <- ST.lineXtester(fixed=yield~1, random=~Replicates/Blocks, lines="Lines",
-#'                        testers="Testers", data=mydat)
+#' lxt2 <- ST.lineXtester(fixed = yield~1, random = ~Replicates/Blocks, lines = "Lines",
+#'                        testers = "Testers", controls = "Controls",
+#'                        data = mydat, engine = "asreml", maxiter = 30)
+#' lxt3 <- ST.lineXtester(fixed = yield~1, random = ~Replicates/Blocks, lines = "Lines",
+#'                        testers = "Testers", data = mydat)
 #'
 #' @export
 ST.lineXtester <- function(fixed,
@@ -230,7 +230,7 @@ ST.lineXtester <- function(fixed,
         }
       }
     }
-    res <- new.env()
+    res <- vector(mode = "list")
     # BLUPs for lTerm & ltTerm
     if (!flag1) {
       res$lxtmodel <- lxtModel1
@@ -481,7 +481,7 @@ ST.lineXtester <- function(fixed,
         }
       }
     }
-    res <- new.env()
+    res <- vector(mode = "list")
     # BLUPs for lTerm & ltTerm
     if (!flag1) {
       res$lxtmodel <- lxtModel1
@@ -618,5 +618,5 @@ ST.lineXtester <- function(fixed,
   }
   res$blupsLine <- blupsLine
   res$blupsLineTester <- blupsLineTester
-  return(as.list(res))
+  return(res)
 }

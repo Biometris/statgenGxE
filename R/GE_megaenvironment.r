@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env ="env!", genotype ="genotype!", trait = "yld")
+#'                      env = "env!", genotype = "genotype!", trait = "yld")
 #' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
 #' TDmegaEnv <- GE.megaEnvironment(TD = myTD, trait = "yld")
 #' attr(TDmegaEnv, "summary")

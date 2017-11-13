@@ -12,20 +12,20 @@
 #' @param criterion A string specifying a goodness-of-fit criterion, i.e., "AIC" or "BIC".
 #' @param ... Further arguments to be passed to \code{asreml}.
 #'
-#' @note If \code{engine="lme4"}, only the compound symmetry model can be fitted.
+#' @note If \code{engine = "lme4"}, only the compound symmetry model can be fitted.
 #'
 #' @return A list object consisting of the fitted model objects, a string specifying
 #' the best model and its related goodness-of-fit criterion.
 #'
 #' @examples
 #' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env ="env!", genotype = "genotype!", trait = "yld")
+#'                      env = "env!", genotype = "genotype!", trait = "yld")
 #' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
-#' model1 <- GE.VarComp(TD = myTD, trait="yld", engine = "lme4", #engine = "asreml",
+#' model1 <- GE.VarComp(TD = myTD, trait = "yld", engine = "lme4", #engine = "asreml",
 #'                      criterion = "BIC")
 #' model1$BIC
 #' model1$choice
-#' summary(model1$model[[model1$choice]], nice = TRUE)
+#' summary(model1$model[[model1$choice]])
 #'
 #' @export
 GE.VarComp <- function(TD,
@@ -172,7 +172,8 @@ GE.VarComp <- function(TD,
     } else if (vcmodel == "fa2") {
       if (requireNamespace("psych", quietly = TRUE) &&
           requireNamespace("GPArotation", quietly = TRUE)) {
-        factorAnalysis <- try(psych::fa(r = evCov, nfactors = 2, fm = "mle"), silent = TRUE)
+        factorAnalysis <- try(psych::fa(r = evCov, nfactors = 2, fm = "mle"),
+                              silent = TRUE)
         if (inherits(factorAnalysis, "try-error")) {
           factorAnalysis <- psych::fa(r = evCov, nfactors = 2, fm = "minres")
         }
@@ -186,13 +187,14 @@ GE.VarComp <- function(TD,
         vcInitial <- list(gamma = gamma, psi = psi)
       } else {
         vcInitial <- NULL
-        warning("psych and GPArotation packages are required but failed to load!\n")
+        warning("psych and GPArotation packages are required but failed to load.\n")
       }
     } else if (vcmodel == "unstructured") {
       vcInitial <- list(evCov = evCov)
     }
     return(vcInitial)
   }
+  res <- vector(mode = "list")
   # Main procedure to fit mixed models
   if (engine == "lme4") {
     # Compound symmetry ("cs") only
@@ -201,7 +203,6 @@ GE.VarComp <- function(TD,
                       data = TD, ...)
       nPar <- 2
       # Outputs
-      res <- new.env()
       res$model$cs <- mr
       res$choice <- "cs"
       if (criterion == "AIC") {
@@ -219,7 +220,6 @@ GE.VarComp <- function(TD,
       bestTab <- matrix(nrow = 8, ncol = 4)
       colnames(bestTab) <- c("AIC", "BIC", "Deviance", "NParameters")
       rownames(bestTab) <- choices
-      res <- vector(mode = "list")
       for (i in 1:length(choices)) {
         if (choices[i] == "identity") {
           mr <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
@@ -333,7 +333,8 @@ GE.VarComp <- function(TD,
               tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
               mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                        random = as.formula("~ genotype:fa(env, 1)"),
-                                       R.param = tmpTable, G.param = tmpTable, data = TD, ...),
+                                       R.param = tmpTable, G.param = tmpTable,
+                                       data = TD, ...),
                         silent=TRUE)
             }
             if (inherits(mr, "try-error")){

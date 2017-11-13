@@ -1,32 +1,45 @@
-#' Residual diagnostic plots
+#' Diagnostic Plots of Models
 #'
-#' This function is to produce a histogram of residuals, a normal Q-Q plot, a residuals vs fitted values plot,
-#' and an absolute residuals vs fitted values plot.
-#' @param x A fitted model object.
+#' This function draws four plots, a histogram of residuals, a normal Q-Q plot, a residuals
+#' vs fitted values plot and an absolute residuals vs fitted values plot.
+#'
+#' @param x an object of class SSA.
 #' @param ... Other graphical parameters (see \code{\link[lattice]{xyplot}} for details).
+#' @param plotType character indiciting whether the fixed (\code{plotType = "fix"}) or mixed
+#' (\code{plotType = "fix"}) should be plotted.
+#'
+#' @seealso \code{\link{createSSA}}
+#'
 #' @examples
-#' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
-#'                      factorNames=c("Env","Genotype","Rep","Row","Column"),
-#'                      traitNames="yield", env ="Env", rowSelect="HEAT05",
-#'                      colSelect=c("Env","Genotype","Rep","Row","Column","yield"))
-#' mymodel <- ST.run.model(data=mydat, design="res.rowcol", trait="yield",
-#'                         genotype="Genotype", rep="Rep", row="Row", col="Column",
-#'                         tryspatial="always")
-#' aplot(mymodel$mFix)
-#' #aplot(mymodel$mMix)
-#' #c.f. in-built plot for "asreml" or "lme4"
-#' #plot(mymodel$mFix)
+#' myDat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
+#'                      factorNames = c("Env","Genotype","Rep","Row","Column"),
+#'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
+#'                      colSelect = c("Env","Genotype", "Rep", "Row", "Column", "yield"))
+#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "env")
+#' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
+#'                         rep = "Rep", row = "Row", col = "Column",
+#'                         tryspatial = "always")
+#' plot(myModel, plotType = "fix")
 #'
 #' @export
-aplot <- function(x,
-                  ...) {
-  # Diagnostic plots
-  if (class(x) == "asreml") {
-    resid <- x$residuals
-    fitted <- x$fitted.values
+
+plot.SSA <- function(x,
+                     ...,
+                     plotType = "fix") {
+  if (plotType == "fix") {
+    model <- x$mFix
+  } else if (plotType == "mix") {
+    model <- x$mMix
   } else {
-    resid <- residuals(x)
-    fitted <- fitted(x)
+    stop("plotType should either be fix or mix.")
+  }
+  # Diagnostic plots
+  if (class(model) == "asreml") {
+    resid <- model$residuals
+    fitted <- model$fitted.values
+  } else {
+    resid <- residuals(model)
+    fitted <- fitted(model)
   }
   trellisObj <- vector(mode = "list", length = 4)
   names(trellisObj) <- c("histogram", "qq", "residFitted", "absResidFitted")

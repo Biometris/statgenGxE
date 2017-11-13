@@ -3,22 +3,9 @@
 #' This function fits a variety of random and spatial covariance models
 #' and selects the best one using a goodness-of-fit criterion.
 #'
-#' @param Y A data frame object.
-#' @param trait A character string specifying a 'trait' column of the data.
-#' @param covariate A string specifying (a) covariate name(s); Default, \code{NULL}.
-#' @param genotype A character string specifying a 'genotypes' column of the data.
-#' @param rep A string specifying a 'replicates' column of the data.
-#' @param row A string specifying a 'rows' column of the data.
-#' @param col A string specigying a 'columns' column of the data.
+#' @inheritParams ST.run.model
 #' @param tryRep A logical value indicating if 'replicates' are included in the model.
 #' Default, \code{TRUE}.
-#' @param checkId A string specifying a 'checkId' column of the data. Default, \code{NA}.
-#' @param rowCoordinates A string specifying row coordinates for fitting spatial models.
-#' Default, \code{NA}.
-#' @param colCoordinates A string specifying col coordinates for fitting spatial models.
-#' Default, \code{NA}.
-#' @param trySpatial Whether to try spatial models ("always", "ifregular"); default no
-#' spatial models, i.e., \code{NA}.
 #' @param criterion A string specifies a goodness of fit criterion, i.e., "AIC" or "BIC".
 #' @param ... Further arguments to be passed to \code{asreml}.
 #'
@@ -30,10 +17,9 @@
 #'
 #' @export
 
-ST.Varowcol <- function(Y,
+ST.Varowcol <- function(TD,
                         trait,
                         covariate = NULL,
-                        genotype,
                         rep,
                         row,
                         col,
@@ -63,9 +49,9 @@ ST.Varowcol <- function(Y,
   flag <- 1
   # See if the design is regular
   if (!missing(rep)) {
-    reptab <- with(Y, table(rep, row, col))
+    reptab <- with(TD, table(rep, row, col))
   } else {
-    reptab <- with(Y, table(row, col))
+    reptab <- with(TD, table(row, col))
   }
   if (min(reptab) > 1) {
     warning("There must be only one plot at each REPLICATES x ROWS x COLUMNS location.\n
@@ -96,15 +82,16 @@ ST.Varowcol <- function(Y,
         mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"))),
-                             random = as.formula(paste("~", genotype, "+", rep, ":",
+                             random = as.formula(paste("~ genotype +", rep, ":",
                                                        row, "+", rep, ":", col)),
-                             rcov = ~units, aom = TRUE, data = Y, ...)
+                             rcov = ~units, aom = TRUE, data = TD, ...)
       } else {
         mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep,
-                                                      if (covT) paste(c("", covariate), collapse = "+"))),
-                             random = as.formula(paste("~", genotype, "+", rep, ":", row,
+                                                      if (covT) paste(c("", covariate),
+                                                                      collapse = "+"))),
+                             random = as.formula(paste("~ genotype +", rep, ":", row,
                                                        "+", rep, ":", col)),
-                             rcov = ~units, aom = TRUE, data = Y, ...)
+                             rcov = ~units, aom = TRUE, data = TD, ...)
       }
       # constrain variance of the variance components to be fixed as the values in mr
       GParamTmp <- mr$G.param
@@ -124,30 +111,34 @@ ST.Varowcol <- function(Y,
         mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
-                                                      "+", genotype)),
-                             random = as.formula(paste("~", rep, ":", row, "+", rep, ":", col)),
-                             rcov = ~units, G.param = GParamTmp, aom = TRUE, data = Y, ...)
+                                                      "+ genotype")),
+                             random = as.formula(paste("~", rep, ":", row, "+",
+                                                       rep, ":", col)),
+                             rcov = ~units, G.param = GParamTmp, aom = TRUE,
+                             data = TD, ...)
       } else {
         mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
-                                                      "+", genotype)),
-                             random = as.formula(paste("~", rep, ":", row, "+", rep, ":", col)),
-                             rcov = ~units, G.param = GParamTmp, aom = TRUE, data = Y, ...)
+                                                      "+ genotype")),
+                             random = as.formula(paste("~", rep, ":", row, "+",
+                                                       rep, ":", col)),
+                             rcov = ~units, G.param = GParamTmp, aom = TRUE,
+                             data = TD, ...)
       }
     } else {
       if (!is.na(checkId)) {
         mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"))),
-                             random = as.formula(paste("~", genotype, "+", row, "+", col)),
-                             rcov = ~units, aom = TRUE, data = Y, ...)
+                             random = as.formula(paste("~ genotype +", row, "+", col)),
+                             rcov = ~units, aom = TRUE, data = TD, ...)
       } else {
         mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", 1,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"))),
-                             random = as.formula(paste("~", genotype, "+", row, "+", col)),
-                             rcov = ~units, aom = TRUE, data = Y, ...)
+                             random = as.formula(paste("~ genotype +", row, "+", col)),
+                             rcov = ~units, aom = TRUE, data = TD, ...)
       }
       # constrain variance of the variance components to be fixed as the values in mr
       GParamTmp <- mr$G.param
@@ -161,39 +152,44 @@ ST.Varowcol <- function(Y,
         mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
-                                                      "+", genotype)),
+                                                      "+ genotype")),
                              random = as.formula(paste("~", row, "+", col)),
-                             rcov = ~units, G.param = GParamTmp, aom = TRUE, data = Y, ...)
+                             rcov = ~units, G.param = GParamTmp, aom = TRUE,
+                             data = TD, ...)
       } else {
         mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~1",
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
-                                                      "+", genotype)),
+                                                      "+ genotype")),
                              random = as.formula(paste("~", row, "+", col)),
-                             rcov = ~units, G.param = GParamTmp, aom = TRUE, data = Y, ...)
+                             rcov = ~units, G.param = GParamTmp, aom = TRUE,
+                             data = TD, ...)
       }
     }
     bestModel <- mr
   } else {
     if (regular) {
       if (tryRep) {
-        randomChoice <-c(rep(x = c("Identity", "Measurement_error"), each = 3),
+        randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3),
                          paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                         paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"), sep = "+"),
+                         paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                               sep = "+"),
                          paste(paste(rep, row, sep = ":"), "Measurement_error", sep = "+"),
                          paste(paste(rep, col, sep = ":"), "Measurement_error", sep = "+"),
                          paste(paste(rep, row, sep = ":"), paste(rep, col, sep= ":"),
                                "Measurement_error", sep = "+"))
         randomTerm <- c(rep(x = c("NULL", "units"), each = 3),
                         paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                        paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"), sep = "+"),
+                        paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                              sep = "+"),
                         paste(paste(rep, row, sep = ":"), "units", sep = "+"),
                         paste(paste(rep, col, sep = ":"), "units", sep = "+"),
                         paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
                               "units", sep = "+"))
       } else {
-        randomChoice <-c(rep(x = c("Identity", "Measurement_error"), each = 3), row, col,
-                         paste(row, col, sep = "+"), paste(row, "Measurement_error", sep = "+"),
+        randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3), row, col,
+                         paste(row, col, sep = "+"), paste(row, "Measurement_error",
+                                                           sep = "+"),
                          paste(col, "Measurement_error", sep = "+"),
                          paste(row, col, "Measurement_error", sep = "+"))
         randomTerm <- c(rep(x = c("NULL", "units"), each = 3), row, col,
@@ -212,32 +208,32 @@ ST.Varowcol <- function(Y,
             mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
                                                           if (covT) paste(c("", covariate),
                                                                           collapse = "+"))),
-                                 random = as.formula(paste("~", genotype, "+", randomTerm[ii])),
+                                 random = as.formula(paste("~ genotype +", randomTerm[ii])),
                                  rcov = as.formula(paste("~", spatialTerm[ii])),
-                                 aom = TRUE, data = Y, ...)
+                                 aom = TRUE, data = TD, ...)
           } else {
             mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep,
                                                           if (covT) paste(c("", covariate),
                                                                           collapse = "+"))),
-                                 random = as.formula(paste("~", genotype, "+", randomTerm[ii])),
-                                 rcov = as.formula(paste("~", spatialTerm[ii])), aom = TRUE,
-                                 data = Y, ...)
+                                 random = as.formula(paste("~ genotype +", randomTerm[ii])),
+                                 rcov = as.formula(paste("~", spatialTerm[ii])),
+                                 aom = TRUE, data = TD, ...)
           }
         } else {
           if (!is.na(checkId)) {
             mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
                                                           if (covT) paste(c("", covariate),
                                                                           collapse = "+"))),
-                                 random = as.formula(paste("~", genotype, "+", randomTerm[ii])),
+                                 random = as.formula(paste("~ genotype +", randomTerm[ii])),
                                  rcov = as.formula(paste("~", spatialTerm[ii])),
-                                 aom = TRUE, data = Y, ...)
+                                 aom = TRUE, data = TD, ...)
           } else {
             mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", 1,
                                                           if(covT) paste(c("", covariate),
                                                                          collapse = "+"))),
-                                 random = as.formula(paste("~", genotype, "+", randomTerm[ii])),
+                                 random = as.formula(paste("~ genotype +", randomTerm[ii])),
                                  rcov = as.formula(paste("~", spatialTerm[ii])),
-                                 aom = TRUE, data = Y, ...)
+                                 aom = TRUE, data = TD, ...)
           }
         }
         if (ii == 1) {
@@ -264,15 +260,17 @@ ST.Varowcol <- function(Y,
       if (trySpatial == "always") {
         if (tryRep){
           randomChoice <-c(rep(x = c("Identity", "Measurement_error"), each = 3),
-                           paste(rep, row, sep = ":"), paste(rep, col, sep=":"),
-                           paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"), sep = "+"),
+                           paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                           paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                                 sep = "+"),
                            paste(paste(rep, row, sep = ":"), "Measurement_error", sep = "+"),
                            paste(paste(rep, col, sep = ":"), "Measurement_error", sep = "+"),
                            paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
                                  "Measurement_error", sep = "+"))
           randomTerm <- c(rep(x = c("NULL", "units"), each = 3),
                           paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                          paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"), sep = "+"),
+                          paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                                sep = "+"),
                           paste(paste(rep, row, sep = ":"), "units", sep = "+"),
                           paste(paste(rep, col, sep = ":"), "units", sep = "+"),
                           paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
@@ -300,32 +298,32 @@ ST.Varowcol <- function(Y,
               mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
                                                             if (covT) paste(c("", covariate),
                                                                             collapse = "+"))),
-                                   random = as.formula(paste("~", genotype, "+", randomTerm[ii])),
+                                   random = as.formula(paste("~ genotype +", randomTerm[ii])),
                                    rcov = as.formula(paste("~", spatialTerm[ii])),
-                                   aom = TRUE, data = Y, ...)
+                                   aom = TRUE, data = TD, ...)
             } else {
               mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep,
                                                             if (covT) paste(c("", covariate),
                                                                             collapse = "+"))),
-                                   random = as.formula(paste("~", genotype, "+", randomTerm[ii])),
+                                   random = as.formula(paste("~ genotype +", randomTerm[ii])),
                                    rcov = as.formula(paste("~", spatialTerm[ii])),
-                                   aom = TRUE, data = Y, ...)
+                                   aom = TRUE, data = TD, ...)
             }
           } else {
             if (!is.na(checkId)) {
               mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
                                                             if (covT) paste(c("", covariate),
                                                                             collapse = "+"))),
-                                   random = as.formula(paste("~", genotype, "+", randomTerm[ii])),
+                                   random = as.formula(paste("~ genotype +", randomTerm[ii])),
                                    rcov = as.formula(paste("~", spatialTerm[ii])),
-                                   aom = TRUE, data = Y, ...)
+                                   aom = TRUE, data = TD, ...)
             } else {
               mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", 1,
                                                             if (covT) paste(c("", covariate),
                                                                             collapse = "+"))),
-                                   random = as.formula(paste("~", genotype, "+", randomTerm[ii])),
+                                   random = as.formula(paste("~ genotype +", randomTerm[ii])),
                                    rcov = as.formula(paste("~", spatialTerm[ii])),
-                                   aom = TRUE, data = Y, ...)
+                                   aom = TRUE, data = TD, ...)
             }
           }
           if (ii == 1) {
@@ -333,15 +331,15 @@ ST.Varowcol <- function(Y,
             bestChoice <- modelChoice[ii]
             bestLoc <- 1
           } else {
-            if (criterion == "AIC"){
+            if (criterion == "AIC") {
               criterionCur  <- -2 * mr$loglik + 2 * length(mr$gammas)
               criterionPrev <- -2 * bestModel$loglik + 2 * length(bestModel$gammas)
-            }else {
+            } else {
               criterionCur  <- -2 * mr$loglik + log(length(mr$fitted.values)) * length(mr$gammas)
               criterionPrev <- -2 * bestModel$loglik +
                 log(length(bestModel$fitted.values)) * length(bestModel$gammas)
             }
-            if (criterionCur < criterionPrev){
+            if (criterionCur < criterionPrev) {
               bestModel <- mr
               bestChoice <- modelChoice[ii]
               bestLoc <- ii
@@ -369,18 +367,18 @@ ST.Varowcol <- function(Y,
         mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
-                                                      "+", genotype)),
+                                                      "+ genotype")),
                              random = as.formula(paste("~", randomTerm[bestLoc])),
                              rcov = as.formula(paste("~", spatialTerm[ii])),
-                             G.param = GParamTmp, aom = TRUE, data = Y, ...)
+                             G.param = GParamTmp, aom = TRUE, data = TD, ...)
       } else {
         mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
-                                                      "+", genotype)),
+                                                      "+ genotype")),
                              random = as.formula(paste("~", randomTerm[bestLoc])),
                              rcov = as.formula(paste("~", spatialTerm[ii])),
-                             G.param = GParamTmp, aom = TRUE, data = Y, ...)
+                             G.param = GParamTmp, aom = TRUE, data = TD, ...)
       }
     } else {
       GParamTmp <- bestModel$G.param
@@ -394,18 +392,18 @@ ST.Varowcol <- function(Y,
         mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
-                                                      "+", genotype)),
+                                                      "+ genotype")),
                              random = as.formula(paste("~", randomTerm[bestLoc])),
                              rcov = as.formula(paste("~", spatialTerm[ii])),
-                             G.param = GParamTmp, aom = TRUE, data = Y, ...)
+                             G.param = GParamTmp, aom = TRUE, data = TD, ...)
       } else {
         mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~1",
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
-                                                      "+", genotype)),
+                                                      "+ genotype")),
                              random = as.formula(paste("~", randomTerm[bestLoc])),
                              rcov = as.formula(paste("~", spatialTerm[ii])),
-                             G.param = GParamTmp, aom = TRUE, data = Y, ...)
+                             G.param = GParamTmp, aom = TRUE, data = TD, ...)
       }
     }
   }
@@ -419,16 +417,17 @@ ST.Varowcol <- function(Y,
   mf$call$fixed <- eval(mf$call$fixed)
   mf$call$random <- eval(mf$call$random)
   mf$call$rcov <- eval(mf$call$rcov)
-  bestModel = predict(bestModel, classify = genotype, data = Y)
+  bestModel = predict(bestModel, classify = "genotype", data = TD)
   if (!is.na(checkId)) {
-    mf <- predict(mf, classify = genotype, vcov = TRUE, data = Y, associate = ~checkId:genotype)
+    mf <- predict(mf, classify = "genotype", vcov = TRUE, data = TD,
+                  associate = ~as.formula(paste0(checkId,":genotype")))
   } else {
-    mf <- predict(mf, classify = genotype, vcov = TRUE, data = Y)
+    mf <- predict(mf, classify = "genotype", vcov = TRUE, data = TD)
   }
   sink()
   unlink(tmp)
-  res = createSSA(mMix = bestModel, mFix = mf, data = Y, trait = trait,
-                  genotype = genotype, rep = ifelse(tryRep, rep, NULL),
+  res = createSSA(mMix = bestModel, mFix = mf, data = TD, trait = trait,
+                  genotype = "genotype", rep = ifelse(tryRep, rep, NULL),
                   engine = "asreml")
   return(res)
 }

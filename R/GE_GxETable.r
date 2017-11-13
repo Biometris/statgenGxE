@@ -10,10 +10,10 @@
 #'
 #' @examples
 #' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env ="env!", genotype ="genotype!", trait = "yld")
+#'                      env = "env!", genotype = "genotype!", trait = "yld")
 #' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
-#' myTDMegaEnv <- GE.megaEnvironment(TD = myTD, trait="yld")
-#' GE.GxETable(TD = myTDMegaEnv, trait="yld")
+#' myTDMegaEnv <- GE.megaEnvironment(TD = myTD, trait = "yld")
+#' GE.GxETable(TD = myTDMegaEnv, trait = "yld")
 #'
 #' @import utils
 #' @importFrom methods slot

@@ -33,11 +33,12 @@
 #' @seealso \code{\link{createTD}}
 #'
 #' @examples
-#' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
-#'                      factorNames=c("Env","Genotype","Rep","Subblock","Row","Column"),
-#'                      traitNames="yield", env ="Env", rowSelect="HEAT06",
-#'                      colSelect=c("Env","Genotype","Rep","Row","Column","yield"))
-#' ST.summary.trait(data=mydat, trait="yield")
+#' myDat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
+#'                      factorNames = c("Env", "Genotype", "Rep", "Subblock"),
+#'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
+#'                      colSelect = c("Env", "Genotype", "Rep", "Subblock", "yield"))
+#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
+#' summary(object = myTD, trait = "yield")
 #'
 #' @export
 summary.TD <- function(object,

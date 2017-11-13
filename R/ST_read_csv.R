@@ -39,9 +39,9 @@
 #' @note a header is needed in the csv file which the data are to be read from.
 #' @examples
 #' myDat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
-#'                      factorNames=c("Env","Genotype","Rep","Subblock","Row","Column"),
-#'                      traitNames="yield", env ="Env",rowSelect=c("HEAT06","HEAT05"),
-#'                      colSelect=c("Env","Genotype","Rep","Row","Column","yield"))
+#'                      factorNames = c("Env", "Genotype", "Rep", "Subblock", "Row", "Column"),
+#'                      traitNames = "yield", env = "Env",rowSelect = c("HEAT06", "HEAT05"),
+#'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
 #' str(myDat)
 #'
 #' @export

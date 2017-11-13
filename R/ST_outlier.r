@@ -2,21 +2,8 @@
 #'
 #' This function is to find observations that exceed 1.5 times the interquartile range.
 #'
-#' @param data A string path where the data list is saved.
-#' @param trait A string (vector) specifying the column name(s) of the trait(s).
-#' @param genotype A string specifying the column name of the genotypes.
-#' @param entry A string specifying the column name of the entries.
-#' @param plotNo A string specifying the column name of the plot numbers found.
-#' @param rep A string specifying the column name of the replicates.
-#' @param subBlock A string specifying the column name of the sub-blocks.
-#' @param row A string specifies the column name of the rows.
-#' @param col A string specifies the column name of the columns.
-#' @param rowCoordinates A string specifying row coordinates for fitting spatial models;
-#' default, \code{NA}.
-#' @param colCoordinates A string specifying col coordinates for fitting spatial models;
-#' default, \code{NA}.
-#' @param commonFactor A string vector specifying factors to define similar units;
-#' default, \code{commonFactor=genotype}.
+#' @inheritParams ST.vcheck
+#'
 #' @param coef this determines how far the plot 'whiskers' extend out from the box.
 #' If \code{coef} is positive, the whiskers extend to the most extreme data point which
 #' is no more than coef times the length of the box away from the box.
@@ -26,21 +13,18 @@
 #' an outlier.
 #'
 #' @examples
-#' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
-#'                      factorNames=c("Env","Genotype","Rep","Row"),
-#'                      traitNames="yield", env ="Env",rowSelect="HEAT05",
-#'                      colSelect=c("Env","Genotype","Rep","yield","Row"))
-#' outliers <- ST.outlier(mydat, trait="yield", genotype="Genotype", rep="Rep")
-#' #outliers <- ST.outlier(mydat, trait="yield", genotype="Genotype", rep="Rep", coef=1.2)
-#' #outliers <- ST.outlier(mydat, trait="yield", genotype="Genotype", row="Row",
-#' #                       commonFactor=c("Genotype", "Row"))
+#' myDat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
+#'                      factorNames = c("Env", "Genotype", "Rep", "Row"),
+#'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
+#'                      colSelect = c("Env", "Genotype", "Rep", "yield", "Row"))
+#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
+#' outliers <- ST.outlier(TD = myTD, trait = "yield", rep = "Rep")
 #'
 #' @import grDevices
 #' @export
 
-ST.outlier <- function(data,
+ST.outlier <- function(TD,
                        trait,
-                       genotype,
                        entry = NA,
                        plotNo = NA,
                        rep = NA,
@@ -49,20 +33,20 @@ ST.outlier <- function(data,
                        col = NA,
                        rowCoordinates = NA,
                        colCoordinates = NA,
-                       commonFactor = genotype,
+                       commonFactor = "genotype",
                        coef = 1.5) {
-  testNames <- c(trait, genotype, entry, plotNo, rep, subBlock, row, col,
+  testNames <- c(trait, entry, plotNo, rep, subBlock, row, col,
                  rowCoordinates, colCoordinates)
   naNames <- is.na(testNames)
   testNames <- testNames[!naNames]
-  if(!all(testNames %in% names(data))){
-    stop(paste(testNames[!(testNames %in% names(data))], collapse = ","),
-         " not found in the names of data.\n")
+  if(!all(testNames %in% names(TD))){
+    stop(paste(testNames[!(testNames %in% names(TD))], collapse = ","),
+         " not found in the names of TD.\n")
   }
-  trts <- indicator <- data[, trait, drop = FALSE]
-  similar <- rep(2, nrow(data))
-  cat(paste("Observations that exceed", coef, "times the inerquartile range\n"))
-  pmat <- data.frame(trait = character(0), value = numeric(0), genotype = character(0),
+  trts <- indicator <- TD[, trait, drop = FALSE]
+  similar <- rep(2, nrow(TD))
+  cat(paste("Observations that exceed", coef, "times the interquartile range\n"))
+  pMat <- data.frame(trait = character(0), value = numeric(0), genotype = character(0),
                      entry = character(0), plotNo = character(0), replicate = character(0),
                      subBlock = character(0), row = character(0), column = character(0),
                      rowPosition = character(0), colPosition = character(0), similar = integer(0))
@@ -71,73 +55,73 @@ ST.outlier <- function(data,
     tInd <- indicator[[trait[ii]]] <- trts[[trait[ii]]] %in% outVals
     if (length(outVals)) {
       ncFac <- length(commonFactor)
-      genoOut <- ttInd <- rep(FALSE, nrow(data))
+      genoOut <- ttInd <- rep(FALSE, nrow(TD))
       for (jj in 1:ncFac){
-        ttInd <- data[tInd, commonFactor[jj]]
+        ttInd <- TD[tInd, commonFactor[jj]]
         ttInd <- droplevels(ttInd)
         ttInd <- levels(ttInd)
-        ttInd <- data[[commonFactor[jj]]] %in% ttInd
+        ttInd <- TD[[commonFactor[jj]]] %in% ttInd
         genoOut <- genoOut + ttInd
       }
       genoOut <- genoOut > 0
       similar[genoOut] <- 1
       similar[tInd] <- 0
       nn <- sum(genoOut)
-      pmat0 <- data.frame(trait = character(nn), value = numeric(nn), genotype = character(nn),
+      pMat0 <- data.frame(trait = character(nn), value = numeric(nn), genotype = character(nn),
                           entry = character(nn), plotNo = character(nn), replicate = character(nn),
                           subBlock = character(nn), row = character(nn), column = character(nn),
                           rowPosition = character(nn), colPosition = character(nn),
                           similar = integer(nn))
-      pmat0$value <- data[genoOut, trait[ii]]
-      pmat0$trait <- rep(trait[ii], nn)
-      pmat0$similar <- similar[genoOut]
-      pmat0$genotype <- data[genoOut, genotype]
+      pMat0$value <- TD[genoOut, trait[ii]]
+      pMat0$trait <- rep(trait[ii], nn)
+      pMat0$similar <- similar[genoOut]
+      pMat0$genotype <- TD[genoOut, "genotype"]
       if (!is.na(entry)) {
-        pmat0$entry <- data[genoOut, entry]
+        pMat0$entry <- TD[genoOut, entry]
       } else {
-        pmat0$entry <- rep(NA, nn)
+        pMat0$entry <- rep(NA, nn)
       }
       if (!is.na(plotNo)) {
-        pmat0$plotNo <- data[genoOut, plotNo]
+        pMat0$plotNo <- TD[genoOut, plotNo]
       } else {
-        pmat0$plotNo <- rep(NA, nn)
+        pMat0$plotNo <- rep(NA, nn)
       }
       if (!is.na(rep)) {
-        pmat0$replicate <- data[genoOut, rep]
+        pMat0$replicate <- TD[genoOut, rep]
       } else {
-        pmat0$replicate <- rep(NA, nn)
+        pMat0$replicate <- rep(NA, nn)
       }
       if (!is.na(subBlock)) {
-        pmat0$subBlock <- data[genoOut, subBlock]
+        pMat0$subBlock <- TD[genoOut, subBlock]
       } else {
-        pmat0$subBlock <- rep(NA, nn)
+        pMat0$subBlock <- rep(NA, nn)
       }
       if (!is.na(row)) {
-        pmat0$row <- data[genoOut, row]
+        pMat0$row <- TD[genoOut, row]
       } else {
-        pmat0$row <- rep(NA, nn)
+        pMat0$row <- rep(NA, nn)
       }
       if (!is.na(col)) {
-        pmat0$column <- data[genoOut, col]
+        pMat0$column <- TD[genoOut, col]
       } else {
-        pmat0$column <- rep(NA, nn)
+        pMat0$column <- rep(NA, nn)
       }
       if (!is.na(rowCoordinates)) {
-        pmat0$rowPosition <- data[genoOut, rowCoordinates]
+        pMat0$rowPosition <- TD[genoOut, rowCoordinates]
       } else {
-        pmat0$rowPosition <- rep(NA, nn)
+        pMat0$rowPosition <- rep(NA, nn)
       }
       if (!is.na(colCoordinates)) {
-        pmat0$colPosition <- data[genoOut, colCoordinates]
+        pMat0$colPosition <- TD[genoOut, colCoordinates]
       } else {
-        pmat0$colPosition <- rep(NA, nn)
+        pMat0$colPosition <- rep(NA, nn)
       }
-      pmat <- rbind(pmat, pmat0)
+      pMat <- rbind(pMat, pMat0)
     }
   }
-  if (nrow(pmat) > 0) {
+  if (nrow(pMat) > 0) {
     naNames0 <- c(FALSE, naNames, FALSE)
-    print(format(pmat[, !naNames0]), quote = FALSE)
+    print(format(pMat[, !naNames0]), quote = FALSE)
   }
   invisible(indicator)
 }

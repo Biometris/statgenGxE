@@ -8,7 +8,7 @@
 #' @param method A character string specifying (a) measure(s) of stability. By default,
 #' \code{method = c("superiority","static","wricke")}.
 #' @param superiorityBestMethod A character string specifying the criterion to define the best
-#' genotype ("max","min"). By default, \code{superiorityBestMethod="max"}.
+#' genotype ("max","min"). By default, \code{superiorityBestMethod = "max"}.
 #' @param sorted A character string specifying whether the results are sorted by increasing
 #' (or decreasing) order of stability coefficients. By default, \code{sortBYsens = "descending"}.
 #' Other options are \code{"ascending"} and \code{NA}.
@@ -18,7 +18,7 @@
 #'
 #' @examples
 #' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env ="env!", genotype ="genotype!", trait = "yld")
+#'                      env = "env!", genotype = "genotype!", trait = "yld")
 #' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
 #' GE.stability(TD = myTD, trait = "yld", method = "superiority",
 #'              superiorityBestMethod = "max", sorted = "descending", plot = TRUE)

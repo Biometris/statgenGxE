@@ -36,7 +36,7 @@
 #'
 #' @examples
 #' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env="env!", genotype="genotype!", trait="yld")
+#'                      env = "env!", genotype = "genotype!", trait = "yld")
 #' str(myDat)
 #'
 #' @export

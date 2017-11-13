@@ -4,7 +4,7 @@
 #'
 #' @param mMix a mixed model created using either asreml or lme4
 #' @param mFix a fixed model created using either asreml or lme4
-#' @param data a data.frame containing the data on which mMix and mFix are based.
+#' @param data an object of class TD containing the data on which mMix and mFix are based.
 #' @param trait a character sting indicating the trait for which the analysis is done.
 #' @param genotype a character sting indicating genotype column in the data.
 #' @param rep a character sting indicating the replicates column in the data.

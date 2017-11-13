@@ -3,7 +3,7 @@
 #' This function is to extract and calculate various results such as
 #' heritabilities, genotypic means, unit errors etc.
 #'
-#' @param mixfix A list of model results with fields \code{mMix}, \code{mFix} and \code{data}.
+#' @param SSA An object of class SSA.
 #'
 #' @return A list of extracted statistics.
 #'
@@ -12,29 +12,29 @@
 #' \code{\link{ST.mod.rowcol}}
 #'
 #' @examples
-#' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
-#'                      factorNames=c("Env","Genotype","Rep","Subblock","Row","Column"),
-#'                      traitNames="yield", env ="Env",rowSelect="HEAT05",
-#'                      colSelect=c("Env","Genotype","Rep","Row","Column","yield"))
-#' mymodel <- ST.run.model(mydat, design="res.rowcol", trait="yield",
-#'                         genotype="Genotype", rep="Rep", row="Row",
-#'                         col="Column", tryspatial=NA)
-#' extr <- ST.extract(mymodel)
+#' myDat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
+#'                      factorNames = c("Env", "Genotype", "Rep", "Subblock", "Row", "Column"),
+#'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
+#'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
+#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "env")
+#' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
+#'                         rep = "Rep", row = "Row", col = "Column", tryspatial = NA)
+#' extr <- ST.extract(myModel)
 #' str(extr)
 #'
 #' @importFrom methods slot
 #' @export
 
-ST.extract = function(mixfix) {
+ST.extract = function(SSA) {
   # Choose between asreml and mle4
-  engine <- mixfix$engine
-  trait <- mixfix$trait
-  genotype <- mixfix$genotype
-  rep <- mixfix$rep
-  # Extract statistics from mixed and fixed models in list mixfix
-  mr <- mixfix$mMix
-  mf <- mixfix$mFix
-  Y <- mixfix$data
+  engine <- SSA$engine
+  trait <- SSA$trait
+  genotype <- SSA$genotype
+  rep <- SSA$rep
+  # Extract statistics from mixed and fixed models in list SSA
+  mr <- SSA$mMix
+  mf <- SSA$mFix
+  Y <- SSA$data
   # Use lme4 as an engine for mixed modelling
   if (engine == "lme4") {
     # Extract coeffcients mf
@@ -154,9 +154,9 @@ ST.extract = function(mixfix) {
     # Combine results
     result <- list(stats = stats, varGen = varGen, varErr = varErr)
     # Estimating heritability on a line mean basis
-    if (attr(mixfix, "Design") %in% c("ibd", "rowcol")) {
+    if (SSA$design %in% c("ibd", "rowcol")) {
       result$heritability <- varGen/(varGen + varErr)
-    } else if (attr(mixfix, "Design") %in% c("res.ibd", "res.rowcol", "rcbd")) {
+    } else if (SSA$design %in% c("res.ibd", "res.rowcol", "rcbd")) {
       if (!is.null(rep)) {
         result$heritability <- varGen / (varGen + (varErr / length(unique(Y[[rep]]))))
       } else {
@@ -172,7 +172,7 @@ ST.extract = function(mixfix) {
       result$rmeans <- lme4::getME(mr, "mu")
     }
     result$ranef <- rEff
-    result$model <- attr(mixfix, "Design")
+    result$model <- SSA$design
     result$engine <- "lme4"
     # result$waldTestGeno <- waldTestGeno
     result$CV <- CV
@@ -278,8 +278,9 @@ ST.extract = function(mixfix) {
     #result$heritability =1-mean(mr$vcoeff$random[genopos])/(varGen/mr$sigma2)
     tmpfile <- tempfile()
     sink(file = tmpfile)
-    newSed <- predict(mr, classify = genotype, only = genotype, sed = TRUE, data = Y)$predictions$sed
-    sink(NULL)
+    newSed <- predict(mr, classify = genotype, only = genotype,
+                      sed = TRUE, data = Y)$predictions$sed
+    sink()
     unlink(tmpfile)
     sedSq <- newSed ^ 2
     result$heritability <- 1 - mean(sedSq[lower.tri(sedSq)]) / (varGen * 2)
@@ -298,7 +299,7 @@ ST.extract = function(mixfix) {
     result$predictionsSed <- sed
     result$predictionsLsd <- lsd
     result$ranef <- rEff
-    result$model <- attr(mixfix, "Design") #"alpha"
+    result$model <- SSA$design
     result$engine <- "asreml"
     # result$waldTestGeno <- waldTestGeno
     result$CV <- CV

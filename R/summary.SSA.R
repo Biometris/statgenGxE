@@ -14,14 +14,14 @@
 #' @param ... Further arguments passed to \code{\link[stats]{printCoefmat}}.
 #'
 #' @examples
-#' mydat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
-#'                      factorNames=c("Env","Genotype","Rep","Subblock","Row","Column"),
-#'                      traitNames="yield", env ="Env", rowSelect="HEAT05",
-#'                      colSelect=c("Env","Genotype","Rep","Row","Column","yield"))
-#' mymodel <- ST.run.model(mydat, design="res.rowcol", trait="yield",
-#'                         genotype="Genotype", rep="Rep", row="Row",
-#'                         col="Column", tryspatial=NA)
-#' summary(mymodel)
+#' myDat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
+#'                      factorNames = c("Env", "Genotype", "Rep", "Subblock", "Row", "Column"),
+#'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
+#'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
+#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "env")
+#' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
+#'                         rep = "Rep", row = "Row", col = "Column", tryspatial = NA)
+#' summary(myModel)
 #'
 #' @export
 summary.SSA <- function(object,
