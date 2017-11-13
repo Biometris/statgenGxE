@@ -2,10 +2,8 @@
 #'
 #' This function performs a modified joint analysis of data classified by two factors.
 #'
-#' @param Y A data frame object.
-#' @param trait A character string specifying a trait column of the data.
-#' @param genotype A character string specifying a genotype column of the data.
-#' @param env A character string specifying the envirnoment column of the data.
+#' @inheritParams GE.AMMI
+#'
 #' @param maxcycle A integer specifying the maximum number of iterations to be achieved.
 #' By default, \code{maxcycle = 15}.
 #' @param tol A small positive numerical value specifying convergence tolerance.
@@ -15,19 +13,16 @@
 #' By default, \code{sortBySens = "ascending"}. Other options are "descending" and NA.
 
 #' @examples
-#' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env="env!", genotype="genotype!", trait="yld")
-#' names(mydat)=c("env", "genotype","yld")
-#' fw.anlysis <- GE.FW(mydat, trait="yld", genotype="genotype", env="env", maxcycle = 15, tol = 0.001,
-#'                sortBySens = "ascending")
-#' fw.anlysis
+#' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
+#'                      env ="env!", genotype ="genotype!", trait = "yld")
+#' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
+#' fw.analysis <- GE.FW(myTD, trait="yld", maxcycle = 15, tol = 0.001, sortBySens = "ascending")
+#' fw.analysis
 #'
 #' @export
 
-GE.FW <- function(Y,
+GE.FW <- function(TD,
                   trait,
-                  genotype,
-                  env,
                   maxcycle = 15,
                   tol = 0.001,
                   sortBySens = c("ascending", "descending", NA)) {
@@ -36,57 +31,57 @@ GE.FW <- function(Y,
   if (missing(sortBySens)) {
     sortBySens <- "ascending"
   }
-  nLab <- nlevels(Y[, genotype])
-  nEnvs <- nlevels(Y[, env])
+  nGeno <- nlevels(TD$genotype)
+  nEnv <- nlevels(TD$env)
   ## Save Sum Sq & Df
   rDev <- rDf <- rep(NA, 5)
   ## Initializing...
   ## Estimating env effects with the sensitivity beta=1
-  model0 <- lm(as.formula(paste(trait, "~-1 +", env, "+", genotype)),
-               data = Y, na.action = na.exclude)
+  model0 <- lm(as.formula(paste(trait, "~-1 + env + genotype")),
+               data = TD, na.action = na.exclude)
   aov0 <- anova(model0)
   tPos <- rownames(aov0) == "Residuals"
   rDev[2] <- aov0[["Sum Sq"]][tPos]
   rDf[2] <- aov0[["Df"]][tPos]
   coeffsModel0 <- coefficients(model0)
-  envEffs0 <- coeffsModel0[grep(pattern = env, x = names(coeffsModel0))]
+  envEffs0 <- coeffsModel0[grep(pattern = "env", x = names(coeffsModel0))]
   # Adjust env effects to have mean zero
   envEffs0 <- envEffs0 - mean(envEffs0, na.rm = TRUE)
-  envEffs <- rep(NA, nrow(Y))
+  envEffs <- rep(NA, nrow(TD))
   for (ii in names(envEffs0)) {
-    tPosition <- sapply(Y[[env]], function(x) {
+    tPosition <- sapply(X = TD$env, FUN = function(x) {
       grepl(pattern = x, x = ii)
     })
     envEffs[tPosition] <- envEffs0[ii]
   }
-  Y <- cbind(Y, envEffs)
+  TD <- cbind(TD, envEffs)
   # Initial values for sensitivity beta
-  Y$beta <- rep(1, nLab)
+  TD$beta <- 1
   # Set a relative difference to be large
   maxdiff <- 10000
   # Set iteration to be 1
   iter <- 1
   # Iterate to fit 'y(i,j) = genMean(i)+beta(i)*envEffs(j)'
   while (maxdiff > tol && iter <= maxcycle) {
-    beta0 <- Y$beta
+    beta0 <- TD$beta
     # Form variate with current genotype sensitivity relevant to each unit
-    model1 <- lm(as.formula(paste(trait, "~-1 +", genotype, "+", genotype, ":envEffs")),
-                 data = Y, na.action = na.exclude)
+    model1 <- lm(as.formula(paste(trait, "~-1 + genotype + genotype:envEffs")),
+                 data = TD, na.action = na.exclude)
     coeffsModel1 <- coefficients(model1)
     # Update beta
-    Y$beta <- coeffsModel1[match(paste0(genotype, Y[[genotype]], ":envEffs"), names(coeffsModel1))]
-    Y$beta <- Y$beta / mean(Y$beta, na.rm = TRUE)
+    TD$beta <- coeffsModel1[match(paste0("genotype", TD$genotype, ":envEffs"), names(coeffsModel1))]
+    TD$beta <- TD$beta / mean(TD$beta, na.rm = TRUE)
     print(logLik(model1))
     # Form variate with current env means relevant to each unit
-    model2 <- lm(as.formula(paste(trait, "~-1 +", genotype, "+", env, ":beta")),
-                 data = Y, na.action = na.exclude)
+    model2 <- lm(as.formula(paste(trait, "~-1 + genotype + env:beta")),
+                 data = TD, na.action = na.exclude)
     coeffsModel2 <- coefficients(model2)
     # Update envEffs
-    Y$envEffs <- coeffsModel2[match(paste0(env, Y[[env]],":beta"), names(coeffsModel2))]
-    Y[is.na(Y$envEffs), "envEffs"] <- 0
-    Y$envEffs <- Y$envEffs - mean(Y$envEffs)
+    TD$envEffs <- coeffsModel2[match(paste0("env", TD$env, ":beta"), names(coeffsModel2))]
+    TD[is.na(TD$envEffs), "envEffs"] <- 0
+    TD$envEffs <- TD$envEffs - mean(TD$envEffs)
     # Maximum difference of sensitivities between the succesive iterations
-    maxdiff <- max(abs(Y$beta - beta0), na.rm = TRUE)
+    maxdiff <- max(abs(TD$beta - beta0), na.rm = TRUE)
     if (iter == maxcycle && maxdiff > tol)
       warning(paste0("Convergence not achieved in ", iter," iterations. Tolerance ",
                      tol, ", criterion at last iteration ", signif(maxdiff, 4), ".\n"))
@@ -98,12 +93,12 @@ GE.FW <- function(Y,
   rDev[4] <- aov1[["Sum Sq"]][tPos]
   rDf[4] <- aov1[["Df"]][tPos]
   # Extract total deviance
-  modelA <- lm(as.formula(paste(trait, "~", genotype)), data = Y, na.action = na.exclude)
+  modelA <- lm(as.formula(paste(trait, "~ genotype")), data = TD, na.action = na.exclude)
   aovA <- anova(modelA)
   rDev[5] <- sum(aovA[["Sum Sq"]])
   rDf[5] <- sum(aovA[["Df"]])
   # Fit varieties only for first entry in aov
-  modelB <- lm(as.formula(paste(trait, "~-1 +", genotype)), data = Y, na.action = na.exclude)
+  modelB <- lm(as.formula(paste(trait, "~-1 + genotype")), data = TD, na.action = na.exclude)
   aovB <- anova(modelB)
   tPos <- rownames(aovB) == "Residuals"
   rDev[1] <- aovB[["Sum Sq"]][tPos]
@@ -121,24 +116,24 @@ GE.FW <- function(Y,
   devr[rDf == 0] <- NA
   devr[!is.na(devr) & devr < 0] <- NA
   fProb <- pf(devr, rDf, rDf[4], lower.tail = FALSE)
-  aovtable <- data.frame("Df" = rDf, "Sum Sq" = rDev, "Mean Sq" = mDev,
+  aovTable <- data.frame("Df" = rDf, "Sum Sq" = rDev, "Mean Sq" = mDev,
                          "F value" = devr, "Pr(>F)" = fProb,
-                         row.names = c(genotype, env, "Sensitivities", "Residual", "Total"),
+                         row.names = c("genotype", "env", "Sensitivities", "Residual", "Total"),
                          check.names = FALSE)
   # Sensitivity beta(i)
-  sens <- Y$beta
+  sens <- TD$beta
   # standard error for env
-  sigmaE <- sqrt(diag(vcov(model1))[match(paste0(genotype, Y[[genotype]], ":envEffs"),
+  sigmaE <- sqrt(diag(vcov(model1))[match(paste0("genotype", TD$genotype, ":envEffs"),
                                           names(coeffsModel1))])
   # Mean for each genotype genMean(i)
-  genMean <- coeffsModel1[match(paste0(genotype, Y[[genotype]]), names(coeffsModel1))]
+  genMean <- coeffsModel1[match(paste0("genotype", TD$genotype), names(coeffsModel1))]
   # residual standard error
-  sigma <- sqrt(diag(vcov(model1))[match(paste0(genotype, Y[[genotype]]),
+  sigma <- sqrt(diag(vcov(model1))[match(paste0("genotype", TD$genotype),
                                          names(coeffsModel1))])
   fittedGen <- fitted(model1)
   resiGen <- residuals(model1)
   # mean squared error (MSE) of the trait means for each genotype
-  mse <- tapply(X = resiGen, INDEX = Y[, genotype], FUN = function(x) {
+  mse <- tapply(X = resiGen, INDEX = TD$genotype, FUN = function(x) {
     checkG <- length(x)
     if (checkG > 2) {
       sum(x ^ 2, na.rm = TRUE) / (checkG - 2)
@@ -147,17 +142,17 @@ GE.FW <- function(Y,
     }
   })
   # mean estimates for each genotype
-  G <- levels(Y[, genotype])
-  sens <- tapply(X = sens, INDEX = Y[, genotype], FUN = function(x) {
+  G <- levels(TD$genotype)
+  sens <- tapply(X = sens, INDEX = TD$genotype, FUN = function(x) {
     mean(x, na.rm = TRUE)
   })
-  sigmaE <- tapply(X = sigmaE, INDEX = Y[, genotype], FUN = function(x) {
+  sigmaE <- tapply(X = sigmaE, INDEX = TD$genotype, FUN = function(x) {
     mean(x, na.rm = TRUE)
   })
-  genMean <- tapply(X = genMean, INDEX = Y[, genotype],FUN =  function(x) {
+  genMean <- tapply(X = genMean, INDEX = TD$genotype, FUN =  function(x) {
     mean(x, na.rm = TRUE)
   })
-  sigma <- tapply(X = sigma, INDEX = Y[, genotype], FUN = function(x) {
+  sigma <- tapply(X = sigma, INDEX = TD$genotype, FUN = function(x) {
     mean(x, na.rm = TRUE)
   })
   if (sortBySens == "ascending") {
@@ -174,7 +169,7 @@ GE.FW <- function(Y,
   }
   # ANOVA table
   # Environment effects
-  matchPositions <- match(paste0(env, levels(Y[[env]]), ":beta"), names(coeffsModel2))
+  matchPositions <- match(paste0("env", levels(TD$env), ":beta"), names(coeffsModel2))
   envEffs <- coeffsModel2[matchPositions]
   naPosition <- is.na(envEffs)
   envEffs[naPosition] <- 0
@@ -183,11 +178,11 @@ GE.FW <- function(Y,
   seEnvEffs <- rep(NA, length(envEffs))
   names(seEnvEffs) <- names(envEffs)
   seEnvEffs[names(varEnvEffs)] <- sqrt(varEnvEffs)
-  matchPositions2 <- match(paste0(env, levels(Y[[env]]), ":beta"), names(envEffs))
+  matchPositions2 <- match(paste0("env", levels(TD$env), ":beta"), names(envEffs))
   if (!is.null(model1$na.action)) {
-    meansFitted <- tapply(X = model1$fitted, INDEX = Y[[env]][-model1$na.action], FUN = mean)
+    meansFitted <- tapply(X = model1$fitted, INDEX = TD$env[-model1$na.action], FUN = mean)
   } else {
-    meansFitted <- tapply(X = model1$fitted, INDEX = Y[[env]], FUN = mean)
+    meansFitted <- tapply(X = model1$fitted, INDEX = TD$env, FUN = mean)
   }
   meansFitted <- meansFitted[matchPositions2]
   meansRank <- rank(-meansFitted)
@@ -195,8 +190,8 @@ GE.FW <- function(Y,
   envEffsSummary <- data.frame(Environment = meansNames, Effect = envEffs,
                                s.e. = seEnvEffs, Mean = meansFitted,
                                Rank = meansRank, row.names = NULL)
-  return(createFW(estimates = res, anova = aovtable, envEffs = envEffsSummary,
-                  data = Y, fittedGeno = fittedGen,
-                  trait = trait, nGeno = nLab, nEnv = nEnvs, tol = tol,
+  return(createFW(estimates = res, anova = aovTable, envEffs = envEffsSummary,
+                  data = TD, fittedGeno = fittedGen,
+                  trait = trait, nGeno = nGeno, nEnv = nEnv, tol = tol,
                   iter = iter - 1))
 }

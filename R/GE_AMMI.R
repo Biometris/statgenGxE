@@ -4,10 +4,8 @@
 #' environment) along with the Multiplicative Interaction effects of principal
 #' component analysis (PCA).
 #'
-#' @param Y A data frame object.
+#' @param TD an object of class TD.
 #' @param trait A character string specifying a trait column of the data.
-#' @param genotype A character string specifying a genotype column of the data.
-#' @param env A character string specifying an environment column of the data.
 #' @param nPC An integer specifying the number of principal components used.
 #' as the multiplicative term of genotype-by-environment. \code{nPC=2} by default.
 #' @param center  A logical value indicating whether the variables
@@ -17,28 +15,25 @@
 #'  place. The default is \code{FALSE}.
 #'
 #' @examples
-#' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
+#' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env ="env!", genotype ="genotype!", trait = "yld")
-#' names(mydat) <- c("env", "genotype","yld")
-#' GE.AMMI(Y = mydat, trait = "yld", genotype = "genotype", env = "env", nPC = 2,
-#'         center = TRUE, scale = FALSE)
+#' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
+#' GE.AMMI(TD = myTD, trait = "yld", nPC = 2, center = TRUE, scale = FALSE)
 #'
 #' @import stats
 #' @export
 
-GE.AMMI <- function(Y,
+GE.AMMI <- function(TD,
                     trait,
-                    genotype,
-                    env,
                     nPC = 2,
                     center = TRUE,
                     scale = FALSE) {
   #drop factor levels
-  Y[[genotype]] <- droplevels(Y[[genotype]])
-  Y[[env]] <- droplevels(Y[[env]])
-  nGeno <- nlevels(Y[[genotype]])
-  nEnv  <- nlevels(Y[[env]])
-  nTrait <- nrow(Y)
+  TD$genotype <- droplevels(TD$genotype)
+  TD$env <- droplevels(TD$env)
+  nGeno <- nlevels(TD$genotype)
+  nEnv  <- nlevels(TD$env)
+  nTrait <- nrow(TD)
   # requre number of environments >=3
   if (nEnv < 3) {
     stop("Requires number of environments greater and equal than 3 for running the AMMI model.\n")
@@ -48,24 +43,25 @@ GE.AMMI <- function(Y,
     stop("Only allows the genotype by environment means, \ni.e., one trait value per
          genotype per enviroment.\n")
   }
-  if (any(is.na(Y[[trait]]))) {
-    y0 <- tapply(X = Y[[trait]], INDEX = Y[, c(genotype, env)], FUN = identity)
-    yIndex <- tapply(X = 1:nTrait, INDEX = Y[, c(genotype, env)], FUN = identity)
+  if (any(is.na(TD[[trait]]))) {
+    y0 <- tapply(X = TD[[trait]], INDEX = TD[, c("genotype", "env")], FUN = identity)
+    yIndex <- tapply(X = 1:nTrait, INDEX = TD[, c("genotype", "env")], FUN = identity)
     na_yes_no <- is.na(y0)
-    # imputaion
+    # imputation
     y1 <- RAP.multmissing(y0, maxcycle = 10, na.strings = NA)
     replaceVal <- y1[na_yes_no]
-    Y[yIndex[na_yes_no], trait] <- replaceVal
+    TD[yIndex[na_yes_no], trait] <- replaceVal
   }
   # Descriptive statistics
-  envMean <- tapply(X = Y[[trait]], INDEX = Y[[env]], FUN = mean)
-  genoMean <- tapply(X = Y[[trait]], INDEX = Y[[genotype]], FUN = mean)
-  overallMean <- mean(Y[[trait]])
+  envMean <- tapply(X = TD[[trait]], INDEX = TD$env, FUN = mean)
+  genoMean <- tapply(X = TD[[trait]], INDEX = TD$genotype, FUN = mean)
+  overallMean <- mean(TD[[trait]])
   # Fit the linear model
-  model <- lm(as.formula(paste(trait, "~", genotype, "+", env)), data = Y)
+  model <- lm(as.formula(paste(trait, "~ genotype + env")), data = TD)
   # calculate residuals & fitted values of the linear model
-  X <- tapply(X = resid(model), INDEX = Y[, c(genotype, env)], FUN = identity)
-  fittedVals <- tapply(X = fitted(model), INDEX = Y[, c(genotype, env)], FUN = identity)
+  X <- tapply(X = resid(model), INDEX = TD[, c("genotype", "env")], FUN = identity)
+  fittedVals <- tapply(X = fitted(model), INDEX = TD[, c("genotype", "env")],
+                       FUN = identity)
   X <- as.matrix(X)
   gNames <- rownames(X)
   if (is.null(gNames)) {
@@ -91,8 +87,8 @@ GE.AMMI <- function(Y,
   tNames <- paste0("PC", 1:nPC)
   rownames(addTbl) <- c(tNames, "Residuals")
   # Add the df for PC scores and residuals
-  nGeno <- nlevels(Y[, genotype])
-  nEnv  <- nlevels(Y[, env])
+  nGeno <- nlevels(TD$genotype)
+  nEnv  <- nlevels(TD$env)
   dfPC <- nGeno + nEnv - 3 - (2 * (1:nPC - 1))
   dfResid <- a1["Interactions", "Df"] - sum(dfPC)
   addTbl[,"Df"] <- c(dfPC, dfResid)

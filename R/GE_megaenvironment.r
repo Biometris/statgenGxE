@@ -1,39 +1,34 @@
 #' Form mega-environments based on winning genotypes from an AMMI-2 model
 #'
 #' This function fits an AMMI-2 model and then using the fitted values produces
-#' a new factor based on the winning genotype in each environment.
+#' a new factor based on the winning genotype in each environment. This new factor is
+#' added as a column megaEnv to the input data.
 #'
-#' @param Y A data frame object.
-#' @param trait A character string specifying the name of a trait column
-#' @param genotype A character string specifying the name of a genotype column.
-#' @param env A character string specifying the name of an environment column.
-#' @param megaEnv A character string specifying the name of an mega-environment column.
-#' This column is to be added into \code{Y}.
+#' @inheritParams GE.AMMI
+#'
 #' @param method A criterion to determine the best trait, either \code{"max"} or \code{"min"}.
 #' @param summaryTable A logical specifying whether a summary table will be returned.
-#' @return A data frame object, consisting of Y and a mega-environment factor.
+#'
+#' @return The input object of class TD with an added extra column megaEnv
+#'
 #' @examples
-#' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env="env!", genotype="genotype!", trait="yld")
-#' names(mydat)=c("env", "genotype","yld")
-#' Y <- GE.megaEnvironment(Y=mydat, trait="yld", genotype="genotype",
-#'                         env="env", megaEnv="megaEnv")
-#' str(Y)
+#' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
+#'                      env ="env!", genotype ="genotype!", trait = "yld")
+#' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
+#' TDmegaEnv <- GE.megaEnvironment(TD = myTD, trait = "yld")
+#' attr(TDmegaEnv, "summary")
 #'
 #' @export
 
-GE.megaEnvironment <- function(Y,
+GE.megaEnvironment <- function(TD,
                                trait,
-                               genotype,
-                               env,
-                               megaEnv,
                                method = "max",
                                summaryTable = TRUE) {
   #drop factor levels
-  Y[[genotype]] <- droplevels(Y[[genotype]])
-  Y[[env]] <- droplevels(Y[[env]])
+  TD$genotype <- droplevels(TD$genotype)
+  TD$env <- droplevels(TD$env)
   #use AMMI2
-  anal <- GE.AMMI(Y, trait, genotype, env, nPC = 2)
+  anal <- GE.AMMI(TD = TD, trait = trait, nPC = 2)
   fitted <- anal$fitted
   genoNames <- rownames(fitted)
   envNames  <- colnames(fitted)
@@ -52,14 +47,14 @@ GE.megaEnvironment <- function(Y,
   # re-labelling
   levels(megaFactor) <- unique(as.integer(megaFactor))
   # merge factor levels
-  megaEnvFactor <- Y[[env]]
+  megaEnvFactor <- TD$env
   levels(megaEnvFactor) <- as.character(megaFactor)
-  Y[[megaEnv]] <- megaEnvFactor
+  TD$megaEnv <- megaEnvFactor
   # re-labelling
-  levels(Y[[megaEnv]]) <- 1:nlevels(megaEnvFactor)
+  levels(TD$megaEnv) <- 1:nlevels(megaEnvFactor)
   if (summaryTable) {
     summTab <- matrix(nrow = length(envNames), ncol = 4)
-    colnames(summTab) <- c("Mega env", env, genotype, "AMMI estimates")
+    colnames(summTab) <- c("Mega env", "env", "genotype", "AMMI estimates")
     megaOrder <- order(megaFactor)
     summTab[, 1] <- megaFactor
     summTab[, 2] <- envNames
@@ -69,7 +64,7 @@ GE.megaEnvironment <- function(Y,
     })
     summTab <- as.data.frame(summTab[megaOrder, ], stringsAsFactors = FALSE)
     summTab[, 4] <- as.numeric(summTab[, 4])
-    attr(Y, "summary") <- summTab
+    attr(TD, "summary") <- summTab
   }
-  return(Y)
+  return(TD)
 }

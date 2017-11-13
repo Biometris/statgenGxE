@@ -22,6 +22,12 @@
 #' contains field rows.
 #' @param col an optional character string indicating the column in \code{data} that
 #' contains field columns.
+#' @param rowCoordinates an optional character string indicating the column in
+#' \code{data} that contains the row coordinates used for fitting spatial models.
+#' @param colCoordinates an optional character string indicating the column in
+#' \code{data} that contains the column coordinates used for fitting spatial models.
+#' @param checkId an optional character string indicating the column in \code{data} that
+#' contains the check ID(s).
 
 #' @param x an \code{R} object
 #'
@@ -42,7 +48,10 @@ createTD <- function(data,
                      rep = NULL,
                      subBlock = NULL,
                      row = NULL,
-                     col = NULL) {
+                     col = NULL,
+                     rowCoordinates = NULL,
+                     colCoordinates = NULL,
+                     checkId = NULL) {
   cols <- colnames(data)
   cols[cols == genotype] <- "genotype"
   cols[cols == env] <- "env"
@@ -52,6 +61,9 @@ createTD <- function(data,
   cols[cols == subBlock] <- "subBlock"
   cols[cols == row] <- "row"
   cols[cols == col] <- "col"
+  cols[cols == rowCoordinates] <- "rowCoordinates"
+  cols[cols == colCoordinates] <- "colCoordinates"
+  cols[cols == checkId] <- "checkId"
   colnames(data) <- cols
   TD <- structure(data,
                   class = c("TD", "data.frame"))

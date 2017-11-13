@@ -3,10 +3,8 @@
 #' This function calculate difference measures of stability, such as the cultivar-superiority
 #' measure of Lin & Binns (1988), Shukla's (1972) stability variance and Wricke's (1962) ecovalence.
 #'
-#' @param Y A data frame object.
-#' @param trait A character string specifying a trait column of the data.
-#' @param genotype A character string specifying a genotype column of the data.
-#' @param env A character string specifying the environment column of the data.
+#' @inheritParams GE.AMMI
+#'
 #' @param method A character string specifying (a) measure(s) of stability. By default,
 #' \code{method = c("superiority","static","wricke")}.
 #' @param superiorityBestMethod A character string specifying the criterion to define the best
@@ -17,20 +15,18 @@
 #' @param plot A logical value indicating whether to produce a plot of stability against the mean.
 #'
 #' @return A list of measures of stability.
+#'
 #' @examples
-#' mydat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env="env!", genotype="genotype!", trait="yld")
-#' names(mydat)=c("env", "genotype","yld")
-#' GE.stability(Y=mydat, trait="yld", genotype="genotype", env="env",
-#'              method = "superiority", superiorityBestMethod = "max",
-#'              sorted = "descending", plot=TRUE)
+#' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
+#'                      env ="env!", genotype ="genotype!", trait = "yld")
+#' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
+#' GE.stability(TD = myTD, trait = "yld", method = "superiority",
+#'              superiorityBestMethod = "max", sorted = "descending", plot = TRUE)
 #'
 #' @export
 
-GE.stability <- function(Y,
+GE.stability <- function(TD,
                          trait,
-                         genotype,
-                         env,
                          method = c("superiority", "static", "wricke"),
                          superiorityBestMethod = "max",
                          sorted = c("ascending", "descending", NA),
@@ -38,9 +34,9 @@ GE.stability <- function(Y,
   if (missing(sorted)) {
     sorted <- "descending"
   }
-  if (any(is.na(Y[[trait]]))) {
-    y0 <- tapply(Y[[trait]], Y[,c(genotype,env)], mean)
-    yIndex <- tapply(X = 1:nrow(Y), INDEX = Y[, c(genotype, env)], FUN = identity)
+  if (any(is.na(TD[[trait]]))) {
+    y0 <- tapply(TD[[trait]], TD[, c("genotype","env")], mean)
+    yIndex <- tapply(X = 1:nrow(TD), INDEX = TD[, c("genotype","env")], FUN = identity)
     na_yes_no <- is.na(y0)
     # imputaion
     y1 <- RAP.multmissing(y0, maxcycle = 10, na.strings = NA)
@@ -49,47 +45,47 @@ GE.stability <- function(Y,
     if (is.list(yIndexReplace)) {
       nyr <- length(yIndexReplace)
       for (ii in 1:nyr) {
-        for (jj in 1:length(Y[yIndexReplace[[ii]], trait])) {
-          if (is.na(Y[yIndexReplace[[ii]][jj], trait]))
-            Y[yIndexReplace[[ii]][jj], trait] <- replaceVal[ii]
+        for (jj in 1:length(TD[yIndexReplace[[ii]], trait])) {
+          if (is.na(TD[yIndexReplace[[ii]][jj], trait]))
+            TD[yIndexReplace[[ii]][jj], trait] <- replaceVal[ii]
         }
       }
     } else {
-      Y[yIndexReplace, trait] <- replaceVal
+      TD[yIndexReplace, trait] <- replaceVal
     }
   }
-  lab <- levels(Y[,genotype])
-  nLab <- length(lab)
-  envs <- levels(Y[, env])
-  nEnvs <- length(envs)
+  lab <- levels(TD$genotype)
+  nGeno <- length(lab)
+  envs <- levels(TD$env)
+  nEnv <- length(envs)
   # The centered trait mean for eniroment j
   Ej <- sapply(X = envs, FUN = function(x) {
-    mean(Y[which(Y[, env] == x), trait], na.rm = TRUE)
+    mean(TD[which(TD$env == x), trait], na.rm = TRUE)
   })
   # Maximum or minimum trait mean among all genotype in jth enviroment
   if (superiorityBestMethod == "max") {
     Mj <- sapply(X = envs, FUN = function(x) {
-      max(Y[which(Y[, env] == x), trait], na.rm = TRUE)
+      max(TD[which(TD$env == x), trait], na.rm = TRUE)
     })
   } else {
     Mj <- sapply(X = envs, FUN = function(x) {
-      min(Y[which(Y[, env] == x), trait], na.rm = TRUE)
+      min(TD[which(TD$env == x), trait], na.rm = TRUE)
     })
   }
   # The genotype trait mean across environments
   Ei <- sapply(X = lab, FUN = function(x) {
-    mean(Y[which(Y[, genotype] == x), trait], na.rm = TRUE)
+    mean(TD[which(TD$genotype == x), trait], na.rm = TRUE)
   })
   # The grand mean
-  E <- mean(Y[, trait], na.rm = TRUE)
-  W <- S <- LB <- rep(NA, nLab)
-  for (i in 1:nLab) {
+  E <- mean(TD[, trait], na.rm = TRUE)
+  W <- S <- LB <- rep(NA, nGeno)
+  for (i in 1:nGeno) {
     # Observed genotype field response in the enviroment j
     # (averaged across experiment replicates)
     Rij <- sapply(X = envs, FUN = function(x) {
-      mean(Y[which(Y[, genotype] == lab[i] & Y[, env] == x), trait], na.rm = TRUE)
+      mean(TD[which(TD$genotype == lab[i] & TD$env == x), trait], na.rm = TRUE)
     })
-    pos <- (1:nEnvs)[!is.na(Rij)]
+    pos <- (1:nEnv)[!is.na(Rij)]
     # Static measure (Shukla's (1972a) stability variance)
     if ("static" %in% method) {
       if (length(pos) == 0) {
@@ -97,7 +93,7 @@ GE.stability <- function(Y,
       } else {
         S[i] <- sum(sapply(X = pos, FUN = function(j) {
           (Rij[j] - Ei[i]) ^ 2
-        }) / (nEnvs - 1))
+        }) / (nEnv - 1))
       }
     }
     # Superiority measure (LIN&BINNS 1988)
@@ -107,7 +103,7 @@ GE.stability <- function(Y,
       } else{
         LB[i] <- sum(sapply(X = pos, FUN = function(j) {
           (Rij[j] - Mj[j]) ^ 2
-        }) / (2 * nEnvs))
+        }) / (2 * nEnv))
       }
     }
     # Wricke's (1962) ecovalence
@@ -123,7 +119,7 @@ GE.stability <- function(Y,
   }
   #Calculate trait mean per genotype
   means <- sapply(X = lab, FUN = function(x) {
-    mean(Y[Y[, genotype] == x, trait], na.rm = TRUE)
+    mean(TD[TD$genotype == x, trait], na.rm = TRUE)
   })
   if (plot) {
     # Prepare panels
@@ -156,47 +152,47 @@ GE.stability <- function(Y,
   }
   if (is.na(sorted)) {
     if ("static" %in% method) {
-      SOut <- data.frame(lab, S, means, row.names = 1:nLab)
+      SOut <- data.frame(lab, S, means, row.names = 1:nGeno)
       names(SOut) <- c("genotype","static", "mean")
     }
     if ("superiority" %in% method) {
-      LBOut <- data.frame(lab, LB, means, row.names = 1:nLab)
+      LBOut <- data.frame(lab, LB, means, row.names = 1:nGeno)
       names(LBOut) <- c("genotype", "superiority", "mean")
     }
     if ("wricke" %in% method) {
-      WOut <- data.frame(lab,W,means, row.names=1:nLab)
+      WOut <- data.frame(lab,W,means, row.names=1:nGeno)
       names(WOut) <- c("genotype", "wricke", "mean")
     }
   } else if (sorted == "ascending") {
     if ("static" %in% method) {
       orderS <- order(S)
-      SOut <- data.frame(lab, S, means, row.names = 1:nLab)[orderS, ]
+      SOut <- data.frame(lab, S, means, row.names = 1:nGeno)[orderS, ]
       names(SOut) <- c("genotype", "static", "mean")
     }
     if ("superiority" %in% method) {
       orderLB <- order(LB)
-      LBOut <- data.frame(lab, LB, means, row.names = 1:nLab)[orderLB, ]
+      LBOut <- data.frame(lab, LB, means, row.names = 1:nGeno)[orderLB, ]
       names(LBOut) <- c("genotype", "superiority", "mean")
     }
     if ("wricke" %in% method) {
       orderW <- order(W)
-      WOut <- data.frame(lab,W,means, row.names = 1:nLab)[orderW, ]
+      WOut <- data.frame(lab,W,means, row.names = 1:nGeno)[orderW, ]
       names(WOut) <- c("genotype", "wricke", "mean")
     }
   } else if (sorted == "descending") {
     if ("static" %in% method) {
       orderS <- order(S, decreasing = TRUE)
-      SOut <- data.frame(lab, S, means, row.names = 1:nLab)[orderS, ]
+      SOut <- data.frame(lab, S, means, row.names = 1:nGeno)[orderS, ]
       names(SOut) <- c("genotype", "static", "mean")
     }
     if ("superiority" %in% method){
       orderLB <- order(LB, decreasing = TRUE)
-      LBOut <- data.frame(lab, LB, means, row.names = 1:nLab)[orderLB, ]
+      LBOut <- data.frame(lab, LB, means, row.names = 1:nGeno)[orderLB, ]
       names(LBOut) <- c("genotype", "superiority", "mean")
     }
     if ("wricke" %in% method){
       orderW <- order(W, decreasing = TRUE)
-      WOut <- data.frame(lab, W, means, row.names = 1:nLab)[orderW, ]
+      WOut <- data.frame(lab, W, means, row.names = 1:nGeno)[orderW, ]
       names(WOut) <- c("genotype", "wricke", "mean")
     }
   } else {
