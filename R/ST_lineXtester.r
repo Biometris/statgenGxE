@@ -243,7 +243,8 @@ ST.lineXtester <- function(fixed,
       lxtModel00 <- update(lxtModel1,
                            random = as.formula(paste("~.", ltModel[2], sep = "-")))
       lxtModel01 <- update(lxtModel1,
-                           random = as.formula(paste("~.", paste(ltModel, collapse = "-"), sep = "-")))
+                           random = as.formula(paste("~.", paste(ltModel, collapse = "-"),
+                                                     sep = "-")))
       sink()
       unlink(tmp)
       deviance2 <- 2 * (lxtModel1$loglik - lxtModel00$loglik)

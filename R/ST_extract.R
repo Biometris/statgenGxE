@@ -16,7 +16,7 @@
 #'                      factorNames = c("Env", "Genotype", "Rep", "Subblock", "Row", "Column"),
 #'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
 #'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
-#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "env")
+#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
 #' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
 #'                         rep = "Rep", row = "Row", col = "Column", tryspatial = NA)
 #' extr <- ST.extract(myModel)
@@ -29,12 +29,11 @@ ST.extract = function(SSA) {
   # Choose between asreml and mle4
   engine <- SSA$engine
   trait <- SSA$trait
-  genotype <- SSA$genotype
   rep <- SSA$rep
   # Extract statistics from mixed and fixed models in list SSA
   mr <- SSA$mMix
   mf <- SSA$mFix
-  Y <- SSA$data
+  TD <- SSA$data
   # Use lme4 as an engine for mixed modelling
   if (engine == "lme4") {
     # Extract coeffcients mf
@@ -50,7 +49,7 @@ ST.extract = function(SSA) {
     } else {
       rr <- integer(0)
     }
-    rg <- grep(pattern = genotype, x = names(fe))
+    rg <- grep(pattern = "genotype", x = names(fe))
     rNA <- which(is.na(fe))
     cr <- fe[rr]
     cg <- c(0, fe[rg])
@@ -61,9 +60,9 @@ ST.extract = function(SSA) {
       blo <- mean(c(cr, 0))
     }
     predictions0 <- fe[1] + blo + cg
-    tempNames <- as.character(sort(unique(slot(mr, "flist")[[genotype]])))
-    tempNames2 <- gsub(pattern = genotype, replacement =  "",
-                       x = names(fe)[grep(pattern = genotype, x = names(fe))])
+    tempNames <- as.character(sort(unique(slot(mr, "flist")[["genotype"]])))
+    tempNames2 <- gsub(pattern = "genotype", replacement =  "",
+                       x = names(fe)[grep(pattern = "genotype", x = names(fe))])
     predictions <- rep(NA, length(tempNames))
     names(predictions) <- tempNames
     predictions[tempNames %in% c(as.character(tempNames[1]), tempNames2)] <- predictions0
@@ -92,7 +91,7 @@ ST.extract = function(SSA) {
     } else {
       names(ue) <- names(se) <- names(fe)[rg]
     }
-    tempNames <- paste0(genotype,tempNames)
+    tempNames <- paste0("genotype", tempNames)
     ue0 <- se0 <- rep(NA, length(tempNames))
     names(ue0) <- names(se0) <- tempNames
     ue0[tempNames %in% names(ue)] <- ue
@@ -120,8 +119,8 @@ ST.extract = function(SSA) {
       rr <- integer(0)
     }
     cr <- fe[rr]
-    ng <- length(unique(slot(mr, "flist")[[genotype]]))
-    rEff <- lme4::ranef(mr, drop = TRUE)[[genotype]]
+    ng <- length(unique(slot(mr, "flist")[["genotype"]]))
+    rEff <- lme4::ranef(mr, drop = TRUE)[["genotype"]]
     # Predictions BLUPs
     if (length(cr) == 0) {
       blo <- 0
@@ -129,21 +128,21 @@ ST.extract = function(SSA) {
       blo <- mean(c(cr, 0))
     }
     predictionsBlups <- fe[1] + blo + rEff
-    names(predictionsBlups) <- sort(unique(slot(mr, "flist")[[genotype]]))
+    names(predictionsBlups) <- sort(unique(slot(mr, "flist")[["genotype"]]))
     # Compute seBlups
     if (class(mr) == "lmerMod") {
-      seBlups = sqrt(attr(lme4::ranef(mr, condVar = TRUE)[[genotype]], "postVar"))
+      seBlups = sqrt(attr(lme4::ranef(mr, condVar = TRUE)[["genotype"]], "postVar"))
     } else if(class(mr) == "mer") {
-      seBlups = sqrt(attr(lme4::ranef(mr, postVar = TRUE)[[genotype]], "postVar"))
+      seBlups = sqrt(attr(lme4::ranef(mr, postVar = TRUE)[["genotype"]], "postVar"))
     }
     seBlups = as.vector(seBlups)
     # Collect results in data frame
     stats = data.frame(names(predictions), predictions, se, predictionsBlups, seBlups, ue)
-    names(stats) = c(genotype, "predicted (BLUEs)","s.e. (BLUEs)",
+    names(stats) = c("genotype", "predicted (BLUEs)","s.e. (BLUEs)",
                      "predicted (BLUPs)","s.e. (BLUPs)", "ue")
     # Extract variances
     R = lme4::VarCorr(mr)
-    varGen = R[[genotype]]
+    varGen = R[["genotype"]]
     varErr = attr(R, "sc") ^ 2
     # for marginal residuals
     if (class(mf) %in% c("lmerMod", "mer")) {
@@ -158,7 +157,7 @@ ST.extract = function(SSA) {
       result$heritability <- varGen/(varGen + varErr)
     } else if (SSA$design %in% c("res.ibd", "res.rowcol", "rcbd")) {
       if (!is.null(rep)) {
-        result$heritability <- varGen / (varGen + (varErr / length(unique(Y[[rep]]))))
+        result$heritability <- varGen / (varGen + (varErr / length(unique(TD[[rep]]))))
       } else {
         result$heritability <- varGen / (varGen + varErr)
       }
@@ -174,20 +173,23 @@ ST.extract = function(SSA) {
     result$ranef <- rEff
     result$model <- SSA$design
     result$engine <- "lme4"
-    # result$waldTestGeno <- waldTestGeno
+    result$waldTestGeno <- waldTestGeno
     result$CV <- CV
     result$rdf <- rdf
   } else if (engine == "asreml") {
     # Use asreml as an engine for mixed modelling
     if (class(mf) == "asreml") {
+      if (!requireNamespace("asreml", quietly = TRUE)) {
+        stop("asreml cannot be successfully loaded.\n")
+      }
       # Extract coeffcients
       fe <- mf$coe$fixed
-      rg <- grep(pattern = genotype, x = names(fe))
+      rg <- grep(pattern = "genotype", x = names(fe))
       # Predictions
       predictions <- mf$predictions$pvals$predicted.value
       se <- mf$predictions$pvals$standard.error
-      names(predictions) <- mf$predictions$pvals[[genotype]]
-      rEff <- mr$coe$random[grep(pattern = genotype, x =names(mr$coe$random))]
+      names(predictions) <- mf$predictions$pvals[["genotype"]]
+      rEff <- mr$coe$random[grep(pattern = "genotype", x =names(mr$coe$random))]
       # Compute weights
       V <- mf$predictions$vcov
       Vinv <- try(chol2inv(chol(V)), silent = TRUE)
@@ -198,9 +200,6 @@ ST.extract = function(SSA) {
       }
       #calculate wald test for genotype coefficients
       df <- mf$nedf
-      if (!requireNamespace("asreml", quietly = TRUE)) {
-        stop("asreml cannot be successfully loaded.\n")
-      }
       # wtt <- asreml::wald.asreml(mf, ssType = "conditional", denDF = "numeric")
       # pos <- grep(pattern = "genotype", x = row.names(wtt$Wald))
       # chi2 <- wtt$Wald$F.con[pos] * wtt$Wald$Df[pos]
@@ -226,7 +225,7 @@ ST.extract = function(SSA) {
       } else {
         rr <- integer(0)
       }
-      rg <- grep(pattern = genotype, x = names(fe))
+      rg <- grep(pattern = "genotype", x = names(fe))
       cr <- fe[rr]
       cg <- c(0, fe[rg])
       # Predictions
@@ -236,8 +235,8 @@ ST.extract = function(SSA) {
         blo <- mean(c(cr, 0))
       }
       predictions <- fe[1] + blo + cg
-      names(predictions) <- sort(unique(slot(mr, "flist")[[genotype]]))
-      rEff <- mr$coe$random[grep(pattern = genotype, x = names(mr$coe$random))]
+      names(predictions) <- sort(unique(slot(mr, "flist")[["genotype"]]))
+      rEff <- mr$coe$random[grep(pattern = "genotype", x = names(mr$coe$random))]
       # Compute weights
       V <- vcov(mf)
       Vinv <- try(chol2inv(chol(V)), silent = TRUE)
@@ -264,10 +263,10 @@ ST.extract = function(SSA) {
     seBlups <- mr$predictions$pvals$standard.error
     # Collect results in data frame
     stats <- data.frame(names(predictions), predictions, se, predictionsBlups, seBlups, ue)
-    names(stats) <- c(genotype, "predicted (BLUEs)","s.e. (BLUEs)",
+    names(stats) <- c("genotype", "predicted (BLUEs)","s.e. (BLUEs)",
                       "predicted (BLUPs)","s.e. (BLUPs)", "ue")
     # Extract variances
-    genopos <- grep(pattern = paste0(genotype, "!", genotype, ".var"), x = names(mr$gammas))
+    genopos <- grep(pattern = "genotype!genotype.var", x = names(mr$gammas))
     varGen <- mr$gammas[genopos] * mr$sigma2
     resipos <- grep(pattern = "R!variance", x = names(mr$gammas))
     varErr <- mr$gammas[resipos] * mr$sigma2
@@ -278,15 +277,15 @@ ST.extract = function(SSA) {
     #result$heritability =1-mean(mr$vcoeff$random[genopos])/(varGen/mr$sigma2)
     tmpfile <- tempfile()
     sink(file = tmpfile)
-    newSed <- predict(mr, classify = genotype, only = genotype,
-                      sed = TRUE, data = Y)$predictions$sed
+    newSed <- predict(mr, classify = "genotype", only = "genotype",
+                      sed = TRUE, data = TD)$predictions$sed
     sink()
     unlink(tmpfile)
     sedSq <- newSed ^ 2
     result$heritability <- 1 - mean(sedSq[lower.tri(sedSq)]) / (varGen * 2)
     result$fitted <- fitted(mf)
     if (class(mf) == "asreml") {
-      mf$call$data <- substitute(Y)
+      mf$call$data <- substitute(TD)
       result$resid <- residuals(mf, type = "response")
       result$stdres <- residuals(mf, type = "stdCond" )
       result$rdf <- mf$nedf
@@ -305,7 +304,7 @@ ST.extract = function(SSA) {
     result$CV <- CV
   }
   if (!is.null(rep)) {
-    myvec <- tapply(X = Y[, rep], INDEX = Y[, genotype], FUN = nlevels)
+    myvec <- tapply(X = TD[, rep], INDEX = TD[, "genotype"], FUN = nlevels)
     result$minReps <- min(myvec, na.rm = TRUE)
     result$meanReps <- mean(myvec, na.rm = TRUE)
     result$maxReps <- max(myvec, na.rm = TRUE)

@@ -49,9 +49,9 @@ ST.Varowcol <- function(TD,
   flag <- 1
   # See if the design is regular
   if (!missing(rep)) {
-    reptab <- with(TD, table(rep, row, col))
+    reptab <- table(TD[[rep]], TD[[row]], TD[[col]])
   } else {
-    reptab <- with(TD, table(row, col))
+    reptab <- table(TD[[row]], TD[[col]])
   }
   if (min(reptab) > 1) {
     warning("There must be only one plot at each REPLICATES x ROWS x COLUMNS location.\n
@@ -176,7 +176,7 @@ ST.Varowcol <- function(TD,
                                sep = "+"),
                          paste(paste(rep, row, sep = ":"), "Measurement_error", sep = "+"),
                          paste(paste(rep, col, sep = ":"), "Measurement_error", sep = "+"),
-                         paste(paste(rep, row, sep = ":"), paste(rep, col, sep= ":"),
+                         paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
                                "Measurement_error", sep = "+"))
         randomTerm <- c(rep(x = c("NULL", "units"), each = 3),
                         paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
@@ -229,7 +229,7 @@ ST.Varowcol <- function(TD,
                                  aom = TRUE, data = TD, ...)
           } else {
             mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", 1,
-                                                          if(covT) paste(c("", covariate),
+                                                          if (covT) paste(c("", covariate),
                                                                          collapse = "+"))),
                                  random = as.formula(paste("~ genotype +", randomTerm[ii])),
                                  rcov = as.formula(paste("~", spatialTerm[ii])),
@@ -258,8 +258,8 @@ ST.Varowcol <- function(TD,
       }
     } else {
       if (trySpatial == "always") {
-        if (tryRep){
-          randomChoice <-c(rep(x = c("Identity", "Measurement_error"), each = 3),
+        if (tryRep) {
+          randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3),
                            paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
                            paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
                                  sep = "+"),
@@ -276,7 +276,7 @@ ST.Varowcol <- function(TD,
                           paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
                                 "units", sep = "+"))
         } else {
-          randomChoice <-c(rep(x = c("Identity", "Measurement_error"), each = 3), row, col,
+          randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3), row, col,
                            paste(row, col, sep = "+"), paste(row, "Measurement_error", sep = "+"),
                            paste(col, "Measurement_error", sep = "+"),
                            paste(row, col, "Measurement_error", sep = "+"))
@@ -293,7 +293,7 @@ ST.Varowcol <- function(TD,
                            times = 4)
         modelChoice <- paste("Random:", randomChoice, "&   Spatial:", spatialChoice)
         for (ii in 1:length(randomTerm)) {
-          if (tryRep){
+          if (tryRep) {
             if (!is.na(checkId)) {
               mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
                                                             if (covT) paste(c("", covariate),

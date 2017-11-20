@@ -22,7 +22,7 @@
 #'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
 #'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column",
 #'                                    "Plot", "yield"))
-#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "env")
+#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
 #' myModel <- ST.mod.rowcol(TD = myTD, subDesign = "res.rowcol", trait = "yield",
 #'                          rep = "Rep", row = "Row", col = "Column",
 #'                          engine = "lme4") #engine = "asreml"

@@ -22,7 +22,7 @@
 #'                      factorNames = c("Env", "Genotype", "Rep", "Subblock"),
 #'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
 #'                      colSelect = c("Env", "Genotype", "Rep", "Subblock", "yield"))
-#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "env")
+#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
 #' myModel <- ST.mod.alpha(TD = myTD, subDesign = "res.ibd", trait = "yield",
 #'                         rep = "Rep", subBlock = "Subblock",
 #'                         engine = "lme4") #engine = "asreml"

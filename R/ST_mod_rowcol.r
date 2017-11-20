@@ -22,7 +22,7 @@
 #'                      factorNames = c("Env", "Genotype", "Rep", "Subblock", "Row", "Column"),
 #'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
 #'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
-#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "env")
+#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
 #' myModel <- ST.mod.rowcol(TD = myTD, subDesign = "res.rowcol", trait = "yield",
 #'                          rep = "Rep", row = "Row", col = "Column",
 #'                          engine = "lme4") #engine = "asreml"
@@ -46,16 +46,16 @@ ST.mod.rowcol <- function(TD,
   if (missing(checkId)) {
     checks <- FALSE
     if (missing(rep)) {
-      iNames <-c(trait, "genotype", row, col)
+      iNames <- c(trait, "genotype", row, col)
     } else {
-      iNames <-c(trait, "genotype", rep, row, col)
+      iNames <- c(trait, "genotype", rep, row, col)
     }
   } else {
     checks <- checkId %in% colnames(TD)
     if (missing(rep)) {
-      iNames <-c(trait, "genotype", row, col, checkId)
+      iNames <- c(trait, "genotype", row, col, checkId)
     } else {
-      iNames <-c(trait, "genotype", rep, row, col, checkId)
+      iNames <- c(trait, "genotype", rep, row, col, checkId)
     }
   }
   if (!is.na(rowCoordinates)) {
@@ -69,7 +69,7 @@ ST.mod.rowcol <- function(TD,
   if (!missing(covariate)) {
     if (is.character(covariate)) {
       covT <- TRUE
-      iNames <-c(iNames, covariate)
+      iNames <- c(iNames, covariate)
     }
   } else {
     covariate <- NULL

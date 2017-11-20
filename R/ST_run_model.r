@@ -30,7 +30,7 @@
 #'                      factorNames = c("Env", "Genotype", "Rep", "Subblock", "Row", "Column"),
 #'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
 #'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
-#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "env")
+#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
 #' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
 #'                         rep = "Rep", row = "Row", col = "Column", tryspatial = NA)
 #' names(myModel)

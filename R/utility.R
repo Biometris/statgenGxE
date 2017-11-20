@@ -73,7 +73,7 @@ skewness <- function(x,
     m1 <- sum(x) / length(x)
     m2 <- sum(x ^ 2) / length(x)
     m3 <- sum(x ^ 3) / length(x)
-    skw <- (m3 - 3 * m1 * m2 + 2 * m1 ^ 3) / (m2 - m1 * m1) ^ (3/2)
+    skw <- (m3 - 3 * m1 * m2 + 2 * m1 ^ 3) / (m2 - m1 * m1) ^ (3 / 2)
   } else if (is.data.frame(x)) {
     skw <- sapply(X = x, FUN = skewness, na.rm = na.rm)
   } else {

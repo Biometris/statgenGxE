@@ -50,7 +50,6 @@ RAP.multmissing <- function(Y,
   # To avoid that column name can be converted to integers
   cNames0 <- cNames
   cNames <- paste0("V", 1:ncol(Y))
-  rNames0 <- rNames
   if (!all(is.na(na.strings))) {
     for (i in 1:length(na.strings)) {
       tmp <- which(Y == na.strings[i])
@@ -66,7 +65,7 @@ RAP.multmissing <- function(Y,
     allNA <- apply(X = Y, MARGIN = 2, FUN = function(x) {
       all(is.na(x))
     })
-    if (sum(allNA)!=0) {
+    if (sum(allNA) != 0) {
       stop("At least one unit must have no missing values.\n")
     }
     d1 <- nrow(Y)
@@ -101,9 +100,9 @@ RAP.multmissing <- function(Y,
         for (j in missVariateInd) {
           formula <- as.formula(paste(cNames[j], "~", paste(cNames[-j], collapse = "+")))
           model <- lm(formula = formula, data = as.data.frame(Y), weights = W[, j])
-          fvals <- model$fitted.values
+          fVals <- model$fitted.values
           tmp <- which(missColLoc == j)
-          Y[missRowLoc[tmp], j] <- fvals[missRowLoc[tmp]]
+          Y[missRowLoc[tmp], j] <- fVals[missRowLoc[tmp]]
         }
         # Updates
         estPrev <- estCurr
@@ -112,6 +111,6 @@ RAP.multmissing <- function(Y,
     }
   }
   colnames(Y) <- cNames0
-  rownames(Y) <- rNames0
+  rownames(Y) <- rNames
   return(Y)
 }
