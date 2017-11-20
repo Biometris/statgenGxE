@@ -2,14 +2,15 @@
 #'
 #' This function fits an AMMI-2 model and then using the fitted values produces
 #' a new factor based on the winning genotype in each environment. This new factor is
-#' added as a column megaEnv to the input data.
+#' added as a column megaEnv to the input data. If a column megaEnv already exists the
+#' existing data is overwritten with a warning.
 #'
 #' @inheritParams GE.AMMI
 #'
 #' @param method A criterion to determine the best trait, either \code{"max"} or \code{"min"}.
 #' @param summaryTable A logical specifying whether a summary table will be returned.
 #'
-#' @return The input object of class TD with an added extra column megaEnv
+#' @return The input object of class \code{\link{TD}} with an added extra column megaEnv.
 #'
 #' @examples
 #' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
@@ -24,33 +25,45 @@ GE.megaEnvironment <- function(TD,
                                trait,
                                method = "max",
                                summaryTable = TRUE) {
-  #drop factor levels
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be a valid object of class TD.\n")
+  }
+  if (!"env" %in% colnames(TD)) {
+    stop("TD should contain a column env to be able to run an AMMI analysis.\n")
+  }
+  if ("megaEnv" %in% colnames(TD)) {
+    warning("TD already contains a column megaEnv. This column will be overwritten.\n")
+  }
+  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(TD)) {
+    stop("trait has to be a column in TD.\n")
+  }
+  if (is.null(method) || !is.character(method) || length(method) > 1 ||
+      !method %in% c("min", "max")) {
+    stop("method should be either min or max.\n")
+  }
+  ## drop factor levels
   TD$genotype <- droplevels(TD$genotype)
   TD$env <- droplevels(TD$env)
-  #use AMMI2
-  anal <- GE.AMMI(TD = TD, trait = trait, nPC = 2)
-  fitted <- anal$fitted
+  ## use AMMI
+  AMMI <- GE.AMMI(TD = TD, trait = trait, nPC = 2)
+  fitted <- AMMI$fitted
   genoNames <- rownames(fitted)
   envNames  <- colnames(fitted)
-  if (method == "max"){
+  if (method == "max") {
     winPosition <- apply(X = fitted, MARGIN = 2, FUN = which.max)
-  } else if (method == "min") {
-    winPosition <- apply(X = fitted, MARGIN = 2, FUN = which.min)
   } else {
-    stop('Please choose either "max" or "min" as method.')
+    winPosition <- apply(X = fitted, MARGIN = 2, FUN = which.min)
   }
   winGeno <- genoNames[winPosition]
-  winGenoUnique <- unique(winGeno)
-  nGenoUnique <- length(winGenoUnique)
-  megaLabels <- 1:nGenoUnique
-  megaFactor <- factor(winGeno, labels = megaLabels)
-  # re-labelling
+  megaFactor <- factor(winGeno, labels = 1:length(unique(winGeno)))
+  ## re-labelling
   levels(megaFactor) <- unique(as.integer(megaFactor))
-  # merge factor levels
+  ## merge factor levels
   megaEnvFactor <- TD$env
   levels(megaEnvFactor) <- as.character(megaFactor)
   TD$megaEnv <- megaEnvFactor
-  # re-labelling
+  ## re-labelling
   levels(TD$megaEnv) <- 1:nlevels(megaEnvFactor)
   if (summaryTable) {
     summTab <- matrix(nrow = length(envNames), ncol = 4)
