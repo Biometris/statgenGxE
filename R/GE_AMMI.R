@@ -14,6 +14,18 @@
 #'  be scaled to have unit variance before the analysis takes
 #'  place. The default is \code{FALSE}.
 #'
+#' @return an object of class \code{\link{AMMI}}, a list containing
+#' \item{envScores}{a matrix with environmental scores.}
+#' \item{genoScores}{a matrix with genotypic scores.}
+#' \item{importance}{a data.frame containing the importance of the principal
+#' components.}
+#' \item{anova}{a data.frame containing anova scores of the AMMI analysis.}
+#' \item{fitted}{a matrix containing fitted values from the AMMI model.}
+#' \item{trait}{a character vector containing the analyzed trait.}
+#' \item{envMean}{a numerical vector containing the means per environment.}
+#' \item{genoMean}{a numerical vector containing the means per genotype.}
+#' \item{overallMean}{a numerical value containing the overall mean.}
+#'
 #' @examples
 #' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env = "env!", genotype = "genotype!", trait = "yld")
@@ -28,6 +40,12 @@ GE.AMMI <- function(TD,
                     nPC = 2,
                     center = TRUE,
                     scale = FALSE) {
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be a valid object of class TD.\n")
+  }
+  if (!"env" %in% colnames(TD)) {
+   stop("TD should contain a column env to be able to run an AMMI analysis.\n")
+  }
   #drop factor levels
   TD$genotype <- droplevels(TD$genotype)
   TD$env <- droplevels(TD$env)

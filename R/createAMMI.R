@@ -12,7 +12,7 @@
 #' @param trait a character value indicating the analysed trait
 #' @param envMean a numerical vector containing the means per environment
 #' @param genoMean a numerical vector containing the means per genotype
-#' @param overallMean a numberical value containing the overall mean
+#' @param overallMean a numerical value containing the overall mean
 #' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
