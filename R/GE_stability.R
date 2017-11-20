@@ -1,7 +1,8 @@
 #' Calculates stability coefficients for genotype-by-environment data
 #'
 #' This function calculate difference measures of stability, such as the cultivar-superiority
-#' measure of Lin & Binns (1988), Shukla's (1972) stability variance and Wricke's (1962) ecovalence.
+#' measure of Lin & Binns (1988), Shukla's (1972) stability variance and Wricke's (1962)
+#' ecovalence.
 #'
 #' @inheritParams GE.AMMI
 #'
@@ -14,7 +15,14 @@
 #' Other options are \code{"ascending"} and \code{NA}.
 #' @param plot A logical value indicating whether to produce a plot of stability against the mean.
 #'
-#' @return A list of measures of stability.
+#' @return A list of one to three data.frames containing the stability measures.
+#'
+#' @references LtN, C. S. aNt BINNS, M. R. 1988. A superiority measure of cultivar performance
+#' for cultivar x location data. Can. J. Plant Sci. 68: 193-198\cr
+#' Shukla, G.K. 1972. Some statistical aspects of partitioning genotype-environmental
+#' components of variability. Heredity 29:237-245\cr
+#' Wricke, G. Uber eine method zur erfassung der okologischen streubreit in feldversuchen.
+#' Zeitschrift für Pflanzenzucht, v. 47, p. 92-96, 1962\cr
 #'
 #' @examples
 #' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
@@ -31,6 +39,29 @@ GE.stability <- function(TD,
                          superiorityBestMethod = "max",
                          sorted = c("ascending", "descending", NA),
                          plot = TRUE) {
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be a valid object of class TD.\n")
+  }
+  if (!"env" %in% colnames(TD)) {
+    stop("TD should contain a column env to be able to run an AMMI analysis.\n")
+  }
+  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(TD)) {
+    stop("trait has to be a column in TD.\n")
+  }
+  if (is.null(method) || !is.character(method) ||
+      !method %in% c("superiority", "static", "wricke")) {
+    stop("method should be superiority, static and/or wricke.\n")
+  }
+  if (is.null(superiorityBestMethod) || !is.character(superiorityBestMethod) ||
+      length(superiorityBestMethod) > 1 ||
+      !superiorityBestMethod %in% c("min", "max")) {
+    stop("superiorityBestMethod should be either min or max.\n")
+  }
+  if (is.null(sorted) || !is.character(sorted) || length(sorted) > 1 ||
+      !sorted %in% c("ascending", "descending", NA)) {
+    stop("sorted should be one of ascending, descending or NA")
+  }
   if (missing(sorted)) {
     sorted <- "descending"
   }
@@ -38,7 +69,7 @@ GE.stability <- function(TD,
     y0 <- tapply(TD[[trait]], TD[, c("genotype","env")], mean)
     yIndex <- tapply(X = 1:nrow(TD), INDEX = TD[, c("genotype","env")], FUN = identity)
     na_yes_no <- is.na(y0)
-    # imputaion
+    ## imputation
     y1 <- RAP.multmissing(y0, maxcycle = 10, na.strings = NA)
     replaceVal <- y1[na_yes_no]
     yIndexReplace <- yIndex[na_yes_no]
@@ -58,11 +89,11 @@ GE.stability <- function(TD,
   nGeno <- length(lab)
   envs <- levels(TD$env)
   nEnv <- length(envs)
-  # The centered trait mean for eniroment j
+  ## The centered trait mean for eniroment j
   Ej <- sapply(X = envs, FUN = function(x) {
     mean(TD[which(TD$env == x), trait], na.rm = TRUE)
   })
-  # Maximum or minimum trait mean among all genotype in jth enviroment
+  ## Maximum or minimum trait mean among all genotype in jth enviroment
   if (superiorityBestMethod == "max") {
     Mj <- sapply(X = envs, FUN = function(x) {
       max(TD[which(TD$env == x), trait], na.rm = TRUE)
@@ -72,21 +103,21 @@ GE.stability <- function(TD,
       min(TD[which(TD$env == x), trait], na.rm = TRUE)
     })
   }
-  # The genotype trait mean across environments
+  ## The genotype trait mean across environments
   Ei <- sapply(X = lab, FUN = function(x) {
     mean(TD[which(TD$genotype == x), trait], na.rm = TRUE)
   })
-  # The grand mean
+  ## The grand mean
   E <- mean(TD[, trait], na.rm = TRUE)
   W <- S <- LB <- rep(NA, nGeno)
   for (i in 1:nGeno) {
-    # Observed genotype field response in the enviroment j
-    # (averaged across experiment replicates)
+    ## Observed genotype field response in the enviroment j
+    ## (averaged across experiment replicates)
     Rij <- sapply(X = envs, FUN = function(x) {
       mean(TD[which(TD$genotype == lab[i] & TD$env == x), trait], na.rm = TRUE)
     })
     pos <- (1:nEnv)[!is.na(Rij)]
-    # Static measure (Shukla's (1972a) stability variance)
+    ## Static measure (Shukla's (1972a) stability variance)
     if ("static" %in% method) {
       if (length(pos) == 0) {
         S[i] <- NA
@@ -96,9 +127,9 @@ GE.stability <- function(TD,
         }) / (nEnv - 1))
       }
     }
-    # Superiority measure (LIN&BINNS 1988)
+    ## Superiority measure (LIN&BINNS 1988)
     if ("superiority" %in% method) {
-      if (length(pos) == 0){
+      if (length(pos) == 0) {
         LB[i] <- NA
       } else{
         LB[i] <- sum(sapply(X = pos, FUN = function(j) {
@@ -106,9 +137,9 @@ GE.stability <- function(TD,
         }) / (2 * nEnv))
       }
     }
-    # Wricke's (1962) ecovalence
-    if ("wricke" %in% method){
-      if (length(pos)==0) {
+    ## Wricke's (1962) ecovalence
+    if ("wricke" %in% method) {
+      if (length(pos) == 0) {
         W[i] <- NA
       } else {
         W[i] <- sum(sapply(X = pos, FUN = function(j) {
@@ -117,12 +148,12 @@ GE.stability <- function(TD,
       }
     }
   }
-  #Calculate trait mean per genotype
+  ## Calculate trait mean per genotype
   means <- sapply(X = lab, FUN = function(x) {
     mean(TD[TD$genotype == x, trait], na.rm = TRUE)
   })
   if (plot) {
-    # Prepare panels
+    ## Prepare panels
     mFlag <- c("static", "superiority", "wricke") %in% method
     if (sum(mFlag) != 1) {
       if (sum(mFlag) == 3) {
@@ -143,7 +174,7 @@ GE.stability <- function(TD,
     if ("wricke" %in% method) {
       plot(x = means, y = W, xlab = "Mean", ylab = "Wricke's ecovalence")
     }
-    if (sum(mFlag) == 1){
+    if (sum(mFlag) == 1) {
       title(paste('Stability coefficients for', trait))
     } else{
       mtext(paste('Stability coefficients for', trait), side = 3, outer = TRUE,
@@ -160,7 +191,7 @@ GE.stability <- function(TD,
       names(LBOut) <- c("genotype", "superiority", "mean")
     }
     if ("wricke" %in% method) {
-      WOut <- data.frame(lab,W,means, row.names=1:nGeno)
+      WOut <- data.frame(lab,W,means, row.names = 1:nGeno)
       names(WOut) <- c("genotype", "wricke", "mean")
     }
   } else if (sorted == "ascending") {
@@ -185,12 +216,12 @@ GE.stability <- function(TD,
       SOut <- data.frame(lab, S, means, row.names = 1:nGeno)[orderS, ]
       names(SOut) <- c("genotype", "static", "mean")
     }
-    if ("superiority" %in% method){
+    if ("superiority" %in% method) {
       orderLB <- order(LB, decreasing = TRUE)
       LBOut <- data.frame(lab, LB, means, row.names = 1:nGeno)[orderLB, ]
       names(LBOut) <- c("genotype", "superiority", "mean")
     }
-    if ("wricke" %in% method){
+    if ("wricke" %in% method) {
       orderW <- order(W, decreasing = TRUE)
       WOut <- data.frame(lab, W, means, row.names = 1:nGeno)[orderW, ]
       names(WOut) <- c("genotype", "wricke", "mean")
