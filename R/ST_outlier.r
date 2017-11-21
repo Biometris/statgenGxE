@@ -1,13 +1,14 @@
 #' Identifying outliers
 #'
-#' This function is to find observations that exceed 1.5 times the interquartile range.
+#' This function is to find observations that exceed \code{coef} times the interquartile range.
 #'
 #' @inheritParams ST.vcheck
 #'
 #' @param coef this determines how far the plot 'whiskers' extend out from the box.
 #' If \code{coef} is positive, the whiskers extend to the most extreme data point which
 #' is no more than coef times the length of the box away from the box.
-#' A value of zero causes the whiskers to extend to the data extremes (and no outliers be returned).
+#' A value of zero causes the whiskers to extend to the data extremes
+#' (and no outliers be returned).
 #'
 #' @return a data frame object containing logical values to determine if the observation is
 #' an outlier.
@@ -18,13 +19,13 @@
 #'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
 #'                      colSelect = c("Env", "Genotype", "Rep", "yield", "Row"))
 #' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
-#' outliers <- ST.outlier(TD = myTD, trait = "yield", rep = "Rep")
+#' outliers <- ST.outlier(TD = myTD, traits = "yield", rep = "Rep")
 #'
 #' @import grDevices
 #' @export
 
 ST.outlier <- function(TD,
-                       trait,
+                       traits,
                        entry = NA,
                        plotNo = NA,
                        rep = NULL,
@@ -35,24 +36,33 @@ ST.outlier <- function(TD,
                        colCoordinates = NULL,
                        commonFactor = "genotype",
                        coef = 1.5) {
-  testNames <- c(trait, entry, plotNo, rep, subBlock, row, col,
-                 rowCoordinates, colCoordinates)
-  naNames <- is.na(testNames)
-  testNames <- testNames[!naNames]
-  if (!all(testNames %in% names(TD))) {
-    stop(paste(testNames[!(testNames %in% names(TD))], collapse = ","),
-         " not found in the names of TD.\n")
+  ## Checks.
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be a valid object of class TD.\n")
   }
-  trts <- indicator <- TD[, trait, drop = FALSE]
+  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
+    stop("trait has to be a vector of columns in TD.\n")
+  }
+  for (param in c(rep, subBlock, row, col, rowCoordinates,
+                  colCoordinates, commonFactor)) {
+    if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
+                            !param %in% colnames(TD))) {
+      stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
+    }
+  }
+  if (is.null(coef) || !is.numeric(coef) || length(coef) > 1 || coef < 0) {
+    stop("coef should be a positive numerical value.\n")
+  }
+  trts <- indicator <- TD[, traits, drop = FALSE]
   similar <- rep(2, nrow(TD))
   cat(paste("Observations that exceed", coef, "times the interquartile range\n"))
   pMat <- data.frame(trait = character(0), value = numeric(0), genotype = character(0),
                      entry = character(0), plotNo = character(0), replicate = character(0),
                      subBlock = character(0), row = character(0), column = character(0),
                      rowPosition = character(0), colPosition = character(0), similar = integer(0))
-  for (ii in 1:length(trait)) {
-    outVals <- boxplot.stats(x = trts[[trait[ii]]], coef = coef)$out
-    tInd <- indicator[[trait[ii]]] <- trts[[trait[ii]]] %in% outVals
+  for (ii in 1:length(traits)) {
+    outVals <- boxplot.stats(x = trts[[traits[ii]]], coef = coef)$out
+    tInd <- indicator[[traits[ii]]] <- trts[[traits[ii]]] %in% outVals
     if (length(outVals)) {
       ncFac <- length(commonFactor)
       genoOut <- ttInd <- rep(FALSE, nrow(TD))
@@ -72,8 +82,8 @@ ST.outlier <- function(TD,
                           subBlock = character(nn), row = character(nn), column = character(nn),
                           rowPosition = character(nn), colPosition = character(nn),
                           similar = integer(nn))
-      pMat0$value <- TD[genoOut, trait[ii]]
-      pMat0$trait <- rep(trait[ii], nn)
+      pMat0$value <- TD[genoOut, traits[ii]]
+      pMat0$trait <- rep(traits[ii], nn)
       pMat0$similar <- similar[genoOut]
       pMat0$genotype <- TD[genoOut, "genotype"]
       if (!is.na(entry)) {
@@ -120,8 +130,8 @@ ST.outlier <- function(TD,
     }
   }
   if (nrow(pMat) > 0) {
-    naNames0 <- c(FALSE, naNames, FALSE)
-    print(format(pMat[, !naNames0]), quote = FALSE)
+  #  naNames0 <- c(FALSE, naNames, FALSE)
+   # print(format(pMat[, !naNames0]), quote = FALSE)
   }
   invisible(indicator)
 }

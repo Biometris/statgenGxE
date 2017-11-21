@@ -4,7 +4,8 @@
 #'
 #' @inheritParams ST.run.model
 #'
-#' @param stdRes A data frame object containing the standardised residuals obtained
+#' @param traits A character vector specifying the selected traits.
+#' @param stdRes A vector or data.frame object containing the standardised residuals obtained
 #' from the mixed modelling analysis.
 #' @param rDf An integer (vector) specifying the residual degrees of freedom.
 #' @param rLimit An integer specifying a limit for detection of large standardized residuals;
@@ -13,7 +14,7 @@
 #' @param entry A string specifying the column name of the entry numbers.
 #' @param plotNo A string specifying the column name of the plot numbers.
 #' @param commonFactor A string vector specifying factors to define similar units; default,
-#' \code{commonFactor = genotype}.
+#' \code{commonFactor = "genotype"}.
 #' @param verbose Logical; whether to print a summary table of outliers.
 #'
 #' @examples
@@ -28,7 +29,7 @@
 #'                          engine = "lme4") #engine = "asreml"
 #' stdResid <- resid(myModel$mFix, scaled = TRUE)
 #' rDf <- nrow(model.frame(myModel$mFix)) - length(lme4::fixef(myModel$mFix))
-#' vCheck <- ST.vcheck(TD = myTD, stdRes = stdResid, rDf = rDf, trait = "yield",
+#' vCheck <- ST.vcheck(TD = myTD, stdRes = stdResid, rDf = rDf, traits = "yield",
 #'                     rep = "Rep", plotNo = "Plot", row = "Row", col = "Column",
 #'                     verbose = TRUE, commonFactor = c("genotype", "Row"))
 #'
@@ -36,54 +37,70 @@
 ST.vcheck <- function(TD,
                       stdRes,
                       rDf,
-                      rLimit = NA,
-                      trait,
-                      entry = NA,
-                      plotNo = NA,
-                      rep = NA,
-                      subBlock = NA,
-                      row = NA,
-                      col = NA,
-                      rowCoordinates = NA,
-                      colCoordinates = NA,
+                      rLimit = NULL,
+                      traits,
+                      entry = NULL,
+                      plotNo = NULL,
+                      rep = NULL,
+                      subBlock = NULL,
+                      row = NULL,
+                      col = NULL,
+                      rowCoordinates = NULL,
+                      colCoordinates = NULL,
                       commonFactor = "genotype",
                       verbose = FALSE) {
-  nr <- nrow(TD)
+  ## Checks.
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be a valid object of class TD.\n")
+  }
+  if (missing(stdRes) || (!is.data.frame(stdRes) && !is.vector(stdRes)) ||
+      !is.numeric(stdRes)) {
+    stop("stdRes should be a data.frame or vector containing numerical values.\n")
+  }
+  if (missing(rDf) || !is.vector(rDf) || !is.numeric(rDf) ||
+      any(rDf != round(rDf)) || any(rDf < 1)) {
+    stop("rDf should be a vector containing positive integers.\n")
+  }
+  if (!is.null(rLimit) && (!is.numeric(rLimit) || length(rLimit) > 1 ||
+      rLimit < 0 || rLimit != round(rLimit))) {
+    stop("rLimit should be NULL or a positive numerical value.\n")
+  }
+  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
+    stop("trait has to be a vector of columns in TD.\n")
+  }
+  for (param in c(entry, plotNo, rep, subBlock, row, col, rowCoordinates,
+                  colCoordinates, commonFactor)) {
+    if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
+                            !param %in% colnames(TD))) {
+      stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
+    }
+  }
+  if (length(traits) != length(rDf)) {
+    stop("number of traits should be equal to the number of residual degrees of freedom.\n")
+  }
   if (is.vector(stdRes)) {
     stdRes <- data.frame(stdRes)
-    names(stdRes) <- trait
+    names(stdRes) <- traits
   }
   absResids <- abs(stdRes)
+  if (ncol(absResids) != length(rDf)) {
+    stop("number of columns in standardised residuals should be equal to number of residual
+         degrees of freedom.\n")
+  }
   pMat <- data.frame(traitName = character(0), traitValue = numeric(0),
                      genotype = character(0), entry = character(0), plotNo = character(0),
                      replicate = character(0), subBlock = character(0), row = character(0),
                      column = character(0), rowPosition = character(0),
                      colPosition = character(0), residual = numeric(0), similar = integer(0))
-  testNames <- c(entry, plotNo, rep, subBlock, row, col, rowCoordinates, colCoordinates)
-  naNames <- is.na(testNames)
-  testNames <- testNames[!naNames]
-  if (!all(testNames %in% names(TD))) {
-    stop(paste(testNames[!(testNames %in% names(TD))], collapse = ","),
-         " not found in the names of data.\n")
-  }
-  indicator <- TD[, trait, drop = FALSE]
+  nr <- nrow(TD)
+  indicator <- TD[, traits, drop = FALSE]
   similar <- rep(x = 2, times = nr)
   if (verbose) {
     cat("the residual method are large standardized residuals reported by the mixed
         model analysis\n")
   }
-  if (length(trait) != length(rDf)) {
-    stop("number of traits does not equal to number of residual degrees of freedom.\n")
-  }
-  if (ncol(absResids) != length(rDf)) {
-    stop("number of columns in standardised residuals does not equal to number of residual
-         degrees of freedom.\n")
-  }
-  if (ncol(absResids) != length(trait)) {
-    stop("number of traits does not equal to number of columns in standardised residuals.\n")
-  }
-  for (ii in 1:length(trait)) {
-    if (is.na(rLimit)) {
+  for (ii in 1:length(traits)) {
+    if (is.null(rLimit)) {
       if (rDf[ii] <= 20) {
         rLimit <- 2
       } else if (rDf[ii] <= 15773) {
@@ -93,7 +110,7 @@ ST.vcheck <- function(TD,
       }
     }
     # identifies outliers as large standardized residuals
-    tInd <- indicator[, trait[ii]] <- absResids[, trait[ii]] > rLimit
+    tInd <- indicator[, traits[ii]] <- absResids[, traits[ii]] > rLimit
     # list all factors as similar to those with the large residuals
     nCFac <- length(commonFactor)
     genoRLarge <- ttInd <- rep(x = FALSE, times = nr)
@@ -116,37 +133,37 @@ ST.vcheck <- function(TD,
                           row = character(nn), column = character(nn),
                           rowPosition = character(nn), colPosition = character(nn),
                           residual = numeric(nn), similar = integer(nn))
-      pMat0$traitValue <- TD[genoRLarge, trait[ii]]
-      pMat0$traitName <- rep(x = trait[ii], times = nn)
+      pMat0$traitValue <- TD[genoRLarge, traits[ii]]
+      pMat0$traitName <- rep(x = traits[ii], times = nn)
       pMat0$genotype <- TD[genoRLarge, "genotype"]
       pMat0$residual <- stdRes[genoRLarge, ii]
       pMat0$similar <- similar[genoRLarge]
-      if (!is.na(entry)) {
+      if (!is.null(entry)) {
         pMat0$entry <- TD[genoRLarge, entry]
       } else {
         pMat0$entry <- rep(NA, nn)
       }
-      if (!is.na(plotNo)) {
+      if (!is.null(plotNo)) {
         pMat0$plotNo <- TD[genoRLarge, plotNo]
       } else {
         pMat0$plotNo <- rep(NA, nn)
       }
-      if (!is.na(rep)) {
+      if (!is.null(rep)) {
         pMat0$replicate <- TD[genoRLarge, rep]
       } else {
         pMat0$replicate <- rep(NA, nn)
       }
-      if (!is.na(subBlock)) {
+      if (!is.null(subBlock)) {
         pMat0$subBlock <- TD[genoRLarge, subBlock]
       } else {
         pMat0$subBlock <- rep(NA, nn)
       }
-      if (!is.na(row)) {
+      if (!is.null(row)) {
         pMat0$row <- TD[genoRLarge, row]
       } else {
         pMat0$row <- rep(NA, nn)
       }
-      if (!is.na(col)) {
+      if (!is.null(col)) {
         pMat0$column <- TD[genoRLarge, col]
       } else {
         pMat0$column <- rep(NA, nn)
@@ -165,8 +182,8 @@ ST.vcheck <- function(TD,
     }
   }
   if (nrow(pMat) > 0 && verbose) {
-    naNames0 <- c(FALSE, FALSE, FALSE, naNames, FALSE, FALSE)
-    print(format(pMat[, !naNames0]), quote = FALSE)
+  #  naNames0 <- c(FALSE, FALSE, FALSE, naNames, FALSE, FALSE)
+  #  print(format(pMat[, !naNames0]), quote = FALSE)
   }
   return(indicator)
 }
