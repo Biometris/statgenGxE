@@ -1,4 +1,4 @@
-#'  Single trial (ST) modelling for a randomized complete block design (rcbd)
+#' Single trial (ST) modelling for a randomized complete block design (rcbd)
 #'
 #' Phenotypic traits are analysed by fitting mixed models to obtain estimates of
 #' genotypic means and several genetic parameters. Two mixed models are fitted; the first
@@ -27,28 +27,50 @@
 #' @export
 ST.mod.rcbd <- function(TD,
                         trait,
-                        covariate,
-                        rep,
-                        checkId,
+                        covariate = NULL,
+                        rep = NULL,
+                        checkId = NULL,
                         engine,
                         ...) {
+  ## Checks.
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be a valid object of class TD.\n")
+  }
+  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(TD)) {
+    stop("trait has to be a column in TD.\n")
+  }
+  if (!is.null(covariate) && (!is.character(covariate) ||
+                              !(all(covariate %in% colnames(TD))))) {
+    stop("covariate have to be a columns in TD.\n")
+  }
+  for (param in c(rep, checkId)) {
+    if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
+                            !param %in% colnames(TD))) {
+      stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
+    }
+  }
+  if (!is.null(engine) && (!is.character(engine) || length(engine) > 1 ||
+                           !engine %in% c("asreml", "lme4"))) {
+    stop("engine should be asreml or lme4")
+  }
   # any check ID
   if (missing(checkId)) {
     checks <- FALSE
-    iNames <-c(trait, "genotype", rep)
+    iNames <- c(trait, "genotype", rep)
   } else {
     checks <- checkId %in% colnames(TD)
     iNames <- c(trait, "genotype", rep, checkId)
   }
   # any covariate
   covT <- FALSE
-  if (!missing(covariate)) {
+  if (!is.null(covariate)) {
     if (is.character(covariate)) {
       covT <- TRUE
       iNames <- c(iNames, covariate)
     }
   }
-  #check validility of column names of TD
+  ## Check validility of column names of TD
   TDNames <- names(TD)
   if (all(iNames %in% TDNames)) {
     vNameTest <- isValidVariableName(iNames)
@@ -61,7 +83,7 @@ ST.mod.rcbd <- function(TD,
   if (engine == "asreml") {
     tmp <- tempfile()
     sink(file = tmp)
-    # Run mixed and fixed models using asreml
+    ## Run mixed and fixed models using asreml
     if (checks) {
       mr <- asreml::asreml(fixed = as.formula(paste(trait, "~", checkId,
                                                     if (covT) paste(c("", covariate),
@@ -75,7 +97,7 @@ ST.mod.rcbd <- function(TD,
                            random = as.formula(paste("~", rep, "+ genotype")),
                            rcov = ~units, aom = TRUE, data = TD, ...)
     }
-    # constrain variance of the variance components to be fixed as the values in mr
+    ## Constrain variance of the variance components to be fixed as the values in mr
     GParamTmp <- mr$G.param
     GParamTmp[[rep]][[rep]]$con <- "F"
     if (checks) {
@@ -93,7 +115,7 @@ ST.mod.rcbd <- function(TD,
                            random = as.formula(paste0("~", rep)), rcov = ~units,
                            G.param = GParamTmp, aom = TRUE, data = TD, ...)
     }
-    # run predict
+    ## run predict
     mr$call$fixed <- eval(mr$call$fixed)
     mr$call$random <- eval(mr$call$random)
     mr$call$rcov <- eval(mr$call$rcov)
@@ -112,10 +134,10 @@ ST.mod.rcbd <- function(TD,
     sink()
     unlink(tmp)
   } else if (engine == "lme4") {
-    # Run mixed and fixed models using lme4
+    ## Run mixed and fixed models using lme4
     if (checks) {
       frm <- as.formula(paste(trait, "~ (1 |", rep, ")+", checkId,
-                              if(covT) paste(c("", covariate), collapse = "+"),
+                              if (covT) paste(c("", covariate), collapse = "+"),
                               "+ (1 | genotype)"))
     } else {
       frm <- as.formula(paste(trait, "~ (1 |", rep, ")+ (1 | genotype)"))
@@ -123,11 +145,11 @@ ST.mod.rcbd <- function(TD,
     mr <- lme4::lmer(frm, data = TD, ...)
     if (checks) {
       mf <- lm(as.formula(paste(trait, "~", rep, "+", checkId,
-                                if(covT) paste(c("", covariate), collapse = "+"),
+                                if (covT) paste(c("", covariate), collapse = "+"),
                                 "+ genotype")), data = TD, ...)
     } else {
       mf <- lm(as.formula(paste(trait, "~", rep,
-                                if(covT) paste(c("", covariate), collapse = "+"),
+                                if (covT) paste(c("", covariate), collapse = "+"),
                                 "+ genotype")), data = TD, ...)
     }
   } else {
