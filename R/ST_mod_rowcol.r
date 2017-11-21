@@ -31,42 +31,42 @@
 #' @export
 ST.mod.rowcol <- function(TD,
                           trait,
-                          covariate,
-                          rep,
-                          row,
-                          col,
-                          rowCoordinates = NA,
-                          colCoordinates = NA,
-                          checkId,
-                          subDesign,
-                          trySpatial = NA,
+                          covariate = NULL,
+                          rep = NULL,
+                          row = NULL,
+                          col = NULL,
+                          rowCoordinates = NULL,
+                          colCoordinates = NULL,
+                          checkId = NULL,
+                          subDesign = NULL,
+                          trySpatial = NULL,
                           engine,
                           ...) {
   # any check ID
-  if (missing(checkId)) {
+  if (is.null(checkId)) {
     checks <- FALSE
-    if (missing(rep)) {
+    if (is.null(rep)) {
       iNames <- c(trait, "genotype", row, col)
     } else {
       iNames <- c(trait, "genotype", rep, row, col)
     }
   } else {
     checks <- checkId %in% colnames(TD)
-    if (missing(rep)) {
+    if (is.null(rep)) {
       iNames <- c(trait, "genotype", row, col, checkId)
     } else {
       iNames <- c(trait, "genotype", rep, row, col, checkId)
     }
   }
-  if (!is.na(rowCoordinates)) {
+  if (!is.null(rowCoordinates)) {
     iNames <- c(iNames, rowCoordinates)
   }
-  if (!is.na(colCoordinates)) {
+  if (!is.null(colCoordinates)) {
     iNames <- c(iNames, colCoordinates)
   }
   # any covariate
   covT <- FALSE
-  if (!missing(covariate)) {
+  if (!is.null(covariate)) {
     if (is.character(covariate)) {
       covT <- TRUE
       iNames <- c(iNames, covariate)
@@ -82,12 +82,12 @@ ST.mod.rowcol <- function(TD,
       warning(paste(iNames[!vNameTest], collapse = ",")," not syntactically valid name(s).\n")
     }
   } else {
-    stop(paste(iNames[!(iNames%in% TDNames)], collapse = ","), " not found in the names of TD.\n")
+    stop(paste(iNames[!(iNames %in% TDNames)], collapse = ","), " not found in the names of TD.\n")
   }
   if (!checks) {
     checkId <- NA
   }
-  if (engine == "asreml"){
+  if (engine == "asreml") {
     if (subDesign == "res.rowcol") {
       model <- ST.Varowcol(TD = TD, trait = trait, covariate = covariate,
                          rep = rep, row = row, col = col, tryRep = TRUE,
@@ -130,10 +130,10 @@ ST.mod.rowcol <- function(TD,
                                 rep, ":", col, ")"))
       }
       mf <- lme4::lmer(ffm, data = TD, ...)
-    } else if(subDesign == "rowcol") {
+    } else if (subDesign == "rowcol") {
       if (checks) {
         frm <- as.formula(paste(trait, "~", checkId,
-                                if(covT) paste(c("", covariate), collapse = "+"),
+                                if (covT) paste(c("", covariate), collapse = "+"),
                                 "+ (1| genotype) + (1|", row, ") + (1|", col, ")"))
       } else {
         frm <- as.formula(paste(trait, "~1",

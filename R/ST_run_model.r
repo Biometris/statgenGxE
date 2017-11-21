@@ -1,7 +1,7 @@
 #' Run the single trial mixed model analysis
 #'
-#' Perform REML analysis given a specific experiment design.
-#' This is a wrapper funtion of \code{\link{ST.mod.alpha}}, \code{\link{ST.mod.rcbd}}
+#' Perform REML analysis given a specific experimental design.
+#' This is a wrapper function of \code{\link{ST.mod.alpha}}, \code{\link{ST.mod.rcbd}}
 #' and \code{\link{ST.mod.rowcol}}.
 #'
 #' @param TD An object of class TD.
@@ -13,15 +13,15 @@
 #' @param row A string specifying the column name of the rows.
 #' @param col A string specifying the column name of the columns.
 #' @param rowCoordinates A string specifying row coordinates for fitting spatial models.
-#' Default, \code{NA}.
+#' Default, \code{NULL}.
 #' @param colCoordinates A string specifying col coordinates for fitting spatial models.
-#' Default, \code{NA}.
+#' Default, \code{NULL}.
 #' @param checkId (optional) a string specifying the column name of the check ID(s).
 #' @param trySpatial Whether to try spatial models ("always", "ifregular"); default no spatial
-#' models, i.e., \code{NA}.
+#' models, i.e., \code{NULL}.
 #' @param ... Further arguments to be passed to either \code{asreml} or \code{lme4}.
 #'
-#' @return an object of class SSA.
+#' @return an object of class \code{\link{SSA}}.
 #'
 #' @seealso \code{\link{createSSA}}, \code{\link{summary.SSA}}
 #'
@@ -32,45 +32,86 @@
 #'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
 #' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
 #' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
-#'                         rep = "Rep", row = "Row", col = "Column", tryspatial = NA)
+#'                         rep = "Rep", row = "Row", col = "Column")
 #' names(myModel)
 #'
 #' @export
 ST.run.model = function(TD,
-                        design,
+                        design = NULL,
                         trait,
-                        covariate,
-                        rep,
-                        subBlock,
-                        row,
-                        col,
-                        rowCoordinates = NA,
-                        colCoordinates = NA,
-                        checkId,
-                        trySpatial = NA,
+                        covariate = NULL,
+                        rep = NULL,
+                        subBlock  = NULL,
+                        row = NULL,
+                        col = NULL,
+                        rowCoordinates = NULL,
+                        colCoordinates = NULL,
+                        checkId = NULL,
+                        trySpatial = NULL,
                         ...) {
-  #choose a package for mixed modelling
+  ## Checks.
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be a valid object of class TD.\n")
+  }
+  designs <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
+  if ((is.null(design) && !attr(TD, "design") %in% designs) ||
+      (!is.null(design) && (!is.character(design) || length(design) > 1 ||
+                            !design %in% designs))) {
+    stop("design should either be an attribute of TD or one of ibd,
+         res.ibd, rcbd, rowcol or res.rowcol.\n")
+  }
+  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(TD)) {
+    stop("trait has to be a column in TD.\n")
+  }
+  if (!is.null(covariate) && (!is.character(covariate) ||
+      !(all(covariate %in% colnames(TD))))) {
+    stop("covariate have to be a columns in TD.\n")
+  }
+  for (param in c(rep, subBlock, row, col, rowCoordinates,
+                  colCoordinates, checkId)) {
+    if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
+                            !param %in% colnames(TD))) {
+      stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
+    }
+  }
+  if (!is.null(trySpatial) && (!is.character(trySpatial) || length(trySpatial) > 1 ||
+      !trySpatial %in% c("always", "ifregular"))) {
+    stop("trySpatial should be NULL, always or ifregular")
+  }
+  ## Extract design from TD if needed.
+  if (is.null(design)) {
+    design <- attr(TD, "design")
+  }
+  ## Automatically choose a package for mixed modelling.
   engine <- asremlORlme4()
+  ## Modelling depending on design.
   if (design == "res.ibd") {
-    model <- ST.mod.alpha(TD = TD, trait = trait, rep = rep, subBlock = subBlock,
+    model <- ST.mod.alpha(TD = TD, trait = trait, covariate = covariate,
+                          rep = rep, subBlock = subBlock,
                           subDesign = design, checkId = checkId,
                           engine = engine, ...)
   } else if (design == "ibd") {
-    model <- ST.mod.alpha(TD = TD, trait = trait, subBlock = subBlock,
-                          subDesign = design, checkId = checkId, engine = engine, ...)
+    model <- ST.mod.alpha(TD = TD, trait = trait, covariate = covariate,
+                          subBlock = subBlock, subDesign = design,
+                          checkId = checkId, engine = engine, ...)
   } else if (design == "rcbd") {
-    model <- ST.mod.rcbd(TD = TD, trait = trait, rep = rep,
-                         checkId = checkId, engine = engine, ...)
+    model <- ST.mod.rcbd(TD = TD, trait = trait, covariate = covariate,
+                         rep = rep, checkId = checkId,
+                         engine = engine, ...)
   } else if (design == "res.rowcol") {
-    model <- ST.mod.rowcol(TD = TD, trait = trait, rep = rep,
+    model <- ST.mod.rowcol(TD = TD, trait = trait, covariate = covariate,
+                           rep = rep, row = row, col = col,
+                           rowCoordinates = rowCoordinates,
+                           colCoordinates = colCoordinates,
+                           checkId = checkId, subDesign = design,
+                           trySpatial = trySpatial, engine = engine, ...)
+  } else if (design == "rowcol") {
+    model <- ST.mod.rowcol(TD = TD, trait = trait, covariate = covariate,
                            row = row, col = col, rowCoordinates = rowCoordinates,
                            colCoordinates = colCoordinates, checkId = checkId,
-                           subDesign = design, trySpatial = trySpatial, engine = engine, ...)
-  } else if (design == "rowcol") {
-    model <- ST.mod.rowcol(TD = TD, trait = trait, row = row,
-                           col = col, rowCoordinates = rowCoordinates,
-                           colCoordinates = colCoordinates, checkId = checkId,
-                           subDesign = design, trySpatial = trySpatial, engine = engine, ...)
+                           subDesign = design, trySpatial = trySpatial,
+                           engine = engine, ...)
   }
   return(model)
 }

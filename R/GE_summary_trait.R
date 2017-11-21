@@ -1,6 +1,7 @@
 #' Summary statistics for a trait
 #'
-#' This function calculates summary statistics for a trait within and between a set of environments.
+#' This function calculates summary statistics for a trait within and between a
+#' set of environments.
 #'
 #' @param data A data frame object consisting of Genotype-by-Environment data.
 #' @param trait A string specifying the column name of a trait column found in \code{data}.
@@ -117,8 +118,8 @@ GE.summary.trait = function(data,
     if (Max) stats[i, 8] <- max(y, na.rm = TRUE)
     if (Range) stats[i, 9] <- max(y, na.rm = TRUE) - min(y,na.rm = TRUE)
     if (Median) stats[i, 10] <- median(y, na.rm = TRUE)
-    if (LowerQ) stats[i, 11] <- quantile(y, prob =.25, na.rm = TRUE)
-    if (UpperQ) stats[i, 12] <- quantile(y, prob =.75, na.rm = TRUE)
+    if (LowerQ) stats[i, 11] <- quantile(y, prob = .25, na.rm = TRUE)
+    if (UpperQ) stats[i, 12] <- quantile(y, prob = .75, na.rm = TRUE)
     if (Sum) stats[i, 13] <- sum(y, na.rm = TRUE)
     if (SEMean) stats[i, 14] <- sd(y, na.rm = TRUE) / sqrt(length(y) - sum(is.na(y)))
     if (SEVar) stats[i, 15] <- seVar(y, na.rm = TRUE)

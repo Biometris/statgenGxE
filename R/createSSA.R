@@ -69,7 +69,7 @@ is.SSA <- function(x) {
 #'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
 #' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
 #' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
-#'                         rep = "Rep", row = "Row", col = "Column", tryspatial = NA)
+#'                         rep = "Rep", row = "Row", col = "Column")
 #' summary(myModel)
 #'
 #' @export

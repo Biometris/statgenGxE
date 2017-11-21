@@ -27,19 +27,19 @@ ST.outlier <- function(TD,
                        trait,
                        entry = NA,
                        plotNo = NA,
-                       rep = NA,
-                       subBlock = NA,
-                       row = NA,
-                       col = NA,
-                       rowCoordinates = NA,
-                       colCoordinates = NA,
+                       rep = NULL,
+                       subBlock = NULL,
+                       row = NULL,
+                       col = NULL,
+                       rowCoordinates = NULL,
+                       colCoordinates = NULL,
                        commonFactor = "genotype",
                        coef = 1.5) {
   testNames <- c(trait, entry, plotNo, rep, subBlock, row, col,
                  rowCoordinates, colCoordinates)
   naNames <- is.na(testNames)
   testNames <- testNames[!naNames]
-  if(!all(testNames %in% names(TD))){
+  if (!all(testNames %in% names(TD))) {
     stop(paste(testNames[!(testNames %in% names(TD))], collapse = ","),
          " not found in the names of TD.\n")
   }
@@ -56,7 +56,7 @@ ST.outlier <- function(TD,
     if (length(outVals)) {
       ncFac <- length(commonFactor)
       genoOut <- ttInd <- rep(FALSE, nrow(TD))
-      for (jj in 1:ncFac){
+      for (jj in 1:ncFac) {
         ttInd <- TD[tInd, commonFactor[jj]]
         ttInd <- droplevels(ttInd)
         ttInd <- levels(ttInd)
@@ -86,32 +86,32 @@ ST.outlier <- function(TD,
       } else {
         pMat0$plotNo <- rep(NA, nn)
       }
-      if (!is.na(rep)) {
+      if (!is.null(rep)) {
         pMat0$replicate <- TD[genoOut, rep]
       } else {
         pMat0$replicate <- rep(NA, nn)
       }
-      if (!is.na(subBlock)) {
+      if (!is.null(subBlock)) {
         pMat0$subBlock <- TD[genoOut, subBlock]
       } else {
         pMat0$subBlock <- rep(NA, nn)
       }
-      if (!is.na(row)) {
+      if (!is.null(row)) {
         pMat0$row <- TD[genoOut, row]
       } else {
         pMat0$row <- rep(NA, nn)
       }
-      if (!is.na(col)) {
+      if (!is.null(col)) {
         pMat0$column <- TD[genoOut, col]
       } else {
         pMat0$column <- rep(NA, nn)
       }
-      if (!is.na(rowCoordinates)) {
+      if (!is.null(rowCoordinates)) {
         pMat0$rowPosition <- TD[genoOut, rowCoordinates]
       } else {
         pMat0$rowPosition <- rep(NA, nn)
       }
-      if (!is.na(colCoordinates)) {
+      if (!is.null(colCoordinates)) {
         pMat0$colPosition <- TD[genoOut, colCoordinates]
       } else {
         pMat0$colPosition <- rep(NA, nn)

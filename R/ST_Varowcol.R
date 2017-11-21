@@ -63,10 +63,10 @@ ST.Varowcol <- function(TD,
   } else {
     regular <- FALSE
   }
-  if (is.na(rowCoordinates)) {
+  if (is.null(rowCoordinates)) {
     flag <- 0
   }
-  if (is.na(colCoordinates)) {
+  if (is.null(colCoordinates)) {
     flag <- 0
   }
   # does not use spatial models

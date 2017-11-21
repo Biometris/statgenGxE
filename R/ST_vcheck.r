@@ -97,7 +97,7 @@ ST.vcheck <- function(TD,
     # list all factors as similar to those with the large residuals
     nCFac <- length(commonFactor)
     genoRLarge <- ttInd <- rep(x = FALSE, times = nr)
-    for (jj in 1:nCFac){
+    for (jj in 1:nCFac) {
       ttInd <- TD[tInd, commonFactor[jj]]
       ttInd <- droplevels(ttInd)
       ttInd <- levels(ttInd)
@@ -151,12 +151,12 @@ ST.vcheck <- function(TD,
       } else {
         pMat0$column <- rep(NA, nn)
       }
-      if (!is.na(rowCoordinates)) {
+      if (!is.null(rowCoordinates)) {
         pMat0$rowPosition <- TD[genoRLarge, rowCoordinates]
       } else {
         pMat0$rowPosition <- rep(NA, nn)
       }
-      if (!is.na(colCoordinates)) {
+      if (!is.null(colCoordinates)) {
         pMat0$colPosition <- TD[genoRLarge, colCoordinates]
       } else {
         pMat0$colPosition <- rep(NA, nn)
@@ -164,7 +164,7 @@ ST.vcheck <- function(TD,
       pMat <- rbind(pMat, pMat0)
     }
   }
-  if (nrow(pMat) > 0 && verbose){
+  if (nrow(pMat) > 0 && verbose) {
     naNames0 <- c(FALSE, FALSE, FALSE, naNames, FALSE, FALSE)
     print(format(pMat[, !naNames0]), quote = FALSE)
   }
