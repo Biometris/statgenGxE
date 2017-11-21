@@ -20,16 +20,39 @@
 ST.Varowcol <- function(TD,
                         trait,
                         covariate = NULL,
-                        rep,
-                        row,
-                        col,
+                        rep = NULL,
+                        row = NULL,
+                        col = NULL,
                         tryRep = TRUE,
-                        checkId = NA,
-                        rowCoordinates = NA,
-                        colCoordinates = NA,
-                        trySpatial = NA,
+                        checkId = NULL,
+                        rowCoordinates = NULL,
+                        colCoordinates = NULL,
+                        trySpatial = NULL,
                         criterion = "BIC",
                         ...) {
+
+  ## Checks.
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be a valid object of class TD.\n")
+  }
+  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(TD)) {
+    stop("trait has to be a column in TD.\n")
+  }
+  if (!is.null(covariate) && (!is.character(covariate) ||
+                              !(all(covariate %in% colnames(TD))))) {
+    stop("covariate have to be a columns in TD.\n")
+  }
+  for (param in c(rep, row, col, rowCoordinates, colCoordinates, checkId)) {
+    if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
+                            !param %in% colnames(TD))) {
+      stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
+    }
+  }
+  if (!is.null(trySpatial) && (!is.character(trySpatial) || length(trySpatial) > 1 ||
+                               !trySpatial %in% c("always", "ifregular"))) {
+    stop("trySpatial should be NULL, always or ifregular.\n")
+  }
   # TODO: Starting values for more complex models? (See some warnings captured from asreml)
   # Run mixed and fixed models using asreml
   # check validity of variable name, trait
@@ -71,14 +94,14 @@ ST.Varowcol <- function(TD,
   }
   # does not use spatial models
   if (flag == 0) {
-    trySpatial <- NA
+    trySpatial <- NULL
   }
   tmp <- tempfile()
   sink(file = tmp)
   # default no spatial models
-  if (is.na(trySpatial)) {
+  if (is.null(trySpatial)) {
     if (tryRep) {
-      if (!is.na(checkId)) {
+      if (!is.null(checkId)) {
         mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"))),
@@ -107,7 +130,7 @@ ST.Varowcol <- function(TD,
           GParamTmp[[tmpPos]][[rep]]$con <- "F"
         }
       }
-      if (!is.na(checkId)) {
+      if (!is.null(checkId)) {
         mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
@@ -127,7 +150,7 @@ ST.Varowcol <- function(TD,
                              data = TD, ...)
       }
     } else {
-      if (!is.na(checkId)) {
+      if (!is.null(checkId)) {
         mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"))),
@@ -148,7 +171,7 @@ ST.Varowcol <- function(TD,
       if (!is.null(GParamTmp[[col]][[col]]$con)) {
         GParamTmp[[col]][[col]]$con <- "F"
       }
-      if (!is.na(checkId)) {
+      if (!is.null(checkId)) {
         mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
@@ -204,7 +227,7 @@ ST.Varowcol <- function(TD,
       modelChoice <- paste("Random:", randomChoice, "&   Spatial:", spatialChoice)
       for (ii in 1:length(randomTerm)) {
         if (tryRep) {
-          if (!is.na(checkId)) {
+          if (!is.null(checkId)) {
             mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
                                                           if (covT) paste(c("", covariate),
                                                                           collapse = "+"))),
@@ -220,7 +243,7 @@ ST.Varowcol <- function(TD,
                                  aom = TRUE, data = TD, ...)
           }
         } else {
-          if (!is.na(checkId)) {
+          if (!is.null(checkId)) {
             mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
                                                           if (covT) paste(c("", covariate),
                                                                           collapse = "+"))),
@@ -257,7 +280,7 @@ ST.Varowcol <- function(TD,
         }
       }
     } else {
-      if (trySpatial == "always") {
+      if (!is.null(trySpatial) && trySpatial == "always") {
         if (tryRep) {
           randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3),
                            paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
@@ -294,7 +317,7 @@ ST.Varowcol <- function(TD,
         modelChoice <- paste("Random:", randomChoice, "&   Spatial:", spatialChoice)
         for (ii in 1:length(randomTerm)) {
           if (tryRep) {
-            if (!is.na(checkId)) {
+            if (!is.null(checkId)) {
               mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
                                                             if (covT) paste(c("", covariate),
                                                                             collapse = "+"))),
@@ -310,7 +333,7 @@ ST.Varowcol <- function(TD,
                                    aom = TRUE, data = TD, ...)
             }
           } else {
-            if (!is.na(checkId)) {
+            if (!is.null(checkId)) {
               mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
                                                             if (covT) paste(c("", covariate),
                                                                             collapse = "+"))),
@@ -363,7 +386,7 @@ ST.Varowcol <- function(TD,
           GParamTmp[[tmpPos]][[rep]]$con <- "F"
         }
       }
-      if (!is.na(checkId)) {
+      if (!is.null(checkId)) {
         mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
@@ -388,7 +411,7 @@ ST.Varowcol <- function(TD,
       if (!is.null(GParamTmp[[col]][[col]]$con)) {
         GParamTmp[[col]][[col]]$con <- "F"
       }
-      if (!is.na(checkId)) {
+      if (!is.null(checkId)) {
         mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
@@ -408,7 +431,7 @@ ST.Varowcol <- function(TD,
     }
   }
   # run predict
-  if (!is.na(trySpatial)) {
+  if (!is.null(trySpatial)) {
     ii <- bestLoc
   }
   bestModel$call$fixed <- eval(bestModel$call$fixed)
@@ -418,9 +441,9 @@ ST.Varowcol <- function(TD,
   mf$call$random <- eval(mf$call$random)
   mf$call$rcov <- eval(mf$call$rcov)
   bestModel = predict(bestModel, classify = "genotype", data = TD)
-  if (!is.na(checkId)) {
+  if (!is.null(checkId)) {
     mf <- predict(mf, classify = "genotype", vcov = TRUE, data = TD,
-                  associate = ~as.formula(paste0(checkId,":genotype")))
+                  associate = as.formula(paste0("~", checkId,":genotype")))
   } else {
     mf <- predict(mf, classify = "genotype", vcov = TRUE, data = TD)
   }
