@@ -10,7 +10,8 @@
 #'
 #' @param subDesign A string specifying whether to analyse an incomplete-block design (ibd) or
 #' resolvable incomplete-block design (res.ibd).
-#' @param engine A string specifying the name of the mixed modelling engine to use.
+#' @param engine A string specifying the name of the mixed modelling engine to use, either
+#' asreml or lme4.
 #' @param ... Further arguments to be passed to either \code{asreml} or \code{lme4}.
 #'
 #' @return an object of class \code{\link{SSA}}.
@@ -29,53 +30,85 @@
 #' summary(myModel)
 #'
 #' @export
-ST.mod.alpha = function(TD,
-                        trait,
-                        covariate,
-                        rep,
-                        subBlock,
-                        subDesign,
-                        checkId,
-                        engine,
-                        ...) {
+ST.mod.alpha <- function(TD,
+                         trait,
+                         covariate = NULL,
+                         rep = NULL,
+                         subBlock = NULL,
+                         checkId = NULL,
+                         subDesign = NULL,
+                         engine,
+                         ...) {
+  ## Checks.
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be a valid object of class TD.\n")
+  }
+  subDesigns <- c("ibd", "res.ibd")
+  if ((is.null(subDesign) && !attr(TD, "subDesign") %in% subDesigns) ||
+      (!is.null(subDesign) && (!is.character(subDesign) || length(subDesign) > 1 ||
+                               !subDesign %in% subDesigns))) {
+    stop("subDesign should either be an attribute of TD or one of ibd or res.ibd.\n")
+  }
+  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(TD)) {
+    stop("trait has to be a column in TD.\n")
+  }
+  if (!is.null(covariate) && (!is.character(covariate) ||
+                              !(all(covariate %in% colnames(TD))))) {
+    stop("covariate have to be a columns in TD.\n")
+  }
+  for (param in c(rep, subBlock, checkId)) {
+    if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
+                            !param %in% colnames(TD))) {
+      stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
+    }
+  }
+  if (!is.null(engine) && (!is.character(engine) || length(engine) > 1 ||
+                           !engine %in% c("asreml", "lme4"))) {
+    stop("engine should be asreml or lme4")
+  }
+  ## Extract design from TD if needed.
+  if (is.null(subDesign)) {
+    subDesign <- attr(TD, "design")
+  }
   # any check ID
   if (missing(checkId)) {
     checks <- FALSE
-    if (missing(rep)) {
+    if (is.null(rep)) {
       iNames <- c(trait, "genotype", subBlock)
     } else {
       iNames <- c(trait, "genotype", rep, subBlock)
     }
   } else {
     checks <- checkId %in% colnames(TD)
-    if (missing(rep)) {
+    if (is.null(rep)) {
       iNames <- c(trait, "genotype", subBlock, checkId)
     } else {
       iNames <- c(trait, "genotype", rep, subBlock, checkId)
     }
   }
-  # any covariate
+  ## any covariate
   covT <- FALSE
-  if (!missing(covariate)) {
-    if (is.character(covariate)){
+  if (!is.null(covariate)) {
+    if (is.character(covariate)) {
       covT <- TRUE
-      iNames <-c(iNames, covariate)
+      iNames <- c(iNames, covariate)
     }
   }
-  #check validility of column names of TD
+  ## check validility of column names of TD
   TDNames <- names(TD)
   if (all(iNames %in% TDNames)) {
     vNameTest <- isValidVariableName(iNames)
-    if(!all(vNameTest)) {
+    if (!all(vNameTest)) {
       warning(paste(iNames[!vNameTest], collapse = ","), " not syntactically valid name(s)")
     }
   } else {
-    stop(paste(iNames[!(iNames%in% TDNames)], collapse = ","), " not found in the names of TD")
+    stop(paste(iNames[!(iNames %in% TDNames)], collapse = ","), " not found in the names of TD")
   }
-  if (engine == "asreml"){
+  if (engine == "asreml") {
     tmp <- tempfile()
     sink(file = tmp)
-    # Run mixed and fixed models using asreml
+    ## Run mixed and fixed models using asreml
     if (subDesign == "res.ibd") {
       if (checks) {
         mr <- asreml::asreml(fixed = as.formula(paste(trait, "~", rep, "+", checkId,
@@ -92,7 +125,7 @@ ST.mod.alpha = function(TD,
                                                         subBlock)),
                              rcov = ~units, aom = TRUE, data = TD, ...)
       }
-      # constrain variance of the variance components to be fixed as the values in mr
+      ## constrain variance of the variance components to be fixed as the values in mr
       GParamTmp <- mr$G.param
       GParamTmp[[paste0("`", rep, ":", subBlock, "`")]][[rep]]$con <- "F"
       if (checks) {
@@ -101,14 +134,14 @@ ST.mod.alpha = function(TD,
                                                                       collapse = "+"),
                                                       "+ genotype")),
                              random = as.formula(paste0("~", rep, ":", subBlock)),
-                             rcov = ~units, G.param = GParamTmp, aom = TRUE, data = TD, ...)
+                             rcov = ~ units, G.param = GParamTmp, aom = TRUE, data = TD, ...)
       } else {
         mf <- asreml::asreml(fixed = as.formula(paste(trait, "~", rep,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"),
                                                       "+ genotype")),
                              random = as.formula(paste0("~", rep, ":", subBlock)),
-                             rcov =~ units, G.param = GParamTmp, aom = TRUE, data = TD, ...)
+                             rcov = ~ units, G.param = GParamTmp, aom = TRUE, data = TD, ...)
       }
     } else if (subDesign == "ibd") {
       if (checks) {
@@ -116,7 +149,7 @@ ST.mod.alpha = function(TD,
                                                       if (covT) paste(c("", covariate),
                                                                       collapse = "+"))),
                              random = as.formula(paste0("~ genotype:", subBlock)),
-                             rcov =~ units, aom = TRUE, data = TD, ...)
+                             rcov = ~ units, aom = TRUE, data = TD, ...)
       } else {
         mr <- asreml::asreml(fixed = as.formula(paste(trait, "~1",
                                                       if (covT) paste(c("", covariate),
@@ -124,7 +157,7 @@ ST.mod.alpha = function(TD,
                              random = as.formula(paste0("~ genotype:", subBlock)),
                              rcov = ~units, aom = TRUE, data = TD, ...)
       }
-      # constrain variance of the variance components to be fixed as the values in mr
+      ## constrain variance of the variance components to be fixed as the values in mr
       GParamTmp <- mr$G.param
       GParamTmp[[subBlock]][[subBlock]]$con <- "F"
       if (checks) {
@@ -143,7 +176,7 @@ ST.mod.alpha = function(TD,
                              G.param = GParamTmp, aom = TRUE, data = TD, ...)
       }
     }
-    # run predict
+    ## run predict
     mr$call$fixed <- eval(mr$call$fixed)
     mr$call$random <- eval(mr$call$random)
     mr$call$rcov <- eval(mr$call$rcov)
@@ -162,8 +195,8 @@ ST.mod.alpha = function(TD,
     sink()
     unlink(tmp)
   } else {
-    if (engine == "lme4"){
-      # Run mixed and fixed models using lme4
+    if (engine == "lme4") {
+      ## Run mixed and fixed models using lme4
       if (subDesign == "res.ibd") {
         if (checks) {
           frm <- as.formula(paste(trait, "~", rep, "+", checkId,
@@ -179,7 +212,7 @@ ST.mod.alpha = function(TD,
                                   if (covT) paste(c("", covariate), collapse = "+"),
                                   "+ genotype + (1 | ", rep, ":", subBlock, ")"))
         } else {
-          ffm <- as.formula(paste(trait, "~", rep, if(covT) paste(c("", covariate), collapse = "+"),
+          ffm <- as.formula(paste(trait, "~", rep, if (covT) paste(c("", covariate), collapse = "+"),
                                   "+ genotype + (1 | ", rep, ":", subBlock, ")"))
         }
         mf <- lme4::lmer(ffm, data = TD, ...)
@@ -203,12 +236,11 @@ ST.mod.alpha = function(TD,
         }
         mf <- lme4::lmer(ffm, data = TD, ...)
       }
-    } else {
-      stop("Please use either asreml or lme4 for engine")
     }
   }
   model = createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
-                    genotype = "genotype", rep = ifelse(subDesign == "res.ibd", rep, NULL),
+                    genotype = "genotype",
+                    rep = ifelse(subDesign == "res.ibd", rep, NULL),
                     design = subDesign, engine = engine)
   return(model)
 }
