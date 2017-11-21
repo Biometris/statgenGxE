@@ -105,78 +105,45 @@ ST.mod.alpha <- function(TD,
   } else {
     stop(paste(iNames[!(iNames %in% TDNames)], collapse = ","), " not found in the names of TD")
   }
-  if (engine == "asreml") {
+  if (engine == "SpATSS") {
+
+
+  } else if (engine == "asreml") {
     tmp <- tempfile()
     sink(file = tmp)
     ## Run mixed and fixed models using asreml
     if (subDesign == "res.ibd") {
-      if (checks) {
-        mr <- asreml::asreml(fixed = as.formula(paste(trait, "~", rep, "+", checkId,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"))),
-                             random = as.formula(paste0("~ genotype +", rep, ":",
-                                                        subBlock)),
-                             rcov = ~units, aom = TRUE, data = TD, ...)
-      } else {
-        mr <- asreml::asreml(fixed = as.formula(paste(trait, "~", rep,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"))),
-                             random = as.formula(paste0("~ genotype +", rep, ":",
-                                                        subBlock)),
-                             rcov = ~units, aom = TRUE, data = TD, ...)
-      }
-      ## constrain variance of the variance components to be fixed as the values in mr
+      fixedFormR <- as.formula(paste(trait, "~", rep,
+                                     if (checks) paste("+", checkId),
+                                     if (covT) paste(c("", covariate), collapse = "+")))
+      mr <- asreml::asreml(fixed = fixedFormR,
+                           random = as.formula(paste0("~ genotype +", rep, ":",
+                                                      subBlock)),
+                           rcov = ~ units, aom = TRUE, data = TD, ...)
+      ## Constrain variance of the variance components to be fixed as the values in mr.
       GParamTmp <- mr$G.param
       GParamTmp[[paste0("`", rep, ":", subBlock, "`")]][[rep]]$con <- "F"
-      if (checks) {
-        mf <- asreml::asreml(fixed = as.formula(paste(trait, "~", rep, "+", checkId,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"),
-                                                      "+ genotype")),
-                             random = as.formula(paste0("~", rep, ":", subBlock)),
-                             rcov = ~ units, G.param = GParamTmp, aom = TRUE, data = TD, ...)
-      } else {
-        mf <- asreml::asreml(fixed = as.formula(paste(trait, "~", rep,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"),
-                                                      "+ genotype")),
-                             random = as.formula(paste0("~", rep, ":", subBlock)),
-                             rcov = ~ units, G.param = GParamTmp, aom = TRUE, data = TD, ...)
-      }
+      fixedFormF <- as.formula(paste(deparse(fixedFormR), "+ genotype"))
+      mf <- asreml::asreml(fixed = fixedFormF,
+                           random = as.formula(paste0("~", rep, ":", subBlock)),
+                           rcov = ~ units, G.param = GParamTmp, aom = TRUE, data = TD, ...)
     } else if (subDesign == "ibd") {
-      if (checks) {
-        mr <- asreml::asreml(fixed = as.formula(paste(trait, "~", checkId,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"))),
-                             random = as.formula(paste0("~ genotype:", subBlock)),
-                             rcov = ~ units, aom = TRUE, data = TD, ...)
-      } else {
-        mr <- asreml::asreml(fixed = as.formula(paste(trait, "~1",
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"))),
-                             random = as.formula(paste0("~ genotype:", subBlock)),
-                             rcov = ~units, aom = TRUE, data = TD, ...)
-      }
-      ## constrain variance of the variance components to be fixed as the values in mr
+      fixedFormR <- as.formula(paste(trait, "~",
+                                     if (checks) checkId else "1",
+                                     if (covT) paste(c("", covariate), collapse = "+")))
+      mr <- asreml::asreml(fixed = fixedFormR,
+                           random = as.formula(paste0("~ genotype:", subBlock)),
+                           rcov = ~ units, aom = TRUE, data = TD, ...)
+
+      ## Constrain variance of the variance components to be fixed as the values in mr.
       GParamTmp <- mr$G.param
       GParamTmp[[subBlock]][[subBlock]]$con <- "F"
-      if (checks) {
-        mf <- asreml::asreml(fixed = as.formula(paste(trait, "~", checkId,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"),
-                                                      "+ genotype")),
-                             random = as.formula(paste("~", subBlock)), rcov = ~units,
-                             G.param = GParamTmp, aom = TRUE, data = TD, ...)
-      } else {
-        mf <- asreml::asreml(fixed = as.formula(paste(trait, "~1",
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"),
-                                                      "+ genotype")),
-                             random = as.formula(paste("~", subBlock)), rcov = ~units,
-                             G.param = GParamTmp, aom = TRUE, data = TD, ...)
-      }
+      fixedFormF <- as.formula(paste(deparse(fixedFormR), "+ genotype"))
+      mf <- asreml::asreml(fixed = fixedFormF,
+                           random = as.formula(paste("~", subBlock)), rcov = ~ units,
+                           G.param = GParamTmp, aom = TRUE, data = TD, ...)
     }
-    ## run predict
+    ## Run predict.
     mr$call$fixed <- eval(mr$call$fixed)
     mr$call$random <- eval(mr$call$random)
     mr$call$rcov <- eval(mr$call$rcov)
@@ -194,48 +161,30 @@ ST.mod.alpha <- function(TD,
     mr$call$data <- substitute(TD)
     sink()
     unlink(tmp)
-  } else {
-    if (engine == "lme4") {
-      ## Run mixed and fixed models using lme4
-      if (subDesign == "res.ibd") {
-        if (checks) {
-          frm <- as.formula(paste(trait, "~", rep, "+", checkId,
-                                  if (covT) paste(c("", covariate), collapse = "+"),
-                                  "+ (1 | genotype)+ (1 | ", rep, ":", subBlock, ")"))
-        } else {
-          frm <- as.formula(paste(trait, "~", rep, if (covT) paste(c("",covariate), collapse = "+"),
-                                  "+ (1 | genotype)+ (1 | ", rep, ":", subBlock, ")"))
-        }
-        mr <- lme4::lmer(frm, data = TD, ...)
-        if (checks) {
-          ffm <- as.formula(paste(trait, "~", rep, "+", checkId,
-                                  if (covT) paste(c("", covariate), collapse = "+"),
-                                  "+ genotype + (1 | ", rep, ":", subBlock, ")"))
-        } else {
-          ffm <- as.formula(paste(trait, "~", rep, if (covT) paste(c("", covariate), collapse = "+"),
-                                  "+ genotype + (1 | ", rep, ":", subBlock, ")"))
-        }
-        mf <- lme4::lmer(ffm, data = TD, ...)
-      } else if (subDesign == "ibd") {
-        if (checks) {
-          frm = as.formula(paste(trait, "~ ", checkId,
-                                 if (covT) paste(c("", covariate), collapse = "+"),
-                                 "+ (1 | genotype)+ (1 | ", subBlock, ")"))
-        } else {
-          frm <- as.formula(paste(trait, "~1", if (covT) paste(c("", covariate), collapse = "+"),
-                                  "+ (1 | genotype)+ (1 |", subBlock, ")"))
-        }
-        mr <- lme4::lmer(frm, data = TD, ...)
-        if (checks) {
-          ffm <- as.formula(paste(trait, "~ ", checkId,
-                                  if (covT) paste(c("", covariate), collapse = "+"),
-                                  "+ genotype + (1 | ", subBlock, ")"))
-        } else {
-          ffm <- as.formula(paste(trait, "~ 1", if (covT) paste(c("", covariate), collapse = "+"),
-                                  "+ genotype + (1 | ", subBlock, ")"))
-        }
-        mf <- lme4::lmer(ffm, data = TD, ...)
-      }
+  } else if (engine == "lme4") {
+    ## Run mixed and fixed models using lme4
+    if (subDesign == "res.ibd") {
+      frm <- as.formula(paste(trait, "~", rep,
+                              if (checks) paste("+", checkId),
+                              if (covT) paste(c("", covariate), collapse = "+"),
+                              "+ (1 | genotype) + (1 | ", rep, ":", subBlock, ")"))
+      mr <- lme4::lmer(frm, data = TD, ...)
+      ffm <- as.formula(paste(trait, "~", rep,
+                              if (checks) paste("+", checkId),
+                              if (covT) paste(c("", covariate), collapse = "+"),
+                              "+ genotype + (1 | ", rep, ":", subBlock, ")"))
+      mf <- lme4::lmer(ffm, data = TD, ...)
+    } else if (subDesign == "ibd") {
+      frm <- as.formula(paste(trait, "~",
+                              if (checks) paste("+", checkId),
+                              if (covT) paste(c("", covariate), collapse = "+"),
+                              "+ (1 | genotype) + (1 |", subBlock, ")"))
+      mr <- lme4::lmer(frm, data = TD, ...)
+      ffm <- as.formula(paste(trait, "~",
+                              if (checks) paste("+", checkId),
+                              if (covT) paste(c("", covariate), collapse = "+"),
+                              "+ genotype + (1 |", subBlock, ")"))
+      mf <- lme4::lmer(ffm, data = TD, ...)
     }
   }
   model = createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,

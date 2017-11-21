@@ -101,21 +101,14 @@ ST.Varowcol <- function(TD,
   # default no spatial models
   if (is.null(trySpatial)) {
     if (tryRep) {
-      if (!is.null(checkId)) {
-        mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"))),
-                             random = as.formula(paste("~ genotype +", rep, ":",
-                                                       row, "+", rep, ":", col)),
-                             rcov = ~units, aom = TRUE, data = TD, ...)
-      } else {
-        mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"))),
-                             random = as.formula(paste("~ genotype +", rep, ":", row,
-                                                       "+", rep, ":", col)),
-                             rcov = ~units, aom = TRUE, data = TD, ...)
-      }
+      fixedFormR <- as.formula(paste(trait0, "~", rep,
+                                     if (!is.null(checkId)) paste("+", checkId),
+                                     if (covT) paste(c("", covariate),
+                                                     collapse = "+")))
+      mr <- asreml::asreml(fixed = fixedFormR,
+                           random = as.formula(paste("~ genotype +", rep, ":",
+                                                     row, "+", rep, ":", col)),
+                           rcov = ~ units, aom = TRUE, data = TD, ...)
       # constrain variance of the variance components to be fixed as the values in mr
       GParamTmp <- mr$G.param
       tmpPos <- which(names(GParamTmp) == paste(rep, row, sep = ":"))
@@ -130,39 +123,21 @@ ST.Varowcol <- function(TD,
           GParamTmp[[tmpPos]][[rep]]$con <- "F"
         }
       }
-      if (!is.null(checkId)) {
-        mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"),
-                                                      "+ genotype")),
-                             random = as.formula(paste("~", rep, ":", row, "+",
-                                                       rep, ":", col)),
-                             rcov = ~units, G.param = GParamTmp, aom = TRUE,
-                             data = TD, ...)
-      } else {
-        mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"),
-                                                      "+ genotype")),
-                             random = as.formula(paste("~", rep, ":", row, "+",
-                                                       rep, ":", col)),
-                             rcov = ~units, G.param = GParamTmp, aom = TRUE,
-                             data = TD, ...)
-      }
+      fixedFormF <- as.formula(paste(deparse(fixedFormR), "+ genotype"))
+      mf <- asreml::asreml(fixed = fixedFormF,
+                           random = as.formula(paste("~", rep, ":", row, "+",
+                                                     rep, ":", col)),
+                           rcov = ~ units, G.param = GParamTmp, aom = TRUE,
+                           data = TD, ...)
+
     } else {
-      if (!is.null(checkId)) {
-        mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"))),
-                             random = as.formula(paste("~ genotype +", row, "+", col)),
-                             rcov = ~units, aom = TRUE, data = TD, ...)
-      } else {
-        mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", 1,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"))),
-                             random = as.formula(paste("~ genotype +", row, "+", col)),
-                             rcov = ~units, aom = TRUE, data = TD, ...)
-      }
+      fixedFormR <- as.formula(paste(trait0, "~",
+                                     if (!is.null(checkId)) paste("+", checkId),
+                                     if (covT) paste(c("", covariate),
+                                                     collapse = "+")))
+      mr <- asreml::asreml(fixed = fixedFormR,
+                           random = as.formula(paste("~ genotype +", row, "+", col)),
+                           rcov = ~ units, aom = TRUE, data = TD, ...)
       # constrain variance of the variance components to be fixed as the values in mr
       GParamTmp <- mr$G.param
       if (!is.null(GParamTmp[[row]][[row]]$con)) {
@@ -171,36 +146,24 @@ ST.Varowcol <- function(TD,
       if (!is.null(GParamTmp[[col]][[col]]$con)) {
         GParamTmp[[col]][[col]]$con <- "F"
       }
-      if (!is.null(checkId)) {
-        mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"),
-                                                      "+ genotype")),
-                             random = as.formula(paste("~", row, "+", col)),
-                             rcov = ~units, G.param = GParamTmp, aom = TRUE,
-                             data = TD, ...)
-      } else {
-        mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~1",
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"),
-                                                      "+ genotype")),
-                             random = as.formula(paste("~", row, "+", col)),
-                             rcov = ~units, G.param = GParamTmp, aom = TRUE,
-                             data = TD, ...)
-      }
+      fixedFormF <- as.formula(paste(deparse(fixedFormR), "+ genotype"))
+      mf <- asreml::asreml(fixed = fixedFormF,
+                           random = as.formula(paste("~", row, "+", col)),
+                           rcov = ~ units, G.param = GParamTmp, aom = TRUE,
+                           data = TD, ...)
     }
     bestModel <- mr
   } else {
     if (regular) {
       if (tryRep) {
         randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3),
-                         paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                         paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                               sep = "+"),
-                         paste(paste(rep, row, sep = ":"), "Measurement_error", sep = "+"),
-                         paste(paste(rep, col, sep = ":"), "Measurement_error", sep = "+"),
-                         paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                               "Measurement_error", sep = "+"))
+                          paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                          paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                                sep = "+"),
+                          paste(paste(rep, row, sep = ":"), "Measurement_error", sep = "+"),
+                          paste(paste(rep, col, sep = ":"), "Measurement_error", sep = "+"),
+                          paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                                "Measurement_error", sep = "+"))
         randomTerm <- c(rep(x = c("NULL", "units"), each = 3),
                         paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
                         paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
@@ -211,10 +174,10 @@ ST.Varowcol <- function(TD,
                               "units", sep = "+"))
       } else {
         randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3), row, col,
-                         paste(row, col, sep = "+"), paste(row, "Measurement_error",
-                                                           sep = "+"),
-                         paste(col, "Measurement_error", sep = "+"),
-                         paste(row, col, "Measurement_error", sep = "+"))
+                          paste(row, col, sep = "+"), paste(row, "Measurement_error",
+                                                            sep = "+"),
+                          paste(col, "Measurement_error", sep = "+"),
+                          paste(row, col, "Measurement_error", sep = "+"))
         randomTerm <- c(rep(x = c("NULL", "units"), each = 3), row, col,
                         paste(row, col, sep = "+"), paste(row, "units", sep = "+"),
                         paste(col, "units", sep = "+"), paste(row, col, "units", sep = "+"))
@@ -227,37 +190,25 @@ ST.Varowcol <- function(TD,
       modelChoice <- paste("Random:", randomChoice, "&   Spatial:", spatialChoice)
       for (ii in 1:length(randomTerm)) {
         if (tryRep) {
-          if (!is.null(checkId)) {
-            mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
-                                                          if (covT) paste(c("", covariate),
-                                                                          collapse = "+"))),
-                                 random = as.formula(paste("~ genotype +", randomTerm[ii])),
-                                 rcov = as.formula(paste("~", spatialTerm[ii])),
-                                 aom = TRUE, data = TD, ...)
-          } else {
-            mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep,
-                                                          if (covT) paste(c("", covariate),
-                                                                          collapse = "+"))),
-                                 random = as.formula(paste("~ genotype +", randomTerm[ii])),
-                                 rcov = as.formula(paste("~", spatialTerm[ii])),
-                                 aom = TRUE, data = TD, ...)
-          }
+          fixedFormR <- as.formula(paste(trait0, "~", rep,
+                                         if (!is.null(checkId)) paste("+", checkId),
+                                         if (covT) paste(c("", covariate),
+                                                         collapse = "+")))
+          mr <- asreml::asreml(fixed = fixedFormR,
+                               random = as.formula(paste("~ genotype +",
+                                                         randomTerm[ii])),
+                               rcov = as.formula(paste("~", spatialTerm[ii])),
+                               aom = TRUE, data = TD, ...)
         } else {
-          if (!is.null(checkId)) {
-            mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
-                                                          if (covT) paste(c("", covariate),
-                                                                          collapse = "+"))),
-                                 random = as.formula(paste("~ genotype +", randomTerm[ii])),
-                                 rcov = as.formula(paste("~", spatialTerm[ii])),
-                                 aom = TRUE, data = TD, ...)
-          } else {
-            mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", 1,
-                                                          if (covT) paste(c("", covariate),
-                                                                         collapse = "+"))),
-                                 random = as.formula(paste("~ genotype +", randomTerm[ii])),
-                                 rcov = as.formula(paste("~", spatialTerm[ii])),
-                                 aom = TRUE, data = TD, ...)
-          }
+          fixedFormR <- as.formula(paste(trait0, "~",
+                                         if (!is.null(checkId)) checkId else "1",
+                                         if (covT) paste(c("", covariate),
+                                                         collapse = "+")))
+          mr <- asreml::asreml(fixed = fixedFormR,
+                               random = as.formula(paste("~ genotype +",
+                                                         randomTerm[ii])),
+                               rcov = as.formula(paste("~", spatialTerm[ii])),
+                               aom = TRUE, data = TD, ...)
         }
         if (ii == 1) {
           bestModel <- mr
@@ -283,13 +234,13 @@ ST.Varowcol <- function(TD,
       if (!is.null(trySpatial) && trySpatial == "always") {
         if (tryRep) {
           randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3),
-                           paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                           paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                                 sep = "+"),
-                           paste(paste(rep, row, sep = ":"), "Measurement_error", sep = "+"),
-                           paste(paste(rep, col, sep = ":"), "Measurement_error", sep = "+"),
-                           paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                                 "Measurement_error", sep = "+"))
+                            paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                            paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                                  sep = "+"),
+                            paste(paste(rep, row, sep = ":"), "Measurement_error", sep = "+"),
+                            paste(paste(rep, col, sep = ":"), "Measurement_error", sep = "+"),
+                            paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                                  "Measurement_error", sep = "+"))
           randomTerm <- c(rep(x = c("NULL", "units"), each = 3),
                           paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
                           paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
@@ -300,9 +251,9 @@ ST.Varowcol <- function(TD,
                                 "units", sep = "+"))
         } else {
           randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3), row, col,
-                           paste(row, col, sep = "+"), paste(row, "Measurement_error", sep = "+"),
-                           paste(col, "Measurement_error", sep = "+"),
-                           paste(row, col, "Measurement_error", sep = "+"))
+                            paste(row, col, sep = "+"), paste(row, "Measurement_error", sep = "+"),
+                            paste(col, "Measurement_error", sep = "+"),
+                            paste(row, col, "Measurement_error", sep = "+"))
           randomTerm <- c(rep(x = c("NULL", "units"), each = 3),
                           row, col, paste(row, col, sep = "+"),
                           paste(row, "units", sep = "+"), paste(col, "units", sep = "+"),
@@ -317,37 +268,25 @@ ST.Varowcol <- function(TD,
         modelChoice <- paste("Random:", randomChoice, "&   Spatial:", spatialChoice)
         for (ii in 1:length(randomTerm)) {
           if (tryRep) {
-            if (!is.null(checkId)) {
-              mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
-                                                            if (covT) paste(c("", covariate),
-                                                                            collapse = "+"))),
-                                   random = as.formula(paste("~ genotype +", randomTerm[ii])),
-                                   rcov = as.formula(paste("~", spatialTerm[ii])),
-                                   aom = TRUE, data = TD, ...)
-            } else {
-              mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep,
-                                                            if (covT) paste(c("", covariate),
-                                                                            collapse = "+"))),
-                                   random = as.formula(paste("~ genotype +", randomTerm[ii])),
-                                   rcov = as.formula(paste("~", spatialTerm[ii])),
-                                   aom = TRUE, data = TD, ...)
-            }
+            fixedFormR <- as.formula(paste(trait0, "~", rep,
+                                           if (!is.null(checkId)) paste("+", checkId),
+                                           if (covT) paste(c("", covariate),
+                                                           collapse = "+")))
+            mr <- asreml::asreml(fixed = fixedFormR,
+                                 random = as.formula(paste("~ genotype +",
+                                                           randomTerm[ii])),
+                                 rcov = as.formula(paste("~", spatialTerm[ii])),
+                                 aom = TRUE, data = TD, ...)
           } else {
-            if (!is.null(checkId)) {
-              mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
-                                                            if (covT) paste(c("", covariate),
-                                                                            collapse = "+"))),
-                                   random = as.formula(paste("~ genotype +", randomTerm[ii])),
-                                   rcov = as.formula(paste("~", spatialTerm[ii])),
-                                   aom = TRUE, data = TD, ...)
-            } else {
-              mr <- asreml::asreml(fixed = as.formula(paste(trait0, "~", 1,
-                                                            if (covT) paste(c("", covariate),
-                                                                            collapse = "+"))),
-                                   random = as.formula(paste("~ genotype +", randomTerm[ii])),
-                                   rcov = as.formula(paste("~", spatialTerm[ii])),
-                                   aom = TRUE, data = TD, ...)
-            }
+            fixedFormR <- as.formula(paste(trait0, "~",
+                                           if (!is.null(checkId)) checkId else "1",
+                                           if (covT) paste(c("", covariate),
+                                                           collapse = "+")))
+            mr <- asreml::asreml(fixed = fixedFormR,
+                                 random = as.formula(paste("~ genotype +",
+                                                           randomTerm[ii])),
+                                 rcov = as.formula(paste("~", spatialTerm[ii])),
+                                 aom = TRUE, data = TD, ...)
           }
           if (ii == 1) {
             bestModel <- mr
@@ -371,6 +310,7 @@ ST.Varowcol <- function(TD,
         }
       }
     }
+    fixedFormF <- as.formula(paste(deparse(fixedFormR), "+ genotype"))
     # constrain variance of the variance components to be fixed as the values in mr
     if (tryRep) {
       GParamTmp = bestModel$G.param
@@ -386,23 +326,10 @@ ST.Varowcol <- function(TD,
           GParamTmp[[tmpPos]][[rep]]$con <- "F"
         }
       }
-      if (!is.null(checkId)) {
-        mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep, "+", checkId,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"),
-                                                      "+ genotype")),
-                             random = as.formula(paste("~", randomTerm[bestLoc])),
-                             rcov = as.formula(paste("~", spatialTerm[ii])),
-                             G.param = GParamTmp, aom = TRUE, data = TD, ...)
-      } else {
-        mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", rep,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"),
-                                                      "+ genotype")),
-                             random = as.formula(paste("~", randomTerm[bestLoc])),
-                             rcov = as.formula(paste("~", spatialTerm[ii])),
-                             G.param = GParamTmp, aom = TRUE, data = TD, ...)
-      }
+      mf <- asreml::asreml(fixed = fixedFormF,
+                           random = as.formula(paste("~", randomTerm[bestLoc])),
+                           rcov = as.formula(paste("~", spatialTerm[ii])),
+                           G.param = GParamTmp, aom = TRUE, data = TD, ...)
     } else {
       GParamTmp <- bestModel$G.param
       if (!is.null(GParamTmp[[row]][[row]]$con)) {
@@ -411,23 +338,10 @@ ST.Varowcol <- function(TD,
       if (!is.null(GParamTmp[[col]][[col]]$con)) {
         GParamTmp[[col]][[col]]$con <- "F"
       }
-      if (!is.null(checkId)) {
-        mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~", checkId,
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"),
-                                                      "+ genotype")),
-                             random = as.formula(paste("~", randomTerm[bestLoc])),
-                             rcov = as.formula(paste("~", spatialTerm[ii])),
-                             G.param = GParamTmp, aom = TRUE, data = TD, ...)
-      } else {
-        mf <- asreml::asreml(fixed = as.formula(paste(trait0, "~1",
-                                                      if (covT) paste(c("", covariate),
-                                                                      collapse = "+"),
-                                                      "+ genotype")),
-                             random = as.formula(paste("~", randomTerm[bestLoc])),
-                             rcov = as.formula(paste("~", spatialTerm[ii])),
-                             G.param = GParamTmp, aom = TRUE, data = TD, ...)
-      }
+      mf <- asreml::asreml(fixed = fixedFormF,
+                           random = as.formula(paste("~", randomTerm[bestLoc])),
+                           rcov = as.formula(paste("~", spatialTerm[ii])),
+                           G.param = GParamTmp, aom = TRUE, data = TD, ...)
     }
   }
   # run predict
