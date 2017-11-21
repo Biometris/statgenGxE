@@ -33,10 +33,23 @@ GE.VarComp <- function(TD,
                        engine = "asreml",
                        criterion = "BIC",
                        ...) {
-  if (!engine %in% c("asreml", "lme4")) {
-    stop("Please use either 'asreml' or 'lme4' as the mixing modelling engine.\n")
+  ## Checks.
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be a valid object of class TD.\n")
   }
-  # keep NA values
+  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(TD)) {
+    stop("trait has to be a column in TD.\n")
+  }
+  if (!is.null(engine) && (!is.character(engine) || length(engine) > 1 ||
+                           !engine %in% c("asreml", "lme4"))) {
+    stop("engine should be asreml or lme4.\n")
+  }
+  if (!is.null(criterion) && (!is.character(criterion) || length(criterion) > 1 ||
+                           !criterion %in% c("AIC", "BIC"))) {
+    stop("criterion should be AIC or BIC.\n")
+  }
+  ## keep NA values.
   TD <- droplevels(TD[, c("env", "genotype", trait)])
   naEntries <- which(is.na(tapply(X = rep(1, nrow(TD)),
                                   INDEX = TD[, c("genotype", "env")],
@@ -48,7 +61,7 @@ GE.VarComp <- function(TD,
     names(TDExt) <- names(TD)
     TD <- rbind(TD, TDExt)
   }
-  #sort data in order of genotype, env
+  ## sort data in order of genotype, env.
   TD <- TD[order(TD$genotype, TD$env), ]
   qvInitial <- function(TD,
                         trait,
@@ -64,22 +77,22 @@ GE.VarComp <- function(TD,
     X <- na.omit(TD[, c(trait, "genotype", "env")])
     nEnv <- nlevels(X$env)
     nGeno <- nlevels(X$genotype)
-    # Get fixed df by stealth - in absence of other info, share among environments
+    ## Get fixed df by stealth - in absence of other info, share among environments
     if (!is.null(fixed)) {
       mr <- asreml::asreml(fixed = fixed, rcov = ~id(units), data = X, ...)
       P <- length(mr$fitted.values) - (1 + mr$nedf)
     } else {
       P <- 1
     }
-    # Get number of effects contributing to each sum of squares
+    ## Get number of effects contributing to each sum of squares.
     tmpTable <- table(X[, c("env", "genotype")])
     nobsEnv <- rowSums(tmpTable)
     Rnobs <- matrix(data = nobsEnv, nrow = nEnv, ncol = nEnv, byrow = TRUE)
     Cnobs <- t(Rnobs)
     Nobs <- Rnobs * (Rnobs - Cnobs < 0) + Cnobs * (Cnobs - Rnobs <= 0)
     if (!is.na(unitError)) {
-      # This case is trickier, becuase of partitioning between two random terms,
-      # but use of the diag structure is better than nothing!
+      ## This case is trickier, becuase of partitioning between two random terms,
+      ## but use of the diag structure is better than nothing!
       weights <- 1 / unitError
       X["weights"] <- weights
       if (!is.null(fixed)) {
@@ -110,7 +123,7 @@ GE.VarComp <- function(TD,
         Ores <- matrix(data = mr$coeff$random, nrow = nGeno, ncol = nEnv, byrow = TRUE)
       }
     } else {
-      # This gives correct answers for complete balanced data
+      ## This gives correct answers for complete balanced data.
       if (!is.null(fixed)) {
         mr <- asreml::asreml(fixed = fixed, data = X, ...)
         residuals <- mr$residuals
@@ -125,13 +138,13 @@ GE.VarComp <- function(TD,
     }
     Rmat <- Ores
     evCov <- crossprod(Rmat) / (Nobs - (P / nEnv))
-    # Get off-diagonal elements of evCov only
+    ## Get off-diagonal elements of evCov only.
     offdiag <- evCov
     diag(offdiag) <- NA
-    # Get off-diagonal elements of cor(evCov) only
+    ## Get off-diagonal elements of cor(evCov) only.
     offCorr <- cor(evCov)
     diag(offCorr) <- NA
-    #Get initial values for each model
+    ## Get initial values for each model.
     if (vcmodel == "identity") {
       vcInitial <- list(vge = mean(diag(evCov)))
     } else if (vcmodel == "cs") {
@@ -195,14 +208,14 @@ GE.VarComp <- function(TD,
     return(vcInitial)
   }
   res <- vector(mode = "list")
-  # Main procedure to fit mixed models
+  ## Main procedure to fit mixed models.
   if (engine == "lme4") {
-    # Compound symmetry ("cs") only
+    ## Compound symmetry ("cs") only.
     if (requireNamespace("lme4", quietly = TRUE)) {
       mr = lme4::lmer(as.formula(paste(trait, "~ env + (1 | genotype)")),
                       data = TD, ...)
       nPar <- 2
-      # Outputs
+      ## Outputs.
       res$model$cs <- mr
       res$choice <- "cs"
       if (criterion == "AIC") {
@@ -288,12 +301,12 @@ GE.VarComp <- function(TD,
           unlink(tmp)
           tmpTable[, "Value"] <- c(c(tmpValues$vg, tmpValues$diag), 1)
           tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"] )
-          tmpTable[which(tmpTable[, "Gamma"]== "R!variance"), "Constraint"] <- "F"
+          tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
           tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
           mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                    random = as.formula("~ genotype:corh(env)"),
                                    G.param = tmpTable, R.param = tmpTable, data = TD, ...),
-                    silent=TRUE)
+                    silent = TRUE)
           if (inherits(mr, "try-error")) {
             mr <- list(loglik = -Inf)
           } else {
@@ -335,9 +348,9 @@ GE.VarComp <- function(TD,
                                        random = as.formula("~ genotype:fa(env, 1)"),
                                        R.param = tmpTable, G.param = tmpTable,
                                        data = TD, ...),
-                        silent=TRUE)
+                        silent = TRUE)
             }
-            if (inherits(mr, "try-error")){
+            if (inherits(mr, "try-error")) {
               mr <- list(loglik = -Inf)
             } else {
               mr$call$fixed <- eval(mr$call$fixed)
@@ -370,9 +383,9 @@ GE.VarComp <- function(TD,
                                        random = as.formula("~ genotype:fa(env, 2)"),
                                        data = TD, ...), silent = TRUE)
             } else {
-              # Keep loadings of factor 2 away from 0
+              ## Keep loadings of factor 2 away from 0.
               tmpValues$gamma[2, which(tmpValues$gamma[2, ] < 1e-3)] <- 1e-3
-              # Make sure that first entry is 0
+              ## Make sure that first entry is 0.
               tmpValues$gamma[2, 1] <- 0
               tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma[1, ],
                                        tmpValues$gamma[2, ], 1)
@@ -401,7 +414,7 @@ GE.VarComp <- function(TD,
             nPar <- nlevels(TD$env) * 3 - 1
           }
         }
-        # Check model
+        ## Check model.
         if (choices[i] == "unstructured") {
           initVals <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                      random = as.formula("~ genotype:us(env)"),
@@ -423,7 +436,7 @@ GE.VarComp <- function(TD,
                                    random = as.formula("~ genotype:us(env)"),
                                    G.param = tmpTable, R.param = tmpTable,
                                    data = TD, ...),
-                    silent=TRUE)
+                    silent = TRUE)
           if (inherits(mr, "try-error")) {
             mr <- list(loglik = -Inf)
           } else {
@@ -446,7 +459,7 @@ GE.VarComp <- function(TD,
             log(length(mr$fitted.values)) * nPar
           bestTab[choices[i], "Deviance"] <- -2 * mr$loglik
           bestTab[choices[i], "NParameters"] <- nPar
-          if (i == 1){
+          if (i == 1) {
             bestModel <- mr
             bestChoice <- choices[i]
             nBest <- nPar
@@ -472,7 +485,7 @@ GE.VarComp <- function(TD,
       } else {
         bestTab <- bestTab[order(bestTab[, "BIC"]), ]
       }
-      # Outputs
+      ## Outputs.
       res$choice <- bestChoice
       res$summaryTab <- bestTab
       tempFile <- tempfile()
