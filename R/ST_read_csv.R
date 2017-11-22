@@ -1,6 +1,6 @@
 #' Data Input ST
 #'
-#' Read a comma-separated values file obtained from a field trial study and create a data frame from it.
+#' Read a comma-separated values file obtained from a field trial study and create a data.frame from it.
 #'
 #' @param csvfile The name of the comma-separated values file which the data are to be read from.
 #' @param factorNames A character vector of design factor names.
@@ -26,13 +26,12 @@
 #' @param naStrings A character vector of strings which are to be interpreted as \code{NA} values.
 #' Blank fields are also considered to be missing values in logical, integer, numeric and
 #' complex fields.
-#' @param checkNames Logical. If \code{TRUE} then the names of the variables in the data frame
+#' @param checkNames Logical. If \code{TRUE} then the names of the variables in the data.frame
 #' are checked to ensure that they are syntactically valid variable names. If necessary
 #' they are adjusted (by \code{\link{make.names}}) so that they are, and also to ensure that
 #' there are no duplicates.
 #' @param ... Further arguments to be passed to read.table.
-#' @return A data frame (\code{\link{data.frame}}) containing a representation of
-#' (a subset of)the data in the file.
+#' @return A data.frame containing a representation of (a subset of) the data in the file.
 #'
 #' @seealso \code{\link{read.csv}} which this function wraps.
 #'

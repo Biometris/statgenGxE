@@ -64,7 +64,7 @@ ST.mod.alpha <- function(TD,
     }
   }
   if (!is.null(engine) && (!is.character(engine) || length(engine) > 1 ||
-                           !engine %in% c("asreml", "lme4"))) {
+                           !engine %in% c("asreml", "lme4", "SpATS"))) {
     stop("engine should be asreml or lme4")
   }
   ## Extract design from TD if needed.
@@ -105,9 +105,22 @@ ST.mod.alpha <- function(TD,
   } else {
     stop(paste(iNames[!(iNames %in% TDNames)], collapse = ","), " not found in the names of TD")
   }
-  if (engine == "SpATSS") {
+  if (engine == "SpATS") {
+    nSeg <- c(floor(nlevels(TD$col) / 2), floor(nlevels(TD$row) / 2))
+    if (subDesign == "res.ibd") {
+      mr <- SpATS::SpATS(response = trait, genotype = "genotype",
+                         genotype.as.random = TRUE,
+                         spatial = ~ SAP(c, r, nseg = nSeg, degree = 3, pord = 2),
+                         fixed = as.formula(paste("~", rep,
+                                                  if (checks) paste("+", checkId),
+                                                  if (covT) paste(c("", covariate),
+                                                                  collapse = "+"))),
+                         random = ~ rep:subBlock,
+                         data = TD,
+                         ...)
+    } else if (subDesign == "ibd") {
 
-
+    }
   } else if (engine == "asreml") {
     tmp <- tempfile()
     sink(file = tmp)
@@ -134,7 +147,6 @@ ST.mod.alpha <- function(TD,
       mr <- asreml::asreml(fixed = fixedFormR,
                            random = as.formula(paste0("~ genotype:", subBlock)),
                            rcov = ~ units, aom = TRUE, data = TD, ...)
-
       ## Constrain variance of the variance components to be fixed as the values in mr.
       GParamTmp <- mr$G.param
       GParamTmp[[subBlock]][[subBlock]]$con <- "F"

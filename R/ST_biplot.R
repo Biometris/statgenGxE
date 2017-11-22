@@ -1,7 +1,7 @@
 #' Draw a biplot on the current graphics device
 #'
 #' Draws a biplot on the current graphics device.
-#' @param x A data frame or a matrix containing the data.
+#' @param x A data.frame or a matrix containing the data.
 #' @param center  A logical value indicating whether the variables
 #'  should be shifted to be zero centred. Alternately, a vector of
 #'  length equal to the number of columns of \code{x} can be supplied.

@@ -1,8 +1,8 @@
 #' Generates an HTML table
 #'
-#' Write a matrix or data frame as an HTML table.
+#' Write a matrix or data.frame as an HTML table.
 #'
-#' @param x A matrix or data frame object.
+#' @param x A matrix or data.frame object.
 #' @param rowNames A logical specifying if the row names are to be included.
 #' @param colNames A logical specifying if the column names are to be included.
 #' @param upperLeft A character string specifying the entry at the upper left corner.

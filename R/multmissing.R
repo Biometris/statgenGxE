@@ -16,15 +16,15 @@
 #' Orchard & Woodbury (1972), but does not adjust for bias in the variance-covariance matrix
 #' as suggested by Beale & Little (1975).
 #'
-#' @param Y A data frame or matrix object of multivariate data.
+#' @param Y A data.frame or matrix object of multivariate data.
 #' @param maxcycle An integer specifying the maximum allowed number of iterations; default 10.
 #' @param na.strings A character vector of strings which are to be interpreted as \code{NA} values.
 #'
 #' @return A data.frame object of multivarite data with the missing values replaced by their estimates.
 #' @references (ed.) R.W. Payne (2011). GenStat Release 14 Reference Manual, Part 3 Procedure
-#' Library PL20. VSN International, Hemel Hempstead, UK.
+#' Library PL20. VSN International, Hemel Hempstead, UK.\cr
 #' Beale, E.M.L. & Little, R.J.A. (1975). Missing values in multivariate analysis.
-#' Journal of the Royal Statistical Society, Series B, 37, 129-145.
+#' Journal of the Royal Statistical Society, Series B, 37, 129-145.\cr
 #' Orchard, T. & Woodbury, M.A. (1972). A missing information principle: theory and applications.
 #' In: Proceedings of the 6th Berkeley Symposium in Mathematical Statistics and Probability,
 #' Vol I, 697-715.

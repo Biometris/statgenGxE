@@ -11,7 +11,7 @@
 #' @param testers a character string specifying the tester (usually male parent) in \code{data}.
 #' @param controls a character string specifying a factor in \code{data}, which distinguishes
 #' between control and test (line x tester) genotypes.
-#' @param data a data frame object containing data of a line-by-tester trial.
+#' @param data a data.frame object containing data of a line-by-tester trial.
 #' @param method a character string specifying the criterion (either \code{"aic"} or \code{"bic"})
 #' to look for the best model if \code{asreml} or \code{lme4} cannot fit the current specifed
 #' model; default, \code{"bic"}.
@@ -44,9 +44,9 @@
 #' screen; Default, \code{TRUE}.
 #' @param ... other parameters to be passed on either \code{asreml} or \code{lme4}.
 #'
-#' @return a list consisting of the fitted model object (\code{lxtmodel}), a data frame
-#' object containing the GCA effects (\code{blupsLine}), a data frame object containing
-#' SCA effects (\code{blupsLineTester}) and a data frame object containing tests for combinability
+#' @return a list consisting of the fitted model object (\code{lxtmodel}), a data.frame
+#' object containing the GCA effects (\code{blupsLine}), a data.frame object containing
+#' SCA effects (\code{blupsLineTester}) and a data.frame object containing tests for combinability
 #' effects (\code{testCombinability}).
 #'
 #' @examples

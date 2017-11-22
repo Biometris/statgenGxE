@@ -3,7 +3,7 @@
 #' This function calculates summary statistics for a trait within and between a
 #' set of environments.
 #'
-#' @param data A data frame object consisting of Genotype-by-Environment data.
+#' @param data A data.frame object consisting of Genotype-by-Environment data.
 #' @param trait A string specifying the column name of a trait column found in \code{data}.
 #' @param env A string specifying the column name for the environments found in \code{data}.
 #' @param genotype A string specifying the column name of the genotypes found in \code{data}.

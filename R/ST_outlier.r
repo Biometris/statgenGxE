@@ -10,7 +10,7 @@
 #' A value of zero causes the whiskers to extend to the data extremes
 #' (and no outliers be returned).
 #'
-#' @return a data frame object containing logical values to determine if the observation is
+#' @return a data.frame object containing logical values to determine if the observation is
 #' an outlier.
 #'
 #' @examples

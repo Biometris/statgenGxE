@@ -3,7 +3,7 @@
 #' This function draws GGE biplots which are useful for assessing the performance of genotypes
 #' in different environments.
 #'
-#' @param Y A data frame object.
+#' @param Y A data.frame object.
 #' @param trait A character string specifying a trait column of the data.
 #' @param genotype A character string specifying a genotype column of the data.
 #' @param env A character string specifying an environment column of the data.

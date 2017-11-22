@@ -14,7 +14,8 @@ LazyData: true
 RoxygenNote: 6.0.1
 Depends: R (>=  3.0.0)
 Imports: lattice,
-    methods
+    methods,
+    SpATS
 Suggests: asreml,
     GPArotation,
     lme4,

@@ -110,7 +110,7 @@ ST.extract = function(SSA) {
     # Extract coeffcients mr
     if (class(mr) == "lmerMod") {
       fe <- lme4::fixef(mr)
-    } else if(class(mr) == "mer") {
+    } else if (class(mr) == "mer") {
       fe <- slot(mr, "fixef")
     }
     if (!is.null(rep)) {
@@ -132,11 +132,11 @@ ST.extract = function(SSA) {
     # Compute seBlups
     if (class(mr) == "lmerMod") {
       seBlups = sqrt(attr(lme4::ranef(mr, condVar = TRUE)[["genotype"]], "postVar"))
-    } else if(class(mr) == "mer") {
+    } else if (class(mr) == "mer") {
       seBlups = sqrt(attr(lme4::ranef(mr, postVar = TRUE)[["genotype"]], "postVar"))
     }
     seBlups = as.vector(seBlups)
-    # Collect results in data frame
+    # Collect results in data.frame
     stats = data.frame(names(predictions), predictions, se, predictionsBlups, seBlups, ue)
     names(stats) = c("genotype", "predicted (BLUEs)","s.e. (BLUEs)",
                      "predicted (BLUPs)","s.e. (BLUPs)", "ue")
@@ -189,7 +189,7 @@ ST.extract = function(SSA) {
       predictions <- mf$predictions$pvals$predicted.value
       se <- mf$predictions$pvals$standard.error
       names(predictions) <- mf$predictions$pvals[["genotype"]]
-      rEff <- mr$coe$random[grep(pattern = "genotype", x =names(mr$coe$random))]
+      rEff <- mr$coe$random[grep(pattern = "genotype", x = names(mr$coe$random))]
       # Compute weights
       V <- mf$predictions$vcov
       Vinv <- try(chol2inv(chol(V)), silent = TRUE)
@@ -217,7 +217,7 @@ ST.extract = function(SSA) {
       sed <- mf$predictions$avsed
       #calculate LSD; significance level (5%)
       lsd <- qt(p = .975, df = df) * sed
-    } else if(class(mf) == "lm") {
+    } else if (class(mf) == "lm") {
       # Extract coeffcients
       fe <- mf$coeff
       if (!is.null(rep)) {
@@ -261,7 +261,7 @@ ST.extract = function(SSA) {
     # Predictions BLUPs
     predictionsBlups <- mr$predictions$pvals$predicted.value
     seBlups <- mr$predictions$pvals$standard.error
-    # Collect results in data frame
+    # Collect results in data.frame
     stats <- data.frame(names(predictions), predictions, se, predictionsBlups, seBlups, ue)
     names(stats) <- c("genotype", "predicted (BLUEs)","s.e. (BLUEs)",
                       "predicted (BLUPs)","s.e. (BLUPs)", "ue")
@@ -289,7 +289,7 @@ ST.extract = function(SSA) {
       result$resid <- residuals(mf, type = "response")
       result$stdres <- residuals(mf, type = "stdCond" )
       result$rdf <- mf$nedf
-    } else if(class(mf) == "lm") {
+    } else if (class(mf) == "lm") {
       result$resid <- resid(mf)
       result$stdres <- rstandard(mf)
       result$rdf <- df.residual(mf)

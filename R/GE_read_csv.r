@@ -28,7 +28,7 @@
 #' necessary they are adjusted (by \code{\link{make.names}}) so that they are, and also
 #' to ensure that there are no duplicates.
 #' @param ... Further arguments to be passed to read.table.
-#' @return A data frame (\code{\link{data.frame}}) containing a representation of
+#' @return A data.frame (\code{\link{data.frame}}) containing a representation of
 #'  (a sebset of)the data in the file.
 #'
 #' @seealso \code{\link{read.csv}} which this function wraps.

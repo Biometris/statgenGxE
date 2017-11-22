@@ -84,37 +84,19 @@ ST.mod.rcbd <- function(TD,
     tmp <- tempfile()
     sink(file = tmp)
     ## Run mixed and fixed models using asreml
-    if (checks) {
-      mr <- asreml::asreml(fixed = as.formula(paste(trait, "~", checkId,
-                                                    if (covT) paste(c("", covariate),
-                                                                    collapse = "+"))),
-                           random = as.formula(paste("~", rep, "+ genotype")),
-                           rcov = ~units, aom = TRUE, data = TD, ...)
-    } else {
-      mr <- asreml::asreml(fixed = as.formula(paste(trait, "~ 1",
-                                                    if (covT) paste(c("", covariate),
-                                                                    collapse = "+"))),
-                           random = as.formula(paste("~", rep, "+ genotype")),
-                           rcov = ~units, aom = TRUE, data = TD, ...)
-    }
+    fixedFormR <- as.formula(paste(trait, "~",
+                                   if (checks) checkId else "1",
+                                   if (covT) paste(c("", covariate), collapse = "+")))
+    mr <- asreml::asreml(fixed = fixedFormR,
+                         random = as.formula(paste("~", rep, "+ genotype")),
+                         rcov = ~ units, aom = TRUE, data = TD, ...)
     ## Constrain variance of the variance components to be fixed as the values in mr
     GParamTmp <- mr$G.param
     GParamTmp[[rep]][[rep]]$con <- "F"
-    if (checks) {
-      mf <- asreml::asreml(fixed = as.formula(paste(trait, "~", checkId,
-                                                    if (covT) paste(c("", covariate),
-                                                                    collapse = "+"),
-                                                    "+ genotype")),
-                           random = as.formula(paste0("~", rep)), rcov = ~ units,
-                           G.param = GParamTmp, aom = TRUE, data = TD, ...)
-    } else {
-      mf <- asreml::asreml(fixed = as.formula(paste(trait, "~1",
-                                                    if (covT) paste(c("", covariate),
-                                                                    collapse = "+"),
-                                                    "+ genotype")),
-                           random = as.formula(paste0("~", rep)), rcov = ~units,
-                           G.param = GParamTmp, aom = TRUE, data = TD, ...)
-    }
+    fixedFormF <- as.formula(paste(deparse(fixedFormR), "+ genotype"))
+    mf <- asreml::asreml(fixed = fixedFormF,
+                         random = as.formula(paste0("~", rep)), rcov = ~ units,
+                         G.param = GParamTmp, aom = TRUE, data = TD, ...)
     ## run predict
     mr$call$fixed <- eval(mr$call$fixed)
     mr$call$random <- eval(mr$call$random)
@@ -135,25 +117,16 @@ ST.mod.rcbd <- function(TD,
     unlink(tmp)
   } else if (engine == "lme4") {
     ## Run mixed and fixed models using lme4
-    if (checks) {
-      frm <- as.formula(paste(trait, "~ (1 |", rep, ")+", checkId,
-                              if (covT) paste(c("", covariate), collapse = "+"),
-                              "+ (1 | genotype)"))
-    } else {
-      frm <- as.formula(paste(trait, "~ (1 |", rep, ")+ (1 | genotype)"))
-    }
+    frm <- as.formula(paste(trait, "~ (1 |", rep, ")",
+                            if (checks) paste("+", checkId),
+                            if (covT) paste(c("", covariate), collapse = "+"),
+                            "+ (1 | genotype)"))
     mr <- lme4::lmer(frm, data = TD, ...)
-    if (checks) {
-      mf <- lm(as.formula(paste(trait, "~", rep, "+", checkId,
-                                if (covT) paste(c("", covariate), collapse = "+"),
-                                "+ genotype")), data = TD, ...)
-    } else {
-      mf <- lm(as.formula(paste(trait, "~", rep,
-                                if (covT) paste(c("", covariate), collapse = "+"),
-                                "+ genotype")), data = TD, ...)
-    }
-  } else {
-    stop("Please use either asreml or lme4 for engine")
+    ffm <- as.formula(paste(trait, "~ (1 |", rep, ")",
+                            if (checks) paste("+", checkId),
+                            if (covT) paste(c("", covariate), collapse = "+"),
+                            "+ genotype"))
+    mf <- lm(ffm, data = TD, ...)
   }
   model = createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
                     genotype = "genotype", rep = rep,
