@@ -34,7 +34,7 @@ ST.mod.alpha <- function(TD,
                          trait,
                          covariate = NULL,
                          rep = NULL,
-                         subBlock = NULL,
+                         subBlock,
                          checkId = NULL,
                          subDesign = NULL,
                          engine,
@@ -44,24 +44,29 @@ ST.mod.alpha <- function(TD,
     stop("TD should be a valid object of class TD.\n")
   }
   subDesigns <- c("ibd", "res.ibd")
-  if ((is.null(subDesign) && !attr(TD, "subDesign") %in% subDesigns) ||
+  if ((is.null(subDesign) && (is.null(attr(TD, "subDesign")) ||
+                              !attr(TD, "subDesign") %in% subDesigns)) ||
       (!is.null(subDesign) && (!is.character(subDesign) || length(subDesign) > 1 ||
                                !subDesign %in% subDesigns))) {
     stop("subDesign should either be an attribute of TD or one of ibd or res.ibd.\n")
   }
-  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TD)) {
-    stop("trait has to be a column in TD.\n")
+  oblParams <- c(trait, subBlock, if (subDesign == "res") rep)
+  optParams <- c(if (subDesign == "res.ibd") rep, checkId)
+  for (param in oblParams) {
+    if (is.null(param) || !is.character(param) || length(param) > 1 ||
+                            !param %in% colnames(TD)) {
+      stop(paste(deparse(param), "has to be a column in data.\n"))
+    }
   }
-  if (!is.null(covariate) && (!is.character(covariate) ||
-                              !(all(covariate %in% colnames(TD))))) {
-    stop("covariate have to be a columns in TD.\n")
-  }
-  for (param in c(rep, subBlock, checkId)) {
+  for (param in optParams) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
                             !param %in% colnames(TD))) {
       stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
     }
+  }
+  if (!is.null(covariate) && (!is.character(covariate) ||
+                              !(all(covariate %in% colnames(TD))))) {
+    stop("covariate have to be a columns in TD.\n")
   }
   if (!is.null(engine) && (!is.character(engine) || length(engine) > 1 ||
                            !engine %in% c("asreml", "lme4", "SpATS"))) {
@@ -71,7 +76,7 @@ ST.mod.alpha <- function(TD,
   if (is.null(subDesign)) {
     subDesign <- attr(TD, "design")
   }
-  # any check ID
+  ## any check ID
   if (missing(checkId)) {
     checks <- FALSE
     if (is.null(rep)) {
@@ -110,16 +115,41 @@ ST.mod.alpha <- function(TD,
     if (subDesign == "res.ibd") {
       mr <- SpATS::SpATS(response = trait, genotype = "genotype",
                          genotype.as.random = TRUE,
-                         spatial = ~ SAP(c, r, nseg = nSeg, degree = 3, pord = 2),
+                         spatial = ~ PSANOVA(c, r, nseg = nSeg),
                          fixed = as.formula(paste("~", rep,
                                                   if (checks) paste("+", checkId),
                                                   if (covT) paste(c("", covariate),
                                                                   collapse = "+"))),
-                         random = ~ rep:subBlock,
-                         data = TD,
-                         ...)
+                         random = as.formula(paste0("~", rep, ":", subBlock)),
+                         data = TD, control = list(monitoring = 0), ...)
+      mf <- SpATS::SpATS(response = trait, genotype = "genotype",
+                         genotype.as.random = FALSE,
+                         spatial = ~ PSANOVA(c, r, nseg = nSeg),
+                         fixed = as.formula(paste("~", rep,
+                                                  if (checks) paste("+", checkId),
+                                                  if (covT) paste(c("", covariate),
+                                                                  collapse = "+"))),
+                         random = as.formula(paste0("~", rep, ":", subBlock)),
+                         data = TD, control = list(monitoring = 0), ...)
     } else if (subDesign == "ibd") {
-
+      mr <- SpATS::SpATS(response = trait, genotype = "genotype",
+                         genotype.as.random = TRUE,
+                         spatial = ~ PSANOVA(c, r, nseg = nSeg),
+                         fixed = as.formula(paste("~ 1",
+                                                  if (checks) paste("+", checkId),
+                                                  if (covT) paste(c("", covariate),
+                                                                  collapse = "+"))),
+                         random = ~ subBlock, data = TD,
+                         control = list(monitoring = 0), ...)
+      mf <- SpATS::SpATS(response = trait, genotype = "genotype",
+                         genotype.as.random = FALSE,
+                         spatial = ~ PSANOVA(c, r, nseg = nSeg),
+                         fixed = as.formula(paste("~ 1",
+                                                  if (checks) paste("+", checkId),
+                                                  if (covT) paste(c("", covariate),
+                                                                  collapse = "+"))),
+                         random = ~ subBlock, data = TD,
+                         control = list(monitoring = 0), ...)
     }
   } else if (engine == "asreml") {
     tmp <- tempfile()

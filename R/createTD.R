@@ -78,17 +78,15 @@ createTD <- function(data,
     stop("design has to be NULL or one of ibd, res.ibd, rcbd, rowcol or res.rowcol")
   }
   ## Rename columns.
-  cols[cols == genotype] <- "genotype"
-  cols[cols == env] <- "env"
-  cols[cols == megaEnv] <- "megaEnv"
-  cols[cols == year] <- "year"
-  cols[cols == rep] <- "rep"
-  cols[cols == subBlock] <- "subBlock"
-  cols[cols == row] <- "row"
-  cols[cols == col] <- "col"
-  cols[cols == rowCoordinates] <- "rowCoordinates"
-  cols[cols == colCoordinates] <- "colCoordinates"
-  cols[cols == checkId] <- "checkId"
+  renameCols <- c("genotype", "env", "megaEnv", "year", "rep", "subBlock", "row", "col",
+                  "rowCoordinates", "colCoordinates", "checkId")
+  for (renameCol in renameCols) {
+    cols[cols == get(renameCol)] <- renameCol
+    if (renameCol %in% cols && !is.factor(data[, which(cols == renameCol)])) {
+      data[, which(cols == get(renameCol))] <-
+        as.factor(data[, which(cols == renameCol)])
+    }
+  }
   colnames(data) <- cols
   TD <- structure(data,
                   class = c("TD", "data.frame"))

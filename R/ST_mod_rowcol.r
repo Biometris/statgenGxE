@@ -48,7 +48,8 @@ ST.mod.rowcol <- function(TD,
     stop("TD should be a valid object of class TD.\n")
   }
   subDesigns <- c("rowcol", "res.rowcol")
-  if ((is.null(subDesign) && !attr(TD, "subDesign") %in% subDesigns) ||
+  if ((is.null(subDesign) && (is.null(attr(TD, "subDesign")) ||
+                              !attr(TD, "subDesign") %in% subDesigns)) ||
       (!is.null(subDesign) && (!is.character(subDesign) || length(subDesign) > 1 ||
                                !subDesign %in% subDesigns))) {
     stop("subDesign should either be an attribute of TD or one of rowcol or res.rowcol.\n")

@@ -72,7 +72,7 @@ ST.extract = function(SSA) {
     }
     V <- as.matrix(vcov(mf))
     rg <- which(colnames(V) %in% names(fe)[rg])
-    Vinv <- try(chol2inv(chol(V)), TRUE)
+    Vinv <- try(chol2inv(chol(V)), silent = TRUE)
     if (!inherits(Vinv, "try-error")) {
       w <- diag(Vinv)
     } else {
@@ -131,19 +131,19 @@ ST.extract = function(SSA) {
     names(predictionsBlups) <- sort(unique(slot(mr, "flist")[["genotype"]]))
     # Compute seBlups
     if (class(mr) == "lmerMod") {
-      seBlups = sqrt(attr(lme4::ranef(mr, condVar = TRUE)[["genotype"]], "postVar"))
+      seBlups <- sqrt(attr(lme4::ranef(mr, condVar = TRUE)[["genotype"]], "postVar"))
     } else if (class(mr) == "mer") {
-      seBlups = sqrt(attr(lme4::ranef(mr, postVar = TRUE)[["genotype"]], "postVar"))
+      seBlups <- sqrt(attr(lme4::ranef(mr, postVar = TRUE)[["genotype"]], "postVar"))
     }
-    seBlups = as.vector(seBlups)
+    seBlups <- as.vector(seBlups)
     # Collect results in data.frame
-    stats = data.frame(names(predictions), predictions, se, predictionsBlups, seBlups, ue)
-    names(stats) = c("genotype", "predicted (BLUEs)","s.e. (BLUEs)",
+    stats <- data.frame(names(predictions), predictions, se, predictionsBlups, seBlups, ue)
+    names(stats) <- c("genotype", "predicted (BLUEs)","s.e. (BLUEs)",
                      "predicted (BLUPs)","s.e. (BLUPs)", "ue")
     # Extract variances
-    R = lme4::VarCorr(mr)
-    varGen = R[["genotype"]]
-    varErr = attr(R, "sc") ^ 2
+    R <- lme4::VarCorr(mr)
+    varGen <- R[["genotype"]]
+    varErr <- attr(R, "sc") ^ 2
     # for marginal residuals
     if (class(mf) %in% c("lmerMod", "mer")) {
       rdf <- nrow(model.frame(mf)) - length(lme4::fixef(mf))
