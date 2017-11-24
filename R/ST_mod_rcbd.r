@@ -20,7 +20,7 @@
 #'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
 #'                      colSelect = c("Env", "Genotype", "Rep", "Subblock", "yield"))
 #' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
-#' myModel <- ST.mod.rcbd(TD = myTD, trait = "yield", rep = "Rep",
+#' myModel <- ST.mod.rcbd(TD = myTD, trait = "yield", repId = "Rep",
 #'                        engine = "lme4") #engine = "asreml"
 #' summary(myModel)
 #'
@@ -28,7 +28,7 @@
 ST.mod.rcbd <- function(TD,
                         trait,
                         covariate = NULL,
-                        rep = NULL,
+                        repId = NULL,
                         checkId = NULL,
                         engine,
                         ...) {
@@ -44,7 +44,7 @@ ST.mod.rcbd <- function(TD,
                               !(all(covariate %in% colnames(TD))))) {
     stop("covariate have to be a columns in TD.\n")
   }
-  for (param in c(rep, checkId)) {
+  for (param in c(repId, checkId)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
                             !param %in% colnames(TD))) {
       stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
@@ -57,10 +57,10 @@ ST.mod.rcbd <- function(TD,
   # any check ID
   if (missing(checkId)) {
     checks <- FALSE
-    iNames <- c(trait, "genotype", rep)
+    iNames <- c(trait, "genotype", repId)
   } else {
     checks <- checkId %in% colnames(TD)
-    iNames <- c(trait, "genotype", rep, checkId)
+    iNames <- c(trait, "genotype", repId, checkId)
   }
   # any covariate
   covT <- FALSE
@@ -88,14 +88,14 @@ ST.mod.rcbd <- function(TD,
                                    if (checks) checkId else "1",
                                    if (covT) paste(c("", covariate), collapse = "+")))
     mr <- asreml::asreml(fixed = fixedFormR,
-                         random = as.formula(paste("~", rep, "+ genotype")),
+                         random = as.formula(paste("~", repId, "+ genotype")),
                          rcov = ~ units, aom = TRUE, data = TD, ...)
     ## Constrain variance of the variance components to be fixed as the values in mr
     GParamTmp <- mr$G.param
-    GParamTmp[[rep]][[rep]]$con <- "F"
+    GParamTmp[[repId]][[repId]]$con <- "F"
     fixedFormF <- as.formula(paste(deparse(fixedFormR), "+ genotype"))
     mf <- asreml::asreml(fixed = fixedFormF,
-                         random = as.formula(paste0("~", rep)), rcov = ~ units,
+                         random = as.formula(paste0("~", repId)), rcov = ~ units,
                          G.param = GParamTmp, aom = TRUE, data = TD, ...)
     ## run predict
     mr$call$fixed <- eval(mr$call$fixed)
@@ -117,19 +117,19 @@ ST.mod.rcbd <- function(TD,
     unlink(tmp)
   } else if (engine == "lme4") {
     ## Run mixed and fixed models using lme4
-    frm <- as.formula(paste(trait, "~ (1 |", rep, ")",
+    frm <- as.formula(paste(trait, "~ (1 |", repId, ")",
                             if (checks) paste("+", checkId),
                             if (covT) paste(c("", covariate), collapse = "+"),
                             "+ (1 | genotype)"))
     mr <- lme4::lmer(frm, data = TD, ...)
-    ffm <- as.formula(paste(trait, "~ (1 |", rep, ")",
+    ffm <- as.formula(paste(trait, "~", repId,
                             if (checks) paste("+", checkId),
                             if (covT) paste(c("", covariate), collapse = "+"),
                             "+ genotype"))
     mf <- lm(ffm, data = TD, ...)
   }
   model = createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
-                    genotype = "genotype", rep = rep,
+                    genotype = "genotype", repId = repId,
                     design = "rcbd", engine = engine)
   return(model)
 }

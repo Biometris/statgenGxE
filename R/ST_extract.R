@@ -18,7 +18,7 @@
 #'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
 #' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
 #' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
-#'                         rep = "Rep", row = "Row", col = "Column")
+#'                         repId = "Rep", rowId = "Row", colId = "Column")
 #' extr <- ST.extract(myModel)
 #' str(extr)
 #'
@@ -29,7 +29,7 @@ ST.extract = function(SSA) {
   # Choose between asreml and mle4
   engine <- SSA$engine
   trait <- SSA$trait
-  rep <- SSA$rep
+  repId <- SSA$repId
   # Extract statistics from mixed and fixed models in list SSA
   mr <- SSA$mMix
   mf <- SSA$mFix
@@ -44,8 +44,8 @@ ST.extract = function(SSA) {
     } else if (class(mf) == "lm") {
       fe <- mf$coeff
     }
-    if (!is.null(rep)) {
-      rr <- grep(pattern = rep, x = names(fe))
+    if (!is.null(repId)) {
+      rr <- grep(pattern = repId, x = names(fe))
     } else {
       rr <- integer(0)
     }
@@ -113,8 +113,8 @@ ST.extract = function(SSA) {
     } else if (class(mr) == "mer") {
       fe <- slot(mr, "fixef")
     }
-    if (!is.null(rep)) {
-      rr <- grep(pattern = rep, x = names(fe))
+    if (!is.null(repId)) {
+      rr <- grep(pattern = repId, x = names(fe))
     } else {
       rr <- integer(0)
     }
@@ -156,8 +156,8 @@ ST.extract = function(SSA) {
     if (SSA$design %in% c("ibd", "rowcol")) {
       result$heritability <- varGen/(varGen + varErr)
     } else if (SSA$design %in% c("res.ibd", "res.rowcol", "rcbd")) {
-      if (!is.null(rep)) {
-        result$heritability <- varGen / (varGen + (varErr / length(unique(TD[[rep]]))))
+      if (!is.null(repId)) {
+        result$heritability <- varGen / (varGen + (varErr / length(unique(TD[[repId]]))))
       } else {
         result$heritability <- varGen / (varGen + varErr)
       }
@@ -220,8 +220,8 @@ ST.extract = function(SSA) {
     } else if (class(mf) == "lm") {
       # Extract coeffcients
       fe <- mf$coeff
-      if (!is.null(rep)) {
-        rr <- grep(pattern = rep, x = names(fe))
+      if (!is.null(repId)) {
+        rr <- grep(pattern = repId, x = names(fe))
       } else {
         rr <- integer(0)
       }
@@ -303,8 +303,8 @@ ST.extract = function(SSA) {
     # result$waldTestGeno <- waldTestGeno
     result$CV <- CV
   }
-  if (!is.null(rep)) {
-    myvec <- tapply(X = TD[, rep], INDEX = TD[, "genotype"], FUN = nlevels)
+  if (!is.null(repId)) {
+    myvec <- tapply(X = TD[, repId], INDEX = TD[, "genotype"], FUN = nlevels)
     result$minReps <- min(myvec, na.rm = TRUE)
     result$meanReps <- mean(myvec, na.rm = TRUE)
     result$maxReps <- max(myvec, na.rm = TRUE)

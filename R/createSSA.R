@@ -7,7 +7,7 @@
 #' @param data an object of class TD containing the data on which mMix and mFix are based.
 #' @param trait a character sting indicating the trait for which the analysis is done.
 #' @param genotype a character sting indicating genotype column in the data.
-#' @param rep a character sting indicating the replicates column in the data.
+#' @param repId a character sting indicating the replicates column in the data.
 #' @param design a character string containing the design of the trial.
 #' @param engine a character string containing the engine used to do the analysis.
 #' @param x \code{R} object
@@ -26,7 +26,7 @@ createSSA <- function(mMix,
                       data,
                       trait = NULL,
                       genotype = NULL,
-                      rep = NULL,
+                      repId = NULL,
                       design = NULL,
                       engine = NULL) {
   SSA <- structure(list(mMix = mMix,
@@ -34,7 +34,7 @@ createSSA <- function(mMix,
                         data = data,
                         trait = trait,
                         genotype = genotype,
-                        rep = rep,
+                        repId = repId,
                         design = design,
                         engine = engine),
                    class = "SSA")
@@ -69,7 +69,7 @@ is.SSA <- function(x) {
 #'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
 #' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
 #' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
-#'                         rep = "Rep", row = "Row", col = "Column")
+#'                         repId = "Rep", rowId = "Row", colId = "Column")
 #' summary(myModel)
 #'
 #' @export
@@ -148,7 +148,7 @@ summary.SSA <- function(object,
 #'                      colSelect = c("Env","Genotype", "Rep", "Row", "Column", "yield"))
 #' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
 #' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
-#'                         rep = "Rep", row = "Row", col = "Column",
+#'                         repId = "Rep", rowId = "Row", colId = "Column",
 #'                         tryspatial = "always")
 #' plot(myModel, plotType = "fix")
 #'

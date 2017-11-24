@@ -20,9 +20,9 @@
 ST.Varowcol <- function(TD,
                         trait,
                         covariate = NULL,
-                        rep = NULL,
-                        row = NULL,
-                        col = NULL,
+                        repId = NULL,
+                        rowId = NULL,
+                        colId = NULL,
                         tryRep = TRUE,
                         checkId = NULL,
                         rowCoordinates = NULL,
@@ -43,7 +43,7 @@ ST.Varowcol <- function(TD,
                               !(all(covariate %in% colnames(TD))))) {
     stop("covariate have to be a columns in TD.\n")
   }
-  for (param in c(rep, row, col, rowCoordinates, colCoordinates, checkId)) {
+  for (param in c(repId, rowId, colId, rowCoordinates, colCoordinates, checkId)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
                             !param %in% colnames(TD))) {
       stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
@@ -71,10 +71,10 @@ ST.Varowcol <- function(TD,
   }
   flag <- 1
   # See if the design is regular
-  if (!missing(rep)) {
-    reptab <- table(TD[[rep]], TD[[row]], TD[[col]])
+  if (!missing(repId)) {
+    reptab <- table(TD[[repId]], TD[[rowId]], TD[[colId]])
   } else {
-    reptab <- table(TD[[row]], TD[[col]])
+    reptab <- table(TD[[rowId]], TD[[colId]])
   }
   if (min(reptab) > 1) {
     warning("There must be only one plot at each REPLICATES x ROWS x COLUMNS location.\n
@@ -101,32 +101,32 @@ ST.Varowcol <- function(TD,
   # default no spatial models
   if (is.null(trySpatial)) {
     if (tryRep) {
-      fixedFormR <- as.formula(paste(trait0, "~", rep,
+      fixedFormR <- as.formula(paste(trait0, "~", repId,
                                      if (!is.null(checkId)) paste("+", checkId),
                                      if (covT) paste(c("", covariate),
                                                      collapse = "+")))
       mr <- asreml::asreml(fixed = fixedFormR,
-                           random = as.formula(paste("~ genotype +", rep, ":",
-                                                     row, "+", rep, ":", col)),
+                           random = as.formula(paste("~ genotype +", repId, ":",
+                                                     rowId, "+", repId, ":", colId)),
                            rcov = ~ units, aom = TRUE, data = TD, ...)
       # constrain variance of the variance components to be fixed as the values in mr
       GParamTmp <- mr$G.param
-      tmpPos <- which(names(GParamTmp) == paste(rep, row, sep = ":"))
+      tmpPos <- which(names(GParamTmp) == paste(repId, rowId, sep = ":"))
       if (length(tmpPos) > 0) {
-        if (!is.null(GParamTmp[[tmpPos]][[rep]]$con)) {
-          GParamTmp[[tmpPos]][[rep]]$con <- "F"
+        if (!is.null(GParamTmp[[tmpPos]][[repId]]$con)) {
+          GParamTmp[[tmpPos]][[repId]]$con <- "F"
         }
       }
-      tmpPos <- which(names(GParamTmp) == paste(rep, col, sep = ":"))
+      tmpPos <- which(names(GParamTmp) == paste(repId, colId, sep = ":"))
       if (length(tmpPos) > 0) {
-        if (!is.null(GParamTmp[[tmpPos]][[rep]]$con)) {
-          GParamTmp[[tmpPos]][[rep]]$con <- "F"
+        if (!is.null(GParamTmp[[tmpPos]][[repId]]$con)) {
+          GParamTmp[[tmpPos]][[repId]]$con <- "F"
         }
       }
       fixedFormF <- as.formula(paste(deparse(fixedFormR), "+ genotype"))
       mf <- asreml::asreml(fixed = fixedFormF,
-                           random = as.formula(paste("~", rep, ":", row, "+",
-                                                     rep, ":", col)),
+                           random = as.formula(paste("~", repId, ":", rowId, "+",
+                                                     repId, ":", colId)),
                            rcov = ~ units, G.param = GParamTmp, aom = TRUE,
                            data = TD, ...)
 
@@ -136,19 +136,19 @@ ST.Varowcol <- function(TD,
                                      if (covT) paste(c("", covariate),
                                                      collapse = "+")))
       mr <- asreml::asreml(fixed = fixedFormR,
-                           random = as.formula(paste("~ genotype +", row, "+", col)),
+                           random = as.formula(paste("~ genotype +", rowId, "+", colId)),
                            rcov = ~ units, aom = TRUE, data = TD, ...)
       # constrain variance of the variance components to be fixed as the values in mr
       GParamTmp <- mr$G.param
-      if (!is.null(GParamTmp[[row]][[row]]$con)) {
-        GParamTmp[[row]][[row]]$con <- "F"
+      if (!is.null(GParamTmp[[rowId]][[rowId]]$con)) {
+        GParamTmp[[rowId]][[rowId]]$con <- "F"
       }
-      if (!is.null(GParamTmp[[col]][[col]]$con)) {
-        GParamTmp[[col]][[col]]$con <- "F"
+      if (!is.null(GParamTmp[[colId]][[colId]]$con)) {
+        GParamTmp[[colId]][[colId]]$con <- "F"
       }
       fixedFormF <- as.formula(paste(deparse(fixedFormR), "+ genotype"))
       mf <- asreml::asreml(fixed = fixedFormF,
-                           random = as.formula(paste("~", row, "+", col)),
+                           random = as.formula(paste("~", rowId, "+", colId)),
                            rcov = ~ units, G.param = GParamTmp, aom = TRUE,
                            data = TD, ...)
     }
@@ -157,30 +157,30 @@ ST.Varowcol <- function(TD,
     if (regular) {
       if (tryRep) {
         randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3),
-                          paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                          paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                          paste(repId, rowId, sep = ":"), paste(repId, colId, sep = ":"),
+                          paste(paste(repId, rowId, sep = ":"), paste(repId, colId, sep = ":"),
                                 sep = "+"),
-                          paste(paste(rep, row, sep = ":"), "Measurement_error", sep = "+"),
-                          paste(paste(rep, col, sep = ":"), "Measurement_error", sep = "+"),
-                          paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                          paste(paste(repId, rowId, sep = ":"), "Measurement_error", sep = "+"),
+                          paste(paste(repId, colId, sep = ":"), "Measurement_error", sep = "+"),
+                          paste(paste(repId, rowId, sep = ":"), paste(repId, colId, sep = ":"),
                                 "Measurement_error", sep = "+"))
         randomTerm <- c(rep(x = c("NULL", "units"), each = 3),
-                        paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                        paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                        paste(repId, rowId, sep = ":"), paste(repId, colId, sep = ":"),
+                        paste(paste(repId, rowId, sep = ":"), paste(repId, colId, sep = ":"),
                               sep = "+"),
-                        paste(paste(rep, row, sep = ":"), "units", sep = "+"),
-                        paste(paste(rep, col, sep = ":"), "units", sep = "+"),
-                        paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                        paste(paste(repId, rowId, sep = ":"), "units", sep = "+"),
+                        paste(paste(repId, colId, sep = ":"), "units", sep = "+"),
+                        paste(paste(repId, rowId, sep = ":"), paste(repId, colId, sep = ":"),
                               "units", sep = "+"))
       } else {
-        randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3), row, col,
-                          paste(row, col, sep = "+"), paste(row, "Measurement_error",
+        randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3), rowId, colId,
+                          paste(rowId, colId, sep = "+"), paste(rowId, "Measurement_error",
                                                             sep = "+"),
-                          paste(col, "Measurement_error", sep = "+"),
-                          paste(row, col, "Measurement_error", sep = "+"))
-        randomTerm <- c(rep(x = c("NULL", "units"), each = 3), row, col,
-                        paste(row, col, sep = "+"), paste(row, "units", sep = "+"),
-                        paste(col, "units", sep = "+"), paste(row, col, "units", sep = "+"))
+                          paste(colId, "Measurement_error", sep = "+"),
+                          paste(rowId, colId, "Measurement_error", sep = "+"))
+        randomTerm <- c(rep(x = c("NULL", "units"), each = 3), rowId, colId,
+                        paste(rowId, colId, sep = "+"), paste(rowId, "units", sep = "+"),
+                        paste(colId, "units", sep = "+"), paste(rowId, colId, "units", sep = "+"))
       }
       spatialChoice <- rep(x = c("AR1(x)Identity", "Identity(x)AR1", "AR1(x)AR1"), times = 4)
       spatialTerm <- rep(x = c(paste("ar1(", rowCoordinates, "):", colCoordinates),
@@ -190,7 +190,7 @@ ST.Varowcol <- function(TD,
       modelChoice <- paste("Random:", randomChoice, "&   Spatial:", spatialChoice)
       for (ii in 1:length(randomTerm)) {
         if (tryRep) {
-          fixedFormR <- as.formula(paste(trait0, "~", rep,
+          fixedFormR <- as.formula(paste(trait0, "~", repId,
                                          if (!is.null(checkId)) paste("+", checkId),
                                          if (covT) paste(c("", covariate),
                                                          collapse = "+")))
@@ -234,30 +234,30 @@ ST.Varowcol <- function(TD,
       if (!is.null(trySpatial) && trySpatial == "always") {
         if (tryRep) {
           randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3),
-                            paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                            paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                            paste(repId, rowId, sep = ":"), paste(repId, colId, sep = ":"),
+                            paste(paste(repId, rowId, sep = ":"), paste(repId, colId, sep = ":"),
                                   sep = "+"),
-                            paste(paste(rep, row, sep = ":"), "Measurement_error", sep = "+"),
-                            paste(paste(rep, col, sep = ":"), "Measurement_error", sep = "+"),
-                            paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                            paste(paste(repId, rowId, sep = ":"), "Measurement_error", sep = "+"),
+                            paste(paste(repId, colId, sep = ":"), "Measurement_error", sep = "+"),
+                            paste(paste(repId, rowId, sep = ":"), paste(repId, colId, sep = ":"),
                                   "Measurement_error", sep = "+"))
           randomTerm <- c(rep(x = c("NULL", "units"), each = 3),
-                          paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
-                          paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                          paste(repId, rowId, sep = ":"), paste(repId, colId, sep = ":"),
+                          paste(paste(repId, rowId, sep = ":"), paste(repId, colId, sep = ":"),
                                 sep = "+"),
-                          paste(paste(rep, row, sep = ":"), "units", sep = "+"),
-                          paste(paste(rep, col, sep = ":"), "units", sep = "+"),
-                          paste(paste(rep, row, sep = ":"), paste(rep, col, sep = ":"),
+                          paste(paste(repId, rowId, sep = ":"), "units", sep = "+"),
+                          paste(paste(repId, colId, sep = ":"), "units", sep = "+"),
+                          paste(paste(repId, rowId, sep = ":"), paste(repId, colId, sep = ":"),
                                 "units", sep = "+"))
         } else {
-          randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3), row, col,
-                            paste(row, col, sep = "+"), paste(row, "Measurement_error", sep = "+"),
-                            paste(col, "Measurement_error", sep = "+"),
-                            paste(row, col, "Measurement_error", sep = "+"))
+          randomChoice <- c(rep(x = c("Identity", "Measurement_error"), each = 3), rowId, colId,
+                            paste(rowId, colId, sep = "+"), paste(rowId, "Measurement_error", sep = "+"),
+                            paste(colId, "Measurement_error", sep = "+"),
+                            paste(rowId, colId, "Measurement_error", sep = "+"))
           randomTerm <- c(rep(x = c("NULL", "units"), each = 3),
-                          row, col, paste(row, col, sep = "+"),
-                          paste(row, "units", sep = "+"), paste(col, "units", sep = "+"),
-                          paste(row, col, "units", sep = "+"))
+                          rowId, colId, paste(rowId, colId, sep = "+"),
+                          paste(rowId, "units", sep = "+"), paste(colId, "units", sep = "+"),
+                          paste(rowId, colId, "units", sep = "+"))
         }
         spatialChoice <- rep(c("Exponential(x)Identity", "Identity(x)Exponential",
                                "Isotropic exponential"), times = 4)
@@ -268,7 +268,7 @@ ST.Varowcol <- function(TD,
         modelChoice <- paste("Random:", randomChoice, "&   Spatial:", spatialChoice)
         for (ii in 1:length(randomTerm)) {
           if (tryRep) {
-            fixedFormR <- as.formula(paste(trait0, "~", rep,
+            fixedFormR <- as.formula(paste(trait0, "~", repId,
                                            if (!is.null(checkId)) paste("+", checkId),
                                            if (covT) paste(c("", covariate),
                                                            collapse = "+")))
@@ -314,16 +314,16 @@ ST.Varowcol <- function(TD,
     # constrain variance of the variance components to be fixed as the values in mr
     if (tryRep) {
       GParamTmp = bestModel$G.param
-      tmpPos <- which(names(GParamTmp) == paste(rep, row, sep = ":"))
+      tmpPos <- which(names(GParamTmp) == paste(repId, rowId, sep = ":"))
       if (length(tmpPos) > 0) {
-        if (!is.null(GParamTmp[[tmpPos]][[rep]]$con)) {
-          GParamTmp[[tmpPos]][[rep]]$con <- "F"
+        if (!is.null(GParamTmp[[tmpPos]][[repId]]$con)) {
+          GParamTmp[[tmpPos]][[repId]]$con <- "F"
         }
       }
-      tmpPos <- which(names(GParamTmp) == paste(rep, col, sep = ":"))
+      tmpPos <- which(names(GParamTmp) == paste(repId, colId, sep = ":"))
       if (length(tmpPos) > 0) {
-        if (!is.null(GParamTmp[[tmpPos]][[rep]]$con)) {
-          GParamTmp[[tmpPos]][[rep]]$con <- "F"
+        if (!is.null(GParamTmp[[tmpPos]][[repId]]$con)) {
+          GParamTmp[[tmpPos]][[repId]]$con <- "F"
         }
       }
       mf <- asreml::asreml(fixed = fixedFormF,
@@ -332,11 +332,11 @@ ST.Varowcol <- function(TD,
                            G.param = GParamTmp, aom = TRUE, data = TD, ...)
     } else {
       GParamTmp <- bestModel$G.param
-      if (!is.null(GParamTmp[[row]][[row]]$con)) {
-        GParamTmp[[row]][[row]]$con <- "F"
+      if (!is.null(GParamTmp[[rowId]][[rowId]]$con)) {
+        GParamTmp[[rowId]][[rowId]]$con <- "F"
       }
-      if (!is.null(GParamTmp[[col]][[col]]$con)) {
-        GParamTmp[[col]][[col]]$con <- "F"
+      if (!is.null(GParamTmp[[colId]][[colId]]$con)) {
+        GParamTmp[[colId]][[colId]]$con <- "F"
       }
       mf <- asreml::asreml(fixed = fixedFormF,
                            random = as.formula(paste("~", randomTerm[bestLoc])),
@@ -364,7 +364,7 @@ ST.Varowcol <- function(TD,
   sink()
   unlink(tmp)
   res = createSSA(mMix = bestModel, mFix = mf, data = TD, trait = trait,
-                  genotype = "genotype", rep = ifelse(tryRep, rep, NULL),
+                  genotype = "genotype", repId = ifelse(tryRep, repId, NULL),
                   engine = "asreml")
   return(res)
 }

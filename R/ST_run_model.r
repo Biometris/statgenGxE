@@ -8,10 +8,10 @@
 #' @param design A string specifying the experimental design.
 #' @param trait A string specifying the selected trait.
 #' @param covariate A string specifying (a) covariate name(s).
-#' @param rep A string specifying the column name of the replicates.
+#' @param repId A string specifying the column name of the replicates.
 #' @param subBlock A string specifying the name of the sub-blocks.
-#' @param row A string specifying the column name of the rows.
-#' @param col A string specifying the column name of the columns.
+#' @param rowId A string specifying the column name of the rows.
+#' @param colId A string specifying the column name of the columns.
 #' @param rowCoordinates A string specifying row coordinates for fitting spatial models.
 #' Default, \code{NULL}.
 #' @param colCoordinates A string specifying col coordinates for fitting spatial models.
@@ -32,7 +32,7 @@
 #'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
 #' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
 #' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
-#'                         rep = "Rep", row = "Row", col = "Column")
+#'                         repId = "Rep", rowId = "Row", colId = "Column")
 #' names(myModel)
 #'
 #' @export
@@ -40,10 +40,10 @@ ST.run.model = function(TD,
                         design = NULL,
                         trait,
                         covariate = NULL,
-                        rep = NULL,
+                        repId = NULL,
                         subBlock  = NULL,
-                        row = NULL,
-                        col = NULL,
+                        rowId = NULL,
+                        colId = NULL,
                         rowCoordinates = NULL,
                         colCoordinates = NULL,
                         checkId = NULL,
@@ -68,7 +68,7 @@ ST.run.model = function(TD,
       !(all(covariate %in% colnames(TD))))) {
     stop("covariate have to be a columns in TD.\n")
   }
-  for (param in c(rep, subBlock, row, col, rowCoordinates,
+  for (param in c(repId, subBlock, rowId, colId, rowCoordinates,
                   colCoordinates, checkId)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
                             !param %in% colnames(TD))) {
@@ -88,7 +88,7 @@ ST.run.model = function(TD,
   ## Modelling depending on design.
   if (design == "res.ibd") {
     model <- ST.mod.alpha(TD = TD, trait = trait, covariate = covariate,
-                          rep = rep, subBlock = subBlock,
+                          repId = repId, subBlock = subBlock,
                           subDesign = design, checkId = checkId,
                           engine = engine, ...)
   } else if (design == "ibd") {
@@ -97,18 +97,18 @@ ST.run.model = function(TD,
                           checkId = checkId, engine = engine, ...)
   } else if (design == "rcbd") {
     model <- ST.mod.rcbd(TD = TD, trait = trait, covariate = covariate,
-                         rep = rep, checkId = checkId,
+                         repId = repId, checkId = checkId,
                          engine = engine, ...)
   } else if (design == "res.rowcol") {
     model <- ST.mod.rowcol(TD = TD, trait = trait, covariate = covariate,
-                           rep = rep, row = row, col = col,
+                           repId = repId, rowId = rowId, colId = colId,
                            rowCoordinates = rowCoordinates,
                            colCoordinates = colCoordinates,
                            checkId = checkId, subDesign = design,
                            trySpatial = trySpatial, engine = engine, ...)
   } else if (design == "rowcol") {
     model <- ST.mod.rowcol(TD = TD, trait = trait, covariate = covariate,
-                           row = row, col = col, rowCoordinates = rowCoordinates,
+                           rowId = rowId, colId = colId, rowCoordinates = rowCoordinates,
                            colCoordinates = colCoordinates, checkId = checkId,
                            subDesign = design, trySpatial = trySpatial,
                            engine = engine, ...)

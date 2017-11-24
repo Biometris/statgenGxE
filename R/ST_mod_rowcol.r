@@ -25,7 +25,7 @@
 #'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
 #' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
 #' myModel <- ST.mod.rowcol(TD = myTD, subDesign = "res.rowcol", trait = "yield",
-#'                          rep = "Rep", row = "Row", col = "Column",
+#'                          repId = "Rep", rowId = "Row", colId = "Column",
 #'                          engine = "lme4") #engine = "asreml"
 #' summary(myModel)
 #'
@@ -33,9 +33,9 @@
 ST.mod.rowcol <- function(TD,
                           trait,
                           covariate = NULL,
-                          rep = NULL,
-                          row = NULL,
-                          col = NULL,
+                          repId = NULL,
+                          rowId = NULL,
+                          colId = NULL,
                           rowCoordinates = NULL,
                           colCoordinates = NULL,
                           checkId = NULL,
@@ -62,7 +62,7 @@ ST.mod.rowcol <- function(TD,
                               !(all(covariate %in% colnames(TD))))) {
     stop("covariate have to be a columns in TD.\n")
   }
-  for (param in c(rep, row, col, rowCoordinates, colCoordinates, checkId)) {
+  for (param in c(repId, rowId, colId, rowCoordinates, colCoordinates, checkId)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
                             !param %in% colnames(TD))) {
       stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
@@ -83,17 +83,17 @@ ST.mod.rowcol <- function(TD,
   ## any check ID
   if (is.null(checkId)) {
     checks <- FALSE
-    if (is.null(rep)) {
-      iNames <- c(trait, "genotype", row, col)
+    if (is.null(repId)) {
+      iNames <- c(trait, "genotype", rowId, colId)
     } else {
-      iNames <- c(trait, "genotype", rep, row, col)
+      iNames <- c(trait, "genotype", repId, rowId, colId)
     }
   } else {
     checks <- checkId %in% colnames(TD)
-    if (is.null(rep)) {
-      iNames <- c(trait, "genotype", row, col, checkId)
+    if (is.null(repId)) {
+      iNames <- c(trait, "genotype", rowId, colId, checkId)
     } else {
-      iNames <- c(trait, "genotype", rep, row, col, checkId)
+      iNames <- c(trait, "genotype", repId, rowId, colId, checkId)
     }
   }
   if (!is.null(rowCoordinates)) {
@@ -130,13 +130,13 @@ ST.mod.rowcol <- function(TD,
   } else if (engine == "asreml") {
     if (subDesign == "res.rowcol") {
       model <- ST.Varowcol(TD = TD, trait = trait, covariate = covariate,
-                           rep = rep, row = row, col = col, tryRep = TRUE,
+                           repId = repId, rowId = rowId, colId = colId, tryRep = TRUE,
                            checkId = checkId, rowCoordinates = rowCoordinates,
                            colCoordinates = colCoordinates, trySpatial = trySpatial,
                            criterion = "BIC", ...)
     } else if (subDesign == "rowcol") {
       model <- ST.Varowcol(TD = TD, trait = trait, covariate = covariate,
-                           rep = rep, row = row, col = col, tryRep = FALSE,
+                           repId = repId, rowId = rowId, colId = colId, tryRep = FALSE,
                            checkId = checkId, rowCoordinates = rowCoordinates,
                            colCoordinates = colCoordinates, trySpatial = trySpatial,
                            criterion = "BIC", ...)
@@ -146,33 +146,33 @@ ST.mod.rowcol <- function(TD,
     model$design = subDesign
   } else if (engine == "lme4") {
     if (subDesign  == "res.rowcol") {
-      frm <- as.formula(paste(trait, "~", rep,
+      frm <- as.formula(paste(trait, "~", repId,
                               if (checks) paste("+", checkId),
                               if (covT) paste(c("", covariate), collapse = "+"),
-                              "+ (1| genotype) + (1|", rep, ":", row, ") + (1|",
-                              rep, ":",col,")"))
+                              "+ (1| genotype) + (1|", repId, ":", rowId, ") + (1|",
+                              repId, ":",colId,")"))
       mr <- lme4::lmer(frm, data = TD, ...)
-      ffm <- as.formula(paste(trait, "~", rep,
+      ffm <- as.formula(paste(trait, "~", repId,
                               if (checks) paste("+", checkId),
                               if (covT) paste(c("", covariate), collapse = "+"),
-                              "+ genotype + (1|", rep, ":", row,
-                              ") + (1|", rep, ":", col,")"))
+                              "+ genotype + (1|", repId, ":", rowId,
+                              ") + (1|", repId, ":", colId,")"))
       mf <- lme4::lmer(ffm, data = TD, ...)
     } else if (subDesign == "rowcol") {
       frm <- as.formula(paste(trait, "~",
                               if (checks) checkId else "1",
                               if (covT) paste(c("", covariate), collapse = "+"),
-                              "+ (1| genotype) + (1|", row, ") + (1|", col, ")"))
+                              "+ (1| genotype) + (1|", rowId, ") + (1|", colId, ")"))
       mr <- lme4::lmer(frm, data = TD, ...)
       ffm <- as.formula(paste(trait, "~",
                               if (checks) checkId else "1",
                               if (covT) paste(c("", covariate), collapse = "+"),
-                              "+ genotype + (1|", row, ") + (1|", col, ")"))
+                              "+ genotype + (1|", rowId, ") + (1|", colId, ")"))
       mf <- lme4::lmer(ffm, data = TD, ...)
     }
     model = createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
                       genotype = "genotype",
-                      rep = ifelse(subDesign == "res.rowcol", rep, NULL),
+                      repId = ifelse(subDesign == "res.rowcol", repId, NULL),
                       design = subDesign, engine = engine)
   }
   return(model)

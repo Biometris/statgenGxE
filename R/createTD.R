@@ -14,25 +14,24 @@
 #' contains megaEnvironments as constructed by \code{\link{GE.megaEnvironment}}.
 #' @param year an optional character string indicating the column in \code{data} that
 #' contains years.
-#' @param rep an optional character string indicating the column in \code{data} that
+#' @param repId an optional character string indicating the column in \code{data} that
 #' contains replicates.
 #' @param subBlock an optional character string indicating the column in \code{data} that
 #' contains sub blocks.
-#' @param row an optional character string indicating the column in \code{data} that
+#' @param rowId an optional character string indicating the column in \code{data} that
 #' contains field rows.
-#' @param col an optional character string indicating the column in \code{data} that
+#' @param colId an optional character string indicating the column in \code{data} that
 #' contains field columns.
 #' @param rowCoordinates an optional character string indicating the column in
-#' \code{data} that contains the row coordinates used for fitting spatial models.
+#' \code{data} that contains the rowId coordinates used for fitting spatial models.
 #' @param colCoordinates an optional character string indicating the column in
 #' \code{data} that contains the column coordinates used for fitting spatial models.
 #' @param checkId an optional character string indicating the column in \code{data} that
 #' contains the check ID(s).
 #' @param design an optional character string indicating the design of the trial. Accepted
 #' values are "ibd" (incomplete-block design), "res.ibd" (resolvable incomplete-block design),
-#' "rcbd" (randomized complete block design), "rowcol" (row-column design) and
-#' "res.rowcol" (resolvable row-column design).
-
+#' "rcbd" (randomized complete block design), "rowcol" (rowId-column design) and
+#' "res.rowcol" (resolvable rowId-column design).
 #' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
@@ -49,10 +48,10 @@ createTD <- function(data,
                      env = NULL,
                      megaEnv = NULL,
                      year = NULL,
-                     rep = NULL,
+                     repId = NULL,
                      subBlock = NULL,
-                     row = NULL,
-                     col = NULL,
+                     rowId = NULL,
+                     colId = NULL,
                      rowCoordinates = NULL,
                      colCoordinates = NULL,
                      checkId = NULL,
@@ -66,7 +65,7 @@ createTD <- function(data,
       !genotype %in% cols) {
     stop("genotype has to be a column in data.\n")
   }
-  for (param in c(env, megaEnv, year, rep, subBlock, row, col,
+  for (param in c(env, megaEnv, year, repId, subBlock, rowId, colId,
                   rowCoordinates, colCoordinates, checkId)) {
 
     if (!is.null(param) && (!is.character(param) || length(param) > 1 || !param %in% cols)) {
@@ -78,12 +77,12 @@ createTD <- function(data,
     stop("design has to be NULL or one of ibd, res.ibd, rcbd, rowcol or res.rowcol")
   }
   ## Rename columns.
-  renameCols <- c("genotype", "env", "megaEnv", "year", "rep", "subBlock", "row", "col",
+  renameCols <- c("genotype", "env", "megaEnv", "year", "repId", "subBlock", "rowId", "colId",
                   "rowCoordinates", "colCoordinates", "checkId")
   for (renameCol in renameCols) {
     cols[cols == get(renameCol)] <- renameCol
     if (renameCol %in% cols && !is.factor(data[, which(cols == renameCol)])) {
-      data[, which(cols == get(renameCol))] <-
+      data[, which(cols == renameCol)] <-
         as.factor(data[, which(cols == renameCol)])
     }
   }

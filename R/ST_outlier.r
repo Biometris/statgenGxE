@@ -19,7 +19,7 @@
 #'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
 #'                      colSelect = c("Env", "Genotype", "Rep", "yield", "Row"))
 #' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
-#' outliers <- ST.outlier(TD = myTD, traits = "yield", rep = "Rep")
+#' outliers <- ST.outlier(TD = myTD, traits = "yield", repId = "Rep")
 #'
 #' @import grDevices
 #' @export
@@ -28,10 +28,10 @@ ST.outlier <- function(TD,
                        traits,
                        entry = NA,
                        plotNo = NA,
-                       rep = NULL,
+                       repId = NULL,
                        subBlock = NULL,
-                       row = NULL,
-                       col = NULL,
+                       rowId = NULL,
+                       colId = NULL,
                        rowCoordinates = NULL,
                        colCoordinates = NULL,
                        commonFactor = "genotype",
@@ -43,7 +43,7 @@ ST.outlier <- function(TD,
   if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
     stop("trait has to be a vector of columns in TD.\n")
   }
-  for (param in c(rep, subBlock, row, col, rowCoordinates,
+  for (param in c(repId, subBlock, rowId, colId, rowCoordinates,
                   colCoordinates, commonFactor)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
                             !param %in% colnames(TD))) {
@@ -58,7 +58,7 @@ ST.outlier <- function(TD,
   cat(paste("Observations that exceed", coef, "times the interquartile range\n"))
   pMat <- data.frame(trait = character(0), value = numeric(0), genotype = character(0),
                      entry = character(0), plotNo = character(0), replicate = character(0),
-                     subBlock = character(0), row = character(0), column = character(0),
+                     subBlock = character(0), rowId = character(0), column = character(0),
                      rowPosition = character(0), colPosition = character(0), similar = integer(0))
   for (ii in 1:length(traits)) {
     outVals <- boxplot.stats(x = trts[[traits[ii]]], coef = coef)$out
@@ -79,7 +79,7 @@ ST.outlier <- function(TD,
       nn <- sum(genoOut)
       pMat0 <- data.frame(trait = character(nn), value = numeric(nn), genotype = character(nn),
                           entry = character(nn), plotNo = character(nn), replicate = character(nn),
-                          subBlock = character(nn), row = character(nn), column = character(nn),
+                          subBlock = character(nn), rowId = character(nn), column = character(nn),
                           rowPosition = character(nn), colPosition = character(nn),
                           similar = integer(nn))
       pMat0$value <- TD[genoOut, traits[ii]]
@@ -96,8 +96,8 @@ ST.outlier <- function(TD,
       } else {
         pMat0$plotNo <- rep(NA, nn)
       }
-      if (!is.null(rep)) {
-        pMat0$replicate <- TD[genoOut, rep]
+      if (!is.null(repId)) {
+        pMat0$replicate <- TD[genoOut, repId]
       } else {
         pMat0$replicate <- rep(NA, nn)
       }
@@ -106,13 +106,13 @@ ST.outlier <- function(TD,
       } else {
         pMat0$subBlock <- rep(NA, nn)
       }
-      if (!is.null(row)) {
-        pMat0$row <- TD[genoOut, row]
+      if (!is.null(rowId)) {
+        pMat0$rowId <- TD[genoOut, rowId]
       } else {
-        pMat0$row <- rep(NA, nn)
+        pMat0$rowId <- rep(NA, nn)
       }
-      if (!is.null(col)) {
-        pMat0$column <- TD[genoOut, col]
+      if (!is.null(colId)) {
+        pMat0$column <- TD[genoOut, colId]
       } else {
         pMat0$column <- rep(NA, nn)
       }
