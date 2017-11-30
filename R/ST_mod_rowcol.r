@@ -23,10 +23,16 @@
 #'                      factorNames = c("Env", "Genotype", "Rep", "Subblock", "Row", "Column"),
 #'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
 #'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
-#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
+#' myDat$R <- as.numeric(myTD$rowId)
+#' myDat$C <- as.numeric(myTD$colId)
+#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env", repId = "Rep", rowId = "Row",
+#'                  colId = "Column", rowCoordinates = "R", colCoordinates = "C")
+#' myTD <- myTD[order(myTD$rowCoordinates, myTD$colCoordinates), ]
 #' myModel <- ST.mod.rowcol(TD = myTD, subDesign = "res.rowcol", trait = "yield",
-#'                          repId = "Rep", rowId = "Row", colId = "Column",
-#'                          engine = "lme4") #engine = "asreml"
+#'                          repId = "repId", rowId = "rowId", colId = "colId",
+#'                          rowCoordinates = "rowCoordinates",
+#'                          colCoordinates = "colCoordinates", trySpatial = "always",
+#'                          engine = "asreml") #engine = "asreml"
 #' summary(myModel)
 #'
 #' @export

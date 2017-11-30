@@ -111,46 +111,7 @@ ST.mod.alpha <- function(TD,
     stop(paste(iNames[!(iNames %in% TDNames)], collapse = ","), " not found in the names of TD")
   }
   if (engine == "SpATS") {
-    nSeg <- c(ceiling(nlevels(TD$col) / 2), ceiling(nlevels(TD$row) / 2))
-    if (subDesign == "res.ibd") {
-      mr <- SpATS::SpATS(response = trait, genotype = "genotype",
-                         genotype.as.random = TRUE,
-                         spatial = ~ PSANOVA(c, r, nseg = nSeg),
-                         fixed = as.formula(paste("~", repId,
-                                                  if (checks) paste("+", checkId),
-                                                  if (covT) paste(c("", covariate),
-                                                                  collapse = "+"))),
-                         random = as.formula(paste0("~", repId, ":", subBlock)),
-                         data = TD, control = list(monitoring = 0), ...)
-      mf <- SpATS::SpATS(response = trait, genotype = "genotype",
-                         genotype.as.random = FALSE,
-                         spatial = ~ PSANOVA(c, r, nseg = nSeg),
-                         fixed = as.formula(paste("~", repId,
-                                                  if (checks) paste("+", checkId),
-                                                  if (covT) paste(c("", covariate),
-                                                                  collapse = "+"))),
-                         random = as.formula(paste0("~", repId, ":", subBlock)),
-                         data = TD, control = list(monitoring = 0), ...)
-    } else if (subDesign == "ibd") {
-      mr <- SpATS::SpATS(response = trait, genotype = "genotype",
-                         genotype.as.random = TRUE,
-                         spatial = ~ PSANOVA(c, r, nseg = nSeg),
-                         fixed = as.formula(paste("~ 1",
-                                                  if (checks) paste("+", checkId),
-                                                  if (covT) paste(c("", covariate),
-                                                                  collapse = "+"))),
-                         random = ~ subBlock, data = TD,
-                         control = list(monitoring = 0), ...)
-      mf <- SpATS::SpATS(response = trait, genotype = "genotype",
-                         genotype.as.random = FALSE,
-                         spatial = ~ PSANOVA(c, r, nseg = nSeg),
-                         fixed = as.formula(paste("~ 1",
-                                                  if (checks) paste("+", checkId),
-                                                  if (covT) paste(c("", covariate),
-                                                                  collapse = "+"))),
-                         random = ~ subBlock, data = TD,
-                         control = list(monitoring = 0), ...)
-    }
+
   } else if (engine == "asreml") {
     tmp <- tempfile()
     sink(file = tmp)

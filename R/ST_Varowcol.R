@@ -261,9 +261,9 @@ ST.Varowcol <- function(TD,
         }
         spatialChoice <- rep(c("Exponential(x)Identity", "Identity(x)Exponential",
                                "Isotropic exponential"), times = 4)
-        spatialTerm <- rep(c(paste("exp(", rowCoordinates, "):", colCoordinates),
-                             paste(rowCoordinates, ":exp(", colCoordinates, ")"),
-                             paste("iexp(", rowCoordinates, ",", colCoordinates, ")")),
+        spatialTerm <- rep(c(paste0("exp(", rowCoordinates, "):", colCoordinates),
+                             paste0(rowCoordinates, ":exp(", colCoordinates, ")"),
+                             paste0("iexp(", rowCoordinates, ",", colCoordinates, ")")),
                            times = 4)
         modelChoice <- paste("Random:", randomChoice, "&   Spatial:", spatialChoice)
         for (ii in 1:length(randomTerm)) {
