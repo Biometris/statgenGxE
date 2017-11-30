@@ -7,7 +7,7 @@
 #' @param TD An object of class TD.
 #' @param design A string specifying the experimental design.
 #' @param trait A string specifying the selected trait.
-#' @param covariate A string specifying (a) covariate name(s).
+#' @param covariates A string specifying (a) covariate name(s).
 #' @param repId A string specifying the column name of the replicates.
 #' @param subBlock A string specifying the name of the sub-blocks.
 #' @param rowId A string specifying the column name of the rows.
@@ -39,7 +39,7 @@
 ST.run.model = function(TD,
                         design = NULL,
                         trait,
-                        covariate = NULL,
+                        covariates = NULL,
                         repId = NULL,
                         subBlock  = NULL,
                         rowId = NULL,
@@ -64,9 +64,9 @@ ST.run.model = function(TD,
       !trait %in% colnames(TD)) {
     stop("trait has to be a column in TD.\n")
   }
-  if (!is.null(covariate) && (!is.character(covariate) ||
-      !(all(covariate %in% colnames(TD))))) {
-    stop("covariate have to be a columns in TD.\n")
+  if (!is.null(covariates) && (!is.character(covariates) ||
+      !(all(covariates %in% colnames(TD))))) {
+    stop("covariates have to be a columns in TD.\n")
   }
   for (param in c(repId, subBlock, rowId, colId, rowCoordinates,
                   colCoordinates, checkId)) {
@@ -87,27 +87,27 @@ ST.run.model = function(TD,
   engine <- asremlORlme4()
   ## Modelling depending on design.
   if (design == "res.ibd") {
-    model <- ST.mod.alpha(TD = TD, trait = trait, covariate = covariate,
+    model <- ST.mod.alpha(TD = TD, trait = trait, covariates = covariates,
                           repId = repId, subBlock = subBlock,
                           subDesign = design, checkId = checkId,
                           engine = engine, ...)
   } else if (design == "ibd") {
-    model <- ST.mod.alpha(TD = TD, trait = trait, covariate = covariate,
+    model <- ST.mod.alpha(TD = TD, trait = trait, covariates = covariates,
                           subBlock = subBlock, subDesign = design,
                           checkId = checkId, engine = engine, ...)
   } else if (design == "rcbd") {
-    model <- ST.mod.rcbd(TD = TD, trait = trait, covariate = covariate,
+    model <- ST.mod.rcbd(TD = TD, trait = trait, covariates = covariates,
                          repId = repId, checkId = checkId,
                          engine = engine, ...)
   } else if (design == "res.rowcol") {
-    model <- ST.mod.rowcol(TD = TD, trait = trait, covariate = covariate,
+    model <- ST.mod.rowcol(TD = TD, trait = trait, covariates = covariates,
                            repId = repId, rowId = rowId, colId = colId,
                            rowCoordinates = rowCoordinates,
                            colCoordinates = colCoordinates,
                            checkId = checkId, subDesign = design,
                            trySpatial = trySpatial, engine = engine, ...)
   } else if (design == "rowcol") {
-    model <- ST.mod.rowcol(TD = TD, trait = trait, covariate = covariate,
+    model <- ST.mod.rowcol(TD = TD, trait = trait, covariates = covariates,
                            rowId = rowId, colId = colId, rowCoordinates = rowCoordinates,
                            colCoordinates = colCoordinates, checkId = checkId,
                            subDesign = design, trySpatial = trySpatial,

@@ -8,16 +8,16 @@
 #' If \code{TRUE} \code{TD} has to contain a column 'checkId'.
 #'
 #' @examples
-#' ## Load data
+#' ## Load data.
 #' data(TDHeat05)
 #'
-#' ## Fit basic spatial model - no blocking, no replicates
+#' ## Fit basic spatial model - no blocking, no replicates.
 #' modSpATS1 <- STModSpATS(TD = TDHeat05, trait = "yield")
 #'
-#' ## Fit spatial model including replicates - no blocking
+#' ## Fit spatial model including replicates - no blocking.
 #' modSpATS2 <- STModSpATS(TD = TDHeat05, trait = "yield", design = "res.rowcol")
 #'
-#' ## Fit spatial model including replicates and blocking
+#' ## Fit spatial model including replicates and blocking.
 #' modSpATS3 <- STModSpATS(TD = TDHeat05, trait = "yield", design = "res.ibd")
 #'
 #' @export
@@ -96,9 +96,7 @@ STModSpATS <- function(TD,
                      random = randomForm,
                      data = TD, control = list(monitoring = 2), ...)
   ## Construct SSA object.
-  model = createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
-                    genotype = "genotype",
-                    repId = if (design == "res.ibd") "repId" else NULL,
+  model <- createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
                     design = design, engine = "SpATS")
   return(model)
 }

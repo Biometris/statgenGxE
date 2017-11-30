@@ -12,7 +12,7 @@
 #' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
 #'                      env = "env!", genotype = "genotype!", trait = "yld")
 #' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
-#' stats <- summary(object = myTD, trait = "yld", all = TRUE)
+#' stats <- summary(object = myTD, traits = "yld", all = TRUE)
 #' RAP.htmlTable(stats)
 #'
 #' @export

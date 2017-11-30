@@ -27,7 +27,7 @@
 #' @export
 ST.mod.rcbd <- function(TD,
                         trait,
-                        covariate = NULL,
+                        covariates = NULL,
                         repId = NULL,
                         checkId = NULL,
                         engine,
@@ -40,9 +40,9 @@ ST.mod.rcbd <- function(TD,
       !trait %in% colnames(TD)) {
     stop("trait has to be a column in TD.\n")
   }
-  if (!is.null(covariate) && (!is.character(covariate) ||
-                              !(all(covariate %in% colnames(TD))))) {
-    stop("covariate have to be a columns in TD.\n")
+  if (!is.null(covariates) && (!is.character(covariates) ||
+                              !(all(covariates %in% colnames(TD))))) {
+    stop("covariates have to be a columns in TD.\n")
   }
   for (param in c(repId, checkId)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
@@ -62,12 +62,12 @@ ST.mod.rcbd <- function(TD,
     checks <- checkId %in% colnames(TD)
     iNames <- c(trait, "genotype", repId, checkId)
   }
-  # any covariate
+  # any covariates
   covT <- FALSE
-  if (!is.null(covariate)) {
-    if (is.character(covariate)) {
+  if (!is.null(covariates)) {
+    if (is.character(covariates)) {
       covT <- TRUE
-      iNames <- c(iNames, covariate)
+      iNames <- c(iNames, covariates)
     }
   }
   ## Check validility of column names of TD
@@ -86,7 +86,7 @@ ST.mod.rcbd <- function(TD,
     ## Run mixed and fixed models using asreml
     fixedFormR <- as.formula(paste(trait, "~",
                                    if (checks) checkId else "1",
-                                   if (covT) paste(c("", covariate), collapse = "+")))
+                                   if (covT) paste(c("", covariates), collapse = "+")))
     mr <- asreml::asreml(fixed = fixedFormR,
                          random = as.formula(paste("~", repId, "+ genotype")),
                          rcov = ~ units, aom = TRUE, data = TD, ...)
@@ -119,17 +119,16 @@ ST.mod.rcbd <- function(TD,
     ## Run mixed and fixed models using lme4
     frm <- as.formula(paste(trait, "~ (1 |", repId, ")",
                             if (checks) paste("+", checkId),
-                            if (covT) paste(c("", covariate), collapse = "+"),
+                            if (covT) paste(c("", covariates), collapse = "+"),
                             "+ (1 | genotype)"))
     mr <- lme4::lmer(frm, data = TD, ...)
     ffm <- as.formula(paste(trait, "~", repId,
                             if (checks) paste("+", checkId),
-                            if (covT) paste(c("", covariate), collapse = "+"),
+                            if (covT) paste(c("", covariates), collapse = "+"),
                             "+ genotype"))
     mf <- lm(ffm, data = TD, ...)
   }
   model = createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
-                    genotype = "genotype", repId = repId,
                     design = "rcbd", engine = engine)
   return(model)
 }

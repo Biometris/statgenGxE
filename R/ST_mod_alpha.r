@@ -32,7 +32,7 @@
 #' @export
 ST.mod.alpha <- function(TD,
                          trait,
-                         covariate = NULL,
+                         covariates = NULL,
                          repId = NULL,
                          subBlock,
                          checkId = NULL,
@@ -64,9 +64,9 @@ ST.mod.alpha <- function(TD,
       stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
     }
   }
-  if (!is.null(covariate) && (!is.character(covariate) ||
-                              !(all(covariate %in% colnames(TD))))) {
-    stop("covariate have to be a columns in TD.\n")
+  if (!is.null(covariates) && (!is.character(covariates) ||
+                              !(all(covariates %in% colnames(TD))))) {
+    stop("covariates have to be a columns in TD.\n")
   }
   if (!is.null(engine) && (!is.character(engine) || length(engine) > 1 ||
                            !engine %in% c("asreml", "lme4", "SpATS"))) {
@@ -92,12 +92,12 @@ ST.mod.alpha <- function(TD,
       iNames <- c(trait, "genotype", repId, subBlock, checkId)
     }
   }
-  ## any covariate
+  ## any covariates
   covT <- FALSE
-  if (!is.null(covariate)) {
-    if (is.character(covariate)) {
+  if (!is.null(covariates)) {
+    if (is.character(covariates)) {
       covT <- TRUE
-      iNames <- c(iNames, covariate)
+      iNames <- c(iNames, covariates)
     }
   }
   ## check validility of column names of TD
@@ -119,7 +119,7 @@ ST.mod.alpha <- function(TD,
     if (subDesign == "res.ibd") {
       fixedFormR <- as.formula(paste(trait, "~", repId,
                                      if (checks) paste("+", checkId),
-                                     if (covT) paste(c("", covariate), collapse = "+")))
+                                     if (covT) paste(c("", covariates), collapse = "+")))
       mr <- asreml::asreml(fixed = fixedFormR,
                            random = as.formula(paste0("~ genotype +", repId, ":",
                                                       subBlock)),
@@ -134,7 +134,7 @@ ST.mod.alpha <- function(TD,
     } else if (subDesign == "ibd") {
       fixedFormR <- as.formula(paste(trait, "~",
                                      if (checks) checkId else "1",
-                                     if (covT) paste(c("", covariate), collapse = "+")))
+                                     if (covT) paste(c("", covariates), collapse = "+")))
       mr <- asreml::asreml(fixed = fixedFormR,
                            random = as.formula(paste0("~ genotype:", subBlock)),
                            rcov = ~ units, aom = TRUE, data = TD, ...)
@@ -169,30 +169,28 @@ ST.mod.alpha <- function(TD,
     if (subDesign == "res.ibd") {
       frm <- as.formula(paste(trait, "~", repId,
                               if (checks) paste("+", checkId),
-                              if (covT) paste(c("", covariate), collapse = "+"),
+                              if (covT) paste(c("", covariates), collapse = "+"),
                               "+ (1 | genotype) + (1 | ", repId, ":", subBlock, ")"))
       mr <- lme4::lmer(frm, data = TD, ...)
       ffm <- as.formula(paste(trait, "~", repId,
                               if (checks) paste("+", checkId),
-                              if (covT) paste(c("", covariate), collapse = "+"),
+                              if (covT) paste(c("", covariates), collapse = "+"),
                               "+ genotype + (1 | ", repId, ":", subBlock, ")"))
       mf <- lme4::lmer(ffm, data = TD, ...)
     } else if (subDesign == "ibd") {
       frm <- as.formula(paste(trait, "~",
                               if (checks) paste("+", checkId),
-                              if (covT) paste(c("", covariate), collapse = "+"),
+                              if (covT) paste(c("", covariates), collapse = "+"),
                               "+ (1 | genotype) + (1 |", subBlock, ")"))
       mr <- lme4::lmer(frm, data = TD, ...)
       ffm <- as.formula(paste(trait, "~",
                               if (checks) paste("+", checkId),
-                              if (covT) paste(c("", covariate), collapse = "+"),
+                              if (covT) paste(c("", covariates), collapse = "+"),
                               "+ genotype + (1 |", subBlock, ")"))
       mf <- lme4::lmer(ffm, data = TD, ...)
     }
   }
   model = createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
-                    genotype = "genotype",
-                    repId = ifelse(subDesign == "res.ibd", repId, NULL),
                     design = subDesign, engine = engine)
   return(model)
 }

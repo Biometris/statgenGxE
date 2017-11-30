@@ -19,7 +19,7 @@
 
 ST.Varowcol <- function(TD,
                         trait,
-                        covariate = NULL,
+                        covariates = NULL,
                         repId = NULL,
                         rowId = NULL,
                         colId = NULL,
@@ -39,9 +39,9 @@ ST.Varowcol <- function(TD,
       !trait %in% colnames(TD)) {
     stop("trait has to be a column in TD.\n")
   }
-  if (!is.null(covariate) && (!is.character(covariate) ||
-                              !(all(covariate %in% colnames(TD))))) {
-    stop("covariate have to be a columns in TD.\n")
+  if (!is.null(covariates) && (!is.character(covariates) ||
+                              !(all(covariates %in% colnames(TD))))) {
+    stop("covariates have to be a columns in TD.\n")
   }
   for (param in c(repId, rowId, colId, rowCoordinates, colCoordinates, checkId)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
@@ -64,8 +64,8 @@ ST.Varowcol <- function(TD,
     })
   }
   covT <- FALSE
-  if (!is.null(covariate)) {
-    if (is.character(covariate)) {
+  if (!is.null(covariates)) {
+    if (is.character(covariates)) {
       covT <- TRUE
     }
   }
@@ -103,7 +103,7 @@ ST.Varowcol <- function(TD,
     if (tryRep) {
       fixedFormR <- as.formula(paste(trait0, "~", repId,
                                      if (!is.null(checkId)) paste("+", checkId),
-                                     if (covT) paste(c("", covariate),
+                                     if (covT) paste(c("", covariates),
                                                      collapse = "+")))
       mr <- asreml::asreml(fixed = fixedFormR,
                            random = as.formula(paste("~ genotype +", repId, ":",
@@ -133,7 +133,7 @@ ST.Varowcol <- function(TD,
     } else {
       fixedFormR <- as.formula(paste(trait0, "~",
                                      if (!is.null(checkId)) paste("+", checkId),
-                                     if (covT) paste(c("", covariate),
+                                     if (covT) paste(c("", covariates),
                                                      collapse = "+")))
       mr <- asreml::asreml(fixed = fixedFormR,
                            random = as.formula(paste("~ genotype +", rowId, "+", colId)),
@@ -192,7 +192,7 @@ ST.Varowcol <- function(TD,
         if (tryRep) {
           fixedFormR <- as.formula(paste(trait0, "~", repId,
                                          if (!is.null(checkId)) paste("+", checkId),
-                                         if (covT) paste(c("", covariate),
+                                         if (covT) paste(c("", covariates),
                                                          collapse = "+")))
           mr <- asreml::asreml(fixed = fixedFormR,
                                random = as.formula(paste("~ genotype +",
@@ -202,7 +202,7 @@ ST.Varowcol <- function(TD,
         } else {
           fixedFormR <- as.formula(paste(trait0, "~",
                                          if (!is.null(checkId)) checkId else "1",
-                                         if (covT) paste(c("", covariate),
+                                         if (covT) paste(c("", covariates),
                                                          collapse = "+")))
           mr <- asreml::asreml(fixed = fixedFormR,
                                random = as.formula(paste("~ genotype +",
@@ -270,7 +270,7 @@ ST.Varowcol <- function(TD,
           if (tryRep) {
             fixedFormR <- as.formula(paste(trait0, "~", repId,
                                            if (!is.null(checkId)) paste("+", checkId),
-                                           if (covT) paste(c("", covariate),
+                                           if (covT) paste(c("", covariates),
                                                            collapse = "+")))
             mr <- asreml::asreml(fixed = fixedFormR,
                                  random = as.formula(paste("~ genotype +",
@@ -280,7 +280,7 @@ ST.Varowcol <- function(TD,
           } else {
             fixedFormR <- as.formula(paste(trait0, "~",
                                            if (!is.null(checkId)) checkId else "1",
-                                           if (covT) paste(c("", covariate),
+                                           if (covT) paste(c("", covariates),
                                                            collapse = "+")))
             mr <- asreml::asreml(fixed = fixedFormR,
                                  random = as.formula(paste("~ genotype +",
@@ -364,7 +364,6 @@ ST.Varowcol <- function(TD,
   sink()
   unlink(tmp)
   res = createSSA(mMix = bestModel, mFix = mf, data = TD, trait = trait,
-                  genotype = "genotype", repId = ifelse(tryRep, repId, NULL),
                   engine = "asreml")
   return(res)
 }
