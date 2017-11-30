@@ -83,7 +83,7 @@ summary.SSA <- function(object,
   # get summary stats for raw data
   data <- object$data
   trait <- object$trait
-  stats <- summary.TD(object = data, trait = trait)
+  stats <- summary.TD(object = data, traits = trait)
   stats <- na.omit(stats)
   attr(stats, "na.action") <- NULL
   # get predicted means (BLUEs & BLUPs)

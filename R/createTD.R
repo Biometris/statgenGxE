@@ -81,12 +81,16 @@ createTD <- function(data,
                   "rowCoordinates", "colCoordinates", "checkId")
   for (renameCol in renameCols) {
     cols[cols == get(renameCol)] <- renameCol
-    if (renameCol %in% cols && !is.factor(data[, which(cols == renameCol)])) {
+  }
+  colnames(data) <- cols
+  factorCols <-  c("genotype", "env", "megaEnv", "year", "repId", "subBlock", "rowId",
+                   "colId", "checkId")
+  for (factorCol in factorCols) {
+    if (factorCol %in% cols && !is.factor(data[, which(cols == factorCol)])) {
       data[, which(cols == renameCol)] <-
         as.factor(data[, which(cols == renameCol)])
     }
   }
-  colnames(data) <- cols
   TD <- structure(data,
                   class = c("TD", "data.frame"))
   if (!is.null(design)) {
@@ -107,7 +111,8 @@ is.TD <- function(x) {
 #'
 #' @param object An object of class TD.
 #' @param ... Further arguments - currently not used.
-#' @param trait A string vector specifying trait name(s) to be summarised.
+#' @param traits A character vector specifying the name(s) of the traits
+#' to be summarised.
 #' @param nVals A logical value indicating if the number of values is included.
 #' @param nObs A logical value indicating if the number of observations is included.
 #' @param nMiss A logical value indicating if the number of missing values is included.
@@ -141,12 +146,12 @@ is.TD <- function(x) {
 #'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
 #'                      colSelect = c("Env", "Genotype", "Rep", "Subblock", "yield"))
 #' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
-#' summary(object = myTD, trait = "yield")
+#' summary(object = myTD, traits = "yield")
 #'
 #' @export
 summary.TD <- function(object,
                        ...,
-                       trait,
+                       traits,
                        nVals = FALSE,
                        nObs = TRUE,
                        nMiss = TRUE,
@@ -176,8 +181,8 @@ summary.TD <- function(object,
       uncorSumSq <- skew <- seSkew <- kurt <- seKurt <- TRUE
   }
   ## Create a matrix to store the values
-  stats <- matrix(nrow = 22, ncol = length(trait))
-  colnames(stats) <- trait
+  stats <- matrix(nrow = 22, ncol = length(traits))
+  colnames(stats) <- traits
   rownames(stats) <- c("Number of values","Number of observations","Number of missing values",
                        "mean","median", "min","max","range","Lower quartile","Upper quartile",
                        "Standard deviation", "Standard error of mean","Variance",
@@ -185,32 +190,33 @@ summary.TD <- function(object,
                        "sum of values", "sum of squares", "Uncorrected sum of squares",
                        "Skewness", "Standard Error of Skewness", "Kurtosis",
                        "Standard Error of Kurtosis")
-  for (i in 1:length(trait)) {
-    if (nVals) stats[1, i] <- length(object[, trait[i]])
-    if (nObs) stats[2, i] <- length(na.omit(object[, trait[i]]))
-    if (nMiss) stats[3, i] <- sum(is.na(object[, trait[i]]))
-    if (mean) stats[4, i] <- mean(object[, trait[i]], na.rm = TRUE)
-    if (median) stats[5, i] <- median(object[, trait[i]],na.rm = TRUE)
-    if (min) stats[6, i] <- min(object[, trait[i]],na.rm = TRUE)
-    if (max) stats[7, i] <- max(object[, trait[i]],na.rm = TRUE)
-    if (range) stats[8, i] <- stats[7, i] - stats[6, i]
-    if (lowerQ) stats[9, i] <- quantile(object[, trait[i]], prob = .25, na.rm = TRUE)
-    if (upperQ) stats[10, i] <- quantile(object[,trait[i]], prob = .75, na.rm = TRUE)
-    if (sd) stats[11, i] <- sd(object[, trait[i]], na.rm = TRUE)
-    if (seMean) stats[12, i] <- sd(object[, trait[i]], na.rm = TRUE) /
-        sqrt(length(na.omit(object[, trait[i]])))
-    if (var) stats[13, i] <- var(object[, trait[i]], na.rm = TRUE)
-    if (seVar) stats[14, i] <- seVar(object[, trait[i]], na.rm = TRUE)
-    if (CV) stats[15, i] <- 100 * sd(object[, trait[i]], na.rm = TRUE) /
-        mean(object[, trait[i]], na.rm = TRUE)
-    if (sum) stats[16, i] <- sum(object[, trait[i]], na.rm = TRUE)
-    if (sumSq) stats[17, i] <- sum((na.omit(object[, trait[i]]) -
-                                      mean(object[, trait[i]], na.rm = TRUE)) ^ 2)
-    if (uncorSumSq) stats[18, i] <- sum(object[, trait[i]] ^ 2, na.rm = TRUE)
-    if (skew) stats[19, i] <- skewness(object[, trait[i]], na.rm = TRUE)
-    if (seSkew) stats[20, i] <- seSkewness(length(na.omit(object[, trait[i]])))
-    if (kurt) stats[21, i] <- kurtosis(object[, trait[i]], na.rm = TRUE)
-    if (seKurt) stats[22, i] <- seKurtosis(length(na.omit(object[, trait[i]])))
+  for (i in 1:length(traits)) {
+    if (nVals) stats[1, i] <- length(object[, traits[i]])
+    if (nObs) stats[2, i] <- length(na.omit(object[, traits[i]]))
+    if (nMiss) stats[3, i] <- sum(is.na(object[, traits[i]]))
+    if (mean) stats[4, i] <- mean(object[, traits[i]], na.rm = TRUE)
+    if (median) stats[5, i] <- median(object[, traits[i]], na.rm = TRUE)
+    if (min) stats[6, i] <- min(object[, traits[i]], na.rm = TRUE)
+    if (max) stats[7, i] <- max(object[, traits[i]], na.rm = TRUE)
+    if (range) stats[8, i] <- max(object[, traits[i]], na.rm = TRUE) -
+        min(object[, traits[i]], na.rm = TRUE)
+    if (lowerQ) stats[9, i] <- quantile(object[, traits[i]], prob = .25, na.rm = TRUE)
+    if (upperQ) stats[10, i] <- quantile(object[,traits[i]], prob = .75, na.rm = TRUE)
+    if (sd) stats[11, i] <- sd(object[, traits[i]], na.rm = TRUE)
+    if (seMean) stats[12, i] <- sd(object[, traits[i]], na.rm = TRUE) /
+        sqrt(length(na.omit(object[, traits[i]])))
+    if (var) stats[13, i] <- var(object[, traits[i]], na.rm = TRUE)
+    if (seVar) stats[14, i] <- seVar(object[, traits[i]], na.rm = TRUE)
+    if (CV) stats[15, i] <- 100 * sd(object[, traits[i]], na.rm = TRUE) /
+        mean(object[, traits[i]], na.rm = TRUE)
+    if (sum) stats[16, i] <- sum(object[, traits[i]], na.rm = TRUE)
+    if (sumSq) stats[17, i] <- sum((na.omit(object[, traits[i]]) -
+                                      mean(object[, traits[i]], na.rm = TRUE)) ^ 2)
+    if (uncorSumSq) stats[18, i] <- sum(object[, traits[i]] ^ 2, na.rm = TRUE)
+    if (skew) stats[19, i] <- skewness(object[, traits[i]], na.rm = TRUE)
+    if (seSkew) stats[20, i] <- seSkewness(length(na.omit(object[, traits[i]])))
+    if (kurt) stats[21, i] <- kurtosis(object[, traits[i]], na.rm = TRUE)
+    if (seKurt) stats[22, i] <- seKurtosis(length(na.omit(object[, traits[i]])))
   }
   return(structure(stats,
                    class = c("summary.TD", "table")))
