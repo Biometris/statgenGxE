@@ -47,13 +47,14 @@ STModSpATS <- function(TD,
                                !(all(covariates %in% colnames(TD))))) {
     stop("covariates have to be a columns in TD.\n")
   }
-  for (colName in c("rowId", "colId", "rowCoordinates", "colCoordinates",
+  for (colName in c("rowCoordinates", "colCoordinates",
+                    if (design %in% c("rowcol", "res.rowcol")) c("rowId", "colId"),
                     if (design %in% c("res.ibd", "res.rowcol", "rcbd")) "repId",
                     if (design %in% c("ibd", "res.ibd")) "subBlock",
                     if (useCheckId) "checkId")) {
     if (!is.null(colName) && (!is.character(colName) || length(colName) > 1 ||
                               !colName %in% colnames(TD))) {
-      stop(paste(deparse(colName), "has to be NULL or a column in data.\n"))
+      stop(paste(deparse(colName), "has to be NULL or a column in TD.\n"))
     }
   }
   ## Extract design from TD if needed.
@@ -90,14 +91,14 @@ STModSpATS <- function(TD,
                      spatial = ~ SpATS::PSANOVA(colCoordinates, rowCoordinates, nseg = nSeg),
                      fixed = fixedForm,
                      random = randomForm,
-                     data = TD, control = list(monitoring = 2), ...)
+                     data = TD, control = list(monitoring = 0), ...)
   ## Fit model with genotype fixed.
   mf <- SpATS::SpATS(response = trait, genotype = "genotype",
                      genotype.as.random = FALSE,
                      spatial = ~ SpATS::PSANOVA(colCoordinates, rowCoordinates, nseg = nSeg),
                      fixed = fixedForm,
                      random = randomForm,
-                     data = TD, control = list(monitoring = 2), ...)
+                     data = TD, control = list(monitoring = 0), ...)
   ## Construct SSA object.
   model <- createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
                      design = design, engine = "SpATS")

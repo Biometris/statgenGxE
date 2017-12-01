@@ -47,7 +47,7 @@ STModLme4 <- function(TD,
                                !(all(covariates %in% colnames(TD))))) {
     stop("covariates have to be a columns in TD.\n")
   }
-  for (colName in c("rowId", "colId",
+  for (colName in c(if (design %in% c("rowcol", "res.rowcol")) c("rowId", "colId"),
                     if (design %in% c("res.ibd", "res.rowcol", "rcbd")) "repId",
                     if (design %in% c("ibd", "res.ibd")) "subBlock",
                     if (useCheckId) "checkId")) {

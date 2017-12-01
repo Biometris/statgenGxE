@@ -47,7 +47,7 @@ STModAsreml <- function(TD,
                                !(all(covariates %in% colnames(TD))))) {
     stop("covariates have to be a columns in TD.\n")
   }
-  for (colName in c("rowId", "colId",
+  for (colName in c(if (design %in% c("rowcol", "res.rowcol")) c("rowId", "colId"),
                     if (design %in% c("res.ibd", "res.rowcol", "rcbd")) "repId",
                     if (design %in% c("ibd", "res.ibd")) "subBlock",
                     if (useCheckId) "checkId")) {
@@ -84,8 +84,8 @@ STModAsreml <- function(TD,
     randomForm <- character()
   }
   ## Create tempfile to suppress asreml output messages.
-  # tmp <- tempfile()
-  # sink(file = tmp)
+  tmp <- tempfile()
+  sink(file = tmp)
   ## Fit model with genotype random.
   mr <- asreml::asreml(fixed = as.formula(fixedForm),
                        random = as.formula(paste("~", randomForm,
@@ -126,8 +126,8 @@ STModAsreml <- function(TD,
     mf <- predict(mf, classify = "genotype", vcov = TRUE, data = TD)
   }
   mr <- predict(mr, classify = "genotype", data = TD)
-  # sink()
-  # unlink(tmp)
+  sink()
+  unlink(tmp)
   mf$call$data <- substitute(TD)
   mr$call$data <- substitute(TD)
   ## Construct SSA object.
