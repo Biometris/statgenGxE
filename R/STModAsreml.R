@@ -1,6 +1,6 @@
-#' Fit Single Trial Model using lme4
+#' Fit Single Trial Model using asreml
 #'
-#' Fit Single Trial Model using lme4
+#' Fit Single Trial Model using asreml
 #'
 #' @inheritParams ST.run.model
 #'
@@ -22,12 +22,12 @@
 #'
 #' @export
 
-STModLme4 <- function(TD,
-                      trait,
-                      covariates = NULL,
-                      useCheckId = FALSE,
-                      design = "rowcol",
-                      ...) {
+STModAsreml <- function(TD,
+                        trait,
+                        covariates = NULL,
+                        useCheckId = FALSE,
+                        design = "rowcol",
+                        ...) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -78,30 +78,60 @@ STModLme4 <- function(TD,
                                                      collapse = "+"))
   ## Construct formula for random part. Include repId depending on design.
   if (length(randEff) != 0) {
-    randomForm <- paste0("(1 | ", if (useRepIdFix) "repId:",
-                         paste(randEff,
-                               collapse = paste(") + (1 | ", if (useRepIdFix) "repId:")),
-                         ")")
+    randomForm <- paste0(if (useRepIdFix) "repId:",
+                         paste(randEff, collapse = paste("+", if (useRepIdFix) "repId:")))
   } else {
     randomForm <- character()
   }
+  ## Create tempfile to suppress asreml output messages.
+  # tmp <- tempfile()
+  # sink(file = tmp)
   ## Fit model with genotype random.
-  mr <- lme4::lmer(as.formula(paste(fixedForm,
-                                    "+ (1 | genotype) ",
-                                    if (length(randomForm) != 0) paste("+", randomForm))),
-                   data = TD, ...)
-  ## Fit model with genotype fixed.
-  ## lme4 cannot handle models without random effect so in that case lm is called.
-  if (length(randomForm) != 0) {
-    mf <- lme4::lmer(as.formula(paste(fixedForm,
-                                      "+ genotype + ", randomForm)),
-                     data = TD, ...)
-  } else  {
-    mf <- lm(as.formula(paste(fixedForm, "+ genotype")),
-             data = TD, ...)
+  mr <- asreml::asreml(fixed = as.formula(fixedForm),
+                       random = as.formula(paste("~", randomForm,
+                                                 if (length(randomForm) != 0) "+",
+                                                 "genotype")),
+                       rcov = ~ units, aom = TRUE, data = TD, ...)
+  ## Constrain variance of the variance components to be fixed as the values in mr.
+  GParamTmp <- mr$G.param
+  for (randEf in randEff) {
+    ## When there are no replicates the structure is [[randEf]][[randEf]]
+    ## otherwise it is [[repId:randEf]][[repId]]
+    GParamTmp[[paste0(ifelse(useRepIdFix, "repId:", ""),
+                      randEf)]][[ifelse(useRepIdFix, "repId", randEf)]]$con <- "F"
   }
+  ## Fit model with genotype fixed.
+  if (length(randomForm) != 0) {
+    mf <- asreml::asreml(fixed = as.formula(paste(fixedForm, "+ genotype")),
+                         random = as.formula(paste("~", randomForm)),
+                         rcov = ~ units, G.param = GParamTmp, aom = TRUE,
+                         data = TD, ...)
+  } else {
+    mf <- asreml::asreml(fixed = as.formula(paste(fixedForm, "+ genotype")),
+                         rcov = ~ units, G.param = GParamTmp, aom = TRUE,
+                         data = TD, ...)
+  }
+  ## evaluate call terms in mr and mf so predict can be run.
+  mr$call$fixed <- eval(mr$call$fixed)
+  mr$call$random <- eval(mr$call$random)
+  mr$call$rcov <- eval(mr$call$rcov)
+  mf$call$fixed <- eval(mf$call$fixed)
+  mf$call$random <- eval(mf$call$random)
+  mf$call$rcov <- eval(mf$call$rcov)
+  ## Run predict.
+  if (useCheckId) {
+    mf <- predict(mf, classify = "genotype", vcov = TRUE, data = TD,
+                  associate = ~ checkId:genotype)
+  } else {
+    mf <- predict(mf, classify = "genotype", vcov = TRUE, data = TD)
+  }
+  mr <- predict(mr, classify = "genotype", data = TD)
+  # sink()
+  # unlink(tmp)
+  mf$call$data <- substitute(TD)
+  mr$call$data <- substitute(TD)
   ## Construct SSA object.
   model <- createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
-                     design = design, engine = "lme4")
+                     design = design, engine = "asreml")
   return(model)
 }

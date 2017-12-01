@@ -44,7 +44,7 @@ STModSpATS <- function(TD,
     stop("trait has to be a column in TD.\n")
   }
   if (!is.null(covariates) && (!is.character(covariates) ||
-                              !(all(covariates %in% colnames(TD))))) {
+                               !(all(covariates %in% colnames(TD))))) {
     stop("covariates have to be a columns in TD.\n")
   }
   for (colName in c("rowId", "colId", "rowCoordinates", "colCoordinates",
@@ -52,7 +52,7 @@ STModSpATS <- function(TD,
                     if (design %in% c("ibd", "res.ibd")) "subBlock",
                     if (useCheckId) "checkId")) {
     if (!is.null(colName) && (!is.character(colName) || length(colName) > 1 ||
-                            !colName %in% colnames(TD))) {
+                              !colName %in% colnames(TD))) {
       stop(paste(deparse(colName), "has to be NULL or a column in data.\n"))
     }
   }
@@ -60,15 +60,14 @@ STModSpATS <- function(TD,
   if (is.null(design)) {
     design <- attr(TD, "design")
   }
-  ## Should repId be used as fixed or random effect in the model.
-  useRepIdFix <- design %in% c("res.ibd", "res.rowcol")
+  useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
   ## Indicate extra random effects.
   if (design %in% c("ibd", "res.ibd")) {
     randEff <- "subBlock"
   } else if (design %in% c("rowcol", "res.rowcol")) {
     randEff <- c("rowId", "colId")
   } else if (design == "rcbd") {
-    randEff <- "repId"
+    randEff <- character()
   }
   ## Compute number of segments.
   nSeg <- c(ceiling(nlevels(TD$colId) / 2), ceiling(nlevels(TD$rowId) / 2))
@@ -77,10 +76,14 @@ STModSpATS <- function(TD,
                                 if (useRepIdFix) "repId" else "1",
                                 if (useCheckId) "+ checkId",
                                 if (!is.null(covariates)) paste(c("", covariates),
-                                                               collapse = "+")))
+                                                                collapse = "+")))
   ## Construct formula for random part. Include repId depending on design.
-  randomForm <- as.formula(paste0("~", if (useRepIdFix) "repId:",
-                                  "(", paste(randEff, collapse = "+"), ")"))
+  if (length(randEff) != 0) {
+    randomForm <- as.formula(paste0("~", if (useRepIdFix) "repId:",
+                                    "(", paste(randEff, collapse = "+"), ")"))
+  } else {
+    randomForm <- NULL
+  }
   ## Fit model with genotype random.
   mr <- SpATS::SpATS(response = trait, genotype = "genotype",
                      genotype.as.random = TRUE,
@@ -97,6 +100,6 @@ STModSpATS <- function(TD,
                      data = TD, control = list(monitoring = 2), ...)
   ## Construct SSA object.
   model <- createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
-                    design = design, engine = "SpATS")
+                     design = design, engine = "SpATS")
   return(model)
 }

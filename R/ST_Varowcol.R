@@ -131,7 +131,7 @@ ST.Varowcol <- function(TD,
                            data = TD, ...)
 
     } else {
-      fixedFormR <- as.formula(paste(trait0, "~",
+      fixedFormR <- as.formula(paste(trait0, "~ 1",
                                      if (!is.null(checkId)) paste("+", checkId),
                                      if (covT) paste(c("", covariates),
                                                      collapse = "+")))
