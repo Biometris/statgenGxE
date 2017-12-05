@@ -1,8 +1,8 @@
-#' Run the single trial mixed model analysis
+#' Fit Single Trial Mixed Model
 #'
 #' Perform REML analysis given a specific experimental design.
-#' This is a wrapper function of \code{\link{ST.mod.alpha}}, \code{\link{ST.mod.rcbd}}
-#' and \code{\link{ST.mod.rowcol}}.
+#' This is a wrapper function of \code{\link{STModSpATS}}, \code{\link{STModLme4}}
+#' and \code{\link{STModAsreml}}.
 #'
 #' @param TD An object of class TD.
 #' @param design A string specifying the experimental design.
@@ -11,17 +11,26 @@
 #' @param useCheckId Should a checkId be used as a fixed parameter in the model?\cr
 #' If \code{TRUE} \code{TD} has to contain a column 'checkId'.
 #' @param trySpatial Whether to try spatial models ("always", "ifregular"); default no spatial
-#' models, i.e., \code{NULL}.
-#' @param ... Further arguments to be passed to either \code{asreml} or \code{lme4}.
+#' models, i.e., \code{FALSE}.
+#' @param engine A string specifying the name of the mixed modelling engine to use,
+#' either SpATS, lme4 or asreml. For spatial models SpaTS is used as a default, for
+#' other models lme4.
+#' @param ... Further arguments to be passed to \code{SpATS}, \code{lme4} or \code{asreml}.
 #'
 #' @return an object of class \code{\link{SSA}}.
 #'
 #' @seealso \code{\link{SSA}}, \code{\link{summary.SSA}}
 #'
 #' @examples
+#' ## Load data.
 #' data(TDHeat05)
+#'
+#' ## Fit model using lme4.
 #' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", trait = "yield")
-#' names(myModel)
+#'
+#' ## Fit model using SpATS.
+#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", trait = "yield",
+#'                       engine = "SpATS")
 #'
 #' @export
 STRunModel = function(TD,
@@ -30,7 +39,7 @@ STRunModel = function(TD,
                       covariates = NULL,
                       useCheckId = FALSE,
                       trySpatial = FALSE,
-                      engine = if (trySpatial) "SpATS" else "lme4",
+                      engine = if (!is.logical(trySpatial)) "SpATS" else "lme4",
                       ...) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
@@ -61,10 +70,15 @@ STRunModel = function(TD,
       stop(paste(deparse(colName), "has to be NULL or a column in TD.\n"))
     }
   }
-  # if (trySpatial || (!trySpatial && (!is.character(trySpatial) || length(trySpatial) > 1 ||
-  #                              !trySpatial %in% c("always", "ifregular")))) {
-  #   stop("trySpatial should be NULL, always or ifregular")
-  # }
+  if ((is.logical(trySpatial) && trySpatial) ||
+      (is.character(trySpatial) && (length(trySpatial) > 1 ||
+                                    !trySpatial %in% c("always", "ifregular")))) {
+    stop("trySpatial should be NULL, always or ifregular")
+  }
+  if (!is.null(engine) && (!is.character(engine) || length(engine) > 1 ||
+                           !engine %in% c("asreml", "lme4", "SpATS"))) {
+    stop("engine should be SpATS, asreml, lme4")
+  }
   ## Extract design from TD if needed.
   if (is.null(design)) {
     design <- attr(TD, "design")

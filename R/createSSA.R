@@ -57,13 +57,8 @@ is.SSA <- function(x) {
 #' @param ... Further arguments passed to \code{\link[stats]{printCoefmat}}.
 #'
 #' @examples
-#' myDat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
-#'                      factorNames = c("Env", "Genotype", "Rep", "Subblock", "Row", "Column"),
-#'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
-#'                      colSelect = c("Env", "Genotype", "Rep", "Row", "Column", "yield"))
-#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
-#' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
-#'                         repId = "Rep", rowId = "Row", colId = "Column")
+#' data(TDHeat05)
+#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", trait = "yield")
 #' summary(myModel)
 #'
 #' @export
@@ -75,21 +70,21 @@ summary.SSA <- function(object,
                         decreasing = TRUE,
                         ...) {
   # get summary stats for raw data
-  data <- object$data
+  TD <- object$data
   trait <- object$trait
-  stats <- summary.TD(object = data, traits = trait)
+  stats <- summary.TD(object = TD, traits = trait)
   stats <- na.omit(stats)
   attr(stats, "na.action") <- NULL
   # get predicted means (BLUEs & BLUPs)
-  extr <- ST.extract(object)
+  extr <- STExtract(object)
   meanTab <- extr$stats[-1]
   if (!is.na(sortBy)) {
     if (sortBy == "BLUEs") {
-      oList <- order(meanTab[["predicted (BLUEs)"]], na.last = naLast, decreasing = decreasing)
+      oList <- order(meanTab$predictedBLUEs, na.last = naLast, decreasing = decreasing)
       meanTab <- meanTab[oList, ]
     } else {
       if (sortBy == "BLUPs") {
-        oList <- order(meanTab[["predicted (BLUPs)"]], na.last = naLast, decreasing = decreasing)
+        oList <- order(meanTab$predictedBLUPs, na.last = naLast, decreasing = decreasing)
         meanTab <- meanTab[oList, ]
       }
     }
@@ -109,7 +104,7 @@ summary.SSA <- function(object,
   }
   printCoefmat(meanTab, digits = digits, ...)
   if (object$engine == "asreml" && !is.null(extr$predictionsSed) &&
-     !is.null(extr$predictionsLsd)) {
+      !is.null(extr$predictionsLsd)) {
     cat("\nStandard Error of Difference (genotypes modelled as fixed effect)\n",
         "===================================================================\n", sep = "")
     sed <- as.data.frame(extr$predictionsSed)
@@ -136,14 +131,9 @@ summary.SSA <- function(object,
 #' @seealso \code{\link{createSSA}}
 #'
 #' @examples
-#' myDat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
-#'                      factorNames = c("Env","Genotype","Rep","Row","Column"),
-#'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
-#'                      colSelect = c("Env","Genotype", "Rep", "Row", "Column", "yield"))
-#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
-#' myModel <- ST.run.model(TD = myTD, design = "res.rowcol", trait = "yield",
-#'                         repId = "Rep", rowId = "Row", colId = "Column",
-#'                         tryspatial = "always")
+#' data(TDHeat05)
+#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", trait = "yield",
+#'                       tryspatial = "always")
 #' plot(myModel, plotType = "fix")
 #'
 #' @export
@@ -159,63 +149,68 @@ plot.SSA <- function(x,
     stop("plotType should either be fix or mix.")
   }
   # Diagnostic plots
-  if (class(model) == "asreml") {
-    resid <- model$residuals
-    fitted <- model$fitted.values
+  if (class(model) == "SpATS") {
+    ## Use default plot for SpATS.
+    SpATS::plot.SpATS(model)
   } else {
-    resid <- residuals(model)
-    fitted <- fitted(model)
+    if (class(model) == "asreml") {
+      resid <- model$residuals
+      fitted <- model$fitted.values
+    } else {
+      resid <- residuals(model)
+      fitted <- fitted(model)
+    }
+    trellisObj <- vector(mode = "list", length = 4)
+    names(trellisObj) <- c("histogram", "qq", "residFitted", "absResidFitted")
+    # Histogram of residuals
+    trellisObj[["histogram"]] <- lattice::histogram(x = ~resid, xlab = "Residuals", ...)
+    # Q-Q plot of residuals
+    trellisObj[["qq"]] <- lattice::qqmath(~resid, xlab = "Normal quantiles",
+                                          ylab = "Residuals", ...)
+    # Residuals vs fitted values
+    trellisObj[["residFitted"]] <- lattice::xyplot(resid ~ fitted,
+                                                   panel = function(x, y, ...) {
+                                                     lattice::panel.xyplot(x, y, ...,
+                                                                           type = c("p", "g"))
+                                                     lattice::panel.abline(h = 0)
+                                                     lattice::panel.loess(x, y,
+                                                                          col = "red", ...)
+                                                   }, ylab = "Residuals",
+                                                   xlab = "fitted values", ...)
+    # Residuals vs fitted values
+    trellisObj[["absResidFitted"]] <- lattice::xyplot(abs(resid) ~ fitted,
+                                                      panel = function(x, y, ...) {
+                                                        lattice::panel.xyplot(x, y, ...,
+                                                                              type = c("p", "g"))
+                                                        lattice::panel.loess(x, y,
+                                                                             col = "red", ...)
+                                                      }, ylab = "|Residuals|",
+                                                      xlab = "fitted values", ...)
+    adt <- lattice::trellis.par.get("add.text")
+    xlb <- lattice::trellis.par.get("par.xlab.text")
+    ylb <- lattice::trellis.par.get("par.ylab.text")
+    zlb <- lattice::trellis.par.get("par.zlab.text")
+    axt <- lattice::trellis.par.get("axis.text")
+    syx <- lattice::trellis.par.get("plot.symbol")
+    lattice::trellis.par.set("add.text", list(cex = 0.75))
+    lattice::trellis.par.set("par.xlab.text", list(cex = 0.75))
+    lattice::trellis.par.set("par.ylab.text", list(cex = 0.75))
+    lattice::trellis.par.set("par.zlab.text", list(cex = 0.75))
+    lattice::trellis.par.set("axis.text", list(cex = 0.75))
+    lattice::trellis.par.set("plot.symbol", list(cex = 0.6))
+    print(trellisObj[["histogram"]], position = c(0, 0.5, 0.5, 1), more = TRUE)
+    print(trellisObj[["qq"]], position = c(0.5, 0.5, 1, 1), more = TRUE)
+    suppressWarnings(print(trellisObj[["residFitted"]], position = c(0, 0, 0.5, 0.5),
+                           more = TRUE))
+    suppressWarnings(print(trellisObj[["absResidFitted"]], position = c(0.5, 0, 1, 0.5)))
+    lattice::trellis.par.set("add.text", adt)
+    lattice::trellis.par.set("par.xlab.text", xlb)
+    lattice::trellis.par.set("par.ylab.text", ylb)
+    lattice::trellis.par.set("par.zlab.text", zlb)
+    lattice::trellis.par.set("axis.text", axt)
+    lattice::trellis.par.set("plot.symbol", syx)
+    invisible(trellisObj)
   }
-  trellisObj <- vector(mode = "list", length = 4)
-  names(trellisObj) <- c("histogram", "qq", "residFitted", "absResidFitted")
-  # Histogram of residuals
-  trellisObj[["histogram"]] <- lattice::histogram(x = ~resid, xlab = "Residuals", ...)
-  # Q-Q plot of residuals
-  trellisObj[["qq"]] <- lattice::qqmath(~resid, xlab = "Normal quantiles",
-                                        ylab = "Residuals", ...)
-  # Residuals vs fitted values
-  trellisObj[["residFitted"]] <- lattice::xyplot(resid ~ fitted,
-                                                 panel = function(x, y, ...) {
-                                                   lattice::panel.xyplot(x, y, ...,
-                                                                         type = c("p", "g"))
-                                                   lattice::panel.abline(h = 0)
-                                                   lattice::panel.loess(x, y,
-                                                                        col = "red", ...)
-                                                 }, ylab = "Residuals",
-                                                 xlab = "fitted values", ...)
-  # Residuals vs fitted values
-  trellisObj[["absResidFitted"]] <- lattice::xyplot(abs(resid) ~ fitted,
-                                                    panel = function(x, y, ...) {
-                                                      lattice::panel.xyplot(x, y, ...,
-                                                                            type = c("p", "g"))
-                                                      lattice::panel.loess(x, y,
-                                                                           col = "red", ...)
-                                                    }, ylab = "|Residuals|",
-                                                    xlab = "fitted values", ...)
-  adt <- lattice::trellis.par.get("add.text")
-  xlb <- lattice::trellis.par.get("par.xlab.text")
-  ylb <- lattice::trellis.par.get("par.ylab.text")
-  zlb <- lattice::trellis.par.get("par.zlab.text")
-  axt <- lattice::trellis.par.get("axis.text")
-  syx <- lattice::trellis.par.get("plot.symbol")
-  lattice::trellis.par.set("add.text", list(cex = 0.75))
-  lattice::trellis.par.set("par.xlab.text", list(cex = 0.75))
-  lattice::trellis.par.set("par.ylab.text", list(cex = 0.75))
-  lattice::trellis.par.set("par.zlab.text", list(cex = 0.75))
-  lattice::trellis.par.set("axis.text", list(cex = 0.75))
-  lattice::trellis.par.set("plot.symbol", list(cex = 0.6))
-  print(trellisObj[["histogram"]], position = c(0, 0.5, 0.5, 1), more = TRUE)
-  print(trellisObj[["qq"]], position = c(0.5, 0.5, 1, 1), more = TRUE)
-  suppressWarnings(print(trellisObj[["residFitted"]], position = c(0, 0, 0.5, 0.5),
-                         more = TRUE))
-  suppressWarnings(print(trellisObj[["absResidFitted"]], position = c(0.5, 0, 1, 0.5)))
-  lattice::trellis.par.set("add.text", adt)
-  lattice::trellis.par.set("par.xlab.text", xlb)
-  lattice::trellis.par.set("par.ylab.text", ylb)
-  lattice::trellis.par.set("par.zlab.text", zlb)
-  lattice::trellis.par.set("axis.text", axt)
-  lattice::trellis.par.set("plot.symbol", syx)
-  invisible(trellisObj)
 }
 
 

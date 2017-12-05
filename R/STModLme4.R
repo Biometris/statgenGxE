@@ -2,10 +2,7 @@
 #'
 #' Fit Single Trial Model using lme4
 #'
-#' @inheritParams ST.run.model
-#'
-#' @param useCheckId Should a checkId be used as a fixed parameter in the model?\cr
-#' If \code{TRUE} \code{TD} has to contain a column 'checkId'.
+#' @inheritParams STRunModel
 #'
 #' @examples
 #' ## Load data
