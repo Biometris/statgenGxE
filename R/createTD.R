@@ -1,6 +1,10 @@
 #' S3 class TD
 #'
-#' Function for creating objects of S3 class TD (Trial Data).
+#' Function for creating objects of S3 class TD (Trial Data). The input data is checked
+#' and columns are renamed to default column names for ease of further computations.
+#' The columns for genotype, env, megaEnv, year, repId, subBlock, rowId, colId and
+#' checkId are converted to factor columns, whereas rowCoordinates and colCoordinates
+#' are converted to numerical columsn.
 #'
 #' \code{\link{print}} and \code{\link{summary}} methods are available.
 #'
@@ -67,14 +71,13 @@ createTD <- function(data,
   }
   for (param in c(env, megaEnv, year, repId, subBlock, rowId, colId,
                   rowCoordinates, colCoordinates, checkId)) {
-
     if (!is.null(param) && (!is.character(param) || length(param) > 1 || !param %in% cols)) {
       stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
     }
   }
-  if (!is.null(design) && (!is.character(design) || length(design) > 0 ||
+  if (!is.null(design) && (!is.character(design) || length(design) > 1 ||
                            !design %in% c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol"))) {
-    stop("design has to be NULL or one of ibd, res.ibd, rcbd, rowcol or res.rowcol")
+    stop("design has to be NULL or one of ibd, res.ibd, rcbd, rowcol or res.rowcol.\n")
   }
   ## Rename columns.
   renameCols <- c("genotype", "env", "megaEnv", "year", "repId", "subBlock", "rowId", "colId",
@@ -83,12 +86,21 @@ createTD <- function(data,
     cols[cols == get(renameCol)] <- renameCol
   }
   colnames(data) <- cols
+  ## Convert columns to factor if neccessary.
   factorCols <-  c("genotype", "env", "megaEnv", "year", "repId", "subBlock", "rowId",
                    "colId", "checkId")
   for (factorCol in factorCols) {
     if (factorCol %in% cols && !is.factor(data[, which(cols == factorCol)])) {
-      data[, which(cols == renameCol)] <-
-        as.factor(data[, which(cols == renameCol)])
+      data[, which(cols == factorCol)] <-
+        as.factor(data[, which(cols == factorCol)])
+    }
+  }
+  ## Convert columns to numeric if neccessary.
+  numCols <- c("rowCoordinates", "colCoordinates")
+  for (numCol in numCols) {
+    if (numCol %in% cols && !is.numeric(data[, which(cols == numCol)])) {
+      data[, which(cols == numCol)] <-
+        as.numeric(data[, which(cols == numCol)])
     }
   }
   TD <- structure(data,
