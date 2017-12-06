@@ -5,7 +5,10 @@
 #' and \code{\link{STModAsreml}}.
 #'
 #' @param TD An object of class TD.
-#' @param design A string specifying the experimental design.
+#' @param design A string specifying the experimental design. One of "ibd"
+#' (incomplete block design), "res.ibd" (resolvable incomplete block design),
+#' "rcbd" (randomized complete block design), "rowcol" (row column design) or
+#' "res.rowcol" (resolvable row column design).
 #' @param trait A string specifying the selected trait.
 #' @param covariates A string specifying (a) covariate name(s).
 #' @param useCheckId Should a checkId be used as a fixed parameter in the model?\cr
@@ -19,17 +22,17 @@
 #'
 #' @return an object of class \code{\link{SSA}}.
 #'
-#' @seealso \code{\link{SSA}}, \code{\link{summary.SSA}}
+#' @seealso \code{\link{STModSpATS}}, \code{\link{STModLme4}}, \code{\link{STModAsreml}}
 #'
 #' @examples
 #' ## Load data.
 #' data(TDHeat05)
 #'
 #' ## Fit model using lme4.
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", trait = "yield")
+#' myModel1 <- STRunModel(TD = TDHeat05, design = "res.rowcol", trait = "yield")
 #'
 #' ## Fit model using SpATS.
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", trait = "yield",
+#' myModel2 <- STRunModel(TD = TDHeat05, design = "res.rowcol", trait = "yield",
 #'                       engine = "SpATS")
 #'
 #' @export
@@ -60,6 +63,20 @@ STRunModel = function(TD,
                                !(all(covariates %in% colnames(TD))))) {
     stop("covariates have to be a columns in TD.\n")
   }
+  if ((is.logical(trySpatial) && trySpatial) ||
+      (is.character(trySpatial) && (length(trySpatial) > 1 ||
+                                    !trySpatial %in% c("always", "ifregular")))) {
+    stop("trySpatial should be NULL, always or ifregular.\n")
+  }
+  if (!is.null(engine) && (!is.character(engine) || length(engine) > 1 ||
+                           !engine %in% c("asreml", "lme4", "SpATS"))) {
+    stop("engine should be SpATS, asreml, lme4.\n")
+  }
+  if (is.character(trySpatial) && engine == "lme4") {
+    warning("Spatial models can only be fitted using SpATS or asreml.\n
+            Defaulting to SpATS.")
+    engine <- "SpATS"
+  }
   for (colName in c(if (engine == "SpATS") c("rowCoordinates", "colCoordinates"),
                     if (design %in% c("rowcol", "res.rowcol")) c("rowId", "colId"),
                     if (design %in% c("res.ibd", "res.rowcol", "rcbd")) "repId",
@@ -69,15 +86,6 @@ STRunModel = function(TD,
                               !colName %in% colnames(TD))) {
       stop(paste(deparse(colName), "has to be NULL or a column in TD.\n"))
     }
-  }
-  if ((is.logical(trySpatial) && trySpatial) ||
-      (is.character(trySpatial) && (length(trySpatial) > 1 ||
-                                    !trySpatial %in% c("always", "ifregular")))) {
-    stop("trySpatial should be NULL, always or ifregular")
-  }
-  if (!is.null(engine) && (!is.character(engine) || length(engine) > 1 ||
-                           !engine %in% c("asreml", "lme4", "SpATS"))) {
-    stop("engine should be SpATS, asreml, lme4")
   }
   ## Extract design from TD if needed.
   if (is.null(design)) {

@@ -86,16 +86,16 @@ STModLme4 <- function(TD,
   mr <- lme4::lmer(as.formula(paste(fixedForm,
                                     "+ (1 | genotype) ",
                                     if (length(randomForm) != 0) paste("+", randomForm))),
-                   data = TD, ...)
+                   data = TD, na.action = na.exclude, ...)
   ## Fit model with genotype fixed.
   ## lme4 cannot handle models without random effect so in that case lm is called.
   if (length(randomForm) != 0) {
     mf <- lme4::lmer(as.formula(paste(fixedForm,
                                       "+ genotype + ", randomForm)),
-                     data = TD, ...)
+                     data = TD, na.action = na.exclude, ...)
   } else  {
     mf <- lm(as.formula(paste(fixedForm, "+ genotype")),
-             data = TD, ...)
+             data = TD, na.action = na.exclude, ...)
   }
   ## Construct SSA object.
   model <- createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,

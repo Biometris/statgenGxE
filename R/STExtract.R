@@ -1,7 +1,7 @@
-#' Extracts statistics from the fitted model results
+#' Extracts statistics from Fitted Models
 #'
-#' This function is to extract and calculate various results such as
-#' heritabilities, genotypic means, unit errors etc.
+#' This function extracts and calculates various results for fitted models such as
+#' BLUEs, BLUPs, unit errors, heritabilities.
 #'
 #' @param SSA An object of class SSA.
 #'
@@ -74,14 +74,15 @@ extractSpATS <- function(SSA, useRepId) {
   nGeno <- mr$dim["genotype"]
   heritability <- unname(effDimGeno / (nGeno - 1))
   ## Combine results.
+  genoLong <- TD$genotype
   result <- list(stats = stats, varGen = unname(mr$var.comp["genotype"]),
                  varSpat = mr$var.comp[grep(pattern = "Coordinates",
                                             x = names(mr$var.comp))],
                  heritability = heritability,
-                 fitted = setNames(fitted(mf), genoNames),
-                 resid = setNames(residuals(mf), genoNames),
+                 fitted = setNames(fitted(mf), genoLong),
+                 resid = setNames(residuals(mf), genoLong),
                  stdRes = NULL,
-                 rMeans = setNames(fitted(mr), genoNames),
+                 rMeans = setNames(fitted(mr), genoLong),
                  ranEf = mr$coeff[names(mr$coeff) %in% names(predBlues)],
                  rDf = unname(mf$dim["genotype"]),
                  effDims = mr$eff.dim)
@@ -132,13 +133,7 @@ extractLme4 <- function(SSA, useRepId) {
   waldTestGeno <- emmeans::test(emmeans::emmeans(mf, specs = "genotype"),
                                 joint = TRUE)
   ## Compute Coefficient of Variation.
-  CV <- 100 * summary(mf)$sigma / mean(fitted(mf))
-  ## Compute standardized residuals.
-  if (class(mf) == "lm") {
-    stdRes <- setNames(rstandard(mf), genoNames)
-  } else if (class(mf) == "lmerMod") {
-    stdRes <- setNames(resid(mf, scaled = TRUE), genoNames)
-  }
+  CV <- 100 * summary(mf)$sigma / mean(fitted(mf), na.rm = TRUE)
   ## Extract variances.
   varCor <- lme4::VarCorr(mr)
   varGen <- varCor[["genotype"]][1, 1]
@@ -149,13 +144,23 @@ extractLme4 <- function(SSA, useRepId) {
   } else {
     heritability <- varGen / (varGen + varErr)
   }
+  genoLong <- TD$genotype
+  ## Extract rMeans using napredict since getME removes NAs when extracting values.
+  rMeans <- setNames(napredict(attr(model.frame(mr), "na.action"),
+                               x = lme4::getME(mr, "mu")), genoLong)
+  ## Compute standardized residuals.
+  if (class(mf) == "lm") {
+    stdRes <- rstandard(mf)
+  } else if (class(mf) == "lmerMod") {
+    stdRes <- residuals(mf, scaled = TRUE)
+  }
   ## Combine results.
   result <- list(stats = stats, varGen = varGen, varErr = varErr,
                  heritability = heritability,
-                 fitted = setNames(fitted(mf), genoNames),
-                 resid = setNames(resid(mf), genoNames),
-                 stdRes = stdRes,
-                 rMeans = setNames(lme4::getME(mr, "mu"), genoNames),
+                 fitted = setNames(fitted(mf), genoLong),
+                 resid = setNames(residuals(mf), genoLong),
+                 stdRes = setNames(stdRes, genoLong),
+                 rMeans = rMeans,
                  ranEf = lme4::ranef(mr, drop = TRUE)[["genotype"]],
                  waldTestGeno = waldTestGeno, CV = CV,
                  rDf = df.residual(mf))
@@ -178,13 +183,15 @@ extractAsreml <- function(SSA, useRepId) {
                         genoNames)
   seBlues <- mf$predictions$pvals$standard.error
   ## Extract and invert variance covariance matrix.
-  V <- mf$predictions$vcov
+  genoMiss <- is.na(predBlues)
+  V <- mf$predictions$vcov[!genoMiss, !genoMiss]
   Vinv <- try(chol2inv(chol(V)), silent = TRUE)
   ## Compute unit errors.
+  ue <- rep(x = NA, times = length(genoNames))
   if (!inherits(Vinv, "try-error")) {
-    ue <- 1 / diag(Vinv)
+    ue[!genoMiss] <- 1 / diag(Vinv)
   } else {
-    ue <- 1 / diag(solve(V))
+    ue[!genoMiss] <- 1 / diag(solve(V))
   }
   ## Extract Blups and se of Blups.
   predBlups <- mr$predictions$pvals$predicted.value
@@ -227,12 +234,13 @@ extractAsreml <- function(SSA, useRepId) {
   ## Calculate LSD; significance level (5%).
   lsd <- qt(p = .975, df = mf$nedf) * mf$predictions$avsed
   ## Combine results.
+  genoLong <- TD$genotype
   result <- list(stats = stats, varGen = varGen, varErr = varErr,
                  heritability = heritability,
-                 fitted = setNames(fitted(mf), genoNames),
-                 resid = setNames(residuals(mf, type = "response"), genoNames),
-                 stdRes = setNames(residuals(mf, type = "stdCond"), genoNames),
-                 rMeans = setNames(fitted(mr), genoNames),
+                 fitted = setNames(fitted(mf), genoLong),
+                 resid = setNames(residuals(mf, type = "response"), genoLong),
+                 stdRes = setNames(residuals(mf, type = "stdCond"), genoLong),
+                 rMeans = setNames(fitted(mr), genoLong),
                  ranEf = setNames(mr$coe$random[grep(pattern = "genotype",
                                                      x = names(mr$coe$random))],
                                   genoNames),
