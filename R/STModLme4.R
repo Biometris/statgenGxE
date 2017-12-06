@@ -36,6 +36,10 @@ STModLme4 <- function(TD,
     stop("design should either be an attribute of TD or one of 'ibd',
          'res.ibd', 'rcbd', 'rowcol' or 'res.rowcol'.\n")
   }
+  ## Extract design from TD if needed.
+  if (is.null(design)) {
+    design <- attr(TD, "design")
+  }
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
       !trait %in% colnames(TD)) {
     stop("trait has to be a column in TD.\n")
@@ -52,10 +56,6 @@ STModLme4 <- function(TD,
                               !colName %in% colnames(TD))) {
       stop(paste(deparse(colName), "has to be NULL or a column in data.\n"))
     }
-  }
-  ## Extract design from TD if needed.
-  if (is.null(design)) {
-    design <- attr(TD, "design")
   }
   ## Should repId be used as fixed or random effect in the model.
   useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")

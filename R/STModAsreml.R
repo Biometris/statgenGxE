@@ -9,13 +9,13 @@
 #' data(TDHeat05)
 #'
 #' ## Fit model for row column design.
-#' STModLme4_1 <- STModLme4(TD = TDHeat05, trait = "yield")
+#' STModAsreml_1 <- STModAsreml(TD = TDHeat05, trait = "yield")
 #'
 #' ## Fit model for row column including replicates.
-#' STModLme4_2 <- STModLme4(TD = TDHeat05, trait = "yield", design = "res.rowcol")
+#' STModAsreml_2 <- STModAsreml(TD = TDHeat05, trait = "yield", design = "res.rowcol")
 #'
 #' ## Fit model for resolvable incomplete block design.
-#' STModLme4_3 <- STModLme4(TD = TDHeat05, trait = "yield", design = "res.ibd")
+#' STModAsreml_3 <- STModAsreml(TD = TDHeat05, trait = "yield", design = "res.ibd")
 #'
 #' @export
 
@@ -24,6 +24,7 @@ STModAsreml <- function(TD,
                         covariates = NULL,
                         useCheckId = FALSE,
                         design = "rowcol",
+                        trySpatial = FALSE,
                         ...) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
@@ -52,6 +53,9 @@ STModAsreml <- function(TD,
                               !colName %in% colnames(TD))) {
       stop(paste(deparse(colName), "has to be NULL or a column in data.\n"))
     }
+  }
+  if (is.character(trySpatial)) {
+    stop("Spatial models not yet implemented for SpATS.\n")
   }
   ## Extract design from TD if needed.
   if (is.null(design)) {

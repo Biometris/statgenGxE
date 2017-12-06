@@ -55,6 +55,10 @@ STRunModel = function(TD,
     stop("design should either be an attribute of TD or one of ibd,
          res.ibd, rcbd, rowcol or res.rowcol.\n")
   }
+  ## Extract design from TD if needed.
+  if (is.null(design)) {
+    design <- attr(TD, "design")
+  }
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
       !trait %in% colnames(TD)) {
     stop("trait has to be a column in TD.\n")
@@ -86,10 +90,6 @@ STRunModel = function(TD,
                               !colName %in% colnames(TD))) {
       stop(paste(deparse(colName), "has to be NULL or a column in TD.\n"))
     }
-  }
-  ## Extract design from TD if needed.
-  if (is.null(design)) {
-    design <- attr(TD, "design")
   }
   ## Run model depending on engine.
   model <- do.call(what = paste0("STMod", tools::toTitleCase(engine)),

@@ -36,6 +36,10 @@ STModSpATS <- function(TD,
     stop("design should either be an attribute of TD or one of 'ibd',
          'res.ibd', 'rcbd', 'rowcol' or 'res.rowcol'.\n")
   }
+  ## Extract design from TD if needed.
+  if (is.null(design)) {
+    design <- attr(TD, "design")
+  }
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
       !trait %in% colnames(TD)) {
     stop("trait has to be a column in TD.\n")
@@ -53,10 +57,6 @@ STModSpATS <- function(TD,
                               !colName %in% colnames(TD))) {
       stop(paste(deparse(colName), "has to be NULL or a column in TD.\n"))
     }
-  }
-  ## Extract design from TD if needed.
-  if (is.null(design)) {
-    design <- attr(TD, "design")
   }
   useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
   ## Indicate extra random effects.
@@ -85,14 +85,16 @@ STModSpATS <- function(TD,
   ## Fit model with genotype random.
   mr <- SpATS::SpATS(response = trait, genotype = "genotype",
                      genotype.as.random = TRUE,
-                     spatial = ~ SpATS::PSANOVA(colCoordinates, rowCoordinates, nseg = nSeg),
+                     spatial = ~ SpATS::PSANOVA(colCoordinates, rowCoordinates,
+                                                nseg = nSeg, nest.div = c(2, 2)),
                      fixed = fixedForm,
                      random = randomForm,
                      data = TD, control = list(monitoring = 0), ...)
   ## Fit model with genotype fixed.
   mf <- SpATS::SpATS(response = trait, genotype = "genotype",
                      genotype.as.random = FALSE,
-                     spatial = ~ SpATS::PSANOVA(colCoordinates, rowCoordinates, nseg = nSeg),
+                     spatial = ~ SpATS::PSANOVA(colCoordinates, rowCoordinates,
+                                                nseg = nSeg, nest.div = c(2, 2)),
                      fixed = fixedForm,
                      random = randomForm,
                      data = TD, control = list(monitoring = 0), ...)
