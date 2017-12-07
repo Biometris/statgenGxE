@@ -22,13 +22,13 @@ NULL
 createSSA <- function(mMix,
                       mFix,
                       data,
-                      trait = NULL,
+                      traits = NULL,
                       design = NULL,
                       engine = NULL) {
   SSA <- structure(list(mMix = mMix,
                         mFix = mFix,
                         data = data,
-                        trait = trait,
+                        traits = traits,
                         design = design,
                         engine = engine),
                    class = "SSA")

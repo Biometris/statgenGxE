@@ -9,7 +9,7 @@
 #' (incomplete block design), "res.ibd" (resolvable incomplete block design),
 #' "rcbd" (randomized complete block design), "rowcol" (row column design) or
 #' "res.rowcol" (resolvable row column design).
-#' @param trait A string specifying the selected trait.
+#' @param traits A character vector specifying the selected traits.
 #' @param covariates A string specifying (a) covariate name(s).
 #' @param useCheckId Should a checkId be used as a fixed parameter in the model?\cr
 #' If \code{TRUE} \code{TD} has to contain a column 'checkId'.
@@ -38,7 +38,7 @@
 #' @export
 STRunModel = function(TD,
                       design = NULL,
-                      trait,
+                      traits,
                       covariates = NULL,
                       useCheckId = FALSE,
                       trySpatial = FALSE,
@@ -59,9 +59,8 @@ STRunModel = function(TD,
   if (is.null(design)) {
     design <- attr(TD, "design")
   }
-  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TD)) {
-    stop("trait has to be a column in TD.\n")
+  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
+    stop("All traits have to be columns in TD.\n")
   }
   if (!is.null(covariates) && (!is.character(covariates) ||
                                !(all(covariates %in% colnames(TD))))) {
@@ -93,7 +92,7 @@ STRunModel = function(TD,
   }
   ## Run model depending on engine.
   model <- do.call(what = paste0("STMod", tools::toTitleCase(engine)),
-                   args = list(TD = TD, trait = trait,
+                   args = list(TD = TD, traits = traits,
                                covariates = covariates,
                                useCheckId = useCheckId,
                                design = design))

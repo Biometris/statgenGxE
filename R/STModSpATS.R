@@ -20,7 +20,7 @@
 #' @export
 
 STModSpATS <- function(TD,
-                       trait,
+                       traits,
                        covariates = NULL,
                        useCheckId = FALSE,
                        design = "rowcol",
@@ -40,13 +40,12 @@ STModSpATS <- function(TD,
   if (is.null(design)) {
     design <- attr(TD, "design")
   }
-  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TD)) {
-    stop("trait has to be a column in TD.\n")
+  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
+    stop("All traits have to be columns in TD.\n")
   }
   if (!is.null(covariates) && (!is.character(covariates) ||
                                !(all(covariates %in% colnames(TD))))) {
-    stop("covariates have to be a columns in TD.\n")
+    stop("covariates have to be columns in TD.\n")
   }
   for (colName in c("rowCoordinates", "colCoordinates",
                     if (design %in% c("rowcol", "res.rowcol")) c("rowId", "colId"),
@@ -58,6 +57,7 @@ STModSpATS <- function(TD,
       stop(paste(deparse(colName), "has to be NULL or a column in TD.\n"))
     }
   }
+  ## Should repId be used as fixed effect in the model.
   useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
   ## Indicate extra random effects.
   if (design %in% c("ibd", "res.ibd")) {
@@ -82,24 +82,28 @@ STModSpATS <- function(TD,
   } else {
     randomForm <- NULL
   }
-  ## Fit model with genotype random.
-  mr <- SpATS::SpATS(response = trait, genotype = "genotype",
-                     genotype.as.random = TRUE,
-                     spatial = ~ SpATS::PSANOVA(colCoordinates, rowCoordinates,
-                                                nseg = nSeg, nest.div = c(2, 2)),
-                     fixed = fixedForm,
-                     random = randomForm,
-                     data = TD, control = list(monitoring = 0), ...)
-  ## Fit model with genotype fixed.
-  mf <- SpATS::SpATS(response = trait, genotype = "genotype",
-                     genotype.as.random = FALSE,
-                     spatial = ~ SpATS::PSANOVA(colCoordinates, rowCoordinates,
-                                                nseg = nSeg, nest.div = c(2, 2)),
-                     fixed = fixedForm,
-                     random = randomForm,
-                     data = TD, control = list(monitoring = 0), ...)
+  mr <- sapply(X = traits, FUN = function(trait) {
+    ## Fit model with genotype random.
+    SpATS::SpATS(response = trait, genotype = "genotype",
+                 genotype.as.random = TRUE,
+                 spatial = ~ SpATS::PSANOVA(colCoordinates, rowCoordinates,
+                                            nseg = nSeg, nest.div = c(2, 2)),
+                 fixed = fixedForm,
+                 random = randomForm,
+                 data = TD, control = list(monitoring = 0), ...)
+  }, simplify = FALSE)
+  mf <- sapply(X = traits, FUN = function(trait) {
+    ## Fit model with genotype fixed.
+    SpATS::SpATS(response = trait, genotype = "genotype",
+                 genotype.as.random = FALSE,
+                 spatial = ~ SpATS::PSANOVA(colCoordinates, rowCoordinates,
+                                            nseg = nSeg, nest.div = c(2, 2)),
+                 fixed = fixedForm,
+                 random = randomForm,
+                 data = TD, control = list(monitoring = 0), ...)
+  }, simplify = FALSE)
   ## Construct SSA object.
-  model <- createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
+  model <- createSSA(mMix = mr, mFix = mf, data = TD, traits = traits,
                      design = design, engine = "SpATS")
   return(model)
 }

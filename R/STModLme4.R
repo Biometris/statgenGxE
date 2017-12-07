@@ -20,7 +20,7 @@
 #' @export
 
 STModLme4 <- function(TD,
-                      trait,
+                      traits,
                       covariates = NULL,
                       useCheckId = FALSE,
                       design = "rowcol",
@@ -40,13 +40,12 @@ STModLme4 <- function(TD,
   if (is.null(design)) {
     design <- attr(TD, "design")
   }
-  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TD)) {
-    stop("trait has to be a column in TD.\n")
+  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
+    stop("All traits have to be columns in TD.\n")
   }
   if (!is.null(covariates) && (!is.character(covariates) ||
                                !(all(covariates %in% colnames(TD))))) {
-    stop("covariates have to be a columns in TD.\n")
+    stop("covariates have to be columns in TD.\n")
   }
   for (colName in c(if (design %in% c("rowcol", "res.rowcol")) c("rowId", "colId"),
                     if (design %in% c("res.ibd", "res.rowcol", "rcbd")) "repId",
@@ -54,10 +53,10 @@ STModLme4 <- function(TD,
                     if (useCheckId) "checkId")) {
     if (!is.null(colName) && (!is.character(colName) || length(colName) > 1 ||
                               !colName %in% colnames(TD))) {
-      stop(paste(deparse(colName), "has to be NULL or a column in data.\n"))
+      stop(paste(deparse(colName), "has to be NULL or a column in TD.\n"))
     }
   }
-  ## Should repId be used as fixed or random effect in the model.
+  ## Should repId be used as fixed effect in the model.
   useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
   ## Indicate extra random effects.
   if (design %in% c("ibd", "res.ibd")) {
@@ -68,7 +67,7 @@ STModLme4 <- function(TD,
     randEff <- character()
   }
   ## Construct formula for fixed part.
-  fixedForm <- paste(trait, "~",
+  fixedForm <- paste("~",
                      if (useRepIdFix) "repId" else "1",
                      if (useCheckId) "+ checkId",
                      if (!is.null(covariates)) paste(c("", covariates),
@@ -82,23 +81,26 @@ STModLme4 <- function(TD,
   } else {
     randomForm <- character()
   }
-  ## Fit model with genotype random.
-  mr <- lme4::lmer(as.formula(paste(fixedForm,
-                                    "+ (1 | genotype) ",
-                                    if (length(randomForm) != 0) paste("+", randomForm))),
-                   data = TD, na.action = na.exclude, ...)
+  mr <- sapply(X = traits, FUN = function(trait) {
+    ## Fit model with genotype random.
+    lme4::lmer(as.formula(paste(trait, fixedForm,
+                                "+ (1 | genotype) ",
+                                if (length(randomForm) != 0) paste("+", randomForm))),
+               data = TD, na.action = na.exclude, ...)
+  }, simplify = FALSE)
   ## Fit model with genotype fixed.
   ## lme4 cannot handle models without random effect so in that case lm is called.
-  if (length(randomForm) != 0) {
-    mf <- lme4::lmer(as.formula(paste(fixedForm,
-                                      "+ genotype + ", randomForm)),
-                     data = TD, na.action = na.exclude, ...)
-  } else  {
-    mf <- lm(as.formula(paste(fixedForm, "+ genotype")),
-             data = TD, na.action = na.exclude, ...)
-  }
+  mf <- sapply(X = traits, FUN = function(trait) {
+    if (length(randomForm) != 0) {
+      lme4::lmer(as.formula(paste(trait, fixedForm,
+                                  "+ genotype + ", randomForm)),
+                 data = TD, na.action = na.exclude, ...)
+    } else  {
+      lm(as.formula(paste(trait, fixedForm, "+ genotype")),
+         data = TD, na.action = na.exclude, ...)
+    }}, simplify = FALSE)
   ## Construct SSA object.
-  model <- createSSA(mMix = mr, mFix = mf, data = TD, trait = trait,
+  model <- createSSA(mMix = mr, mFix = mf, data = TD, traits = traits,
                      design = design, engine = "lme4")
   return(model)
 }
