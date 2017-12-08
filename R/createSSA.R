@@ -5,7 +5,7 @@
 #' @param mMix a mixed model created using either asreml or lme4
 #' @param mFix a fixed model created using either asreml or lme4
 #' @param data an object of class TD containing the data on which mMix and mFix are based.
-#' @param trait a character sting indicating the trait for which the analysis is done.
+#' @param traits a character vector indicating the traits for which the analysis is done.
 #' @param design a character string containing the design of the trial.
 #' @param engine a character string containing the engine used to do the analysis.
 #' @param x \code{R} object
@@ -45,16 +45,19 @@ is.SSA <- function(x) {
 #'
 #' \code{summary} method for class \code{SSA}.
 #'
-#' @param object An object of class \code{SSA}.
-#' @param digits Integer. The number of significant digits to use when printing.
-#' @param nBest Integer. The number of the best genotypes (sorted by either BLUEs or BLUPs)
-#' is to print. If \code{NA}, print all of them.
-#' @param sortBy A string specifying by which the genotypes will be sorted. The options
-#' are \code{"BLUEs"}, \code{"BLUPs"} and \code{NA} (i.e. no sort).
-#' @param naLast For controlling the treatment of NAs. If TRUE, missing values in the data
-#' are put last; if FALSE, they are put first; if NA, they are removed.
-#' @param decreasing Logical. Should the sort order be increasing or decreasing?
-#' @param ... Further arguments passed to \code{\link[stats]{printCoefmat}}.
+#' @param object an object of class \code{SSA}.
+#' @param trait a string indicating the trait to summarize over. If
+#' \code{trait = NULL} and only one trait is modelled this trait is summarized.
+#' @param digits an integer. The number of significant digits to use when
+#' printing.
+#' @param nBest an integer. The number of the best genotypes (sorted by either
+#' BLUEs or BLUPs) is to print. If \code{NA}, print all of them.
+#' @param sortBy a string specifying by which the genotypes will be sorted.
+#' The options are \code{"BLUEs"}, \code{"BLUPs"} and \code{NA} (i.e. no sort).
+#' @param naLast for controlling the treatment of NAs. If TRUE, missing values
+#' in the data are put last; if FALSE, they are put first; if NA, they are removed.
+#' @param decreasing should the sort order be decreasing?
+#' @param ... further arguments passed to \code{\link[stats]{printCoefmat}}.
 #'
 #' @examples
 #' data(TDHeat05)
@@ -63,21 +66,37 @@ is.SSA <- function(x) {
 #'
 #' @export
 summary.SSA <- function(object,
+                        trait = NULL,
                         digits = max(getOption("digits") - 2, 3),
                         nBest = 20,
                         sortBy = "BLUEs",
                         naLast = TRUE,
                         decreasing = TRUE,
                         ...) {
-  # get summary stats for raw data
+  ## Checks.
+  if (is.null(trait) && length(object$traits) > 1) {
+    stop("No trait provided but multiple traits found in SSA object.\n")
+  }
+  if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(object$data))) {
+    stop("Trait has to be a single character string defining a column in data.\n")
+  }
+  ## get summary stats for raw data
   TD <- object$data
-  trait <- object$trait
+  if (is.null(trait)) {
+    trait <- object$traits
+  }
   stats <- summary.TD(object = TD, traits = trait)
   stats <- na.omit(stats)
   attr(stats, "na.action") <- NULL
-  # get predicted means (BLUEs & BLUPs)
+  ## get predicted means (BLUEs & BLUPs).
   extr <- STExtract(object)
-  meanTab <- extr$stats[-1]
+  meanTab <- Reduce(f = function(x, y) {
+    dplyr::full_join(x, y, all = TRUE, by = "genotype")
+  }, x = list(extr$BLUEs, extr$seBLUEs, extr$BLUPs, extr$seBLUPs))
+  colnames(meanTab) <- c("genotype", "predictedBLUEs", "se predictedBLUEs",
+                        "predictedBLUPs", "se predictedBLUPs")
+  rownames(meanTab) <- meanTab$genotype
   if (!is.na(sortBy)) {
     if (sortBy == "BLUEs") {
       oList <- order(meanTab$predictedBLUEs, na.last = naLast, decreasing = decreasing)
@@ -102,17 +121,17 @@ summary.SSA <- function(object,
   } else {
     cat("\n")
   }
-  printCoefmat(meanTab, digits = digits, ...)
-  if (object$engine == "asreml" && !is.null(extr$predictionsSed) &&
-      !is.null(extr$predictionsLsd)) {
+  printCoefmat(meanTab[, -1], digits = digits, ...)
+  if (object$engine == "asreml" && !is.null(extr$sed) &&
+      !is.null(extr$sed)) {
     cat("\nStandard Error of Difference (genotypes modelled as fixed effect)\n",
         "===================================================================\n", sep = "")
-    sed <- as.data.frame(extr$predictionsSed)
+    sed <- as.data.frame(extr$lsd)
     names(sed) <- "s.e.d."
     printCoefmat(sed, digits = digits, ...)
     cat("\nLeast Significant Difference (genotypes modelled as fixed effect)\n",
         "===================================================================\n", sep = "")
-    lsd  <- as.data.frame(extr$predictionsLsd)
+    lsd  <- as.data.frame(extr$lsd)
     names(lsd) <- "l.s.d."
     printCoefmat(lsd, digits = digits, ...)
   }
@@ -122,6 +141,8 @@ summary.SSA <- function(object,
 #'
 #' This function draws four plots, a histogram of residuals, a normal Q-Q plot, a residuals
 #' vs fitted values plot and an absolute residuals vs fitted values plot.
+#'
+#' @inheritParams summary.SSA
 #'
 #' @param x an object of class SSA.
 #' @param ... Other graphical parameters (see \code{\link[lattice]{xyplot}} for details).
@@ -140,15 +161,29 @@ summary.SSA <- function(object,
 
 plot.SSA <- function(x,
                      ...,
+                     trait = NULL,
                      plotType = "fix") {
-  if (plotType == "fix") {
-    model <- x$mFix
-  } else if (plotType == "mix") {
-    model <- x$mMix
-  } else {
-    stop("plotType should either be fix or mix.")
+  ## Checks.
+  if (is.null(trait) && length(x$traits) > 1) {
+    stop("No trait provided but multiple traits found in SSA x\n")
   }
-  # Diagnostic plots
+  if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(x$data))) {
+    stop("Trait has to be a single character string defining a column in data.\n")
+  }
+  if (!is.character(plotType) || length(plotType) > 1 ||
+      !plotType %in% c("fix", "mix")) {
+    stop("plotType should be fix or mix.\n")
+  }
+  if (is.null(trait)) {
+    trait <- x$traits
+  }
+  if (plotType == "fix") {
+    model <- x$mFix[[trait]]
+  } else if (plotType == "mix") {
+    model <- x$mMix[[trait]]
+  }
+  ## Diagnostic plots.
   if (class(model) == "SpATS") {
     ## Use default plot for SpATS.
     SpATS::plot.SpATS(model)
@@ -160,32 +195,34 @@ plot.SSA <- function(x,
       resid <- residuals(model)
       fitted <- fitted(model)
     }
-    trellisObj <- vector(mode = "list", length = 4)
-    names(trellisObj) <- c("histogram", "qq", "residFitted", "absResidFitted")
+    trellisObj <- setNames(vector(mode = "list", length = 4),
+                           c("histogram", "qq", "residFitted", "absResidFitted"))
     # Histogram of residuals
     trellisObj[["histogram"]] <- lattice::histogram(x = ~resid, xlab = "Residuals", ...)
     # Q-Q plot of residuals
     trellisObj[["qq"]] <- lattice::qqmath(~resid, xlab = "Normal quantiles",
                                           ylab = "Residuals", ...)
     # Residuals vs fitted values
-    trellisObj[["residFitted"]] <- lattice::xyplot(resid ~ fitted,
-                                                   panel = function(x, y, ...) {
-                                                     lattice::panel.xyplot(x, y, ...,
-                                                                           type = c("p", "g"))
-                                                     lattice::panel.abline(h = 0)
-                                                     lattice::panel.loess(x, y,
-                                                                          col = "red", ...)
-                                                   }, ylab = "Residuals",
-                                                   xlab = "fitted values", ...)
+    trellisObj[["residFitted"]] <-
+      lattice::xyplot(resid ~ fitted,
+                      panel = function(x, y, ...) {
+                        lattice::panel.xyplot(x, y, ...,
+                                              type = c("p", "g"))
+                        lattice::panel.abline(h = 0)
+                        lattice::panel.loess(x, y,
+                                             col = "red", ...)
+                      }, ylab = "Residuals",
+                      xlab = "Fitted values", ...)
     # Residuals vs fitted values
-    trellisObj[["absResidFitted"]] <- lattice::xyplot(abs(resid) ~ fitted,
-                                                      panel = function(x, y, ...) {
-                                                        lattice::panel.xyplot(x, y, ...,
-                                                                              type = c("p", "g"))
-                                                        lattice::panel.loess(x, y,
-                                                                             col = "red", ...)
-                                                      }, ylab = "|Residuals|",
-                                                      xlab = "fitted values", ...)
+    trellisObj[["absResidFitted"]] <-
+      lattice::xyplot(abs(resid) ~ fitted,
+                      panel = function(x, y, ...) {
+                        lattice::panel.xyplot(x, y, ...,
+                                              type = c("p", "g"))
+                        lattice::panel.loess(x, y,
+                                             col = "red", ...)
+                      }, ylab = "|Residuals|",
+                      xlab = "Fitted values", ...)
     adt <- lattice::trellis.par.get("add.text")
     xlb <- lattice::trellis.par.get("par.xlab.text")
     ylb <- lattice::trellis.par.get("par.ylab.text")

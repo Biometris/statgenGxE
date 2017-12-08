@@ -17,7 +17,8 @@ Imports: lattice,
     methods,
     SpATS,
     emmeans,
-    Matrix
+    Matrix,
+    dplyr
 Suggests: asreml,
     GPArotation,
     lme4,

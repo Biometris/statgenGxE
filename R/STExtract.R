@@ -25,11 +25,11 @@
 #' \item{CV}{coefficient of variation - only for \code{lme4} and \code{asreml}}
 #' \item{rDf}{residual degrees of freedom}
 #' \item{effDim}{effective dimensions - only for \code{SpATS}}
-#' \item{predSed}{standard error of difference - only for \code{asreml}}
+#' \item{sed}{standard error of difference - only for \code{asreml}}
 #' \item{lsd}{least significant difference - only for \code{asreml}}
 #' }
 #'
-#' @param SSA An object of class SSA.
+#' @param SSA an object of class SSA.
 #' @param traits a character vector of traits for which the statistics should be
 #' computed If not supplied statistics are computed for all traits that have
 #' been modelled.
@@ -374,7 +374,7 @@ extractAsreml <- function(SSA,
   if (what == "all") {
     what <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability", "varGen",
               "varErr", "fitted", "resid", "stdRes", "rMeans", "ranEf",
-              "wald", "CV", "rDf", "predSed", "lsd")
+              "wald", "CV", "rDf", "sed", "lsd")
   }
   mf <- SSA$mFix
   mr <- SSA$mMix
@@ -513,9 +513,9 @@ extractAsreml <- function(SSA,
   if ("rDf" %in% what) {
     result[["rDf"]] <- sapply(X = mf, FUN = "[[", "nedf")
   }
-  ## Extract predSed.
-  if ("predSed" %in% what) {
-    result[["predSed"]] <- lapply(X = mf, FUN = function(mf0) {
+  ## Extract standard error of difference.
+  if ("sed" %in% what) {
+    result[["sed"]] <- lapply(X = mf, FUN = function(mf0) {
       mf0$predictions$avsed
     })
   }
