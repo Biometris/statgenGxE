@@ -79,22 +79,11 @@ STExtract <- function(SSA,
   useRepId <- (SSA$design %in% c("res.ibd", "res.rowcol", "rcbd"))
   ## Extract statistics from fitted model.
   result <- do.call(what = paste0("extract", tools::toTitleCase(engine)),
-                    args = list(SSA = SSA, traits = traits, useRepId = useRepId,
-                                keep = keep))
-  if (useRepId) {
-    TD <- SSA$data
-    repVec <- tapply(X = TD$repId, INDEX = TD$genotype, FUN = nlevels)
-    result$minReps <- min(repVec, na.rm = TRUE)
-    result$meanReps <- mean(repVec, na.rm = TRUE)
-    result$maxReps <- max(repVec, na.rm = TRUE)
-  } else {
-    result$minReps <- 1
-    result$meanReps <- 1
-    result$maxReps <- 1
-  }
-  result$traits <- SSA$traits
-  result$model <- SSA$design
-  result$engine <- engine
+                    args = list(SSA = SSA, traits = traits, what = what,
+                                useRepId = useRepId, keep = keep))
+  attr(x = result, which = "traits") <- SSA$traits
+  attr(x = result, which = "design") <- SSA$design
+  attr(x = result, which = "engine") <- engine
   return(result)
 }
 
@@ -202,6 +191,9 @@ extractSpATS <- function(SSA,
     result[["effDim"]] <- sapply(X = mr, FUN = function(mr0) {
       mr0$eff.dim
     })
+  }
+  if (length(result) == 1) {
+    result <- result[[1]]
   }
   return(result)
 }
@@ -356,6 +348,9 @@ extractLme4 <- function(SSA,
   }
   if ("rDf" %in% what) {
     result[["rDf"]] <- sapply(X = mf, FUN = df.residual)
+  }
+  if (length(result) == 1) {
+    result <- result[[1]]
   }
   return(result)
 }
@@ -524,6 +519,9 @@ extractAsreml <- function(SSA,
     result[["lsd"]] <- lapply(X = mf, FUN = function(mf0) {
       qt(p = .975, df = mf0$nedf) * mf0$predictions$avsed
     })
+  }
+  if (length(result) == 1) {
+    result <- result[[1]]
   }
   return(result)
 }
