@@ -43,6 +43,7 @@ STRunModel = function(TD,
                       useCheckId = FALSE,
                       trySpatial = FALSE,
                       engine = if (!is.logical(trySpatial)) "SpATS" else "lme4",
+                      control = NULL,
                       ...) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
@@ -90,11 +91,16 @@ STRunModel = function(TD,
       stop(paste(deparse(colName), "has to be NULL or a column in TD.\n"))
     }
   }
+  if (!is.null(control) && !is.list(control)) {
+    stop("control has to be null or a list.\n")
+  }
   ## Run model depending on engine.
   model <- do.call(what = paste0("STMod", tools::toTitleCase(engine)),
                    args = list(TD = TD, traits = traits,
                                covariates = covariates,
                                useCheckId = useCheckId,
-                               design = design))
+                               design = design,
+                               control = control,
+                               ... = ...))
   return(model)
 }

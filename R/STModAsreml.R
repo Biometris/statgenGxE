@@ -25,6 +25,7 @@ STModAsreml <- function(TD,
                         useCheckId = FALSE,
                         design = "rowcol",
                         trySpatial = FALSE,
+                        control = NULL,
                         ...) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {

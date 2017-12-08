@@ -23,6 +23,7 @@ STModLme4 <- function(TD,
                       traits,
                       covariates = NULL,
                       useCheckId = FALSE,
+                      control = NULL,
                       design = "rowcol",
                       ...) {
   ## Checks.

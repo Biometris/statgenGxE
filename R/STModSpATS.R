@@ -24,6 +24,7 @@ STModSpATS <- function(TD,
                        covariates = NULL,
                        useCheckId = FALSE,
                        design = "rowcol",
+                       control = NULL,
                        ...) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
@@ -69,6 +70,20 @@ STModSpATS <- function(TD,
   }
   ## Compute number of segments.
   nSeg <- c(ceiling(nlevels(TD$colId) / 2), ceiling(nlevels(TD$rowId) / 2))
+  ## If valid values for nSeg are provided in control use these instead.
+  if ("nSeg" %in% names(control)) {
+    nSegCt <- control$nSeg
+    if (length(nSegCt) == 1) {
+      nSegCt <- rep(x = nSegCt, times = 2)
+    }
+    if (is.numeric(nSegCt) && length(nSegCt) <= 2 && all(nSegCt >= 1) &&
+        all(nSegCt <= c(nlevels(TD$colId), nlevels(TD$rowId)))) {
+      nSeg <- nSegCt
+    } else {
+      warning("Invalid value for control parameter nSeg. Using default values
+              instead.\n")
+    }
+  }
   ## Construct formula for fixed part.
   fixedForm <- as.formula(paste("~",
                                 if (useRepIdFix) "repId" else "1",
