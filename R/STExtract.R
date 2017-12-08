@@ -3,7 +3,44 @@
 #' This function extracts and calculates various results for fitted models such as
 #' BLUEs, BLUPs, unit errors, heritabilities.
 #'
+#' Possible options for \code{what} are:
+#' \describe{
+#' \item{BLUEs}{Best Lineair Unbiased Estimatiors}
+#' \item{seBLUES}{Standard errors of the BLUEs}
+#' \item{BLUPs}{Best Lineair Unbiased Predictors}
+#' \item{seBLUPs}{Standard errors of the BLUPs}
+#' \item{ue}{unit errors - only for \code{lme4} and \code{asreml}}
+#' \item{heritability}{heritability}
+#' \item{varGen}{genetic variance component}
+#' \item{varErr}{residual variance component - only for \code{lme4}
+#' and \code{asreml}}
+#' \item{varSpat}{spatial variance components - only for \code{SpATS}}
+#' \item{fitted}{fitted values for the model with genotype as fixed component}
+#' \item{resid}{residuals for the model with genotype as fixed component}
+#' \item{stdRes}{standardized residuals for the model with genotype as fixed component
+#' - only for \code{lme4} and \code{asreml}}
+#' \item{rMeans}{fitted values for the model with genotype as random component}
+#' \item{ranEf}{random genetic effects}
+#' \item{wald}{results of the wald test}
+#' \item{CV}{coefficient of variation - only for \code{lme4} and \code{asreml}}
+#' \item{rDf}{residual degrees of freedom}
+#' \item{effDim}{effective dimensions - only for \code{SpATS}}
+#' \item{predSed}{standard error of difference - only for \code{asreml}}
+#' \item{lsd}{least significant difference - only for \code{asreml}}
+#' }
+#'
 #' @param SSA An object of class SSA.
+#' @param traits a character vector of traits for which the statistics should be
+#' computed If not supplied statistics are computed for all traits that have
+#' been modelled.
+#' @param what a character vector indicating which statistics should be computed.
+#' Most statistics are available for all models, some only for models fitted using
+#' a certain engine. If this is the case this is indicated in the list with options
+#' in details.\cr
+#' If \code{what = "all"} all available statistics are computed.\cr
+#' @param keep a character vector of column(s) in the object of class
+#' \code{\link{TD}} used for modelling. These columns will be kept as output when
+#' computing fitted values, residuals, standardized residuals and rMeans.
 #'
 #' @return A list of extracted statistics.
 #'
@@ -25,13 +62,25 @@
 
 STExtract <- function(SSA,
                       traits = SSA$traits,
-                      what = "all") {
+                      what = "all",
+                      keep = NULL) {
+  ## Checks.
+  if (!is.SSA(SSA)) {
+    stop("SSA has to be an object of class SSA.\n")
+  }
+  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(SSA$data))) {
+    stop("All traits have to be columns in TD.\n")
+  }
+  if (!is.null(keep) && (!is.character(keep) || !all(keep %in% colnames(SSA$data)))) {
+    stop("All items in keep have to be columns in TD.\n")
+  }
   engine <- SSA$engine
   ## Set useRepId to TRUE when it is used as fixed effect in the model.
   useRepId <- (SSA$design %in% c("res.ibd", "res.rowcol", "rcbd"))
   ## Extract statistics from fitted model.
   result <- do.call(what = paste0("extract", tools::toTitleCase(engine)),
-                    args = list(SSA = SSA, traits = traits, useRepId = useRepId))
+                    args = list(SSA = SSA, traits = traits, useRepId = useRepId,
+                                keep = keep))
   if (useRepId) {
     TD <- SSA$data
     repVec <- tapply(X = TD$repId, INDEX = TD$genotype, FUN = nlevels)
@@ -56,6 +105,7 @@ STExtract <- function(SSA,
 extractSpATS <- function(SSA,
                          traits = SSA$traits,
                          what = "all",
+                         keep = NULL,
                          useRepId) {
   if (what == "all") {
     what <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "heritability", "varGen",
@@ -67,20 +117,20 @@ extractSpATS <- function(SSA,
   ## Extract names of genotypes.
   genoNames <- mf[[1]]$terms$geno$geno_names
   ## Create baseData consisting of genotype and possibly repId
-  baseData <- TD[, colnames(TD) %in% c("genotype", "repId")]
+  baseData <- TD[, colnames(TD) %in% c("genotype", "repId", keep)]
   ## Create empty result list.
   result <- setNames(vector(mode = "list", length = length(what)),
                      what)
   ## Compute BLUEs and se of BLUEs from fixed model.
   if ("BLUEs" %in% what) {
-    result[["BLUEs"]] <- cbind2(data.frame(genotype = genoNames),
+    result[["BLUEs"]] <- cbind(data.frame(genotype = genoNames),
                                 sapply(X = mf, FUN = function(mf0) {
                                   SpATS::predict.SpATS(mf0,
                                                        which = "genotype")$predicted.values
                                 }))
   }
   if ("seBLUEs" %in% what) {
-    result[["seBLUEs"]] <- cbind2(data.frame(genotype = genoNames),
+    result[["seBLUEs"]] <- cbind(data.frame(genotype = genoNames),
                                   sapply(X = mf, FUN = function(mf0) {
                                     SpATS::predict.SpATS(mf0,
                                                          which = "genotype")$standard.errors
@@ -88,14 +138,14 @@ extractSpATS <- function(SSA,
   }
   ## Compute BLUPs and se of BLUPs from mixed model.
   if ("BLUPs" %in% what) {
-    result[["BLUPs"]] <- cbind2(data.frame(genotype = genoNames),
+    result[["BLUPs"]] <- cbind(data.frame(genotype = genoNames),
                                 sapply(X = mr, FUN = function(mr0) {
                                   SpATS::predict.SpATS(mr0,
                                                        which = "genotype")$predicted.values
                                 }))
   }
   if ("seBLUPs" %in% what) {
-    result[["seBLUPs"]] <- cbind2(data.frame(genotype = genoNames),
+    result[["seBLUPs"]] <- cbind(data.frame(genotype = genoNames),
                                   sapply(X = mr, FUN = function(mr0) {
                                     SpATS::predict.SpATS(mr0,
                                                          which = "genotype")$standard.errors
@@ -121,22 +171,22 @@ extractSpATS <- function(SSA,
   }
   ## Extract fitted values.
   if ("fitted" %in% what) {
-    result[["fitted"]] <- cbind2(baseData,
+    result[["fitted"]] <- cbind(baseData,
                                  sapply(X = mf, FUN = fitted))
   }
   ## Extract residuals.
   if ("resid" %in% what) {
-    result[["resid"]] <- cbind2(baseData,
+    result[["resid"]] <- cbind(baseData,
                                 sapply(X = mf, FUN = residuals))
   }
   ## Extract rMeans.
   if ("rMeans" %in% what) {
-    result[["rMeans"]] <- cbind2(baseData,
+    result[["rMeans"]] <- cbind(baseData,
                                  sapply(X = mr, FUN = fitted))
   }
   ## Extract random effects.
   if ("ranEf" %in% what) {
-    result[["ranEf"]] <- cbind2(data.frame(genotype = genoNames),
+    result[["ranEf"]] <- cbind(data.frame(genotype = genoNames),
                                 sapply(X = mr, FUN = function(mr0) {
                                   mr0$coeff[names(mr0$coeff) %in% genoNames]
                                 }))
@@ -162,6 +212,7 @@ extractSpATS <- function(SSA,
 extractLme4 <- function(SSA,
                         traits = SSA$traits,
                         what = "all",
+                        keep = NULL,
                         useRepId) {
   if (what == "all") {
     what <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability", "varGen",
@@ -172,7 +223,7 @@ extractLme4 <- function(SSA,
   mr <- SSA$mMix
   TD <- SSA$data
   ## Create baseData consisting of genotype and possibly repId
-  baseData <- TD[, colnames(TD) %in% c("genotype", "repId")]
+  baseData <- TD[, colnames(TD) %in% c("genotype", "repId", keep)]
   ## Create empty result list.
   result <- setNames(vector(mode = "list", length = length(what)),
                      what)
@@ -188,16 +239,16 @@ extractLme4 <- function(SSA,
   genoNames <- sapply(X = emStats, FUN = "[[", "genotype", simplify = FALSE)
   ## Extract BLUEs and se of BLUEs from emStats.
   if ("BLUEs" %in% what) {
-    result[["BLUEs"]] <- cbind2(data.frame(genotype = genoNames[[1]]),
+    result[["BLUEs"]] <- cbind(data.frame(genotype = genoNames[[1]]),
                                 sapply(X = emStats, FUN = "[[", "emmean"))
   }
   if ("seBLUEs" %in% what) {
-    result[["seBLUEs"]] <- cbind2(data.frame(genotype = genoNames[[1]]),
-                                sapply(X = emStats, FUN = "[[", "SE"))
+    result[["seBLUEs"]] <- cbind(data.frame(genotype = genoNames[[1]]),
+                                  sapply(X = emStats, FUN = "[[", "SE"))
   }
   ## Compute BLUPs and se of BLUPs from mixed model.
   if ("BLUPs" %in% what) {
-    result[["BLUPs"]] <- cbind2(data.frame(genotype = genoNames[[1]]),
+    result[["BLUPs"]] <- cbind(data.frame(genotype = genoNames[[1]]),
                                 sapply(X = mr, FUN = function(mr0) {
                                   ## Extract fixed effects.
                                   fixEfMr <- lme4::fixef(mr0)
@@ -211,7 +262,7 @@ extractLme4 <- function(SSA,
                                 }))
   }
   if ("seBLUPs" %in% what) {
-    result[["seBLUPs"]] <- cbind2(data.frame(genotype = genoNames[[1]]),
+    result[["seBLUPs"]] <- cbind(data.frame(genotype = genoNames[[1]]),
                                   sapply(X = mr, FUN = function(mr0) {
                                     ## Compute se of Blups.
                                     as.vector(sqrt(attr(lme4::ranef(mr0,
@@ -221,7 +272,7 @@ extractLme4 <- function(SSA,
   }
   ## Compute unit errors.
   if ("ue" %in% what) {
-    result[["ue"]] <- cbind2(data.frame(genotype = genoNames[[1]]),
+    result[["ue"]] <- cbind(data.frame(genotype = genoNames[[1]]),
                              lapply(X = em, FUN = function(em0) {
                                ## Extract and invert variance covariance matrix.
                                V <- vcov(em0)
@@ -257,17 +308,17 @@ extractLme4 <- function(SSA,
   }
   ## Extract fitted values.
   if ("fitted" %in% what) {
-    result[["fitted"]] <- cbind2(baseData,
+    result[["fitted"]] <- cbind(baseData,
                                  sapply(X = mf, FUN = fitted))
   }
   ## Extract residuals.
   if ("resid" %in% what) {
-    result[["resid"]] <- cbind2(baseData,
+    result[["resid"]] <- cbind(baseData,
                                 sapply(X = mf, FUN = residuals))
   }
   ## Extract standardized residuals.
   if ("stdRes" %in% what) {
-    result[["stdRes"]] <- cbind2(baseData,
+    result[["stdRes"]] <- cbind(baseData,
                                  sapply(X = mf, FUN = function(mf0) {
                                    if (class(mf0) == "lm") {
                                      stdRes <- rstandard(mf0)
@@ -279,7 +330,7 @@ extractLme4 <- function(SSA,
   ## Compute rMeans.
   ## Use napredict to fill in NAs in data with NAs.
   if ("rMeans" %in% what) {
-    result[["rMeans"]] <- cbind2(baseData,
+    result[["rMeans"]] <- cbind(baseData,
                                  sapply(X = mr, FUN = function(mr0) {
                                    napredict(attr(model.frame(mr0),
                                                   "na.action"),
@@ -288,7 +339,7 @@ extractLme4 <- function(SSA,
   }
   ## Extract random effects.
   if ("ranEf" %in% what) {
-    result[["ranEf"]] <- cbind2(data.frame(genotype = genoNames),
+    result[["ranEf"]] <- cbind(data.frame(genotype = genoNames),
                                 sapply(X = mr, FUN = function(mr0) {
                                   lme4::ranef(mr0, drop = TRUE)[["genotype"]]
                                 }))
@@ -314,84 +365,166 @@ extractLme4 <- function(SSA,
 #' @keywords internal
 extractAsreml <- function(SSA,
                           traits = SSA$traits,
-                          what = c("BLUEs"),
+                          what = "all",
+                          keep = NULL,
                           useRepId) {
-  mf <- SSA$mFix[[traits[1]]]
-  mr <- SSA$mMix[[traits[1]]]
-  TD <- SSA$data
-  genoNames <- mf$predictions$pvals$genotype
   if (!requireNamespace("asreml", quietly = TRUE)) {
     stop("asreml cannot be successfully loaded.\n")
   }
-  ## Extract BLUEs and SE of BLUEs from fixed model.
-  predBlues <- setNames(mf$predictions$pvals$predicted.value,
-                        genoNames)
-  seBlues <- mf$predictions$pvals$standard.error
-  ## Extract and invert variance covariance matrix.
-  genoMiss <- is.na(predBlues)
-  V <- mf$predictions$vcov[!genoMiss, !genoMiss]
-  Vinv <- try(chol2inv(chol(V)), silent = TRUE)
-  ## Compute unit errors.
-  ue <- rep(x = NA, times = length(genoNames))
-  if (!inherits(Vinv, "try-error")) {
-    ue[!genoMiss] <- 1 / diag(Vinv)
-  } else {
-    ue[!genoMiss] <- 1 / diag(solve(V))
+  if (what == "all") {
+    what <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability", "varGen",
+              "varErr", "fitted", "resid", "stdRes", "rMeans", "ranEf",
+              "wald", "CV", "rDf", "predSed", "lsd")
   }
-  ## Extract Blups and se of Blups.
-  predBlups <- mr$predictions$pvals$predicted.value
-  seBlups <- mr$predictions$pvals$standard.error
-  ## Collect predictions in data.frame.
-  stats <- data.frame(genotype = names(predBlues),
-                      "predictedBLUEs" = predBlues,
-                      "seBLUEs" = seBlues,
-                      "predictedBLUPs" = predBlups,
-                      "seBLUPs" = seBlups,
-                      "ue" = ue)
-  # Extract variances
-  genopos <- grep(pattern = "genotype!genotype.var", x = names(mr$gammas))
-  varGen <- unname(mr$gammas[genopos] * mr$sigma2)
-  resipos <- grep(pattern = "R!variance", x = names(mr$gammas))
-  varErr <- unname(mr$gammas[resipos] * mr$sigma2)
+  mf <- SSA$mFix
+  mr <- SSA$mMix
+  TD <- SSA$data
+  ## Create baseData consisting of genotype and possibly repId
+  baseData <- TD[, colnames(TD) %in% c("genotype", "repId", keep)]
+  ## Create empty result list.
+  result <- setNames(vector(mode = "list", length = length(what)),
+                     what)
+  genoNames <- mf[[1]]$predictions$pvals$genotype
+  ## Extract BLUEs and se of BLUEs from fixed model.
+  if ("BLUEs" %in% what) {
+    result[["BLUEs"]] <- cbind(data.frame(genotype = genoNames),
+                                sapply(X = mf, FUN = function(mf0) {
+                                  mf0$predictions$pvals$predicted.value
+                                }))
+  }
+  if ("seBLUEs" %in% what) {
+    result[["seBLUEs"]] <- cbind(data.frame(genotype = genoNames),
+                                  sapply(X = mf, FUN = function(mf0) {
+                                    mf0$predictions$pvals$standard.error
+                                  }))
+  }
+  ## Extract BLUPs and se of BLUPs from fixed model.
+  if ("BLUPs" %in% what) {
+    result[["BLUPs"]] <- cbind(data.frame(genotype = genoNames),
+                                sapply(X = mr, FUN = function(mr0) {
+                                  mr0$predictions$pvals$predicted.value
+                                }))
+  }
+  if ("seBLUPs" %in% what) {
+    result[["seBLUPs"]] <- cbind(data.frame(genotype = genoNames),
+                                  sapply(X = mr, FUN = function(mr0) {
+                                    mr0$predictions$pvals$standard.error
+                                  }))
+  }
+  ## Compute unit errors.
+  if ("ue" %in% what) {
+    result[["ue"]] <- cbind(data.frame(genotype = genoNames),
+                             sapply(X = mf, FUN = function(mf0) {
+                               ## Extract V from mf.
+                               V <- mf0$predictions$vcov
+                               ## Remove columns and rows containing NA.
+                               VMiss <- apply(X = V, MARGIN = 2, FUN = anyNA)
+                               V <- V[!VMiss, !VMiss]
+                               Vinv <- try(chol2inv(chol(V)), silent = TRUE)
+                               ## Compute unit errors.
+                               ue <- rep(x = NA, times = length(genoNames))
+                               if (!inherits(Vinv, "try-error")) {
+                                 ue[!VMiss] <- 1 / diag(Vinv)
+                               } else {
+                                 ue[!VMiss] <- 1 / diag(solve(V))
+                               }
+                               return(ue)
+                             }))
+  }
+  ## Extract variances
+  varGen <- sapply(X = mr, FUN = function(mr0) {
+    unname(mr0$gammas[grep(pattern = "genotype!genotype.var",
+                           x = names(mr0$gammas))] * mr0$sigma2)
+  })
+  if ("varGen" %in% what) {
+    result[["varGen"]] <- varGen
+  }
+  if ("varErr" %in% what) {
+    result[["varErr"]] <- sapply(X = mr, FUN = function(mr0) {
+      unname(mr0$gammas[grep(pattern = "R!variance",
+                             x = names(mr0$gammas))] * mr0$sigma2)
+    })
+  }
+  ## Estimate heritability on a line mean basis.
+  if ("heritability" %in% what) {
+    tmpfile <- tempfile()
+    sink(file = tmpfile)
+    result[["heritability"]] <- sapply(X = traits, FUN = function(trait) {
+      sedSq <- predict(mr[[trait]], classify = "genotype", only = "genotype",
+                       sed = TRUE, data = TD)$predictions$sed ^ 2
+      unname(1 - mean(sedSq[lower.tri(sedSq)]) / (2 * varGen[[trait]]))
+    })
+    sink()
+    unlink(tmpfile)
+  }
+  ## Extract fitted values.
+  if ("fitted" %in% what) {
+    result[["fitted"]] <- cbind(baseData,
+                                 sapply(X = mf, FUN = fitted))
+  }
+  ## Extract residuals.
+  if ("resid" %in% what) {
+    result[["resid"]] <- cbind(baseData,
+                                sapply(X = mf, FUN = residuals, type = "response"))
+  }
+  ## Extract standardized residuals.
+  if ("stdRes" %in% what) {
+    result[["stdRes"]] <- cbind(baseData,
+                                sapply(X = mf, FUN = residuals, type = "stdCond"))
+  }
+  ## Extract rMeans.
+  if ("rMeans" %in% what) {
+    result[["rMeans"]] <- cbind(baseData,
+                                 sapply(X = mr, FUN = fitted))
+  }
+  ## Extract random effects.
+  if ("ranEf" %in% what) {
+    result[["ranEf"]] <- cbind(data.frame(genotype = genoNames),
+                                 sapply(X = mr, FUN = function(mr0) {
+                                   mr0$coe$random[grep(pattern = "genotype",
+                                                      x = names(mr0$coe$random))]
+                                 }))
+  }
+  ## Compute wald test.
+  if ("wald" %in% what) {
+    tmpfile <- tempfile()
+    sink(file = tmpfile)
+    result[["wald"]] <- lapply(X = mf, function(mf0) {
+      wtt <- asreml::wald.asreml(mf0, ssType = "conditional", denDF = "numeric")
+      pos <- grep(pattern = "genotype", x = row.names(wtt$Wald))
+      chi2 <- wtt$Wald$F.con[pos] * wtt$Wald$Df[pos]
+      prob <- 1 - pchisq(q = chi2, df = wtt$Wald$Df[pos])
+      list(chi2 = c(chi2 = chi2, df = wtt$Wald$Df[pos], P = prob),
+           Ftest = c(Fstat = wtt$Wald$F.con[pos],
+                     df1 = wtt$Wald$Df[pos],
+                     df2 = wtt$Wald$denDF[pos],
+                     P = wtt$Wald$Pr[pos]))
+    })
+    sink()
+    unlink(tmpfile)
+  }
   ## Compute Coefficient of Variation.
-  CV <- 100 * summary(mf)$sigma / mean(fitted(mf))
-  ## Create tempfile for asreml output.
-  tmpfile <- tempfile()
-  sink(file = tmpfile)
-  ## Calculate wald test for genotype coefficients
-  wtt <- asreml::wald.asreml(mf, ssType = "conditional", denDF = "numeric")
-  pos <- grep(pattern = "genotype", x = row.names(wtt$Wald))
-  chi2 <- wtt$Wald$F.con[pos] * wtt$Wald$Df[pos]
-  prob <- 1 - pchisq(q = chi2, df = wtt$Wald$Df[pos])
-  resWald <- list(chi2 = c(chi2 = chi2, df = wtt$Wald$Df[pos], P = prob),
-                  Ftest = c(Fstat = wtt$Wald$F.con[pos],
-                            df1 = wtt$Wald$Df[pos],
-                            df2 = wtt$Wald$denDF[pos],
-                            P = wtt$Wald$Pr[pos]))
-  waldTestGeno <- list(result = resWald)
-  ## Estimatie heritability on a line mean basis.
-  newSed <- predict(mr, classify = "genotype", only = "genotype",
-                    sed = TRUE, data = TD)$predictions$sed
-  sink()
-  unlink(tmpfile)
-  sedSq <- newSed ^ 2
-  heritability <- unname(1 - mean(sedSq[lower.tri(sedSq)]) / (varGen * 2))
-  ## Calculate LSD; significance level (5%).
-  lsd <- qt(p = .975, df = mf$nedf) * mf$predictions$avsed
-  ## Combine results.
-  genoLong <- TD$genotype
-  result <- list(stats = stats, varGen = varGen, varErr = varErr,
-                 heritability = heritability,
-                 fitted = setNames(fitted(mf), genoLong),
-                 resid = setNames(residuals(mf, type = "response"), genoLong),
-                 stdRes = setNames(residuals(mf, type = "stdCond"), genoLong),
-                 rMeans = setNames(fitted(mr), genoLong),
-                 ranEf = setNames(mr$coe$random[grep(pattern = "genotype",
-                                                     x = names(mr$coe$random))],
-                                  genoNames),
-                 waldTestGeno = waldTestGeno, CV = CV,
-                 rDf = mf$nedf, predictionsSed = mf$predictions$avsed,
-                 predictionsLsd = lsd)
+  if ("CV" %in% what) {
+    result[["CV"]] <- sapply(X = mf, function(mf0) {
+      100 * summary(mf0)$sigma / mean(fitted(mf0), na.rm = TRUE)
+    })
+  }
+  ## Extract residual degrees of freedom.
+  if ("rDf" %in% what) {
+    result[["rDf"]] <- sapply(X = mf, FUN = "[[", "nedf")
+  }
+  ## Extract predSed.
+  if ("predSed" %in% what) {
+    result[["predSed"]] <- lapply(X = mf, FUN = function(mf0) {
+      mf0$predictions$avsed
+    })
+  }
+  ## Compute lsd with signifcance level 5%.
+  if ("lsd" %in% what) {
+    result[["lsd"]] <- lapply(X = mf, FUN = function(mf0) {
+      qt(p = .975, df = mf0$nedf) * mf0$predictions$avsed
+    })
+  }
   return(result)
 }
 
