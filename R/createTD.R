@@ -80,10 +80,25 @@ createTD <- function(data,
     stop("design has to be NULL or one of ibd, res.ibd, rcbd, rowcol or res.rowcol.\n")
   }
   ## Rename columns.
-  renameCols <- c("genotype", "env", "megaEnv", "year", "repId", "subBlock", "rowId", "colId",
-                  "rowCoordinates", "colCoordinates", "checkId")
-  for (renameCol in renameCols) {
-    cols[cols == get(renameCol)] <- renameCol
+  renameCols <- c("genotype", "env", "megaEnv", "year", "repId", "subBlock", "rowId",
+                  "colId", "rowCoordinates", "colCoordinates", "checkId")
+  ## First rename duplicate colums and add duplicated columns to data
+  renameFrom <- as.character(sapply(X = renameCols, FUN = function(x) {
+    get(x)
+  }))
+  ## Get duplicate columns
+  dupCols <- which(duplicated(renameFrom) & renameFrom != "NULL")
+  for (dupCol in dupCols) {
+    ## Copy original column as extra column in data for each duplicate.
+    tempName <- paste0(".temp", dupCol)
+    data[tempName] <- data[, which(colnames(data) == renameFrom[dupCol])]
+    ## Add new replacementname to cols and renameFrom.
+    cols[length(cols) + 1] <- tempName
+    renameFrom[dupCol] <- tempName
+  }
+  ## Rename columns.
+  for (i in 1:length(renameCols)) {
+    cols[cols == renameFrom[i]] <- renameCols[i]
   }
   colnames(data) <- cols
   ## Convert columns to factor if neccessary.
@@ -230,8 +245,8 @@ summary.TD <- function(object,
     if (kurt) stats[21, i] <- kurtosis(object[, traits[i]], na.rm = TRUE)
     if (seKurt) stats[22, i] <- seKurtosis(length(na.omit(object[, traits[i]])))
   }
-  return(structure(stats,
-                   class = c("summary.TD", "table")))
+  return(structure(stats[apply(stats)],
+                   class = c("summary.TD", "data.frame")))
 }
 
 #' @export
