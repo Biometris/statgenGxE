@@ -4,7 +4,30 @@
 #' This is a wrapper function of \code{\link{STModSpATS}}, \code{\link{STModLme4}}
 #' and \code{\link{STModAsreml}}. See details for the exact models fitted.
 #'
-#' @param TD An object of class TD.
+#' The actual model fitted depends on the design. For the supported designs the
+#' following models are used:
+#' \describe{
+#' \item{ibd}{trait = genotype + \emph{subBlock} + e}
+#' \item{res.ibd}{trait = genotype + \strong{repId} +
+#' \emph{repId:subBlock} + e}
+#' \item{rcbd}{trait = genotype+ \strong{repId} + e}
+#' \item{rowcol}{trait = genotype + \emph{rowId} + \emph{colId} + e}
+#' \item{res.rowcol}{trait = genotype + \strong{repId} +
+#' \emph{repId:rowId} + \emph{repId:colId} + e}
+#' }
+#' In the above models fixed effects are indicated in bold, random effects in
+#' italics. genotype is fitted as fixed or random effect depending on
+#' \code{what}.\cr
+#' In case \code{useCheckId = TRUE} an extra fixed effect \strong{checkId} is included
+#' in the model.\cr
+#' Variables in \code{covariates} are fitted as extra fixed effects.\cr\cr
+#' When \code{SpATS} is used for modelling an extra spatial term is included in the
+#' model. This term is constructed using \code{\link[SpATS]{PSANOVA}} as
+#' \code{PSANOVA(colCoordinates, rowCoordinates, nseg = nSeg, nest.div = 2)} where
+#' \code{nSeg = (number of columns / 2, number of rows / 2)}. nseg and nest.div can
+#' be modified using the \code{control} parameter.
+#'
+#' @param TD An object of class \code{\link{TD}}.
 #' @param design A string specifying the experimental design. One of "ibd"
 #' (incomplete block design), "res.ibd" (resolvable incomplete block design),
 #' "rcbd" (randomized complete block design), "rowcol" (row column design) or
@@ -29,6 +52,11 @@
 #' @return an object of class \code{\link{SSA}}.
 #'
 #' @seealso \code{\link{STModSpATS}}, \code{\link{STModLme4}}, \code{\link{STModAsreml}}
+#'
+#' @references
+#' Maria Xose Rodriguez-Alvarez, Martin P. Boer, Fred A. van Eeuwijk, Paul H.C. Eilers (2017).
+#' Correcting for spatial heterogeneity in plant breeding experiments with P-splines. Spatial
+#' Statistics \url{https://doi.org/10.1016/j.spasta.2017.10.003}
 #'
 #' @examples
 #' ## Load data.

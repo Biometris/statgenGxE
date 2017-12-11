@@ -31,16 +31,16 @@
 #' \item{F - lsd}{least significant difference - only for \code{asreml}}
 #' }
 #'
-#' @param SSA an object of class SSA.
-#' @param traits a character vector of traits for which the statistics should be
+#' @param SSA An object of class SSA.
+#' @param traits A character vector of traits for which the statistics should be
 #' computed If not supplied statistics are computed for all traits that have
 #' been modelled.
-#' @param what a character vector indicating which statistics should be computed.
+#' @param what A character vector indicating which statistics should be computed.
 #' Most statistics are available for all models, some only for models fitted using
 #' a certain engine. If this is the case this is indicated in the list with options
 #' in details.\cr
 #' If \code{what = "all"} all available statistics are computed.\cr
-#' @param keep a character vector of column(s) in the object of class
+#' @param keep A character vector of column(s) in the object of class
 #' \code{\link{TD}} used for modelling. These columns will be kept as output when
 #' computing fitted values, residuals, standardized residuals and rMeans.
 #'

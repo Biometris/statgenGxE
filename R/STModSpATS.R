@@ -4,6 +4,8 @@
 #'
 #' @inheritParams STRunModel
 #'
+#' @seealso \code{\link{STRunModel}}
+#'
 #' @examples
 #' ## Load data.
 #' data(TDHeat05)
