@@ -245,8 +245,8 @@ summary.TD <- function(object,
     if (kurt) stats[21, i] <- kurtosis(object[, traits[i]], na.rm = TRUE)
     if (seKurt) stats[22, i] <- seKurtosis(length(na.omit(object[, traits[i]])))
   }
-  return(structure(stats[apply(stats)],
-                   class = c("summary.TD", "data.frame")))
+  return(structure(stats,
+                   class = c("summary.TD", "table")))
 }
 
 #' @export

@@ -61,7 +61,7 @@ is.SSA <- function(x) {
 #'
 #' @examples
 #' data(TDHeat05)
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", trait = "yield")
+#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 #' summary(myModel)
 #'
 #' @export
@@ -69,7 +69,7 @@ summary.SSA <- function(object,
                         trait = NULL,
                         digits = max(getOption("digits") - 2, 3),
                         nBest = 20,
-                        sortBy = "BLUEs",
+                        sortBy = if (!is.null(object$mFix)) "BLUEs" else "BLUPs",
                         naLast = TRUE,
                         decreasing = TRUE,
                         ...) {
@@ -78,7 +78,7 @@ summary.SSA <- function(object,
     stop("No trait provided but multiple traits found in SSA object.\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(object$data))) {
+                          !trait %in% colnames(object$data))) {
     stop("Trait has to be a single character string defining a column in data.\n")
   }
   ## get summary stats for raw data
@@ -91,11 +91,15 @@ summary.SSA <- function(object,
   attr(stats, "na.action") <- NULL
   ## get predicted means (BLUEs & BLUPs).
   extr <- STExtract(object)
+  joinList <- Filter(f = Negate(f = is.null),
+                     x = list(extr$BLUEs, extr$seBLUEs,
+                              extr$BLUPs, extr$seBLUPs))
   meanTab <- Reduce(f = function(x, y) {
     dplyr::full_join(x, y, all = TRUE, by = "genotype")
-  }, x = list(extr$BLUEs, extr$seBLUEs, extr$BLUPs, extr$seBLUPs))
-  colnames(meanTab) <- c("genotype", "predictedBLUEs", "se predictedBLUEs",
-                        "predictedBLUPs", "se predictedBLUPs")
+  }, x = joinList)
+  colnames(meanTab) <- c("genotype",
+                         if (!is.null(extr$BLUEs)) c("predictedBLUEs", "se predictedBLUEs"),
+                         if (!is.null(extr$BLUPs)) c("predictedBLUPs", "se predictedBLUPs"))
   rownames(meanTab) <- meanTab$genotype
   if (!is.na(sortBy)) {
     if (sortBy == "BLUEs") {
@@ -113,8 +117,10 @@ summary.SSA <- function(object,
   }
   cat("Summary statistics:\n", "===================\n", sep = "")
   printCoefmat(stats, digits = digits, ...)
-  cat("\nEstimated heritability\n", "======================\n", sep = "")
-  cat("\nHeritability:", extr$heritability, "\n")
+  if (!is.null(object$mRand)) {
+    cat("\nEstimated heritability\n", "======================\n", sep = "")
+    cat("\nHeritability:", extr$heritability, "\n")
+  }
   cat("\nPredicted means (BLUEs & BLUPs)\n", "===============================\n", sep = "")
   if (!is.na(nBest)) {
     cat("Best", nBest,"genotypes\n")
@@ -123,7 +129,7 @@ summary.SSA <- function(object,
   }
   printCoefmat(meanTab[, -1], digits = digits, ...)
   if (object$engine == "asreml" && !is.null(extr$sed) &&
-      !is.null(extr$sed)) {
+      !is.null(extr$lsd)) {
     cat("\nStandard Error of Difference (genotypes modelled as fixed effect)\n",
         "===================================================================\n", sep = "")
     sed <- as.data.frame(extr$lsd)
@@ -153,7 +159,7 @@ summary.SSA <- function(object,
 #'
 #' @examples
 #' data(TDHeat05)
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", trait = "yield",
+#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                       tryspatial = "always")
 #' plot(myModel, plotType = "fix")
 #'
@@ -168,7 +174,7 @@ plot.SSA <- function(x,
     stop("No trait provided but multiple traits found in SSA x\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(x$data))) {
+                          !trait %in% colnames(x$data))) {
     stop("Trait has to be a single character string defining a column in data.\n")
   }
   if (!is.character(plotType) || length(plotType) > 1 ||
