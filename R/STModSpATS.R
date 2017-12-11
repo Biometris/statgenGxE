@@ -86,6 +86,21 @@ STModSpATS <- function(TD,
               instead.\n")
     }
   }
+  ## Set default value for nestDiv
+  nestDiv <- 2
+  ## If valid values for nSeg are provided in control use these instead.
+  if ("nestDiv" %in% names(control)) {
+    nestDivCt <- control$nestDiv
+    if (length(nestDivCt) == 1) {
+      nestDivCt <- rep(x = nestDivCt, times = 2)
+    }
+    if (is.numeric(nestDivCt) && length(nestDivCt) <= 2 && all(nestDivCt >= 1)) {
+      nestDiv <- nestDivCt
+    } else {
+      warning("Invalid value for control parameter nestDiv. Using default values
+              instead.\n")
+    }
+  }
   ## Construct formula for fixed part.
   fixedForm <- as.formula(paste("~",
                                 if (useRepIdFix) "repId" else "1",
@@ -105,7 +120,7 @@ STModSpATS <- function(TD,
       SpATS::SpATS(response = trait, genotype = "genotype",
                    genotype.as.random = TRUE,
                    spatial = ~ SpATS::PSANOVA(colCoordinates, rowCoordinates,
-                                              nseg = nSeg, nest.div = c(2, 2)),
+                                              nseg = nSeg, nest.div = nestDiv),
                    fixed = fixedForm,
                    random = randomForm,
                    data = TD, control = list(monitoring = 0), ...)
@@ -119,7 +134,7 @@ STModSpATS <- function(TD,
       SpATS::SpATS(response = trait, genotype = "genotype",
                    genotype.as.random = FALSE,
                    spatial = ~ SpATS::PSANOVA(colCoordinates, rowCoordinates,
-                                              nseg = nSeg, nest.div = c(2, 2)),
+                                              nseg = nSeg, nest.div = nestDiv),
                    fixed = fixedForm,
                    random = randomForm,
                    data = TD, control = list(monitoring = 0), ...)

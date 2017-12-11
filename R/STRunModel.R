@@ -2,7 +2,7 @@
 #'
 #' Perform REML analysis given a specific experimental design.
 #' This is a wrapper function of \code{\link{STModSpATS}}, \code{\link{STModLme4}}
-#' and \code{\link{STModAsreml}}.
+#' and \code{\link{STModAsreml}}. See details for the exact models fitted.
 #'
 #' @param TD An object of class TD.
 #' @param design A string specifying the experimental design. One of "ibd"
@@ -22,8 +22,8 @@
 #' either SpATS, lme4 or asreml. For spatial models SpaTS is used as a default, for
 #' other models lme4.
 #' @param control An optional list with control parameters to be passed to the actual
-#' fitting funcions. For now only nSeg is valid to pass a value to nseg in
-#' \code{\link[SpATS]{PSANOVA}}.
+#' fitting funcions. For now only nSeg and nestDiv are valid and pass a value to
+#' nseg and nest.div in \code{\link[SpATS]{PSANOVA}} respectively.
 #' @param ... Further arguments to be passed to \code{SpATS}, \code{lme4} or \code{asreml}.
 #'
 #' @return an object of class \code{\link{SSA}}.
