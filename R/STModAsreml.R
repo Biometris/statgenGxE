@@ -21,6 +21,7 @@
 
 STModAsreml <- function(TD,
                         traits,
+                        what = c("fixed", "random"),
                         covariates = NULL,
                         useCheckId = FALSE,
                         design = "rowcol",
@@ -45,6 +46,7 @@ STModAsreml <- function(TD,
   if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
     stop("All traits have to be columns in TD.\n")
   }
+  what <- match.arg(arg = what, choices = c("fixed", "random"), several.ok = TRUE)
   if (!is.null(covariates) && (!is.character(covariates) ||
                                !(all(covariates %in% colnames(TD))))) {
     stop("covariates have to be a columns in TD.\n")
@@ -84,64 +86,75 @@ STModAsreml <- function(TD,
   } else {
     randomForm <- character()
   }
-  ## Create tempfile to suppress asreml output messages.
-  tmp <- tempfile()
-  sink(file = tmp)
   ## Create empty base lists.
   mr <- mf <- setNames(vector(mode = "list", length = length(traits)),
                        traits)
+  ## Create tempfile to suppress asreml output messages.
+  tmp <- tempfile()
+  sink(file = tmp)
   for (trait in traits) {
-    ## Fit model with genotype random.
-    mrTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm)),
-                         random = as.formula(paste("~", randomForm,
-                                                   if (length(randomForm) != 0) "+",
-                                                   "genotype")),
-                         rcov = ~ units, aom = TRUE, data = TD, ...)
-    ## Constrain variance of the variance components to be fixed as the values in mr.
-    GParamTmp <- mrTrait$G.param
-    for (randEf in randEff) {
-      ## When there are no replicates the structure is [[randEf]][[randEf]]
-      ## otherwise it is [[repId:randEf]][[repId]]
-      GParamTmp[[paste0(ifelse(useRepIdFix, "repId:", ""),
-                        randEf)]][[ifelse(useRepIdFix, "repId", randEf)]]$con <- "F"
+    if ("random" %in% what) {
+      ## Fit model with genotype random.
+      mrTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm)),
+                                random = as.formula(paste("~", randomForm,
+                                                          if (length(randomForm) != 0) "+",
+                                                          "genotype")),
+                                rcov = ~ units, aom = TRUE, data = TD, ...)
+      if ("fixed" %in% what) {
+        ## Constrain variance of the variance components to be fixed as the values in mr.
+        GParamTmp <- mrTrait$G.param
+        for (randEf in randEff) {
+          ## When there are no replicates the structure is [[randEf]][[randEf]]
+          ## otherwise it is [[repId:randEf]][[repId]]
+          GParamTmp[[paste0(ifelse(useRepIdFix, "repId:", ""),
+                            randEf)]][[ifelse(useRepIdFix, "repId", randEf)]]$con <- "F"
+        }
+      }
+      ## evaluate call terms in mr and mf so predict can be run.
+      mrTrait$call$fixed <- eval(mrTrait$call$fixed)
+      mrTrait$call$random <- eval(mrTrait$call$random)
+      mrTrait$call$rcov <- eval(mrTrait$call$rcov)
+      mrTrait <- predict(mrTrait, classify = "genotype", data = TD)
+      mrTrait$call$data <- substitute(TD)
+      mr[[trait]] <- mrTrait
     }
-    ## Fit model with genotype fixed.
-    if (length(randomForm) != 0) {
-      mfTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
-                                                         "+ genotype")),
-                           random = as.formula(paste("~", randomForm)),
-                           rcov = ~ units, G.param = GParamTmp, aom = TRUE,
-                           data = TD, ...)
-    } else {
-      mfTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
-                                                    "+ genotype")),
-                           rcov = ~ units, G.param = GParamTmp, aom = TRUE,
-                           data = TD, ...)
+    if ("fixed" %in% what) {
+      ## Fit model with genotype fixed.
+      if (!"random" %in% what) {
+        GParamTmp <- NULL
+      }
+      if (length(randomForm) != 0) {
+        mfTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
+                                                           "+ genotype")),
+                                  random = as.formula(paste("~", randomForm)),
+                                  rcov = ~ units, G.param = GParamTmp, aom = TRUE,
+                                  data = TD, ...)
+      } else {
+        mfTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
+                                                           "+ genotype")),
+                                  rcov = ~ units, G.param = GParamTmp, aom = TRUE,
+                                  data = TD, ...)
+      }
+      mfTrait$call$fixed <- eval(mfTrait$call$fixed)
+      mfTrait$call$random <- eval(mfTrait$call$random)
+      mfTrait$call$rcov <- eval(mfTrait$call$rcov)
+      ## Run predict.
+      if (useCheckId) {
+        mfTrait <- predict(mfTrait, classify = "genotype", vcov = TRUE, data = TD,
+                           associate = ~ checkId:genotype)
+      } else {
+        mfTrait <- predict(mfTrait, classify = "genotype", vcov = TRUE, data = TD)
+      }
+      mfTrait$call$data <- substitute(TD)
+      mf[[trait]] <- mfTrait
     }
-    ## evaluate call terms in mr and mf so predict can be run.
-    mrTrait$call$fixed <- eval(mrTrait$call$fixed)
-    mrTrait$call$random <- eval(mrTrait$call$random)
-    mrTrait$call$rcov <- eval(mrTrait$call$rcov)
-    mfTrait$call$fixed <- eval(mfTrait$call$fixed)
-    mfTrait$call$random <- eval(mfTrait$call$random)
-    mfTrait$call$rcov <- eval(mfTrait$call$rcov)
-    ## Run predict.
-    if (useCheckId) {
-      mfTrait <- predict(mfTrait, classify = "genotype", vcov = TRUE, data = TD,
-                    associate = ~ checkId:genotype)
-    } else {
-      mfTrait <- predict(mfTrait, classify = "genotype", vcov = TRUE, data = TD)
-    }
-    mrTrait <- predict(mrTrait, classify = "genotype", data = TD)
-    mfTrait$call$data <- substitute(TD)
-    mrTrait$call$data <- substitute(TD)
-    mr[[trait]] <- mrTrait
-    mf[[trait]] <- mfTrait
   }
   sink()
   unlink(tmp)
   ## Construct SSA object.
-  model <- createSSA(mMix = mr, mFix = mf, data = TD, traits = traits,
+  model <- createSSA(mRand = if ("random" %in% what) mr else NULL,
+                     mFix = if ("fixed" %in% what) mf else NULL,
+                     data = TD, traits = traits,
                      design = design, engine = "asreml")
   return(model)
 }

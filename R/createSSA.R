@@ -2,9 +2,9 @@
 #'
 #' Function for creating objects of S3 class Single Site Analysis (SSA).
 #'
-#' @param mMix a mixed model created using either asreml or lme4
+#' @param mRand a mixed model created using either asreml or lme4
 #' @param mFix a fixed model created using either asreml or lme4
-#' @param data an object of class TD containing the data on which mMix and mFix are based.
+#' @param data an object of class TD containing the data on which mRand and mFix are based.
 #' @param traits a character vector indicating the traits for which the analysis is done.
 #' @param design a character string containing the design of the trial.
 #' @param engine a character string containing the engine used to do the analysis.
@@ -19,13 +19,13 @@ NULL
 
 #' @rdname SSA
 #' @export
-createSSA <- function(mMix,
+createSSA <- function(mRand,
                       mFix,
                       data,
                       traits = NULL,
                       design = NULL,
                       engine = NULL) {
-  SSA <- structure(list(mMix = mMix,
+  SSA <- structure(list(mRand = mRand,
                         mFix = mFix,
                         data = data,
                         traits = traits,
@@ -181,7 +181,7 @@ plot.SSA <- function(x,
   if (plotType == "fix") {
     model <- x$mFix[[trait]]
   } else if (plotType == "mix") {
-    model <- x$mMix[[trait]]
+    model <- x$mRand[[trait]]
   }
   ## Diagnostic plots.
   if (class(model) == "SpATS") {

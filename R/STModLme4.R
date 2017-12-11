@@ -21,6 +21,7 @@
 
 STModLme4 <- function(TD,
                       traits,
+                      what = c("fixed", "random"),
                       covariates = NULL,
                       useCheckId = FALSE,
                       control = NULL,
@@ -44,6 +45,7 @@ STModLme4 <- function(TD,
   if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
     stop("All traits have to be columns in TD.\n")
   }
+  what <- match.arg(arg = what, choices = c("fixed", "random"), several.ok = TRUE)
   if (!is.null(covariates) && (!is.character(covariates) ||
                                !(all(covariates %in% colnames(TD))))) {
     stop("covariates have to be columns in TD.\n")
@@ -82,26 +84,34 @@ STModLme4 <- function(TD,
   } else {
     randomForm <- character()
   }
-  mr <- sapply(X = traits, FUN = function(trait) {
-    ## Fit model with genotype random.
-    lme4::lmer(as.formula(paste(trait, fixedForm,
-                                "+ (1 | genotype) ",
-                                if (length(randomForm) != 0) paste("+", randomForm))),
-               data = TD, na.action = na.exclude, ...)
-  }, simplify = FALSE)
-  ## Fit model with genotype fixed.
-  ## lme4 cannot handle models without random effect so in that case lm is called.
-  mf <- sapply(X = traits, FUN = function(trait) {
-    if (length(randomForm) != 0) {
+  if ("random" %in% what) {
+    mr <- sapply(X = traits, FUN = function(trait) {
+      ## Fit model with genotype random.
       lme4::lmer(as.formula(paste(trait, fixedForm,
-                                  "+ genotype + ", randomForm)),
+                                  "+ (1 | genotype) ",
+                                  if (length(randomForm) != 0) paste("+", randomForm))),
                  data = TD, na.action = na.exclude, ...)
-    } else  {
-      lm(as.formula(paste(trait, fixedForm, "+ genotype")),
-         data = TD, na.action = na.exclude, ...)
-    }}, simplify = FALSE)
+    }, simplify = FALSE)
+  } else {
+    mr <- NULL
+  }
+  if ("fixed" %in% what) {
+    ## Fit model with genotype fixed.
+    ## lme4 cannot handle models without random effect so in that case lm is called.
+    mf <- sapply(X = traits, FUN = function(trait) {
+      if (length(randomForm) != 0) {
+        lme4::lmer(as.formula(paste(trait, fixedForm,
+                                    "+ genotype + ", randomForm)),
+                   data = TD, na.action = na.exclude, ...)
+      } else  {
+        lm(as.formula(paste(trait, fixedForm, "+ genotype")),
+           data = TD, na.action = na.exclude, ...)
+      }}, simplify = FALSE)
+  } else {
+    mf <- NULL
+  }
   ## Construct SSA object.
-  model <- createSSA(mMix = mr, mFix = mf, data = TD, traits = traits,
+  model <- createSSA(mRand = mr, mFix = mf, data = TD, traits = traits,
                      design = design, engine = "lme4")
   return(model)
 }

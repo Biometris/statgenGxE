@@ -10,6 +10,9 @@
 #' "rcbd" (randomized complete block design), "rowcol" (row column design) or
 #' "res.rowcol" (resolvable row column design).
 #' @param traits A character vector specifying the selected traits.
+#' @param what A character vector specififying whether "genotype" should
+#' be fitted as "fixed" or "random". If not specified both models
+#' are fitted.
 #' @param covariates A string specifying (a) covariate name(s).
 #' @param useCheckId Should a checkId be used as a fixed parameter in the model?\cr
 #' If \code{TRUE} \code{TD} has to contain a column 'checkId'.
@@ -18,6 +21,9 @@
 #' @param engine A string specifying the name of the mixed modelling engine to use,
 #' either SpATS, lme4 or asreml. For spatial models SpaTS is used as a default, for
 #' other models lme4.
+#' @param control An optional list with control parameters to be passed to the actual
+#' fitting funcions. For now only nSeg is valid to pass a value to nseg in
+#' \code{\link[SpATS]{PSANOVA}}.
 #' @param ... Further arguments to be passed to \code{SpATS}, \code{lme4} or \code{asreml}.
 #'
 #' @return an object of class \code{\link{SSA}}.
@@ -29,16 +35,17 @@
 #' data(TDHeat05)
 #'
 #' ## Fit model using lme4.
-#' myModel1 <- STRunModel(TD = TDHeat05, design = "res.rowcol", trait = "yield")
+#' myModel1 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 #'
 #' ## Fit model using SpATS.
-#' myModel2 <- STRunModel(TD = TDHeat05, design = "res.rowcol", trait = "yield",
+#' myModel2 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                       engine = "SpATS")
 #'
 #' @export
 STRunModel = function(TD,
                       design = NULL,
                       traits,
+                      what = c("fixed", "random"),
                       covariates = NULL,
                       useCheckId = FALSE,
                       trySpatial = FALSE,
@@ -63,6 +70,7 @@ STRunModel = function(TD,
   if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
     stop("All traits have to be columns in TD.\n")
   }
+  what <- match.arg(arg = what, choices = c("fixed", "random"), several.ok = TRUE)
   if (!is.null(covariates) && (!is.character(covariates) ||
                                !(all(covariates %in% colnames(TD))))) {
     stop("covariates have to be a columns in TD.\n")
@@ -97,6 +105,7 @@ STRunModel = function(TD,
   ## Run model depending on engine.
   model <- do.call(what = paste0("STMod", tools::toTitleCase(engine)),
                    args = list(TD = TD, traits = traits,
+                               what = what,
                                covariates = covariates,
                                useCheckId = useCheckId,
                                design = design,
