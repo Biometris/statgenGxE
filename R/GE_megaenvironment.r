@@ -5,7 +5,7 @@
 #' added as a column megaEnv to the input data. If a column megaEnv already exists the
 #' existing data is overwritten with a warning.
 #'
-#' @inheritParams GE.AMMI
+#' @inheritParams GeAmmi
 #'
 #' @param method A criterion to determine the best trait, either \code{"max"} or \code{"min"}.
 #' @param summaryTable A logical specifying whether a summary table will be returned.
@@ -13,10 +13,8 @@
 #' @return The input object of class \code{\link{TD}} with an added extra column megaEnv.
 #'
 #' @examples
-#' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env = "env!", genotype = "genotype!", trait = "yld")
-#' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
-#' TDmegaEnv <- GE.megaEnvironment(TD = myTD, trait = "yld")
+#' data(TDMaize)
+#' TDmegaEnv <- GE.megaEnvironment(TD = TDMaize, trait = "yld")
 #' attr(TDmegaEnv, "summary")
 #'
 #' @export
@@ -46,7 +44,7 @@ GE.megaEnvironment <- function(TD,
   TD$genotype <- droplevels(TD$genotype)
   TD$env <- droplevels(TD$env)
   ## use AMMI
-  AMMI <- GE.AMMI(TD = TD, trait = trait, nPC = 2)
+  AMMI <- GeAmmi(TD = TD, trait = trait, nPC = 2)
   fitted <- AMMI$fitted
   genoNames <- rownames(fitted)
   envNames  <- colnames(fitted)

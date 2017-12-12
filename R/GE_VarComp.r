@@ -6,7 +6,7 @@
 #' first order factor analysis, second order factor analysis, unstructured),
 #' and selects the best one using a goodness-of-fit criterion.
 #'
-#' @inheritParams GE.AMMI
+#' @inheritParams GeAmmi
 #'
 #' @param engine A string specifying the name of a mixed modelling engine to be used.
 #' @param criterion A string specifying a goodness-of-fit criterion, i.e., "AIC" or "BIC".
@@ -18,10 +18,8 @@
 #' the best model and its related goodness-of-fit criterion.
 #'
 #' @examples
-#' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env = "env!", genotype = "genotype!", trait = "yld")
-#' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
-#' model1 <- GE.VarComp(TD = myTD, trait = "yld", engine = "lme4", #engine = "asreml",
+#' data(TDMaize)
+#' model1 <- GE.VarComp(TD = TDMaize, trait = "yld", engine = "lme4", #engine = "asreml",
 #'                      criterion = "BIC")
 #' model1$BIC
 #' model1$choice

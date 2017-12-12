@@ -112,25 +112,22 @@ seKurtosis <- function(n) {
   return(sqrt((24 * n * (n - 1) ^ 2) / ((n - 2) * (n - 3) * (n + 5) * (n + 3))))
 }
 
-waldTest <- function(Sigma,
-                     b,
+waldTest <- function(b,
+                     sigma,
                      positions,
                      df = NULL) {
   ## this function is a cut-down version of wald.test in aod package
   w <- length(positions)
-  ## null hypothesis
-  H0 <- rep(x = 0, times = w)
   ## L matrix
   L <- matrix(rep(x = 0, times = length(b) * w), ncol = length(b))
   for (i in 1:w) {
     L[i, positions[i]] <- 1
   }
-  dimnames(L) <- list(paste0("L", as.character(seq(NROW(L)))), names(b))
+  dimnames(L) <- list(paste0("L", as.character(seq(nrow(L)))), names(b))
   ## computations
   f <- L %*% b
-  V <- Sigma
-  mat <- qr.solve(L %*% V %*% t(L))
-  stat <- t(f - H0) %*% mat %*% (f - H0)
+  mat <- qr.solve(Matrix::tcrossprod(L %*% sigma, L))
+  stat <- crossprod(f, mat %*% f)
   p <- 1 - pchisq(q = stat, df = w)
   if (is.null(df)) {
     res <- list(chi2 = c(chi2 = stat, df = w, P = p))
@@ -142,7 +139,7 @@ waldTest <- function(Sigma,
                 Ftest = c(Fstat = fstat, df1 = df1, df2 = df2,
                           P = 1 - pf(fstat, df1, df2)))
   }
-  return(list(Sigma = Sigma, b = b, positions = positions, L = L, result = res, df = df))
+  return(list(sigma = sigma, b = b, positions = positions, L = L, result = res, df = df))
 }
 
 

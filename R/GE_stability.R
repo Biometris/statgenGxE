@@ -4,7 +4,7 @@
 #' measure of Lin & Binns (1988), Shukla's (1972) stability variance and Wricke's (1962)
 #' ecovalence.
 #'
-#' @inheritParams GE.AMMI
+#' @inheritParams GeAmmi
 #'
 #' @param method A character string specifying (a) measure(s) of stability. By default,
 #' \code{method = c("superiority","static","wricke")}.
@@ -25,10 +25,8 @@
 #' Zeitschrift für Pflanzenzucht, v. 47, p. 92-96, 1962\cr
 #'
 #' @examples
-#' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env = "env!", genotype = "genotype!", trait = "yld")
-#' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
-#' GE.stability(TD = myTD, trait = "yld", method = "superiority",
+#' data(TDMaize)
+#' GE.stability(TD = TDMaize, trait = "yld", method = "superiority",
 #'              superiorityBestMethod = "max", sorted = "descending", plot = TRUE)
 #'
 #' @export

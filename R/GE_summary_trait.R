@@ -36,11 +36,10 @@
 #' @param Corplot A logical value indicating if a heatmap plot is drawn from the correlation matrix.
 #' @param Scatterplot A logical value indicating if a scatter plot is drawn.
 #' @param all A logical, if \code{all=TRUE}, all the statistics will be calculated.
+#'
 #' @examples
-#' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env = "env!", genotype = "genotype!", trait = "yld")
-#' names(myDat) = c("env", "genotype","yld")
-#' GE.summary.trait(data = myDat, trait = "yld", env = "env", genotype = "genotype",
+#' data(TDMaize)
+#' GE.summary.trait(data = TDMaize, trait = "yld", env = "env", genotype = "genotype",
 #'                  envSelect = c("HN96b", "IS92a", "IS94a", "LN96a",
 #'                   "LN96b", "NS92a", "SS92a", "SS94a"))
 #'

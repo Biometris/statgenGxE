@@ -3,16 +3,15 @@
 #' This function calculates predicted means (BLUPS) and associated standard errors based on a
 #' set of mega-environments
 #'
-#' @inheritParams GE.AMMI
+#' @inheritParams GeAmmi
 #'
 #' @param year A character string specifying years within environments.
+#' @param engine asreml or lme4
 #' @param ... Other parameters passed to either \code{asreml()} or \code{lmer()}.
 #'
 #' @examples
-#' myDat <- GE.read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
-#'                      env = "env!", genotype = "genotype!", trait = "yld")
-#' myTD <- createTD(data = myDat, genotype = "genotype!", env = "env!")
-#' myTDMegaEnv <- GE.megaEnvironment(TD = myTD, trait = "yld")
+#' data(TDMaize)
+#' myTDMegaEnv <- GE.megaEnvironment(TD = TDMaize, trait = "yld")
 #' GE.GxETable(TD = myTDMegaEnv, trait = "yld")
 #'
 #' @import utils
@@ -22,11 +21,12 @@
 GE.GxETable <- function(TD,
                         trait,
                         year = NULL,
+                        engine = "asreml",
                         ...) {
   if (!trait %in% names(TD)) {
     stop(trait," not found in ", TD)
   }
-  if (asremlORlme4() == "asreml") {
+  if (engine == "asreml") {
     tmp <- tempfile()
     sink(file = tmp)
     if (is.null(year)) {
@@ -41,7 +41,7 @@ GE.GxETable <- function(TD,
                                data = TD, ...),
                 silent = TRUE)
     }
-    if (inherits(mr, "try-error")){
+    if (inherits(mr, "try-error")) {
       genoLevels <- levels(TD$genotype)
       nGenoUnique <- nlevels(TD$genotype)
       megaEnvLevels <- levels(TD$megaEnv)
@@ -71,7 +71,7 @@ GE.GxETable <- function(TD,
     }
     sink()
     unlink(tmp)
-  } else if (asremlORlme4() == "lme4") {
+  } else if (engine == "lme4") {
     if (is.null(year)) {
       mr <- try(lme4::lmer(as.formula(paste(trait, "~ env +
                                             (0 + megaEnv | genotype)")),
@@ -87,7 +87,7 @@ GE.GxETable <- function(TD,
     nGenoUnique <- nlevels(TD$genotype)
     megaEnvLevels <- levels(TD$megaEnv)
     nmegaEnvUnique <- nlevels(TD$megaEnv)
-    if (inherits(mr, "try-error")){
+    if (inherits(mr, "try-error")) {
       predVals <- se <-  data.frame(matrix(nrow = nGenoUnique, ncol = nmegaEnvUnique),
                                     row.names = genoLevels, check.names = FALSE)
       names(predVals) <- names(se) <- megaEnvLevels
@@ -96,7 +96,7 @@ GE.GxETable <- function(TD,
       if (class(mr) == "lmerMod") {
         fixEff = lme4::fixef(mr)
       }
-      if(class(mr) == "mer") {
+      if (class(mr) == "mer") {
         fixEff = slot(mr, "fixef")
       }
       cr = fixEff[grep("env", names(fixEff))]
@@ -106,12 +106,12 @@ GE.GxETable <- function(TD,
       # Predictions BLUPs
       predVals = fixEff[1] + blo + ranEff
       # Compute seBlups
-      if(class(mr) == "lmerMod") {
+      if (class(mr) == "lmerMod") {
         seBlups = t(sqrt(apply(X = attr(lme4::ranef(mr, condVar = TRUE)[["genotype"]],
                                         "postVar"),
                                MARGIN = 3, FUN = diag)))
       }
-      if(class(mr) == "mer") {
+      if (class(mr) == "mer") {
         seBlups = t(sqrt(apply(X = attr(lme4::ranef(mr, postVar = TRUE)[["genotype"]],
                                         "postVar"),
                                MARGIN = 3, FUN = diag)))

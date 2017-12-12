@@ -168,12 +168,8 @@ is.TD <- function(x) {
 #' @seealso \code{\link{createTD}}
 #'
 #' @examples
-#' myDat <- ST.read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
-#'                      factorNames = c("Env", "Genotype", "Rep", "Subblock"),
-#'                      traitNames = "yield", env = "Env", rowSelect = "HEAT05",
-#'                      colSelect = c("Env", "Genotype", "Rep", "Subblock", "yield"))
-#' myTD <- createTD(data = myDat, genotype = "Genotype", env = "Env")
-#' summary(object = myTD, traits = "yield")
+#' data(TDHeat05)
+#' summary(object = TDHeat05, traits = "yield")
 #'
 #' @export
 summary.TD <- function(object,
