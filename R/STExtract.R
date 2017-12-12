@@ -101,6 +101,8 @@ extractSpATS <- function(SSA,
   mf <- SSA$mFix
   mr <- SSA$mRand
   TD <- SSA$data
+  useCheckId <- length(grep(pattern = "checkId",
+                            x = deparse(mr[[1]]$model$fixed))) > 0
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "heritability", "varGen",
                "varSpat", "fitted", "resid", "rMeans", "ranEf", "rDf", "effDim")
   whatMod <- c("F", "F", "R", "R", "R", "R", "R", "F", "F", "R", "R", "F", "F")
@@ -139,18 +141,26 @@ extractSpATS <- function(SSA,
   }
   ## Compute BLUPs and se of BLUPs from mixed model.
   if ("BLUPs" %in% what) {
-    result[["BLUPs"]] <- cbind(data.frame(genotype = genoNames),
-                               sapply(X = mr, FUN = function(mr0) {
-                                 SpATS::predict.SpATS(mr0,
-                                                      which = "genotype")$predicted.values
-                               }))
+    whichPred <- c("genotype", if (useCheckId) "checkId")
+    predVals <- lapply(X = traits, FUN = function(trait) {
+      predVal <- SpATS::predict.SpATS(mr[[trait]],
+                                      which = whichPred)[c(whichPred,
+                                                           "predicted.values")]
+      colnames(predVal) <- c(whichPred, trait)
+      return(predVal)
+    })
+    result[["BLUPs"]] <- Reduce(f = merge, x = predVals)
   }
   if ("seBLUPs" %in% what) {
-    result[["seBLUPs"]] <- cbind(data.frame(genotype = genoNames),
-                                 sapply(X = mr, FUN = function(mr0) {
-                                   SpATS::predict.SpATS(mr0,
-                                                        which = "genotype")$standard.errors
-                                 }))
+    whichPred <- c("genotype", if (useCheckId) "checkId")
+    predErrs <- lapply(X = traits, FUN = function(trait) {
+      predErr <- SpATS::predict.SpATS(mr[[trait]],
+                                      which = whichPred)[c(whichPred,
+                                                           "standard.errors")]
+      colnames(predErr) <- c(whichPred, trait)
+      return(predErr)
+    })
+    result[["seBLUPs"]] <- Reduce(f = merge, x = predErrs)
   }
   ## Compute generalized heritability.
   if ("heritability" %in% what) {

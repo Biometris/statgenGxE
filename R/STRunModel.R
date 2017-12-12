@@ -10,7 +10,7 @@
 #' \item{ibd}{trait = genotype + \emph{subBlock} + e}
 #' \item{res.ibd}{trait = genotype + \strong{repId} +
 #' \emph{repId:subBlock} + e}
-#' \item{rcbd}{trait = genotype+ \strong{repId} + e}
+#' \item{rcbd}{trait = genotype + \strong{repId} + e}
 #' \item{rowcol}{trait = genotype + \emph{rowId} + \emph{colId} + e}
 #' \item{res.rowcol}{trait = genotype + \strong{repId} +
 #' \emph{repId:rowId} + \emph{repId:colId} + e}

@@ -52,8 +52,8 @@ TDARC601H <- createTD(data = dfARC601, genotype = "Geno", checkId = "Check",
 ## Because of the structure of the data, genotype fixed leads to collinearity
 ARC601SpH <- STRunModel(TDARC601H, traits = traitnames, what = "random",
                         useCheckId = TRUE, engine = "SpATS",
-                        control = list(nSeg = c(ceiling(nlevels(TDARC601$colId) / 2),
-                                                nlevels(TDARC601$rowId))))
+                        control = list(nSeg = c(ceiling(nlevels(TDARC601H$colId) / 2),
+                                                nlevels(TDARC601H$rowId))))
 herit <- STExtract(ARC601SpH, what = "heritability")
 heritOrig <- heritabilities["ARC601", ]
 plot(x = herit, y = heritOrig)
