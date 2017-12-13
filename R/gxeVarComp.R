@@ -31,10 +31,10 @@
 #' @export
 
 gxeVarComp <- function(TD,
-                      trait,
-                      engine = "asreml",
-                      criterion = "BIC",
-                      ...) {
+                       trait,
+                       engine = "asreml",
+                       criterion = "BIC",
+                       ...) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -51,20 +51,12 @@ gxeVarComp <- function(TD,
                               !criterion %in% c("AIC", "BIC"))) {
     stop("criterion should be AIC or BIC.\n")
   }
-  ## keep NA values.
-  TD <- droplevels(TD[, c("env", "genotype", trait)])
-  naEntries <- which(is.na(tapply(X = rep(1, nrow(TD)),
-                                  INDEX = TD[, c("genotype", "env")],
-                                  FUN = identity)),
-                     arr.ind = TRUE)
-  if (length(naEntries)) {
-    TDExt <- data.frame(TD[naEntries$env, "env"],
-                        TD[naEntries$genotype, "genotype"], NA)
-    names(TDExt) <- names(TD)
-    TD <- rbind(TD, TDExt)
-  }
-  ## sort data in order of genotype, env.
-  TD <- TD[order(TD$genotype, TD$env), ]
+  ## Add combinations of env and genotype currently not in TD to TD.
+  TD <- reshape2::melt(data = reshape2::dcast(data = TD,
+                                              formula = env ~ genotype,
+                                              value.var = trait),
+                       id.vars = "env", variable.name = "genotype",
+                       value.name = trait)
   res <- vector(mode = "list")
   ## Main procedure to fit mixed models.
   if (engine == "lme4") {
@@ -85,87 +77,53 @@ gxeVarComp <- function(TD,
       tmp <- tempfile()
       choices <- c("identity", "cs", "diagonal", "hcs", "outside",
                    "fa", "fa2", "unstructured")
-      bestTab <- matrix(nrow = 8, ncol = 4,
+      bestTab <- matrix(nrow = length(choices), ncol = 4,
                         dimnames = list(choices,
                                         c("AIC", "BIC", "Deviance", "NParameters")))
-      for (i in 1:length(choices)) {
-        if (choices[i] == "identity") {
+      for (choice in choices) {
+        if (choice == "identity") {
           sink(file = tmp)
           mr <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
-                               rcov = as.formula("~ genotype:env"),
+                               rcov = ~ genotype:env,
                                data = TD, ...)
           sink()
-          mr$call$fixed <- eval(mr$call$fixed)
-          mr$call$rcov <- eval(mr$call$rcov)
-          res$model[["identity"]] <- mr
-          if (!mr$converge) {
-            mr$loglik <- -Inf
-          }
           nPar <- 1
-        } else if (choices[i] == "cs") {
+        } else if (choice == "cs") {
           sink(file = tmp)
           mr <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
-                               random = as.formula("~ genotype"),
-                               rcov = as.formula("~ genotype:env"),
+                               random = ~ genotype,
+                               rcov = ~ genotype:env,
                                data = TD, ...)
           sink()
-          mr$call$fixed <- eval(mr$call$fixed)
-          mr$call$random <- eval(mr$call$random)
-          mr$call$rcov <- eval(mr$call$rcov)
-          res$model[["cs"]] <- mr
-          if (!mr$converge) {
-            mr$loglik <- -Inf
-          }
           nPar <- 2
-        } else if (choices[i] == "diagonal") {
+        } else if (choice == "diagonal") {
           sink(file = tmp)
           mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                    rcov = as.formula("~ genotype:diag(env)"),
                                    data = TD, ...), silent = TRUE)
           sink()
-          if (inherits(mr, "try-error")) {
-            mr <- list(loglik = -Inf)
-          } else {
-            mr$call$fixed <- eval(mr$call$fixed)
-            mr$call$rcov <- eval(mr$call$rcov)
-            res$model[["diagonal"]] <- mr
-            if (!mr$converge) {
-              mr$loglik <- -Inf
-            }
-          }
           nPar <- nlevels(TD$env)
-        } else if (choices[i] == "hcs") {
+        } else if (choice == "hcs") {
           sink(file = tmp)
           mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                    random = as.formula("~ genotype"),
                                    rcov = as.formula("~ genotype:diag(env)"),
                                    data = TD, ...), silent = TRUE)
           sink()
-          if (inherits(mr, "try-error")) {
-            mr <- list(loglik = -Inf)
-          } else {
-            mr$call$fixed <- eval(mr$call$fixed)
-            mr$call$random <- eval(mr$call$random)
-            mr$call$rcov <- eval(mr$call$rcov)
-            res$model[["hcs"]] <- mr
-            if (!mr$converge) {
-              mr$loglik <- -Inf
-            }
-          }
           nPar <- nlevels(TD$env) + 1
-        } else if (choices[i] == "outside") {
+        } else if (choice == "outside") {
           sink(file = tmp)
           initVals <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                      random = as.formula("~ genotype:corh(env)"),
                                      start.values = TRUE, data = TD, ...)
           sink()
           unlink(tmp)
-          tmpTable <- initVals$gammas.table
           tmpValues <- qvInitial(TD = TD, trait = trait, unitError = NA,
                                  vcmodel = "outside",
                                  fixed = as.formula(paste(trait, "~ env")),
                                  unitFactor = NA, ...)
-          tmpTable[, "Value"] <- c(c(tmpValues$vg, tmpValues$diag), 1)
+          tmpTable <- initVals$gammas.table
+          tmpTable[, "Value"] <- c(tmpValues$vg, tmpValues$diag, 1)
           tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"] )
           tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
           tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
@@ -175,129 +133,85 @@ gxeVarComp <- function(TD,
                                    G.param = tmpTable, R.param = tmpTable, data = TD, ...),
                     silent = TRUE)
           sink()
-          if (inherits(mr, "try-error")) {
-            mr <- list(loglik = -Inf)
-          } else {
-            mr$call$fixed <- eval(mr$call$fixed)
-            mr$call$random <- eval(mr$call$random)
-            mr$call$rcov <- eval(mr$call$rcov)
-            mr$call$G.param <- eval(mr$call$G.param)
-            mr$call$R.param <- eval(mr$call$R.param)
-            res$model[["outside"]] <- mr
-            if (!mr$converge) {
-              mr$loglik <- -Inf
-            }
-          }
           nPar <- nlevels(TD$env) + 1
-        }
-        if (nlevels(TD$env) > 4) {
-          if (choices[i] == "fa") {
+        } else if (choice == "fa" && nlevels(TD$env) > 4) {
+          sink(file = tmp)
+          initVals <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
+                                     random = as.formula("~ genotype:fa(env, 1)"),
+                                     start.values = TRUE, data = TD, ...)
+          sink()
+          tmpTable <- initVals$gammas.table
+          tmpValues <- qvInitial(TD = TD, trait = trait, unitError = NA,
+                                 vcmodel = "fa", fixed = as.formula(paste(trait, "~ env")),
+                                 unitFactor = NA, ...)
+          if (is.null(tmpValues)) {
             sink(file = tmp)
-            initVals <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
-                                       random = as.formula("~ genotype:fa(env, 1)"),
-                                       start.values = TRUE, data = TD, ...)
+            mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
+                                     random = as.formula("~ genotype:fa(env, 1)"),
+                                     data = TD, ...), silent = TRUE)
             sink()
-            tmpTable <- initVals$gammas.table
-            tmpValues <- qvInitial(TD = TD, trait = trait, unitError = NA,
-                                   vcmodel = "fa", fixed = as.formula(paste(trait, "~ env")),
-                                   unitFactor = NA, ...)
-            if (is.null(tmpValues)) {
-              sink(file = tmp)
-              mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
-                                       random = as.formula("~ genotype:fa(env, 1)"),
-                                       data = TD, ...), silent = TRUE)
-              sink()
-            } else {
-              tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma, 1)
-              tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"] )
-              tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
-              tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
-              sink(file = tmp)
-              mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
-                                       random = as.formula("~ genotype:fa(env, 1)"),
-                                       R.param = tmpTable, G.param = tmpTable,
-                                       data = TD, ...),
-                        silent = TRUE)
-              sink()
-            }
-            if (inherits(mr, "try-error")) {
-              mr <- list(loglik = -Inf)
-            } else {
-              mr$call$fixed <- eval(mr$call$fixed)
-              mr$call$random <- eval(mr$call$random)
-              mr$call$rcov <- eval(mr$call$rcov)
-              mr$call$G.param <- eval(mr$call$G.param)
-              mr$call$R.param <- eval(mr$call$R.param)
-              res$model[["fa"]] <- mr
-              if (!mr$converge) {
-                mr$loglik <- -Inf
-              }
-            }
-            nPar <- nlevels(TD$env) * 2
-          }
-          if (choices[i] == "fa2") {
+          } else {
+            tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma, 1)
+            tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"] )
+            tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
+            tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
             sink(file = tmp)
-            initVals <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
-                                       random = as.formula("~ genotype:fa(env, 2)"),
-                                       start.values = TRUE, data = TD, ...)
+            mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
+                                     random = as.formula("~ genotype:fa(env, 1)"),
+                                     R.param = tmpTable, G.param = tmpTable,
+                                     data = TD, ...),
+                      silent = TRUE)
             sink()
-            tmpTable <- initVals$gammas.table
-            tmpValues <- qvInitial(TD = TD, trait = trait, unitError = NA,
-                                   vcmodel = "fa2",
-                                   fixed = as.formula(paste(trait, "~ env")),
-                                   unitFactor = NA, ...)
-            if (is.null(tmpValues)) {
-              sink(file = tmp)
-              mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
-                                       random = as.formula("~ genotype:fa(env, 2)"),
-                                       data = TD, ...), silent = TRUE)
-              sink()
-            } else {
-              ## Keep loadings of factor 2 away from 0.
-              tmpValues$gamma[2, which(tmpValues$gamma[2, ] < 1e-3)] <- 1e-3
-              ## Make sure that first entry is 0.
-              tmpValues$gamma[2, 1] <- 0
-              tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma[1, ],
-                                       tmpValues$gamma[2, ], 1)
-              tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
-              tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
-              tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
-              sink(file = tmp)
-              mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
-                                       random = as.formula("~ genotype:fa(env, 2)"),
-                                       R.param = tmpTable, G.param = tmpTable,
-                                       data = TD, ...),
-                        silent = TRUE)
-              sink()
-            }
-            if (inherits(mr, "try-error")) {
-              mr <- list(loglik = -Inf)
-            } else{
-              mr$call$fixed <- eval(mr$call$fixed)
-              mr$call$random <- eval(mr$call$random)
-              mr$call$rcov <- eval(mr$call$rcov)
-              mr$call$G.param <- eval(mr$call$G.param)
-              mr$call$R.param <- eval(mr$call$R.param)
-              res$model[["fa2"]] <- mr
-              if (!mr$converge) {
-                mr$loglik <- -Inf
-              }
-            }
-            nPar <- nlevels(TD$env) * 3 - 1
           }
-        }
-        ## Check model.
-        if (choices[i] == "unstructured") {
+          nPar <- nlevels(TD$env) * 2
+        } else if (choice == "fa2" && nlevels(TD$env) > 4) {
+          sink(file = tmp)
+          initVals <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
+                                     random = as.formula("~ genotype:fa(env, 2)"),
+                                     start.values = TRUE, data = TD, ...)
+          sink()
+          tmpTable <- initVals$gammas.table
+          tmpValues <- qvInitial(TD = TD, trait = trait, unitError = NA,
+                                 vcmodel = "fa2",
+                                 fixed = as.formula(paste(trait, "~ env")),
+                                 unitFactor = NA, ...)
+          if (is.null(tmpValues)) {
+            sink(file = tmp)
+            mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
+                                     random = as.formula("~ genotype:fa(env, 2)"),
+                                     data = TD, ...), silent = TRUE)
+            sink()
+          } else {
+            ## Keep loadings of factor 2 away from 0.
+            tmpValues$gamma[2, which(tmpValues$gamma[2, ] < 1e-3)] <- 1e-3
+            ## Make sure that first entry is 0.
+            tmpValues$gamma[2, 1] <- 0
+            tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma[1, ],
+                                     tmpValues$gamma[2, ], 1)
+            tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
+            tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
+            tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
+            sink(file = tmp)
+            mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
+                                     random = as.formula("~ genotype:fa(env, 2)"),
+                                     R.param = tmpTable, G.param = tmpTable,
+                                     data = TD, ...),
+                      silent = TRUE)
+            sink()
+          }
+          nPar <- nlevels(TD$env) * 3 - 1
+        } else if (choice == "unstructured") {
+          ## Check model.
           sink(file = tmp)
           initVals <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                      random = as.formula("~ genotype:us(env)"),
                                      start.values = TRUE, data = TD, ...)
           sink()
-          tmpTable <- initVals$gammas.table
           tmpValues <- qvInitial(TD = TD, trait = trait, vcmodel = "unstructured",
                                  fixed = as.formula(paste(trait, "~ env")),
                                  unitFactor = NA, ...)
           tmpValues <- tmpValues$evCov[upper.tri(tmpValues$evCov, diag = TRUE)]
+          tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(tmpValues, 1)
           tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"] )
           tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
@@ -309,71 +223,43 @@ gxeVarComp <- function(TD,
                                    data = TD, ...),
                     silent = TRUE)
           sink()
-          if (inherits(mr, "try-error")) {
-            mr <- list(loglik = -Inf)
-          } else {
-            mr$call$fixed <- eval(mr$call$fixed)
-            mr$call$random <- eval(mr$call$random)
-            mr$call$rcov <- eval(mr$call$rcov)
-            mr$call$G.param <- eval(mr$call$G.param)
-            mr$call$R.param <- eval(mr$call$R.param)
-            res$model[["unstructured"]] <- mr
-            if (!mr$converge) {
-              mr$loglik <- -Inf
-            }
-          }
           nPar <- nlevels(TD$env) * (nlevels(TD$env) - 1) / 2 +
             nlevels(TD$env)
         }
-        if (!(nlevels(TD$env) <= 4 && choices[i] %in% c("fa", "fa2"))) {
-          bestTab[choices[i], "AIC"] <- -2 * mr$loglik + 2 * nPar
-          bestTab[choices[i], "BIC"] <- -2 * mr$loglik +
-            log(length(mr$fitted.values)) * nPar
-          bestTab[choices[i], "Deviance"] <- -2 * mr$loglik
-          bestTab[choices[i], "NParameters"] <- nPar
-          if (i == 1) {
-            bestModel <- mr
-            bestChoice <- choices[i]
-            nBest <- nPar
-          } else {
-            if (criterion == "AIC") {
-              criterionCur <- -2 * mr$loglik + 2 * nPar
-              criterionPrev <- -2 * bestModel$loglik + 2 * nBest
-            } else {
-              criterionCur  <- -2 * mr$loglik + log(length(mr$fitted.values)) * nPar
-              criterionPrev <- -2 * bestModel$loglik +
-                log(length(bestModel$fitted.values)) * nBest
-            }
-            if (criterionCur < criterionPrev) {
-              bestModel <- mr
-              bestChoice <- choices[i]
-              nBest <- nPar
-            }
+        if (inherits(mr, "try-error")) {
+          mr <- list(loglik = -Inf)
+        } else {
+          mr$call$fixed <- eval(mr$call$fixed)
+          mr$call$random <- eval(mr$call$random)
+          mr$call$rcov <- eval(mr$call$rcov)
+          mr$call$G.param <- eval(mr$call$G.param)
+          mr$call$R.param <- eval(mr$call$R.param)
+          res$model[[choice]] <- mr
+          if (!mr$converge) {
+            mr$loglik <- -Inf
           }
         }
+        if (!(nlevels(TD$env) <= 4 && choice %in% c("fa", "fa2"))) {
+          bestTab[choice, "AIC"] <- -2 * mr$loglik + 2 * nPar
+          bestTab[choice, "BIC"] <- -2 * mr$loglik +
+            log(length(mr$fitted.values)) * nPar
+          bestTab[choice, "Deviance"] <- -2 * mr$loglik
+          bestTab[choice, "NParameters"] <- nPar
+        }
       }
-      if (criterion == "AIC") {
-        bestTab <- bestTab[order(bestTab[, "AIC"]), ]
-      } else {
-        bestTab <- bestTab[order(bestTab[, "BIC"]), ]
-      }
+      bestTab <- bestTab[order(bestTab[, criterion]), ]
       ## Outputs.
-      res$choice <- bestChoice
+      bestModel <- res$model[[rownames(bestTab)[1]]]
+      res$choice <- rownames(bestTab)[1]
       res$summaryTab <- bestTab
-      sink(file = tmp)
-      res$vcovBest <- predict(bestModel, classify = "env",
-                              data = TD, vcov = TRUE)$predictions$vcov
-      sink()
+      res$vcovBest <- predictAsreml(model = bestModel, classify = "env",
+                                    TD = TD)$predictions$vcov
       colnames(res$vcovBest) <- rownames(res$vcovBest) <- levels(TD$env)
-      if (criterion == "AIC") {
-        res$AICBest <- min(criterionCur, criterionPrev)
-      } else {
-        res$BICBest <- min(criterionCur, criterionPrev)
-      }
+      res$critBest <- bestTab[1, criterion]
+      unlink(tmp)
     } else {
       stop("Failed to load 'asreml'.\n")
     }
-    unlink(tmp)
   }
   return(res)
 }

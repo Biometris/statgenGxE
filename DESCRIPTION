@@ -18,7 +18,8 @@ Imports: lattice,
     SpATS,
     emmeans,
     Matrix,
-    dplyr
+    dplyr,
+    reshape2
 Suggests: asreml,
     GPArotation,
     lme4,
