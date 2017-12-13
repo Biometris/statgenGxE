@@ -4,7 +4,7 @@
 #' measure of Lin & Binns (1988), Shukla's (1972) stability variance and Wricke's (1962)
 #' ecovalence.
 #'
-#' @inheritParams GeAmmi
+#' @inheritParams gxeAmmi
 #'
 #' @param method A character string specifying (a) measure(s) of stability. By default,
 #' \code{method = c("superiority","static","wricke")}.
@@ -26,12 +26,12 @@
 #'
 #' @examples
 #' data(TDMaize)
-#' GE.stability(TD = TDMaize, trait = "yld", method = "superiority",
+#' gxeStability(TD = TDMaize, trait = "yld", method = "superiority",
 #'              superiorityBestMethod = "max", sorted = "descending", plot = TRUE)
 #'
 #' @export
 
-GE.stability <- function(TD,
+gxeStability <- function(TD,
                          trait,
                          method = c("superiority", "static", "wricke"),
                          superiorityBestMethod = "max",
@@ -68,7 +68,7 @@ GE.stability <- function(TD,
     yIndex <- tapply(X = 1:nrow(TD), INDEX = TD[, c("genotype","env")], FUN = identity)
     na_yes_no <- is.na(y0)
     ## imputation
-    y1 <- RAP.multmissing(y0, maxcycle = 10, na.strings = NA)
+    y1 <- multMissing(y0, maxcycle = 10, na.strings = NA)
     replaceVal <- y1[na_yes_no]
     yIndexReplace <- yIndex[na_yes_no]
     if (is.list(yIndexReplace)) {

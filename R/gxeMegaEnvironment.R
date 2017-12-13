@@ -5,7 +5,7 @@
 #' added as a column megaEnv to the input data. If a column megaEnv already exists the
 #' existing data is overwritten with a warning.
 #'
-#' @inheritParams GeAmmi
+#' @inheritParams gxeAmmi
 #'
 #' @param method A criterion to determine the best trait, either \code{"max"} or \code{"min"}.
 #' @param summaryTable A logical specifying whether a summary table will be returned.
@@ -14,12 +14,12 @@
 #'
 #' @examples
 #' data(TDMaize)
-#' TDmegaEnv <- GE.megaEnvironment(TD = TDMaize, trait = "yld")
+#' TDmegaEnv <- gxeMegaEnvironment(TD = TDMaize, trait = "yld")
 #' attr(TDmegaEnv, "summary")
 #'
 #' @export
 
-GE.megaEnvironment <- function(TD,
+gxeMegaEnvironment <- function(TD,
                                trait,
                                method = "max",
                                summaryTable = TRUE) {
@@ -44,7 +44,7 @@ GE.megaEnvironment <- function(TD,
   TD$genotype <- droplevels(TD$genotype)
   TD$env <- droplevels(TD$env)
   ## use AMMI
-  AMMI <- GeAmmi(TD = TD, trait = trait, nPC = 2)
+  AMMI <- gxeAmmi(TD = TD, trait = trait, nPC = 2)
   fitted <- AMMI$fitted
   genoNames <- rownames(fitted)
   envNames  <- colnames(fitted)

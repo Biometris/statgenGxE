@@ -6,7 +6,7 @@
 #' symmetry, first order factor analysis, second order factor analysis,
 #' unstructured), and selects the best one using a goodness-of-fit criterion.
 #'
-#' @inheritParams GeAmmi
+#' @inheritParams gxeAmmi
 #'
 #' @param engine A string specifying the name of a mixed modelling engine to be used.
 #' @param criterion A string specifying a goodness-of-fit criterion, i.e., "AIC" or "BIC".
@@ -21,7 +21,7 @@
 #' ## Get data.
 #' data(TDMaize)
 #' ## Fit model.
-#' model1 <- GeVarComp(TD = TDMaize, trait = "yld", engine = "lme4",
+#' model1 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "lme4",
 #'                      criterion = "BIC")
 #' ## Display results.
 #' model1$BIC
@@ -30,7 +30,7 @@
 #'
 #' @export
 
-GeVarComp <- function(TD,
+gxeVarComp <- function(TD,
                       trait,
                       engine = "asreml",
                       criterion = "BIC",
@@ -370,7 +370,7 @@ GeVarComp <- function(TD,
       } else {
         res$BICBest <- min(criterionCur, criterionPrev)
       }
-    } else{
+    } else {
       stop("Failed to load 'asreml'.\n")
     }
     unlink(tmp)
@@ -391,16 +391,15 @@ qvInitial <- function(TD,
   # TODO: factanal() ? fa()
   # First, form estimate of unstructured matrix
   # exclude the rows including NA
+  tmp <- tempfile()
   X <- na.omit(TD[, c(trait, "genotype", "env")])
   nEnv <- nlevels(X$env)
   nGeno <- nlevels(X$genotype)
   ## Get fixed df by stealth - in absence of other info, share among environments
   if (!is.null(fixed)) {
-    tmp <- tempfile()
     sink(file = tmp)
     mr <- asreml::asreml(fixed = fixed, rcov = ~id(units), data = X, ...)
-    sink(NULL)
-    unlink(tmp)
+    sink()
     P <- length(mr$fitted.values) - (1 + mr$nedf)
   } else {
     P <- 1
@@ -417,63 +416,51 @@ qvInitial <- function(TD,
     weights <- 1 / unitError
     X["weights"] <- weights
     if (!is.null(fixed)) {
-      tmp <- tempfile()
       sink(file = tmp)
       initValues <- asreml::asreml(fixed = fixed,
                                    random = as.formula("~ genotype:idh(env)"),
                                    weights = weights, start.values = TRUE,
                                    data = X, ...)
-      sink(NULL)
-      unlink(tmp)
+      sink()
       tmp <- initValues$gammas.table
       tmp[, "Constraint"] <- as.character(tmp[,"Constraint"])
       tmp[which(tmp[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
       tmp[, "Constraint"] <- as.factor(tmp[, "Constraint"])
-      tmp <- tempfile()
       sink(file = tmp)
       mr <- asreml::asreml(fixed = fixed,
                            random = as.formula("~ genotype:idh(env)"),
                            weights = weights, R.param = tmp, data = X, ...)
-      sink(NULL)
-      unlink(tmp)
+      sink()
       Ores <- matrix(data = mr$coeff$random, nrow = nGeno, ncol = nEnv, byrow = TRUE)
     } else {
-      tmp <- tempfile()
       sink(file = tmp)
       initValues <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                    random = as.formula("~ genotype:idh(env)"),
                                    weights = weights, start.values = TRUE,
                                    data = X, ...)
-      sink(NULL)
-      unlink(tmp)
+      sink()
       tmp <- initValues$gammas.table
       tmp[, "Constraint"] <- as.character(tmp[, "Constraint"] )
       tmp[which(tmp[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
       tmp[, "Constraint"] <- as.factor(tmp[, "Constraint"])
-      tmp <- tempfile()
       sink(file = tmp)
       mr <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                            random = as.formula("~ genotype:idh(env)"),
                            weights = weights, R.param = tmp, data = X, ...)
-      sink(NULL)
-      unlink(tmp)
+      sink()
       Ores <- matrix(data = mr$coeff$random, nrow = nGeno, ncol = nEnv, byrow = TRUE)
     }
   } else {
     ## This gives correct answers for complete balanced data.
     if (!is.null(fixed)) {
-      tmp <- tempfile()
       sink(file = tmp)
       mr <- asreml::asreml(fixed = fixed, data = X, ...)
-      sink(NULL)
-      unlink(tmp)
+      sink()
       residuals <- mr$residuals
     } else {
-      tmp <- tempfile()
       sink(file = tmp)
       mr <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")), data = X, ...)
-      sink(NULL)
-      unlink(tmp)
+      sink()
       residuals <- mr$residuals
     }
     Ores <- tapply(X = residuals, INDEX = list(X$genotype, X$env), FUN = mean)
@@ -550,6 +537,7 @@ qvInitial <- function(TD,
   } else if (vcmodel == "unstructured") {
     vcInitial <- list(evCov = evCov)
   }
+  unlink(tmp)
   return(vcInitial)
 }
 

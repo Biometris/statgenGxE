@@ -30,12 +30,12 @@
 #' ## Get data
 #' data(TDMaize)
 #' ## Run AMMI
-#' GeAmmi(TD = TDMaize, trait = "yld", nPC = 2, center = TRUE, scale = FALSE)
+#' a<-gxeAmmi(TD = TDMaize, trait = "yld", nPC = 2, center = TRUE, scale = FALSE)
 #'
 #' @import stats
 #' @export
 
-GeAmmi <- function(TD,
+gxeAmmi <- function(TD,
                    trait,
                    nPC = 2,
                    center = TRUE,
@@ -68,7 +68,7 @@ GeAmmi <- function(TD,
     yIndex <- tapply(X = 1:nTrait, INDEX = TD[, c("genotype", "env")], FUN = identity)
     na_yes_no <- is.na(y0)
     ## imputation
-    y1 <- RAP.multmissing(y0, maxcycle = 10, na.strings = NA)
+    y1 <- multMissing(y0, maxcycle = 10, na.strings = NA)
     TD[yIndex[na_yes_no], trait] <- y1[na_yes_no]
   }
   ## Descriptive statistics.

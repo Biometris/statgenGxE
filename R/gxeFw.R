@@ -2,7 +2,7 @@
 #'
 #' This function performs a modified joint analysis of data classified by two factors.
 #'
-#' @inheritParams GeAmmi
+#' @inheritParams gxeAmmi
 #'
 #' @param maxCycle An integer specifying the maximum number of iterations to be achieved.
 #' By default, \code{maxCycle = 15}.
@@ -29,11 +29,11 @@
 #' ## Get data
 #' data(TDMaize)
 #' ## Run joint regression analysis
-#' GeFw(TDMaize, trait = "yld", sortBySens = "ascending")
+#' gxeFw(TDMaize, trait = "yld", sortBySens = "ascending")
 #'
 #' @export
 
-GeFw <- function(TD,
+gxeFw <- function(TD,
                  trait,
                  maxCycle = 15,
                  tol = 0.001,

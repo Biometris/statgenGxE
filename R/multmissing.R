@@ -30,9 +30,9 @@
 #' Vol I, 697-715.
 #'
 #' @export
-RAP.multmissing <- function(Y,
-                            maxcycle = 10,
-                            na.strings = NA) {
+multMissing <- function(Y,
+                        maxcycle = 10,
+                        na.strings = NA) {
   ## TODO: ?weights update procedure ?adjust for bias in the variance-covariance matrix
   ##?logistic regression
   if (is.data.frame(Y)) {
