@@ -13,6 +13,43 @@ tryCatchExt <- function(expr) {
   list(value = value, warning = warn, error = err)
 }
 
+## Extended version of asreml.predict
+## Asreml has a bug that may throw a warning message:
+## Abnormal termination
+## Insufficient workspace - (reset workspace or pworkspace arguments)
+## This may be avoided by increasing pworkspace, but this doesn't
+## always work.
+## If this happens pworkspace is increased in 'small' steps.
+predictAsreml <- function(model,
+                          classify = "genotype",
+                          associate = as.formula("~ NULL"),
+                          vcov = TRUE,
+                          TD) {
+  ## Create tempfile to suppress asreml output messages.
+  tmp <- tempfile()
+  sink(tmp)
+  ## Predict using default settings, i.e. pworkspace = 8e6
+  modelP <- tryCatchExt(predict(model, classify = classify,
+                                vcov = vcov, associate = associate, data = TD))
+  pWorkSpace <- 8e6
+  ## While there is a warning, increase pWorkSpace and predict again.
+  while (!is.null(modelP$warning) && pWorkSpace < 160e6) {
+    pWorkSpace <- pWorkSpace + 8e6
+    modelP <- tryCatchExt(predict(model, classify = classify,
+                                  vcov = vcov, associate = associate, data = TD,
+                                  pworkspace = pWorkSpace))
+  }
+  sink()
+  unlink(tmp)
+  if (is.null(modelP$warning) && is.null(modelP$error)) {
+    return(modelP$value)
+  } else {
+    stop(paste("Error in asreml when running predict. Asreml message:\n",
+               modelP$error$message, "\n",
+               modelP$warning$message, "\n"), call. = FALSE)
+  }
+}
+
 isValidVariableName <- function(x,
                                 allowReserved = TRUE,
                                 unique = FALSE) {
