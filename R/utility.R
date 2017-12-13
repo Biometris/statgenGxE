@@ -1,3 +1,18 @@
+# custom tryCatch to return result, errors and warnings
+# http://stackoverflow.com/a/24569739/2271856
+tryCatchExt <- function(expr) {
+  warn <- err <- NULL
+  value <- withCallingHandlers(
+    tryCatch(expr, error = function(e) {
+      err <<- e
+      NULL
+    }), warning = function(w) {
+      warn <<- w
+      invokeRestart("muffleWarning")
+    })
+  list(value = value, warning = warn, error = err)
+}
+
 isValidVariableName <- function(x,
                                 allowReserved = TRUE,
                                 unique = FALSE) {

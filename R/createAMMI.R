@@ -79,7 +79,7 @@ print.AMMI <- function(x, ...) {
 #' environments means vs PC1) or an AMMI2 biplot respectively.
 #' @param scaleAMMI1 For AMMI1 biplot the variables are scaled by \code{lambda ^ scale} and
 #' the observations are by \code{lambda ^ (1 - scale)} where \code{lambda} are the singular values
-#' computed by \code{\link[stats]{princomp}} in \code{\link{GeAmmi}}. Normally
+#' computed by \code{\link[stats]{princomp}} in \code{\link{gxeAmmi}}. Normally
 #' \code{0 <= scale <= 1}, and a warning will be issued if the specified scale is
 #' outside this range.
 #' @param scaleAMMI2 Similar to \code{scaleAMMI1}, for AMMI2 biplot.

@@ -15,7 +15,7 @@
 #' @param env an optional character string indicating the column in \code{data} that
 #' contains environments. If \code{NULL} a default environment will be added.
 #' @param megaEnv an optional character string indicating the column in \code{data} that
-#' contains megaEnvironments as constructed by \code{\link{GE.megaEnvironment}}.
+#' contains megaEnvironments as constructed by \code{\link{gxeMegaEnvironment}}.
 #' @param year an optional character string indicating the column in \code{data} that
 #' contains years.
 #' @param repId an optional character string indicating the column in \code{data} that
@@ -115,7 +115,7 @@ createTD <- function(data,
   for (numCol in numCols) {
     if (numCol %in% cols && !is.numeric(data[, which(cols == numCol)])) {
       data[, which(cols == numCol)] <-
-        as.numeric(data[, which(cols == numCol)])
+        as.numeric(levels(data[, which(cols == numCol)]))
     }
   }
   TD <- structure(data,

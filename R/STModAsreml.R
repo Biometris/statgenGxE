@@ -116,7 +116,29 @@ STModAsreml <- function(TD,
       mrTrait$call$fixed <- eval(mrTrait$call$fixed)
       mrTrait$call$random <- eval(mrTrait$call$random)
       mrTrait$call$rcov <- eval(mrTrait$call$rcov)
-      mrTrait <- predict(mrTrait, classify = "genotype", data = TD)
+      # Run predict.
+      ## Asreml has a bug that may throw a warning message:
+      ## Abnormal termination
+      ## Insufficient workspace - (reset workspace or pworkspace arguments)
+      ## This may be avoided by increasing pworkspace, but this doesn't
+      ## always work.
+      ## If this happens pworkspace is increased in 'small' steps.
+      mrTraitP <- tryCatchExt(predict(mrTrait, classify = "genotype",
+                                      vcov = TRUE, data = TD))
+      pWorkSpace <- 8e6
+      while (!is.null(mrTraitP$warning) && pWorkSpace < 10e6) {
+        pWorkSpace <- pWorkSpace + 8e6
+        mrTraitP <- tryCatchExt(predict(mrTrait, classify = "genotype",
+                                        vcov = TRUE, data = TD,
+                                        pworkspace = pWorkSpace))
+      }
+      if (is.null(mrTraitP$warning) && is.null(mrTraitP$error)) {
+        mrTrait <- mrTraitP$value
+      } else {
+        stop(paste("Problem in asreml when running predict. Asreml message:\n",
+                   mrTraitP$error$message, "\n",
+                   mrTraitP$warning$message, "\n"))
+      }
       mrTrait$call$data <- substitute(TD)
       mr[[trait]] <- mrTrait
     }
@@ -140,12 +162,35 @@ STModAsreml <- function(TD,
       mfTrait$call$fixed <- eval(mfTrait$call$fixed)
       mfTrait$call$random <- eval(mfTrait$call$random)
       mfTrait$call$rcov <- eval(mfTrait$call$rcov)
-      ## Run predict.
+      ## Construct assocForm for use in associate in predict.
       if (useCheckId) {
-        mfTrait <- predict(mfTrait, classify = "genotype", vcov = TRUE, data = TD,
-                           associate = ~ checkId:genotype)
+        assocForm <- as.formula("~ checkId:genotype")
       } else {
-        mfTrait <- predict(mfTrait, classify = "genotype", vcov = TRUE, data = TD)
+        assocForm <- as.formula("~ NULL")
+      }
+      ## Run predict.
+      ## Asreml has a bug that may throw a warning message:
+      ## Abnormal termination
+      ## Insufficient workspace - (reset workspace or pworkspace arguments)
+      ## This may be avoided by increasing pworkspace, but this doesn't
+      ## always work.
+      ## If this happens pworkspace is increased in 'small' steps.
+      mfTraitP <- tryCatchExt(predict(mfTrait, classify = "genotype",
+                                      associacte = assocForm, vcov = TRUE,
+                                      data = TD))
+      pWorkSpace <- 8e6
+      while (!is.null(mfTraitP$warning) && pWorkSpace < 10e6) {
+        pWorkSpace <- pWorkSpace + 8e6
+        mfTraitP <- tryCatchExt(predict(mfTrait, classify = "genotype",
+                                        associacte = assocForm, vcov = TRUE,
+                                        data = TD, pworkspace = pWorkSpace))
+      }
+      if (is.null(mfTraitP$warning) && is.null(mfTraitP$error)) {
+        mfTrait <- mfTraitP$value
+      } else {
+       stop(paste("Problem in asreml when running predict. Asreml message:\n",
+                  mfTraitP$error$message, "\n",
+                  mfTraitP$warning$message, "\n"))
       }
       mfTrait$call$data <- substitute(TD)
       mf[[trait]] <- mfTrait

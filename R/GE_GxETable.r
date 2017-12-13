@@ -3,7 +3,7 @@
 #' This function calculates predicted means (BLUPS) and associated standard errors based on a
 #' set of mega-environments
 #'
-#' @inheritParams GeAmmi
+#' @inheritParams gxeAmmi
 #'
 #' @param year A character string specifying years within environments.
 #' @param engine asreml or lme4
@@ -11,18 +11,18 @@
 #'
 #' @examples
 #' data(TDMaize)
-#' myTDMegaEnv <- GE.megaEnvironment(TD = TDMaize, trait = "yld")
-#' GE.GxETable(TD = myTDMegaEnv, trait = "yld")
+#' myTDMegaEnv <- gxeMegaEnvironment(TD = TDMaize, trait = "yld")
+#' gxeTable(TD = myTDMegaEnv, trait = "yld")
 #'
 #' @import utils
 #' @importFrom methods slot
 #'
 #' @export
-GE.GxETable <- function(TD,
-                        trait,
-                        year = NULL,
-                        engine = "asreml",
-                        ...) {
+gxeTable <- function(TD,
+                     trait,
+                     year = NULL,
+                     engine = "asreml",
+                     ...) {
   if (!trait %in% names(TD)) {
     stop(trait," not found in ", TD)
   }

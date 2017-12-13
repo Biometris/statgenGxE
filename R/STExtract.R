@@ -107,7 +107,7 @@ extractSpATS <- function(SSA,
                "varSpat", "fitted", "resid", "rMeans", "ranEf", "rDf", "effDim")
   whatMod <- c("F", "F", "R", "R", "R", "R", "R", "F", "F", "R", "R", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
-  if (what == "all") {
+  if (what[[1]] == "all") {
     what <- whatTot[whatMod %in% whatSSA]
   } else {
     what <- match.arg(arg = what, choices = whatTot[whatMod %in% whatSSA],
@@ -237,7 +237,7 @@ extractLme4 <- function(SSA,
   whatMod <- c("F", "F", "R", "R", "F", "R", "R", "R", "F", "F", "F", "R", "R",
                "F", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
-  if (what == "all") {
+  if (what[[1]] == "all") {
     what <- whatTot[whatMod %in% whatSSA]
   } else {
     what <- match.arg(arg = what, choices = whatTot[whatMod %in% whatSSA],
@@ -412,7 +412,7 @@ extractAsreml <- function(SSA,
   whatMod <- c("F", "F", "R", "R", "F", "R", "R", "R", "F", "F", "F", "R", "R",
                "F", "F", "F", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
-  if (what == "all") {
+  if (what[[1]] == "all") {
     what <- whatTot[whatMod %in% whatSSA]
   } else {
     what <- match.arg(arg = what, choices = whatTot[whatMod %in% whatSSA],
