@@ -14,13 +14,13 @@ LazyData: true
 RoxygenNote: 6.0.1
 Depends: R (>=  3.0.0)
 Imports: lattice,
+    lme4,
     methods,
     SpATS,
     emmeans,
     Matrix,
     dplyr,
     reshape2
-Suggests: asreml,
-    GPArotation,
-    lme4,
-    psych
+Suggests: asreml
+    
+    

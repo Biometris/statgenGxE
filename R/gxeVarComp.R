@@ -265,6 +265,9 @@ gxeVarComp <- function(TD,
 }
 
 #' Helper function
+#'
+#' Replicates '_qvInitial' procedure (S. J. Welham 15/05/09) in GenStat
+#'
 #' @keywords internal
 qvInitial <- function(TD,
                       trait,
@@ -273,11 +276,11 @@ qvInitial <- function(TD,
                                   "outside", "fa", "fa2", "unstructured"),
                       fixed = NULL,
                       unitFactor = NA, ...) {
-  # Replicates '_qvInitial' procedure (S. J. Welham 15/05/09) in GenStat
-  # TODO: factanal() ? fa()
-  # First, form estimate of unstructured matrix
-  # exclude the rows including NA
+
+  ## First, form estimate of unstructured matrix
+  ## Create tempfile for asreml output.
   tmp <- tempfile()
+  ## Remove the rows with NA.
   X <- na.omit(TD[, c(trait, "genotype", "env")])
   nEnv <- nlevels(X$env)
   nGeno <- nlevels(X$genotype)
@@ -287,12 +290,13 @@ qvInitial <- function(TD,
     mr <- asreml::asreml(fixed = fixed, rcov = ~id(units), data = X, ...)
     sink()
     P <- length(mr$fitted.values) - (1 + mr$nedf)
+    fixedForm <- fixed
   } else {
     P <- 1
+    fixedForm <- as.formula(paste(trait, "~ env"))
   }
   ## Get number of effects contributing to each sum of squares.
-  tmpTable <- table(X[, c("env", "genotype")])
-  nobsEnv <- rowSums(tmpTable)
+  nobsEnv <- rowSums(table(X[, c("env", "genotype")]))
   Rnobs <- matrix(data = nobsEnv, nrow = nEnv, ncol = nEnv, byrow = TRUE)
   Cnobs <- t(Rnobs)
   Nobs <- Rnobs * (Rnobs - Cnobs < 0) + Cnobs * (Cnobs - Rnobs <= 0)
@@ -301,125 +305,71 @@ qvInitial <- function(TD,
     ## but use of the diag structure is better than nothing!
     weights <- 1 / unitError
     X["weights"] <- weights
-    if (!is.null(fixed)) {
-      sink(file = tmp)
-      initValues <- asreml::asreml(fixed = fixed,
-                                   random = as.formula("~ genotype:idh(env)"),
-                                   weights = weights, start.values = TRUE,
-                                   data = X, ...)
-      sink()
-      tmp <- initValues$gammas.table
-      tmp[, "Constraint"] <- as.character(tmp[,"Constraint"])
-      tmp[which(tmp[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
-      tmp[, "Constraint"] <- as.factor(tmp[, "Constraint"])
-      sink(file = tmp)
-      mr <- asreml::asreml(fixed = fixed,
-                           random = as.formula("~ genotype:idh(env)"),
-                           weights = weights, R.param = tmp, data = X, ...)
-      sink()
-      Ores <- matrix(data = mr$coeff$random, nrow = nGeno, ncol = nEnv, byrow = TRUE)
-    } else {
-      sink(file = tmp)
-      initValues <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
-                                   random = as.formula("~ genotype:idh(env)"),
-                                   weights = weights, start.values = TRUE,
-                                   data = X, ...)
-      sink()
-      tmp <- initValues$gammas.table
-      tmp[, "Constraint"] <- as.character(tmp[, "Constraint"] )
-      tmp[which(tmp[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
-      tmp[, "Constraint"] <- as.factor(tmp[, "Constraint"])
-      sink(file = tmp)
-      mr <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
-                           random = as.formula("~ genotype:idh(env)"),
-                           weights = weights, R.param = tmp, data = X, ...)
-      sink()
-      Ores <- matrix(data = mr$coeff$random, nrow = nGeno, ncol = nEnv, byrow = TRUE)
-    }
+    sink(file = tmp)
+    initValues <- asreml::asreml(fixed = fixedForm,
+                                 random = as.formula("~ genotype:idh(env)"),
+                                 weights = weights, start.values = TRUE,
+                                 data = X, ...)
+    sink()
+    tmpTable <- initValues$gammas.table
+    tmpTable[, "Constraint"] <- as.character(tmpTable[,"Constraint"])
+    tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
+    tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
+    sink(file = tmpTable)
+    mr <- asreml::asreml(fixed = fixedForm,
+                         random = as.formula("~ genotype:idh(env)"),
+                         weights = weights, R.param = tmpTable, data = X, ...)
+    sink()
+    RMat <- matrix(data = coefficients(mr)$random, nrow = nGeno,
+                   ncol = nEnv, byrow = TRUE)
   } else {
     ## This gives correct answers for complete balanced data.
-    if (!is.null(fixed)) {
-      sink(file = tmp)
-      mr <- asreml::asreml(fixed = fixed, data = X, ...)
-      sink()
-      residuals <- mr$residuals
-    } else {
-      sink(file = tmp)
-      mr <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")), data = X, ...)
-      sink()
-      residuals <- mr$residuals
-    }
-    Ores <- tapply(X = residuals, INDEX = list(X$genotype, X$env), FUN = mean)
-    if (sum(is.na(Ores)) != 0) {
-      Ores[which(is.na(Ores))] <- 0
-    }
+    sink(file = tmp)
+    mr <- asreml::asreml(fixed = fixedForm, data = X, ...)
+    sink()
+    res <- residuals(mr, type = "response")
+    RMat <- tapply(X = res, INDEX = list(X$genotype, X$env), FUN = mean)
+    RMat[which(is.na(RMat))] <- 0
   }
-  Rmat <- Ores
-  evCov <- crossprod(Rmat) / (Nobs - (P / nEnv))
+  evCov <- crossprod(RMat) / (Nobs - (P / nEnv))
   ## Get off-diagonal elements of evCov only.
-  offdiag <- evCov
-  diag(offdiag) <- NA
+  offDiag <- evCov
+  diag(offDiag) <- NA
   ## Get off-diagonal elements of cor(evCov) only.
   offCorr <- cor(evCov)
   diag(offCorr) <- NA
+  diagEv <- diag(evCov)
   ## Get initial values for each model.
   if (vcmodel == "identity") {
-    vcInitial <- list(vge = mean(diag(evCov)))
+    vcInitial <- list(vge = mean(diagEv))
   } else if (vcmodel == "cs") {
-    vg <- mean(offdiag, na.rm = TRUE)
-    vge <- mean(diag(evCov))
+    vg <- mean(offDiag, na.rm = TRUE)
+    vge <- mean(diagEv)
     vge <- (vge > vg) * (vge - vg) + (vge <= vg) * 0.1 * vge
     vcInitial <- list(vg = vg, vge = vge)
   } else if (vcmodel == "diagonal") {
-    vcInitial <- list(diag = diag(evCov))
+    vcInitial <- list(diag = diagEv)
   } else if (vcmodel == "hcs") {
-    vg <- mean(offdiag, na.rm = TRUE) / 2
-    diag <- diag(evCov)
-    diag <- (diag > vg) * (diag - vg) + (diag <= vg) * 0.1 * diag
+    vg <- mean(offDiag, na.rm = TRUE) / 2
+    diag <- (diagEv > vg) * (diagEv - vg) + (diagEv <= vg) * 0.1 * diagEv
     vcInitial <- list(vg = vg, diag = diag)
   } else if (vcmodel == "outside") {
     vg <- mean(offCorr, na.rm = TRUE)
-    diag <- diag(evCov)
-    vcInitial <- list(vg = vg, diag = diag)
+    vcInitial <- list(vg = vg, diag = diagEv)
   } else if (vcmodel == "fa") {
-    if (requireNamespace("psych", quietly = TRUE) &&
-        requireNamespace("GPArotation", quietly = TRUE)) {
-      factorAnalysis <- try(psych::fa(r = evCov, nfactors = 1, fm = "mle"), silent = TRUE)
-      if (inherits(factorAnalysis, "try-error")) {
-        factorAnalysis <- psych::fa(r = evCov, nfactors = 1, fm = "minres")
-      }
-      loading <- as.vector(factorAnalysis$loadings)
-      comm <- factorAnalysis$communalities
-      var <- diag(evCov)
-      psi <- var * (1 - comm)
-      Smat <- tcrossprod(loading)
-      chol <- suppressWarnings(chol(Smat, pivot = TRUE))
-      gamma <- chol[1, ]
-      vcInitial <- list(gamma = gamma, psi = psi)
-    } else {
-      vcInitial <- NULL
-      warning("psych package is required but failed to load.\n")
-    }
+    factorAnalysis <- factanal(factors = 1, covmat = evCov)
+    psi <- diagEv * factorAnalysis$uniquenesses
+    SMat <- tcrossprod(factorAnalysis$loadings)
+    chol <- suppressWarnings(chol(SMat, pivot = TRUE))
+    gamma <- chol[1, ]
+    vcInitial <- list(gamma = gamma, psi = psi)
   } else if (vcmodel == "fa2") {
-    if (requireNamespace("psych", quietly = TRUE) &&
-        requireNamespace("GPArotation", quietly = TRUE)) {
-      factorAnalysis <- try(psych::fa(r = evCov, nfactors = 2, fm = "mle"),
-                            silent = TRUE)
-      if (inherits(factorAnalysis, "try-error")) {
-        factorAnalysis <- psych::fa(r = evCov, nfactors = 2, fm = "minres")
-      }
-      loading <- as.vector(factorAnalysis$loadings[, 1])
-      comm <- factorAnalysis$communalities
-      var <- diag(evCov)
-      psi <- var * (1 - comm)
-      Smat <- tcrossprod(loading)
-      chol <- suppressWarnings(chol(Smat, pivot = TRUE))
-      gamma <- chol[1:2, ]
-      vcInitial <- list(gamma = gamma, psi = psi)
-    } else {
-      vcInitial <- NULL
-      warning("psych and GPArotation packages are required but failed to load.\n")
-    }
+    factorAnalysis <- factanal(factors = 2, covmat = evCov)
+    psi <- diagEv * factorAnalysis$uniquenesses
+    SMat <- tcrossprod(factorAnalysis$loadings[, 1])
+    chol <- suppressWarnings(chol(SMat, pivot = TRUE))
+    gamma <- chol[1:2, ]
+    vcInitial <- list(gamma = gamma, psi = psi)
   } else if (vcmodel == "unstructured") {
     vcInitial <- list(evCov = evCov)
   }
