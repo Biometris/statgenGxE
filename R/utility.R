@@ -1,5 +1,7 @@
-# custom tryCatch to return result, errors and warnings
-# http://stackoverflow.com/a/24569739/2271856
+#' custom tryCatch to return result, errors and warnings
+#' http://stackoverflow.com/a/24569739/2271856
+#'
+#' @keywords internal
 tryCatchExt <- function(expr) {
   warn <- err <- NULL
   value <- withCallingHandlers(
@@ -13,13 +15,16 @@ tryCatchExt <- function(expr) {
   list(value = value, warning = warn, error = err)
 }
 
-## Extended version of asreml.predict
-## Asreml has a bug that may throw a warning message:
-## Abnormal termination
-## Insufficient workspace - (reset workspace or pworkspace arguments)
-## This may be avoided by increasing pworkspace, but this doesn't
-## always work.
-## If this happens pworkspace is increased in 'small' steps.
+#' Extended version of asreml.predict
+#'
+#' Asreml has a bug that may throw a warning message:
+#' Abnormal termination
+#' Insufficient workspace - (reset workspace or pworkspace arguments)
+#' This may be avoided by increasing pworkspace, but this doesn't
+#' always work.
+#' If this happens pworkspace is increased in 'small' steps.
+#'
+#' @keywords internal
 predictAsreml <- function(model,
                           classify = "genotype",
                           associate = as.formula("~ NULL"),
@@ -50,6 +55,7 @@ predictAsreml <- function(model,
   }
 }
 
+#' @keywords internal
 isValidVariableName <- function(x,
                                 allowReserved = TRUE,
                                 unique = FALSE) {
@@ -70,6 +76,7 @@ isValidVariableName <- function(x,
   return(ok)
 }
 
+#' @keywords internal
 char2numeric <- function(x,
                          dec = ".") {
   # This function is to convert a vector of characters to numeric with specified dec
@@ -83,6 +90,7 @@ char2numeric <- function(x,
   return(y)
 }
 
+#' @keywords internal
 file_ext <- function(x)
 {
   # From tools package
@@ -90,6 +98,7 @@ file_ext <- function(x)
   ifelse(pos > -1L, substring(x, pos + 1L), "")
 }
 
+#' @keywords internal
 seVar <- function(x, na.rm = FALSE)
 {
   if (is.matrix(x)) {
@@ -113,6 +122,7 @@ seVar <- function(x, na.rm = FALSE)
   return(se)
 }
 
+#' @keywords internal
 skewness <- function(x,
                      na.rm = FALSE) {
   if (is.matrix(x)) {
@@ -134,10 +144,12 @@ skewness <- function(x,
   return(skw)
 }
 
+#' @keywords internal
 seSkewness <- function(n) {
   return(sqrt((6 * n * (n - 1)) / ((n - 1) * (n + 1) * (n + 3))))
 }
 
+#' @keywords internal
 kurtosis <- function(x,
                      na.rm = FALSE) {
   if (is.matrix(x)) {
@@ -160,10 +172,12 @@ kurtosis <- function(x,
   return(kurt)
 }
 
+#' @keywords internal
 seKurtosis <- function(n) {
   return(sqrt((24 * n * (n - 1) ^ 2) / ((n - 2) * (n - 3) * (n + 5) * (n + 3))))
 }
 
+#' @keywords internal
 waldTest <- function(b,
                      sigma,
                      positions,
@@ -194,4 +208,8 @@ waldTest <- function(b,
   return(list(sigma = sigma, b = b, positions = positions, L = L, result = res, df = df))
 }
 
+#' @export
+report <- function(x, ...) {
+  UseMethod("report", x)
+}
 

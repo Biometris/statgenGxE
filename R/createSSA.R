@@ -161,7 +161,7 @@ summary.SSA <- function(object,
 #' @examples
 #' data(TDHeat05)
 #' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
-#'                       tryspatial = "always")
+#'                       trySpatial = "always")
 #' plot(myModel, plotType = "fix")
 #'
 #' @export
@@ -249,5 +249,13 @@ plot.SSA <- function(x,
   invisible(trellisObj)
 }
 
-
+#' Create a report with basic results.
+#'
+#' @export
+report.SSA <- function(x) {
+  #tmp <- tempfile()
+  file <- system.file("latex", "modelReport.Rnw", package = "RAP")
+  knitr::knit(input = file, output = "modelReport.tex")
+  tools::texi2dvi("modelReport.tex", pdf = TRUE)
+}
 
