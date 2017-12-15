@@ -252,10 +252,26 @@ plot.SSA <- function(x,
 #' Create a report with basic results.
 #'
 #' @export
-report.SSA <- function(x) {
-  #tmp <- tempfile()
-  file <- system.file("latex", "modelReport.Rnw", package = "RAP")
-  knitr::knit(input = file, output = "modelReport.tex")
-  tools::texi2dvi("modelReport.tex", pdf = TRUE)
+report.SSA <- function(x, ..., outfile = NULL) {
+  if (is.null(outfile)) {
+    timeStamp <- format(Sys.time(), "%Y%m%d%H%M%S")
+    outfile <- paste0(getwd(), "/modelReport_", timeStamp, ".pdf")
+  }
+  outBase <- substring(basename(outfile), first = 1,
+                       last = nchar(basename(outfile)) - 3)
+  outTex <- paste0(system.file("latex", package = "RAP"), "/", outBase, "tex")
+  reportFile <- system.file("latex", "modelReport.Rnw", package = "RAP")
+  knitr::knit(input = reportFile, output = outTex, quiet = TRUE)
+  system(paste0(Sys.which("pdflatex"),
+                ' -output-directory="', dirname(outfile), '"',
+                ' "',  outTex, '"'),
+         show.output.on.console = TRUE)
+  for (extension in c("aux", "log", "out", "toc", "xwm")) {
+    unlink(paste0(dirname(outfile), "/", outBase, extension))
+  }
+  invisible(file.rename(from = outTex,
+                        to = paste0(dirname(outfile), "/", basename(outTex))))
 }
+
+
 
