@@ -5,9 +5,9 @@
 % Package declaration
 %-------------------------------------------------------------------------------
 % Needed for draftwatermark
-\usepackage{xcolor}
+%\usepackage{xcolor}
 % For adding a watermark
-\usepackage[printwatermark]{xwatermark}
+%\usepackage[printwatermark]{xwatermark}
 % Specify input encoding
 \usepackage[utf8]{inputenc}
 % For A4 paper set all margins to 3cm
@@ -31,21 +31,24 @@
 % Extensive support for hypertext in LaTeX
 \usepackage{hyperref}%
 
+% For adding bookmarks to the document
+\usepackage{bookmark}%
+
 % Graphics Path definition
 %-------------------------------------------------------------------------------
 \graphicspath{{figures/}}
 
 % newcommand
 %-------------------------------------------------------------------------------
-\newcommand{\scscst}{\scriptscriptstyle}
-\newcommand{\scst}{\scriptstyle}
-\newcommand{\Robject}[1]{{\texttt{#1}}}
-\newcommand{\Rfunction}[1]{{\texttt{#1}}}
-\newcommand{\Rclass}[1]{\textit{#1}}
-\newcommand{\Rpackage}[1]{\textit{#1}}
-\newcommand{\Rexpression}[1]{\texttt{#1}}
-\newcommand{\Rmethod}[1]{{\texttt{#1}}}
-\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
+%\newcommand{\scscst}{\scriptscriptstyle}
+%\newcommand{\scst}{\scriptstyle}
+%\newcommand{\Robject}[1]{{\texttt{#1}}}
+%\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+%\newcommand{\Rclass}[1]{\textit{#1}}
+%\newcommand{\Rpackage}[1]{\textit{#1}}
+%\newcommand{\Rexpression}[1]{\texttt{#1}}
+%\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+%\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
 
 % Redefine commands
 %-------------------------------------------------------------------------------
@@ -58,17 +61,17 @@
 %-------------------------------------------------------------------------------
 \def\@abstractline{\textwidth}
 \renewenvironment{abstract}
-   {
-      \ifhmode\begingroup\parskip0pt\par\noindent\endgroup\fi%
-      \begin{rmfamily}
-         %\vspace{1cm} % use \topsep in list
-            {\noindent\bfseries\large\abstractname\vspace{-0.5em}}
-            {\par\vbox{\hrule width \@abstractline}}
-     }{
-            \ifhmode\begingroup\parskip0pt\par\noindent\endgroup\fi %
-            \par\vbox{\hrule width \@abstractline}% \vspace{1cm} %
-      \end{rmfamily}
-   }
+{
+\ifhmode\begingroup\parskip0pt\par\noindent\endgroup\fi%
+\begin{rmfamily}
+%\vspace{1cm} % use \topsep in list
+{\noindent\bfseries\large\abstractname\vspace{-0.5em}}
+{\par\vbox{\hrule width \@abstractline}}
+}{
+\ifhmode\begingroup\parskip0pt\par\noindent\endgroup\fi %
+\par\vbox{\hrule width \@abstractline}% \vspace{1cm} %
+\end{rmfamily}
+}
 
 %-------------------------------------------------------------------------------
 %	Article Information
@@ -77,10 +80,8 @@
 % !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
 \hypersetup
 {
-    pdfauthor={Maikel Verouden},
-    pdfsubject={Field Layout 2016 SESVanderHave : Exploratory Analysis},
-    pdftitle={Field Layout 2016 SESVanderHave : Exploratory Analysis.},
-    pdfkeywords={SESVanderHave, Sugar beet, Field trials, Clean Data, Exploratory Analysis}
+pdfsubject={Model report},
+pdftitle={Model report}
 }
 % % !! Works with LaTeX->DVI->PDF
 % \special{pdf: docinfo <<
@@ -93,18 +94,14 @@
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Field Layout 2016 SESVanderHave :\newline Exploratory Analysis.}%
+\title{Model report}%
 % Authors
-\author[a]{Maikel Verouden}%\footnote{Corresponding author; E-mail: Maikel.Verouden@wur.nl, Phone: +31 (0)317 4 82384}}%
-\author[a]{Ron Wehrens}%
-\author[a]{Frederik van Parijs}%
-\author[a]{Martin Boer}%
-%\author[b]{Third Coauthor\,\footnote{Current address: Company, P.O. Box 1, zipcode City, Country}}%
+\author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Affiliations
 % When an affiliation becomes too large to fit the page, continue using the command \newline e.g.
 % \affil[a]{Place Groupname, Name of the Research Institute, Name of the University,\newline P.O. Box 90210, ZIPCODE City Name, Country Name}%
-\affil[a]{Wageningen University \& Research, Biometris, P.O. Box 16,\newline 6700 AA Wageningen, The Netherlands}%
+%\affil[a]{Wageningen University \& Research, Biometris, P.O. Box 16,\newline 6700 AA Wageningen, The Netherlands}%
 %\affil[b]{Former Affiliation, P.O. Box 3, zipcode Somecity, Country}%
 
 % Dates
@@ -128,18 +125,29 @@
 % Set knitr options
 <<label=setup, include=FALSE, cache=FALSE>>=
 ## load required packages
-lapply(list("knitr", "fields", "reshape2","xtable"), library, character.only = TRUE)
-# set global chunk options
-opts_chunk$set(dev = c("pdf"),
-               fig.path = "figures/fig-",
-               fig.align = "center",
-               fig.show = "hold",
-               tidy = TRUE)
+lapply(list("SpATS", "xtable"), library, character.only = TRUE)
+## Set global chunk options
+knitr::opts_chunk$set(dev = c("pdf"),
+                      fig.path = "figures/fig-",
+                      fig.align = "center",
+                      fig.show = "hold",
+                      tidy = TRUE)
+@
+<<label=extractInfo, echo=FALSE, include=FALSE>>=
+## Extract basic modelling information
+engine <- x$engine
+if (is.null(x$mFix)) {
+  model <- x$mRand[[1]]
+  modelType <- "random"
+} else {
+  model <- x$mFix[[1]]
+  modelType <- "fixed"
+}
 @
 
 % Article title, Authors and Affiliations
 \maketitle
-\newpage
+%\newpage
 
 % Start double line spacing
 \singlespacing
@@ -154,47 +162,111 @@ opts_chunk$set(dev = c("pdf"),
 % \newpage
 
 % Table of Contents
-\tableofcontents
-\newpage
+%\tableofcontents
+%\newpage
 
 %-------------------------------------------------------------------------------
-\section{Introduction}
+\section{Description of the fitted model}
 %-------------------------------------------------------------------------------
-<<label=loadcleandata, echo=FALSE>>=
-##load("../../../data/2016/cleandata.RData")
+
+<<label=modelDescription, echo=FALSE, results="asis">>=
+#model <- if (is.null(x$mFix)) x$mRand[[1]] else x$mFix[[1]]
+modelDesigns <- c("block (R)",
+                  "replicate (F) + block(replicate) (R)",
+                  "replicate (F)",
+                  "row (R) + col (R)",
+                  "row(replicate) (R) + col(replicate) (R)")
+names(modelDesigns) <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
+if (length(grep(pattern = "checkId",
+                            x = deparse(model$model$fixed))) > 0) {
+  modelDesigns <- paste("checkId (F) +", modelDesigns)
+}
+descrItems <- c(x$traits, modelDesigns[x$design],
+                if (engine == "SpATS") "splines" else "no",
+                modelType)
+names(descrItems) <- c("response",
+                       "design features",
+                       "spatial model",
+                       "genotype")
+print(xtable::xtable(x = data.frame(descrItems), label = "modelDescription",
+                     align = c("l", "l")),
+      latex.environments = "flushleft", hline.after = NULL,
+      include.rownames = TRUE, include.colnames = FALSE)
 @
-The raw data, as provided by SESVanderHave in a Microsoft Excel workbook file, contains data of sugar beet field trials from seven different locations. The workbook file has two worksheets per field:
-\begin{itemize}
- \item one worksheet labeled with the field identifier followed by the word "Map", displaying the layout of the field indicated by the field identifier
- \item one worksheet labeled with only the field identifier, containing all the data for the field indicated by the field indentifier
-\end{itemize}
-The seven locations are represented by the following field identifiers:
 
-The raw data have been read into the \texttt{R} language and environment for statistical computing~\cite{R2016} and cleaned up. The clean up process involved removal of plots outside the X and Y coordinate range of the field, removal of plots with a field trial identifier different from the field trial identifier representing the block of replicates and selection of the most important traits. The eight selected traits are in order of importance:
-\begin{description}
- \item[THA]  Root Yield $[\mbox{t}.\mbox{ha}^{-1} = \mbox{tonne per hectare}]$
- \item[pctS] Sugar Content $[\mbox{\%}]$
- \item[SHA]  Sugar Yield $[\mbox{t}.\mbox{ha}^{-1} = \mbox{tonne per hectare}]$
- \item[WS]   White Sugar Content $[\mbox{\%}]$
- \item[WSY]  White Sugar Yield $[\mbox{t}.\mbox{ha}^{-1} = \mbox{tonne per hectare}]$
- \item[mMK]  Potassium Content $[\mbox{mM} = \mbox{mmol}.\mbox{l}^{-1}]$
- \item[mMNa] Sodium Content $[\mbox{mM} = \mbox{mmol}.\mbox{l}^{-1}]$
- \item[mMN]  $\alpha$-amino Nitrogen Content $[\mbox{mM} = \mbox{mmol}.\mbox{l}^{-1}]$
-\end{description}
-Between some of these traits there exist some relationships:
-\begin{itemize}
-	\item \textbf{THA}*\textbf{pctS}=\textbf{SHA}
-	\item \textbf{THA}*\textbf{WS}=\textbf{WSY}
-\end{itemize}
+%-------------------------------------------------------------------------------
+\section{Summary of the results}
+%-------------------------------------------------------------------------------
+<<label=extrSummary, echo=FALSE, results="hide">>=
+## Create summary SpATS in seperate chunck to suppress output.
+if (engine == "SpATS") {
+  SpATSSum <- summary(model)
+}
+@
+<<label=summary, echo=FALSE, results="asis">>=
+modSum <- as.data.frame(summary(x$data, traits = x$traits))
+modSum <- modSum[!is.na(modSum$Freq), ]
+print(xtable::xtable(x = modSum[, c(1, 3)], caption = "Data summary",
+                     label = "modelSummary",
+                     align = c("l", "r", "c")),
+      latex.environments = "flushleft",
+      include.rownames = FALSE, include.colnames = FALSE)
+if (engine == "SpATS") {
+  ## Print table of effective dimensions
 
-In 2016 for some fields an additional trait has been provided:
-\begin{description}
- \item[APHRO] Aphanomyces score indicating the amount of root rot [between 1, indicating \textbf{tolerant}, and 9, indicating \textbf{susceptible}]
-\end{description}
+  effDims <- SpATSSum$p.table.dim
+  rownames(effDims)[is.na(rownames(effDims))] <- ""
+  print(xtable::xtable(x = effDims, caption = "Effective dimensions",
+                       label = "effDims",
+                       align = c("l", "c", "c", "c", "c", "c")),
+        latex.environments = "flushleft",
+        include.rownames = TRUE)
+  ## Print table of variance components.
+  varComp <- SpATSSum$p.table.vc
+  rownames(varComp)[is.na(rownames(varComp))] <- ""
+  print(xtable::xtable(x = varComp, label = "varComps",
+                       caption =  "Variance components",
+                       align = c("l", "c", "c", "c")),
+        latex.environments = "flushleft",
+        include.rownames = TRUE)
+}
+@
+\clearpage
 
-In the following sections an overview is presented of the clean data per field. First the field layout is shown, which displays the field trial identifier of each replicate block within the field. Next for each field per trait  a histogram of the trait as well as a graph displaying the values of the trait for each plot in the field is shown. Finally of each field a table summarizing the values per trait is given. This table shows the five number summary (Minimum, $1^{\mbox{st}}$ Quartile, Median, $3^{\mbox{rd}}$ Quartile, Maximum) supplemented with the mean and the number of Not Availables (NA's). For fields for which the APHRO trait was scored, a barplot is shown as well as the scores per plot.
-
+%-------------------------------------------------------------------------------
+\section{Diagnostic plots}
+%-------------------------------------------------------------------------------
+<<label=SpATSPlots, echo=FALSE>>=
+## SpATS specific plots
+if (engine == "SpATS") {
+  plot(model)
+}
+@
+<<label=condNewpage, echo=FALSE, results="hide">>=
+if (engine == "SpATS") {
+  "\newpage"
+}
+@
+<<label=basePlots, echo=FALSE>>=
+## Base diagnostic plots, identical for all models
+plot(x, what = modelType, plotType = "base")
+@
 \newpage
+<<label=best20, echo=FALSE, results="hide">>=
+best <- summary(x)
+@
+%-------------------------------------------------------------------------------
+\section{List of best \Sexpr{nrow(best)} genotypes}
+%-------------------------------------------------------------------------------
+<<label=printBest20, echo=FALSE, results="asis">>=
+print(xtable::xtable(x = best[-1], label = "bestTab",
+                     align = c("l", "c", "c"), digits = c(0, 2, 2)),
+                     latex.environments = "flushleft",
+                     include.rownames = TRUE)
+
+@
+
+%\newpage
 
 % References
 %-------------------------------------------------------------------------------
@@ -209,18 +281,18 @@ In the following sections an overview is presented of the clean data per field. 
 % When you need a specific bibliography style for a journal, which does not have its style available on the internet,
 % you can create it yourself using the custom-bib package for LaTeX (check CTAN).
 %------------------------------------------------------------------------------
-\bibliographystyle{style/jchemometr.bst}% \bibliographystyle{style/chemolab.bst}
-\bibliography{bibliography/abbrev.bib,% \bibliography{bibliography/jnames.bib,
-bibliography/bibliography.bib}% Bibliography file for the article (usually '*.bib')
+%\bibliographystyle{style/jchemometr.bst}% \bibliographystyle{style/chemolab.bst}
+%\bibliography{bibliography/abbrev.bib,% \bibliography{bibliography/jnames.bib,
+%bibliography/bibliography.bib}% Bibliography file for the article (usually '*.bib')
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
 % Handy to include this at the end
 %-------------------------------------------------------------------------------
-\section*{SessionInfo}
+%\section*{SessionInfo}
 %-------------------------------------------------------------------------------
 <<sessionInfo, echo=FALSE>>=
-sessionInfo()
+#sessionInfo()
 @
 %-------------------------------------------------------------------------------
 

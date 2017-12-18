@@ -4,3 +4,7 @@
 .Ruserdata
 man/
 R/redundant
+figure
+figures
+modelReportTest.pdf
+modelReportTest.tex

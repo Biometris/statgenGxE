@@ -141,6 +141,7 @@ summary.SSA <- function(object,
     names(lsd) <- "l.s.d."
     printCoefmat(lsd, digits = digits, ...)
   }
+  invisible(meanTab)
 }
 
 #' Diagnostic Plots of Models
@@ -169,7 +170,7 @@ summary.SSA <- function(object,
 plot.SSA <- function(x,
                      ...,
                      trait = NULL,
-                     what = "fix",
+                     what = "fixed",
                      plotType = "base") {
   ## Checks.
   if (is.null(trait) && length(x$traits) > 1) {
@@ -180,15 +181,15 @@ plot.SSA <- function(x,
     stop("Trait has to be a single character string defining a column in data.\n")
   }
   if (!is.character(what) || length(what) > 1 ||
-      !what %in% c("fix", "mix")) {
-    stop("what should be fix or mix.\n")
+      !what %in% c("fixed", "random")) {
+    stop("what should be fixed or random.\n")
   }
   if (is.null(trait)) {
     trait <- x$traits
   }
-  if (what == "fix") {
+  if (what == "fixed") {
     model <- x$mFix[[trait]]
-  } else if (what == "mix") {
+  } else if (what == "random") {
     model <- x$mRand[[trait]]
   }
   engine <- x$engine
@@ -261,17 +262,19 @@ report.SSA <- function(x, ..., outfile = NULL) {
                        last = nchar(basename(outfile)) - 3)
   outTex <- paste0(system.file("latex", package = "RAP"), "/", outBase, "tex")
   reportFile <- system.file("latex", "modelReport.Rnw", package = "RAP")
-  knitr::knit(input = reportFile, output = outTex, quiet = TRUE)
-  system(paste0(Sys.which("pdflatex"),
-                ' -output-directory="', dirname(outfile), '"',
-                ' "',  outTex, '"'),
-         show.output.on.console = TRUE)
+  knitr::knit(input = reportFile, output = outTex, quiet = FALSE)
+  system2(command = Sys.which("pdflatex"),
+          args = c(paste0(' -output-directory="', dirname(outfile), '"'),
+                   "-interaction=nonstopmode",
+                   paste0(' "',  outTex, '"')))
+  system2(command = Sys.which("pdflatex"),
+          args = c(paste0(' -output-directory="', dirname(outfile), '"'),
+                   "-interaction=nonstopmode",
+                   paste0(' "',  outTex, '"')))
   for (extension in c("aux", "log", "out", "toc", "xwm")) {
     unlink(paste0(dirname(outfile), "/", outBase, extension))
   }
   invisible(file.rename(from = outTex,
                         to = paste0(dirname(outfile), "/", basename(outTex))))
 }
-
-
 
