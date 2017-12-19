@@ -24,12 +24,14 @@ createSSA <- function(mRand,
                       data,
                       traits = NULL,
                       design = NULL,
+                      spatial = NULL,
                       engine = NULL) {
   SSA <- structure(list(mRand = mRand,
                         mFix = mFix,
                         data = data,
                         traits = traits,
                         design = design,
+                        spatial = spatial,
                         engine = engine),
                    class = "SSA")
   return(SSA)
@@ -264,7 +266,7 @@ plot.SSA <- function(x,
 report.SSA <- function(x, ..., outfile = NULL) {
   if (!is.null(outfile)) {
     if (!is.character(outfile) || length(outfile) > 1 ||
-        !dir.exists(dirname(outfile)) || !file_ext == "pdf") {
+        !dir.exists(dirname(outfile)) || file_ext(outfile) != "pdf") {
       stop("invalid output filename provided.\n")
     }
   } else {

@@ -207,7 +207,7 @@ summary.TD <- function(object,
   stats <- matrix(nrow = 22, ncol = length(traits))
   colnames(stats) <- traits
   rownames(stats) <- c("Number of values","Number of observations","Number of missing values",
-                       "mean","median", "min","max","range","Lower quartile","Upper quartile",
+                       "Mean","Median", "Min","Max","Range","Lower quartile","Upper quartile",
                        "Standard deviation", "Standard error of mean","Variance",
                        "Standard error of variance", "Coefficient of variation",
                        "sum of values", "sum of squares", "Uncorrected sum of squares",
@@ -256,15 +256,15 @@ print.summary.TD <- function(x, ...) {
     if (!is.na(x[3, i]))
       cat(paste0("     Number of missing values = ", x[3, i], "\n"))
     if (!is.na(x[4, i]))
-      cat(paste0("                         mean = ", round(x[4, i], 2), "\n"))
+      cat(paste0("                         Mean = ", round(x[4, i], 2), "\n"))
     if (!is.na(x[5, i]))
-      cat(paste0("                       median = ", round(x[5, i], 2), "\n"))
+      cat(paste0("                       Median = ", round(x[5, i], 2), "\n"))
     if (!is.na(x[6, i]))
-      cat(paste0("                          min = ", round(x[6, i], 2), "\n"))
+      cat(paste0("                          Min = ", round(x[6, i], 2), "\n"))
     if (!is.na(x[7, i]))
-      cat(paste0("                          max = ", round(x[7, i], 2), "\n"))
+      cat(paste0("                          Max = ", round(x[7, i], 2), "\n"))
     if (!is.na(x[8, i]))
-      cat(paste0("               range(max-min) = ", round(x[8, i], 2), "\n"))
+      cat(paste0("               Range(max-min) = ", round(x[8, i], 2), "\n"))
     if (!is.na(x[9, i]))
       cat(paste0("               Lower quartile = ", round(x[9, i], 2), "\n"))
     if (!is.na(x[10, i]))
