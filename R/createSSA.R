@@ -252,9 +252,22 @@ plot.SSA <- function(x,
 
 #' Create a report with basic results.
 #'
+#' A pdf report will be created containing a summary of the results of the model.
+#' Simultaneously the same report will be created as a tex file.
+#'
+#' @param x an object of class SSA.
+#' @param outfile a character string, the name and location of the output .pdf and .tex
+#' file for the report. If \code{NULL} a report will be created in the current working
+#' directory.
+#'
 #' @export
 report.SSA <- function(x, ..., outfile = NULL) {
-  if (is.null(outfile)) {
+  if (!is.null(outfile)) {
+    if (!is.character(outfile) || length(outfile) > 1 ||
+        !dir.exists(dirname(outfile)) || !file_ext == "pdf") {
+      stop("invalid output filename provided.\n")
+    }
+  } else {
     timeStamp <- format(Sys.time(), "%Y%m%d%H%M%S")
     outfile <- paste0(getwd(), "/modelReport_", timeStamp, ".pdf")
   }
