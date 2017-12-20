@@ -172,14 +172,13 @@ print(xtable::xtable(x = modSum[, c(1, 3)],
       latex.environments = "flushleft", caption.placement = "top",
       include.rownames = FALSE, include.colnames = FALSE)
 @
-<<label=condNewpage, echo=FALSE, results="hide">>=
+<<label=condNewpage, echo=FALSE, results="asis">>=
 if (engine == "SpATS") {
-  "\newpage"
+  cat("\\newpage")
 }
 @
 <<label=SpATSsummary, echo=FALSE, results="asis">>=
 if (engine == "SpATS") {
-  "\newpage"
   ## Print table of effective dimensions
   effDims <- SpATSSum$p.table.dim
   rownames(effDims)[is.na(rownames(effDims))] <- ""
@@ -227,14 +226,10 @@ if (engine == "SpATS") {
 %-------------------------------------------------------------------------------
 \section{Diagnostic plots}
 %-------------------------------------------------------------------------------
-<<label=SpATSPlots, echo=FALSE>>=
-## SpATS specific plots
-if (engine == "SpATS") {
-  plot(model)
-}
+<<label=spatialPlots, echo=FALSE>>=
+plot(x, what = modelType, plotType = "spatial")
 @
-<<condNewpage, echo=FALSE, results="hide">>=
-@
+\newpage
 <<label=basePlots, echo=FALSE>>=
 ## Base diagnostic plots, identical for all models
 plot(x, what = modelType, plotType = "base")

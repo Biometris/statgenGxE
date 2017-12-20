@@ -199,60 +199,110 @@ plot.SSA <- function(x,
   }
   engine <- x$engine
   ## Diagnostic plots.
-  resid <- residuals(model)
-  fitted <- fitted(model)
-  trellisObj <- setNames(vector(mode = "list", length = 4),
-                         c("histogram", "qq", "residFitted", "absResidFitted"))
-  # Histogram of residuals
-  trellisObj[["histogram"]] <- lattice::histogram(x = ~resid, xlab = "Residuals", ...)
-  # Q-Q plot of residuals
-  trellisObj[["qq"]] <- lattice::qqmath(~resid, xlab = "Normal quantiles",
-                                        ylab = "Residuals", ...)
-  # Residuals vs fitted values
-  trellisObj[["residFitted"]] <-
-    lattice::xyplot(resid ~ fitted,
-                    panel = function(x, y, ...) {
-                      lattice::panel.xyplot(x, y, ...,
-                                            type = c("p", "g"))
-                      lattice::panel.abline(h = 0)
-                      lattice::panel.loess(x, y,
-                                           col = "red", ...)
-                    }, ylab = "Residuals",
-                    xlab = "Fitted values", ...)
-  # Residuals vs fitted values
-  trellisObj[["absResidFitted"]] <-
-    lattice::xyplot(abs(resid) ~ fitted,
-                    panel = function(x, y, ...) {
-                      lattice::panel.xyplot(x, y, ...,
-                                            type = c("p", "g"))
-                      lattice::panel.loess(x, y,
-                                           col = "red", ...)
-                    }, ylab = "|Residuals|",
-                    xlab = "Fitted values", ...)
-  adt <- lattice::trellis.par.get("add.text")
-  xlb <- lattice::trellis.par.get("par.xlab.text")
-  ylb <- lattice::trellis.par.get("par.ylab.text")
-  zlb <- lattice::trellis.par.get("par.zlab.text")
-  axt <- lattice::trellis.par.get("axis.text")
-  syx <- lattice::trellis.par.get("plot.symbol")
-  lattice::trellis.par.set("add.text", list(cex = 0.75))
-  lattice::trellis.par.set("par.xlab.text", list(cex = 0.75))
-  lattice::trellis.par.set("par.ylab.text", list(cex = 0.75))
-  lattice::trellis.par.set("par.zlab.text", list(cex = 0.75))
-  lattice::trellis.par.set("axis.text", list(cex = 0.75))
-  lattice::trellis.par.set("plot.symbol", list(cex = 0.6))
-  print(trellisObj[["histogram"]], position = c(0, 0.5, 0.5, 1), more = TRUE)
-  print(trellisObj[["qq"]], position = c(0.5, 0.5, 1, 1), more = TRUE)
-  suppressWarnings(print(trellisObj[["residFitted"]], position = c(0, 0, 0.5, 0.5),
-                         more = TRUE))
-  suppressWarnings(print(trellisObj[["absResidFitted"]], position = c(0.5, 0, 1, 0.5)))
-  lattice::trellis.par.set("add.text", adt)
-  lattice::trellis.par.set("par.xlab.text", xlb)
-  lattice::trellis.par.set("par.ylab.text", ylb)
-  lattice::trellis.par.set("par.zlab.text", zlb)
-  lattice::trellis.par.set("axis.text", axt)
-  lattice::trellis.par.set("plot.symbol", syx)
-  invisible(trellisObj)
+  fitted <- STExtract(x, what = ifelse(what == "fixed", "fitted", "rMeans"))[[trait]]
+  pred <- STExtract(x, what = ifelse(what == "fixed", "BLUEs", "BLUPs"))[[trait]]
+  response <- x$data[, trait]
+  residuals <- response - fitted
+  if (plotType == "base") {
+    trellisObj <- setNames(vector(mode = "list", length = 4),
+                           c("histogram", "qq", "residFitted", "absResidFitted"))
+    # Histogram of residuals
+    trellisObj[["histogram"]] <- lattice::histogram(x = ~residuals, xlab = "Residuals", ...)
+    # Q-Q plot of residuals
+    trellisObj[["qq"]] <- lattice::qqmath(~residuals, xlab = "Normal quantiles",
+                                          ylab = "Residuals", ...)
+    # Residuals vs fitted values
+    trellisObj[["residFitted"]] <-
+      lattice::xyplot(residuals ~ fitted,
+                      panel = function(x, y, ...) {
+                        lattice::panel.xyplot(x, y, ...,
+                                              type = c("p", "g"))
+                        lattice::panel.abline(h = 0)
+                        lattice::panel.loess(x, y,
+                                             col = "red", ...)
+                      }, ylab = "Residuals",
+                      xlab = "Fitted values", ...)
+    # Residuals vs fitted values
+    trellisObj[["absResidFitted"]] <-
+      lattice::xyplot(abs(residuals) ~ fitted,
+                      panel = function(x, y, ...) {
+                        lattice::panel.xyplot(x, y, ...,
+                                              type = c("p", "g"))
+                        lattice::panel.loess(x, y,
+                                             col = "red", ...)
+                      }, ylab = "|Residuals|",
+                      xlab = "Fitted values", ...)
+    adt <- lattice::trellis.par.get("add.text")
+    xlb <- lattice::trellis.par.get("par.xlab.text")
+    ylb <- lattice::trellis.par.get("par.ylab.text")
+    zlb <- lattice::trellis.par.get("par.zlab.text")
+    axt <- lattice::trellis.par.get("axis.text")
+    syx <- lattice::trellis.par.get("plot.symbol")
+    lattice::trellis.par.set("add.text", list(cex = 0.75))
+    lattice::trellis.par.set("par.xlab.text", list(cex = 0.75))
+    lattice::trellis.par.set("par.ylab.text", list(cex = 0.75))
+    lattice::trellis.par.set("par.zlab.text", list(cex = 0.75))
+    lattice::trellis.par.set("axis.text", list(cex = 0.75))
+    lattice::trellis.par.set("plot.symbol", list(cex = 0.6))
+    print(trellisObj[["histogram"]], position = c(0, 0.5, 0.5, 1), more = TRUE)
+    print(trellisObj[["qq"]], position = c(0.5, 0.5, 1, 1), more = TRUE)
+    suppressWarnings(print(trellisObj[["residFitted"]], position = c(0, 0, 0.5, 0.5),
+                           more = TRUE))
+    suppressWarnings(print(trellisObj[["absResidFitted"]], position = c(0.5, 0, 1, 0.5)))
+    lattice::trellis.par.set("add.text", adt)
+    lattice::trellis.par.set("par.xlab.text", xlb)
+    lattice::trellis.par.set("par.ylab.text", ylb)
+    lattice::trellis.par.set("par.zlab.text", zlb)
+    lattice::trellis.par.set("axis.text", axt)
+    lattice::trellis.par.set("plot.symbol", syx)
+    invisible(trellisObj)
+  } else if (plotType == "spatial") {
+    if (x$engine == "SpATS") {
+      plot(model, main = "")
+    } else {
+      ## Code taken from plot.SpATS and simplified.
+      annotated <- FALSE
+      colors = topo.colors(100)
+      mainLegends <- c("Raw data", "Fitted data", "Residuals",
+                   ifelse(what == "fixed", "Genotypic BLUEs", "Genotypic BLUPs"),
+                   "Histogram")
+      colCoord <- x$data[, "colCoordinates"]
+      rowCoord <- x$data[, "rowCoordinates"]
+      plotCols <- seq(min(colCoord), max(colCoord),
+                      by = min(diff(sort(unique(colCoord)))))
+      plotRows <- seq(min(rowCoord), max(rowCoord),
+                      by = min(diff(sort(unique(rowCoord)))))
+      op <- par(mfrow = c(2, 3), oma = c(ifelse(annotated, 12, 2), 1, 3, 2),
+                mar = c(2.5, 4, 2.5, 2.5), mgp = c(1.7, 0.5, 0))
+      range <- range(c(response, fitted), na.rm = TRUE)
+      fields::image.plot(plotCols, plotRows, t(matrix(response, ncol = length(plotCols),
+                                                      nrow = length(plotRows))),
+                         main = mainLegends[1], col = colors,
+                         xlab = "colCoordinates", ylab = "rowCoordinates",
+                         zlim = range, graphics.reset = TRUE,
+                         ...)
+      fields::image.plot(plotCols, plotRows, t(matrix(fitted, ncol = length(plotCols),
+                                                      nrow = length(plotRows))),
+                         main = mainLegends[2], col = colors,
+                         xlab = "colCoordinates", ylab = "rowCoordinates",
+                         zlim = range, graphics.reset = TRUE,
+                         ...)
+      fields::image.plot(plotCols, plotRows, t(matrix(residuals,
+                                                      ncol = length(plotCols),
+                                                      nrow = length(plotRows))),
+                         main = mainLegends[3], col = colors,
+                         xlab = "colCoordinates", ylab = "rowCoordinates",
+                         graphics.reset = TRUE, ...)
+      fields::image.plot(plotCols, plotRows, t(matrix(pred, ncol = length(plotCols),
+                                                      nrow = length(plotRows))),
+                         main = mainLegends[4], col = colors,
+                         xlab = "colCoordinates", ylab = "rowCoordinates",
+                         graphics.reset = TRUE, ...)
+      suppressWarnings(hist(pred, main = mainLegends[5],
+                            xlab = mainLegends[5], ...))
+      par(op)
+    }
+  }
 }
 
 #' Create a report with basic results.

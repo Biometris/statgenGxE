@@ -54,10 +54,6 @@
 \usepackage{alltt}
 % Package declaration
 %-------------------------------------------------------------------------------
-% Needed for draftwatermark
-%\usepackage{xcolor}
-% For adding a watermark
-%\usepackage[printwatermark]{xwatermark}
 % Specify input encoding
 \usepackage[utf8]{inputenc}
 % For A4 paper set all margins to 3cm
@@ -80,7 +76,6 @@
 \usepackage{lipsum}%
 % Extensive support for hypertext in LaTeX
 \usepackage{hyperref}%
-
 % For adding bookmarks to the document
 \usepackage{bookmark}%
 % For adding time to the document
@@ -91,18 +86,6 @@
 % Graphics Path definition
 %-------------------------------------------------------------------------------
 \graphicspath{{figures/}}
-
-% newcommand
-%-------------------------------------------------------------------------------
-%\newcommand{\scscst}{\scriptscriptstyle}
-%\newcommand{\scst}{\scriptstyle}
-%\newcommand{\Robject}[1]{{\texttt{#1}}}
-%\newcommand{\Rfunction}[1]{{\texttt{#1}}}
-%\newcommand{\Rclass}[1]{\textit{#1}}
-%\newcommand{\Rpackage}[1]{\textit{#1}}
-%\newcommand{\Rexpression}[1]{\texttt{#1}}
-%\newcommand{\Rmethod}[1]{{\texttt{#1}}}
-%\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
 
 % Redefine commands
 %-------------------------------------------------------------------------------
@@ -137,13 +120,6 @@
 pdfsubject={Model report},
 pdftitle={Model report}
 }
-% % !! Works with LaTeX->DVI->PDF
-% \special{pdf: docinfo <<
-% /Author (Maikel Verouden)
-% /Subject (Field Layout 2016 SESVanderHave : Exploratory Analysis)
-% /Title (Field Layout 2016 SESVanderHave : Exploratory Analysis.)
-% /Keywords (SESVanderHave, Sugar beet, Field trials, Clean Data, Exploratory Analysis)
-% >>}
 
 % Start Article header
 %-------------------------------------------------------------------------------
@@ -152,25 +128,10 @@ pdftitle={Model report}
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
-% Affiliations
-% When an affiliation becomes too large to fit the page, continue using the command \newline e.g.
-% \affil[a]{Place Groupname, Name of the Research Institute, Name of the University,\newline P.O. Box 90210, ZIPCODE City Name, Country Name}%
-%\affil[a]{Wageningen University \& Research, Biometris, P.O. Box 16,\newline 6700 AA Wageningen, The Netherlands}%
-%\affil[b]{Former Affiliation, P.O. Box 3, zipcode Somecity, Country}%
-
 % Dates
 \date{\today\ \currenttime} % when you are in the process of writing
-%\date{Submitted: Month Day, Year}  % when the article has been submitted for review
-%\date{Received: Month Day, Year; Revised: Month Day, Year; Accepted: Month Day, Year;} % when accepted
 %-------------------------------------------------------------------------------
 % End article header
-
-% Hyphenation \hyphenation{words} words separated by spaces
-% hypenated words can break at the hyphen non hyphenated words are not allowed to be hyphenated
-% e.g. \hyphenation{FORTRAN Hy-phen-a-tion} will hyphenate:
-% hyphenation as well as Hyphenation, but not
-% fortran or FORTRAN
-\hyphenation{Rep-li-cates}
 
 % For left aligning captions
 \captionsetup{justification=raggedright,singlelinecheck=false}
@@ -192,30 +153,18 @@ pdftitle={Model report}
 \singlespacing
 %\doublespacing
 
-% % Abstract
-% \begin{abstract}
-% \noindent \lipsum[1]
-% \end{abstract}
-% % Keywords
-% \noindent\textbf{KEYWORDS:~}SESVanderHave, Sugar beet, Field trials, Clean Data, Exploratory Analysis%
-% \newpage
-
-% Table of Contents
-%\tableofcontents
-%\newpage
-
 %-------------------------------------------------------------------------------
 \section{Description of the fitted model}
 %-------------------------------------------------------------------------------
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 19 16:36:30 2017
+% Wed Dec 20 14:49:25 2017
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{ll}
   Trait & yield \\ 
-  Experimental design features & replicate (F) + row(replicate) (R) + col(replicate) (R) \\ 
-  Spatial model & splines \\ 
+  Experimental design features & row (R) + col (R) \\ 
+  Spatial model & isotropic exponential \\ 
   Genotype & random \\ 
   \end{tabular}
 \label{modelDescription}
@@ -228,10 +177,10 @@ pdftitle={Model report}
 %-------------------------------------------------------------------------------
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 19 16:36:30 2017
+% Wed Dec 20 14:49:25 2017
 \begin{table}[ht]
 \begin{flushleft}
-\caption{Size of the data set and seven number descriptives} 
+\caption{Size of the data set and eight number descriptives} 
 \label{modelSummary}
 \begin{tabular}{lr}
   \hline
@@ -249,62 +198,8 @@ Number of observations & 338.00 \\
 \end{tabular}
 \end{flushleft}
 \end{table}
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 19 16:36:30 2017
-\begin{table}[ht]
-\begin{flushleft}
-\caption{Effective dimensions} 
-\label{effDims}
-\begin{tabular}{lccccc}
-  \hline
- & Effective & Model & Nominal & Ratio & Type \\ 
-  \hline
-Intercept & 1.0 & 1 & 1 & 1.00 & F \\ 
-  Replicate & 1.0 & 1 & 1 & 1.00 & F \\ 
-  Genotype & 149.8 & 169 & 168 & 0.89 & R \\ 
-  Row(replicate) & 18.4 & 52 & 51 & 0.36 & R \\ 
-  Col(replicate) & 5.1 & 26 & 25 & 0.20 & R \\ 
-  Lineair trend along cols & 1.0 & 1 & 1 & 1.00 & S \\ 
-  Lineair trend along rows & 1.0 & 1 & 1 & 1.00 & S \\ 
-  Lineair trend along rows and cols & 1.0 & 1 & 1 & 1.00 & S \\ 
-  Smooth trend along cols & 4.3 & 8 & 8 & 0.54 & S \\ 
-  Smooth trend along rows & 0.6 & 14 & 14 & 0.04 & S \\ 
-  Lineair trend in rows changing smoothly along cols & 0.0 & 8 & 8 & 0.00 & S \\ 
-  Lineair trend in cols changing smoothly along rows & 0.6 & 14 & 14 & 0.04 & S \\ 
-  Smooth-by-smooth interaction trend over rows and cols & 4.2 & 28 & 28 & 0.15 & S \\ 
-   &  &  &  &  &  \\ 
-  Total & 188.0 & 324 & 321 & 0.59 &  \\ 
-  Residual & 150.0 &  &  &  &  \\ 
-  Nobs & 338 &  &  &  &  \\ 
-   \hline
-\end{tabular}
-\end{flushleft}
-\end{table}
-\newpage
-The generalized heritability is 0.89% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 19 16:36:30 2017
-\begin{table}[ht]
-\begin{flushleft}
-\caption{Variance components} 
-\label{varComps}
-\begin{tabular}{lc}
-  \hline
- & Variance \\ 
-  \hline
-Genotype & 1.329e+03 \\ 
-  Row(replicate) & 2.138e+02 \\ 
-  Col(replicate) & 2.124e+01 \\ 
-  Smooth trend along cols & 1.831e+04 \\ 
-  Smooth trend along rows & 3.397e+01 \\ 
-  Lineair trend in rows changing smoothly along cols & 1.191e-04 \\ 
-  Lineair trend in cols changing smoothly along rows & 8.886e+00 \\ 
-  Smooth-by-smooth interaction trend over rows and cols & 1.069e+03 \\ 
-   &  \\ 
-  Residual & 2.319e+02 \\ 
-   \hline
-\end{tabular}
-\end{flushleft}
-\end{table}
+
+
 
 \clearpage
 
@@ -314,14 +209,14 @@ Genotype & 1.329e+03 \\
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
 
-{\centering \includegraphics[width=\maxwidth]{figures/fig-SpATSPlots-1} 
+{\centering \includegraphics[width=\maxwidth]{figures/fig-spatialPlots-1} 
 
 }
 
 
 
 \end{knitrout}
-
+\newpage
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
 
@@ -338,78 +233,39 @@ Genotype & 1.329e+03 \\
 \section{List of best 20 genotypes}
 %-------------------------------------------------------------------------------
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 19 16:36:32 2017
+% Wed Dec 20 14:49:25 2017
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{lcc}
   \hline
  & predictedBLUPs & se predictedBLUPs \\ 
   \hline
-SB032 & 290.17 & 13.32 \\ 
-  SB025 & 285.40 & 13.00 \\ 
-  SB023 & 285.22 & 12.93 \\ 
-  SB011 & 280.63 & 13.05 \\ 
-  SB144 & 277.89 & 13.12 \\ 
-  SB022 & 277.74 & 13.35 \\ 
-  SB156 & 269.10 & 13.59 \\ 
-  SB031 & 267.17 & 13.30 \\ 
-  SB055 & 264.35 & 13.18 \\ 
-  SB054 & 259.24 & 13.47 \\ 
-  SB128 & 254.96 & 13.67 \\ 
-  SB194 & 252.00 & 13.03 \\ 
-  SB093 & 250.57 & 13.65 \\ 
-  SB183 & 250.51 & 13.19 \\ 
-  SB020 & 249.64 & 12.77 \\ 
-  SB143 & 248.41 & 13.64 \\ 
-  SB155 & 245.80 & 13.04 \\ 
-  SB140 & 245.54 & 13.42 \\ 
-  SB163 & 244.62 & 13.33 \\ 
-  SB028 & 244.29 & 13.09 \\ 
+SB032 & 273.61 & 13.56 \\ 
+  SB023 & 268.53 & 13.57 \\ 
+  SB011 & 267.78 & 13.84 \\ 
+  SB025 & 259.30 & 13.59 \\ 
+  SB022 & 257.26 & 14.00 \\ 
+  SB156 & 254.03 & 14.40 \\ 
+  SB144 & 253.08 & 13.64 \\ 
+  SB055 & 246.54 & 13.64 \\ 
+  SB031 & 245.35 & 14.64 \\ 
+  SB128 & 243.21 & 14.99 \\ 
+  SB194 & 236.89 & 13.58 \\ 
+  SB054 & 233.18 & 14.33 \\ 
+  SB183 & 232.19 & 14.58 \\ 
+  SB155 & 231.34 & 13.65 \\ 
+  SB020 & 229.55 & 13.68 \\ 
+  SB093 & 229.54 & 14.35 \\ 
+  SB163 & 228.75 & 13.60 \\ 
+  SB076 & 225.86 & 13.66 \\ 
+  SB127 & 225.74 & 13.66 \\ 
+  SB028 & 224.02 & 13.69 \\ 
    \hline
 \end{tabular}
 \label{bestTab}
 \end{flushleft}
 \end{table}
 
-
-%\newpage
-
-% References
-%-------------------------------------------------------------------------------
-% This article template provides 2 bibliography styles:
-% jchemometr.bst, which follows the bibliography style of the Journal of Chemometrics (Wiley)
-% chemolab.bst  , which follows the bibliography style of Chemometrics and Intelligent Laboratory Systems (Elsevier)
-% It also includes:
-% abbrev.bib    , which contains codes for journal names and will print the journal name abbreviation
-% jnames.bib    , which contains codes for journal names and will print the full journal name
-% The article bibliography allows for definition of additional journal codes
-%
-% When you need a specific bibliography style for a journal, which does not have its style available on the internet,
-% you can create it yourself using the custom-bib package for LaTeX (check CTAN).
-%------------------------------------------------------------------------------
-%\bibliographystyle{style/jchemometr.bst}% \bibliographystyle{style/chemolab.bst}
-%\bibliography{bibliography/abbrev.bib,% \bibliography{bibliography/jnames.bib,
-%bibliography/bibliography.bib}% Bibliography file for the article (usually '*.bib')
-%-------------------------------------------------------------------------------
-
-%-------------------------------------------------------------------------------
-% Handy to include this at the end
-%-------------------------------------------------------------------------------
-%\section*{SessionInfo}
-%-------------------------------------------------------------------------------
-
-%-------------------------------------------------------------------------------
-
-%' % Detach packages loaded in this article
-%' %-------------------------------------------------------------------------------
-%' <<UnloadPackages, echo=FALSE, include=FALSE>>=
-%' detach("package:fields", unload=TRUE)
-%' detach("package:spam", unload=TRUE)
-%' detach("package:grid", unload=TRUE)
-%' detach("package:maps", unload=TRUE)
-%' detach("package:reshape2", unload = TRUE)
-%' detach("package:xtable", unload = TRUE)
-%' @
 %-------------------------------------------------------------------------------
 % End Document
 \end{document}

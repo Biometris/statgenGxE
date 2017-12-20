@@ -1,0 +1,271 @@
+%-------------------------------------------------------------------------------
+%	Packages and other Document configurations
+%-------------------------------------------------------------------------------
+\documentclass[a4paper,11pt]{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+% Package declaration
+%-------------------------------------------------------------------------------
+% Specify input encoding
+\usepackage[utf8]{inputenc}
+% For A4 paper set all margins to 3cm
+\usepackage[paper=a4paper,left=1.5cm,top=2cm,right=1.5cm,bottom=2cm]{geometry}%
+% Set linespace, usage \doublespacing \singlespacing \onehalfspacing
+\usepackage{setspace}%
+% Set palatino font with small caps as default
+\usepackage[sc]{mathpazo}%
+% Create author affiliation
+\usepackage[noblocks]{authblk}%
+% Make references as [1-4], not [1,2,3,4]
+\usepackage{cite}%
+% Rotation tools, including rotated full-page floats.
+\usepackage{rotating}%
+% Create subfigures
+\usepackage{subfigure}%
+% Publication quality tables in LaTeX
+\usepackage{booktabs}%
+% Required to insert dummy text (Lorem Ipsum)
+\usepackage{lipsum}%
+% Extensive support for hypertext in LaTeX
+\usepackage{hyperref}%
+% For adding bookmarks to the document
+\usepackage{bookmark}%
+% For adding time to the document
+\usepackage{datetime}
+% For alignment of captions
+\usepackage{caption}
+
+% Graphics Path definition
+%-------------------------------------------------------------------------------
+\graphicspath{{figures/}}
+
+% Redefine commands
+%-------------------------------------------------------------------------------
+% Set affiliation font to small font size
+\renewcommand{\Affilfont}{\normalfont\small}%
+% Set table numbering to Roman, i.e. I,II etc. instead of default arabic 1,2 etc.
+\renewcommand{\thetable}{\arabic{table}}%\Roman{table}
+
+% Redefine abstract environment
+%-------------------------------------------------------------------------------
+\def\@abstractline{\textwidth}
+\renewenvironment{abstract}
+{
+\ifhmode\begingroup\parskip0pt\par\noindent\endgroup\fi%
+\begin{rmfamily}
+%\vspace{1cm} % use \topsep in list
+{\noindent\bfseries\large\abstractname\vspace{-0.5em}}
+{\par\vbox{\hrule width \@abstractline}}
+}{
+\ifhmode\begingroup\parskip0pt\par\noindent\endgroup\fi %
+\par\vbox{\hrule width \@abstractline}% \vspace{1cm} %
+\end{rmfamily}
+}
+
+%-------------------------------------------------------------------------------
+%	Article Information
+%-------------------------------------------------------------------------------
+% Setting PDF properties in the final PDF
+% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
+\hypersetup
+{
+pdfsubject={Model report},
+pdftitle={Model report}
+}
+
+% Start Article header
+%-------------------------------------------------------------------------------
+% Title
+\title{Model report}%
+% Authors
+\author{\vspace{-5ex}}
+%-------------------------------------------------------------------------------
+% Dates
+\date{\today\ \currenttime} % when you are in the process of writing
+%-------------------------------------------------------------------------------
+% End article header
+
+% For left aligning captions
+\captionsetup{justification=raggedright,singlelinecheck=false}
+
+% Start Document
+%-------------------------------------------------------------------------------
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+% Set knitr options
+
+
+
+% Article title, Authors and Affiliations
+\maketitle
+%\newpage
+
+% Start double line spacing
+\singlespacing
+%\doublespacing
+
+%-------------------------------------------------------------------------------
+\section{Description of the fitted model}
+%-------------------------------------------------------------------------------
+
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Wed Dec 20 14:49:40 2017
+\begin{table}[ht]
+\begin{flushleft}
+\begin{tabular}{ll}
+  Trait & yield \\ 
+  Experimental design features & row (R) + col (R) \\ 
+  Spatial model & no \\ 
+  Genotype & random \\ 
+  \end{tabular}
+\label{modelDescription}
+\end{flushleft}
+\end{table}
+
+
+%-------------------------------------------------------------------------------
+\section{Summary of the results}
+%-------------------------------------------------------------------------------
+
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Wed Dec 20 14:49:40 2017
+\begin{table}[ht]
+\begin{flushleft}
+\caption{Size of the data set and eight number descriptives} 
+\label{modelSummary}
+\begin{tabular}{lr}
+  \hline
+  \hline
+Number of observations & 338.00 \\ 
+  Number of missing values & 0.00 \\ 
+  Mean & 184.16 \\ 
+  Median & 179.81 \\ 
+  Min & 54.58 \\ 
+  Max & 341.77 \\ 
+  Lower quartile & 148.56 \\ 
+  Upper quartile & 220.50 \\ 
+  Variance & 2569.23 \\ 
+   \hline
+\end{tabular}
+\end{flushleft}
+\end{table}
+
+
+
+\clearpage
+
+%-------------------------------------------------------------------------------
+\section{Diagnostic plots}
+%-------------------------------------------------------------------------------
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+
+{\centering \includegraphics[width=\maxwidth]{figures/fig-spatialPlots-1} 
+
+}
+
+
+
+\end{knitrout}
+\newpage
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+
+{\centering \includegraphics[width=\maxwidth]{figures/fig-basePlots-1} 
+
+}
+
+
+
+\end{knitrout}
+\newpage
+
+%-------------------------------------------------------------------------------
+\section{List of best 20 genotypes}
+%-------------------------------------------------------------------------------
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Wed Dec 20 14:49:40 2017
+\begin{table}[ht]
+\begin{flushleft}
+\begin{tabular}{lcc}
+  \hline
+ & predictedBLUPs & se predictedBLUPs \\ 
+  \hline
+SB023 & 269.87 & 12.45 \\ 
+  SB032 & 268.41 & 12.47 \\ 
+  SB011 & 266.28 & 12.49 \\ 
+  SB025 & 265.23 & 12.45 \\ 
+  SB022 & 258.81 & 13.02 \\ 
+  SB144 & 257.85 & 12.45 \\ 
+  SB156 & 251.87 & 13.02 \\ 
+  SB031 & 249.04 & 13.82 \\ 
+  SB055 & 244.74 & 12.45 \\ 
+  SB128 & 237.61 & 13.82 \\ 
+  SB054 & 237.48 & 13.02 \\ 
+  SB194 & 237.38 & 12.49 \\ 
+  SB020 & 233.89 & 12.47 \\ 
+  SB155 & 233.26 & 12.47 \\ 
+  SB183 & 229.07 & 13.54 \\ 
+  SB163 & 224.52 & 12.47 \\ 
+  SB076 & 223.37 & 12.49 \\ 
+  SB140 & 223.20 & 13.54 \\ 
+  SB127 & 223.11 & 12.47 \\ 
+  SB071 & 223.07 & 13.02 \\ 
+   \hline
+\end{tabular}
+\label{bestTab}
+\end{flushleft}
+\end{table}
+
+%-------------------------------------------------------------------------------
+% End Document
+\end{document}
