@@ -35,11 +35,12 @@ STModSpATS <- function(TD,
     stop("TD should be a valid object of class TD.\n")
   }
   designs <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
-  if ((is.null(design) && !attr(TD, "design") %in% designs) ||
+  if ((is.null(design) && (is.null(attr(TD, "design")) ||
+                           !attr(TD, "design") %in% designs)) ||
       (!is.null(design) && (!is.character(design) || length(design) > 1 ||
                             !design %in% designs))) {
-    stop("design should either be an attribute of TD or one of 'ibd',
-         'res.ibd', 'rcbd', 'rowcol' or 'res.rowcol'.\n")
+    stop("design should either be an attribute of TD or one of ibd,
+         res.ibd, rcbd, rowcol or res.rowcol.\n")
   }
   ## Extract design from TD if needed.
   if (is.null(design)) {
@@ -147,6 +148,6 @@ STModSpATS <- function(TD,
   }
   ## Construct SSA object.
   model <- createSSA(mRand = mr, mFix = mf, data = TD, traits = traits,
-                     design = design, engine = "SpATS")
+                     design = design, spatial = "2 dimensional P-splines", engine = "SpATS")
   return(model)
 }

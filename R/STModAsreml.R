@@ -35,11 +35,12 @@ STModAsreml <- function(TD,
     stop("TD should be a valid object of class TD.\n")
   }
   designs <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
-  if ((is.null(design) && !attr(TD, "design") %in% designs) ||
+  if ((is.null(design) && (is.null(attr(TD, "design")) ||
+                           !attr(TD, "design") %in% designs)) ||
       (!is.null(design) && (!is.character(design) || length(design) > 1 ||
                             !design %in% designs))) {
-    stop("design should either be an attribute of TD or one of 'ibd',
-         'res.ibd', 'rcbd', 'rowcol' or 'res.rowcol'.\n")
+    stop("design should either be an attribute of TD or one of ibd,
+         res.ibd, rcbd, rowcol or res.rowcol.\n")
   }
   ## Extract design from TD if needed.
   if (is.null(design)) {
@@ -196,14 +197,14 @@ bestSpatMod <- function(TD,
   }
   if (trySpatial == "regular") {
     ## Define spatial terms of models to try.
-    spatialChoice <- rep(x = c("AR1(x)Identity", "Identity(x)AR1", "AR1(x)AR1"), times = 4)
+    spatialChoice <- rep(x = c("AR1(x)identity", "identity(x)AR1", "AR1(x)AR1"), times = 4)
     spatialTerm <- rep(x = c("ar1(rowCoordinates):colCoordinates",
                              "rowCoordinates:ar1(colCoordinates)",
                              "ar1(rowCoordinates:ar1(colCoordinates)"),
                        times = 4)
   } else if (trySpatial == "always") {
-    spatialChoice <- rep(x = c("Exponential(x)Identity", "Identity(x)Exponential",
-                               "Isotropic exponential"), times = 4)
+    spatialChoice <- rep(x = c("exponential(x)identity", "identity(x)exponential",
+                               "isotropic exponential"), times = 4)
     spatialTerm <- rep(x = c("exp(rowCoordinates):colCoordinates",
                              "rowCoordinates:exp(colCoordinates)",
                              "iexp(rowCoordinates,colCoordinates)"),
@@ -272,7 +273,6 @@ bestSpatMod <- function(TD,
     bestModelTrait$call$rcov <- eval(bestModelTrait$call$rcov)
     # Run predict.
     bestModelTrait <- predictAsreml(bestModelTrait, TD = TD)
-    bestModelTrait$call$data <- substitute(TD)
     mfTrait$call$fixed <- eval(mfTrait$call$fixed)
     mfTrait$call$random <- eval(mfTrait$call$random)
     mfTrait$call$rcov <- eval(mfTrait$call$rcov)
@@ -284,7 +284,6 @@ bestSpatMod <- function(TD,
     }
     ## Run predict.
     mfTrait <- predictAsreml(mfTrait, TD = TD, associate = assocForm)
-    mfTrait$call$data <- substitute(TD)
     mr[[trait]] <- bestModelTrait
     mf[[trait]] <- mfTrait
     spatial[[trait]] <- spatialChoice[bestLoc]

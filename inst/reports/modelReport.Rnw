@@ -4,10 +4,6 @@
 \documentclass[a4paper,11pt]{article}
 % Package declaration
 %-------------------------------------------------------------------------------
-% Needed for draftwatermark
-%\usepackage{xcolor}
-% For adding a watermark
-%\usepackage[printwatermark]{xwatermark}
 % Specify input encoding
 \usepackage[utf8]{inputenc}
 % For A4 paper set all margins to 3cm
@@ -30,7 +26,6 @@
 \usepackage{lipsum}%
 % Extensive support for hypertext in LaTeX
 \usepackage{hyperref}%
-
 % For adding bookmarks to the document
 \usepackage{bookmark}%
 % For adding time to the document
@@ -41,18 +36,6 @@
 % Graphics Path definition
 %-------------------------------------------------------------------------------
 \graphicspath{{figures/}}
-
-% newcommand
-%-------------------------------------------------------------------------------
-%\newcommand{\scscst}{\scriptscriptstyle}
-%\newcommand{\scst}{\scriptstyle}
-%\newcommand{\Robject}[1]{{\texttt{#1}}}
-%\newcommand{\Rfunction}[1]{{\texttt{#1}}}
-%\newcommand{\Rclass}[1]{\textit{#1}}
-%\newcommand{\Rpackage}[1]{\textit{#1}}
-%\newcommand{\Rexpression}[1]{\texttt{#1}}
-%\newcommand{\Rmethod}[1]{{\texttt{#1}}}
-%\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
 
 % Redefine commands
 %-------------------------------------------------------------------------------
@@ -87,13 +70,6 @@
 pdfsubject={Model report},
 pdftitle={Model report}
 }
-% % !! Works with LaTeX->DVI->PDF
-% \special{pdf: docinfo <<
-% /Author (Maikel Verouden)
-% /Subject (Field Layout 2016 SESVanderHave : Exploratory Analysis)
-% /Title (Field Layout 2016 SESVanderHave : Exploratory Analysis.)
-% /Keywords (SESVanderHave, Sugar beet, Field trials, Clean Data, Exploratory Analysis)
-% >>}
 
 % Start Article header
 %-------------------------------------------------------------------------------
@@ -102,25 +78,10 @@ pdftitle={Model report}
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
-% Affiliations
-% When an affiliation becomes too large to fit the page, continue using the command \newline e.g.
-% \affil[a]{Place Groupname, Name of the Research Institute, Name of the University,\newline P.O. Box 90210, ZIPCODE City Name, Country Name}%
-%\affil[a]{Wageningen University \& Research, Biometris, P.O. Box 16,\newline 6700 AA Wageningen, The Netherlands}%
-%\affil[b]{Former Affiliation, P.O. Box 3, zipcode Somecity, Country}%
-
 % Dates
 \date{\today\ \currenttime} % when you are in the process of writing
-%\date{Submitted: Month Day, Year}  % when the article has been submitted for review
-%\date{Received: Month Day, Year; Revised: Month Day, Year; Accepted: Month Day, Year;} % when accepted
 %-------------------------------------------------------------------------------
 % End article header
-
-% Hyphenation \hyphenation{words} words separated by spaces
-% hypenated words can break at the hyphen non hyphenated words are not allowed to be hyphenated
-% e.g. \hyphenation{FORTRAN Hy-phen-a-tion} will hyphenate:
-% hyphenation as well as Hyphenation, but not
-% fortran or FORTRAN
-\hyphenation{Rep-li-cates}
 
 % For left aligning captions
 \captionsetup{justification=raggedright,singlelinecheck=false}
@@ -150,6 +111,11 @@ if (is.null(x$mFix)) {
   model <- x$mFix[[1]]
   modelType <- "fixed"
 }
+## Get use of checkId from model call.
+useCheckId <- (engine == "SpATS" && length(grep(pattern = "checkId",
+                                                x = deparse(model$model$fixed))) > 0) ||
+  (engine %in% c("asreml", "lme4") && length(grep(pattern = "+ checkId +",
+                                                  x = getCall(model))) > 0)
 @
 
 % Article title, Authors and Affiliations
@@ -160,36 +126,22 @@ if (is.null(x$mFix)) {
 \singlespacing
 %\doublespacing
 
-% % Abstract
-% \begin{abstract}
-% \noindent \lipsum[1]
-% \end{abstract}
-% % Keywords
-% \noindent\textbf{KEYWORDS:~}SESVanderHave, Sugar beet, Field trials, Clean Data, Exploratory Analysis%
-% \newpage
-
-% Table of Contents
-%\tableofcontents
-%\newpage
-
 %-------------------------------------------------------------------------------
 \section{Description of the fitted model}
 %-------------------------------------------------------------------------------
 
 <<label=modelDescription, echo=FALSE, results="asis">>=
-#model <- if (is.null(x$mFix)) x$mRand[[1]] else x$mFix[[1]]
 modelDesigns <- c("block (R)",
                   "replicate (F) + block(replicate) (R)",
                   "replicate (F)",
                   "row (R) + col (R)",
                   "replicate (F) + row(replicate) (R) + col(replicate) (R)")
 names(modelDesigns) <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
-if (length(grep(pattern = "checkId",
-                x = deparse(model$model$fixed))) > 0) {
+if (useCheckId) {
   modelDesigns <- paste("checkId (F) +", modelDesigns)
 }
 descrItems <- c(x$traits, modelDesigns[x$design],
-                if (engine == "SpATS") "2 dimensional P-splines" else "no",
+                if (is.null(x$spatial)) "no" else as.character(x$spatial[1]),
                 modelType)
 names(descrItems) <- c("Trait",
                        "Experimental design features",
@@ -281,7 +233,7 @@ if (engine == "SpATS") {
   plot(model)
 }
 @
-<<condNewpage>>=
+<<condNewpage, echo=FALSE, results="hide">>=
 @
 <<label=basePlots, echo=FALSE>>=
 ## Base diagnostic plots, identical for all models
@@ -301,47 +253,6 @@ print(xtable::xtable(x = best[-1], label = "bestTab",
       include.rownames = TRUE)
 
 @
-
-%\newpage
-
-% References
-%-------------------------------------------------------------------------------
-% This article template provides 2 bibliography styles:
-% jchemometr.bst, which follows the bibliography style of the Journal of Chemometrics (Wiley)
-% chemolab.bst  , which follows the bibliography style of Chemometrics and Intelligent Laboratory Systems (Elsevier)
-% It also includes:
-% abbrev.bib    , which contains codes for journal names and will print the journal name abbreviation
-% jnames.bib    , which contains codes for journal names and will print the full journal name
-% The article bibliography allows for definition of additional journal codes
-%
-% When you need a specific bibliography style for a journal, which does not have its style available on the internet,
-% you can create it yourself using the custom-bib package for LaTeX (check CTAN).
-%------------------------------------------------------------------------------
-%\bibliographystyle{style/jchemometr.bst}% \bibliographystyle{style/chemolab.bst}
-%\bibliography{bibliography/abbrev.bib,% \bibliography{bibliography/jnames.bib,
-%bibliography/bibliography.bib}% Bibliography file for the article (usually '*.bib')
-%-------------------------------------------------------------------------------
-
-%-------------------------------------------------------------------------------
-% Handy to include this at the end
-%-------------------------------------------------------------------------------
-%\section*{SessionInfo}
-%-------------------------------------------------------------------------------
-<<sessionInfo, echo=FALSE>>=
-#sessionInfo()
-@
-%-------------------------------------------------------------------------------
-
-%' % Detach packages loaded in this article
-%' %-------------------------------------------------------------------------------
-%' <<UnloadPackages, echo=FALSE, include=FALSE>>=
-%' detach("package:fields", unload=TRUE)
-%' detach("package:spam", unload=TRUE)
-%' detach("package:grid", unload=TRUE)
-%' detach("package:maps", unload=TRUE)
-%' detach("package:reshape2", unload = TRUE)
-%' detach("package:xtable", unload = TRUE)
-%' @
 %-------------------------------------------------------------------------------
 % End Document
 \end{document}
