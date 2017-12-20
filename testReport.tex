@@ -209,14 +209,14 @@ pdftitle={Model report}
 %-------------------------------------------------------------------------------
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 19 15:30:27 2017
+% Tue Dec 19 16:36:30 2017
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{ll}
   Trait & yield \\ 
-  Experimental design features & row(replicate) (R) + col(replicate) (R) \\ 
+  Experimental design features & replicate (F) + row(replicate) (R) + col(replicate) (R) \\ 
   Spatial model & splines \\ 
-  Genotype & fixed \\ 
+  Genotype & random \\ 
   \end{tabular}
 \label{modelDescription}
 \end{flushleft}
@@ -228,7 +228,7 @@ pdftitle={Model report}
 %-------------------------------------------------------------------------------
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 19 15:30:27 2017
+% Tue Dec 19 16:36:30 2017
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Size of the data set and seven number descriptives} 
@@ -250,7 +250,7 @@ Number of observations & 338.00 \\
 \end{flushleft}
 \end{table}
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 19 15:30:27 2017
+% Tue Dec 19 16:36:30 2017
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Effective dimensions} 
@@ -259,29 +259,30 @@ Number of observations & 338.00 \\
   \hline
  & Effective & Model & Nominal & Ratio & Type \\ 
   \hline
-Genotype & 168.0 & 168 & 168 & 1.00 & F \\ 
-  Intercept & 1.0 & 1 & 1 & 1.00 & F \\ 
+Intercept & 1.0 & 1 & 1 & 1.00 & F \\ 
   Replicate & 1.0 & 1 & 1 & 1.00 & F \\ 
-  Row(replicate) & 18.3 & 52 & 51 & 0.36 & R \\ 
-  Col(replicate) & 1.1 & 26 & 25 & 0.04 & R \\ 
-  Lineair trend along columns & 1.0 & 1 & 1 & 1.00 & S \\ 
+  Genotype & 149.8 & 169 & 168 & 0.89 & R \\ 
+  Row(replicate) & 18.4 & 52 & 51 & 0.36 & R \\ 
+  Col(replicate) & 5.1 & 26 & 25 & 0.20 & R \\ 
+  Lineair trend along cols & 1.0 & 1 & 1 & 1.00 & S \\ 
   Lineair trend along rows & 1.0 & 1 & 1 & 1.00 & S \\ 
   Lineair trend along rows and cols & 1.0 & 1 & 1 & 1.00 & S \\ 
-  Smooth trend along cols & 4.2 & 8 & 8 & 0.52 & S \\ 
-  Smooth trend along rows & 0.0 & 14 & 14 & 0.00 & S \\ 
-  Lineair trend in rows changing smootly along cols & 0.0 & 8 & 8 & 0.00 & S \\ 
-  Lineair trend in cols changing smootly along rows & 1.3 & 14 & 14 & 0.09 & S \\ 
-  Smooth-by-smooth interaction trend over rows and cols & 2.3 & 28 & 28 & 0.08 & S \\ 
+  Smooth trend along cols & 4.3 & 8 & 8 & 0.54 & S \\ 
+  Smooth trend along rows & 0.6 & 14 & 14 & 0.04 & S \\ 
+  Lineair trend in rows changing smoothly along cols & 0.0 & 8 & 8 & 0.00 & S \\ 
+  Lineair trend in cols changing smoothly along rows & 0.6 & 14 & 14 & 0.04 & S \\ 
+  Smooth-by-smooth interaction trend over rows and cols & 4.2 & 28 & 28 & 0.15 & S \\ 
    &  &  &  &  &  \\ 
-  Total & 200.2 & 323 & 321 & 0.62 &  \\ 
-  Residual & 137.8 &  &  &  &  \\ 
+  Total & 188.0 & 324 & 321 & 0.59 &  \\ 
+  Residual & 150.0 &  &  &  &  \\ 
   Nobs & 338 &  &  &  &  \\ 
    \hline
 \end{tabular}
 \end{flushleft}
 \end{table}
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 19 15:30:27 2017
+\newpage
+The generalized heritability is 0.89% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Tue Dec 19 16:36:30 2017
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Variance components} 
@@ -290,15 +291,16 @@ Genotype & 168.0 & 168 & 168 & 1.00 & F \\
   \hline
  & Variance \\ 
   \hline
-Row(replicate) & 2.336e+02 \\ 
-  Col(replicate) & 4.994e+00 \\ 
-  Smooth trend along cols & 2.229e+04 \\ 
-  Smooth trend along rows & 6.228e-08 \\ 
-  Lineair trend in rows changing smootly along cols & 9.975e-01 \\ 
-  Lineair trend in cols changing smootly along rows & 2.882e+01 \\ 
-  Smooth-by-smooth interaction trend over rows and cols & 4.653e+02 \\ 
+Genotype & 1.329e+03 \\ 
+  Row(replicate) & 2.138e+02 \\ 
+  Col(replicate) & 2.124e+01 \\ 
+  Smooth trend along cols & 1.831e+04 \\ 
+  Smooth trend along rows & 3.397e+01 \\ 
+  Lineair trend in rows changing smoothly along cols & 1.191e-04 \\ 
+  Lineair trend in cols changing smoothly along rows & 8.886e+00 \\ 
+  Smooth-by-smooth interaction trend over rows and cols & 1.069e+03 \\ 
    &  \\ 
-  Residual & 2.345e+02 \\ 
+  Residual & 2.319e+02 \\ 
    \hline
 \end{tabular}
 \end{flushleft}
@@ -336,33 +338,33 @@ Row(replicate) & 2.336e+02 \\
 \section{List of best 20 genotypes}
 %-------------------------------------------------------------------------------
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Dec 19 15:30:28 2017
+% Tue Dec 19 16:36:32 2017
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{lcc}
   \hline
- & predictedBLUEs & se predictedBLUEs \\ 
+ & predictedBLUPs & se predictedBLUPs \\ 
   \hline
-SB025 & 297.93 & 13.75 \\ 
-  SB032 & 297.77 & 14.51 \\ 
-  SB023 & 296.40 & 13.61 \\ 
-  SB022 & 291.29 & 14.43 \\ 
-  SB011 & 290.38 & 13.95 \\ 
-  SB144 & 287.02 & 14.18 \\ 
-  SB156 & 281.01 & 14.80 \\ 
-  SB031 & 273.75 & 14.56 \\ 
-  SB055 & 272.72 & 14.23 \\ 
-  SB054 & 270.55 & 14.87 \\ 
-  SB143 & 260.58 & 14.96 \\ 
-  SB194 & 258.68 & 14.00 \\ 
-  SB183 & 255.15 & 14.91 \\ 
-  SB020 & 253.16 & 13.15 \\ 
-  SB155 & 253.15 & 13.77 \\ 
-  SB140 & 253.07 & 14.69 \\ 
-  SB128 & 252.18 & 15.89 \\ 
-  SB163 & 251.25 & 14.57 \\ 
-  SB028 & 248.93 & 14.43 \\ 
-  SB093 & 246.58 & 14.75 \\ 
+SB032 & 290.17 & 13.32 \\ 
+  SB025 & 285.40 & 13.00 \\ 
+  SB023 & 285.22 & 12.93 \\ 
+  SB011 & 280.63 & 13.05 \\ 
+  SB144 & 277.89 & 13.12 \\ 
+  SB022 & 277.74 & 13.35 \\ 
+  SB156 & 269.10 & 13.59 \\ 
+  SB031 & 267.17 & 13.30 \\ 
+  SB055 & 264.35 & 13.18 \\ 
+  SB054 & 259.24 & 13.47 \\ 
+  SB128 & 254.96 & 13.67 \\ 
+  SB194 & 252.00 & 13.03 \\ 
+  SB093 & 250.57 & 13.65 \\ 
+  SB183 & 250.51 & 13.19 \\ 
+  SB020 & 249.64 & 12.77 \\ 
+  SB143 & 248.41 & 13.64 \\ 
+  SB155 & 245.80 & 13.04 \\ 
+  SB140 & 245.54 & 13.42 \\ 
+  SB163 & 244.62 & 13.33 \\ 
+  SB028 & 244.29 & 13.09 \\ 
    \hline
 \end{tabular}
 \label{bestTab}

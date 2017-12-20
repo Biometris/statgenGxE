@@ -4,9 +4,12 @@
 #'
 #' @param mRand a mixed model created using either asreml or lme4
 #' @param mFix a fixed model created using either asreml or lme4
-#' @param data an object of class TD containing the data on which mRand and mFix are based.
+#' @param data an object of class TD containing the data on which mRand and
+#' mFix are based.
 #' @param traits a character vector indicating the traits for which the analysis is done.
 #' @param design a character string containing the design of the trial.
+#' @param spatial a character string indicating the spatial part of the model.
+#' \code{FALSE} if no spatial design has been used.
 #' @param engine a character string containing the engine used to do the analysis.
 #' @param x \code{R} object
 #'
@@ -258,6 +261,7 @@ plot.SSA <- function(x,
 #' Simultaneously the same report will be created as a tex file.
 #'
 #' @param x an object of class SSA.
+#' @param ... further arguments passed on from other functions - not used yet.
 #' @param outfile a character string, the name and location of the output .pdf and .tex
 #' file for the report. If \code{NULL} a report will be created in the current working
 #' directory.
@@ -275,8 +279,8 @@ report.SSA <- function(x, ..., outfile = NULL) {
   }
   outBase <- substring(basename(outfile), first = 1,
                        last = nchar(basename(outfile)) - 3)
-  outTex <- paste0(system.file("latex", package = "RAP"), "/", outBase, "tex")
-  reportFile <- system.file("latex", "modelReport.Rnw", package = "RAP")
+  outTex <- paste0(system.file("reports", package = "RAP"), "/", outBase, "tex")
+  reportFile <- system.file("reports", "modelReport.Rnw", package = "RAP")
   knitr::knit(input = reportFile, output = outTex, quiet = FALSE)
   system2(command = Sys.which("pdflatex"),
           args = c(paste0(' -output-directory="', dirname(outfile), '"'),

@@ -208,6 +208,13 @@ waldTest <- function(b,
   return(list(sigma = sigma, b = b, positions = positions, L = L, result = res, df = df))
 }
 
+#' Base method for creating a report
+#'
+#' Base method for creating a .pdf report from an \code{R} object
+#'
+#' @param x an \code{R} object
+#' @param ... further arguments to be passed on to specific report functions.
+#'
 #' @export
 report <- function(x, ...) {
   UseMethod("report", x)
