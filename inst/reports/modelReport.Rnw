@@ -182,14 +182,14 @@ modelDesigns <- c("block (R)",
                   "replicate (F) + block(replicate) (R)",
                   "replicate (F)",
                   "row (R) + col (R)",
-                  "row(replicate) (R) + col(replicate) (R)")
+                  "replicate (F) + row(replicate) (R) + col(replicate) (R)")
 names(modelDesigns) <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
 if (length(grep(pattern = "checkId",
                 x = deparse(model$model$fixed))) > 0) {
   modelDesigns <- paste("checkId (F) +", modelDesigns)
 }
 descrItems <- c(x$traits, modelDesigns[x$design],
-                if (engine == "SpATS") "splines" else "no",
+                if (engine == "SpATS") "2 dimensional P-splines" else "no",
                 modelType)
 names(descrItems) <- c("Trait",
                        "Experimental design features",
@@ -214,12 +214,20 @@ if (engine == "SpATS") {
 modSum <- as.data.frame(summary(x$data, traits = x$traits))
 modSum <- modSum[!is.na(modSum$Freq), ]
 print(xtable::xtable(x = modSum[, c(1, 3)],
-                     caption = "Size of the data set and seven number descriptives",
+                     caption = "Size of the data set and eight number descriptives",
                      label = "modelSummary",
                      align = c("l", "l", "r")),
       latex.environments = "flushleft", caption.placement = "top",
       include.rownames = FALSE, include.colnames = FALSE)
+@
+<<label=condNewpage, echo=FALSE, results="hide">>=
 if (engine == "SpATS") {
+  "\newpage"
+}
+@
+<<label=SpATSsummary, echo=FALSE, results="asis">>=
+if (engine == "SpATS") {
+  "\newpage"
   ## Print table of effective dimensions
   effDims <- SpATSSum$p.table.dim
   rownames(effDims)[is.na(rownames(effDims))] <- ""
@@ -230,11 +238,11 @@ if (engine == "SpATS") {
                   "colCoordinates:f(rowCoordinates)",
                   "f(colCoordinates):f(rowCoordinates)")
   renameTo <- c("Genotype", "Replicate", "Row(replicate)", "Col(replicate)",
-                "Lineair trend along columns", "Lineair trend along rows",
+                "Lineair trend along cols", "Lineair trend along rows",
                 "Lineair trend along rows and cols",
                 "Smooth trend along cols", "Smooth trend along rows",
-                "Lineair trend in rows changing smootly along cols",
-                "Lineair trend in cols changing smootly along rows",
+                "Lineair trend in rows changing smoothly along cols",
+                "Lineair trend in cols changing smoothly along rows",
                 "Smooth-by-smooth interaction trend over rows and cols")
   for (i in 1:length(renameFrom)) {
     rownames(effDims)[which(rownames(effDims) == renameFrom[i])] <- renameTo[i]
@@ -244,6 +252,11 @@ if (engine == "SpATS") {
                        align = c("l", "c", "c", "c", "c", "c")),
         latex.environments = "flushleft", caption.placement = "top",
         include.rownames = TRUE)
+  ## Print generalized heritability
+  if (modelType == "random") {
+    cat(paste("The generalized heritability is",
+              round(STExtract(x, what = "heritability"), 2)))
+  }
   ## Print table of variance components.
   varComp <- SpATSSum$p.table.vc
   rownames(varComp)[is.na(rownames(varComp))] <- ""
@@ -268,10 +281,7 @@ if (engine == "SpATS") {
   plot(model)
 }
 @
-<<label=condNewpage, echo=FALSE, results="hide">>=
-if (engine == "SpATS") {
-  "\newpage"
-}
+<<condNewpage>>=
 @
 <<label=basePlots, echo=FALSE>>=
 ## Base diagnostic plots, identical for all models
