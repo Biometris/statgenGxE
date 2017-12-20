@@ -136,6 +136,7 @@ STRunModel = function(TD,
                                what = what,
                                covariates = covariates,
                                useCheckId = useCheckId,
+                               trySpatial = trySpatial,
                                design = design,
                                control = control,
                                ... = ...))

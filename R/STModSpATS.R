@@ -26,6 +26,7 @@ STModSpATS <- function(TD,
                        what = c("fixed", "random"),
                        covariates = NULL,
                        useCheckId = FALSE,
+                       trySpatial = FALSE,
                        design = "rowcol",
                        control = NULL,
                        ...) {
