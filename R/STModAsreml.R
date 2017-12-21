@@ -195,15 +195,15 @@ bestSpatMod <- function(TD,
     ## If no repId remove this from randomTerm
     randomTerm <- gsub(pattern = "repId:", replacement = "", x = randomTerm)
   }
-  if (trySpatial == "regular") {
+  if (trySpatial == "ifregular") {
     ## Define spatial terms of models to try.
-    spatialChoice <- rep(x = c("AR1(x)identity", "identity(x)AR1", "AR1(x)AR1"), times = 4)
-    spatialTerm <- rep(x = c("ar1(rowCoordinates):colCoordinates",
-                             "rowCoordinates:ar1(colCoordinates)",
-                             "ar1(rowCoordinates:ar1(colCoordinates)"),
+    spatialChoice <- rep(x = c("AR1(x)id", "id(x)AR1", "AR1(x)AR1"), times = 4)
+    spatialTerm <- rep(x = c("ar1(rowId):colId",
+                             "rowId:ar1(colId)",
+                             "ar1(rowId:ar1(colId)"),
                        times = 4)
   } else if (trySpatial == "always") {
-    spatialChoice <- rep(x = c("exponential(x)identity", "identity(x)exponential",
+    spatialChoice <- rep(x = c("exp(x)id", "id(x)exp",
                                "isotropic exponential"), times = 4)
     spatialTerm <- rep(x = c("exp(rowCoordinates):colCoordinates",
                              "rowCoordinates:exp(colCoordinates)",

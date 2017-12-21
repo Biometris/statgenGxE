@@ -220,4 +220,42 @@ report <- function(x, ...) {
   UseMethod("report", x)
 }
 
+#' Helper function for creating the actual report
+#'
+#' @keywords internal
+createReport <- function(x,
+                         reportName,
+                         outfile,
+                         ...) {
+  if (!is.null(outfile)) {
+    if (!is.character(outfile) || length(outfile) > 1 ||
+        !dir.exists(dirname(outfile)) || file_ext(outfile) != "pdf") {
+      stop("invalid output filename provided.\n")
+    }
+  } else {
+    timeStamp <- format(Sys.time(), "%Y%m%d%H%M%S")
+    outfile <- paste0(getwd(), "/modelReport_", timeStamp, ".pdf")
+  }
+  outBase <- substring(basename(outfile), first = 1,
+                       last = nchar(basename(outfile)) - 3)
+  outTex <- paste0(system.file("reports", package = "RAP"), "/", outBase, "tex")
+  reportFile <- system.file("reports", reportName, package = "RAP")
+  knitr::knit(input = reportFile, output = outTex, quiet = FALSE)
+  system2(command = Sys.which("pdflatex"),
+          args = c(paste0(' -output-directory="', dirname(outfile), '"'),
+                   "-interaction=nonstopmode",
+                   paste0(' "',  outTex, '"')))
+  system2(command = Sys.which("pdflatex"),
+          args = c(paste0(' -output-directory="', dirname(outfile), '"'),
+                   "-interaction=nonstopmode",
+                   paste0(' "',  outTex, '"')))
+  for (extension in c("aux", "log", "out", "toc", "xwm")) {
+    unlink(paste0(dirname(outfile), "/", outBase, extension))
+  }
+  invisible(file.rename(from = outTex,
+                        to = paste0(dirname(outfile), "/", basename(outTex))))
+}
+
+
+
 

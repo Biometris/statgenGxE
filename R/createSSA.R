@@ -103,19 +103,12 @@ summary.SSA <- function(object,
     dplyr::full_join(x, y, all = TRUE, by = "genotype")
   }, x = joinList)
   colnames(meanTab) <- c("genotype",
-                         if (!is.null(extr$BLUEs)) c("predictedBLUEs", "se predictedBLUEs"),
-                         if (!is.null(extr$BLUPs)) c("predictedBLUPs", "se predictedBLUPs"))
+                         if (!is.null(extr$BLUEs)) c("BLUEs", "SE"),
+                         if (!is.null(extr$BLUPs)) c("BLUPs", "SE"))
   rownames(meanTab) <- meanTab$genotype
   if (!is.na(sortBy)) {
-    if (sortBy == "BLUEs") {
-      oList <- order(meanTab$predictedBLUEs, na.last = naLast, decreasing = decreasing)
-      meanTab <- meanTab[oList, ]
-    } else {
-      if (sortBy == "BLUPs") {
-        oList <- order(meanTab$predictedBLUPs, na.last = naLast, decreasing = decreasing)
-        meanTab <- meanTab[oList, ]
-      }
-    }
+    oList <- order(meanTab[[sortBy]], na.last = naLast, decreasing = decreasing)
+    meanTab <- meanTab[oList, ]
   }
   if (!is.na(nBest)) {
     meanTab <- meanTab[1:nBest, ]
@@ -264,8 +257,8 @@ plot.SSA <- function(x,
       annotated <- FALSE
       colors = topo.colors(100)
       mainLegends <- c("Raw data", "Fitted data", "Residuals",
-                   ifelse(what == "fixed", "Genotypic BLUEs", "Genotypic BLUPs"),
-                   "Histogram")
+                       ifelse(what == "fixed", "Genotypic BLUEs", "Genotypic BLUPs"),
+                       "Histogram")
       colCoord <- x$data[, "colCoordinates"]
       rowCoord <- x$data[, "rowCoordinates"]
       plotCols <- seq(min(colCoord), max(colCoord),
@@ -318,32 +311,7 @@ plot.SSA <- function(x,
 #'
 #' @export
 report.SSA <- function(x, ..., outfile = NULL) {
-  if (!is.null(outfile)) {
-    if (!is.character(outfile) || length(outfile) > 1 ||
-        !dir.exists(dirname(outfile)) || file_ext(outfile) != "pdf") {
-      stop("invalid output filename provided.\n")
-    }
-  } else {
-    timeStamp <- format(Sys.time(), "%Y%m%d%H%M%S")
-    outfile <- paste0(getwd(), "/modelReport_", timeStamp, ".pdf")
-  }
-  outBase <- substring(basename(outfile), first = 1,
-                       last = nchar(basename(outfile)) - 3)
-  outTex <- paste0(system.file("reports", package = "RAP"), "/", outBase, "tex")
-  reportFile <- system.file("reports", "modelReport.Rnw", package = "RAP")
-  knitr::knit(input = reportFile, output = outTex, quiet = FALSE)
-  system2(command = Sys.which("pdflatex"),
-          args = c(paste0(' -output-directory="', dirname(outfile), '"'),
-                   "-interaction=nonstopmode",
-                   paste0(' "',  outTex, '"')))
-  system2(command = Sys.which("pdflatex"),
-          args = c(paste0(' -output-directory="', dirname(outfile), '"'),
-                   "-interaction=nonstopmode",
-                   paste0(' "',  outTex, '"')))
-  for (extension in c("aux", "log", "out", "toc", "xwm")) {
-    unlink(paste0(dirname(outfile), "/", outBase, extension))
-  }
-  invisible(file.rename(from = outTex,
-                        to = paste0(dirname(outfile), "/", basename(outTex))))
+  createReport(x = x, reportName = "modelReport.Rnw",
+               outfile = outfile, ...)
 }
 

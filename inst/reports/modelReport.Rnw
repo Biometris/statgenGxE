@@ -12,18 +12,10 @@
 \usepackage{setspace}%
 % Set palatino font with small caps as default
 \usepackage[sc]{mathpazo}%
-% Create author affiliation
-\usepackage[noblocks]{authblk}%
-% Make references as [1-4], not [1,2,3,4]
-\usepackage{cite}%
 % Rotation tools, including rotated full-page floats.
 \usepackage{rotating}%
 % Create subfigures
 \usepackage{subfigure}%
-% Publication quality tables in LaTeX
-\usepackage{booktabs}%
-% Required to insert dummy text (Lorem Ipsum)
-\usepackage{lipsum}%
 % Extensive support for hypertext in LaTeX
 \usepackage{hyperref}%
 % For adding bookmarks to the document
@@ -32,33 +24,13 @@
 \usepackage{datetime}
 % For alignment of captions
 \usepackage{caption}
+% For multiple columns.
+\usepackage{multicol}
+
 
 % Graphics Path definition
 %-------------------------------------------------------------------------------
 \graphicspath{{figures/}}
-
-% Redefine commands
-%-------------------------------------------------------------------------------
-% Set affiliation font to small font size
-\renewcommand{\Affilfont}{\normalfont\small}%
-% Set table numbering to Roman, i.e. I,II etc. instead of default arabic 1,2 etc.
-\renewcommand{\thetable}{\arabic{table}}%\Roman{table}
-
-% Redefine abstract environment
-%-------------------------------------------------------------------------------
-\def\@abstractline{\textwidth}
-\renewenvironment{abstract}
-{
-\ifhmode\begingroup\parskip0pt\par\noindent\endgroup\fi%
-\begin{rmfamily}
-%\vspace{1cm} % use \topsep in list
-{\noindent\bfseries\large\abstractname\vspace{-0.5em}}
-{\par\vbox{\hrule width \@abstractline}}
-}{
-\ifhmode\begingroup\parskip0pt\par\noindent\endgroup\fi %
-\par\vbox{\hrule width \@abstractline}% \vspace{1cm} %
-\end{rmfamily}
-}
 
 %-------------------------------------------------------------------------------
 %	Article Information
@@ -141,7 +113,7 @@ if (useCheckId) {
   modelDesigns <- paste("checkId (F) +", modelDesigns)
 }
 descrItems <- c(x$traits, modelDesigns[x$design],
-                if (is.null(x$spatial)) "no" else as.character(x$spatial[1]),
+                if (is.null(x$spatial)) "id" else as.character(x$spatial[1]),
                 modelType)
 names(descrItems) <- c("Trait",
                        "Experimental design features",
@@ -178,23 +150,26 @@ if (engine == "SpATS") {
 }
 @
 <<label=SpATSsummary, echo=FALSE, results="asis">>=
+renameFrom <- c("genotype", "repId", "rowId", "colId", "subBlock",
+                "repId:rowId", "repId:colId", "repId:subBlock",
+                "colCoordinates", "rowCoordinates", "rowCoordinatescolCoordinates",
+                "f(colCoordinates)", "f(rowCoordinates)",
+                "f(colCoordinates):rowCoordinates",
+                "colCoordinates:f(rowCoordinates)",
+                "f(colCoordinates):f(rowCoordinates)", "Nobs", "R")
+renameTo <- c("Genotype", "Replicate", "Row", "Col", "Block",
+              "Row(replicate)", "Col(replicate)", "Block(replicate)",
+              "Linear trend along cols", "Linear trend along rows",
+              "Linear trend along rows and cols",
+              "Smooth trend along cols", "Smooth trend along rows",
+              "Linear trend in rows changing smoothly along cols",
+              "Linear trend in cols changing smoothly along rows",
+              "Smooth-by-smooth interaction trend over rows and cols",
+              "Number of observations", "Residual")
 if (engine == "SpATS") {
   ## Print table of effective dimensions
   effDims <- SpATSSum$p.table.dim
   rownames(effDims)[is.na(rownames(effDims))] <- ""
-  renameFrom <- c("genotype", "repId", "repId:rowId", "repId:colId",
-                  "colCoordinates", "rowCoordinates", "rowCoordinatescolCoordinates",
-                  "f(colCoordinates)", "f(rowCoordinates)",
-                  "f(colCoordinates):rowCoordinates",
-                  "colCoordinates:f(rowCoordinates)",
-                  "f(colCoordinates):f(rowCoordinates)")
-  renameTo <- c("Genotype", "Replicate", "Row(replicate)", "Col(replicate)",
-                "Lineair trend along cols", "Lineair trend along rows",
-                "Lineair trend along rows and cols",
-                "Smooth trend along cols", "Smooth trend along rows",
-                "Lineair trend in rows changing smoothly along cols",
-                "Lineair trend in cols changing smoothly along rows",
-                "Smooth-by-smooth interaction trend over rows and cols")
   for (i in 1:length(renameFrom)) {
     rownames(effDims)[which(rownames(effDims) == renameFrom[i])] <- renameTo[i]
   }
@@ -214,11 +189,44 @@ if (engine == "SpATS") {
   for (i in 1:length(renameFrom)) {
     rownames(varComp)[which(rownames(varComp) == renameFrom[i])] <- renameTo[i]
   }
-  print(xtable::xtable(x = varComp[, 1, drop = FALSE], label = "varComps",
+  varComp <- data.frame(Variance = as.numeric(varComp[, 1]),
+                        row.names = rownames(varComp))
+  print(xtable::xtable(x = varComp, label = "varComps",
                        caption =  "Variance components",
                        align = c("l", "c")),
         latex.environments = "flushleft", caption.placement = "top",
         include.rownames = TRUE)
+} else if (engine == "lme4") {
+  varComp <- as.data.frame(lme4::VarCorr(model))[, c("grp", "vcov")]
+  for (i in 1:length(renameFrom)) {
+    varComp$grp[varComp$grp == renameFrom[i]] <- renameTo[i]
+  }
+  varComp <- tibble::add_row(.data = varComp,
+                             .before = which(varComp$grp == "Residual"))
+  colnames(varComp) <- c("", "Variance")
+  print(xtable::xtable(x = varComp, label = "varComps",
+                       caption =  "Variance components",
+                       align = c("l", "l", "c")),
+        latex.environments = "flushleft", caption.placement = "top",
+        include.rownames = FALSE)
+} else if (engine == "asreml") {
+  varComp <- summary(model)$varcomp[, "component", drop = FALSE]
+  rownames(varComp) <- sapply(X = strsplit(x = rownames(varComp), split = "\\!"),
+                              FUN = "[[", 1)
+  for (i in 1:length(renameFrom)) {
+    rownames(varComp)[which(rownames(varComp) == renameFrom[i])] <- renameTo[i]
+  }
+  varComp <- rbind(varComp["Genotype", , drop = FALSE],
+                   varComp[-which(rownames(varComp) == "Genotype"), , drop = FALSE])
+  varComp <- tibble::rownames_to_column(varComp)
+  varComp <- tibble::add_row(.data = varComp,
+                             .before = which(varComp$rowname == "Residual"))
+  colnames(varComp) <- c("", "Variance")
+  print(xtable::xtable(x = varComp, label = "varComps",
+                       caption =  "Variance components",
+                       align = c("l", "l", "c")),
+        latex.environments = "flushleft", caption.placement = "top",
+        include.rownames = FALSE)
 }
 @
 \clearpage
@@ -235,19 +243,33 @@ plot(x, what = modelType, plotType = "spatial")
 plot(x, what = modelType, plotType = "base")
 @
 \newpage
+
+%-------------------------------------------------------------------------------
+\section{List of best 10\% genotypes}
+%-------------------------------------------------------------------------------
 <<label=best20, echo=FALSE, results="hide">>=
-best <- summary(x)
+pred <- STExtract(x, what = if (modelType == "fixed") "BLUEs" else "BLUPs")
+pred <- pred[order(pred[[x$traits]]), x$traits]
+best <- summary(x, nBest = ceiling(length(pred) / 10))
 @
-%-------------------------------------------------------------------------------
-\section{List of best \Sexpr{nrow(best)} genotypes}
-%-------------------------------------------------------------------------------
+\begin{multicols*}{2}
 <<label=printBest20, echo=FALSE, results="asis">>=
 print(xtable::xtable(x = best[-1], label = "bestTab",
                      align = c("l", "c", "c"), digits = c(0, 2, 2)),
       latex.environments = "flushleft",
-      include.rownames = TRUE)
-
+      include.rownames = TRUE, floating = FALSE)
 @
+\columnbreak
+<<label=predPlot, echo=FALSE>>=
+## Plot of predictions, BLUEs or BLUPs
+plot(pred, col = "#0080ff", xlab = "Genotypes", xaxt = "n", cex.lab = 1.5,
+     ylab = if (modelType == "fixed") "BLUEs" else "BLUPs",
+     mar = c(5, 5, 4, 2) + 0.1)
+abline(h = quantile(x = pred, probs = 0.9), col = "red")
+@
+\end{multicols*}
+
+
 %-------------------------------------------------------------------------------
 % End Document
 \end{document}

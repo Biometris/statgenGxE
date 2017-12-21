@@ -22,5 +22,7 @@ Imports: dplyr,
     reshape2,
     SpATS,
     knitr,
-    xtable
+    xtable,
+    magrittr,
+    tibble
 Suggests: asreml
