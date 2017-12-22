@@ -1,8 +1,8 @@
 #' S3 class FW
 #'
-#' Function for creating objects of S3 class FW (Finlay Wilkinson).
-#'
-#' \code{\link{print}} and \code{\link{plot}} methods are available.
+#' Function for creating objects of S3 class FW (Finlay Wilkinson).\cr
+#' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
+#' \code{\link{report}} methods are available.
 #'
 #' @param estimates a data.frame containing the estimated values
 #' @param anova a data.frame containing anova scores of the FW analysis
@@ -19,7 +19,7 @@
 #'
 #' @author Bart-Jan van Rossum
 #'
-#' @seealso \code{\link{plot.FW}}
+#' @seealso \code{\link{plot.FW}}, \code{\link{report.FW}}
 #'
 #' @name FW
 NULL
@@ -67,6 +67,11 @@ print.FW <- function(x, ...) {
   cat("\nEstimates",
       "\n=========\n")
   print(x$estimates, ..., row.names = FALSE)
+}
+
+#' @export
+summary.FW <- function(object, ...) {
+  print(object, ...)
 }
 
 #' Plot Function for Class FW
@@ -147,7 +152,7 @@ plot.FW <- function(x,
   }
 }
 
-#' Create a report with basic results.
+#' Report method for class FW
 #'
 #' A pdf report will be created containing a summary of FW analysis.
 #' Simultaneously the same report will be created as a tex file.

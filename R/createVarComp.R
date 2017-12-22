@@ -1,7 +1,6 @@
 #' S3 class varComp
 #'
-#' Function for creating objects of S3 class varComp.
-#'
+#' Function for creating objects of S3 class varComp.\cr
 #' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
 #' \code{\link{report}} methods are available.
 #'
@@ -54,6 +53,7 @@ summary.varComp <- function(object, ...) {
 #'
 #' Function for plotting a heatmap of the correlation matrix for objects of
 #' class varComp.
+#'
 #' @param x an object of class varComp
 #' @param ... not unused
 #'
@@ -64,7 +64,7 @@ plot.varComp <- function(x, ...) {
   heatmap(corMat, Rowv = NA, symm = TRUE)
 }
 
-#' Create a report with basic results.
+#' Report method for class varComp
 #'
 #' A pdf report will be created containing a summary of selection of the
 #' best variance model.

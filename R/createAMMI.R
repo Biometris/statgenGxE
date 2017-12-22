@@ -1,8 +1,8 @@
 #' S3 class AMMI
 #'
-#' Function for creating objects of S3 class AMMI.
-#'
-#' \code{\link{print}} and \code{\link{plot}} methods are available.
+#' Function for creating objects of S3 class AMMI.\cr
+#' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
+#' \code{\link{report}} methods are available.
 #'
 #' @param envScores a matrix containing environment scores
 #' @param genoScores a matrix containing genotypic scores
@@ -66,6 +66,11 @@ print.AMMI <- function(x, ...) {
   cat("\nGenotypic scores",
       "\n================\n")
   print(x$genoScores, ..., max.print = 50)
+}
+
+#' @export
+summary.AMMI <- function(object, ...) {
+  print(object, ...)
 }
 
 #' Plot Function for Class AMMI
@@ -155,7 +160,7 @@ plot.AMMI <- function(x,
   par <- oldPar
 }
 
-#' Create a report with basic results.
+#' Report method for class AMMi
 #'
 #' A pdf report will be created containing a summary of AMMI model.
 #' Simultaneously the same report will be created as a tex file.

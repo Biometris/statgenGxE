@@ -1,6 +1,8 @@
 #' S3 class SSA
 #'
-#' Function for creating objects of S3 class Single Site Analysis (SSA).
+#' Function for creating objects of S3 class Single Site Analysis (SSA).\cr
+#' \code{\link{summary}}, \code{\link{plot}} and
+#' \code{\link{report}} methods are available.
 #'
 #' @param mRand a mixed model created using either asreml or lme4
 #' @param mFix a fixed model created using either asreml or lme4
@@ -15,7 +17,7 @@
 #'
 #' @author Bart-Jan van Rossum
 #'
-#' @seealso \code{\link{summary.SSA}}
+#' @seealso \code{\link{summary.SSA}, \code{\link{plot.SSA}, \code{\link{report.SSA}}
 #'
 #' @name SSA
 NULL
@@ -46,7 +48,7 @@ is.SSA <- function(x) {
   inherits(x, "SSA")
 }
 
-#' Summarizing (\code{SSA})Model Fits
+#' Summarizing objects of class \code{SSA}
 #'
 #' \code{summary} method for class \code{SSA}.
 #'
@@ -142,7 +144,7 @@ summary.SSA <- function(object,
   invisible(meanTab)
 }
 
-#' Diagnostic Plots of Models
+#' Plots Function for Class SSA
 #'
 #' This function draws four plots, a histogram of residuals, a normal Q-Q plot, a residuals
 #' vs fitted values plot and an absolute residuals vs fitted values plot.
@@ -298,7 +300,7 @@ plot.SSA <- function(x,
   }
 }
 
-#' Create a report with basic results.
+#' Report method for class SSA
 #'
 #' A pdf report will be created containing a summary of the results of the model.
 #' Simultaneously the same report will be created as a tex file.

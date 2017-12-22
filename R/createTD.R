@@ -132,9 +132,9 @@ is.TD <- function(x) {
   inherits(x, "TD")
 }
 
-#' Summary statistics of the trait
+#' Summarizing objects of class \code{TD}
 #'
-#' This function is to calculate summary statistics of all traits.
+#' \code{summary} method for class \code{TD}.
 #'
 #' @param object An object of class TD.
 #' @param ... Further arguments - currently not used.
