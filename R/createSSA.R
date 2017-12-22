@@ -17,7 +17,7 @@
 #'
 #' @author Bart-Jan van Rossum
 #'
-#' @seealso \code{\link{summary.SSA}, \code{\link{plot.SSA}, \code{\link{report.SSA}}
+#' @seealso \code{\link{summary.SSA}}, \code{\link{plot.SSA}}, \code{\link{report.SSA}}
 #'
 #' @name SSA
 NULL

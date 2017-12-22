@@ -24,5 +24,6 @@ Imports: dplyr,
     knitr,
     xtable,
     magrittr,
-    tibble
+    tibble,
+    fields
 Suggests: asreml

@@ -8,11 +8,13 @@
 #' @param choice A character string indicating the best fitted model.
 #' @param summary A data.frame with a summary of the fitted models.
 #' @param vcov The covariance matrix of the best fitted model.
+#' @param criterion A character string indicating the criterion used for
+#' determinening the best model, either "AIC" or "BIC".
 #' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
 #'
-#' @seealso \code{\link{plot.VarComp}}, \code{\link{report.VarComp}}
+#' @seealso \code{\link{plot.varComp}}, \code{\link{report.varComp}}
 #'
 #' @name varComp
 NULL

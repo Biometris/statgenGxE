@@ -21,12 +21,10 @@
 #' ## Get data.
 #' data(TDMaize)
 #' ## Fit model.
-#' model1 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "lme4",
-#'                      criterion = "BIC")
+#' geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "lme4",
+#'                         criterion = "BIC")
 #' ## Display results.
-#' model1$BIC
-#' model1$choice
-#' summary(model1$model[[model1$choice]])
+#' summary(geVarComp)
 #'
 #' @export
 
