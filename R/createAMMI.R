@@ -17,7 +17,7 @@
 #'
 #' @author Bart-Jan van Rossum
 #'
-#' @seealso \code{\link{plot.AMMI}}
+#' @seealso \code{\link{plot.AMMI}}, \code{\link{report.AMMI}}
 #'
 #' @name AMMI
 NULL
@@ -146,11 +146,33 @@ plot.AMMI <- function(x,
     biplot(x = t(t(scores[, 1:2]) / lam),
            y = t(t(loadings[, 1:2]) * lam),
            col = c("orange3", "navyblue"),
+           cex = c(par("cex") / 2, par("cex")),
+           xlabs = rep("o", nrow(scores)),
            main = paste0("AMMI2 biplot for ", x$trait, " (", info, ")"),
            xlab = paste0("PC1 (", round(propPC1 * 100, 1), "%)"),
            ylab = paste0("PC2 (", round(propPC2 * 100, 1), "%)"))
   }
   par <- oldPar
 }
+
+#' Create a report with basic results.
+#'
+#' A pdf report will be created containing a summary of AMMI model.
+#' Simultaneously the same report will be created as a tex file.
+#'
+#' @param x an object of class AMMI.
+#' @param ... further arguments passed on from other functions - not used yet.
+#' @param outfile a character string, the name and location of the output .pdf and .tex
+#' file for the report. If \code{NULL} a report will be created in the current working
+#' directory.
+#'
+#' @export
+report.AMMI <- function(x,
+                        ...,
+                        outfile = NULL) {
+  createReport(x = x, reportName = "ammiReport.Rnw",
+               outfile = outfile, ...)
+}
+
 
 

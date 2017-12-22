@@ -30,7 +30,7 @@
 #' ## Get data
 #' data(TDMaize)
 #' ## Run AMMI
-#' a<-gxeAmmi(TD = TDMaize, trait = "yld", nPC = 2, center = TRUE, scale = FALSE)
+#' geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld", nPC = 2, center = TRUE, scale = FALSE)
 #'
 #' @import stats
 #' @export
@@ -87,7 +87,8 @@ gxeAmmi <- function(TD,
     rownames(X) <- rownames(fittedVals) <- gNames
   }
   # Use prcomp for computing principal components.
-  pca <- prcomp(x = X, retx = TRUE, center = center, scale. = scale)
+  pca <- prcomp(x = X, retx = TRUE, center = center,
+                scale. = scale, rank. = nPC)
   loadings <- pca$rotation
   scores <- pca$x
   ## Compute AMMI-estimates per genotype per environment.
@@ -131,7 +132,7 @@ gxeAmmi <- function(TD,
   ## Create complete ANOVA table for AMMI model
   a0 <- rbind(a1, as.data.frame(addTbl))
   return(createAMMI(envScores = pca$rotation, genoScores = pca$x,
-                    importance = as.data.frame(summary(pca)$importance),
+                    importance = as.data.frame(summary(pca)$importance)[, 1:nPC],
                     anova = a0, fitted = fitted,
                     trait = trait, envMean = envMean, genoMean = genoMean,
                     overallMean = overallMean))

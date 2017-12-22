@@ -1,0 +1,131 @@
+%-------------------------------------------------------------------------------
+%	Packages and other Document configurations
+%-------------------------------------------------------------------------------
+\documentclass[a4paper,11pt]{article}
+% Package declaration
+%-------------------------------------------------------------------------------
+% Specify input encoding
+\usepackage[utf8]{inputenc}
+% For A4 paper set all margins to 3cm
+\usepackage[paper=a4paper,left=1.5cm,top=2cm,right=1.5cm,bottom=2cm]{geometry}%
+% Set linespace, usage \doublespacing \singlespacing \onehalfspacing
+\usepackage{setspace}%
+% Set palatino font with small caps as default
+\usepackage[sc]{mathpazo}%
+% Rotation tools, including rotated full-page floats.
+\usepackage{rotating}%
+% Create subfigures
+\usepackage{subfigure}%
+% Extensive support for hypertext in LaTeX
+\usepackage{hyperref}%
+% For adding bookmarks to the document
+\usepackage{bookmark}%
+% For adding time to the document
+\usepackage{datetime}
+% For alignment of captions
+\usepackage{caption}
+% For multiple columns.
+\usepackage{multicol}
+
+
+% Graphics Path definition
+%-------------------------------------------------------------------------------
+\graphicspath{{figures/}}
+
+%-------------------------------------------------------------------------------
+%	Article Information
+%-------------------------------------------------------------------------------
+% Setting PDF properties in the final PDF
+% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
+\hypersetup
+{
+pdfsubject={Model report},
+pdftitle={Model report}
+}
+
+% Start Article header
+%-------------------------------------------------------------------------------
+% Title
+\title{AMMI report}%
+% Authors
+\author{\vspace{-5ex}}
+%-------------------------------------------------------------------------------
+% Dates
+\date{\today\ \currenttime} % when you are in the process of writing
+%-------------------------------------------------------------------------------
+% End article header
+
+% For left aligning captions
+\captionsetup{justification=raggedright,singlelinecheck=false}
+
+% Start Document
+%-------------------------------------------------------------------------------
+\begin{document}
+
+% Set knitr options
+<<label=setup, include=FALSE, cache=FALSE>>=
+## load required packages
+lapply(list("xtable"), library, character.only = TRUE)
+## Set global chunk options
+knitr::opts_chunk$set(dev = c("pdf"),
+                      fig.path = "figures/fig-",
+                      fig.align = "center",
+                      fig.show = "hold",
+                      tidy = TRUE)
+@
+
+% Article title and date.
+\maketitle
+% Start single line spacing
+\singlespacing
+
+%-------------------------------------------------------------------------------
+\section{Anova table}
+%-------------------------------------------------------------------------------
+
+<<label=anova, echo=FALSE, results="asis">>=
+anovaTab <- x$anova
+## Add significance stars
+anovaTab[, ncol(anovaTab) + 1] <- symnum(x = anovaTab[, ncol(anovaTab)],
+                                         corr = FALSE, na = FALSE,
+                                         cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+                                         symbols = c("***", "**", "*", ".", " "))
+colnames(anovaTab)[ncol(anovaTab)] <- ""
+rownames(anovaTab)[c("genotype", "env")] <- c("Genotype", "Environment")
+legendText <- "Significance codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1} \\\\"
+print(xtable::xtable(x = anovaTab, label = "anova",
+                     align = c("l", "r", "r", "r", "r", "r", "l"),
+                     digits = c(0, 0, 0, 0, 2, -2, 0),
+                     display = c("s", "f", "f", "f", "f", "e", "s")),
+      latex.environments = "flushleft", hline.after = NULL,
+      include.rownames = TRUE, include.colnames = TRUE,
+      add.to.row = list(pos = list(nrow(anovaTab)),
+                        command = paste0("\\hline  \\multicolumn{",
+                                         ncol(anovaTab), "}{c}{",
+                                         legendText)))
+@
+
+%-------------------------------------------------------------------------------
+\section{Importance}
+%-------------------------------------------------------------------------------
+
+<<label=importance, echo=FALSE, results="asis">>=
+importance <- x$importance
+print(xtable::xtable(x = importance, label = "anova",
+                     align = c("l", rep("c", ncol(importance)))),
+      latex.environments = "flushleft", hline.after = NULL,
+      include.rownames = TRUE, include.colnames = TRUE)
+@
+
+\newpage
+
+%-------------------------------------------------------------------------------
+\section{Biplot}
+%-------------------------------------------------------------------------------
+<<label=biplot, echo=FALSE>>=
+plot(x, plotType = "AMMI2")
+@
+
+%-------------------------------------------------------------------------------
+% End Document
+\end{document}

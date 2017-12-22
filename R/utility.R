@@ -234,7 +234,9 @@ createReport <- function(x,
     }
   } else {
     timeStamp <- format(Sys.time(), "%Y%m%d%H%M%S")
-    outfile <- paste0(getwd(), "/modelReport_", timeStamp, ".pdf")
+    outfile <- paste0(getwd(), "/" , substring(reportName, first = 1,
+                                               last = nchar(reportName) - 4),
+                      "_", timeStamp, ".pdf")
   }
   outBase <- substring(basename(outfile), first = 1,
                        last = nchar(basename(outfile)) - 3)
