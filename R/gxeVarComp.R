@@ -57,7 +57,17 @@ gxeVarComp <- function(TD,
                                               value.var = trait),
                        id.vars = "env", variable.name = "genotype",
                        value.name = trait)
-  res <- vector(mode = "list")
+  if (engine == "asreml") {
+  choices <- c("identity", "cs", "diagonal", "hcs", "outside",
+               "fa", "fa2", "unstructured")
+  } else {
+    choices <- "cs"
+  }
+  ## Create matrix for storing results.
+  bestTab <- matrix(nrow = length(choices), ncol = 4,
+                    dimnames = list(choices,
+                                    c("AIC", "BIC", "Deviance", "NParameters")))
+  models <- setNames(vector(mode = "list", length = length(choices)), choices)
   ## Main procedure to fit mixed models.
   if (engine == "lme4") {
     ## Compound symmetry ("cs") only.
@@ -65,21 +75,16 @@ gxeVarComp <- function(TD,
                     data = TD, ...)
     nPar <- 2
     ## Outputs.
-    bestModel <- mr
-    res$choice <- "cs"
-    if (criterion == "AIC") {
-      res$AICBest <- -2 * as.numeric(logLik(mr)) + 2 * nPar
-    } else {
-      res$BICBest <- -2 * as.numeric(logLik(mr)) + log(length(fitted(mr))) * nPar
-    }
+    models[["cs"]] <- mr
+    bestTab["cs", ] <- c(-2 * as.numeric(logLik(mr)) + 2 * nPar,
+                         -2 * as.numeric(logLik(mr)) +
+                           log(length(fitted(mr))) * nPar,
+                         -2 * logLik(mr), nPar)
+    vcovBest <- vcov(emmeans::emmeans(mr, specs = "env",
+                                      lmer.df = "asymptotic"))
   } else if (engine == "asreml") {
     if (requireNamespace("asreml", quietly = TRUE)) {
       tmp <- tempfile()
-      choices <- c("identity", "cs", "diagonal", "hcs", "outside",
-                   "fa", "fa2", "unstructured")
-      bestTab <- matrix(nrow = length(choices), ncol = 4,
-                        dimnames = list(choices,
-                                        c("AIC", "BIC", "Deviance", "NParameters")))
       for (choice in choices) {
         if (choice == "identity") {
           sink(file = tmp)
@@ -234,7 +239,7 @@ gxeVarComp <- function(TD,
           mr$call$rcov <- eval(mr$call$rcov)
           mr$call$G.param <- eval(mr$call$G.param)
           mr$call$R.param <- eval(mr$call$R.param)
-          res$model[[choice]] <- mr
+          models[[choice]] <- mr
           if (!mr$converge) {
             mr$loglik <- -Inf
           }
@@ -248,17 +253,17 @@ gxeVarComp <- function(TD,
         }
       }
       bestTab <- bestTab[order(bestTab[, criterion]), ]
-      ## Outputs.
-      bestModel <- res$model[[rownames(bestTab)[1]]]
-      vcovBest <- predictAsreml(model = bestModel, classify = "env",
-                                    TD = TD)$predictions$vcov
-      colnames(vcovBest) <- rownames(vcovBest) <- levels(TD$env)
-      res$critBest <- bestTab[1, criterion]
+      vcovBest <- predictAsreml(model =  models[[rownames(bestTab)[1]]],
+                                classify = "env",
+                                TD = TD)$predictions$vcov
       unlink(tmp)
     } else {
       stop("Failed to load 'asreml'.\n")
     }
   }
+  ## Outputs.
+  bestModel <- models[[rownames(bestTab)[1]]]
+  colnames(vcovBest) <- rownames(vcovBest) <- levels(TD$env)
   res <- createVarComp(model = bestModel, choice = rownames(bestTab)[1],
                        summary = bestTab, vcov = vcovBest,
                        criterion = criterion)
