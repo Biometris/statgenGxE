@@ -1,0 +1,108 @@
+%-------------------------------------------------------------------------------
+%	Packages and other Document configurations
+%-------------------------------------------------------------------------------
+\documentclass[a4paper,11pt]{article}
+% Package declaration
+%-------------------------------------------------------------------------------
+% Specify input encoding
+\usepackage[utf8]{inputenc}
+% For A4 paper set all margins to 3cm
+\usepackage[paper=a4paper,left=1.5cm,top=2cm,right=1.5cm,bottom=2cm]{geometry}%
+% Set linespace, usage \doublespacing \singlespacing \onehalfspacing
+\usepackage{setspace}%
+% Set palatino font with small caps as default
+\usepackage[sc]{mathpazo}%
+% Rotation tools, including rotated full-page floats.
+\usepackage{rotating}%
+% Create subfigures
+\usepackage{subfigure}%
+% Extensive support for hypertext in LaTeX
+\usepackage{hyperref}%
+% For adding bookmarks to the document
+\usepackage{bookmark}%
+% For adding time to the document
+\usepackage{datetime}
+% For alignment of captions
+\usepackage{caption}
+% For multiple columns.
+\usepackage{multicol}
+
+
+% Graphics Path definition
+%-------------------------------------------------------------------------------
+\graphicspath{{figures/}}
+
+%-------------------------------------------------------------------------------
+%	Article Information
+%-------------------------------------------------------------------------------
+% Setting PDF properties in the final PDF
+% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
+\hypersetup
+{
+pdfsubject={Model report},
+pdftitle={Model report}
+}
+
+% Start Article header
+%-------------------------------------------------------------------------------
+% Title
+\title{Variance component analysis report}%
+% Authors
+\author{\vspace{-5ex}}
+%-------------------------------------------------------------------------------
+% Dates
+\date{\today\ \currenttime} % when you are in the process of writing
+%-------------------------------------------------------------------------------
+% End article header
+
+% For left aligning captions
+\captionsetup{justification=raggedright,singlelinecheck=false}
+
+% Start Document
+%-------------------------------------------------------------------------------
+\begin{document}
+
+% Set knitr options
+<<label=setup, include=FALSE, cache=FALSE>>=
+## load required packages
+lapply(list("xtable"), library, character.only = TRUE)
+## Set global chunk options
+knitr::opts_chunk$set(dev = c("pdf"),
+                      fig.path = "figures/fig-",
+                      fig.align = "center",
+                      fig.show = "hold",
+                      tidy = TRUE)
+@
+
+% Article title and date.
+\maketitle
+% Start single line spacing
+\singlespacing
+
+%-------------------------------------------------------------------------------
+\section{Summary}
+%-------------------------------------------------------------------------------
+
+<<label=summary, echo=FALSE, results="asis">>=
+summaryTab <- x$summary
+print(xtable::xtable(x = summaryTab, caption = paste("Models tried ordered by",
+                                                     x$criterion),
+                     label = "summary",
+                     align = c("l", "r", "r", "r", "r"),
+                     digits = 0),
+      latex.environments = "flushleft", hline.after = NULL,
+      include.rownames = TRUE, include.colnames = TRUE,
+      caption.placement = "top")
+@
+
+%-------------------------------------------------------------------------------
+\section{Heatmap}
+%-------------------------------------------------------------------------------
+Heatmap for the correlation between environments for the best model
+<<label=heatmap, echo=FALSE, out.height="10cm", out.width="10cm", fig.align="left">>=
+plot(x)
+@
+
+%-------------------------------------------------------------------------------
+% End Document
+\end{document}

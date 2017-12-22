@@ -65,7 +65,7 @@ gxeVarComp <- function(TD,
                     data = TD, ...)
     nPar <- 2
     ## Outputs.
-    res$model$cs <- mr
+    bestModel <- mr
     res$choice <- "cs"
     if (criterion == "AIC") {
       res$AICBest <- -2 * as.numeric(logLik(mr)) + 2 * nPar
@@ -250,17 +250,18 @@ gxeVarComp <- function(TD,
       bestTab <- bestTab[order(bestTab[, criterion]), ]
       ## Outputs.
       bestModel <- res$model[[rownames(bestTab)[1]]]
-      res$choice <- rownames(bestTab)[1]
-      res$summaryTab <- bestTab
-      res$vcovBest <- predictAsreml(model = bestModel, classify = "env",
+      vcovBest <- predictAsreml(model = bestModel, classify = "env",
                                     TD = TD)$predictions$vcov
-      colnames(res$vcovBest) <- rownames(res$vcovBest) <- levels(TD$env)
+      colnames(vcovBest) <- rownames(vcovBest) <- levels(TD$env)
       res$critBest <- bestTab[1, criterion]
       unlink(tmp)
     } else {
       stop("Failed to load 'asreml'.\n")
     }
   }
+  res <- createVarComp(model = bestModel, choice = rownames(bestTab)[1],
+                       summary = bestTab, vcov = vcovBest,
+                       criterion = criterion)
   return(res)
 }
 
@@ -327,6 +328,10 @@ qvInitial <- function(TD,
     sink(file = tmp)
     mr <- asreml::asreml(fixed = fixedForm, data = X, ...)
     sink()
+    mr$call$fixed <- eval(mr$call$fixed)
+    mr$call$random <- eval(mr$call$random)
+    mr$call$rcov <- eval(mr$call$rcov)
+    mr$call$data <- substitute(TD)
     res <- residuals(mr, type = "response")
     RMat <- tapply(X = res, INDEX = list(X$genotype, X$env), FUN = mean)
     RMat[which(is.na(RMat))] <- 0
