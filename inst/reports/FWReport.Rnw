@@ -46,7 +46,7 @@ pdftitle={Model report}
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{AMMI report}%
+\title{Finlay-Wilkinson report}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
@@ -107,25 +107,44 @@ print(xtable::xtable(x = anovaTab, label = "anova",
 @
 
 %-------------------------------------------------------------------------------
-\section{Importance}
+\section{Diagnostic plots}
+%-------------------------------------------------------------------------------
+<<label=linePlot, echo=FALSE, out.width="70%", fig.align="left">>=
+plot(x, plotType = "line")
+@
+\clearpage
+<<label=scatterPlot, echo=FALSE>>=
+plot(x, plotType = "scatter")
+@
+
+\clearpage
+
+%-------------------------------------------------------------------------------
+\section{Estimates}
 %-------------------------------------------------------------------------------
 
-<<label=importance, echo=FALSE, results="asis">>=
-importance <- x$importance
-print(xtable::xtable(x = importance, label = "anova",
-                     align = c("l", rep("c", ncol(importance)))),
+<<label=estimates, echo=FALSE, results="asis">>=
+estimates <- x$estimates
+estimates <- estimates[order(estimates$sens, decreasing = TRUE), ]
+print(xtable::xtable(x = estimates[1:10, ],
+                     caption = "Top 10 genotypes by sensitivity",
+                     label = "topEstimates",
+                     align = c("l", "r", "r", "r", "r", "r", "r"),
+                     digits = c(0, 0, 2, 2, 2, 2, 2)),
+      caption.placement = "top",
       latex.environments = "flushleft", hline.after = NULL,
-      include.rownames = TRUE, include.colnames = TRUE)
+      include.rownames = FALSE, include.colnames = TRUE)
+print(xtable::xtable(x = estimates[(nrow(estimates) - 10):nrow(estimates), ],
+                     caption = "Bottom 10 genotypes by sensitivity",
+                     label = "bottomEstimates",
+                     align = c("l", "r", "r", "r", "r", "r", "r"),
+                     digits = c(0, 0, 2, 2, 2, 2, 2)),
+      caption.placement = "top",
+      latex.environments = "flushleft", hline.after = NULL,
+      include.rownames = FALSE, include.colnames = TRUE)
+
 @
 
-\newpage
-
-%-------------------------------------------------------------------------------
-\section{Biplot}
-%-------------------------------------------------------------------------------
-<<label=biplot, echo=FALSE>>=
-plot(x, plotType = "AMMI2")
-@
 
 %-------------------------------------------------------------------------------
 % End Document

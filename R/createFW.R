@@ -147,6 +147,23 @@ plot.FW <- function(x,
   }
 }
 
-
+#' Create a report with basic results.
+#'
+#' A pdf report will be created containing a summary of FW analysis.
+#' Simultaneously the same report will be created as a tex file.
+#'
+#' @param x an object of class FW.
+#' @param ... further arguments passed on from other functions - not used yet.
+#' @param outfile a character string, the name and location of the output .pdf and .tex
+#' file for the report. If \code{NULL} a report will be created in the current working
+#' directory.
+#'
+#' @export
+report.FW <- function(x,
+                      ...,
+                      outfile = NULL) {
+  createReport(x = x, reportName = "FWReport.Rnw",
+               outfile = outfile, ...)
+}
 
 

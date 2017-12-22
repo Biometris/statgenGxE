@@ -29,7 +29,7 @@
 #' ## Get data
 #' data(TDMaize)
 #' ## Run joint regression analysis
-#' gxeFw(TDMaize, trait = "yld", sortBySens = "ascending")
+#' geFW <- gxeFw(TDMaize, trait = "yld", sortBySens = "ascending")
 #'
 #' @export
 
