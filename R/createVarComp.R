@@ -2,7 +2,8 @@
 #'
 #' Function for creating objects of S3 class varComp.
 #'
-#' \code{\link{print}} and \code{\link{plot}} methods are available.
+#' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
+#' \code{\link{report}} methods are available.
 #'
 #' @param model The best fitted model.
 #' @param choice A character string indicating the best fitted model.
@@ -12,7 +13,7 @@
 #'
 #' @author Bart-Jan van Rossum
 #'
-#' @seealso \code{\link{plot.FW}}
+#' @seealso \code{\link{plot.VarComp}}, \code{\link{report.VarComp}}
 #'
 #' @name varComp
 NULL
@@ -39,11 +40,21 @@ is.varComp <- function(x) {
   inherits(x, "varComp")
 }
 
+#' @export
+print.varComp <- function(x, ...) {
+  x$summary
+}
+
+#' @export
+summary.varComp <- function(object, ...) {
+  print(object, ...)
+}
+
 #' Plot Function for Class varComp
 #'
 #' Function for plotting a heatmap of the correlation matrix for objects of
 #' class varComp.
-#' @param x an object of class FW
+#' @param x an object of class varComp
 #' @param ... not unused
 #'
 #' @import stats
