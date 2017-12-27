@@ -73,8 +73,7 @@ gxeVarComp <- function(TD,
                     data = TD, ...)
     nPar <- 2
     ## Construct SSA object.
-    models[["cs"]] <- createSSA(mRand = mr, mFix = NULL, data = TD, traits = trait,
-                                engine = "lme4")
+    models[["cs"]] <- mr
     bestTab["cs", ] <- c(-2 * as.numeric(logLik(mr)) + 2 * nPar,
                          -2 * as.numeric(logLik(mr)) +
                            log(length(fitted(mr))) * nPar,
@@ -266,9 +265,9 @@ gxeVarComp <- function(TD,
     }
   }
   ## Create output.
-  model <- createSSA(mRand = bestModel, mFix = NULL,
+  model <- createSSA(mRand = NULL, mFix = setNames(list(bestModel), trait),
                      data = TD, traits = trait,
-                     engine = engine)
+                     engine = engine, predicted = "env")
   res <- createVarComp(model = model, choice = rownames(bestTab)[1],
                        summary = bestTab, vcov = vcovBest,
                        criterion = criterion)

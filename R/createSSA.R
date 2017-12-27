@@ -30,7 +30,8 @@ createSSA <- function(mRand,
                       traits = NULL,
                       design = NULL,
                       spatial = NULL,
-                      engine = NULL) {
+                      engine = NULL,
+                      predicted = "genotype") {
   SSA <- structure(list(mRand = mRand,
                         mFix = mFix,
                         data = data,
@@ -40,6 +41,7 @@ createSSA <- function(mRand,
                         engine = engine),
                    class = "SSA")
   attr(SSA, which = "timestamp") <- Sys.time()
+  attr(SSA, which = "predicted") <- predicted
   return(SSA)
 }
 

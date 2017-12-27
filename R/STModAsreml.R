@@ -131,21 +131,21 @@ STModAsreml <- function(TD,
         }
         sink(file = tmp)
         if (length(randomfTraitorm) != 0) {
-          mfTraitTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
+          mfTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
                                                                   "+ genotype")),
                                          random = as.formula(paste("~", randomfTraitorm)),
                                          rcov = ~ units, G.param = GParamTmp, aom = TRUE,
                                          data = TD, ...)
         } else {
-          mfTraitTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
+          mfTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
                                                                   "+ genotype")),
                                          rcov = ~ units, G.param = GParamTmp, aom = TRUE,
                                          data = TD, ...)
         }
         sink()
-        mfTraitTrait$call$fixed <- eval(mfTraitTrait$call$fixed)
-        mfTraitTrait$call$random <- eval(mfTraitTrait$call$random)
-        mfTraitTrait$call$rcov <- eval(mfTraitTrait$call$rcov)
+        mfTrait$call$fixed <- eval(mfTrait$call$fixed)
+        mfTrait$call$random <- eval(mfTrait$call$random)
+        mfTrait$call$rcov <- eval(mfTrait$call$rcov)
         ## Construct assocForm for use in associate in predict.
         if (useCheckId) {
           assocForm <- as.formula("~ checkId:genotype")
@@ -153,9 +153,9 @@ STModAsreml <- function(TD,
           assocForm <- as.formula("~ NULL")
         }
         ## Run predict.
-        mfTraitTrait <- predictAsreml(mfTraitTrait, TD = TD, associate = assocForm)
-        mfTraitTrait$call$data <- substitute(TD)
-        mfTrait[[trait]] <- mfTraitTrait
+        mfTrait <- predictAsreml(mfTrait, TD = TD, associate = assocForm)
+        mfTrait$call$data <- substitute(TD)
+        mfTrait[[trait]] <- mfTrait
       }
     }
     unlink(tmp)
