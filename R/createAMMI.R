@@ -43,6 +43,7 @@ createAMMI <- function(envScores,
                          genoMean = genoMean,
                          overallMean = overallMean),
                     class = "AMMI")
+  attr(AMMI, which = "timestamp") <- Sys.time()
   return(AMMI)
 }
 

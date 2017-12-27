@@ -47,6 +47,7 @@ createFW <- function(estimates,
                        tol = tol,
                        iter = iter),
                   class = "FW")
+  attr(FW, which = "timestamp") <- Sys.time()
   return(FW)
 }
 

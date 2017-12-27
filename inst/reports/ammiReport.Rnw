@@ -51,7 +51,7 @@ pdftitle={Model report}
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{\today\ \currenttime} % when you are in the process of writing
+\date{\Sexpr{attr(x, "timestamp")}}
 %-------------------------------------------------------------------------------
 % End article header
 

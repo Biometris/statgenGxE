@@ -39,6 +39,7 @@ createSSA <- function(mRand,
                         spatial = spatial,
                         engine = engine),
                    class = "SSA")
+  attr(SSA, which = "timestamp") <- Sys.time()
   return(SSA)
 }
 

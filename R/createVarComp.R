@@ -32,6 +32,7 @@ createVarComp <- function(model,
                             vcov = vcov,
                             criterion = criterion),
                        class = "varComp")
+  attr(varComp, which = "timestamp") <- Sys.time()
   return(varComp)
 }
 
