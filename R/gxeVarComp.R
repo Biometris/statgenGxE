@@ -20,7 +20,7 @@
 #' @examples
 #' ## Get data.
 #' data(TDMaize)
-#' ## Fit model.
+#' ## Fit models.
 #' geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "lme4",
 #'                         criterion = "BIC")
 #' ## Display results.
@@ -56,8 +56,8 @@ gxeVarComp <- function(TD,
                        id.vars = "env", variable.name = "genotype",
                        value.name = trait)
   if (engine == "asreml") {
-  choices <- c("identity", "cs", "diagonal", "hcs", "outside",
-               "fa", "fa2", "unstructured")
+    choices <- c("identity", "cs", "diagonal", "hcs", "outside",
+                 "fa", "fa2", "unstructured")
   } else {
     choices <- "cs"
   }
@@ -72,14 +72,17 @@ gxeVarComp <- function(TD,
     mr = lme4::lmer(as.formula(paste(trait, "~ env + (1 | genotype)")),
                     data = TD, ...)
     nPar <- 2
-    ## Outputs.
-    models[["cs"]] <- mr
+    ## Construct SSA object.
+    models[["cs"]] <- createSSA(mRand = mr, mFix = NULL, data = TD, traits = trait,
+                                engine = "lme4")
     bestTab["cs", ] <- c(-2 * as.numeric(logLik(mr)) + 2 * nPar,
                          -2 * as.numeric(logLik(mr)) +
                            log(length(fitted(mr))) * nPar,
                          -2 * logLik(mr), nPar)
-    vcovBest <- vcov(emmeans::emmeans(mr, specs = "env",
+    bestModel <- models[[rownames(bestTab)[1]]]
+    vcovBest <- vcov(emmeans::emmeans(bestModel, specs = "env",
                                       lmer.df = "asymptotic"))
+    colnames(vcovBest) <- rownames(vcovBest) <- levels(TD$env)
   } else if (engine == "asreml") {
     if (requireNamespace("asreml", quietly = TRUE)) {
       tmp <- tempfile()
@@ -250,19 +253,23 @@ gxeVarComp <- function(TD,
           bestTab[choice, "NParameters"] <- nPar
         }
       }
+      bestModel <- models[[rownames(bestTab)[1]]]
+      bestModel <- predictAsreml(model = bestModel,
+                                 classify = "env",
+                                 TD = TD)
       bestTab <- bestTab[order(bestTab[, criterion]), ]
-      vcovBest <- predictAsreml(model =  models[[rownames(bestTab)[1]]],
-                                classify = "env",
-                                TD = TD)$predictions$vcov
+      vcovBest <- bestModel$predictions$vcov
+      colnames(vcovBest) <- rownames(vcovBest) <- levels(TD$env)
       unlink(tmp)
     } else {
       stop("Failed to load 'asreml'.\n")
     }
   }
-  ## Outputs.
-  bestModel <- models[[rownames(bestTab)[1]]]
-  colnames(vcovBest) <- rownames(vcovBest) <- levels(TD$env)
-  res <- createVarComp(model = bestModel, choice = rownames(bestTab)[1],
+  ## Create output.
+  model <- createSSA(mRand = bestModel, mFix = NULL,
+                     data = TD, traits = trait,
+                     engine = engine)
+  res <- createVarComp(model = model, choice = rownames(bestTab)[1],
                        summary = bestTab, vcov = vcovBest,
                        criterion = criterion)
   return(res)
