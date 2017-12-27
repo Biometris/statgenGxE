@@ -177,9 +177,10 @@ STModAsreml <- function(TD,
                        design = design, engine = "asreml")
   } else {
     regular <- min(repTab) == 1 && max(repTab) == 1
-    model <- bestSpatMod(TD = TD, traits = traits, regular = regular,
-                         criterion = "AIC", useCheckId = useCheckId,
-                         design = design, covariates = covariates, ...)
+    model <- bestSpatMod(TD = TD, traits = traits, what = what,
+                         regular = regular, criterion = "AIC",
+                         useCheckId = useCheckId, design = design,
+                         covariates = covariates, ...)
   }
   return(model)
 }
@@ -188,6 +189,7 @@ STModAsreml <- function(TD,
 #' @keywords internal
 bestSpatMod <- function(TD,
                         traits,
+                        what = c("fixed", "random"),
                         regular = TRUE,
                         criterion = "AIC",
                         useCheckId = FALSE,
@@ -265,7 +267,7 @@ bestSpatMod <- function(TD,
     }
     fixedFormfTrait <- as.formula(paste(deparse(fixedFormR), "+ genotype"))
     ## Constrain variance of the variance components to be fixed as the values in the best model.
-    GParamTmp <- mrTrait$G.param
+    GParamTmp <- bestModelTrait$G.param
     for (randEf in c("rowId", "colId")) {
       ## When there are no replicates the structure is [[randEf]][[randEf]]
       ## otherwise it is [[repId:randEf]][[repId]]
@@ -301,8 +303,8 @@ bestSpatMod <- function(TD,
     spatial[[trait]] <- spatialChoice[bestLoc]
   }
   unlink(tmp)
-  model <- createSSA(mRand = mr,
-                     mFix = mf,
+  model <- createSSA(mRand = if ("random" %in% what) mr else NULL,
+                     mFix = if ("fixed" %in% what) mf else NULL,
                      data = TD,
                      traits = trait,
                      design = design,

@@ -78,9 +78,11 @@ engine <- x$engine
 if (is.null(x$mFix)) {
   model <- x$mRand[[1]]
   modelType <- "random"
+  predName <- "BLUPs"
 } else {
   model <- x$mFix[[1]]
   modelType <- "fixed"
+  predName <- "BLUEs"
 }
 ## Get use of checkId from model call.
 useCheckId <- (engine == "SpATS" && length(grep(pattern = "checkId",
@@ -156,7 +158,7 @@ renameFrom <- c("genotype", "repId", "rowId", "colId", "subBlock",
                 "f(colCoordinates):rowCoordinates",
                 "colCoordinates:f(rowCoordinates)",
                 "f(colCoordinates):f(rowCoordinates)", "Nobs", "R", "variance",
-                "pow")
+                "pow", "units")
 renameTo <- c("Genotype", "Replicate", "Row", "Col", "Block",
               "Row(replicate)", "Col(replicate)", "Block(replicate)",
               "Linear trend along cols", "Linear trend along rows",
@@ -165,7 +167,8 @@ renameTo <- c("Genotype", "Replicate", "Row", "Col", "Block",
               "Linear trend in rows changing smoothly along cols",
               "Linear trend in cols changing smoothly along rows",
               "Smooth-by-smooth interaction trend over rows and cols",
-              "Number of observations", "Residual", "Residual", "Power")
+              "Number of observations", "Residual", "Residual", "Power",
+              "Units")
 if (engine == "SpATS") {
   ## Print table of effective dimensions
   effDims <- SpATSSum$p.table.dim
@@ -250,24 +253,27 @@ plot(x, what = modelType, plotType = "base")
 \section{List of best 10\% genotypes}
 %-------------------------------------------------------------------------------
 <<label=best20, echo=FALSE, results="hide">>=
-pred <- STExtract(x, what = if (modelType == "fixed") "BLUEs" else "BLUPs")
-pred <- pred[order(pred[[x$traits]]), x$traits]
-best <- summary(x, nBest = ceiling(length(pred) / 10))
+pred <- STExtract(x, what = predName)
+predSE <- STExtract(x, what = paste0("se", predName))
+predTot <- merge(pred, predSE , by = "genotype")
+predTot <- predTot[order(predTot[[paste0(x$traits,".x")]], decreasing = TRUE), ]
+colnames(predTot) <- c("genotype", predName, "SE")
+best <- predTot[1:ceiling(nrow(predTot) / 10), ]
 @
 \begin{multicols*}{2}
-<<label=printBest20, echo=FALSE, results="asis">>=
-print(xtable::xtable(x = best[-1], label = "bestTab",
-                     align = c("l", "c", "c"), digits = c(0, 2, 2)),
+<<label=printBest10pct, echo=FALSE, results="asis">>=
+print(xtable::xtable(x = best, label = "bestTab",
+                     align = c("l", "l", "c", "c"), digits = c(0, 0, 2, 2)),
       latex.environments = "flushleft",
-      include.rownames = TRUE, floating = FALSE)
+      include.rownames = FALSE, floating = FALSE)
 @
 \columnbreak
 <<label=predPlot, echo=FALSE>>=
 ## Plot of predictions, BLUEs or BLUPs
-plot(pred, col = "#0080ff", xlab = "Genotypes", xaxt = "n", cex.lab = 1.5,
-     ylab = if (modelType == "fixed") "BLUEs" else "BLUPs",
-     mar = c(5, 5, 4, 2) + 0.1)
-abline(h = quantile(x = pred, probs = 0.9), col = "red")
+plot(rev(predTot[[predName]]), col = "#0080ff", xlab = "Genotypes", xaxt = "n",
+     cex.lab = 1.5, ylab = predName, mar = c(5, 5, 4, 2) + 0.1)
+abline(h = quantile(x = predTot[[predName]], probs = 0.9), col = "red")
+abline(h = quantile(x = predTot[[predName]], probs = 0.1), col = "red")
 @
 \end{multicols*}
 
