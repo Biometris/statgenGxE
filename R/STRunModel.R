@@ -41,8 +41,8 @@
 #' @param covariates A string specifying (a) covariate name(s).
 #' @param useCheckId Should a checkId be used as a fixed parameter in the model?\cr
 #' If \code{TRUE} \code{TD} has to contain a column 'checkId'.
-#' @param trySpatial Whether to try spatial models ("always", "ifregular"); default no spatial
-#' models, i.e., \code{FALSE}.
+#' @param trySpatial Should spatial models be tried? Spatials models are can only be
+#' fitted with SpATS and asreml.
 #' @param engine A string specifying the name of the mixed modelling engine to use,
 #' either SpATS, lme4 or asreml. For spatial models SpaTS is used as a default, for
 #' other models lme4.
@@ -108,10 +108,8 @@ STRunModel = function(TD,
                                !(all(covariates %in% colnames(TD))))) {
     stop("covariates have to be a columns in TD.\n")
   }
-  if ((is.logical(trySpatial) && trySpatial) ||
-      (is.character(trySpatial) && (length(trySpatial) > 1 ||
-                                    !trySpatial %in% c("always", "ifregular")))) {
-    stop("trySpatial should be NULL, always or ifregular.\n")
+  if (!is.logical(trySpatial) || length(trySpatial) > 1) {
+    stop("trySpatial should be a single logical value.\n")
   }
   if (!is.na(engine) && (!is.character(engine) || length(engine) > 1 ||
                          !engine %in% c("asreml", "lme4", "SpATS"))) {
@@ -126,7 +124,7 @@ STRunModel = function(TD,
       engine = "lme4"
     }
   }
-  if (is.character(trySpatial) && engine == "lme4") {
+  if (trySpatial && engine == "lme4") {
     warning("Spatial models can only be fitted using SpATS or asreml.\n
             Defaulting to SpATS.")
     engine <- "SpATS"

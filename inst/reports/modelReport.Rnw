@@ -155,7 +155,8 @@ renameFrom <- c("genotype", "repId", "rowId", "colId", "subBlock",
                 "f(colCoordinates)", "f(rowCoordinates)",
                 "f(colCoordinates):rowCoordinates",
                 "colCoordinates:f(rowCoordinates)",
-                "f(colCoordinates):f(rowCoordinates)", "Nobs", "R")
+                "f(colCoordinates):f(rowCoordinates)", "Nobs", "R", "variance",
+                "pow")
 renameTo <- c("Genotype", "Replicate", "Row", "Col", "Block",
               "Row(replicate)", "Col(replicate)", "Block(replicate)",
               "Linear trend along cols", "Linear trend along rows",
@@ -164,7 +165,7 @@ renameTo <- c("Genotype", "Replicate", "Row", "Col", "Block",
               "Linear trend in rows changing smoothly along cols",
               "Linear trend in cols changing smoothly along rows",
               "Smooth-by-smooth interaction trend over rows and cols",
-              "Number of observations", "Residual")
+              "Number of observations", "Residual", "Residual", "Power")
 if (engine == "SpATS") {
   ## Print table of effective dimensions
   effDims <- SpATSSum$p.table.dim
@@ -210,13 +211,15 @@ if (engine == "SpATS") {
         include.rownames = FALSE)
 } else if (engine == "asreml") {
   varComp <- summary(model)$varcomp[, "component", drop = FALSE]
-  rownames(varComp) <- sapply(X = strsplit(x = rownames(varComp), split = "\\!"),
-                              FUN = "[[", 1)
+  rownames(varComp) <- sapply(X = strsplit(x = rownames(varComp), split = "[!.]+"),
+                              FUN = "[[", 2)
   for (i in 1:length(renameFrom)) {
     rownames(varComp)[which(rownames(varComp) == renameFrom[i])] <- renameTo[i]
   }
-  varComp <- rbind(varComp["Genotype", , drop = FALSE],
-                   varComp[-which(rownames(varComp) == "Genotype"), , drop = FALSE])
+  if ("Genotype" %in% rownames(varComp)) {
+    varComp <- rbind(varComp["Genotype", , drop = FALSE],
+                     varComp[-which(rownames(varComp) == "Genotype"), , drop = FALSE])
+  }
   varComp <- tibble::rownames_to_column(varComp)
   varComp <- tibble::add_row(.data = varComp,
                              .before = which(varComp$rowname == "Residual"))

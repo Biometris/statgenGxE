@@ -11,13 +11,13 @@
 #' data(TDHeat05)
 #'
 #' ## Fit model for row column design.
-#' STModAsreml_1 <- STModAsreml(TD = TDHeat05, trait = "yield")
+#' STModAsreml_1 <- STModAsreml(TD = TDHeat05, traits = "yield")
 #'
 #' ## Fit model for row column including replicates.
-#' STModAsreml_2 <- STModAsreml(TD = TDHeat05, trait = "yield", design = "res.rowcol")
+#' STModAsreml_2 <- STModAsreml(TD = TDHeat05, traits = "yield", design = "res.rowcol")
 #'
 #' ## Fit model for resolvable incomplete block design.
-#' STModAsreml_3 <- STModAsreml(TD = TDHeat05, trait = "yield", design = "res.ibd")
+#' STModAsreml_3 <- STModAsreml(TD = TDHeat05, traits = "yield", design = "res.ibd")
 #'
 #' @export
 
@@ -63,12 +63,23 @@ STModAsreml <- function(TD,
       stop(paste(deparse(colName), "has to be NULL or a column in data.\n"))
     }
   }
-  if (!is.character(trySpatial)) {
-    #if (is.character(trySpatial)) {
-    #  stop("Spatial models not yet implemented for SpATS.\n")
-    #}
-    ## Should repId be used as fixed effect in the model.
-    useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
+  ## Should repId be used as fixed effect in the model.
+  useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
+  # Check if spatial models can be fitted.
+  if (trySpatial) {
+    if (useRepIdFix) {
+      repTab <- table(TD$repId, TD$rowId, TD$colId)
+    } else {
+      repTab <- table(TD$rowId, TD$colId)
+    }
+    if (min(repTab) > 1) {
+      warning(paste("There should only be one plot at each combination of",
+                    if (useRepIdFix) "replicate", "row and column.\n",
+                    "Spatial models will not be tried"))
+      trySpatial <- FALSE
+    }
+  }
+  if (!trySpatial) {
     ## Indicate extra random effects.
     if (design %in% c("ibd", "res.ibd")) {
       randEff <- "subBlock"
@@ -165,7 +176,8 @@ STModAsreml <- function(TD,
                        data = TD, traits = traits,
                        design = design, engine = "asreml")
   } else {
-    model <- bestSpatMod(TD = TD, traits = traits, trySpatial = trySpatial,
+    regular <- min(repTab) == 1 && max(repTab) == 1
+    model <- bestSpatMod(TD = TD, traits = traits, regular = regular,
                          criterion = "AIC", useCheckId = useCheckId,
                          design = design, covariates = covariates, ...)
   }
@@ -176,7 +188,7 @@ STModAsreml <- function(TD,
 #' @keywords internal
 bestSpatMod <- function(TD,
                         traits,
-                        trySpatial = "always",
+                        regular = TRUE,
                         criterion = "AIC",
                         useCheckId = FALSE,
                         design = "rowcol",
@@ -195,14 +207,14 @@ bestSpatMod <- function(TD,
     ## If no repId remove this from randomTerm
     randomTerm <- gsub(pattern = "repId:", replacement = "", x = randomTerm)
   }
-  if (trySpatial == "ifregular") {
+  if (!regular) {
     ## Define spatial terms of models to try.
     spatialChoice <- rep(x = c("AR1(x)id", "id(x)AR1", "AR1(x)AR1"), times = 4)
     spatialTerm <- rep(x = c("ar1(rowId):colId",
                              "rowId:ar1(colId)",
                              "ar1(rowId:ar1(colId)"),
                        times = 4)
-  } else if (trySpatial == "always") {
+  } else {
     spatialChoice <- rep(x = c("exp(x)id", "id(x)exp",
                                "isotropic exponential"), times = 4)
     spatialTerm <- rep(x = c("exp(rowCoordinates):colCoordinates",

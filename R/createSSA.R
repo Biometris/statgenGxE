@@ -13,6 +13,7 @@
 #' @param spatial a character string indicating the spatial part of the model.
 #' \code{FALSE} if no spatial design has been used.
 #' @param engine a character string containing the engine used to do the analysis.
+#' @param predicted a character string indicating the variable that has been predicted.
 #' @param x \code{R} object
 #'
 #' @author Bart-Jan van Rossum
