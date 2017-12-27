@@ -3,6 +3,8 @@
 #' Perform REML analysis given a specific experimental design.
 #' This is a wrapper function of \code{\link{STModSpATS}}, \code{\link{STModLme4}}
 #' and \code{\link{STModAsreml}}. See details for the exact models fitted.
+#' SpATS is used as a default method when design is rowcol or res.rowcol, lme4
+#' for other designs.
 #'
 #' The actual model fitted depends on the design. For the supported designs the
 #' following models are used:
@@ -56,18 +58,20 @@
 #' @references
 #' Maria Xose Rodriguez-Alvarez, Martin P. Boer, Fred A. van Eeuwijk, Paul H.C. Eilers (2017).
 #' Correcting for spatial heterogeneity in plant breeding experiments with P-splines. Spatial
-#' Statistics \url{https://doi.org/10.1016/j.spasta.2017.10.003}
+#' Statistics \url{https://doi.org/10.1016/j.spasta.2017.10.003}\cr
+#' Douglas Bates, Martin Maechler, Ben Bolker, Steve Walker (2015). Fitting Linear
+#' Mixed-Effects Models Using lme4. Journal of Statistical Software, 67(1), 1-48.
+#' \url{https::/doi:10.18637/jss.v067.i01}.
 #'
 #' @examples
 #' ## Load data.
 #' data(TDHeat05)
 #'
 #' ## Fit model using lme4.
-#' myModel1 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+#' myModel1 <- STRunModel(TD = TDHeat05, design = "rcbd", traits = "yield")
 #'
 #' ## Fit model using SpATS.
-#' myModel2 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
-#'                       engine = "SpATS")
+#' myModel2 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 #'
 #' @export
 STRunModel = function(TD,
@@ -77,7 +81,7 @@ STRunModel = function(TD,
                       covariates = NULL,
                       useCheckId = FALSE,
                       trySpatial = FALSE,
-                      engine = if (!is.logical(trySpatial)) "SpATS" else "lme4",
+                      engine = NA,
                       control = NULL,
                       ...) {
   ## Checks.
@@ -109,9 +113,18 @@ STRunModel = function(TD,
                                     !trySpatial %in% c("always", "ifregular")))) {
     stop("trySpatial should be NULL, always or ifregular.\n")
   }
-  if (!is.null(engine) && (!is.character(engine) || length(engine) > 1 ||
-                           !engine %in% c("asreml", "lme4", "SpATS"))) {
+  if (!is.na(engine) && (!is.character(engine) || length(engine) > 1 ||
+                         !engine %in% c("asreml", "lme4", "SpATS"))) {
     stop("engine should be SpATS, asreml, lme4.\n")
+  }
+  if (is.na(engine)) {
+    if (design %in% c("rowcol", "res.rowcol")) {
+      message("Using SpATS for fitting models.")
+      engine = "SpATS"
+    } else {
+      message("Using lme4 for fitting models.")
+      engine = "lme4"
+    }
   }
   if (is.character(trySpatial) && engine == "lme4") {
     warning("Spatial models can only be fitted using SpATS or asreml.\n
