@@ -4,31 +4,61 @@
 #' @param type A sting indicating the type of QTL detection to be performed.
 #' Either "MR" (Marker Response), "SIM" (Simple Interval Mapping) or "CIM"
 #' (Composite Interval Mapping)
+#' @param thr A numerical value indicating a lower threshold for the lodscore
+#' of the peaks.
+#' @param window A numerical value indicating the window (in cM) used when
+#' selecting peaks
+#' @param ... Other parameters to be passed on to underlying functions.
 #'
 #'
 #' @export
 QTLDetect <- function(cross,
-                      type = "MR") {
+                      type = "MR",
+                      thr = 3,
+                      window = 15,
+                      ...) {
 
   if (type == "MR") {
     ## Perform a marker-based QTL detection.
-    scores <- qtl::scanone(cross, method = "mr")
+    scores <- qtl::scanone(cross, method = "mr", ...)
   } else if (type == "SIM") {
     ## Calculate genotype probabilities.
     cross <- qtl::calc.genoprob(cross, step = 5, error.prob = 0)
     ## Perform a QTL search by Simple Interval Mapping (SIM)
     ## (Haley-Knott regression)
-    scores <- qtl::scanone(cross, method = "hk")
+    scores <- qtl::scanone(cross, method = "hk", ...)
   } else if (type == "CIM") {
     ## Calculate genotype probabilities.
     cross <- qtl::calc.genoprob(cross, step = 5, error.prob = 0)
     ## Perform a QTL search by Simple Interval Mapping (CIM)
     scores <- qtl::cim(cross, n.marcovar = 5, window = 50,
-                       method = "hk", map.function = "haldane")
+                       method = "hk", map.function = "haldane",
+                       ...)
   }
+  ## Select set of candidate QTLs to be fitted in a final multiQTL model.
+  qtlCand <- scores[scores$lod > thr, ]
+  ## Iteratively remove peaks and surrounding qtls from candidates.
+  ## Add those to peaks data.
+  peaksTot <- qtlCand[FALSE, ]
+  while (nrow(qtlCand) > 0) {
+    peaks <- summary(qtlCand)
+    peaksTot <- rbind(peaksTot, peaks)
+    for (i in 1:nrow(peaks)) {
+      qtlCand <- qtlCand[!(qtlCand$chr == peaks[i, "chr"] &
+                             abs(qtlCand$pos - peaks[i, "pos"]) < window), ]
+    }
+  }
+  peaksTot <- peaksTot[order(peaksTot$chr, peaksTot$pos), ]
+  attr(scores, "marker.covar") <- rownames(peaksTot)
+  attr(scores, "marker.covar.pos") <- peaksTot[, c("chr", "pos")]
   QTLDet <- createQTLDet(scores = scores,
+                         peaks = peaksTot,
                          type = type,
                          cross = cross)
   return(QTLDet)
 }
+
+
+
+
 

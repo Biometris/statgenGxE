@@ -84,7 +84,7 @@ knitr::opts_chunk$set(dev = c("pdf"),
 %-------------------------------------------------------------------------------
 
 <<label=summary, echo=FALSE, results="asis">>=
-summaryTab <- summary(x$scores)
+summaryTab <- x$peaks
 print(xtable::xtable(x = summaryTab, caption = "List of peaks",
                      label = "summary",
                      align = c("l", "r", "r", "r"),
@@ -98,10 +98,7 @@ print(xtable::xtable(x = summaryTab, caption = "List of peaks",
 \section{Manhattan plot}
 %-------------------------------------------------------------------------------
 <<label=manhattan, echo=FALSE, fig.align="left">>=
-plot(x$scores, ylab = "LOD")
-if (x$type == "CIM") {
-  qtl::add.cim.covar(x$scores)
-}
+plot(x)
 @
 
 %-------------------------------------------------------------------------------

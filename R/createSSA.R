@@ -165,8 +165,7 @@ summary.SSA <- function(object,
 #'
 #' @examples
 #' data(TDHeat05)
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
-#'                       trySpatial = "always")
+#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 #' plot(myModel, plotType = "fix")
 #'
 #' @export

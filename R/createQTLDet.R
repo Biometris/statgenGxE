@@ -5,6 +5,7 @@
 #' \code{\link{report}} methods are available.
 #'
 #' @param scores A data.frame containing the lod scores.
+#' @param peaks A data.frame containing the peaks found.
 #' @param type A character string indicating the type of QTLDetection performed.
 #' @param cross An object of class cross in the \code{qtl} package.
 #' @param x an \code{R} object
@@ -19,9 +20,11 @@ NULL
 #' @rdname QTLDet
 #' @export
 createQTLDet <- function(scores,
+                         peaks,
                          type,
                          cross) {
   QTLDet <- structure(list(scores = scores,
+                           peaks = peaks,
                            type = type,
                            cross = cross),
                       class = "QTLDet")
@@ -47,29 +50,20 @@ summary.QTLDet <- function(object, ...) {
 
 #' Plot Function for Class QTLDet
 #'
-#' Function for creating scatter, line and trellis plots for objects of class QTLDet.
+#' Function for creating a manhattan plot for objects of class QTLDet.
 #'
 #' @param x an object of class QTLDet
 #' @param ... not unused
-#' @param plotType a character vector indicating which plot(s) will be drawn. Possible values
-#' "scatter", "line"  and "trellis" for creating a scatter plot of sensitivities, a plot of
-#' fitted lines for each genotype and a trellis plot of the individual genotype slopes
-#' respectively.
-#' @param sortBySens A character string specifying whether the results are to be sorted
-#' in an increasing (or decreasing) order of sensitivities.
-#' By default, \code{sortBySens = "ascending"}. Other options are "descending" and NA.
-
-#' @return Plots as described in \code{plotType}
 #'
 #' @import graphics grDevices
 #' @export
 plot.QTLDet <- function(x,
-                        ...,
-                        plotType = c("scatter", "line", "trellis"),
-                        sortBySens = "ascending") {
-
+                        ...) {
+  plot(x$scores, ylab = "LOD")
+  if (x$type == "CIM") {
+    qtl::add.cim.covar(x$scores)
+  }
 }
-
 
 #' Report method for class QTLDet
 #'

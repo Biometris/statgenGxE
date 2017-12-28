@@ -16,7 +16,7 @@ NULL
 
 #' @rdname multiQTL
 #' @export
-createmultiQTL <- function(qtl) {
+createMultiQTL <- function(qtl) {
   multiQTL <- structure(list(qtl = qtl),
                         class = "multiQTL")
   attr(multiQTL, which = "timestamp") <- Sys.time()
