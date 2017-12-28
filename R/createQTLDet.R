@@ -40,7 +40,9 @@ is.QTLDet <- function(x) {
 
 #' @export
 print.QTLDet <- function(x, ...) {
-
+  cat("Peaks\n")
+  cat("=====\n")
+  print(x$peaks)
 }
 
 #' @export

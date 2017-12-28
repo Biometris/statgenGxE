@@ -1,15 +1,15 @@
 #' S3 class multiQTL
 #'
 #' Function for creating objects of S3 class multiQTL.\cr
-#' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
-#' \code{\link{report}} methods are available.
+#' \code{\link{print}}, \code{\link{summary}} and \code{\link{report}}
+#' methods are available.
 #'
 #' @param qtl A fitted multi QTL model.
 #' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
 #'
-#' @seealso \code{\link{plot.multiQTL}}, \code{\link{report.multiQTL}}
+#' @seealso \code{\link{report.multiQTL}}
 #'
 #' @name multiQTL
 NULL
@@ -31,39 +31,13 @@ is.multiQTL <- function(x) {
 
 #' @export
 print.multiQTL <- function(x, ...) {
-
+  summary(x$qtl, ...)
 }
 
 #' @export
 summary.multiQTL <- function(object, ...) {
-  print(object, ...)
+  summary(object$qtl, ...)
 }
-
-#' Plot Function for Class multiQTL
-#'
-#' Function for creating scatter, line and trellis plots for objects of class multiQTL.
-#'
-#' @param x an object of class multiQTL
-#' @param ... not unused
-#' @param plotType a character vector indicating which plot(s) will be drawn. Possible values
-#' "scatter", "line"  and "trellis" for creating a scatter plot of sensitivities, a plot of
-#' fitted lines for each genotype and a trellis plot of the individual genotype slopes
-#' respectively.
-#' @param sortBySens A character string specifying whether the results are to be sorted
-#' in an increasing (or decreasing) order of sensitivities.
-#' By default, \code{sortBySens = "ascending"}. Other options are "descending" and NA.
-
-#' @return Plots as described in \code{plotType}
-#'
-#' @import graphics grDevices
-#' @export
-plot.multiQTL <- function(x,
-                          ...,
-                          plotType = c("scatter", "line", "trellis"),
-                          sortBySens = "ascending") {
-
-}
-
 
 #' Report method for class multiQTL
 #'
