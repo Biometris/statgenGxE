@@ -25,7 +25,6 @@
 #' Zeitschrift für Pflanzenzucht, v. 47, p. 92-96, 1962\cr
 #'
 #' @examples
-#' data(TDMaize)
 #' gxeStability(TD = TDMaize, trait = "yld", method = "superiority",
 #'              superiorityBestMethod = "max", sorted = "descending", plot = TRUE)
 #'
@@ -56,8 +55,8 @@ gxeStability <- function(TD,
       !superiorityBestMethod %in% c("min", "max")) {
     stop("superiorityBestMethod should be either min or max.\n")
   }
-  if (is.null(sorted) || !is.character(sorted) || length(sorted) > 1 ||
-      !sorted %in% c("ascending", "descending", NA)) {
+  if (!is.na(sorted) && (!is.character(sorted) || length(sorted) > 1 ||
+      !sorted %in% c("ascending", "descending"))) {
     stop("sorted should be one of ascending, descending or NA")
   }
   if (missing(sorted)) {
@@ -189,43 +188,25 @@ gxeStability <- function(TD,
       names(LBOut) <- c("genotype", "superiority", "mean")
     }
     if ("wricke" %in% method) {
-      WOut <- data.frame(lab,W,means, row.names = 1:nGeno)
-      names(WOut) <- c("genotype", "wricke", "mean")
-    }
-  } else if (sorted == "ascending") {
-    if ("static" %in% method) {
-      orderS <- order(S)
-      SOut <- data.frame(lab, S, means, row.names = 1:nGeno)[orderS, ]
-      names(SOut) <- c("genotype", "static", "mean")
-    }
-    if ("superiority" %in% method) {
-      orderLB <- order(LB)
-      LBOut <- data.frame(lab, LB, means, row.names = 1:nGeno)[orderLB, ]
-      names(LBOut) <- c("genotype", "superiority", "mean")
-    }
-    if ("wricke" %in% method) {
-      orderW <- order(W)
-      WOut <- data.frame(lab,W,means, row.names = 1:nGeno)[orderW, ]
-      names(WOut) <- c("genotype", "wricke", "mean")
-    }
-  } else if (sorted == "descending") {
-    if ("static" %in% method) {
-      orderS <- order(S, decreasing = TRUE)
-      SOut <- data.frame(lab, S, means, row.names = 1:nGeno)[orderS, ]
-      names(SOut) <- c("genotype", "static", "mean")
-    }
-    if ("superiority" %in% method) {
-      orderLB <- order(LB, decreasing = TRUE)
-      LBOut <- data.frame(lab, LB, means, row.names = 1:nGeno)[orderLB, ]
-      names(LBOut) <- c("genotype", "superiority", "mean")
-    }
-    if ("wricke" %in% method) {
-      orderW <- order(W, decreasing = TRUE)
-      WOut <- data.frame(lab, W, means, row.names = 1:nGeno)[orderW, ]
+      WOut <- data.frame(lab, W, means, row.names = 1:nGeno)
       names(WOut) <- c("genotype", "wricke", "mean")
     }
   } else {
-    stop('options for sorted must be one of "ascending", "descending" and NA')
+    if ("static" %in% method) {
+      orderS <- order(S, decreasing = (sorted == "descending"))
+      SOut <- data.frame(lab, S, means, row.names = 1:nGeno)[orderS, ]
+      names(SOut) <- c("genotype", "static", "mean")
+    }
+    if ("superiority" %in% method) {
+      orderLB <- order(LB, decreasing = (sorted == "descending"))
+      LBOut <- data.frame(lab, LB, means, row.names = 1:nGeno)[orderLB, ]
+      names(LBOut) <- c("genotype", "superiority", "mean")
+    }
+    if ("wricke" %in% method) {
+      orderW <- order(W, decreasing = (sorted == "descending"))
+      WOut <- data.frame(lab,W,means, row.names = 1:nGeno)[orderW, ]
+      names(WOut) <- c("genotype", "wricke", "mean")
+    }
   }
   res <- vector(mode = "list")
   if ("static" %in% method) res$static <- SOut
