@@ -355,9 +355,9 @@ extractLme4 <- function(SSA,
   if ("stdRes" %in% what) {
     result[["stdRes"]] <- cbind(baseData,
                                 sapply(X = mf, FUN = function(mf0) {
-                                  if (class(mf0) == "lm") {
+                                  if (inherits(mf0, "lm")) {
                                     stdRes <- rstandard(mf0)
-                                  } else if (class(mf0) == "lmerMod") {
+                                  } else if (inherits(mf0, "lmerMod")) {
                                     stdRes <- residuals(mf0, scaled = TRUE)
                                   }
                                 }))

@@ -93,10 +93,9 @@ gxeTable <- function(TD,
       names(predVals) <- names(se) <- megaEnvLevels
     } else {
       # Extract coeffcients mr
-      if (class(mr) == "lmerMod") {
+      if (inherits(mr, "lmerMod")) {
         fixEff = lme4::fixef(mr)
-      }
-      if (class(mr) == "mer") {
+      } else if (inherits(mr, "mer")) {
         fixEff = slot(mr, "fixef")
       }
       cr = fixEff[grep("env", names(fixEff))]
@@ -106,12 +105,11 @@ gxeTable <- function(TD,
       # Predictions BLUPs
       predVals = fixEff[1] + blo + ranEff
       # Compute seBlups
-      if (class(mr) == "lmerMod") {
+      if (inherits(mr, "lmerMod")) {
         seBlups = t(sqrt(apply(X = attr(lme4::ranef(mr, condVar = TRUE)[["genotype"]],
                                         "postVar"),
                                MARGIN = 3, FUN = diag)))
-      }
-      if (class(mr) == "mer") {
+      } else if (inherits(mr, "mer")) {
         seBlups = t(sqrt(apply(X = attr(lme4::ranef(mr, postVar = TRUE)[["genotype"]],
                                         "postVar"),
                                MARGIN = 3, FUN = diag)))
