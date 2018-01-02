@@ -217,7 +217,7 @@ waldTest <- function(b,
 #'
 #' @export
 report <- function(x, ...) {
-  UseMethod("report", x)
+  UseMethod("report")
 }
 
 #' Helper function for creating the actual report

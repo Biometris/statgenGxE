@@ -124,10 +124,14 @@ plot(x, plotType = "scatter")
 %-------------------------------------------------------------------------------
 
 <<label=estimates, echo=FALSE, results="asis">>=
+sortBy <- list(...)$sortBy
+sortNames <- c("sensitivity", "genotypic mean", "mse")
+sortCols <- c("sens", "genMean", "mse")
+sortName <- sortNames[which(sortCols == sortBy)]
 estimates <- x$estimates
-estimates <- estimates[order(estimates$sens, decreasing = TRUE), ]
+estimates <- estimates[order(estimates[[sortBy]], decreasing = TRUE), ]
 print(xtable::xtable(x = estimates[1:10, ],
-                     caption = "Top 10 genotypes by sensitivity",
+                     caption = paste("Top 10 genotypes by", sortName),
                      label = "topEstimates",
                      align = c("l", "r", "r", "r", "r", "r", "r"),
                      digits = c(0, 0, 2, 2, 2, 2, 2)),
@@ -135,7 +139,7 @@ print(xtable::xtable(x = estimates[1:10, ],
       latex.environments = "flushleft", hline.after = NULL,
       include.rownames = FALSE, include.colnames = TRUE)
 print(xtable::xtable(x = estimates[(nrow(estimates) - 10):nrow(estimates), ],
-                     caption = "Bottom 10 genotypes by sensitivity",
+                     caption = paste("Bottom 10 genotypes by", sortName),
                      label = "bottomEstimates",
                      align = c("l", "r", "r", "r", "r", "r", "r"),
                      digits = c(0, 0, 2, 2, 2, 2, 2)),
