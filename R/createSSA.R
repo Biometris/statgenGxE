@@ -313,9 +313,29 @@ plot.SSA <- function(x,
 #' @param outfile a character string, the name and location of the output .pdf and .tex
 #' file for the report. If \code{NULL} a report will be created in the current working
 #' directory.
+#' @param what a character string indicating whether the model with genotype fixed
+#' or genotype random should be reported.
 #'
 #' @export
-report.SSA <- function(x, ..., outfile = NULL) {
+report.SSA <- function(x, ...,
+                       outfile = NULL,
+                       what = if (is.null(x$mFix)) "random" else "fixed") {
+  if (length(x$traits) > 1) {
+    stop("Model contains models for multiple traits. Reporting can only be done
+         for a single trait.\n")
+  }
+  what <- match.arg(what, choices = c("fixed", "random"))
+  if (!is.null(x$mFix) && !is.null(x$mRand)) {
+    warning("Model contains both a fitted model with fixed genotype and random
+            genotype. Reporting can be done for only one. By default the model with
+            genotype fixed is reported. Use option what for changing this.\n",
+            call. = FALSE)
+  }
+  if (what == "fixed") {
+    x$mRand <- NULL
+  } else {
+    x$mFix <- NULL
+  }
   createReport(x = x, reportName = "modelReport.Rnw",
                outfile = outfile, ...)
 }
