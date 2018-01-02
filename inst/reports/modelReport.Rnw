@@ -200,12 +200,18 @@ if (engine == "SpATS") {
         latex.environments = "flushleft", caption.placement = "top",
         include.rownames = TRUE)
 } else if (engine == "lme4") {
-  varComp <- as.data.frame(lme4::VarCorr(model))[, c("grp", "vcov")]
-  for (i in 1:length(renameFrom)) {
-    varComp$grp[varComp$grp == renameFrom[i]] <- renameTo[i]
+  if (inherits(model, "lm")) {
+    ## In this case there is only residual variance since there are no
+    ## random effects.
+    varComp <- data.frame(name = "Residual", Variance = summary(model)$sigma ^ 2)
+  } else {
+    varComp <- as.data.frame(lme4::VarCorr(model))[, c("grp", "vcov")]
+    for (i in 1:length(renameFrom)) {
+      varComp$grp[varComp$grp == renameFrom[i]] <- renameTo[i]
+      varComp <- tibble::add_row(.data = varComp,
+                                 .before = which(varComp$grp == "Residual"))
+    }
   }
-  varComp <- tibble::add_row(.data = varComp,
-                             .before = which(varComp$grp == "Residual"))
   colnames(varComp) <- c("", "Variance")
   print(xtable::xtable(x = varComp, label = "varComps",
                        caption =  "Variance components",
