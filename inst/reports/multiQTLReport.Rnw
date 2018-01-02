@@ -26,7 +26,8 @@
 \usepackage{caption}
 % For multiple columns.
 \usepackage{multicol}
-
+% For properly printing a ~
+\usepackage{textcomp}
 
 % Graphics Path definition
 %-------------------------------------------------------------------------------
@@ -89,13 +90,14 @@ modSum <- data.frame(c("Method", "Model", "Number of observations",
                        NA, "Model formula"),
                      c("Hayley-Knott", attr(summ, which = "model"),
                        attr(summ, which = "nind"),
-                       NA, attr(summ, which = "formula")))
+                       NA, gsub(pattern = "~", replacement = "\\\\texttildelow\\\\",
+                                x = attr(summ, which = "formula"))))
 print(xtable::xtable(x = modSum, caption = "Model summary",
                      label = "modSum",
                      align = c("l", "l", "l")),
       latex.environments = "flushleft", hline.after = NULL,
       include.rownames = FALSE, include.colnames = FALSE,
-      caption.placement = "top")
+      caption.placement = "top", sanitize.text.function = identity)
 print(xtable::xtable(x = summ$result.full, caption = "Full model result",
                      label = "modRes",
                      align = c("l", "r", "r", "r", "r", "r", "r", "r"),

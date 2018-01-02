@@ -76,7 +76,8 @@
 \usepackage{caption}
 % For multiple columns.
 \usepackage{multicol}
-
+% For properly printing a ~
+\usepackage{textcomp}
 
 % Graphics Path definition
 %-------------------------------------------------------------------------------
@@ -101,7 +102,7 @@ pdftitle={Model report}
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{2018-01-02 10:05:52}
+\date{2018-01-02 15:00:05}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -126,7 +127,7 @@ pdftitle={Model report}
 %-------------------------------------------------------------------------------
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 10:05:52 2018
+% Tue Jan 02 15:35:01 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Model summary} 
@@ -136,12 +137,12 @@ pdftitle={Model report}
   Model & normal \\ 
   Number of observations & 150 \\ 
    &  \\ 
-  Model formula & y \~{} Q1 + Q2 + Q3 + Q4 + Q5 + Q6 + Q7 + Q8 \\ 
+  Model formula & y \texttildelow\ Q1 + Q2 + Q3 + Q4 + Q5 + Q6 + Q7 + Q8 \\ 
   \end{tabular}
 \end{flushleft}
 \end{table}
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 10:05:52 2018
+% Tue Jan 02 15:35:01 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Full model result} 
@@ -160,7 +161,7 @@ pdftitle={Model report}
 %-------------------------------------------------------------------------------
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 10:05:52 2018
+% Tue Jan 02 15:35:01 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{lrrrrrrrl}
