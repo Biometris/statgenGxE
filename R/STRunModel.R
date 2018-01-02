@@ -64,14 +64,21 @@
 #' \url{https::/doi:10.18637/jss.v067.i01}.
 #'
 #' @examples
-#' ## Load data.
-#' data(TDHeat05)
-#'
 #' ## Fit model using lme4.
-#' myModel1 <- STRunModel(TD = TDHeat05, design = "rcbd", traits = "yield")
+#' myModel1 <- STRunModel(TD = TDHeat05, design = "ibd", traits = "yield", what = "fixed")
+#' report(myModel1, outfile = "./testReports/reportModelLme4.pdf")
 #'
 #' ## Fit model using SpATS.
-#' myModel2 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+#' myModel2 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+#'                        what = "fixed")
+#' report(myModel2, outfile = "./testReports/reportModelSpATS.pdf")
+#'
+#' #' ## Fit model using asreml.
+#' \dontrun{
+#' myModel3 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+#'                        what = "fixed", engine = "asreml")
+#' report(myModel3, outfile = "./testReports/reportModelAsreml.pdf")
+#' }
 #'
 #' @export
 STRunModel = function(TD,

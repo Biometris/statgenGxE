@@ -104,7 +104,7 @@ STModAsreml <- function(TD,
       randomfTraitorm <- character()
     }
     ## Create empty base lists.
-    mr <- mfTrait <- setNames(vector(mode = "list", length = length(traits)),
+    mr <- mf <- setNames(vector(mode = "list", length = length(traits)),
                               traits)
     for (trait in traits) {
       if ("random" %in% what) {
@@ -166,13 +166,13 @@ STModAsreml <- function(TD,
         ## Run predict.
         mfTrait <- predictAsreml(mfTrait, TD = TD, associate = assocForm)
         mfTrait$call$data <- substitute(TD)
-        mfTrait[[trait]] <- mfTrait
+        mf[[trait]] <- mfTrait
       }
     }
     unlink(tmp)
     ## Construct SSA object.
     model <- createSSA(mRand = if ("random" %in% what) mr else NULL,
-                       mFix = if ("fixed" %in% what) mfTrait else NULL,
+                       mFix = if ("fixed" %in% what) mf else NULL,
                        data = TD, traits = traits,
                        design = design, engine = "asreml")
   } else {

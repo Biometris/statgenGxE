@@ -27,10 +27,9 @@
 #' \item{overallMean}{a numerical value containing the overall mean.}
 #'
 #' @examples
-#' ## Get data
-#' data(TDMaize)
 #' ## Run AMMI
 #' geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld", nPC = 2, center = TRUE, scale = FALSE)
+#' report(geAmmi, outfile = "./testReports/reportAmmi.pdf")
 #'
 #' @import stats
 #' @export

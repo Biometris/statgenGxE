@@ -10,6 +10,15 @@
 #' selecting peaks
 #' @param ... Other parameters to be passed on to underlying functions.
 #'
+#' @examples
+#' ## Read the data
+#' F2 <- qtl::read.cross(format="csv",
+#'                       file = system.file("extdata", "F2_maize_practical3_ex2.csv",
+#'                       package = "RAP"),
+#'                       genotypes = c("AA", "AB", "BB"),
+#'                       alleles = c("A", "B"), estimate.map = FALSE)
+#' QTLDet <- QTLDetect(F2, "SIM")
+#' report(QTLDet, outfile = "./testReports/reportQTLDectection.pdf")
 #'
 #' @export
 QTLDetect <- function(cross,
@@ -17,7 +26,6 @@ QTLDetect <- function(cross,
                       thr = 3,
                       window = 15,
                       ...) {
-
   if (type == "MR") {
     ## Perform a marker-based QTL detection.
     scores <- qtl::scanone(cross, method = "mr", ...)

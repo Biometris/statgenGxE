@@ -26,10 +26,9 @@
 #' analysis to converge.}
 #'
 #' @examples
-#' ## Get data
-#' data(TDMaize)
 #' ## Run joint regression analysis
 #' geFW <- gxeFw(TDMaize, trait = "yld", sortBySens = "ascending")
+#' report(geFW, outfile = "./testReports/reportFW.pdf")
 #'
 #' @export
 

@@ -39,8 +39,8 @@
 % !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
 \hypersetup
 {
-pdfsubject={Model report},
-pdftitle={Model report}
+pdfsubject={Ammi report},
+pdftitle={Ammi report}
 }
 
 % Start Article header
@@ -112,7 +112,7 @@ print(xtable::xtable(x = anovaTab, label = "anova",
 
 <<label=importance, echo=FALSE, results="asis">>=
 importance <- x$importance
-print(xtable::xtable(x = importance, label = "anova",
+print(xtable::xtable(x = importance, label = "importance",
                      align = c("l", rep("c", ncol(importance)))),
       latex.environments = "flushleft", hline.after = NULL,
       include.rownames = TRUE, include.colnames = TRUE)

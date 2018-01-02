@@ -1,7 +1,57 @@
 %-------------------------------------------------------------------------------
 %	Packages and other Document configurations
 %-------------------------------------------------------------------------------
-\documentclass[a4paper,11pt]{article}
+\documentclass[a4paper,11pt]{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
 % Package declaration
 %-------------------------------------------------------------------------------
 % Specify input encoding
@@ -51,7 +101,7 @@ pdftitle={QTL Detection report}
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{\Sexpr{attr(x, "timestamp")}}
+\date{2018-01-02 10:02:19}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -60,19 +110,11 @@ pdftitle={QTL Detection report}
 
 % Start Document
 %-------------------------------------------------------------------------------
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
 % Set knitr options
-<<label=setup, include=FALSE, cache=FALSE>>=
-## load required packages
-lapply(list("qtl", "xtable"), library, character.only = TRUE)
-## Set global chunk options
-knitr::opts_chunk$set(dev = c("pdf"),
-                      fig.path = "figures/fig-",
-                      fig.align = "center",
-                      fig.show = "hold",
-                      tidy = TRUE)
-@
+
 
 % Article title and date.
 \maketitle
@@ -83,23 +125,38 @@ knitr::opts_chunk$set(dev = c("pdf"),
 \section{Summary}
 %-------------------------------------------------------------------------------
 
-<<label=summary, echo=FALSE, results="asis">>=
-summaryTab <- x$peaks
-print(xtable::xtable(x = summaryTab, caption = "List of peaks",
-                     label = "summary",
-                     align = c("l", "r", "r", "r"),
-                     digits = c(0, 0, 0, 2)),
-      latex.environments = "flushleft", hline.after = NULL,
-      include.rownames = TRUE, include.colnames = TRUE,
-      caption.placement = "top")
-@
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Tue Jan 02 10:03:58 2018
+\begin{table}[ht]
+\begin{flushleft}
+\caption{List of peaks} 
+\label{summary}
+\begin{tabular}{lrrr}
+  & chr & pos & lod \\ 
+ M\_0099 & 1 & 98 & 4.84 \\ 
+  M\_0121 & 1 & 120 & 5.24 \\ 
+  c2.loc65 & 2 & 65 & 4.11 \\ 
+  c2.loc80 & 2 & 80 & 5.11 \\ 
+  M\_0239 & 2 & 97 & 4.04 \\ 
+  c2.loc115 & 2 & 115 & 3.21 \\ 
+  M\_0569 & 4 & 100 & 3.49 \\ 
+  c5.loc20 & 5 & 20 & 3.06 \\ 
+  \end{tabular}
+\end{flushleft}
+\end{table}
+
 \newpage
 %-------------------------------------------------------------------------------
 \section{Manhattan plot}
 %-------------------------------------------------------------------------------
-<<label=manhattan, echo=FALSE, fig.align="left">>=
-plot(x)
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+
+\includegraphics[width=\maxwidth]{figures/fig-manhattan-1} \hfill{}
+
+
+
+\end{knitrout}
 
 %-------------------------------------------------------------------------------
 % End Document

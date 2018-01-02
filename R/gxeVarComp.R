@@ -18,13 +18,17 @@
 #' the best model and its related goodness-of-fit criterion.
 #'
 #' @examples
-#' ## Get data.
-#' data(TDMaize)
 #' ## Fit models.
-#' geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "lme4",
+#' geVarComp1 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "lme4",
 #'                         criterion = "BIC")
 #' ## Display results.
-#' summary(geVarComp)
+#' summary(geVarComp1)
+#'
+#' \dontrun{
+#' geVarComp2 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "asreml",
+#'                         criterion = "BIC")
+#' report(geVarComp2, outfile = "./testReports/reportVarComp.pdf")
+#' }
 #'
 #' @export
 

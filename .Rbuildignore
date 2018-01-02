@@ -2,6 +2,5 @@
 ^\.Rproj\.user$
 R/redundant
 exampleSes.R
-testReport.pdf
-testReport.tex
+testReports
 figures

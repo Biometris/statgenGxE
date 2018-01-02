@@ -39,8 +39,8 @@
 % !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
 \hypersetup
 {
-pdfsubject={Model report},
-pdftitle={Model report}
+pdfsubject={Finlay Wilkinson report},
+pdftitle={Finlay Wilkinson report}
 }
 
 % Start Article header
