@@ -242,15 +242,15 @@ createReport <- function(x,
                        last = nchar(basename(outfile)) - 3)
   outTex <- paste0(system.file("reports", package = "RAP"), "/", outBase, "tex")
   reportFile <- system.file("reports", reportName, package = "RAP")
-  knitr::knit(input = reportFile, output = outTex, quiet = FALSE)
+  knitr::knit(input = reportFile, output = outTex, quiet = TRUE)
   system2(command = Sys.which("pdflatex"),
           args = c(paste0(' -output-directory="', dirname(outfile), '"'),
                    "-interaction=nonstopmode",
-                   paste0(' "',  outTex, '"')))
+                   paste0(' "',  outTex, '"')), stdout = TRUE)
   system2(command = Sys.which("pdflatex"),
           args = c(paste0(' -output-directory="', dirname(outfile), '"'),
                    "-interaction=nonstopmode",
-                   paste0(' "',  outTex, '"')))
+                   paste0(' "',  outTex, '"')), stdout = TRUE)
   for (extension in c("aux", "log", "out", "toc", "xwm")) {
     unlink(paste0(dirname(outfile), "/", outBase, extension))
   }
