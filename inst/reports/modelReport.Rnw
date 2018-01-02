@@ -208,6 +208,8 @@ if (engine == "SpATS") {
     varComp <- as.data.frame(lme4::VarCorr(model))[, c("grp", "vcov")]
     for (i in 1:length(renameFrom)) {
       varComp$grp[varComp$grp == renameFrom[i]] <- renameTo[i]
+    }
+    if (nrow(varComp) > 1) {
       varComp <- tibble::add_row(.data = varComp,
                                  .before = which(varComp$grp == "Residual"))
     }
@@ -230,8 +232,10 @@ if (engine == "SpATS") {
                      varComp[-which(rownames(varComp) == "Genotype"), , drop = FALSE])
   }
   varComp <- tibble::rownames_to_column(varComp)
-  varComp <- tibble::add_row(.data = varComp,
-                             .before = which(varComp$rowname == "Residual"))
+  if (nrow(varComp) > 1) {
+    varComp <- tibble::add_row(.data = varComp,
+                               .before = which(varComp$rowname == "Residual"))
+  }
   colnames(varComp) <- c("", "Variance")
   print(xtable::xtable(x = varComp, label = "varComps",
                        caption =  "Variance components",
