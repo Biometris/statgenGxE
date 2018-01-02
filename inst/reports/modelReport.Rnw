@@ -223,7 +223,13 @@ if (engine == "SpATS") {
 } else if (engine == "asreml") {
   varComp <- summary(model)$varcomp[, "component", drop = FALSE]
   rownames(varComp) <- sapply(X = strsplit(x = rownames(varComp), split = "[!.]+"),
-                              FUN = "[[", 1)
+                              FUN = function(split) {
+                                if (split[[1]] == "R") {
+                                  return(split[[2]])
+                                } else {
+                                  return(split[[1]])
+                                }
+                              })
   for (i in 1:length(renameFrom)) {
     rownames(varComp)[which(rownames(varComp) == renameFrom[i])] <- renameTo[i]
   }
