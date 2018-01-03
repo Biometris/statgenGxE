@@ -64,7 +64,7 @@ summary.varComp <- function(object, ...) {
 #' @export
 plot.varComp <- function(x, ...) {
   corMat <- cov2cor(x$vcov)
-  heatmap(corMat, Rowv = NA, symm = TRUE)
+  heatmap(corMat, Rowv = NA, symm = TRUE, col = rev(heat.colors(256)))
 }
 
 #' Report method for class varComp

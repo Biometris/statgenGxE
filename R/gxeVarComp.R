@@ -256,11 +256,11 @@ gxeVarComp <- function(TD,
           bestTab[choice, "NParameters"] <- nPar
         }
       }
+      bestTab <- bestTab[order(bestTab[, criterion]), ]
       bestModel <- models[[rownames(bestTab)[1]]]
       bestModel <- predictAsreml(model = bestModel,
                                  classify = "env",
                                  TD = TD)
-      bestTab <- bestTab[order(bestTab[, criterion]), ]
       vcovBest <- bestModel$predictions$vcov
       colnames(vcovBest) <- rownames(vcovBest) <- levels(TD$env)
       unlink(tmp)
