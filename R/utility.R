@@ -192,7 +192,7 @@ waldTest <- function(b,
   dimnames(L) <- list(paste0("L", as.character(seq(nrow(L)))), names(b))
   ## computations
   f <- L %*% b
-  mat <- qr.solve(Matrix::tcrossprod(L %*% sigma, L))
+  mat <- qr.solve(tcrossprod(L %*% sigma, L))
   stat <- crossprod(f, mat %*% f)
   p <- 1 - pchisq(q = stat, df = w)
   if (is.null(df)) {
@@ -275,8 +275,9 @@ createReport <- function(x,
   knitrOptsOrig <- knitr::opts_chunk$get()
   on.exit(knitr::opts_chunk$set(knitrOptsOrig))
   ## Run knitr with chunk options set to produce proper ppt.
+  figPrefix <- paste0(format(Sys.time(), "%m%d%y%H%M%S"), "-")
   knitr::opts_chunk$set(fig.show = "hold",
-                        fig.path = file.path(outDir, "figures", "fig-"),
+                        fig.path = file.path(outDir, "figures", figPrefix),
                         fig.process = function(x) {
                           paste0("./figures/", basename(x))
                         })
