@@ -27,22 +27,6 @@
 % For multiple columns.
 \usepackage{multicol}
 
-
-% Graphics Path definition
-%-------------------------------------------------------------------------------
-\graphicspath{{figures/}}
-
-%-------------------------------------------------------------------------------
-%	Article Information
-%-------------------------------------------------------------------------------
-% Setting PDF properties in the final PDF
-% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
-\hypersetup
-{
-pdfsubject={Ammi report},
-pdftitle={Ammi report}
-}
-
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
@@ -62,16 +46,9 @@ pdftitle={Ammi report}
 %-------------------------------------------------------------------------------
 \begin{document}
 
-% Set knitr options
+% Load required packages
 <<label=setup, include=FALSE, cache=FALSE>>=
-## load required packages
 lapply(list("xtable"), library, character.only = TRUE)
-## Set global chunk options
-knitr::opts_chunk$set(dev = c("pdf"),
-                      fig.path = "figures/fig-",
-                      fig.align = "center",
-                      fig.show = "hold",
-                      tidy = TRUE)
 @
 
 % Article title and date.

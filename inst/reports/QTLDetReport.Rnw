@@ -27,22 +27,6 @@
 % For multiple columns.
 \usepackage{multicol}
 
-
-% Graphics Path definition
-%-------------------------------------------------------------------------------
-\graphicspath{{figures/}}
-
-%-------------------------------------------------------------------------------
-%	Article Information
-%-------------------------------------------------------------------------------
-% Setting PDF properties in the final PDF
-% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
-\hypersetup
-{
-pdfsubject={QTL Detection report},
-pdftitle={QTL Detection report}
-}
-
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
@@ -62,16 +46,10 @@ pdftitle={QTL Detection report}
 %-------------------------------------------------------------------------------
 \begin{document}
 
-% Set knitr options
+% Load required packages
 <<label=setup, include=FALSE, cache=FALSE>>=
 ## load required packages
 lapply(list("qtl", "xtable"), library, character.only = TRUE)
-## Set global chunk options
-knitr::opts_chunk$set(dev = c("pdf"),
-                      fig.path = "figures/fig-",
-                      fig.align = "center",
-                      fig.show = "hold",
-                      tidy = TRUE)
 @
 
 % Article title and date.
@@ -82,7 +60,6 @@ knitr::opts_chunk$set(dev = c("pdf"),
 %-------------------------------------------------------------------------------
 \section{Summary}
 %-------------------------------------------------------------------------------
-
 <<label=summary, echo=FALSE, results="asis">>=
 summaryTab <- x$peaks
 print(xtable::xtable(x = summaryTab, caption = "List of peaks",
@@ -100,7 +77,6 @@ print(xtable::xtable(x = summaryTab, caption = "List of peaks",
 <<label=manhattan, echo=FALSE, fig.align="left">>=
 plot(x)
 @
-
 %-------------------------------------------------------------------------------
 % End Document
 \end{document}

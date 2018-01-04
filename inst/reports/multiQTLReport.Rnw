@@ -29,21 +29,6 @@
 % For properly printing a ~
 \usepackage{textcomp}
 
-% Graphics Path definition
-%-------------------------------------------------------------------------------
-\graphicspath{{figures/}}
-
-%-------------------------------------------------------------------------------
-%	Article Information
-%-------------------------------------------------------------------------------
-% Setting PDF properties in the final PDF
-% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
-\hypersetup
-{
-pdfsubject={Model report},
-pdftitle={Model report}
-}
-
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
@@ -63,16 +48,10 @@ pdftitle={Model report}
 %-------------------------------------------------------------------------------
 \begin{document}
 
-% Set knitr options
+% Load required packages
 <<label=setup, include=FALSE, cache=FALSE>>=
 ## load required packages
 lapply(list("qtl", "xtable"), library, character.only = TRUE)
-## Set global chunk options
-knitr::opts_chunk$set(dev = c("pdf"),
-                      fig.path = "figures/fig-",
-                      fig.align = "center",
-                      fig.show = "hold",
-                      tidy = TRUE)
 summ <- summary(x$qtl)
 @
 
@@ -84,7 +63,6 @@ summ <- summary(x$qtl)
 %-------------------------------------------------------------------------------
 \section{Summary}
 %-------------------------------------------------------------------------------
-
 <<label=summary, echo=FALSE, results="asis">>=
 modSum <- data.frame(c("Method", "Model", "Number of observations",
                        NA, "Model formula"),
@@ -110,7 +88,6 @@ print(xtable::xtable(x = summ$result.full, caption = "Full model result",
 %-------------------------------------------------------------------------------
 \section{Anova}
 %-------------------------------------------------------------------------------
-
 <<label=anova, echo=FALSE, results="asis">>=
 anovaTab <- data.frame(summ$result.drop, check.names = FALSE)
 ## Add significance stars.
@@ -131,7 +108,6 @@ print(xtable::xtable(x = anovaTab, label = "anova",
                                          ncol(anovaTab), "}{c}{",
                                          legendText)))
 @
-
 %-------------------------------------------------------------------------------
 % End Document
 \end{document}

@@ -27,22 +27,6 @@
 % For multiple columns.
 \usepackage{multicol}
 
-
-% Graphics Path definition
-%-------------------------------------------------------------------------------
-\graphicspath{{figures/}}
-
-%-------------------------------------------------------------------------------
-%	Article Information
-%-------------------------------------------------------------------------------
-% Setting PDF properties in the final PDF
-% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
-\hypersetup
-{
-pdfsubject={Cross report},
-pdftitle={Cross report}
-}
-
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
@@ -62,16 +46,10 @@ pdftitle={Cross report}
 %-------------------------------------------------------------------------------
 \begin{document}
 
-% Set knitr options
+% Load required packages
 <<label=setup, include=FALSE, cache=FALSE>>=
 ## load required packages
 lapply(list("qtl", "xtable"), library, character.only = TRUE)
-## Set global chunk options
-knitr::opts_chunk$set(dev = c("pdf"),
-                      fig.path = "figures/fig-",
-                      fig.align = "center",
-                      fig.show = "hold",
-                      tidy = TRUE)
 @
 
 % Article title and date.
@@ -82,7 +60,6 @@ knitr::opts_chunk$set(dev = c("pdf"),
 %-------------------------------------------------------------------------------
 \section{Summary}
 %-------------------------------------------------------------------------------
-
 <<label=summary, echo=FALSE, results="asis">>=
 summary(x)
 @
@@ -100,7 +77,6 @@ par(op)
 %-------------------------------------------------------------------------------
 \section{Segregation distortion}
 %-------------------------------------------------------------------------------
-
 <<label=importance, echo=FALSE, results="asis">>=
 ## Evaluate the segregation distortion at every marker
 ## (and print those that show some evidence)
@@ -161,7 +137,6 @@ print(xtable::xtable(x = NRc[1:(ceiling(nrow(NRc) / 10)), ],
 crossErrLod <- qtl::calc.errorlod(x)
 qtl::plot.geno(crossErrLod, chr = 1, c(1:5))
 @
-%-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
 % End Document
 \end{document}
