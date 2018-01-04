@@ -254,6 +254,16 @@ createReport <- function(x,
   if (!dir.exists(outDir)) {
     dir.create(outDir, recursive = TRUE)
   }
+  ## When the output need to be written to a top level directory on windows
+  ## there may be an extra / at the end of the filename.
+  ## This is removed here so file.path works properly further on.
+  if (tolower(Sys.info()[["sysname"]]) == "windows") {
+    if (substring(text = outDir,
+                  first = nchar(outDir)) == .Platform$file.sep) {
+      outDir <- substring(text = outDir, first = 1,
+                          last = nchar(outDir) - 1)
+    }
+  }
   ## Extract the name of the outputfile, so without path and extension.
   outBase <- substring(basename(outfile), first = 1,
                        last = nchar(basename(outfile)) - 3)
@@ -272,7 +282,9 @@ createReport <- function(x,
                         })
   knitr::knit(input = reportFile, output = outTex, quiet = TRUE)
   ## Construct shell command for changing directory
-  cmdDir <- paste("cd", outDir)
+  ## cd /d is used instead of cd to account for changing drives on windows.
+  ## Note that here dirname(outfile) is needed instead of outFile.
+  cmdDir <- paste0("cd /d ", dirname(outfile))
   ## Construct shell commands for calling pdf latex.
   ## First only draftmode for speed.
   cmdRun1 <- paste0("pdflatex -interaction=nonstopmode -draftmode ",
@@ -280,6 +292,7 @@ createReport <- function(x,
   cmdRun2 <- paste0("pdflatex -interaction=nonstopmode ",
                     outBase, "tex")
   ## Run shell commands. System doens't work for windows.
+  ## Two runs needed to get references right.
   switch(tolower(Sys.info()[["sysname"]]),
          windows = {
            shell(cmd = paste(cmdDir, "&", cmdRun1))
