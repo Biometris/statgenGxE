@@ -102,47 +102,55 @@ summary.SSA <- function(object,
   stats <- summary.TD(object = TD, traits = trait)
   stats <- na.omit(stats)
   attr(stats, "na.action") <- NULL
-  ## get predicted means (BLUEs & BLUPs).
+  ## get predicted means (BLUEs + BLUPs).
   extr <- STExtract(object)
+  ## Merge BLUEs, BLUPs + SE.
   joinList <- Filter(f = Negate(f = is.null),
                      x = list(extr$BLUEs, extr$seBLUEs,
                               extr$BLUPs, extr$seBLUPs))
   meanTab <- Reduce(f = function(x, y) {
     dplyr::full_join(x, y, all = TRUE, by = "genotype")
   }, x = joinList)
-  colnames(meanTab) <- c("genotype",
-                         if (!is.null(extr$BLUEs)) c("BLUEs", "SE"),
-                         if (!is.null(extr$BLUPs)) c("BLUPs", "SE"))
+  ## Move genotype to rowname for proper printing with printCoefMat
   rownames(meanTab) <- meanTab$genotype
+  ## Set colnames. Because of duplicate colname SE no selection on columns can
+  ## be done anymore after this.
+  meanTab <- setNames(meanTab[, -1], c(if (!is.null(extr$BLUEs)) c("BLUEs", "SE"),
+                         if (!is.null(extr$BLUPs)) c("BLUPs", "SE")))
   if (!is.na(sortBy)) {
+    ## Sort by sortBY with options from input params.
     oList <- order(meanTab[[sortBy]], na.last = naLast, decreasing = decreasing)
     meanTab <- meanTab[oList, ]
   }
   if (!is.na(nBest)) {
     meanTab <- meanTab[1:nBest, ]
   }
-  cat("Summary statistics:\n", "===================\n", sep = "")
+  cat("Summary statistics:", "\n===================\n")
+  ## Print stats using printCoefMat for a nicer layout.
   printCoefmat(stats, digits = digits, ...)
   if (!is.null(object$mRand)) {
-    cat("\nEstimated heritability\n", "======================\n", sep = "")
+    cat("\nEstimated heritability", "\n======================\n")
     cat("\nHeritability:", extr$heritability, "\n")
   }
-  cat("\nPredicted means (BLUEs & BLUPs)\n", "===============================\n", sep = "")
+  meansTxt <- paste(c(if (!is.null(extr$BLUEs)) "BLUEs",
+                      if (!is.null(extr$BLUPs)) "BLUPs"), collapse = " & ")
+  cat(paste0("\nPredicted means (", meansTxt, ")"), "\n===============================\n")
   if (!is.na(nBest)) {
     cat("Best", nBest,"genotypes\n")
   } else {
     cat("\n")
   }
-  printCoefmat(meanTab[, -1], digits = digits, ...)
+  ## Print meanTab using printCoefMat for a nicer layout.
+  printCoefmat(meanTab, digits = digits, ...)
   if (object$engine == "asreml" && !is.null(extr$sed) &&
       !is.null(extr$lsd)) {
-    cat("\nStandard Error of Difference (genotypes modelled as fixed effect)\n",
-        "===================================================================\n", sep = "")
+    cat("\nStandard Error of Difference (genotype modelled as fixed effect)",
+        "\n================================================================\n")
     sed <- as.data.frame(extr$lsd)
     names(sed) <- "s.e.d."
     printCoefmat(sed, digits = digits, ...)
-    cat("\nLeast Significant Difference (genotypes modelled as fixed effect)\n",
-        "===================================================================\n", sep = "")
+    cat("\nLeast Significant Difference (genotype modelled as fixed effect)",
+        "\n================================================================\n")
     lsd  <- as.data.frame(extr$lsd)
     names(lsd) <- "l.s.d."
     printCoefmat(lsd, digits = digits, ...)

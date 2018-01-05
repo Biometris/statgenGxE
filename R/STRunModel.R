@@ -66,17 +66,24 @@
 #' @examples
 #' ## Fit model using lme4.
 #' myModel1 <- STRunModel(TD = TDHeat05, design = "ibd", traits = "yield", what = "fixed")
+#' summary(myModel1)
+#' \dontrun{
 #' report(myModel1, outfile = "./testReports/reportModelLme4.pdf")
+#' }
 #'
 #' ## Fit model using SpATS.
 #' myModel2 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                        what = "fixed")
+#' summary(myModel2)
+#' \dontrun{
 #' report(myModel2, outfile = "./testReports/reportModelSpATS.pdf")
+#' }
 #'
 #' #' ## Fit model using asreml.
 #' \dontrun{
 #' myModel3 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                        what = "fixed", engine = "asreml")
+#' summary(myModel3)
 #' report(myModel3, outfile = "./testReports/reportModelAsreml.pdf")
 #' }
 #'
