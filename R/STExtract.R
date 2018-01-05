@@ -502,8 +502,9 @@ extractAsreml <- function(SSA,
     tmpfile <- tempfile()
     sink(file = tmpfile)
     result[["heritability"]] <- sapply(X = traits, FUN = function(trait) {
-      sedSq <- predict(mr[[trait]], classify = predicted, only = predicted,
-                       sed = TRUE, data = TD)$predictions$sed ^ 2
+      sedSq <- predictAsreml(model = mr[[trait]], classify = predicted,
+                             vcov = FALSE, TD = TD, only = predicted,
+                             sed = TRUE)$predictions$sed ^ 2
       unname(1 - mean(sedSq[lower.tri(sedSq)]) / (2 * varGen[[trait]]))
     })
     sink()

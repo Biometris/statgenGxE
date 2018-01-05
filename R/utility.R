@@ -29,20 +29,22 @@ predictAsreml <- function(model,
                           classify = "genotype",
                           associate = as.formula("~ NULL"),
                           vcov = TRUE,
-                          TD) {
+                          TD,
+                          ...) {
   ## Create tempfile to suppress asreml output messages.
   tmp <- tempfile()
   sink(tmp)
   ## Predict using default settings, i.e. pworkspace = 8e6
   modelP <- tryCatchExt(predict(model, classify = classify,
-                                vcov = vcov, associate = associate, data = TD))
+                                vcov = vcov, associate = associate,
+                                data = TD, ...))
   pWorkSpace <- 8e6
   ## While there is a warning, increase pWorkSpace and predict again.
   while (!is.null(modelP$warning) && pWorkSpace < 160e6) {
     pWorkSpace <- pWorkSpace + 8e6
     modelP <- tryCatchExt(predict(model, classify = classify,
                                   vcov = vcov, associate = associate, data = TD,
-                                  pworkspace = pWorkSpace))
+                                  pworkspace = pWorkSpace, ...))
   }
   sink()
   unlink(tmp)
@@ -132,9 +134,9 @@ skewness <- function(x,
       x <- x[!is.na(x)]
     }
     n <- length(x)
-    m1 <- sum(x) / length(x)
-    m2 <- sum(x ^ 2) / length(x)
-    m3 <- sum(x ^ 3) / length(x)
+    m1 <- sum(x) / n
+    m2 <- sum(x ^ 2) / n
+    m3 <- sum(x ^ 3) / n
     skw <- (m3 - 3 * m1 * m2 + 2 * m1 ^ 3) / (m2 - m1 * m1) ^ (3 / 2)
   } else if (is.data.frame(x)) {
     skw <- sapply(X = x, FUN = skewness, na.rm = na.rm)
