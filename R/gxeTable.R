@@ -12,7 +12,7 @@
 #' @examples
 #' data(TDMaize)
 #' myTDMegaEnv <- gxeMegaEnvironment(TD = TDMaize, trait = "yld")
-#' gxeTable(TD = myTDMegaEnv, trait = "yld")
+#' geTab <- gxeTable(TD = myTDMegaEnv, trait = "yld")
 #'
 #' @import utils
 #' @importFrom methods slot
@@ -41,6 +41,7 @@ gxeTable <- function(TD,
                                data = TD, ...),
                 silent = TRUE)
     }
+    sink()
     if (inherits(mr, "try-error")) {
       genoLevels <- levels(TD$genotype)
       nGenoUnique <- nlevels(TD$genotype)
@@ -54,14 +55,9 @@ gxeTable <- function(TD,
       mr$call$random <- eval(mr$call$random)
       mr$call$rcov <- eval(mr$call$rcov)
       mr$call$R.param <- eval(mr$call$R.param)
-      mr <- predict(mr, classify = paste0("genotype:megaEnv"), data = TD)
+      mr <- predictAsreml(model = mr, classify = "genotype:megaEnv",
+                          TD = TD)
       predictions <- mr$predictions$pvals
-      if (!is.factor(predictions$megaEnv)) {
-        predictions$megaEnv <- as.factor(predictions$megaEnv)
-      }
-      if (!is.factor(predictions$genotype)) {
-        predictions$genotype <- as.factor(predictions$genotype)
-      }
       predVals <- tapply(X = predictions$predicted.value,
                          INDEX = predictions[, c("genotype", "megaEnv")],
                          FUN = identity)
@@ -69,7 +65,6 @@ gxeTable <- function(TD,
                    INDEX = predictions[, c("genotype", "megaEnv")],
                    FUN = identity)
     }
-    sink()
     unlink(tmp)
   } else if (engine == "lme4") {
     if (is.null(year)) {
@@ -78,7 +73,7 @@ gxeTable <- function(TD,
                            data = TD, ...),
                 silent = TRUE)
     } else {
-      mr <- try(lme4::lmer(as.formula(paste(trait, "~ env / year + (0 +
+      mr <- try(lme4::lmer(as.formula(paste(trait, "~ env / " , year, "+ (0 +
                                             megaEnv | genotype) + (0 + megaEnv
                                             | genotype:", year, ")")),
                            data = TD, ...), silent = TRUE)
@@ -93,32 +88,19 @@ gxeTable <- function(TD,
       names(predVals) <- names(se) <- megaEnvLevels
     } else {
       # Extract coeffcients mr
-      if (inherits(mr, "lmerMod")) {
-        fixEff = lme4::fixef(mr)
-      } else if (inherits(mr, "mer")) {
-        fixEff = slot(mr, "fixef")
-      }
+      fixEff = lme4::fixef(mr)
       cr = fixEff[grep("env", names(fixEff))]
-      ng = length(unique(slot(mr, "flist")[["genotype"]]))
       ranEff = lme4::ranef(mr, drop = TRUE)[["genotype"]]
       blo = mean(c(cr, 0))
       # Predictions BLUPs
       predVals = fixEff[1] + blo + ranEff
       # Compute seBlups
-      if (inherits(mr, "lmerMod")) {
-        seBlups = t(sqrt(apply(X = attr(lme4::ranef(mr, condVar = TRUE)[["genotype"]],
-                                        "postVar"),
-                               MARGIN = 3, FUN = diag)))
-      } else if (inherits(mr, "mer")) {
-        seBlups = t(sqrt(apply(X = attr(lme4::ranef(mr, postVar = TRUE)[["genotype"]],
-                                        "postVar"),
-                               MARGIN = 3, FUN = diag)))
-      }
+      seBlups = t(sqrt(apply(X = attr(lme4::ranef(mr, condVar = TRUE)[["genotype"]],
+                                      "postVar"),
+                             MARGIN = 3, FUN = diag)))
       se <- data.frame(seBlups, row.names = rownames(predVals), check.names = FALSE)
       names(se) <- names(predVals) <- megaEnvLevels
     }
-  } else {
-    stop("Either asreml or lme4 is not loaded correctly.")
   }
   return(list(predictedValue = predVals, standardError = se))
 }
