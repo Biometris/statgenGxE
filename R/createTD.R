@@ -86,6 +86,10 @@ createTD <- function(data,
   renameFrom <- as.character(sapply(X = renameCols, FUN = function(x) {
     get(x)
   }))
+  ## Create a data.frame with renamed cols to add to TD as an attribute.
+  renamed <- data.frame(orig = renameFrom[renameFrom != "NULL"],
+                        new = renameCols[renameFrom != "NULL"],
+                        stringsAsFactors = FALSE)
   ## Get duplicate columns
   dupCols <- which(duplicated(renameFrom) & renameFrom != "NULL")
   for (dupCol in dupCols) {
@@ -123,6 +127,7 @@ createTD <- function(data,
   if (!is.null(design)) {
     attr(x = TD, which = "design") <- design
   }
+  attr(TD, "renamedCols") <- renamed
   return(TD)
 }
 
@@ -143,7 +148,7 @@ is.TD <- function(x) {
 #' @param what A character vector indicating which statistics should be computed.\cr
 #' If \code{what = "all"} all available statistics are computed.\cr
 #' Possible options are\cr
-##' \describe{
+#' \describe{
 #' \item{nVals}{the number of values}
 #' \item{nObs}{the number of observations}
 #' \item{nMiss}{the number of missing values}
@@ -172,7 +177,6 @@ is.TD <- function(x) {
 #' @seealso \code{\link{createTD}}
 #'
 #' @examples
-#' data(TDHeat05)
 #' summary(object = TDHeat05, traits = "yield")
 #'
 #' @export
