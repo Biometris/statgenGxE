@@ -282,10 +282,6 @@ createReport <- function(x,
                           paste0("./figures/", basename(x))
                         })
   knitr::knit(input = reportFile, output = outTex, quiet = TRUE)
-  ## Construct shell command for changing directory
-  ## cd /d is used instead of cd to account for changing drives on windows.
-  ## Note that here dirname(outfile) is needed instead of outFile.
-  cmdDir <- paste0("cd /d ", dirname(outfile))
   ## Construct shell commands for calling pdf latex.
   ## First only draftmode for speed.
   cmdRun1 <- paste0("pdflatex -interaction=nonstopmode -draftmode ",
@@ -296,12 +292,20 @@ createReport <- function(x,
   ## Two runs needed to get references right.
   switch(tolower(Sys.info()[["sysname"]]),
          windows = {
+           ## Construct shell command for changing directory
+           ## cd /d is used instead of cd to account for changing drives on windows.
+           ## Note that here dirname(outfile) is needed instead of outDir.
+           cmdDir <- paste0("cd /d ", dirname(outfile))
            shell(cmd = paste(cmdDir, "&", cmdRun1))
            shell(cmd = paste(cmdDir, "&", cmdRun2))
          }, linux = {
+           ## Construct shell command for changing directory
+           cmdDir <- paste("cd", outDir)
            system(command = paste(cmdDir, ";", cmdRun1))
            system(command = paste(cmdDir, ";", cmdRun2))
          }, darwin = {
+           ## Construct shell command for changing directory
+           cmdDir <- paste("cd", outDir)
            system(command = paste(cmdDir, ";", cmdRun1))
            system(command = paste(cmdDir, ";", cmdRun2))
          })
