@@ -189,11 +189,18 @@ summary.TD <- function(object,
                "max", "range", "lowerQ", "upperQ", "sd", "seMean",
                "var", "seVar", "CV", "sum", "sumSq", "uncorSumSq",
                "skew", "seSkew", "kurt", "seKurt")
+  ## Checks
+  if (!is.character(traits) || !all(traits %in% colnames(object))) {
+    stop(paste("All traits should be columns in", substitute(object), ".\n"))
+  }
+  if (!is.character(what) || sum(what %in% allWhat) == 0) {
+    stop("At least one statistic should be chosen.\n")
+  }
   if (what[[1]] == "all") {
     what <- allWhat
   }
   whichWhat <- which(allWhat %in% what)
-  ## Create a data.frame to store the values
+  ## Create a data.frame to store the values".
   stats <- matrix(nrow = length(what), ncol = length(traits),
                   dimnames = list(what, traits))
   for (i in 1:length(traits)) {
@@ -292,7 +299,7 @@ print.summary.TD <- function(x, ...) {
       cat(paste0(paste0(rep(x = " ",
                             times = maxLength - nchar(rownames(x)[j]) + 2),
                         collapse = ""),
-          rownames(x)[j], "  ", round(x[j, i], decimals[j]), "\n"))
+                 rownames(x)[j], "  ", round(x[j, i], decimals[j]), "\n"))
     }
   }
   cat("\n")
