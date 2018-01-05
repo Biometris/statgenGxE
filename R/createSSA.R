@@ -1,20 +1,22 @@
 #' S3 class SSA
 #'
 #' Function for creating objects of S3 class Single Site Analysis (SSA).\cr
-#' \code{\link{summary}}, \code{\link{plot}} and
-#' \code{\link{report}} methods are available.
+#' \code{\link{summary}}, \code{\link{plot}} and \code{\link{report}}
+#' methods are available.
 #'
-#' @param mRand a mixed model created using either asreml or lme4
-#' @param mFix a fixed model created using either asreml or lme4
-#' @param data an object of class TD containing the data on which mRand and
-#' mFix are based.
-#' @param traits a character vector indicating the traits for which the analysis is done.
+#' @param mRand a model with genotype random.
+#' @param mFix a model with genotype fixed.
+#' @param data an object of class TD containing the data on which
+#' \code{mRand} and \code{mFix} are based.
+#' @param traits a character vector indicating the traits for which the analysis
+#' is done.
 #' @param design a character string containing the design of the trial.
+#' (see \code{\link{STRunModel}} for the possible designs).
 #' @param spatial a character string indicating the spatial part of the model.
 #' \code{FALSE} if no spatial design has been used.
-#' @param engine a character string containing the engine used to do the analysis.
+#' @param engine a character string containing the engine used for the analysis.
 #' @param predicted a character string indicating the variable that has been predicted.
-#' @param x \code{R} object
+#' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -62,17 +64,17 @@ is.SSA <- function(x) {
 #' @param digits an integer. The number of significant digits to use when
 #' printing.
 #' @param nBest an integer. The number of the best genotypes (sorted by either
-#' BLUEs or BLUPs) is to print. If \code{NA}, print all of them.
-#' @param sortBy a string specifying by which the genotypes will be sorted.
+#' BLUEs or BLUPs) to print. If \code{NA} all genotypes are printed.
+#' @param sortBy a character string specifying how the genotypes will be sorted.
 #' The options are \code{"BLUEs"}, \code{"BLUPs"} and \code{NA} (i.e. no sort).
-#' @param naLast for controlling the treatment of NAs. If TRUE, missing values
-#' in the data are put last; if FALSE, they are put first; if NA, they are removed.
+#' @param naLast Should missing values in the data be put last when sorting?
 #' @param decreasing should the sort order be decreasing?
 #' @param ... further arguments passed to \code{\link[stats]{printCoefmat}}.
 #'
 #' @examples
-#' data(TDHeat05)
+#' # Run a single trait analysis using SpATS.
 #' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+#' # Print a summary of the model.
 #' summary(myModel)
 #'
 #' @export
@@ -148,32 +150,52 @@ summary.SSA <- function(object,
   invisible(meanTab)
 }
 
-#' Plots Function for Class SSA
+#' Plot Function for Class SSA
 #'
-#' This function draws four plots, a histogram of residuals, a normal Q-Q plot, a residuals
-#' vs fitted values plot and an absolute residuals vs fitted values plot.
+#' This function draws either four base plots
+#' \itemize{
+#' \item{a histogram of the residuals}
+#' \item{a normal Q-Q plot}
+#' \item{a residuals vs fitted values plot}
+#' \item{an absolute residuals vs fitted values plot}
+#' }
+#' or five or (in case SpATS is used for modelling) six spatial plots
+#' \itemize{
+#' \item{a spatial plot of the raw data}
+#' \item{a spatial plot of the fitted data}
+#' \item{a spatial plot of the residuals}
+#' \item{a spatial plot of the estimated spatial trend (SpATS only)}
+#' \item{a spatial plot of the BLUEs or BLUPs}
+#' \item{a histogram of the BLUEs or BLUPs}
+#' }
+#' Spatial plots can only be made if the data contains both row and column information.
 #'
 #' @inheritParams summary.SSA
 #'
 #' @param x an object of class SSA.
-#' @param ... Other graphical parameters (see \code{\link[lattice]{xyplot}} for details).
-#' @param what character indiciting whether the fixed (\code{what = "fix"}) or mixed
-#' (\code{what = "fix"}) model should be plotted.
-#' @param plotType not used for now.
+#' @param ... other graphical parameters (see \code{\link[lattice]{xyplot}} for details).
+#' @param what character indicating whether the model with genotype fixed or random
+#' should be plotted. If \code{x} contains only one model this model is chosen
+#' automatically.
+#' @param plotType character string indicating whether \code{base} plots or
+#' \code{spatial} plots should be made.
 #'
-#' @seealso \code{\link{createSSA}}
+#' @seealso \code{\link{SSA}}
 #'
 #' @examples
-#' data(TDHeat05)
+#' # Run a single trait analysis using SpATS.
 #' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
-#' plot(myModel, plotType = "fix")
+#' # Create base plots
+#' plot(myModel, what = "fixed", plotType = "base")
+#' # Create spatial plots
+#' plot(myModel, what = "fixed", plotType = "spatial")
 #'
 #' @export
 
 plot.SSA <- function(x,
                      ...,
                      trait = NULL,
-                     what = "fixed",
+                     what = ifelse(is.null(x$mFix), "random", "fixed"),
                      plotType = "base") {
   ## Checks.
   if (is.null(trait) && length(x$traits) > 1) {
@@ -187,29 +209,34 @@ plot.SSA <- function(x,
       !what %in% c("fixed", "random")) {
     stop("what should be fixed or random.\n")
   }
+  plotType <- match.arg(arg = plotType, choices = c("base", "spatial"))
+  ## If no trait is given as input extract it from the SSA object.
   if (is.null(trait)) {
     trait <- x$traits
   }
+  ## Extract the model to plot from the SSA object.
   if (what == "fixed") {
     model <- x$mFix[[trait]]
   } else if (what == "random") {
     model <- x$mRand[[trait]]
   }
-  engine <- x$engine
-  ## Diagnostic plots.
+  ## Extract fitted and predicted values from model.
   fitted <- STExtract(x, what = ifelse(what == "fixed", "fitted", "rMeans"))[[trait]]
   pred <- STExtract(x, what = ifelse(what == "fixed", "BLUEs", "BLUPs"))[[trait]]
+  ## Extract raw data and compute residuals.
   response <- x$data[, trait]
   residuals <- response - fitted
   if (plotType == "base") {
+    ## Setup frame for plots.
     trellisObj <- setNames(vector(mode = "list", length = 4),
                            c("histogram", "qq", "residFitted", "absResidFitted"))
-    # Histogram of residuals
-    trellisObj[["histogram"]] <- lattice::histogram(x = ~residuals, xlab = "Residuals", ...)
-    # Q-Q plot of residuals
+    ## Plot histogram of residuals.
+    trellisObj[["histogram"]] <- lattice::histogram(x = ~residuals,
+                                                    xlab = "Residuals", ...)
+    ## Plot Q-Q plot of residuals.
     trellisObj[["qq"]] <- lattice::qqmath(~residuals, xlab = "Normal quantiles",
                                           ylab = "Residuals", ...)
-    # Residuals vs fitted values
+    ## Plot residuals vs fitted values
     trellisObj[["residFitted"]] <-
       lattice::xyplot(residuals ~ fitted,
                       panel = function(x, y, ...) {
@@ -220,7 +247,7 @@ plot.SSA <- function(x,
                                              col = "red", ...)
                       }, ylab = "Residuals",
                       xlab = "Fitted values", ...)
-    # Residuals vs fitted values
+    ## Plot absolute residuals vs fitted values
     trellisObj[["absResidFitted"]] <-
       lattice::xyplot(abs(residuals) ~ fitted,
                       panel = function(x, y, ...) {
@@ -230,75 +257,83 @@ plot.SSA <- function(x,
                                              col = "red", ...)
                       }, ylab = "|Residuals|",
                       xlab = "Fitted values", ...)
-    adt <- lattice::trellis.par.get("add.text")
-    xlb <- lattice::trellis.par.get("par.xlab.text")
-    ylb <- lattice::trellis.par.get("par.ylab.text")
-    zlb <- lattice::trellis.par.get("par.zlab.text")
-    axt <- lattice::trellis.par.get("axis.text")
-    syx <- lattice::trellis.par.get("plot.symbol")
-    lattice::trellis.par.set("add.text", list(cex = 0.75))
-    lattice::trellis.par.set("par.xlab.text", list(cex = 0.75))
-    lattice::trellis.par.set("par.ylab.text", list(cex = 0.75))
-    lattice::trellis.par.set("par.zlab.text", list(cex = 0.75))
-    lattice::trellis.par.set("axis.text", list(cex = 0.75))
-    lattice::trellis.par.set("plot.symbol", list(cex = 0.6))
+    ## Save trellis options to reset when exiting function
+    trellPar <- lattice::trellis.par.get()
+    on.exit(lattice::trellis.par.set(trellPar))
+    ## Change options for current plot.
+    changeOpt <- list(add.text = list(cex = 0.75),
+                      par.xlab.text = list(cex = 0.75),
+                      par.ylab.text = list(cex = 0.75),
+                      par.zlab.text = list(cex = 0.75),
+                      axis.text = list(cex = 0.75),
+                      plot.symbol = list(cex = 0.6))
+    lattice::trellis.par.set(changeOpt)
+    ## Fill frame with plots.
     print(trellisObj[["histogram"]], position = c(0, 0.5, 0.5, 1), more = TRUE)
     print(trellisObj[["qq"]], position = c(0.5, 0.5, 1, 1), more = TRUE)
     suppressWarnings(print(trellisObj[["residFitted"]], position = c(0, 0, 0.5, 0.5),
                            more = TRUE))
     suppressWarnings(print(trellisObj[["absResidFitted"]], position = c(0.5, 0, 1, 0.5)))
-    lattice::trellis.par.set("add.text", adt)
-    lattice::trellis.par.set("par.xlab.text", xlb)
-    lattice::trellis.par.set("par.ylab.text", ylb)
-    lattice::trellis.par.set("par.zlab.text", zlb)
-    lattice::trellis.par.set("axis.text", axt)
-    lattice::trellis.par.set("plot.symbol", syx)
     invisible(trellisObj)
   } else if (plotType == "spatial") {
     if (x$engine == "SpATS") {
       plot(model, main = "")
     } else {
+      ## Check whether data contains row/col information
+      if (!all(c("rowCoordinates", "colCoordinates") %in% colnames(x$data))) {
+        stop(paste("Data in", substitute(x), "contains no spatial information.\n"))
+      }
       ## Code taken from plot.SpATS and simplified.
-      annotated <- FALSE
+      ## Set colors and legends.
       colors = topo.colors(100)
       mainLegends <- c("Raw data", "Fitted data", "Residuals",
                        ifelse(what == "fixed", "Genotypic BLUEs", "Genotypic BLUPs"),
                        "Histogram")
+      ## Extract spatial coordinates from data.
       colCoord <- x$data[, "colCoordinates"]
       rowCoord <- x$data[, "rowCoordinates"]
+      ## Order plotcols and rows and fill gaps if needed.
       plotCols <- seq(min(colCoord), max(colCoord),
                       by = min(diff(sort(unique(colCoord)))))
       plotRows <- seq(min(rowCoord), max(rowCoord),
                       by = min(diff(sort(unique(rowCoord)))))
-      op <- par(mfrow = c(2, 3), oma = c(ifelse(annotated, 12, 2), 1, 3, 2),
-                mar = c(2.5, 4, 2.5, 2.5), mgp = c(1.7, 0.5, 0))
+      ## Compute range of values in response + fitted data so same scale
+      ## can be used over plots.
       range <- range(c(response, fitted), na.rm = TRUE)
+      ## Save plot options to reset when exiting function.
+      op <- par(mfrow = c(2, 3), oma = c(2, 1, 3, 2),
+                mar = c(2.5, 4, 2.5, 2.5), mgp = c(1.7, 0.5, 0))
+      on.exit(par(op))
+      ## Spatial plot of raw data.
       fields::image.plot(plotCols, plotRows, t(matrix(response, ncol = length(plotCols),
                                                       nrow = length(plotRows))),
                          main = mainLegends[1], col = colors,
                          xlab = "colCoordinates", ylab = "rowCoordinates",
                          zlim = range, graphics.reset = TRUE,
                          ...)
+      ## Spatial plot of fitted data.
       fields::image.plot(plotCols, plotRows, t(matrix(fitted, ncol = length(plotCols),
                                                       nrow = length(plotRows))),
                          main = mainLegends[2], col = colors,
                          xlab = "colCoordinates", ylab = "rowCoordinates",
                          zlim = range, graphics.reset = TRUE,
                          ...)
+      ## Spatial plot of residuals.
       fields::image.plot(plotCols, plotRows, t(matrix(residuals,
                                                       ncol = length(plotCols),
                                                       nrow = length(plotRows))),
                          main = mainLegends[3], col = colors,
                          xlab = "colCoordinates", ylab = "rowCoordinates",
                          graphics.reset = TRUE, ...)
+      ## Spatial plot of BLUEs or BLUPs.
       fields::image.plot(plotCols, plotRows, t(matrix(pred, ncol = length(plotCols),
                                                       nrow = length(plotRows))),
                          main = mainLegends[4], col = colors,
                          xlab = "colCoordinates", ylab = "rowCoordinates",
                          graphics.reset = TRUE, ...)
+      ## Histogram of BLUEs or BLUPs.
       suppressWarnings(hist(pred, main = mainLegends[5],
                             xlab = mainLegends[5], ...))
-      par(op)
     }
   }
 }
