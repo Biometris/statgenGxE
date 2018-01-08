@@ -1,0 +1,227 @@
+%-------------------------------------------------------------------------------
+%	Packages and other Document configurations
+%-------------------------------------------------------------------------------
+\documentclass[a4paper,11pt]{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+% Package declaration
+%-------------------------------------------------------------------------------
+% Specify input encoding
+\usepackage[utf8]{inputenc}
+% For A4 paper set all margins to 3cm
+\usepackage[paper=a4paper,left=1.5cm,top=2cm,right=1.5cm,bottom=2cm]{geometry}%
+% Set linespace, usage \doublespacing \singlespacing \onehalfspacing
+\usepackage{setspace}%
+% Set palatino font with small caps as default
+\usepackage[sc]{mathpazo}%
+% Rotation tools, including rotated full-page floats.
+\usepackage{rotating}%
+% Create subfigures
+\usepackage{subfigure}%
+% Extensive support for hypertext in LaTeX
+\usepackage{hyperref}%
+% For adding bookmarks to the document
+\usepackage{bookmark}%
+% For adding time to the document
+\usepackage{datetime}
+% For alignment of captions
+\usepackage{caption}
+% For multiple columns.
+\usepackage{multicol}
+
+% Start Article header
+%-------------------------------------------------------------------------------
+% Title
+\title{Stability analysis report}%
+% Authors
+\author{\vspace{-5ex}}
+%-------------------------------------------------------------------------------
+% Dates
+\date{2018-01-08 12:15:17}
+%-------------------------------------------------------------------------------
+% End article header
+
+% For left aligning captions
+\captionsetup{justification=raggedright,singlelinecheck=false}
+
+% Start Document
+%-------------------------------------------------------------------------------
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+% Load required packages
+
+
+% Article title and date.
+\maketitle
+% Start single line spacing
+\singlespacing
+
+%-------------------------------------------------------------------------------
+\section{Summary}
+%-------------------------------------------------------------------------------
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Mon Jan 08 12:18:03 2018
+\begin{table}[ht]
+\begin{flushleft}
+\caption{Cultivar-superiority measure (Top 10\% genotypes)} 
+\label{cultSup}
+\begin{tabular}{lrr}
+ genotype & superiority & mean \\ 
+ G118 & 213286 & 226.83 \\ 
+  G076 & 188640 & 251.99 \\ 
+  G113 & 185924 & 248.12 \\ 
+  G140 & 181522 & 268.21 \\ 
+  G180 & 179532 & 273.32 \\ 
+  G073 & 173009 & 275.38 \\ 
+  G133 & 165408 & 311.34 \\ 
+  G112 & 156829 & 321.41 \\ 
+  G041 & 153099 & 367.73 \\ 
+  G008 & 152795 & 326.60 \\ 
+  G017 & 149955 & 310.55 \\ 
+  G090 & 147096 & 316.56 \\ 
+  G021 & 147090 & 321.46 \\ 
+  G004 & 145402 & 321.43 \\ 
+  G143 & 142009 & 327.27 \\ 
+  G139 & 140698 & 335.49 \\ 
+  G111 & 139488 & 341.43 \\ 
+  G126 & 139352 & 344.03 \\ 
+  G038 & 139068 & 331.57 \\ 
+  G095 & 137073 & 334.05 \\ 
+  G174 & 136538 & 344.55 \\ 
+  G211 & 135963 & 349.06 \\ 
+  \end{tabular}
+\end{flushleft}
+\end{table}
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Mon Jan 08 12:18:03 2018
+\begin{table}[ht]
+\begin{flushleft}
+\caption{Static stability (Top 10\% genotypes)} 
+\label{static}
+\begin{tabular}{lrr}
+ genotype & static & mean \\ 
+ G042 & 185083 & 561.39 \\ 
+  G091 & 184739 & 510.45 \\ 
+  G194 & 180440 & 521.42 \\ 
+  G055 & 180228 & 616.85 \\ 
+  G061 & 179620 & 585.75 \\ 
+  G103 & 175154 & 510.80 \\ 
+  G130 & 163530 & 601.40 \\ 
+  G192 & 163324 & 676.14 \\ 
+  G028 & 159319 & 663.56 \\ 
+  G037 & 158294 & 489.12 \\ 
+  G145 & 157767 & 490.18 \\ 
+  G172 & 156892 & 553.38 \\ 
+  G047 & 156613 & 448.21 \\ 
+  G009 & 154190 & 435.20 \\ 
+  G105 & 152884 & 522.55 \\ 
+  G019 & 152822 & 743.83 \\ 
+  G150 & 151084 & 415.91 \\ 
+  G168 & 149637 & 584.10 \\ 
+  G025 & 149224 & 573.14 \\ 
+  G082 & 149224 & 539.08 \\ 
+  G110 & 147909 & 503.74 \\ 
+  G117 & 146969 & 449.10 \\ 
+  \end{tabular}
+\end{flushleft}
+\end{table}
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Mon Jan 08 12:18:03 2018
+\begin{table}[ht]
+\begin{flushleft}
+\caption{Wricke's ecovalence (Top 10\% genotypes)} 
+\label{wricke}
+\begin{tabular}{lrr}
+ genotype & wricke & mean \\ 
+ G041 & 421753 & 367.73 \\ 
+  G028 & 225014 & 663.56 \\ 
+  G042 & 207410 & 561.39 \\ 
+  G133 & 199560 & 311.34 \\ 
+  G176 & 187066 & 440.20 \\ 
+  G061 & 186752 & 585.75 \\ 
+  G118 & 183468 & 226.83 \\ 
+  G009 & 182984 & 435.20 \\ 
+  G198 & 182166 & 561.08 \\ 
+  G114 & 179700 & 468.25 \\ 
+  G172 & 174197 & 553.38 \\ 
+  G045 & 173102 & 606.20 \\ 
+  G117 & 172093 & 449.10 \\ 
+  G008 & 170986 & 326.60 \\ 
+  G047 & 170352 & 448.21 \\ 
+  G112 & 168838 & 321.41 \\ 
+  G128 & 157049 & 397.64 \\ 
+  G091 & 155332 & 510.45 \\ 
+  G032 & 152331 & 523.14 \\ 
+  G077 & 151845 & 560.83 \\ 
+  G055 & 150407 & 616.85 \\ 
+  G086 & 150103 & 452.30 \\ 
+  \end{tabular}
+\end{flushleft}
+\end{table}
+
+
+\clearpage
+%-------------------------------------------------------------------------------
+\section{Diagnostic plots}
+%-------------------------------------------------------------------------------
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+
+\includegraphics[width=\maxwidth]{./figures/010818121802-diagplots-1} \hfill{}
+
+
+
+\end{knitrout}
+
+%-------------------------------------------------------------------------------
+% End Document
+\end{document}

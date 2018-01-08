@@ -101,6 +101,7 @@ plot.AMMI <- function(x,
                       scaleAMMI1 = 1,
                       scaleAMMI2 = 1) {
   oldPar <- par(xpd = NA)
+  on.exit(par(oldPar))
   loadings <- x$envScores
   scores <- x$genoScores
   propPC1 <- x$importance[2, 1]
@@ -158,7 +159,6 @@ plot.AMMI <- function(x,
            xlab = paste0("PC1 (", round(propPC1 * 100, 1), "%)"),
            ylab = paste0("PC2 (", round(propPC2 * 100, 1), "%)"))
   }
-  par <- oldPar
 }
 
 #' Report method for class AMMI

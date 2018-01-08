@@ -117,7 +117,7 @@ STRunModel = function(TD,
   if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
     stop("All traits have to be columns in TD.\n")
   }
-  what <- match.arg(arg = what, choices = c("fixed", "random"), several.ok = TRUE)
+  what <- match.arg(arg = what, several.ok = TRUE)
   if (!is.null(covariates) && (!is.character(covariates) ||
                                !(all(covariates %in% colnames(TD))))) {
     stop("covariates have to be a columns in TD.\n")
