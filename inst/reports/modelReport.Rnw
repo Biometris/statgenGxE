@@ -35,7 +35,7 @@
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{\Sexpr{attr(x, "timestamp")}}
+\date{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -76,6 +76,21 @@ useCheckId <- (engine == "SpATS" && length(grep(pattern = "checkId",
 % Start double line spacing
 \singlespacing
 %\doublespacing
+
+%-------------------------------------------------------------------------------
+\section{Background information}
+%-------------------------------------------------------------------------------
+<<label=background, echo=FALSE, results="asis">>=
+bgItems <- c(format(attr(x, "timestamp"), "%y-%m-%d"),
+             format(attr(x, "timestamp"), "%H:%M:%S"),
+             x$engine, as.character(packageVersion("RAP")))
+names(bgItems) <- c("Modeling date", "Modeling time", "Modeling engine",
+                    "Pipeline version")
+print(xtable::xtable(x = data.frame(bgItems), label = "background",
+                     align = c("l", "l")),
+      latex.environments = "flushleft", hline.after = NULL,
+      include.rownames = TRUE, include.colnames = FALSE)
+@
 
 %-------------------------------------------------------------------------------
 \section{Description of the fitted model}
@@ -156,7 +171,7 @@ if (engine == "SpATS") {
   }
   print(xtable::xtable(x = effDims, caption = "Effective dimensions",
                        label = "effDims",
-                       align = c("l", "c", "c", "c", "c", "c")),
+                       align = c("l", "r", "r", "r", "r", "r")),
         latex.environments = "flushleft", caption.placement = "top",
         include.rownames = TRUE)
   ## Print generalized heritability
@@ -174,7 +189,7 @@ if (engine == "SpATS") {
                         row.names = rownames(varComp))
   print(xtable::xtable(x = varComp, label = "varComps",
                        caption =  "Variance components",
-                       align = c("l", "c")),
+                       align = c("l", "r")),
         latex.environments = "flushleft", caption.placement = "top",
         include.rownames = TRUE)
 } else if (engine == "lme4") {
@@ -244,14 +259,14 @@ plot(x, what = modelType, plotType = "base")
 \newpage
 
 %-------------------------------------------------------------------------------
-\section{List of best 10\% genotypes}
+\section{List of best 10\% genotypes with highest \Sexpr{predName}}
 %-------------------------------------------------------------------------------
 <<label=best20, echo=FALSE, results="hide">>=
 pred <- STExtract(x, what = predName)
 predSE <- STExtract(x, what = paste0("se", predName))
 predTot <- merge(pred, predSE , by = "genotype")
 predTot <- predTot[order(predTot[[paste0(x$traits,".x")]], decreasing = TRUE), ]
-colnames(predTot) <- c("genotype", predName, "SE")
+colnames(predTot) <- c("genotype", x$traits, "SE")
 best <- predTot[1:ceiling(nrow(predTot) / 10), ]
 @
 \begin{multicols*}{2}
@@ -264,10 +279,10 @@ print(xtable::xtable(x = best, label = "bestTab",
 \columnbreak
 <<label=predPlot, echo=FALSE>>=
 ## Plot of predictions, BLUEs or BLUPs
-plot(rev(predTot[[predName]]), col = "#0080ff", xlab = "Genotypes", xaxt = "n",
-     cex.lab = 1.5, ylab = predName, mar = c(5, 5, 4, 2) + 0.1)
-abline(h = quantile(x = predTot[[predName]], probs = 0.9), col = "red")
-abline(h = quantile(x = predTot[[predName]], probs = 0.1), col = "red")
+plot(rev(predTot[[x$traits]]), col = "#0080ff", xlab = "Genotypes", xaxt = "n",
+     cex.lab = 1.5, ylab = x$traits, mar = c(5, 5, 4, 2) + 0.1)
+abline(h = quantile(x = predTot[[x$traits]], probs = 0.9), col = "red")
+abline(h = quantile(x = predTot[[x$traits]], probs = 0.1), col = "red")
 @
 \end{multicols*}
 %-------------------------------------------------------------------------------

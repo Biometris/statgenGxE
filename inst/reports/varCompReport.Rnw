@@ -30,7 +30,7 @@
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Variance component analysis report}%
+\title{Variance covariance modeling report}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
@@ -57,17 +57,33 @@ lapply(list("xtable"), library, character.only = TRUE)
 \singlespacing
 
 %-------------------------------------------------------------------------------
+\section{Background information}
+%-------------------------------------------------------------------------------
+<<label=background, echo=FALSE, results="asis">>=
+bgItems <- c(format(attr(x, "timestamp"), "%y-%m-%d"),
+             format(attr(x, "timestamp"), "%H:%M:%S"),
+             x$engine, as.character(packageVersion("RAP")))
+names(bgItems) <- c("Modeling date", "Modeling time", "Modeling engine",
+                    "Pipeline version")
+print(xtable::xtable(x = data.frame(bgItems), label = "background",
+                     align = c("l", "l")),
+      latex.environments = "flushleft", hline.after = NULL,
+      include.rownames = TRUE, include.colnames = FALSE)
+@
+
+%-------------------------------------------------------------------------------
 \section{Summary}
 %-------------------------------------------------------------------------------
 
 <<label=summary, echo=FALSE, results="asis">>=
 summaryTab <- x$summary
-print(xtable::xtable(x = summaryTab, caption = paste("Models tried ordered by",
+summaryTab[summaryTab == Inf] <- NA
+print(xtable::xtable(x = summaryTab, caption = paste("Fitted models ordered by",
                                                      x$criterion),
                      label = "summary",
                      align = c("l", "r", "r", "r", "r"),
                      digits = 0),
-      latex.environments = "flushleft", hline.after = NULL,
+      latex.environments = "flushleft", NA.string = "NA",
       include.rownames = TRUE, include.colnames = TRUE,
       caption.placement = "top")
 @
@@ -75,7 +91,7 @@ print(xtable::xtable(x = summaryTab, caption = paste("Models tried ordered by",
 %-------------------------------------------------------------------------------
 \section{Heatmap}
 %-------------------------------------------------------------------------------
-Heatmap for the correlation between environments for the best model
+Heatmap for the fitted correlation between environments from the best model
 <<label=heatmap, echo=FALSE, out.height="10cm", out.width="10cm", fig.align="left">>=
 plot(x)
 @

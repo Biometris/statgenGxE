@@ -287,6 +287,72 @@ summary.TD <- function(object,
                    class = c("summary.TD", "table")))
 }
 
+
+# plot.TD <- function(Boxplot, trait, env, data, Histogram, lattice, histogram, Scatterplot, Z, genotype, identity, Corplot, levelplot) {
+#   if (Boxplot) {
+#     f0 <- as.formula(paste(trait,'~',env))
+#     boxplot(formula = f0 , data = data,
+#             main = "Boxplot by Enviroment",
+#             xlab = "Enviroment", ylab = trait)
+#   }
+#   if (Histogram) {
+#     f0 <- as.formula(paste('~',trait,"|",env))
+#     print(lattice::histogram(x = f0 , data = data,
+#                              main = "Histograms by Enviroment",
+#                              xlab = trait))
+#   }
+#   if (Scatterplot) {
+#     ## put (absolute) correlations on the upper panels,
+#     ## with size proportional to the correlations.
+#     panelCor <- function(x, y, digits = 2, prefix = "", cex.cor, ...) {
+#       usr <- par("usr"); on.exit(par(usr))
+#       par(usr = c(0, 1, 0, 1))
+#       r <- abs(cor(x, y))
+#       txt <- format(c(r, 0.123456789), digits = digits)[1]
+#       txt <- paste0(prefix, txt)
+#       if (missing(cex.cor)) {
+#         cex.cor <- 0.8 / strwidth(txt)
+#       }
+#       text(0.5, 0.5, txt, cex = cex.cor * r)
+#     }
+#     ## put histograms on the diagonal
+#     panelHist <- function(x, ...) {
+#       usr <- par("usr"); on.exit(par(usr))
+#       par(usr = c(usr[1:2], 0, 1.5))
+#       h <- hist(x, plot = FALSE)
+#       breaks <- h$breaks; nB <- length(breaks)
+#       y <- h$counts; y <- y / max(y)
+#       rect(breaks[-nB], 0, breaks[-1], y, col = "cyan", ...)
+#     }
+#     X <- tapply(X = data[Z, trait], INDEX = data[Z, c(genotype, env)], FUN = identity)
+#     if (any(is.na(X))) {
+#       X <- RAP.multmissing(X, maxcycle = 10, na.strings = NA)
+#     }
+#     pairs(X, upper.panel = panelCor, diag.panel = panelHist,
+#           main = paste("Scatterplot matrix and correlations by enviroment:", trait))
+#   }
+#   if (Corplot) {
+#     if (is.data.frame(data) && !missing(env)) {
+#       if (all(c(trait, env) %in% names(data))) {
+#         # create a correlation matrix
+#         myDat <- tapply(X = data[Z,trait], INDEX = data[Z, c(genotype,env)], FUN = identity)
+#         if (any(is.na(myDat))) {
+#           myDat <- RAP.multmissing(myDat, maxcycle = 10, na.strings = NA)
+#         }
+#         if (is.matrix(myDat)) {
+#           corMat <- cor(myDat)
+#           corMat[upper.tri(corMat, diag = FALSE)] <- NA
+#           corMat
+#         } else{
+#           stop("Numbers of observations for all environments are not equal.\n")
+#         }
+#       }
+#     }
+#     print(lattice::levelplot(corMat[nrow(corMat):1, Z], xlab = "", ylab = "",
+#                              main = paste("Correlation of environments for", trait)))
+#   }
+# }
+
 #' @export
 print.summary.TD <- function(x, ...) {
   whichWhat <- attr(x, "whichWhat")

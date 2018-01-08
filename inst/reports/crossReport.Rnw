@@ -128,15 +128,6 @@ print(xtable::xtable(x = NRc[1:(ceiling(nrow(NRc) / 10)), ],
       include.rownames = TRUE, include.colnames = TRUE,
       caption.placement = "top")
 @
-
-\clearpage
-%-------------------------------------------------------------------------------
-\section{Crossover points}
-<<label=crossover, echo=FALSE>>=
-## Display marker genotypes to show crossover points
-crossErrLod <- qtl::calc.errorlod(x)
-qtl::plot.geno(crossErrLod, chr = 1, c(1:5))
-@
 %-------------------------------------------------------------------------------
 % End Document
 \end{document}

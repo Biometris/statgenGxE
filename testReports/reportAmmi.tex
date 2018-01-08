@@ -77,22 +77,6 @@
 % For multiple columns.
 \usepackage{multicol}
 
-
-% Graphics Path definition
-%-------------------------------------------------------------------------------
-\graphicspath{{figures/}}
-
-%-------------------------------------------------------------------------------
-%	Article Information
-%-------------------------------------------------------------------------------
-% Setting PDF properties in the final PDF
-% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
-\hypersetup
-{
-pdfsubject={Ammi report},
-pdftitle={Ammi report}
-}
-
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
@@ -101,7 +85,7 @@ pdftitle={Ammi report}
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{2018-01-02 09:33:36}
+\date{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -113,7 +97,7 @@ pdftitle={Ammi report}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
-% Set knitr options
+% Load required packages
 
 
 % Article title and date.
@@ -122,41 +106,64 @@ pdftitle={Ammi report}
 \singlespacing
 
 %-------------------------------------------------------------------------------
+\section{Background information}
+%-------------------------------------------------------------------------------
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Mon Jan 08 16:29:15 2018
+\begin{table}[ht]
+\begin{flushleft}
+\begin{tabular}{ll}
+  Modeling date & 18-01-08 \\ 
+  Modeling time & 16:29:02 \\ 
+  Pipeline version & 0.0.0.9000 \\ 
+  \end{tabular}
+\label{background}
+\end{flushleft}
+\end{table}
+
+
+%-------------------------------------------------------------------------------
 \section{Anova table}
 %-------------------------------------------------------------------------------
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:35:01 2018
+% Mon Jan 08 16:29:15 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{lrrrrrl}
-  & Df & Sum Sq & Mean Sq & F value & Pr($>$F) &  \\ 
- Genotype & 210 & 13821018 & 65814 & 5.29 & 3.61E-83 & *** \\ 
+  \hline
+ & Df & Sum Sq & Mean Sq & F value & Pr($>$F) &  \\ 
+  \hline
+Genotype & 210 & 13821018 & 65814 & 5.29 & 3.61E-83 & *** \\ 
   Environment & 7 & 127771687 & 18253098 & 1466.47 & 0.00E+00 & *** \\ 
   Interactions & 1470 & 18296997 & 12447 &  &  &  \\ 
   PC1 & 216 & 5451796 & 25240 & 2.93 & 0.00E+00 & *** \\ 
   PC2 & 214 & 3888148 & 18169 & 2.11 & 1.31E-14 & *** \\ 
   Residuals & 1040 & 8957053 & 8613 &  &  &  \\ 
-   \hline  \multicolumn{6}{c}{Significance codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1} \\\end{tabular}
+   \hline  \multicolumn{6}{c}{Significance codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1} \\ \hline
+\end{tabular}
 \label{anova}
 \end{flushleft}
 \end{table}
 
 
 %-------------------------------------------------------------------------------
-\section{Importance}
+\section{PCA Summaries}
 %-------------------------------------------------------------------------------
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:35:02 2018
+% Mon Jan 08 16:29:15 2018
 \begin{table}[ht]
 \begin{flushleft}
-\begin{tabular}{lcc}
-  & PC1 & PC2 \\ 
- Standard deviation & 161.12 & 136.07 \\ 
-  Proportion of Variance & 0.30 & 0.21 \\ 
-  Cumulative Proportion & 0.30 & 0.51 \\ 
-  \end{tabular}
+\begin{tabular}{lcccccccc}
+  \hline
+ & PC1 & PC2 & V3 & V4 & V5 & V6 & V7 & V8 \\ 
+  \hline
+Standard deviation & 161.12 & 136.07 & 117.72 & 97.87 & 92.27 & 87.79 & 54.74 & 0.00 \\ 
+  Proportion of Variance & 0.30 & 0.21 & 0.16 & 0.11 & 0.10 & 0.09 & 0.03 & 0.00 \\ 
+  Cumulative Proportion & 0.30 & 0.51 & 0.67 & 0.78 & 0.88 & 0.97 & 1.00 & 1.00 \\ 
+   \hline
+\end{tabular}
 \label{importance}
 \end{flushleft}
 \end{table}
@@ -169,12 +176,7 @@ pdftitle={Ammi report}
 %-------------------------------------------------------------------------------
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-
-{\centering \includegraphics[width=\maxwidth]{figures/fig-biplot-1} 
-
-}
-
-
+\includegraphics[width=\maxwidth]{./figures/010818162914-biplot-1} 
 
 \end{knitrout}
 

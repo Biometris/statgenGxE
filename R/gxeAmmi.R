@@ -35,10 +35,10 @@
 #' @export
 
 gxeAmmi <- function(TD,
-                   trait,
-                   nPC = 2,
-                   center = TRUE,
-                   scale = FALSE) {
+                    trait,
+                    nPC = 2,
+                    center = TRUE,
+                    scale = FALSE) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -92,8 +92,8 @@ gxeAmmi <- function(TD,
   scores <- pca$x
   ## Compute AMMI-estimates per genotype per environment.
   mTerms <- matrix(data = 0, nrow = nGeno, ncol = nEnv)
-  for (ii in 1:nPC) {
-    mTerms <- mTerms + outer(scores[, ii], loadings[, ii])
+  for (i in 1:nPC) {
+    mTerms <- mTerms + outer(scores[, i], loadings[, i])
   }
   fitted <- fittedVals + mTerms
   ## Extract ANOVA table for linear model.
@@ -128,10 +128,12 @@ gxeAmmi <- function(TD,
     pf(q = addTbl[i, "F value"], df1 = addTbl[i, "Df"],
        df2 = addTbl["Residuals", "Df"])
   })
+  importance <- as.data.frame(summary(pca)$importance)
+  colnames(importance) <- paste0("PC", 1:ncol(importance))
   ## Create complete ANOVA table for AMMI model
   a0 <- rbind(a1, as.data.frame(addTbl))
   return(createAMMI(envScores = pca$rotation, genoScores = pca$x,
-                    importance = as.data.frame(summary(pca)$importance)[, 1:nPC],
+                    importance = importance,
                     anova = a0, fitted = fitted,
                     trait = trait, envMean = envMean, genoMean = genoMean,
                     overallMean = overallMean))

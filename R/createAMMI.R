@@ -57,7 +57,7 @@ is.AMMI <- function(x) {
 print.AMMI <- function(x, ...) {
   cat("Principal components",
       "\n====================\n")
-  print(x$importance)
+  print(x$importance[, 1:ncol(x$envScores)])
   cat("\nAnova",
       "\n=====\n")
   printCoefmat(x$anova)
