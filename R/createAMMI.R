@@ -161,7 +161,7 @@ plot.AMMI <- function(x,
   par <- oldPar
 }
 
-#' Report method for class AMMi
+#' Report method for class AMMI
 #'
 #' A pdf report will be created containing a summary of AMMI model.
 #' Simultaneously the same report will be created as a tex file.

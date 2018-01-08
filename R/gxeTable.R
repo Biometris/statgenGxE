@@ -14,9 +14,6 @@
 #' myTDMegaEnv <- gxeMegaEnvironment(TD = TDMaize, trait = "yld")
 #' geTab <- gxeTable(TD = myTDMegaEnv, trait = "yld")
 #'
-#' @import utils
-#' @importFrom methods slot
-#'
 #' @export
 gxeTable <- function(TD,
                      trait,

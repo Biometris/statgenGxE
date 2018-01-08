@@ -25,6 +25,10 @@
 #' \item{iter}{a numberical value containing the number of iterations for the
 #' analysis to converge.}
 #'
+#' @references Finlay, K.W. & Wilkinson, G.N. (1963). The analysis of adaptation
+#' in a plant-breeding programme. Australian Journal of Agricultural
+#' Research, 14, 742-754.
+#'
 #' @examples
 #' ## Run joint regression analysis
 #' geFW <- gxeFw(TDMaize, trait = "yld", sortBySens = "ascending")

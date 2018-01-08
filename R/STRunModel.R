@@ -143,6 +143,7 @@ STRunModel = function(TD,
             Defaulting to SpATS.")
     engine <- "SpATS"
   }
+  ## Columns needed depend on design.
   for (colName in c(if (engine == "SpATS") c("rowCoordinates", "colCoordinates"),
                     if (design %in% c("rowcol", "res.rowcol")) c("rowId", "colId"),
                     if (design %in% c("res.ibd", "res.rowcol", "rcbd")) "repId",
