@@ -58,6 +58,21 @@ lapply(list("qtl", "xtable"), library, character.only = TRUE)
 \singlespacing
 
 %-------------------------------------------------------------------------------
+\section{Background information}
+%-------------------------------------------------------------------------------
+<<label=background, echo=FALSE, results="asis">>=
+bgItems <- c(format(attr(x, "timestamp"), "%y-%m-%d"),
+             format(attr(x, "timestamp"), "%H:%M:%S"),
+             as.character(packageVersion("RAP")))
+names(bgItems) <- c("Modeling date", "Modeling time",
+                    "Pipeline version")
+print(xtable::xtable(x = data.frame(bgItems), label = "background",
+                     align = c("l", "l")),
+      latex.environments = "flushleft", hline.after = NULL,
+      include.rownames = TRUE, include.colnames = FALSE)
+@
+
+%-------------------------------------------------------------------------------
 \section{Summary}
 %-------------------------------------------------------------------------------
 <<label=summary, echo=FALSE, results="asis">>=
@@ -66,15 +81,15 @@ print(xtable::xtable(x = summaryTab, caption = "List of peaks",
                      label = "summary",
                      align = c("l", "r", "r", "r"),
                      digits = c(0, 0, 0, 2)),
-      latex.environments = "flushleft", hline.after = NULL,
+      latex.environments = "flushleft",
       include.rownames = TRUE, include.colnames = TRUE,
       caption.placement = "top")
 @
 \newpage
 %-------------------------------------------------------------------------------
-\section{Manhattan plot}
+\section{Profile plot}
 %-------------------------------------------------------------------------------
-<<label=manhattan, echo=FALSE, fig.align="left">>=
+<<label=profile, echo=FALSE, fig.align="left">>=
 plot(x)
 @
 %-------------------------------------------------------------------------------

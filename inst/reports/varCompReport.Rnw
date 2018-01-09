@@ -87,7 +87,7 @@ print(xtable::xtable(x = summaryTab, caption = paste("Fitted models ordered by",
       include.rownames = TRUE, include.colnames = TRUE,
       caption.placement = "top")
 @
-
+\clearpage
 %-------------------------------------------------------------------------------
 \section{Heatmap}
 %-------------------------------------------------------------------------------

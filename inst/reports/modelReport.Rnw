@@ -73,9 +73,8 @@ useCheckId <- (engine == "SpATS" && length(grep(pattern = "checkId",
 \maketitle
 %\newpage
 
-% Start double line spacing
+% Start single line spacing
 \singlespacing
-%\doublespacing
 
 %-------------------------------------------------------------------------------
 \section{Background information}
@@ -118,7 +117,7 @@ print(xtable::xtable(x = data.frame(descrItems), label = "modelDescription",
       latex.environments = "flushleft", hline.after = NULL,
       include.rownames = TRUE, include.colnames = FALSE)
 @
-
+\newpage
 %-------------------------------------------------------------------------------
 \section{Summary of the results}
 %-------------------------------------------------------------------------------
@@ -248,10 +247,12 @@ if (engine == "SpATS") {
 %-------------------------------------------------------------------------------
 \section{Diagnostic plots}
 %-------------------------------------------------------------------------------
-<<label=spatialPlots, echo=FALSE>>=
-plot(x, what = modelType, plotType = "spatial")
+<<label=spatialPlots, echo=FALSE, results="asis">>=
+if (all(c("colId", "rowId") %in% colnames(x$data))) {
+  plot(x, what = modelType, plotType = "spatial")
+  cat("\\newpage")
+}
 @
-\newpage
 <<label=basePlots, echo=FALSE>>=
 ## Base diagnostic plots, identical for all models
 plot(x, what = modelType, plotType = "base")

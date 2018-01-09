@@ -274,7 +274,7 @@ gxeVarComp <- function(TD,
                      engine = engine, predicted = "env")
   res <- createVarComp(model = model, choice = rownames(bestTab)[1],
                        summary = bestTab, vcov = vcovBest,
-                       criterion = criterion)
+                       criterion = criterion, engine = engine)
   return(res)
 }
 

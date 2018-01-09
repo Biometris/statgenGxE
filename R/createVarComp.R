@@ -10,6 +10,8 @@
 #' @param vcov The covariance matrix of the best fitted model.
 #' @param criterion A character string indicating the criterion used for
 #' determinening the best model, either "AIC" or "BIC".
+#' @param engine A character string containing the engine used for
+#' the analysis.
 #' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
@@ -25,12 +27,14 @@ createVarComp <- function(model,
                           choice,
                           summary,
                           vcov,
-                          criterion) {
+                          criterion,
+                          engine) {
   varComp <- structure(list(model = model,
                             choice = choice,
                             summary = summary,
                             vcov = vcov,
-                            criterion = criterion),
+                            criterion = criterion,
+                            engine = engine),
                        class = "varComp")
   attr(varComp, which = "timestamp") <- Sys.time()
   return(varComp)

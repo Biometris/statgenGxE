@@ -98,7 +98,7 @@ print(xtable::xtable(x = anovaTab, label = "anova",
                                          ncol(anovaTab), "}{c}{",
                                          legendText)))
 @
-
+\clearpage
 %-------------------------------------------------------------------------------
 \section{Diagnostic plots}
 %-------------------------------------------------------------------------------
@@ -109,7 +109,6 @@ plot(x, plotType = "line")
 <<label=scatterPlot, echo=FALSE>>=
 plot(x, plotType = "scatter")
 @
-
 \clearpage
 
 %-------------------------------------------------------------------------------

@@ -89,7 +89,6 @@ STExtract <- function(SSA,
   return(result)
 }
 
-
 #' Extract statistics from model fitted using SpATS
 #'
 #' @keywords internal
