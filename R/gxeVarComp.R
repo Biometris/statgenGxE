@@ -126,16 +126,16 @@ gxeVarComp <- function(TD,
                                      random = as.formula("~ genotype:corh(env)"),
                                      start.values = TRUE, data = TD, ...)
           sink()
-          unlink(tmp)
           tmpValues <- qvInitial(TD = TD, trait = trait, unitError = NA,
                                  vcmodel = "outside",
                                  fixed = as.formula(paste(trait, "~ env")),
                                  unitFactor = NA, ...)
           tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(tmpValues$vg, tmpValues$diag, 1)
-          tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"] )
-          tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
-          tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
+          tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
+          ## Fix residual variance at almost zero.
+          tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), c(2,3)] <-
+            c(1e-5, "F")
           sink(file = tmp)
           mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                    random = as.formula("~ genotype:corh(env)"),
