@@ -222,9 +222,14 @@ gxeVarComp <- function(TD,
           tmpValues <- tmpValues$evCov[upper.tri(tmpValues$evCov, diag = TRUE)]
           tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(tmpValues, 1)
-          tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"] )
-          tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
-          tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
+          tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
+          ## All off diagonal elements are unconstrained, diagonal elements
+          ## should be positive
+          tmpTable[-c((1:nlevels(TD$env)) * ((1:nlevels(TD$env)) + 1) / 2),
+                   "Constraint"] <- "U"
+          ## Fix residual variance at almost zero.
+          tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), c(2,3)] <-
+            c(1e-5, "F")
           sink(file = tmp)
           mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                    random = as.formula("~ genotype:us(env)"),
@@ -251,7 +256,7 @@ gxeVarComp <- function(TD,
         if (!(nlevels(TD$env) <= 4 && choice %in% c("fa", "fa2"))) {
           bestTab[choice, "AIC"] <- -2 * mr$loglik + 2 * nPar
           bestTab[choice, "BIC"] <- -2 * mr$loglik +
-            log(length(mr$fitted.values)) * nPar
+            (log(length(mr$fitted.values)) * nPar)
           bestTab[choice, "Deviance"] <- -2 * mr$loglik
           bestTab[choice, "NParameters"] <- nPar
         }
