@@ -203,11 +203,13 @@ gxeVarComp <- function(TD,
             tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma[1, ],
                                      tmpValues$gamma[2, ], 1)
             sink(file = tmp)
-            mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
-                                     random = as.formula("~ genotype:fa(env, 2)"),
-                                     R.param = tmpTable, G.param = tmpTable,
-                                     data = TD, maxiter = maxIter, ...),
-                      silent = TRUE)
+            ## Sometimes gives warnings about change in LL of more than 1%
+            ## These are suppressed.
+            mr <- suppressWarnings(try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
+                                                      random = as.formula("~ genotype:fa(env, 2)"),
+                                                      R.param = tmpTable, G.param = tmpTable,
+                                                      data = TD, maxiter = maxIter, ...),
+                                       silent = TRUE))
             sink()
           }
           nPar <- nlevels(TD$env) * 3 - 1
