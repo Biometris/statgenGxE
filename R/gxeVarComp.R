@@ -97,7 +97,7 @@ gxeVarComp <- function(TD,
           sink(file = tmp)
           mr <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                rcov = ~ genotype:env,
-                               data = TD, ...)
+                               data = TD, maxiter = maxIter, ...)
           sink()
           nPar <- 1
         } else if (choice == "cs") {
@@ -105,14 +105,15 @@ gxeVarComp <- function(TD,
           mr <- asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                random = ~ genotype,
                                rcov = ~ genotype:env,
-                               data = TD, ...)
+                               data = TD, maxiter = maxIter, ...)
           sink()
           nPar <- 2
         } else if (choice == "diagonal") {
           sink(file = tmp)
           mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                    rcov = as.formula("~ genotype:diag(env)"),
-                                   data = TD, ...), silent = TRUE)
+                                   data = TD, maxiter = maxIter, ...),
+                    silent = TRUE)
           sink()
           nPar <- nlevels(TD$env)
         } else if (choice == "hcs") {
@@ -120,7 +121,8 @@ gxeVarComp <- function(TD,
           mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                    random = as.formula("~ genotype"),
                                    rcov = as.formula("~ genotype:diag(env)"),
-                                   data = TD, ...), silent = TRUE)
+                                   data = TD, maxiter = maxIter, ...),
+                    silent = TRUE)
           sink()
           nPar <- nlevels(TD$env) + 1
         } else if (choice == "outside") {
@@ -142,7 +144,8 @@ gxeVarComp <- function(TD,
           sink(file = tmp)
           mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                    random = as.formula("~ genotype:corh(env)"),
-                                   G.param = tmpTable, R.param = tmpTable, data = TD, ...),
+                                   G.param = tmpTable, R.param = tmpTable,
+                                   data = TD, maxiter = maxIter, ...),
                     silent = TRUE)
           sink()
           nPar <- nlevels(TD$env) + 1
@@ -160,7 +163,8 @@ gxeVarComp <- function(TD,
             sink(file = tmp)
             mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                      random = as.formula("~ genotype:fa(env, 1)"),
-                                     data = TD, ...), silent = TRUE)
+                                     data = TD, maxiter = maxIter, ...),
+                      silent = TRUE)
             sink()
           } else {
             tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma, 1)
@@ -168,7 +172,7 @@ gxeVarComp <- function(TD,
             mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                      random = as.formula("~ genotype:fa(env, 1)"),
                                      R.param = tmpTable, G.param = tmpTable,
-                                     data = TD, ...),
+                                     data = TD, maxiter = maxIter, ...),
                       silent = TRUE)
             sink()
           }
@@ -188,7 +192,8 @@ gxeVarComp <- function(TD,
             sink(file = tmp)
             mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                      random = as.formula("~ genotype:fa(env, 2)"),
-                                     data = TD, ...), silent = TRUE)
+                                     data = TD, maxiter = maxIter, ...),
+                      silent = TRUE)
             sink()
           } else {
             ## Keep loadings of factor 2 away from 0.
@@ -201,7 +206,7 @@ gxeVarComp <- function(TD,
             mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                      random = as.formula("~ genotype:fa(env, 2)"),
                                      R.param = tmpTable, G.param = tmpTable,
-                                     data = TD, ...),
+                                     data = TD, maxiter = maxIter, ...),
                       silent = TRUE)
             sink()
           }
@@ -231,7 +236,7 @@ gxeVarComp <- function(TD,
           mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                    random = as.formula("~ genotype:us(env)"),
                                    G.param = tmpTable, R.param = tmpTable,
-                                   data = TD, ...),
+                                   data = TD, maxiter = maxIter, ...),
                     silent = TRUE)
           sink()
           nPar <- nlevels(TD$env) * (nlevels(TD$env) - 1) / 2 +
@@ -260,9 +265,8 @@ gxeVarComp <- function(TD,
       }
       bestTab <- bestTab[order(bestTab[, criterion]), ]
       bestModel <- models[[rownames(bestTab)[1]]]
-      bestModel <- predictAsreml(model = bestModel,
-                                 classify = "env",
-                                 TD = TD)
+      bestModel <- predictAsreml(model = bestModel, classify = "env",
+                                 TD = TD, maxiter = maxIter, ...)
       vcovBest <- bestModel$predictions$vcov
       colnames(vcovBest) <- rownames(vcovBest) <- levels(TD$env)
       unlink(tmp)

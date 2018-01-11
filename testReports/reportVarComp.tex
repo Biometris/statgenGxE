@@ -77,31 +77,15 @@
 % For multiple columns.
 \usepackage{multicol}
 
-
-% Graphics Path definition
-%-------------------------------------------------------------------------------
-\graphicspath{{figures/}}
-
-%-------------------------------------------------------------------------------
-%	Article Information
-%-------------------------------------------------------------------------------
-% Setting PDF properties in the final PDF
-% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
-\hypersetup
-{
-pdfsubject={Variance component analysis report},
-pdftitle={Variance component analysis report}
-}
-
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Variance component analysis report}%
+\title{Variance covariance modeling report}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{2018-01-03 09:29:19}
+\date{2018-01-11 12:26:15}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -113,7 +97,7 @@ pdftitle={Variance component analysis report}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
-% Set knitr options
+% Load required packages
 
 
 % Article title and date.
@@ -122,38 +106,59 @@ pdftitle={Variance component analysis report}
 \singlespacing
 
 %-------------------------------------------------------------------------------
-\section{Summary}
+\section{Background information}
 %-------------------------------------------------------------------------------
-
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Wed Jan 03 09:38:08 2018
+% Thu Jan 11 12:30:37 2018
 \begin{table}[ht]
 \begin{flushleft}
-\caption{Models tried ordered by BIC} 
-\label{summary}
-\begin{tabular}{lrrrr}
-  & AIC & BIC & Deviance & NParameters \\ 
- fa & 17471 & 17558 & 17439 & 16 \\ 
-  outside & 17523 & 17572 & 17505 & 9 \\ 
-  unstructured & 17456 & 17652 & 17384 & 36 \\ 
-  hcs & 17692 & 17741 & 17674 & 9 \\ 
-  cs & 17918 & 17929 & 17914 & 2 \\ 
-  diagonal & 17906 & 17950 & 17890 & 8 \\ 
-  identity & 18287 & 18292 & 18285 & 1 \\ 
-  fa2 & Inf & Inf & Inf & 23 \\ 
+\begin{tabular}{ll}
+  Modeling date & 18-01-11 \\ 
+  Modeling time & 12:26:15 \\ 
+  Modeling engine & asreml \\ 
+  Pipeline version & 0.0.0.9000 \\ 
   \end{tabular}
+\label{background}
 \end{flushleft}
 \end{table}
 
 
 %-------------------------------------------------------------------------------
+\section{Summary}
+%-------------------------------------------------------------------------------
+
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Thu Jan 11 12:30:37 2018
+\begin{table}[ht]
+\begin{flushleft}
+\caption{Fitted models ordered by BIC} 
+\label{summary}
+\begin{tabular}{lrrrr}
+  \hline
+ & AIC & BIC & Deviance & NParameters \\ 
+  \hline
+fa & 17471 & 17558 & 17439 & 16 \\ 
+  outside & 17523 & 17572 & 17505 & 9 \\ 
+  fa2 & 17455 & 17580 & 17409 & 23 \\ 
+  unstructured & 17456 & 17652 & 17384 & 36 \\ 
+  hcs & 17692 & 17741 & 17674 & 9 \\ 
+  cs & 17918 & 17929 & 17914 & 2 \\ 
+  diagonal & 17906 & 17950 & 17890 & 8 \\ 
+  identity & 18287 & 18292 & 18285 & 1 \\ 
+   \hline
+\end{tabular}
+\end{flushleft}
+\end{table}
+
+\clearpage
+%-------------------------------------------------------------------------------
 \section{Heatmap}
 %-------------------------------------------------------------------------------
-Heatmap for the correlation between environments for the best model
+Heatmap for the fitted correlation between environments from the best model
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
 
-\includegraphics[width=10cm,height=10cm]{figures/fig-heatmap-1} \hfill{}
+\includegraphics[width=10cm,height=10cm]{./figures/011118123036-heatmap-1} \hfill{}
 
 
 
