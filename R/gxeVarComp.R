@@ -53,6 +53,9 @@ gxeVarComp <- function(TD,
                               !criterion %in% c("AIC", "BIC"))) {
     stop("criterion should be AIC or BIC.\n")
   }
+  ## Increase maximum number of iterations for asreml. Needed for more complex
+  ## designs to converge.
+  maxIter <- 100
   ## Add combinations of env and genotype currently not in TD to TD.
   TD <- reshape2::melt(data = reshape2::dcast(data = TD,
                                               formula = env ~ genotype,
@@ -134,8 +137,8 @@ gxeVarComp <- function(TD,
           tmpTable[, "Value"] <- c(tmpValues$vg, tmpValues$diag, 1)
           tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
           ## Fix residual variance at almost zero.
-          tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), c(2,3)] <-
-            c(1e-5, "F")
+          tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), c(2, 3)] <-
+            c(1e-4, "F")
           sink(file = tmp)
           mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                    random = as.formula("~ genotype:corh(env)"),
@@ -161,9 +164,6 @@ gxeVarComp <- function(TD,
             sink()
           } else {
             tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma, 1)
-            tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"] )
-            tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
-            tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
             sink(file = tmp)
             mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                      random = as.formula("~ genotype:fa(env, 1)"),
@@ -197,9 +197,6 @@ gxeVarComp <- function(TD,
             tmpValues$gamma[2, 1] <- 0
             tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma[1, ],
                                      tmpValues$gamma[2, ], 1)
-            tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
-            tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
-            tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
             sink(file = tmp)
             mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                      random = as.formula("~ genotype:fa(env, 2)"),
@@ -228,8 +225,8 @@ gxeVarComp <- function(TD,
           tmpTable[-c((1:nlevels(TD$env)) * ((1:nlevels(TD$env)) + 1) / 2),
                    "Constraint"] <- "U"
           ## Fix residual variance at almost zero.
-          tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), c(2,3)] <-
-            c(1e-5, "F")
+          tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), c(2, 3)] <-
+            c(1e-4, "F")
           sink(file = tmp)
           mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                    random = as.formula("~ genotype:us(env)"),
