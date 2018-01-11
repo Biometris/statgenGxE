@@ -260,7 +260,8 @@ gxeVarComp <- function(TD,
         if (!(nlevels(TD$env) <= 4 && choice %in% c("fa", "fa2"))) {
           bestTab[choice, "AIC"] <- -2 * mr$loglik + 2 * nPar
           bestTab[choice, "BIC"] <- -2 * mr$loglik +
-            (log(length(mr$fitted.values)) * nPar)
+            (log(nlevels(TD$genotype)) * nPar)
+            #(log(length(mr$fitted.values)) * nPar)
           bestTab[choice, "Deviance"] <- -2 * mr$loglik
           bestTab[choice, "NParameters"] <- nPar
         }
