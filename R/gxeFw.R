@@ -8,9 +8,7 @@
 #' By default, \code{maxCycle = 15}.
 #' @param tol A small positive numerical value specifying convergence tolerance.
 #' By default, \code{tol = 0.001}.
-#' @param sortBySens A character string specifying whether the results are to be sorted
-#' in an increasing (or decreasing) order of sensitivities.
-#' By default, \code{sortBySens = "ascending"}. Other options are "descending" and NA.
+#' @param sorted A character string specifying the sorting order of the results.
 #'
 #' @return An object of class \code{\link{FW}}, a list containing
 #' \item{estimates}{a data.frame containing the estimated values.}
@@ -31,16 +29,16 @@
 #'
 #' @examples
 #' ## Run joint regression analysis
-#' geFW <- gxeFw(TDMaize, trait = "yld", sortBySens = "ascending")
+#' geFW <- gxeFw(TDMaize, trait = "yld")
 #' report(geFW, outfile = "./testReports/reportFW.pdf")
 #'
 #' @export
 
 gxeFw <- function(TD,
-                 trait,
-                 maxCycle = 15,
-                 tol = 0.001,
-                 sortBySens = c("ascending", "descending", NA)) {
+                  trait,
+                  maxCycle = 15,
+                  tol = 0.001,
+                  sorted = c("ascending", "descending", "none")) {
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
@@ -59,15 +57,7 @@ gxeFw <- function(TD,
   if (is.null(tol) || !is.numeric(tol) || length(tol) > 1 || tol < 0) {
     stop("tol should be a numerical value > 10^-6.\n")
   }
-  if (is.null(sortBySens) || !is.character(sortBySens) || length(sortBySens) > 1 ||
-      !sortBySens %in% c("ascending", "descending", NA)) {
-    stop("sortBySens should be one of ascending, descending or NA")
-  }
-  ## ZZ replicates RJOINT procedure in GenStat
-  ## Handling missing values ?na.action = na.exclude?
-  if (missing(sortBySens)) {
-    sortBySens <- "ascending"
-  }
+  sorted <- match.arg(sorted)
   nGeno <- nlevels(TD$genotype)
   nEnv <- nlevels(TD$env)
   ## Save Sum Sq & Df.
@@ -198,18 +188,13 @@ gxeFw <- function(TD,
   sigma <- tapply(X = sigma, INDEX = TD$genotype, FUN = function(x) {
     mean(x, na.rm = TRUE)
   })
-  if (sortBySens == "ascending") {
-    orderSens <- order(sens)
-    res <- data.frame(genotype = G, sens, sigmaE, genMean, sigma, mse,
-                      row.names = 1:length(sens))[orderSens, ]
-  } else if (sortBySens == "descending") {
-    orderSens <- order(sens, decreasing = TRUE)
-    res <- data.frame(genotype = G, sens, sigmaE, genMean, sigma, mse,
-                      row.names = 1:length(sens))[orderSens, ]
+  if (sorted == "none") {
+    orderSens <- 1:nGeno
   } else {
-    res <- data.frame(genotype = G, sens, sigmaE, genMean, sigma, mse,
-                      row.names = 1:length(sens))
+    orderSens <- order(sens, decreasing = (sorted == "descending"))
   }
+  res <- data.frame(genotype = G, sens, sigmaE, genMean, sigma, mse,
+                    row.names = 1:length(sens))[orderSens, ]
   ## ANOVA table.
   ## Environment effects.
   matchPos <- match(paste0("env", levels(TD$env), ":beta"), names(coeffsModel2))
