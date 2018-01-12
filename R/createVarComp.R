@@ -68,7 +68,7 @@ summary.varComp <- function(object, ...) {
 #' @export
 plot.varComp <- function(x, ...) {
   corMat <- cov2cor(x$vcov)
-  meltedCorMat <- reshape::melt(corMat)
+  meltedCorMat <- reshape2::melt(corMat)
   ggplot2::ggplot(data = meltedCorMat, ggplot2::aes_string("X1", "X2", fill = "value")) +
     ggplot2::geom_tile(color = "white") +
     ggplot2::scale_fill_gradient2(low = "blue", high = "red", mid = "white",

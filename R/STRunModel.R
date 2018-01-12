@@ -59,6 +59,8 @@
 #' Maria Xose Rodriguez-Alvarez, Martin P. Boer, Fred A. van Eeuwijk, Paul H.C. Eilers (2017).
 #' Correcting for spatial heterogeneity in plant breeding experiments with P-splines. Spatial
 #' Statistics \url{https://doi.org/10.1016/j.spasta.2017.10.003}\cr
+#' Butler, D. G., et al. (2010). Analysis of Mixed Models for S language environments:
+#' ASReml-R reference manual. Brisbane, DPI Publications\cr
 #' Douglas Bates, Martin Maechler, Ben Bolker, Steve Walker (2015). Fitting Linear
 #' Mixed-Effects Models Using lme4. Journal of Statistical Software, 67(1), 1-48.
 #' \url{https::/doi:10.18637/jss.v067.i01}.

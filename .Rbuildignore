@@ -2,7 +2,7 @@
 ^\.Rproj\.user$
 R/redundant
 exampleSes.R
+exampleBrapi.R
 testReports
-figures
 ^data-raw$
 testing_brapi_implementation_BMS.R
