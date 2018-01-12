@@ -20,10 +20,23 @@
 #' allowed fraction of crossovers per individual. Individuals with a fraction of
 #' crossovers above \code{crossover} will be removed.
 #'
+#' @return A cleaned version of the input cross object after markers and
+#' individuals have been removed that are outside the respective thresholds.
+#'
 #' @seealso \code{\link[qtl]{nmissing}}, \code{\link[qtl]{drop.markers}},
 #' \code{\link[qtl]{drop.dupmarkers}}, \code{\link[qtl]{geno.table}},
 #' \code{\link[qtl]{nmissing}}, \code{\link[qtl]{checkAlleles}},
-#' \code{\link[qtl]{replace.map}}, \code{\link[qtl]{countXO}},
+#' \code{\link[qtl]{replace.map}}, \code{\link[qtl]{countXO}}
+#'
+#' @examples
+#' # Read the data
+#' F2 <- qtl::read.cross(format="csv",
+#'                       file = system.file("extdata", "F2_maize_practical3_ex2.csv",
+#'                                          package = "RAP"),
+#'                       genotypes = c("AA", "AB", "BB"),
+#'                       alleles = c("A", "B"), estimate.map = FALSE)
+#' # Run quality control
+#' F2QC <- QTLMapQC(F2)
 #'
 #' @export
 QTLMapQC <- function(cross,
