@@ -71,7 +71,22 @@ print(xtable::xtable(x = data.frame(bgItems), label = "background",
       latex.environments = "flushleft", hline.after = NULL,
       include.rownames = TRUE, include.colnames = FALSE)
 @
-
+%-------------------------------------------------------------------------------
+\section{Model}
+%-------------------------------------------------------------------------------
+<<label=model, echo=FALSE, results="asis">>=
+modSum <- data.frame(c("Model type", "Method"),
+                     c(switch(x$type, "MR" = "Marker response",
+                               "SIM" = "Simple interval mapping",
+                               "CIM" = "Composite interval mapping"),
+                       "Hayley Knot"))
+print(xtable::xtable(x = modSum, caption = "Model",
+                     label = "model",
+                     align = c("l", "l", "l")),
+      latex.environments = "flushleft", hline.after = NULL,
+      include.rownames = FALSE, include.colnames = FALSE,
+      caption.placement = "top")
+@
 %-------------------------------------------------------------------------------
 \section{Summary}
 %-------------------------------------------------------------------------------
