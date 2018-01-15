@@ -136,7 +136,8 @@ QTLMapQC <- function(cross,
 #' @examples
 #' ## Read the data
 #' F2 <- qtl::read.cross(format="csv",
-#'                       file = system.file("extdata", "F2_maize_practical3_ex2.csv", package = "RAP"),
+#'                       file = system.file("extdata", "F2_maize_practical3_ex2.csv",
+#'                       package = "RAP"),
 #'                       genotypes = c("AA", "AB", "BB"),
 #'                       alleles = c("A", "B"), estimate.map = FALSE)
 #' report(F2, outfile = "./testReports/reportCross.pdf")

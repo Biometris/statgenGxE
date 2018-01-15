@@ -51,9 +51,6 @@
 #' \code{\link{STModAsreml}}
 #'
 #' @examples
-#' ## Load data.
-#' data(TDHeat05)
-#'
 #' ## Fit model using lme4.
 #' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 #'
@@ -61,7 +58,6 @@
 #' extr <- STExtract(myModel)
 #'
 #' @export
-
 STExtract <- function(SSA,
                       traits = SSA$traits,
                       what = "all",

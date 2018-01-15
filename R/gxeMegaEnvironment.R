@@ -7,11 +7,12 @@
 #'
 #' @inheritParams gxeAmmi
 #'
-#' @param method A character sting indicating the criterion to determine
+#' @param method A character string indicating the criterion to determine
 #' the best trait, either \code{"max"} or \code{"min"}.
 #' @param summaryTable Should a summary table will be printed?
 #'
-#' @return The input object of class \code{\link{TD}} with an added extra column megaEnv.
+#' @return The input object of class \code{\link{TD}} with an added extra
+#' column megaEnv.
 #'
 #' @examples
 #' TDmegaEnv <- gxeMegaEnvironment(TD = TDMaize, trait = "yld")

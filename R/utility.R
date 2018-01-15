@@ -93,14 +93,6 @@ char2numeric <- function(x,
 }
 
 #' @keywords internal
-file_ext <- function(x)
-{
-  # From tools package
-  pos <- regexpr(pattern = "\\.([[:alnum:]]+)$", text = x)
-  ifelse(pos > -1L, substring(x, pos + 1L), "")
-}
-
-#' @keywords internal
 seVar <- function(x, na.rm = FALSE)
 {
   if (is.matrix(x)) {
@@ -115,7 +107,8 @@ seVar <- function(x, na.rm = FALSE)
     m3 <- sum(x ^ 3) / n
     m4 <- sum(x ^ 4) / n
     se <- sqrt((n * (m4 - 4 * m1 * m3 + 6 * m1 * m1 * m2 -
-                       3 * m1 ^ 4) / (n - 1) - (n * (m2 - m1 * m1) / (n - 1)) ^ 2) / n)
+                       3 * m1 ^ 4) / (n - 1) - (n * (m2 - m1 * m1) /
+                                                  (n - 1)) ^ 2) / n)
   } else if (is.data.frame(x)) {
     se <- sapply(X = x, FUN = seVar, na.rm = na.rm)
   } else {
@@ -232,7 +225,7 @@ createReport <- function(x,
   ## Check provided outfile
   if (!is.null(outfile)) {
     if (!is.character(outfile) || length(outfile) > 1 ||
-        file_ext(outfile) != "pdf") {
+        tools::file_ext(outfile) != "pdf") {
       stop("invalid output filename provided.\n")
     }
     ## Since latex cannot handle spaces in figure paths knitr converts those
