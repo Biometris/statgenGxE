@@ -8,6 +8,8 @@
 #' @param peaks A data.frame containing the peaks found.
 #' @param type A character string indicating the type of QTLDetection performed.
 #' @param cross An object of class cross in the \code{qtl} package.
+#' @param trait A character string indicating the trait for which the analysis
+#' is done.
 #' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
@@ -22,11 +24,13 @@ NULL
 createQTLDet <- function(scores,
                          peaks,
                          type,
-                         cross) {
+                         cross,
+                         trait) {
   QTLDet <- structure(list(scores = scores,
                            peaks = peaks,
                            type = type,
-                           cross = cross),
+                           cross = cross,
+                           trait = trait),
                       class = "QTLDet")
   attr(QTLDet, which = "timestamp") <- Sys.time()
   return(QTLDet)

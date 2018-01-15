@@ -1,13 +1,14 @@
 #' Function for QTL detection
 #'
 #' @param cross An object of class cross created by the qtl package
-#' @param type A sting indicating the type of QTL detection to be performed.
+#' @param trait A character string indicating the trait to be analysed.
+#' @param type A character sting indicating the type of QTL detection to be performed.
 #' Either "MR" (Marker Response), "SIM" (Simple Interval Mapping) or "CIM"
 #' (Composite Interval Mapping)
 #' @param thr A numerical value indicating a lower threshold for the lodscore
 #' of the peaks.
 #' @param window A numerical value indicating the window (in cM) used when
-#' selecting peaks
+#' selecting peaks.
 #' @param ... Other parameters to be passed on to underlying functions.
 #'
 #' @examples
@@ -17,29 +18,31 @@
 #'                       package = "RAP"),
 #'                       genotypes = c("AA", "AB", "BB"),
 #'                       alleles = c("A", "B"), estimate.map = FALSE)
-#' QTLDet <- QTLDetect(F2, "SIM")
+#' QTLDet <- QTLDetect(cross = F2, trait = "trait", type = "SIM")
 #' report(QTLDet, outfile = "./testReports/reportQTLDectection.pdf")
 #'
 #' @export
 QTLDetect <- function(cross,
-                      type = "MR",
+                      trait,
+                      type = c("MR", "SIM", "CIM"),
                       thr = 3,
                       window = 15,
                       ...) {
+  type <- match.arg(type)
   if (type == "MR") {
     ## Perform a marker-based QTL detection.
-    scores <- qtl::scanone(cross, method = "mr", ...)
+    scores <- qtl::scanone(cross, pheno.col = trait, method = "mr", ...)
   } else if (type == "SIM") {
     ## Calculate genotype probabilities.
     cross <- qtl::calc.genoprob(cross, step = 5, error.prob = 0)
     ## Perform a QTL search by Simple Interval Mapping (SIM)
     ## (Haley-Knott regression)
-    scores <- qtl::scanone(cross, method = "hk", ...)
+    scores <- qtl::scanone(cross, pheno.col = trait, method = "hk", ...)
   } else if (type == "CIM") {
     ## Calculate genotype probabilities.
     cross <- qtl::calc.genoprob(cross, step = 5, error.prob = 0)
     ## Perform a QTL search by Simple Interval Mapping (CIM)
-    scores <- qtl::cim(cross, n.marcovar = 5, window = 50,
+    scores <- qtl::cim(cross, pheno.col = trait, n.marcovar = 5, window = 50,
                        method = "hk", map.function = "haldane",
                        ...)
   }
@@ -62,7 +65,8 @@ QTLDetect <- function(cross,
   QTLDet <- createQTLDet(scores = scores,
                          peaks = peaksTot,
                          type = type,
-                         cross = cross)
+                         cross = cross,
+                         trait = trait)
   return(QTLDet)
 }
 
