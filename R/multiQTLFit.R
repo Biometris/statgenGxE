@@ -1,5 +1,10 @@
 #' Fit an additive multi QTL model
 #'
+#' An additive multi QTL model is fitted based on the peaks in the QTLDet object.
+#' Fitting is done using the \code{\link[qtl]{fitqtl}} function in the qtl package.
+#' After fitting the model backward elemination is done until all markers in
+#' the model have a significant P-value.
+#'
 #' @inheritParams QTLDetect
 #'
 #' @param QTLDet An object of class \code{\link{QTLDet}}
@@ -8,6 +13,11 @@
 #'
 #' @return An object of class \code{\link{multiQTL}}
 #'
+#' @seealso \code{\link[qtl]{fitqtl}}
+#'
+#' @references Broman et al. (2003) R/qtl: QTL mapping in experimental crosses.
+#' Bioinformatics 19:889-890
+#'
 #' @examples
 #' ## Read the data
 #' F2 <- qtl::read.cross(format="csv",
@@ -15,8 +25,11 @@
 #'                       package = "RAP"),
 #'                       genotypes = c("AA", "AB", "BB"),
 #'                       alleles = c("A", "B"), estimate.map = FALSE)
+#' ## Perform QTL detection using simple interval mapping.
 #' QTLDet <- QTLDetect(cross = F2, trait = "trait", type = "SIM")
+#' ## Fit the multi QTL model.
 #' multiFit <- multiQTLFit(QTLDet)
+#' ## Create a report.
 #' report(multiFit, outfile = "./testReports/reportMultiQTLFit.pdf")
 #'
 #' @export
