@@ -2,7 +2,7 @@
 #'
 #' @inheritParams QTLDetect
 #'
-#' @param qtlDet An object of class \code{\link{QTLDet}}
+#' @param QTLDet An object of class \code{\link{QTLDet}}
 #' @param selection An integer string indicating whether backward selection should
 #' be applied or no selection at all.
 #'
@@ -15,26 +15,26 @@
 #'                       package = "RAP"),
 #'                       genotypes = c("AA", "AB", "BB"),
 #'                       alleles = c("A", "B"), estimate.map = FALSE)
-#' QTLDet <- QTLDetect(F2, "SIM")
+#' QTLDet <- QTLDetect(cross = F2, trait = "trait", type = "SIM")
 #' multiFit <- multiQTLFit(QTLDet)
 #' report(multiFit, outfile = "./testReports/reportMultiQTLFit.pdf")
 #'
 #' @export
-multiQTLFit <- function(qtlDet,
+multiQTLFit <- function(QTLDet,
                         selection = c("backward", "none"),
                         ...) {
   ## Checks
-  if (!is.QTLDet(qtlDet)) {
-    stop("qtlDet should be an object of class qtlDET.\n")
+  if (!is.QTLDet(QTLDet)) {
+    stop("QTLDet should be an object of class QTLDet.\n")
   }
   selection <- match.arg(selection)
   ## Create an object of class qtl for modelling.
-  qtl <- qtl::makeqtl(qtlDet$cross, chr = qtlDet$peaks$chr,
-                      pos = qtlDet$peaks$pos, what = "prob")
+  qtl <- qtl::makeqtl(QTLDet$cross, chr = QTLDet$peaks$chr,
+                      pos = QTLDet$peaks$pos, what = "prob")
   ## Construct model formula.
   qtlForm <- paste("y ~ ", paste(qtl$altname, collapse = "+"))
   ## Fit full model with all markers.
-  qtlFit <- qtl::fitqtl(qtlDet$cross, qtl = qtl, formula = qtlForm,
+  qtlFit <- qtl::fitqtl(QTLDet$cross, qtl = qtl, formula = qtlForm,
                         method = "hk", get.ests = TRUE, dropone = TRUE,
                         ...)
   if (selection == "backward") {
@@ -47,12 +47,18 @@ multiQTLFit <- function(qtlDet,
       ## Rebuild the fitting formula for the remaining markers.
       qtlForm <- paste("y ~ ", paste(qtl$altname, collapse = "+"))
       ## Refit the model.
-      qtlFit <- qtl::fitqtl(qtlDet$cross, qtl = qtl, formula = qtlForm,
+      qtlFit <- qtl::fitqtl(QTLDet$cross, qtl = qtl, formula = qtlForm,
                             method = "hk", get.ests = TRUE,
                             dropone = TRUE, ...)
     }
   }
-  multiQtl <- createMultiQTL(qtl = qtlFit)
+  ## Rename rows to contain markerNames instead of chr@pos.
+  rownames(qtlFit$result.drop) <- qtlPosToName(rownames(qtlFit$result.drop),
+                                               cross = QTLDet$cross)$chrNames
+  estNames <- qtlPosToName(names(qtlFit$ests$ests)[-1], cross = QTLDet$cross)
+  names(qtlFit$ests$ests)[-1] <- paste0(estNames$chrNames, estNames$ext)
+  ## Create multiQTL object.
+  multiQtl <- createMultiQTL(qtl = qtlFit, QTLDet = QTLDet, selection = selection)
   return(multiQtl)
 }
 

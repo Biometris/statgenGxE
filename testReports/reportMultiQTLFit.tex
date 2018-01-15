@@ -79,21 +79,6 @@
 % For properly printing a ~
 \usepackage{textcomp}
 
-% Graphics Path definition
-%-------------------------------------------------------------------------------
-\graphicspath{{figures/}}
-
-%-------------------------------------------------------------------------------
-%	Article Information
-%-------------------------------------------------------------------------------
-% Setting PDF properties in the final PDF
-% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
-\hypersetup
-{
-pdfsubject={Model report},
-pdftitle={Model report}
-}
-
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
@@ -102,7 +87,7 @@ pdftitle={Model report}
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{2018-01-02 15:00:05}
+\date{2018-01-15 11:49:15}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -114,7 +99,7 @@ pdftitle={Model report}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
-% Set knitr options
+% Load required packages
 
 
 % Article title and date.
@@ -123,62 +108,133 @@ pdftitle={Model report}
 \singlespacing
 
 %-------------------------------------------------------------------------------
-\section{Summary}
+\section{Background information}
 %-------------------------------------------------------------------------------
-
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 15:35:01 2018
+% Mon Jan 15 11:49:15 2018
 \begin{table}[ht]
 \begin{flushleft}
-\caption{Model summary} 
-\label{modSum}
 \begin{tabular}{ll}
-  Method & Hayley-Knott \\ 
-  Model & normal \\ 
-  Number of observations & 150 \\ 
-   &  \\ 
-  Model formula & y \texttildelow\ Q1 + Q2 + Q3 + Q4 + Q5 + Q6 + Q7 + Q8 \\ 
+  Modeling date & 18-01-15 \\ 
+  Modeling time & 11:49:15 \\ 
+  Pipeline version & 0.0.0.9000 \\ 
+  \end{tabular}
+\label{background}
+\end{flushleft}
+\end{table}
+
+
+%-------------------------------------------------------------------------------
+\section{Model}
+%-------------------------------------------------------------------------------
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Mon Jan 15 11:49:15 2018
+\begin{table}[ht]
+\begin{flushleft}
+\caption{Model} 
+\label{model}
+\begin{tabular}{ll}
+  Full model & trait \texttildelow\ M\_0099 + M\_0121 + c2.loc65 + c2.loc80 + M\_0239 + c2.loc115 + M\_0569 + c5.loc20 \\ 
+  Selection & backward \\ 
+  Final model & trait \texttildelow\ M\_0099 + M\_0121 + c2.loc65 + M\_0569 + c5.loc20 \\ 
   \end{tabular}
 \end{flushleft}
 \end{table}
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 15:35:01 2018
+% Mon Jan 15 11:49:15 2018
+\begin{table}[ht]
+\begin{flushleft}
+\caption{List of fitted markers} 
+\label{fitted}
+\begin{tabular}{lrr}
+  \hline
+ & chr & pos \\ 
+  \hline
+M\_0099 & 1 & 98.00 \\ 
+  M\_0121 & 1 & 120.00 \\ 
+  c2.loc65 & 2 & 65.00 \\ 
+  c2.loc80 & 2 & 80.00 \\ 
+  M\_0239 & 2 & 97.00 \\ 
+  c2.loc115 & 2 & 115.00 \\ 
+  M\_0569 & 4 & 100.00 \\ 
+  c5.loc20 & 5 & 20.00 \\ 
+   \hline
+\end{tabular}
+\end{flushleft}
+\end{table}
+
+\clearpage
+%-------------------------------------------------------------------------------
+\section{Summary}
+%-------------------------------------------------------------------------------
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Mon Jan 15 11:49:15 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Full model result} 
 \label{modRes}
 \begin{tabular}{lrrrrrrr}
-  & df & SS & MS & LOD & \%var & Pvalue(Chi2) & Pvalue(F) \\ 
- Model & 16 & 17190 & 1074 & 19.99 & 45.86 & 1.05e-12 & 1.58e-11 \\ 
-  Error & 133 & 20294 & 153 &  &  &  &  \\ 
+  \hline
+ & df & SS & MS & LOD & \%var & Pvalue(Chi2) & Pvalue(F) \\ 
+  \hline
+Model & 10 & 16210 & 1621 & 18.45 & 43.24 & 5.31e-14 & 3.38e-13 \\ 
+  Error & 139 & 21275 & 153 &  &  &  &  \\ 
   Total & 149 & 37484 &  &  &  &  &  \\ 
-  \end{tabular}
+   \hline
+\end{tabular}
 \end{flushleft}
 \end{table}
 
 %-------------------------------------------------------------------------------
 \section{Anova}
 %-------------------------------------------------------------------------------
-
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 15:35:01 2018
+% Mon Jan 15 11:49:15 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{lrrrrrrrl}
-  & df & Type III SS & LOD & \%var & F value & Pvalue(Chi2) & Pvalue(F) &  \\ 
- 1@98.0 & 2 & 992 & 1.56 & 2.65 & 3.25 & 2.79e-02 & 4.18e-02 & * \\ 
-  1@120.0 & 2 & 2748 & 4.14 & 7.33 & 9.00 & 7.31e-05 & 2.15e-04 & *** \\ 
-  2@65.0 & 2 & 111 & 0.18 & 0.30 & 0.36 & 6.65e-01 & 6.97e-01 &   \\ 
-  2@80.0 & 2 & 34 & 0.06 & 0.09 & 0.11 & 8.81e-01 & 8.93e-01 &   \\ 
-  2@97.0 & 2 & 145 & 0.23 & 0.39 & 0.48 & 5.86e-01 & 6.23e-01 &   \\ 
-  2@115.0 & 2 & 507 & 0.80 & 1.35 & 1.66 & 1.57e-01 & 1.94e-01 &   \\ 
-  4@100.0 & 2 & 2899 & 4.35 & 7.73 & 9.50 & 4.47e-05 & 1.39e-04 & *** \\ 
-  5@20.0 & 2 & 1090 & 1.70 & 2.91 & 3.57 & 1.97e-02 & 3.08e-02 & * \\ 
-   \hline  \multicolumn{8}{c}{Significance codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1} \\\end{tabular}
+  \hline
+ & df & Type III SS & LOD & \%var & F value & Pvalue(Chi2) & Pvalue(F) &  \\ 
+  \hline
+M\_0099 & 2 & 1058 & 1.58 & 2.82 & 3.46 & 2.62e-02 & 3.43e-02 & * \\ 
+  M\_0121 & 2 & 3069 & 4.39 & 8.19 & 10.03 & 4.08e-05 & 8.57e-05 & *** \\ 
+  c2.loc65 & 2 & 2739 & 3.94 & 7.31 & 8.95 & 1.14e-04 & 2.21e-04 & *** \\ 
+  M\_0569 & 2 & 3490 & 4.95 & 9.31 & 11.40 & 1.13e-05 & 2.60e-05 & *** \\ 
+  c5.loc20 & 2 & 1022 & 1.53 & 2.73 & 3.34 & 2.96e-02 & 3.83e-02 & * \\ 
+   \hline  \multicolumn{8}{c}{Significance codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1} \\ \hline
+\end{tabular}
 \label{anova}
 \end{flushleft}
 \end{table}
 
+\clearpage
+%-------------------------------------------------------------------------------
+\section{Effects}
+%-------------------------------------------------------------------------------
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Mon Jan 15 11:49:15 2018
+\begin{table}[ht]
+\begin{flushleft}
+\begin{tabular}{lr}
+  \hline
+ & estimate \\ 
+  \hline
+Intercept & 96.55 \\ 
+  M\_0099a & 1.14 \\ 
+  M\_0099d & 5.93 \\ 
+  M\_0121a & 7.70 \\ 
+  M\_0121d & -4.71 \\ 
+  c2.loc65a & -6.02 \\ 
+  c2.loc65d & -4.30 \\ 
+  M\_0569a & 7.28 \\ 
+  M\_0569d & 0.21 \\ 
+  c5.loc20a & -2.73 \\ 
+  c5.loc20d & -4.11 \\ 
+   \hline
+\end{tabular}
+\label{effects}
+\end{flushleft}
+\end{table}
 
 %-------------------------------------------------------------------------------
 % End Document

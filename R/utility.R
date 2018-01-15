@@ -317,6 +317,30 @@ createReport <- function(x,
   }
 }
 
+#' @keywords internal
+qtlPosToName <- function(chrPos, cross) {
+  chr <- sapply(X = chrPos, function(cp) {
+    unlist(strsplit(cp, "@"))[1]
+  })
+  pos <- sapply(X = chrPos, function(cp) {
+    as.numeric(unlist(strsplit(unlist(strsplit(cp, "@"))[2], "[[:alpha:]]"))[1])
+  })
+  posExt <- sapply(X = chrPos, function(cp) {
+    unlist(strsplit(unlist(strsplit(cp, "@"))[2],
+                    "(?=[A-Za-z])(?<=[0-9])", perl = TRUE))[2]
+  })
+  chrPosDf <- data.frame(chr, pos, posExt, stringsAsFactors = FALSE)
+  mapTot <- qtl::pull.map(cross, as.table = TRUE)
+  mapTot$mrkNames <- rownames(mapTot)
+  chrPosMap <- merge(chrPosDf, mapTot, by = c("chr", "pos"), all.x = TRUE)
+  chrPosMap[is.na(chrPosMap$mrkNames), "mrkNames"] <-
+    paste0("c", chrPosMap[is.na(chrPosMap$mrkNames), "chr"], ".loc",
+           chrPosMap[is.na(chrPosMap$mrkNames), "pos"])
+  return(list(chrNames = chrPosMap$mrkNames, ext = chrPosMap$posExt))
+}
+
+
+
 
 
 

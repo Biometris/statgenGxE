@@ -5,6 +5,10 @@
 #' methods are available.
 #'
 #' @param qtl A fitted multi QTL model.
+#' @param QTLDet The object of class \code{\link{QTLDet}} used as base for fitting
+#' the QTL model.
+#' @param selection A character string indictating the type of selection used for
+#' selecting the markers in the final model.
 #' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
@@ -16,8 +20,12 @@ NULL
 
 #' @rdname multiQTL
 #' @export
-createMultiQTL <- function(qtl) {
-  multiQTL <- structure(list(qtl = qtl),
+createMultiQTL <- function(qtl,
+                           QTLDet,
+                           selection) {
+  multiQTL <- structure(list(qtl = qtl,
+                             QTLDet = QTLDet,
+                             selection = selection),
                         class = "multiQTL")
   attr(multiQTL, which = "timestamp") <- Sys.time()
   return(multiQTL)
@@ -31,7 +39,7 @@ is.multiQTL <- function(x) {
 
 #' @export
 print.multiQTL <- function(x, ...) {
-  summary(x$qtl, ...)
+  summary(x, ...)
 }
 
 #' @export
