@@ -77,22 +77,6 @@
 % For multiple columns.
 \usepackage{multicol}
 
-
-% Graphics Path definition
-%-------------------------------------------------------------------------------
-\graphicspath{{figures/}}
-
-%-------------------------------------------------------------------------------
-%	Article Information
-%-------------------------------------------------------------------------------
-% Setting PDF properties in the final PDF
-% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
-\hypersetup
-{
-pdfsubject={Model report},
-pdftitle={Model report}
-}
-
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
@@ -101,7 +85,7 @@ pdftitle={Model report}
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{2018-01-02 09:37:07}
+\date{2018-01-15 12:01:07}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -113,42 +97,59 @@ pdftitle={Model report}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
-% Set knitr options
-
-
 % Article title and date.
 \maketitle
 % Start single line spacing
 \singlespacing
 
 %-------------------------------------------------------------------------------
-\section{Anova table}
+\section{Background information}
 %-------------------------------------------------------------------------------
-
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:39:21 2018
+% Mon Jan 15 12:01:08 2018
 \begin{table}[ht]
 \begin{flushleft}
-\begin{tabular}{lrrrrrl}
-  & Df & Sum Sq & Mean Sq & F value & Pr($>$F) &  \\ 
- Genotype & 210 & 13821018 & 65814 & 6.32 & 5.54E-99 & *** \\ 
-  Environment & 7 & 127771687 & 18253098 & 1753.13 & 0.00E+00 & *** \\ 
-  Sensitivities & 210 & 5178199 & 24658 & 2.37 & 7.65E-20 & *** \\ 
-  Residual & 1260 & 13118797 & 10412 &  &  &  \\ 
-  Total & 1687 & 159889702 & 94778 &  &  &  \\ 
-   \hline  \multicolumn{6}{c}{Significance codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1} \\\end{tabular}
-\label{anova}
+\begin{tabular}{ll}
+  Modeling date & 18-01-15 \\ 
+  Modeling time & 12:01:07 \\ 
+  Pipeline version & 0.0.0.9000 \\ 
+  \end{tabular}
+\label{background}
 \end{flushleft}
 \end{table}
 
 
+%-------------------------------------------------------------------------------
+\section{Anova table}
+%-------------------------------------------------------------------------------
+
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Mon Jan 15 12:01:08 2018
+\begin{table}[ht]
+\begin{flushleft}
+\begin{tabular}{lrrrrrl}
+  \hline
+ & Df & Sum Sq & Mean Sq & F value & Pr($>$F) &  \\ 
+  \hline
+Genotype & 210 & 13821018 & 65814 & 6.32 & 5.54E-99 & *** \\ 
+  Environment & 7 & 127771687 & 18253098 & 1753.13 & 0.00E+00 & *** \\ 
+  Sensitivities & 210 & 5178199 & 24658 & 2.37 & 7.65E-20 & *** \\ 
+  Residual & 1260 & 13118797 & 10412 &  &  &  \\ 
+  Total & 1687 & 159889702 & 94778 &  &  &  \\ 
+   \hline  \multicolumn{6}{c}{Significance codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1} \\ \hline
+\end{tabular}
+\label{anova}
+\end{flushleft}
+\end{table}
+
+\clearpage
 %-------------------------------------------------------------------------------
 \section{Diagnostic plots}
 %-------------------------------------------------------------------------------
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
 
-\includegraphics[width=0.7\linewidth]{figures/fig-linePlot-1} \hfill{}
+\includegraphics[width=0.7\linewidth]{./figures/011518120107-linePlot-1} \hfill{}
 
 
 
@@ -156,30 +157,26 @@ pdftitle={Model report}
 \clearpage
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-
-{\centering \includegraphics[width=\maxwidth]{figures/fig-scatterPlot-1} 
-
-}
-
-
+\includegraphics[width=\maxwidth]{./figures/011518120107-scatterPlot-1} 
 
 \end{knitrout}
-
 \clearpage
 
 %-------------------------------------------------------------------------------
-\section{Estimates}
+\section{Finlay-Wilkinson model parameter estimates}
 %-------------------------------------------------------------------------------
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:39:21 2018
+% Mon Jan 15 12:01:09 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Top 10 genotypes by sensitivity} 
 \label{topEstimates}
 \begin{tabular}{rrrrrr}
- genotype & sens & sigmaE & genMean & sigma & mse \\ 
- G091 & 1.44 & 0.13 & 510.45 & 35.99 & 6109.57 \\ 
+  \hline
+genotype & sens & sigmaE & genMean & sigma & mse \\ 
+  \hline
+G091 & 1.44 & 0.13 & 510.45 & 35.99 & 6109.57 \\ 
   G194 & 1.43 & 0.13 & 521.42 & 35.99 & 4836.09 \\ 
   G055 & 1.42 & 0.13 & 616.85 & 35.99 & 7160.22 \\ 
   G042 & 1.40 & 0.13 & 561.39 & 35.99 & 18919.35 \\ 
@@ -189,18 +186,21 @@ pdftitle={Model report}
   G130 & 1.36 & 0.13 & 601.40 & 35.99 & 4458.48 \\ 
   G037 & 1.34 & 0.13 & 489.12 & 35.99 & 3331.92 \\ 
   G105 & 1.31 & 0.13 & 522.55 & 35.99 & 5070.66 \\ 
-  \end{tabular}
+   \hline
+\end{tabular}
 \end{flushleft}
 \end{table}
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:39:21 2018
+% Mon Jan 15 12:01:09 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Bottom 10 genotypes by sensitivity} 
 \label{bottomEstimates}
 \begin{tabular}{rrrrrr}
- genotype & sens & sigmaE & genMean & sigma & mse \\ 
- G008 & 0.64 & 0.13 & 326.60 & 35.99 & 15968.01 \\ 
+  \hline
+genotype & sens & sigmaE & genMean & sigma & mse \\ 
+  \hline
+G008 & 0.64 & 0.13 & 326.60 & 35.99 & 15968.01 \\ 
   G180 & 0.64 & 0.13 & 273.32 & 35.99 & 7402.71 \\ 
   G176 & 0.64 & 0.13 & 440.20 & 35.99 & 17935.22 \\ 
   G140 & 0.62 & 0.13 & 268.21 & 35.99 & 7196.21 \\ 
@@ -211,11 +211,10 @@ pdftitle={Model report}
   G112 & 0.50 & 0.13 & 321.41 & 35.99 & 2852.47 \\ 
   G118 & 0.49 & 0.13 & 226.83 & 35.99 & 4672.36 \\ 
   G041 & 0.35 & 0.13 & 367.72 & 35.99 & 28655.56 \\ 
-  \end{tabular}
+   \hline
+\end{tabular}
 \end{flushleft}
 \end{table}
-
-
 
 %-------------------------------------------------------------------------------
 % End Document

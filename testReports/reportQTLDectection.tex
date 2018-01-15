@@ -77,22 +77,6 @@
 % For multiple columns.
 \usepackage{multicol}
 
-
-% Graphics Path definition
-%-------------------------------------------------------------------------------
-\graphicspath{{figures/}}
-
-%-------------------------------------------------------------------------------
-%	Article Information
-%-------------------------------------------------------------------------------
-% Setting PDF properties in the final PDF
-% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
-\hypersetup
-{
-pdfsubject={QTL Detection report},
-pdftitle={QTL Detection report}
-}
-
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
@@ -101,7 +85,7 @@ pdftitle={QTL Detection report}
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{2018-01-02 10:02:19}
+\date{2018-01-15 11:58:18}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -113,7 +97,7 @@ pdftitle={QTL Detection report}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
-% Set knitr options
+% Load required packages
 
 
 % Article title and date.
@@ -122,18 +106,36 @@ pdftitle={QTL Detection report}
 \singlespacing
 
 %-------------------------------------------------------------------------------
+\section{Background information}
+%-------------------------------------------------------------------------------
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Mon Jan 15 11:58:19 2018
+\begin{table}[ht]
+\begin{flushleft}
+\begin{tabular}{ll}
+  Modeling date & 18-01-15 \\ 
+  Modeling time & 11:58:18 \\ 
+  Pipeline version & 0.0.0.9000 \\ 
+  \end{tabular}
+\label{background}
+\end{flushleft}
+\end{table}
+
+
+%-------------------------------------------------------------------------------
 \section{Summary}
 %-------------------------------------------------------------------------------
-
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 10:03:58 2018
+% Mon Jan 15 11:58:19 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{List of peaks} 
 \label{summary}
 \begin{tabular}{lrrr}
-  & chr & pos & lod \\ 
- M\_0099 & 1 & 98 & 4.84 \\ 
+  \hline
+ & chr & pos & lod \\ 
+  \hline
+M\_0099 & 1 & 98 & 4.84 \\ 
   M\_0121 & 1 & 120 & 5.24 \\ 
   c2.loc65 & 2 & 65 & 4.11 \\ 
   c2.loc80 & 2 & 80 & 5.11 \\ 
@@ -141,23 +143,23 @@ pdftitle={QTL Detection report}
   c2.loc115 & 2 & 115 & 3.21 \\ 
   M\_0569 & 4 & 100 & 3.49 \\ 
   c5.loc20 & 5 & 20 & 3.06 \\ 
-  \end{tabular}
+   \hline
+\end{tabular}
 \end{flushleft}
 \end{table}
 
 \newpage
 %-------------------------------------------------------------------------------
-\section{Manhattan plot}
+\section{Profile plot}
 %-------------------------------------------------------------------------------
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
 
-\includegraphics[width=\maxwidth]{figures/fig-manhattan-1} \hfill{}
+\includegraphics[width=\maxwidth]{./figures/011518115818-profile-1} \hfill{}
 
 
 
 \end{knitrout}
-
 %-------------------------------------------------------------------------------
 % End Document
 \end{document}

@@ -48,7 +48,7 @@
 
 % Load required packages
 <<label=setup, include=FALSE, cache=FALSE>>=
-lapply(list("SpATS", "xtable"), library, character.only = TRUE)
+lapply(list("SpATS"), library, character.only = TRUE)
 @
 <<label=extractInfo, echo=FALSE, include=FALSE>>=
 ## Extract basic modelling information

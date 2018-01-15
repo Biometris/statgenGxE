@@ -77,22 +77,6 @@
 % For multiple columns.
 \usepackage{multicol}
 
-
-% Graphics Path definition
-%-------------------------------------------------------------------------------
-\graphicspath{{figures/}}
-
-%-------------------------------------------------------------------------------
-%	Article Information
-%-------------------------------------------------------------------------------
-% Setting PDF properties in the final PDF
-% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
-\hypersetup
-{
-pdfsubject={Cross report},
-pdftitle={Cross report}
-}
-
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
@@ -113,7 +97,7 @@ pdftitle={Cross report}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
-% Set knitr options
+% Load required packages
 
 
 % Article title and date.
@@ -124,7 +108,6 @@ pdftitle={Cross report}
 %-------------------------------------------------------------------------------
 \section{Summary}
 %-------------------------------------------------------------------------------
-
     F2 intercross
 
     No. individuals:    150 
@@ -142,23 +125,17 @@ pdftitle={Cross report}
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-
-{\centering \includegraphics[width=\maxwidth]{figures/fig-sumPlots-1} 
-\includegraphics[width=\maxwidth]{figures/fig-sumPlots-2} 
-
-}
-
-
+\includegraphics[width=\maxwidth]{./figures/011518115825-sumPlots-1} 
+\includegraphics[width=\maxwidth]{./figures/011518115825-sumPlots-2} 
 
 \end{knitrout}
 
 %-------------------------------------------------------------------------------
 \section{Segregation distortion}
 %-------------------------------------------------------------------------------
-
 Markers that show evidence of segregation distortion.
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:54:47 2018
+% Mon Jan 15 11:58:27 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{lrrrrrrrr}
@@ -178,12 +155,7 @@ No apparent problems.
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-
-{\centering \includegraphics[width=\maxwidth]{figures/fig-recomPlot-1} 
-
-}
-
-
+\includegraphics[width=\maxwidth]{./figures/011518115825-recomPlot-1} 
 
 \end{knitrout}
 \newpage
@@ -191,7 +163,7 @@ Number of recombinations per chromosome per individual\\
 
 
 Mean number of recombinations per chromosome per individual: 2.67% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:54:49 2018
+% Mon Jan 15 11:58:28 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Individuals with highest number of
@@ -218,21 +190,6 @@ Mean number of recombinations per chromosome per individual: 2.67% latex table g
 \end{flushleft}
 \end{table}
 
-
-\clearpage
-%-------------------------------------------------------------------------------
-\section{Crossover points}
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-
-{\centering \includegraphics[width=\maxwidth]{figures/fig-crossover-1} 
-
-}
-
-
-
-\end{knitrout}
-%-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
 % End Document
 \end{document}

@@ -46,11 +46,6 @@
 %-------------------------------------------------------------------------------
 \begin{document}
 
-% Load required packages
-<<label=setup, include=FALSE, cache=FALSE>>=
-lapply(list("xtable"), library, character.only = TRUE)
-@
-
 % Article title and date.
 \maketitle
 % Start single line spacing

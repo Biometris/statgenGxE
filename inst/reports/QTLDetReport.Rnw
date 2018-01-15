@@ -49,7 +49,7 @@
 % Load required packages
 <<label=setup, include=FALSE, cache=FALSE>>=
 ## load required packages
-lapply(list("qtl", "xtable"), library, character.only = TRUE)
+lapply(list("qtl"), library, character.only = TRUE)
 @
 
 % Article title and date.

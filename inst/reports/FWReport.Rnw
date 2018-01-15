@@ -46,12 +46,6 @@
 %-------------------------------------------------------------------------------
 \begin{document}
 
-% Load required packages
-<<label=setup, include=FALSE, cache=FALSE>>=
-## load required packages
-lapply(list("xtable"), library, character.only = TRUE)
-@
-
 % Article title and date.
 \maketitle
 % Start single line spacing
@@ -91,8 +85,8 @@ print(xtable::xtable(x = anovaTab, label = "anova",
                      align = c("l", "r", "r", "r", "r", "r", "l"),
                      digits = c(0, 0, 0, 0, 2, -2, 0),
                      display = c("s", "f", "f", "f", "f", "e", "s")),
-      latex.environments = "flushleft", hline.after = NULL,
-      include.rownames = TRUE, include.colnames = TRUE,
+      latex.environments = "flushleft", include.rownames = TRUE,
+      include.colnames = TRUE,
       add.to.row = list(pos = list(nrow(anovaTab)),
                         command = paste0("\\hline  \\multicolumn{",
                                          ncol(anovaTab), "}{c}{",
