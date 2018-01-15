@@ -61,10 +61,54 @@ lapply(list("qtl", "xtable"), library, character.only = TRUE)
 \section{Summary}
 %-------------------------------------------------------------------------------
 <<label=summary, echo=FALSE, results="asis">>=
-summary(x)
+summ <- summary(x)
+summTab <- data.frame(c("Cross type", NA, "Number of individuals",
+                        NA, "Number of phenotypes",
+                        "Percent phenotyped", NA, "Number of chromosomes",
+                        if (!is.null(summ$autosomes)) "  Autosomes",
+                        if (!is.null(summ$Xchr)) "  X chr", NA,
+                        "Total markers", "Number of markers",
+                        "Percent genotyped", "Genotypes(%)",
+                        if (!is.null(summ$typing.freq.A)) "Autosomes",
+                        if (!is.null(summ$typing.freq.X)) "X Chromosome"),
+                      c(switch(summ$type, "f2" = "F2 intercross",
+                               "bc" = "Backcross",
+                               "4way" = "4-way cross",
+                               "riself" = "RI strains via selfing",
+                               "risib" = "RI strains via sib matings",
+                               "dh" = "Double haploids",
+                               "haploid" = "Haploids"), NA,
+                        summ$n.ind, NA, summ$n.phe,
+                        round((1 - summ$missing.phe) * 100, 1), NA,
+                        summ$n.chr,
+                        if (!is.null(summ$autosomes)) paste(summ$autosomes, collapse = " "),
+                        if (!is.null(summ$Xchr)) summ$Xchr, NA, sum(summ$n.mar),
+                        paste(summ$n.mar, collapse = " "),
+                        round((1 - summ$missing.gen) * 100, 1),
+                        if (!is.null(summ$typing.freq.X)) {
+                          roundedX <- sprintf("%.1f", summ$typing.freq.X * 100)
+                          genoX <- paste(names(summ$typing.freq.X), roundedX, sep = ":")
+                          if (!is.null(summ$typing.freq.A)) {
+                            roundedA <- sprintf("%.1f", summ$typing.freq.A * 100)
+                            genoA <- paste(names(summ$typing.freq.A), roundedA, sep = ":")
+                            paste(genoA, collapse = " ")
+                          }
+                          paste(genoX, collapse = " ")
+                        } else {
+                          geno <- paste(names(summ$typing.freq),
+                                        sprintf("%.1f", summ$typing.freq * 100), sep = ":")
+                          paste(geno, collapse = " ")
+                        }))
+
+print(xtable::xtable(x = summTab, label = "summary",
+                     align = c("l", "l", "l")),
+      latex.environments = "flushleft", hline.after = NULL,
+      include.rownames = FALSE, include.colnames = FALSE)
 @
-<<label=sumPlots, echo=FALSE>>=
+<<label=missPlots, echo=FALSE, out.width='90%'>>=
 plot(x)
+@
+<<label=sumPlots, echo=FALSE, out.width='90%', out.height='.8\\linewidth'>>=
 # Missing genotype information (markers / individuals)
 op <- par(mfcol = c(1, 2))
 hist(qtl::nmissing(x, what = "mar"), breaks = 20,
@@ -93,25 +137,24 @@ if (nrow(segr) > 0) {
   cat("No markers show evidence of segregation distortion.\n")
 }
 @
-\newpage
+\clearpage
 %-------------------------------------------------------------------------------
 \section{Marker recombinations}
 %-------------------------------------------------------------------------------
 Recombination frequencies\\
 <<label=recom, echo=FALSE, results="asis">>=
-## Checking marker order by first estimating recombination frequencies
-## between all pairs of markers
+## Estimate recombination frequencies between all pairs of markers
 crossRec <- qtl::est.rf(x)
 qtl::checkAlleles(crossRec)
 @
-<<label=recomPlot, echo=FALSE>>=
+<<label=recomPlot, echo=FALSE, out.width='85%'>>=
 ## Plot of recombination frequencies
 qtl::plot.rf(crossRec, alternate.chrid = TRUE)
 @
 \newpage
-Number of recombinations per chromosome per individual\\
 <<label=recom2, echo=FALSE, results="asis">>=
 ## Check number of recombinations per chromosome and per individual
+cat("Number of recombinations per chromosome per individual\n")
 NRc <- qtl::countXO(x, bychr = TRUE)
 cat(paste("\n\nMean number of recombinations per chromosome per individual:",
           round(mean(NRc), 2)))
