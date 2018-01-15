@@ -1,4 +1,13 @@
-#' Function for QTL detection
+#' QTL detection
+#'
+#' This function is essentially a wrapper for \code{\link[qtl]{scanone}} and
+#' \code{\link[qtl]{cim}} in the qtl package. Depending on \code{type} one
+#' of these functions is used for QTL detection. After this is done, from
+#' the set of candidate QTLs that are returned proper peaks are selected
+#' by an iterative process using the \code{threshold} and \code{window}
+#' provided. All resulting peaks will have a LOD score above \code{threshold}
+#' and the distance between pairs of peaks will always be at least
+#' the value given as \code{window}.
 #'
 #' @param cross An object of class cross created by the qtl package
 #' @param trait A character string indicating the trait to be analysed.
@@ -9,7 +18,16 @@
 #' of the peaks.
 #' @param window A numerical value indicating the window (in cM) used when
 #' selecting peaks.
-#' @param ... Other parameters to be passed on to underlying functions.
+#' @param ... Other parameters to be passed on to underlyiing functions used
+#' for qtl detection, \code{\link[qtl]{scanone}} when \code{type} is "MR"
+#' or "SIM" and \code{\link[qtl]{cim}} when \code{type} is "CIM".
+#'
+#' @return An object of class \code{\link{QTLDet}}.
+#'
+#' @seealso \code{\link[qtl]{scanone}}, \code{\link[qtl]{cim}}
+#'
+#' @references Broman et al. (2003) R/qtl: QTL mapping in experimental crosses.
+#' Bioinformatics 19:889-890
 #'
 #' @examples
 #' ## Read the data
@@ -18,7 +36,9 @@
 #'                       package = "RAP"),
 #'                       genotypes = c("AA", "AB", "BB"),
 #'                       alleles = c("A", "B"), estimate.map = FALSE)
+#' ## Perform a simple interval mapping for detecting QTLs.
 #' QTLDet <- QTLDetect(cross = F2, trait = "trait", type = "SIM")
+#' ## Create a pdf report.
 #' report(QTLDet, outfile = "./testReports/reportQTLDectection.pdf")
 #'
 #' @export
@@ -42,7 +62,7 @@ QTLDetect <- function(cross,
     ## Calculate genotype probabilities.
     cross <- qtl::calc.genoprob(cross, step = 5, error.prob = 0)
     ## Perform a QTL search by Simple Interval Mapping (CIM)
-    scores <- qtl::cim(cross, pheno.col = trait, n.marcovar = 5, window = 50,
+    scores <- qtl::cim(cross, pheno.col = trait, n.marcovar = 5, window = window,
                        method = "hk", map.function = "haldane",
                        ...)
   }
@@ -55,6 +75,7 @@ QTLDetect <- function(cross,
     peaks <- summary(qtlCand)
     peaksTot <- rbind(peaksTot, peaks)
     for (i in 1:nrow(peaks)) {
+      ## Remove candidates on the same chromosome that are within window.
       qtlCand <- qtlCand[!(qtlCand$chr == peaks[i, "chr"] &
                              abs(qtlCand$pos - peaks[i, "pos"]) < window), ]
     }

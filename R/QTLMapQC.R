@@ -1,6 +1,24 @@
-#' Function for Quality Control of a cross object
+#' Quality Control and Cleaning of a cross object
 #'
-#' Function for performing quality control of a cross object.
+#' Function for performing quality control and cleaning of a cross object.
+#' Quality control is done in several subsequent steps:
+#' \enumerate{
+#' \item{Markers with a fraction of missing values higher than \code{missMrk}
+#' are removed.}
+#' \item{Duplicate markers are removed.}
+#' \item{Individuals with a fraction of missing values higher than \code{missInd}
+#' are removed.}
+#' \item{Markers that show evidence of segragation distortion (P-value below
+#' \code{segDistortion}) are removed.}
+#' \item{Markers which might have been switched (with threshold
+#' \code{recombination} are removed. See also \code{\link[qtl]{checkAlleles}}).}
+#' \item{Individuals with a fraction of crossovers higher than
+#' \code{crossover} are removed.}
+#' }
+#' Steps 1, 3, 4, 5 and 7 are only performed if their respective threshold
+#' values are greater then 0. Setting them to 0 suppresses the check.\cr
+#' Steps 2 and 6 are performed if respectively \code{removeDuplicates} and
+#' \code{reestimateMap} are \code{TRUE}.
 #'
 #' @param cross An object of class cross created by the qtl package
 #' @param missMrk A numerical value between 0 and 1 indicating the maximum
@@ -27,6 +45,9 @@
 #' \code{\link[qtl]{drop.dupmarkers}}, \code{\link[qtl]{geno.table}},
 #' \code{\link[qtl]{nmissing}}, \code{\link[qtl]{checkAlleles}},
 #' \code{\link[qtl]{replace.map}}, \code{\link[qtl]{countXO}}
+#'
+#' @references Broman et al. (2003) R/qtl: QTL mapping in experimental crosses.
+#' Bioinformatics 19:889-890
 #'
 #' @examples
 #' # Read the data
