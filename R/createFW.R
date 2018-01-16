@@ -81,29 +81,31 @@ summary.FW <- function(object, ...) {
 #'
 #' @param x an object of class FW
 #' @param ... not unused
-#' @param plotType a character vector indicating which plot(s) will be drawn. Possible values
-#' "scatter", "line"  and "trellis" for creating a scatter plot of sensitivities, a plot of
-#' fitted lines for each genotype and a trellis plot of the individual genotype slopes
-#' respectively.
+#' @param plotType a character vector indicating which plot(s) will be drawn.
+#' Possible values are "scatter", "line"  and "trellis" for creating a scatter
+#' plot of sensitivities, a plot of fitted lines for each genotype and a trellis
+#' plot of the individual genotype slopes respectively.
 #' @param sortBySens A character string specifying whether the results are to be sorted
 #' in an increasing (or decreasing) order of sensitivities.
-#' By default, \code{sortBySens = "ascending"}. Other options are "descending" and NA.
+#' By default, \code{sortBySens = "ascending"}. Other options are "descending" and "none".
 
 #' @return Plots as described in \code{plotType}
 #'
 #' @import graphics grDevices
+#'
 #' @export
 plot.FW <- function(x,
                     ...,
                     plotType = c("scatter", "line", "trellis"),
-                    sortBySens = "ascending") {
+                    sortBySens = c("ascending", "descending", "none")) {
+  plotType <- match.arg(plotType, several.ok = TRUE)
+  sortBySens <- match.arg(sortBySens)
   mse <- x$estimates$mse
   genMean <- x$estimates$genMean
   sens <- x$estimates$sens
   envEffs <- x$envEffs$Effect
-  fVal <- tapply(X = x$fittedGeno, INDEX = x$data[, c("genotype", "env")], FUN = function(x) {
-    mean(x, na.rm = TRUE)
-  })
+  fVal <- tapply(X = x$fittedGeno, INDEX = x$data[, c("genotype", "env")],
+                 FUN = mean, na.rm = TRUE)
   if ("scatter" %in% plotType) {
     if (!all(is.na(mse))) {
       scatterData <- cbind(genMean, mse, sens)
@@ -125,7 +127,7 @@ plot.FW <- function(x,
     axis(side = 1, envEffs, levels(x$envEffs$Environment), las = 2, cex.axis = .75)
     color <- 1
     for (i in 1:x$nGeno) {
-      if (!is.na(sortBySens)) {
+      if (sortBySens != "none") {
         xfVal <- fVal[names(sens[i]), ]
       } else {
         xfVal <- fVal[i, ]

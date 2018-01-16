@@ -84,10 +84,10 @@ summary.AMMI <- function(object, ...) {
 #' "AMMI1" and "AMMI2" for creating an AMMI1 biplot (genotypes and
 #' environments means vs PC1) or an AMMI2 biplot respectively.
 #' @param scaleAMMI1 For AMMI1 biplot the variables are scaled by \code{lambda ^ scale} and
-#' the observations are by \code{lambda ^ (1 - scale)} where \code{lambda} are the singular values
-#' computed by \code{\link[stats]{princomp}} in \code{\link{gxeAmmi}}. Normally
-#' \code{0 <= scale <= 1}, and a warning will be issued if the specified scale is
-#' outside this range.
+#' the observations are by \code{lambda ^ (1 - scale)} where \code{lambda} are the
+#' singular values computed by \code{\link[stats]{princomp}} in
+#' \code{\link{gxeAmmi}}. Normally \code{0 <= scale <= 1}, and a warning will
+#' be issued if the specified scale is outside this range.
 #' @param scaleAMMI2 Similar to \code{scaleAMMI1}, for AMMI2 biplot.
 #'
 #' @return One or two biplots as described in \code{plotType}
@@ -142,7 +142,7 @@ plot.AMMI <- function(x,
     } else {
       info <- paste0(round(x$importance[3, 2] * 100, 1), "%")
     }
-    # calculate lambda scale
+    ## calculate lambda scale.
     lam <- as.numeric(x$importance[1, 1:2])
     lam <- lam * sqrt(nrow(scores))
     if (scaleAMMI2 != 0) {

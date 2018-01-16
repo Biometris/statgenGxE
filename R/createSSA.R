@@ -180,11 +180,12 @@ summary.SSA <- function(object,
 #'
 #' @inheritParams summary.SSA
 #'
-#' @param x an object of class SSA.
-#' @param ... other graphical parameters (see \code{\link[lattice]{xyplot}} for details).
-#' @param what character indicating whether the model with genotype fixed or random
-#' should be plotted. If \code{x} contains only one model this model is chosen
-#' automatically.
+#' @param x An object of class SSA.
+#' @param ... Other graphical parameters (see \code{\link[lattice]{xyplot}}
+#' for details).
+#' @param what A character string indicating whether the model with
+#' genotype fixed or random should be plotted. If \code{x} contains only
+#' one model this model is chosen automatically.
 #' @param plotType character string indicating whether \code{base} plots or
 #' \code{spatial} plots should be made.
 #'
@@ -199,7 +200,6 @@ summary.SSA <- function(object,
 #' plot(myModel, what = "fixed", plotType = "spatial")
 #'
 #' @export
-
 plot.SSA <- function(x,
                      ...,
                      trait = NULL,

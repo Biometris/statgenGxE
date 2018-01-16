@@ -288,6 +288,25 @@ summary.TD <- function(object,
                    class = c("summary.TD", "table")))
 }
 
+#' @export
+print.summary.TD <- function(x, ...) {
+  whichWhat <- attr(x, "whichWhat")
+  decimals <- c(rep(x = 0, times = 3), rep(x = 2, times = 7),
+                rep(x = 3, times = 5), rep(x = 2, times = 3),
+                rep(x = 3, times = 4))[whichWhat]
+  maxLength <- max(nchar(rownames(x)))
+  for (i in 1:ncol(x)) {
+    cat("\nSummary statistics for", colnames(x)[i], "\n\n")
+    for (j in 1:nrow(x)) {
+      cat(paste0(paste0(rep(x = " ",
+                            times = maxLength - nchar(rownames(x)[j]) + 2),
+                        collapse = ""),
+                 rownames(x)[j], "  ", round(x[j, i], decimals[j]), "\n"))
+    }
+  }
+  cat("\n")
+}
+
 #' Plot Function for Class TD
 #'
 #' Four types of plot can be made. Boxplots and histograms can be made for
@@ -298,7 +317,9 @@ summary.TD <- function(object,
 #' is not the case.
 #'
 #' @param x An object of class TD.
-#' @param ... other graphical parameters.
+#' @param ... Other graphical parameters. For boxplots, histograms and
+#' scatterplots all graphical parameters can be changed, for the correlation
+#' only \code{"main"} will be used and other parameters are ignored.
 #' @param trait A character string specifying the name of the traits to be plotted.
 #' @param plotType character string indicating which plot should be made.
 #' Either \code{"box"} for a boxplot, \code{"hist"} for histograms,
@@ -415,24 +436,6 @@ plot.TD <- function(x,
   }
 }
 
-#' @export
-print.summary.TD <- function(x, ...) {
-  whichWhat <- attr(x, "whichWhat")
-  decimals <- c(rep(x = 0, times = 3), rep(x = 2, times = 7),
-                rep(x = 3, times = 5), rep(x = 2, times = 3),
-                rep(x = 3, times = 4))[whichWhat]
-  maxLength <- max(nchar(rownames(x)))
-  for (i in 1:ncol(x)) {
-    cat("\nSummary statistics for", colnames(x)[i], "\n\n")
-    for (j in 1:nrow(x)) {
-      cat(paste0(paste0(rep(x = " ",
-                            times = maxLength - nchar(rownames(x)[j]) + 2),
-                        collapse = ""),
-                 rownames(x)[j], "  ", round(x[j, i], decimals[j]), "\n"))
-    }
-  }
-  cat("\n")
-}
 
 
 

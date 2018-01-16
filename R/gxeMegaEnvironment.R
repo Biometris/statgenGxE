@@ -45,10 +45,10 @@ gxeMegaEnvironment <- function(TD,
   AMMI <- gxeAmmi(TD = TD, trait = trait, nPC = 2)
   fitted <- AMMI$fitted
   ## Extract position of best genotype per environment.
-  winPosition <- apply(X = fitted, MARGIN = 2,
-                       FUN = getFunction(paste0("which.", method)))
+  winPos <- apply(X = fitted, MARGIN = 2,
+                  FUN = getFunction(paste0("which.", method)))
   ## Extract best genotype per environment.
-  winGeno <- rownames(fitted)[winPosition]
+  winGeno <- rownames(fitted)[winPos]
   ## Create factor based on best genotypes.
   megaFactor <- factor(winGeno, labels = "")
   ## Merge factor levels to original data.
@@ -59,7 +59,7 @@ gxeMegaEnvironment <- function(TD,
     summTab <- data.frame(megaFactor, envNames = colnames(fitted), winGeno,
                           "AMMI estimates" = sapply(X = 1:ncol(fitted),
                                                     FUN = function(x) {
-                                                      signif(fitted[winPosition[x], x], 5)
+                                                      signif(fitted[winPos[x], x], 5)
                                                     }),
                           check.names = FALSE)
     summTab <- summTab[order(megaFactor), ]
