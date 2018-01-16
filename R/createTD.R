@@ -6,7 +6,8 @@
 #' checkId are converted to factor columns, whereas rowCoordinates and colCoordinates
 #' are converted to numerical columsn.
 #'
-#' \code{\link{print}} and \code{\link{summary}} methods are available.
+#' \code{\link{print}} and \code{\link{summary}} and \code{\link{plot}} methods
+#' are available.
 #'
 #' @param data a data.frame containing trial data with a least a column for
 #' genotype.
@@ -40,7 +41,7 @@
 #'
 #' @author Bart-Jan van Rossum
 #'
-#' @seealso \code{\link{summary.TD}}
+#' @seealso \code{\link{summary.TD}}, \code{\link{plot.TD}}
 #'
 #' @name TD
 NULL
@@ -286,78 +287,123 @@ summary.TD <- function(object,
   return(structure(stats,
                    class = c("summary.TD", "table")))
 }
-
-
-# plot.TD <- function(Boxplot, trait, env, data, Histogram, lattice, histogram, Scatterplot, Z, genotype, identity, Corplot, levelplot) {
-#   if (Boxplot) {
-#     f0 <- as.formula(paste(trait,'~',env))
-#     boxplot(formula = f0 , data = data,
-#             main = "Boxplot by Enviroment",
-#             xlab = "Enviroment", ylab = trait)
-#   }
-#   if (Histogram) {
-#     f0 <- as.formula(paste('~',trait,"|",env))
-#     print(lattice::histogram(x = f0 , data = data,
-#                              main = "Histograms by Enviroment",
-#                              xlab = trait))
-#   }
-#   if (Scatterplot) {
-#     ## put (absolute) correlations on the upper panels,
-#     ## with size proportional to the correlations.
-#     panelCor <- function(x, y, digits = 2, prefix = "", cex.cor, ...) {
-#       usr <- par("usr"); on.exit(par(usr))
-#       par(usr = c(0, 1, 0, 1))
-#       r <- abs(cor(x, y))
-#       txt <- format(c(r, 0.123456789), digits = digits)[1]
-#       txt <- paste0(prefix, txt)
-#       if (missing(cex.cor)) {
-#         cex.cor <- 0.8 / strwidth(txt)
-#       }
-#       text(0.5, 0.5, txt, cex = cex.cor * r)
-#     }
-#     ## put histograms on the diagonal
-#     panelHist <- function(x, ...) {
-#       usr <- par("usr"); on.exit(par(usr))
-#       par(usr = c(usr[1:2], 0, 1.5))
-#       h <- hist(x, plot = FALSE)
-#       breaks <- h$breaks; nB <- length(breaks)
-#       y <- h$counts; y <- y / max(y)
-#       rect(breaks[-nB], 0, breaks[-1], y, col = "cyan", ...)
-#     }
-#     X <- tapply(X = data[Z, trait], INDEX = data[Z, c(genotype, env)], FUN = identity)
-#     if (any(is.na(X))) {
-#       X <- RAP.multmissing(X, maxcycle = 10, na.strings = NA)
-#     }
-#     pairs(X, upper.panel = panelCor, diag.panel = panelHist,
-#           main = paste("Scatterplot matrix and correlations by enviroment:", trait))
-#   }
-#   if (Corplot) {
-#     if (is.data.frame(data) && !missing(env)) {
-#       if (all(c(trait, env) %in% names(data))) {
-#         # create a correlation matrix
-#         myDat <- tapply(X = data[Z,trait], INDEX = data[Z, c(genotype,env)], FUN = identity)
-#         if (any(is.na(myDat))) {
-#           myDat <- RAP.multmissing(myDat, maxcycle = 10, na.strings = NA)
-#         }
-#         if (is.matrix(myDat)) {
-#           corMat <- cor(myDat)
-#           corMat[upper.tri(corMat, diag = FALSE)] <- NA
-#           corMat
-#         } else{
-#           stop("Numbers of observations for all environments are not equal.\n")
-#         }
-#       }
-#     }
-#     print(lattice::levelplot(corMat[nrow(corMat):1, Z], xlab = "", ylab = "",
-#                              main = paste("Correlation of environments for", trait)))
-#   }
-# }
+#' Plot Function for Class TD
+#'
+#' Four types of plot can be made. Boxplots and histograms can be made for
+#' all objects of class \code{\link{TD}}. In case there is a column \code{"env"}
+#' in TD boxplots and histograms will be made per environment.\cr
+#' Scatterplots and plots of correlation between environments can only be made
+#' if a column \code{"env"} is present in TD and will result in an error if this
+#' is not the case.
+#'
+#' @param x An object of class TD.
+#' @param ... other graphical parameters.
+#' @param trait A character string specifying the name of the traits to be plotted.
+#' @param plotType character string indicating which plot should be made.
+#' Either \code{"box"} for a boxplot, \code{"hist"} for histograms,
+#' \code{"scatter"} for scatter plots and correlations or \code{"cor"} for a
+#' plot of the correlations between environments.
+#'
+#' @return One of four plots depending on \code{plotType}.
+#'
+#' @seealso \code{\link{TD}}
+#'
+#' @examples
+#' plot(TDMaize, trait = "yld")
+#'
+#' @export
+plot.TD <- function(x,
+                    ...,
+                    trait,
+                    plotType = c("box", "hist", "scatter", "cor")) {
+  if (!is.character(trait) || !trait %in% colnames(x)) {
+    stop(paste("Traits should be a column in", substitute(x), ".\n"))
+  }
+  plotType <- match.arg(plotType)
+  dotArgs <- list(...)
+  isEnv <- "env" %in% colnames(x)
+  if (plotType == "box") {
+    ## Boxplot call for simple boxplot is different than boxplot per env.
+    ## Therefore diffentiate between those two.
+    if (isEnv) {
+      bpArgs <- list(formula = as.formula(paste(trait, "~ env")),
+                     data = x)
+    } else {
+      bpArgs <- list(x = x[[trait]])
+    }
+    ## Arguments that are equal for both calls.
+    bpArgs <- c(bpArgs, list(
+      main = paste("Boxplot", if (isEnv) "by Enviroment"),
+      xlab = ifelse(isEnv, "Enviroment", ""),
+      ylab = trait), dotArgs)
+    do.call("boxplot", args = bpArgs)
+  } else if (plotType == "hist") {
+    ## Construct formula for histogram.
+    histForm <- as.formula(paste("~", trait, if (isEnv) "| env"))
+    print(lattice::histogram(x = histForm, data = x,
+                             main = paste("Histogram",
+                                          if (isEnv) "by Enviroment"),
+                             xlab = trait, dotArgs))
+  } else if (plotType == "scatter") {
+    if (isEnv) {
+      ## Function for 'plotting' absolute correlations with text size
+      ## proportional to the correlations.
+      panelCor <- function(x, y, ...) {
+        oldPar <- par(usr = c(0, 1, 0, 1))
+        on.exit(par(oldPar))
+        ## Compute correlations.
+        r <- abs(cor(x, y))
+        ## Format and print correlations with proper size.
+        txt <- format(c(r, 0.123456789), digits = 2)[1]
+        cexCor <- 0.8 / strwidth(txt)
+        text(0.5, 0.5, txt, cex = cexCor * r)
+      }
+      ## Function for plotting histograms on the diagonal.
+      panelHist <- function(x, ...) {
+        oldPar <- par(usr = c(par("usr")[1:2], 0, 1.5))
+        on.exit(par(oldPar))
+        ## Create but don't plot histogram
+        h <- hist(x, plot = FALSE)
+        ## Rescale.
+        breaks <- h$breaks
+        nB <- length(breaks)
+        y <- h$counts
+        y <- y / max(y)
+        ## Plot rescaled histogram.
+        rect(breaks[-nB], 0, breaks[-1], y, ...)
+      }
+      ## Compute mean trait value per genotype per environment.
+      X <- tapply(X = x[, trait], INDEX = x[, c("genotype", "env")],
+                  FUN = mean, na.rm = TRUE)
+      ## Create scatterplots with absolute correlations on the upper part.
+      pairs(X, upper.panel = panelCor, #diag.panel = panelHist,
+            main = paste("Scatterplot matrix and correlations by enviroment:",
+                         trait))
+    } else {
+      stop("No column env in data. Scatterplot cannot be made.\n")
+    }
+  } else if (plotType == "cor") {
+    if (isEnv) {
+      ## Compute mean trait value per genotype per environment.
+      myDat <- tapply(X = x[, trait], INDEX = x[, c("genotype", "env")],
+                      FUN = mean, na.rm = TRUE)
+      ## Compute correlation matrix.
+      corMat <- cor(myDat, use = "pairwise.complete.obs")
+      corMat[upper.tri(corMat, diag = FALSE)] <- NA
+      ## Plot correlation matrix.
+      plotCorMat(corMat)
+    } else {
+      stop("No column env in data. Correlation plot cannot be made.\n")
+    }
+  }
+}
 
 #' @export
 print.summary.TD <- function(x, ...) {
   whichWhat <- attr(x, "whichWhat")
-  decimals <- c(rep(x = 0, times = 3), rep(x = 2, times = 7), rep(x = 3, times = 5),
-                rep(x = 2, times = 3), rep(x = 3, times = 4))[whichWhat]
+  decimals <- c(rep(x = 0, times = 3), rep(x = 2, times = 7),
+                rep(x = 3, times = 5), rep(x = 2, times = 3),
+                rep(x = 3, times = 4))[whichWhat]
   maxLength <- max(nchar(rownames(x)))
   for (i in 1:ncol(x)) {
     cat("\nSummary statistics for", colnames(x)[i], "\n\n")

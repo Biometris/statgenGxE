@@ -332,8 +332,21 @@ qtlPosToName <- function(chrPos, cross) {
   return(list(chrNames = chrPosMap$mrkNames, ext = chrPosMap$posExt))
 }
 
-
-
+#' @keywords internal
+plotCorMat <- function(corMat) {
+  meltedCorMat <- reshape2::melt(corMat)
+  ggplot2::ggplot(data = meltedCorMat, ggplot2::aes_string("Var1", "Var2",
+                                                           fill = "value")) +
+    ggplot2::geom_tile(color = "white") +
+    ggplot2::scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                                  na.value = "grey", midpoint = 0,
+                                  limit = c(-1, 1), space = "Lab") +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1,
+                                                       size = 10, hjust = 1)) +
+    ggplot2::xlab("") + ggplot2::ylab("") +
+    ggplot2::coord_fixed()
+}
 
 
 
