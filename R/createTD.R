@@ -287,6 +287,7 @@ summary.TD <- function(object,
   return(structure(stats,
                    class = c("summary.TD", "table")))
 }
+
 #' Plot Function for Class TD
 #'
 #' Four types of plot can be made. Boxplots and histograms can be made for
@@ -323,9 +324,10 @@ plot.TD <- function(x,
   dotArgs <- list(...)
   isEnv <- "env" %in% colnames(x)
   if (plotType == "box") {
-    ## Boxplot call for simple boxplot is different than boxplot per env.
-    ## Therefore diffentiate between those two.
+    ## Set arguments for boxplot
     if (isEnv) {
+      ## Call for simple boxplot is different than boxplot per env.
+      ## Therefore diffentiate between those two.
       bpArgs <- list(formula = as.formula(paste(trait, "~ env")),
                      data = x)
     } else {
@@ -333,17 +335,21 @@ plot.TD <- function(x,
     }
     ## Arguments that are equal for both calls.
     bpArgs <- c(bpArgs, list(
-      main = paste("Boxplot", if (isEnv) "by Enviroment"),
+      main = paste0("Boxplot", ifelse(isEnv, " by Enviroment", "")),
       xlab = ifelse(isEnv, "Enviroment", ""),
-      ylab = trait), dotArgs)
-    do.call("boxplot", args = bpArgs)
+      ylab = trait))
+    ## Add and overwrite args with custom args from ...
+    bpArgs <- modifyList(bpArgs, dotArgs)
+    do.call(boxplot, args = bpArgs)
   } else if (plotType == "hist") {
-    ## Construct formula for histogram.
-    histForm <- as.formula(paste("~", trait, if (isEnv) "| env"))
-    print(lattice::histogram(x = histForm, data = x,
-                             main = paste("Histogram",
-                                          if (isEnv) "by Enviroment"),
-                             xlab = trait, dotArgs))
+    ## Set arguments for histogram
+    histArgs <- list(x = as.formula(paste("~", trait, if (isEnv) "| env")),
+                     data = x, main = paste0("Histogram",
+                                             ifelse(isEnv, " by Enviroment", "")),
+                     xlab = trait)
+    ## Add and overwrite args with custom args from ...
+    histArgs <- modifyList(histArgs, dotArgs)
+    do.call(lattice::histogram, args = histArgs)
   } else if (plotType == "scatter") {
     if (isEnv) {
       ## Function for 'plotting' absolute correlations with text size
@@ -375,10 +381,16 @@ plot.TD <- function(x,
       ## Compute mean trait value per genotype per environment.
       X <- tapply(X = x[, trait], INDEX = x[, c("genotype", "env")],
                   FUN = mean, na.rm = TRUE)
+      ## Set arguments for pairs.
+      #diag.panel = panelHist, -- suppressed for now.
+      pairsArgs <- list(x = X, upper.panel = panelCor,
+                        main = paste("Scatterplot matrix and correlations
+                                     by enviroment:", trait))
+      ## Add and overwrite args with custom args from ...
+      pairsArgs <- modifyList(pairsArgs, dotArgs)
       ## Create scatterplots with absolute correlations on the upper part.
-      pairs(X, upper.panel = panelCor, #diag.panel = panelHist,
-            main = paste("Scatterplot matrix and correlations by enviroment:",
-                         trait))
+      do.call(pairs, args = pairsArgs)
+
     } else {
       stop("No column env in data. Scatterplot cannot be made.\n")
     }
@@ -391,7 +403,12 @@ plot.TD <- function(x,
       corMat <- cor(myDat, use = "pairwise.complete.obs")
       corMat[upper.tri(corMat, diag = FALSE)] <- NA
       ## Plot correlation matrix.
-      plotCorMat(corMat)
+      ## Set arguments for plotCorMat
+      corMatArgs <- list(corMat = corMat,
+                         main = paste("Correlations between environments for", trait))
+      ## Add and overwrite args with custom args from ...
+      corMatArgs <- modifyList(corMatArgs, dotArgs["main"])
+      do.call(plotCorMat, corMatArgs)
     } else {
       stop("No column env in data. Correlation plot cannot be made.\n")
     }

@@ -333,7 +333,7 @@ qtlPosToName <- function(chrPos, cross) {
 }
 
 #' @keywords internal
-plotCorMat <- function(corMat) {
+plotCorMat <- function(corMat, main = "") {
   meltedCorMat <- reshape2::melt(corMat)
   ggplot2::ggplot(data = meltedCorMat, ggplot2::aes_string("Var1", "Var2",
                                                            fill = "value")) +
@@ -344,7 +344,8 @@ plotCorMat <- function(corMat) {
     ggplot2::theme_minimal() +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1,
                                                        size = 10, hjust = 1)) +
-    ggplot2::xlab("") + ggplot2::ylab("") +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
+    ggplot2::ggtitle(main) + ggplot2::xlab("") + ggplot2::ylab("") +
     ggplot2::coord_fixed()
 }
 
