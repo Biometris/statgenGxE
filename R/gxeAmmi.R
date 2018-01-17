@@ -28,7 +28,8 @@
 #'
 #' @examples
 #' ## Run AMMI
-#' geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld", nPC = 2, center = TRUE, scale = FALSE)
+#' geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
+#' ## Create report
 #' report(geAmmi, outfile = "./testReports/reportAmmi.pdf")
 #'
 #' @import stats

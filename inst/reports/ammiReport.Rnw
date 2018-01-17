@@ -106,7 +106,7 @@ print(xtable::xtable(x = importance, label = "importance",
 @
 
 <<label=impPlot, echo=FALSE, fig.height=4, fig.width=5, fig.align="left">>=
-plot(x = 1:ncol(x$importance), y = x$importance[2,], type = "b",
+plot(x = 1:ncol(x$importance), y = x$importance[2, ], type = "b",
      xaxt = "n", xlab = "", ylab = "")
 axis(side = 1, at = 1:ncol(x$importance), labels = colnames(x$importance))
 @
