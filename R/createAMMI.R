@@ -135,7 +135,8 @@ plot.AMMI <- function(x,
                     xlim = range(c(x$envMean, x$genoMean)),
                     ylim = range(c(loadings[, 1] * lam, scores[, 1] / lam)))
     ## Add and overwrite args with custom args from ...
-    bp1Args <- modifyList(bp1Args, dotArgs)
+    fixedArgs <- c("x", "type", "xlim", "ylim")
+    bp1Args <- modifyList(bp1Args, dotArgs[!names(dotArgs) %in% fixedArgs])
     ## Setup plot frame.
     do.call(plot, args = bp1Args)
     ## Add genotypes to empty plot.
@@ -161,15 +162,16 @@ plot.AMMI <- function(x,
     lam <- lam ^ scale
     ## Set arguments for biplot2.
     bp2Args <- list(x = t(t(scores[, 1:2]) / lam),
-                   y = t(t(loadings[, 1:2]) * lam), col = col,
-                   cex = c(par("cex") / 2, par("cex")),
-                   xlabs = rep("o", nrow(scores)),
-                   main = paste0("AMMI2 biplot for ", x$trait, " (", info, ")"),
-                   xlab = paste0("PC1 (", percPC1, "%)"),
-                   ylab = paste0("PC2 (", percPC2, "%)"),
-                   xpd = TRUE)
+                    y = t(t(loadings[, 1:2]) * lam), col = col,
+                    cex = c(par("cex") / 2, par("cex")),
+                    xlabs = rep("o", nrow(scores)),
+                    main = paste0("AMMI2 biplot for ", x$trait, " (", info, ")"),
+                    xlab = paste0("PC1 (", percPC1, "%)"),
+                    ylab = paste0("PC2 (", percPC2, "%)"),
+                    xpd = TRUE)
     ## Add and overwrite args with custom args from ...
-    bp2Args <- modifyList(bp2Args, dotArgs)
+    fixedArgs <- c("x", "type", "xlim", "ylim")
+    bp2Args <- modifyList(bp2Args, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(biplot, args = bp2Args)
   }
 }

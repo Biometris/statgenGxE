@@ -321,7 +321,7 @@ print.summary.TD <- function(x, ...) {
 #' scatterplots all graphical parameters can be changed, for the correlation
 #' only \code{"main"} will be used and other parameters are ignored.
 #' @param trait A character string specifying the name of the traits to be plotted.
-#' @param plotType character string indicating which plot should be made.
+#' @param plotType A character string indicating which plot should be made.
 #' Either \code{"box"} for a boxplot, \code{"hist"} for histograms,
 #' \code{"scatter"} for scatter plots and correlations or \code{"cor"} for a
 #' plot of the correlations between environments.
@@ -361,7 +361,8 @@ plot.TD <- function(x,
       xlab = ifelse(isEnv, "Enviroment", ""),
       ylab = trait))
     ## Add and overwrite args with custom args from ...
-    bpArgs <- modifyList(bpArgs, dotArgs)
+    fixedArgs <- c("formula", "data", "x")
+    bpArgs <- modifyList(bpArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(boxplot, args = bpArgs)
   } else if (plotType == "hist") {
     ## Set arguments for histogram
@@ -370,7 +371,8 @@ plot.TD <- function(x,
                                              ifelse(isEnv, " by Enviroment", "")),
                      xlab = trait)
     ## Add and overwrite args with custom args from ...
-    histArgs <- modifyList(histArgs, dotArgs)
+    fixedArgs <- c("x", "data")
+    histArgs <- modifyList(histArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(lattice::histogram, args = histArgs)
   } else if (plotType == "scatter") {
     if (isEnv) {
@@ -409,10 +411,10 @@ plot.TD <- function(x,
                         main = paste("Scatterplot matrix and correlations
                                      by enviroment:", trait))
       ## Add and overwrite args with custom args from ...
-      pairsArgs <- modifyList(pairsArgs, dotArgs)
+      fixedArgs <- c("x", "upper.panel")
+      pairsArgs <- modifyList(pairsArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
       ## Create scatterplots with absolute correlations on the upper part.
       do.call(pairs, args = pairsArgs)
-
     } else {
       stop("No column env in data. Scatterplot cannot be made.\n")
     }
@@ -429,17 +431,11 @@ plot.TD <- function(x,
       corMatArgs <- list(corMat = corMat,
                          main = paste("Correlations between environments for", trait))
       ## Add and overwrite args with custom args from ...
-      corMatArgs <- modifyList(corMatArgs, dotArgs["main"])
+      fixedArgs <- c("corMat")
+      corMatArgs <- modifyList(corMatArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
       do.call(plotCorMat, corMatArgs)
     } else {
       stop("No column env in data. Correlation plot cannot be made.\n")
     }
   }
 }
-
-
-
-
-
-
-
