@@ -93,7 +93,7 @@ summary.AMMI <- function(object, ...) {
 #' scale is outside this range.
 #' @param col A character vector with plot colors for genotype and environment.
 #'
-#' @return A biplot plot depending on \code{plotType}
+#' @return A biplot depending on \code{plotType}
 #'
 #' @examples
 #' # Run AMMI.
@@ -146,8 +146,6 @@ plot.AMMI <- function(x,
          adj = c(0.5, 0.5), col = col[2])
     abline(h = 0, v = x$overallMean, lty = 5)
   } else if (plotType == "AMMI2") {
-    oldPar <- par(xpd = TRUE)
-    on.exit(par(oldPar))
     if (scale == 1) {
       info <- "environment scaling"
     } else if (scale == 0) {
@@ -168,7 +166,8 @@ plot.AMMI <- function(x,
                    xlabs = rep("o", nrow(scores)),
                    main = paste0("AMMI2 biplot for ", x$trait, " (", info, ")"),
                    xlab = paste0("PC1 (", percPC1, "%)"),
-                   ylab = paste0("PC2 (", percPC2, "%)"))
+                   ylab = paste0("PC2 (", percPC2, "%)"),
+                   xpd = TRUE)
     ## Add and overwrite args with custom args from ...
     bp2Args <- modifyList(bp2Args, dotArgs)
     do.call(biplot, args = bp2Args)

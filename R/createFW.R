@@ -77,81 +77,96 @@ summary.FW <- function(object, ...) {
 
 #' Plot Function for Class FW
 #'
-#' Function for creating scatter, line and trellis plots for objects of class FW.
+#' Three types of plot can be made. A scatter plot for genotypic mean,
+#' mse and sensitivity, a line plot with fitted lines for each genotype and
+#' a trellis plot with individual slopes per genotype (for max 64 genotypes).
 #'
-#' @param x an object of class FW
-#' @param ... not unused
-#' @param plotType a character vector indicating which plot(s) will be drawn.
+#' @param x An object of class FW
+#' @param ... Other graphical parameters passed on to actual plot function.
+#' @param plotType A character string indicating which plot should be made.
 #' Possible values are "scatter", "line"  and "trellis" for creating a scatter
 #' plot of sensitivities, a plot of fitted lines for each genotype and a trellis
 #' plot of the individual genotype slopes respectively.
-#' @param sortBySens A character string specifying whether the results are to be sorted
+#' @param sorted A character string specifying whether the results are to be sorted
 #' in an increasing (or decreasing) order of sensitivities.
-#' By default, \code{sortBySens = "ascending"}. Other options are "descending" and "none".
 
-#' @return Plots as described in \code{plotType}
+#' @return A plot depending on \code{plotType}
+#'
+#' @examples
+#' # Run Finlay-Wilkinson analysis.
+#' geFW <- gxeFw(TD = TDMaize, trait = "yld")
+#' # Create scatter plot.
+#' plot(geFW, plotType = "scatter")
 #'
 #' @import graphics grDevices
-#'
 #' @export
 plot.FW <- function(x,
                     ...,
                     plotType = c("scatter", "line", "trellis"),
-                    sortBySens = c("ascending", "descending", "none")) {
+                    sorted = c("ascending", "descending", "none")) {
   plotType <- match.arg(plotType, several.ok = TRUE)
-  sortBySens <- match.arg(sortBySens)
-  mse <- x$estimates$mse
-  genMean <- x$estimates$genMean
-  sens <- x$estimates$sens
+  sorted <- match.arg(sorted)
+  dotArgs <- list(...)
   envEffs <- x$envEffs$Effect
-  fVal <- tapply(X = x$fittedGeno, INDEX = x$data[, c("genotype", "env")],
-                 FUN = mean, na.rm = TRUE)
   if ("scatter" %in% plotType) {
-    if (!all(is.na(mse))) {
-      scatterData <- cbind(genMean, mse, sens)
-      colnames(scatterData) <- c("Mean", "m.s.deviation", "Sensitivity")
-      pairs(x = scatterData, upper.panel = NULL,
-            main = "Finlay & Wilkinson analysis")
+    selCols = c(1, if (!all(is.na(x$estimates$mse))) 2, 3)
+    scatterData <- setNames(x$estimates[, c("genMean", "mse", "sens")[selCols]],
+                            c("Mean", "m.s.deviation", "Sensitivity")[selCols])
+    ## Set arguments for plot.
+    plotArgs <- list(x = scatterData, upper.panel = NULL,
+                     main = paste0("Finlay & Wilkinson analysis for ", x$trait))
+    ## Add and overwrite args with custom args from ...
+    fixedArgs <- c("x")
+    plotArgs <- modifyList(plotArgs, dotArgs[-which(names(dotArgs) %in% fixedArgs)])
+    do.call(ifelse(!all(is.na(x$estimates$mse)), pairs, plot), args = plotArgs)
+  } else if ("line" %in% plotType) {
+    fVal <- tapply(X = x$fittedGeno, INDEX = x$data[, c("env", "genotype")],
+                   FUN = mean, na.rm = TRUE)
+    if (sorted == "none") {
+      orderEnv <- 1:length(envEffs)
     } else {
-      plot(x = genMean, y = sens, xlab = "Mean", ylab = "Sensitivity",
-           main = "Finlay & Wilkinson analysis")
+      orderEnv <- order(envEffs, decreasing = (sorted == "descending"))
     }
-  }
-  if ("line" %in% plotType) {
-    minFVal <- min(x$fittedGeno, na.rm = TRUE)
-    maxFVal <- max(x$fittedGeno, na.rm = TRUE)
-    minXEff <- min(envEffs, na.rm = TRUE)
-    maxXEff <- max(envEffs, na.rm = TRUE)
-    plot(x = NA, xlim = c(minXEff, maxXEff), ylim = c(minFVal, maxFVal),
-         ylab = x$trait, xlab = "Environment", xaxt = "n")
-    axis(side = 1, envEffs, levels(x$envEffs$Environment), las = 2, cex.axis = .75)
-    color <- 1
-    for (i in 1:x$nGeno) {
-      if (sortBySens != "none") {
-        xfVal <- fVal[names(sens[i]), ]
-      } else {
-        xfVal <- fVal[i, ]
-      }
-      lines(envEffs[order(envEffs)], xfVal[order(envEffs)], col = color)
-      color <- color + 1
-    }
-  }
-  if ("trellis" %in% plotType) {
-    trellisdata <- data.frame(genotype = x$data[["genotype"]], trait = x$data[[x$trait]],
-                              fitted = x$fittedGen, xEff = rep(envEffs, x$nGeno))
+    ## Set arguments for plot.
+    plotArgs <- list(x = envEffs[orderEnv],
+                     y = fVal[orderEnv, ], type = "l",
+                     main = paste0("Finlay & Wilkinson analysis for ", x$trait),
+                     ylab = x$trait, xlab = "Environment",
+                     xlim = range(envEffs, na.rm = TRUE),
+                     ylim = range(x$fittedGeno, na.rm = TRUE),
+                     xaxt = "n", col = 1:ncol(fVal))
+    ## Add and overwrite args with custom args from ...
+    fixedArgs <- c("x", "y", "xlim", "ylim", "xaxt")
+    plotArgs <- modifyList(plotArgs, dotArgs[-which(names(dotArgs) %in% fixedArgs)])
+    do.call(matplot, args = plotArgs)
+    ## Add environments as ticks on axis.
+    axis(side = 1, at = envEffs, labels = levels(x$envEffs$Environment),
+         las = 2, cex.axis = .75)
+  } else if ("trellis" %in% plotType) {
+    trellisData <- data.frame(genotype = x$data$genotype,
+                              trait = x$data[[x$trait]],
+                              fitted = x$fittedGen,
+                              xEff = rep(envEffs, x$nGeno))
     if (x$nGeno > 64) {
-      first64 <- levels(x$estimates$genotype)[1:64]
-      first64 <- x$data[["genotype"]] %in% first64
-      trellisdata <- droplevels(trellisdata[first64, ])
+      ## Select first 64 genotypes for plotting.
+      first64 <- x$data$genotype %in% levels(x$estimates$genotype)[1:64]
+      trellisData <- droplevels(trellisData[first64, ])
     }
-    print(lattice::xyplot(trait + fitted ~ xEff | genotype, data = trellisdata,
-                          panel = function(x, y, subscripts) {
-                            lattice::panel.xyplot(x, y)
-                            lattice::panel.lines(trellisdata$xEff[subscripts],
-                                                 trellisdata$fitted[subscripts])
-                          }, as.table = TRUE, subscripts = TRUE,
-                          xlab = "Environment", ylab = x$trait,
-                          main = paste0("Finlay & Wilkinson analysis for ", x$trait)))
+    ## Define panelfunction for xy plot.
+    panelFunc <- function(x, y, subscripts) {
+      lattice::panel.xyplot(x, y)
+      lattice::panel.lines(trellisData$xEff[subscripts],
+                           trellisData$fitted[subscripts])
+    }
+    ## Set arguments for plot.
+    plotArgs <- list(x = trait + fitted ~ xEff | genotype, data = trellisData,
+      panel = panelFunc, as.table = TRUE, subscripts = TRUE,
+      xlab = "Environment", ylab = x$trait,
+      main = paste0("Finlay & Wilkinson analysis for ", x$trait))
+    fixedArgs <- c("x", "data", "panel")
+    plotArgs <- modifyList(plotArgs, dotArgs[-which(names(dotArgs) %in% fixedArgs)])
+    ## Add and overwrite args with custom args from ...
+    do.call(lattice::xyplot, args = plotArgs)
   }
 }
 

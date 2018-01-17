@@ -28,12 +28,11 @@
 #' Research, 14, 742-754.
 #'
 #' @examples
-#' ## Run joint regression analysis
+#' ## Run Finlay-Wilkinson analysis
 #' geFW <- gxeFw(TDMaize, trait = "yld")
 #' report(geFW, outfile = "./testReports/reportFW.pdf")
 #'
 #' @export
-
 gxeFw <- function(TD,
                   trait,
                   maxCycle = 15,
