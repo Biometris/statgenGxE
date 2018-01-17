@@ -18,6 +18,7 @@
 #' TDmegaEnv <- gxeMegaEnvironment(TD = TDMaize, trait = "yld")
 #' attr(TDmegaEnv, "summary")
 #'
+#' @importFrom methods getFunction
 #' @export
 
 gxeMegaEnvironment <- function(TD,

@@ -333,6 +333,7 @@ print.summary.TD <- function(x, ...) {
 #' @examples
 #' plot(TDMaize, trait = "yld")
 #'
+#' @importFrom utils modifyList
 #' @export
 plot.TD <- function(x,
                     ...,

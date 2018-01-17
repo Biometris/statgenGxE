@@ -35,7 +35,7 @@ report(SSA, outfile = "./testReports/SSASite01.pdf")
 BLUPList <- lapply(levels(wheatTD$env), function(site) {
   SSAEnv <- STRunModel(TD = wheatTD[wheatTD$env == site, ], traits = "GY_Calc_tha",
                        what = "random", engine = "asreml")
-  cbind(env = site, STExtract(SSAEnv, what = "BLUPs"))
+  STExtract(SSAEnv, what = "BLUPs", keep = "env")
 })
 ## Create new TD object from BLUPs
 wheatTDBlup <- createTD(data = Reduce("rbind2", BLUPList))
@@ -47,7 +47,7 @@ summary(ammi)
 report(ammi, outfile = "./testReports/ammiWheat.pdf")
 
 ## Run Finlay-Wilkinson analysis
-fw <- gxeFw(TD = wheatTDBlup, trait = "GY_Calc_tha", sortBySens = "ascending")
+fw <- gxeFw(TD = wheatTDBlup, trait = "GY_Calc_tha", sorted = "ascending")
 summary(fw)
 report(fw, outfile = "./testReports/fwWheat.pdf")
 

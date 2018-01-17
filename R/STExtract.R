@@ -41,8 +41,11 @@
 #' in details.\cr
 #' If \code{what = "all"} all available statistics are computed.\cr
 #' @param keep A character vector of column(s) in the object of class
-#' \code{\link{TD}} used for modelling. These columns will be kept as output when
-#' computing fitted values, residuals, standardized residuals and rMeans.
+#' \code{\link{TD}} used for modeling. These columns will be kept as output when
+#' computing fitted values, residuals, standardized residuals and rMeans. Columns
+#' can also be kept when computing (se)BLUEs and (se)BLUPs but only if the column
+#' to keep contains unique values for the modeled variables, i.e. a column repId
+#' with several values per genotype cannot be kept.
 #'
 #' @return A list of extracted statistics.
 #'
@@ -119,6 +122,16 @@ extractSpATS <- function(SSA,
   baseData <- TD[, colnames(TD) %in% c(predicted, "repId", keep), drop = FALSE]
   ## Create baseData with only genotype names.
   baseDataPred <- setNames(data.frame(predNames), predicted)
+  ## Add columns in keep one-by-one
+  for (col in keep) {
+    TDKeep <- unique(TD[ , c(predicted, col)])
+    if (!anyDuplicated(TDKeep[, predicted])) {
+      baseDataPred <- merge(baseDataPred, TDKeep, by = predicted)
+    } else {
+      warning(paste("Duplicate values for", deparse(substitute(col)),
+                    "Column not kept.\n", call. = FALSE))
+    }
+  }
   ## Create empty result list.
   result <- setNames(vector(mode = "list", length = length(what)),
                      what)
@@ -265,6 +278,16 @@ extractLme4 <- function(SSA,
   }
   ## Create baseData with only genotype names.
   baseDataPred <- setNames(data.frame(predNames[[1]]), predicted)
+  ## Add columns in keep one-by-one
+  for (col in keep) {
+    TDKeep <- unique(TD[ , c(predicted, col)])
+    if (!anyDuplicated(TDKeep[, predicted])) {
+      baseDataPred <- merge(baseDataPred, TDKeep, by = predicted)
+    } else {
+      warning(paste("Duplicate values for", deparse(substitute(col)),
+                    "Column not kept.\n", call. = FALSE))
+    }
+  }
   ## Extract BLUEs and se of BLUEs from emStats.
   if ("BLUEs" %in% what) {
     result[["BLUEs"]] <- cbind(baseDataPred,
@@ -432,6 +455,16 @@ extractAsreml <- function(SSA,
   }
   ## Create baseData with only genotype names.
   baseDataPred <- setNames(data.frame(predNames), predicted)
+  ## Add columns in keep one-by-one
+  for (col in keep) {
+    TDKeep <- unique(TD[ , c(predicted, col)])
+    if (!anyDuplicated(TDKeep[, predicted])) {
+      baseDataPred <- merge(baseDataPred, TDKeep, by = predicted)
+    } else {
+      warning(paste("Duplicate values for", deparse(substitute(col)),
+                    "Column not kept.\n", call. = FALSE))
+    }
+  }
   ## Extract BLUEs and se of BLUEs from fixed model.
   if ("BLUEs" %in% what) {
     result[["BLUEs"]] <- cbind(baseDataPred,
