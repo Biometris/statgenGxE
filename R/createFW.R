@@ -117,7 +117,7 @@ plot.FW <- function(x,
                      main = paste0("Finlay & Wilkinson analysis for ", x$trait))
     ## Add and overwrite args with custom args from ...
     fixedArgs <- c("x")
-    plotArgs <- modifyList(plotArgs, dotArgs[-which(names(dotArgs) %in% fixedArgs)])
+    plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(ifelse(!all(is.na(x$estimates$mse)), pairs, plot), args = plotArgs)
   } else if ("line" %in% plotType) {
     fVal <- tapply(X = x$fittedGeno, INDEX = x$data[, c("env", "genotype")],
@@ -137,7 +137,7 @@ plot.FW <- function(x,
                      xaxt = "n", col = 1:ncol(fVal))
     ## Add and overwrite args with custom args from ...
     fixedArgs <- c("x", "y", "xlim", "ylim", "xaxt")
-    plotArgs <- modifyList(plotArgs, dotArgs[-which(names(dotArgs) %in% fixedArgs)])
+    plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(matplot, args = plotArgs)
     ## Add environments as ticks on axis.
     axis(side = 1, at = envEffs, labels = levels(x$envEffs$Environment),
@@ -163,9 +163,9 @@ plot.FW <- function(x,
       panel = panelFunc, as.table = TRUE, subscripts = TRUE,
       xlab = "Environment", ylab = x$trait,
       main = paste0("Finlay & Wilkinson analysis for ", x$trait))
-    fixedArgs <- c("x", "data", "panel")
-    plotArgs <- modifyList(plotArgs, dotArgs[-which(names(dotArgs) %in% fixedArgs)])
     ## Add and overwrite args with custom args from ...
+    fixedArgs <- c("x", "data", "panel")
+    plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(lattice::xyplot, args = plotArgs)
   }
 }
@@ -175,12 +175,12 @@ plot.FW <- function(x,
 #' A pdf report will be created containing a summary of FW analysis.
 #' Simultaneously the same report will be created as a tex file.
 #'
-#' @param x an object of class FW.
-#' @param sortBy character string indicating by which variable the estimates
+#' @param x An object of class FW.
+#' @param sortBy A character string indicating by which variable the estimates
 #' should be sorted. Either \code{sens}(itivity), \code{genMean} (genotypic Mean) or
 #' \code{mse} (mean squared error).
-#' @param ... further arguments passed on from other functions - not used yet.
-#' @param outfile a character string, the name and location of the output .pdf and .tex
+#' @param ... Further arguments passed on from other functions - not used yet.
+#' @param outfile A character string, the name and location of the output .pdf and .tex
 #' file for the report. If \code{NULL} a report will be created in the current working
 #' directory.
 #'

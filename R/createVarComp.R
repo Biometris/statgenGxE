@@ -61,14 +61,26 @@ summary.varComp <- function(object, ...) {
 #' Function for plotting a heatmap of the correlation matrix for objects of
 #' class varComp.
 #'
-#' @param x an object of class varComp
+#' @param x An object of class varComp
 #' @param ... not unused
+#'
+#' @examples
+#' \dontrun{
+#' geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "asreml")
+#' plot(geVarComp)
+#' }
 #'
 #' @import stats
 #' @export
 plot.varComp <- function(x, ...) {
-  corMat <- cov2cor(x$vcov)
-  plotCorMat(corMat)
+  dotArgs <- list(...)
+  ## Set arguments for plot
+  plotArgs <- list(corMat = cov2cor(x$vcov),
+                   main = paste("Heatmap for correlations for model:", x$choice))
+  ## Add and overwrite args with custom args from ...
+  fixedArgs <- c("corMat")
+  plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
+  do.call(plotCorMat, args = plotArgs)
 }
 
 #' Report method for class varComp
@@ -77,9 +89,9 @@ plot.varComp <- function(x, ...) {
 #' best variance model.
 #' Simultaneously the same report will be created as a tex file.
 #'
-#' @param x an object of class varComp.
-#' @param ... further arguments passed on from other functions - not used yet.
-#' @param outfile a character string, the name and location of the output .pdf and .tex
+#' @param x An object of class varComp.
+#' @param ... Further arguments passed on from other functions - not used yet.
+#' @param outfile A character string, the name and location of the output .pdf and .tex
 #' file for the report. If \code{NULL} a report will be created in the current working
 #' directory.
 #'
