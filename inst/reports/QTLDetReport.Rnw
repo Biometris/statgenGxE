@@ -80,12 +80,10 @@ modSum <- data.frame(c("Model type", "Method"),
                                "SIM" = "Simple interval mapping",
                                "CIM" = "Composite interval mapping"),
                        "Hayley Knot"))
-print(xtable::xtable(x = modSum, caption = "Model",
-                     label = "model",
+print(xtable::xtable(x = modSum, label = "model",
                      align = c("l", "l", "l")),
       latex.environments = "flushleft", hline.after = NULL,
-      include.rownames = FALSE, include.colnames = FALSE,
-      caption.placement = "top")
+      include.rownames = FALSE, include.colnames = FALSE)
 @
 %-------------------------------------------------------------------------------
 \section{Summary}
