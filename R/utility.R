@@ -280,9 +280,9 @@ createReport <- function(x,
   ## Construct shell commands for calling pdf latex.
   ## First only draftmode for speed.
   cmdRun1 <- paste0("pdflatex -interaction=nonstopmode -draftmode ",
-                    outBase, "tex")
+                    outBase, "tex > nul 2>&1")
   cmdRun2 <- paste0("pdflatex -interaction=nonstopmode ",
-                    outBase, "tex")
+                    outBase, "tex > nul 2>&1")
   ## Run shell commands. System doens't work for windows.
   ## Two runs needed to get references right.
   switch(tolower(Sys.info()[["sysname"]]),
