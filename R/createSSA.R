@@ -100,8 +100,6 @@ summary.SSA <- function(object,
     trait <- object$traits
   }
   stats <- summary.TD(object = TD, traits = trait)
-  stats <- na.omit(stats)
-  attr(stats, "na.action") <- NULL
   ## get predicted means (BLUEs + BLUPs).
   extr <- STExtract(object)
   ## Merge BLUEs, BLUPs + SE.
@@ -110,19 +108,21 @@ summary.SSA <- function(object,
                               extr$BLUPs, extr$seBLUPs))
   meanTab <- Reduce(f = function(x, y) {
     dplyr::full_join(x, y, all = TRUE, by = "genotype")
-  }, x = joinList)
-  ## Move genotype to rowname for proper printing with printCoefMat
-  rownames(meanTab) <- meanTab$genotype
-  ## Set colnames. Because of duplicate colname SE no selection on columns can
-  ## be done anymore after this.
-  meanTab <- setNames(meanTab[, -1], c(if (!is.null(extr$BLUEs)) c("BLUEs", "SE"),
-                         if (!is.null(extr$BLUPs)) c("BLUPs", "SE")))
+  }, x = joinList) %>%
+    ## Move genotype to rowname for proper printing with printCoefMat
+    tibble::remove_rownames() %>%
+    tibble::column_to_rownames(var = "genotype") %>%
+    ## Set colnames. Because of duplicate colname SE no selection on columns can
+    ## be done anymore after this.
+    setNames(c(if (!is.null(extr$BLUEs)) c("BLUEs", "SE"),
+               if (!is.null(extr$BLUPs)) c("BLUPs", "SE")))
   if (!is.na(sortBy)) {
-    ## Sort by sortBY with options from input params.
+    ## Sort by sortBy with options from input params.
     oList <- order(meanTab[[sortBy]], na.last = naLast, decreasing = decreasing)
     meanTab <- meanTab[oList, ]
   }
   if (!is.na(nBest)) {
+    ## Extract the n best genotypes.
     meanTab <- meanTab[1:nBest, ]
   }
   cat("Summary statistics:", "\n===================\n")
@@ -146,13 +146,11 @@ summary.SSA <- function(object,
       !is.null(extr$lsd)) {
     cat("\nStandard Error of Difference (genotype modelled as fixed effect)",
         "\n================================================================\n")
-    sed <- as.data.frame(extr$lsd)
-    names(sed) <- "s.e.d."
+    sed <- data.frame("s.e.d" = extr$sed)
     printCoefmat(sed, digits = digits, ...)
     cat("\nLeast Significant Difference (genotype modelled as fixed effect)",
         "\n================================================================\n")
-    lsd  <- as.data.frame(extr$lsd)
-    names(lsd) <- "l.s.d."
+    lsd  <- data.frame("l.s.d." = extr$lsd)
     printCoefmat(lsd, digits = digits, ...)
   }
   invisible(meanTab)
@@ -351,16 +349,19 @@ plot.SSA <- function(x,
 #' A pdf report will be created containing a summary of the results of the model.
 #' Simultaneously the same report will be created as a tex file.
 #'
-#' @param x an object of class SSA.
-#' @param ... further arguments passed on from other functions - not used yet.
-#' @param outfile a character string, the name and location of the output .pdf and .tex
+#' @param x An object of class SSA.
+#' @param ... Further arguments passed on from other functions - not used yet.
+#' @param descending Should the trait be ordered in descending order? Set to
+#' \code{FALSE} if low values of the trait indicate better performance.
+#' @param outfile A character string, the name and location of the output .pdf and .tex
 #' file for the report. If \code{NULL} a report will be created in the current working
 #' directory.
-#' @param what a character string indicating whether the model with genotype fixed
+#' @param what A character string indicating whether the model with genotype fixed
 #' or genotype random should be reported.
 #'
 #' @export
 report.SSA <- function(x, ...,
+                       descending = TRUE,
                        outfile = NULL,
                        what = if (is.null(x$mFix)) "random" else "fixed") {
   if (length(x$traits) > 1) {
@@ -380,6 +381,6 @@ report.SSA <- function(x, ...,
     x$mFix <- NULL
   }
   createReport(x = x, reportName = "modelReport.Rnw",
-               outfile = outfile, ...)
+               outfile = outfile, ..., descending = descending)
 }
 

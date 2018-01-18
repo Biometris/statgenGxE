@@ -150,7 +150,7 @@ plot.FW <- function(x,
     if (x$nGeno > 64) {
       ## Select first 64 genotypes for plotting.
       first64 <- x$data$genotype %in% levels(x$estimates$genotype)[1:64]
-      trellisData <- droplevels(trellisData[first64, ])
+      trellisData <- trellisData[first64, ]
     }
     ## Define panelfunction for xy plot.
     panelFunc <- function(x, y, subscripts) {
@@ -186,10 +186,10 @@ plot.FW <- function(x,
 #'
 #' @export
 report.FW <- function(x,
-                      sortBy = "sens",
+                      sortBy = c("sens", "genMean", "mse"),
                       ...,
                       outfile = NULL) {
-  sortBy <- match.arg(arg = sortBy, choices = c("sens", "genMean", "mse"))
+  sortBy <- match.arg(arg = sortBy)
   createReport(x = x,
                reportName = "FWReport.Rnw",
                outfile = outfile,

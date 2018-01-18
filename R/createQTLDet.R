@@ -65,7 +65,7 @@ summary.QTLDet <- function(object, ...) {
 #' @export
 plot.QTLDet <- function(x,
                         ...) {
-  plot(x$scores, ylab = "LOD")
+  plot(x$scores, ylab = "LOD", ...)
   if (x$type == "CIM") {
     qtl::add.cim.covar(x$scores)
   }

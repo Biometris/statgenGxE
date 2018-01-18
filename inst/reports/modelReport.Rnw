@@ -49,10 +49,12 @@
 % Load required packages
 <<label=setup, include=FALSE, cache=FALSE>>=
 lapply(list("SpATS"), library, character.only = TRUE)
+descending <- list(...)$descending
 @
 <<label=extractInfo, echo=FALSE, include=FALSE>>=
 ## Extract basic modelling information
 engine <- x$engine
+trait <- x$traits
 if (is.null(x$mFix)) {
   model <- x$mRand[[1]]
   modelType <- "random"
@@ -105,7 +107,7 @@ names(modelDesigns) <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
 if (useCheckId) {
   modelDesigns <- paste("checkId (F) +", modelDesigns)
 }
-descrItems <- c(x$traits, modelDesigns[x$design],
+descrItems <- c(trait, modelDesigns[x$design],
                 if (is.null(x$spatial)) "id" else as.character(x$spatial[1]),
                 modelType)
 names(descrItems) <- c("Trait",
@@ -128,7 +130,7 @@ if (engine == "SpATS") {
 }
 @
 <<label=summary, echo=FALSE, results="asis">>=
-modSum <- as.data.frame(summary(x$data, traits = x$traits))
+modSum <- as.data.frame(summary(x$data, traits = trait))
 modSum <- modSum[!is.na(modSum$Freq), ]
 print(xtable::xtable(x = modSum[, c(1, 3)],
                      caption = "Size of the data set and eight number descriptives",
@@ -227,7 +229,7 @@ if (engine == "SpATS") {
   }
   if ("Genotype" %in% rownames(varComp)) {
     varComp <- rbind(varComp["Genotype", , drop = FALSE],
-                     varComp[-which(rownames(varComp) == "Genotype"), , drop = FALSE])
+                     varComp[rownames(varComp) != "Genotype", , drop = FALSE])
   }
   varComp <- tibble::rownames_to_column(varComp)
   if (nrow(varComp) > 1) {
@@ -247,27 +249,28 @@ if (engine == "SpATS") {
 %-------------------------------------------------------------------------------
 \section{Diagnostic plots}
 %-------------------------------------------------------------------------------
-<<label=spatialPlots, echo=FALSE, results="asis">>=
+<<label=spatialPlots, echo=FALSE, results="asis", out.width="90%">>=
 if (all(c("colId", "rowId") %in% colnames(x$data))) {
   plot(x, what = modelType, plotType = "spatial")
-  cat("\\newpage")
 }
 @
-<<label=basePlots, echo=FALSE>>=
+<<label=basePlots, echo=FALSE, out.width="90%">>=
 ## Base diagnostic plots, identical for all models
 plot(x, what = modelType, plotType = "base")
 @
 \newpage
 
 %-------------------------------------------------------------------------------
-\section{List of best 10\% genotypes with highest \Sexpr{predName}}
+\section{List of best 10\% genotypes with
+\Sexpr{paste(ifelse(descending, "highest", "lowest"), predName)}}
 %-------------------------------------------------------------------------------
-<<label=best20, echo=FALSE, results="hide">>=
-pred <- STExtract(x, what = predName)
+<<label=best10perc, echo=FALSE, results="hide">>=
 predSE <- STExtract(x, what = paste0("se", predName))
-predTot <- merge(pred, predSE , by = "genotype")
-predTot <- predTot[order(predTot[[paste0(x$traits,".x")]], decreasing = TRUE), ]
-colnames(predTot) <- c("genotype", x$traits, "SE")
+predTot <- STExtract(x, what = predName) %>%
+  dplyr::inner_join(predSE , by = "genotype") %>%
+  dplyr::arrange_(paste0(ifelse(descending, "desc(", ""),
+                         trait,".x", ifelse(descending, ")", ""))) %>%
+  setNames(c("genotype", trait, "SE"))
 best <- predTot[1:ceiling(nrow(predTot) / 10), ]
 @
 \begin{multicols*}{2}
@@ -278,12 +281,12 @@ print(xtable::xtable(x = best, label = "bestTab",
       include.rownames = FALSE, floating = FALSE)
 @
 \columnbreak
-<<label=predPlot, echo=FALSE>>=
+<<label=predPlot, echo=FALSE, out.width="90%">>=
 ## Plot of predictions, BLUEs or BLUPs
-plot(rev(predTot[[x$traits]]), col = "#0080ff", xlab = "Genotypes", xaxt = "n",
-     cex.lab = 1.5, ylab = x$traits, mar = c(5, 5, 4, 2) + 0.1)
-abline(h = quantile(x = predTot[[x$traits]], probs = 0.9), col = "red")
-abline(h = quantile(x = predTot[[x$traits]], probs = 0.1), col = "red")
+plot(rev(predTot[[trait]]), col = "#0080ff", xlab = "Genotypes", xaxt = "n",
+     cex.lab = 1.5, ylab = trait, mar = c(5, 5, 4, 2) + 0.1)
+abline(h = quantile(x = predTot[[trait]], probs = 0.9), col = "red")
+abline(h = quantile(x = predTot[[trait]], probs = 0.1), col = "red")
 @
 \end{multicols*}
 %-------------------------------------------------------------------------------

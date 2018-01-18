@@ -96,11 +96,11 @@ print(xtable::xtable(x = anovaTab, label = "anova",
 %-------------------------------------------------------------------------------
 \section{Diagnostic plots}
 %-------------------------------------------------------------------------------
-<<label=linePlot, echo=FALSE, out.width="70%", fig.align="left">>=
+<<label=linePlot, echo=FALSE, out.width="90%", fig.align="left">>=
 plot(x, plotType = "line")
 @
 \clearpage
-<<label=scatterPlot, echo=FALSE>>=
+<<label=scatterPlot, echo=FALSE, out.width="90%">>=
 plot(x, plotType = "scatter")
 @
 \clearpage

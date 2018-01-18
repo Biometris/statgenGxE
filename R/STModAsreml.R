@@ -7,9 +7,7 @@
 #' @seealso \code{\link{STRunModel}}
 #'
 #' @examples
-#' ## Load data
-#' data(TDHeat05)
-#'
+#' \dontrun{
 #' ## Fit model for row column design.
 #' STModAsreml_1 <- STModAsreml(TD = TDHeat05, traits = "yield")
 #'
@@ -18,9 +16,8 @@
 #'
 #' ## Fit model for resolvable incomplete block design.
 #' STModAsreml_3 <- STModAsreml(TD = TDHeat05, traits = "yield", design = "res.ibd")
-#'
+#' }
 #' @export
-
 STModAsreml <- function(TD,
                         traits,
                         what = c("fixed", "random"),
