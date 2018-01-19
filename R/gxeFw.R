@@ -69,8 +69,8 @@ gxeFw <- function(TD,
   rDf[2] <- aov0["Residuals", "Df"]
   coeffsModel0 <- coefficients(model0)
   envEffs0 <- coeffsModel0[grep(pattern = "env", x = names(coeffsModel0))] %>%
-    scale(scale = FALSE) %>% `colnames<-`("envEffs")
-  rownames(envEffs0) <- substring(rownames(envEffs0), first = 4)
+    scale(scale = FALSE) %>% `colnames<-`("envEffs") %>%
+    `rownames<-`(substring(rownames(.), first = 4))
   TD <- merge(x = TD, y = envEffs0, by.x = "env", by.y = "row.names")
   ## Set initial values for sensitivity beta.
   TD$beta <- 1
