@@ -384,3 +384,57 @@ report.SSA <- function(x, ...,
                outfile = outfile, ..., descending = descending)
 }
 
+#' Convert SSA to Cross
+#'
+#' Convert an SSA object to a cross object from class qtl. Genotypic
+#' should be available in an .csv file.
+#'
+#' @param SSA An object of class \code{\link{SSA}}
+#' @param traits A character string containing the traits to be exported.
+#' @param what A character string containing the statistics to be exported.
+#' as phenotype in the cross object. This can be either \code{BLUEs} or
+#' \code{BLUPs}.
+#' @param genoFile A character string indicating a filename containing
+#' phenotypic data. The data should be in the format required by the
+#' qtl package. See \code{\link[qtl]{read.cross}}. The first column in
+#' the file, i.e. the column containing individuals should be named "ID".
+#'
+#' @param ... Further arguments to be passed to the read.cross function.
+#'
+#' @seealso \code{\link[qtl]{read.cross}}
+#'
+#' @export
+SSAtoCross <- function(SSA,
+                       traits = SSA$traits,
+                       what = c("BLUEs", "BLUPs"),
+                       genoFile = "D:/R packages/RAP/markers.csv",
+                       ...) {
+  ## Checks
+  if (!is.SSA(SSA)) {
+    stop("SSA is not a valid object of class SSA.\n")
+  }
+  what <- match.arg(what)
+  if (!is.character(genoFile) || length(genoFile) > 1 || !file.exists(genoFile)) {
+    stop("genoFile is not a valid filename.\n")
+  }
+  if (colnames(read.csv(genoFile, nrow = 1))[1] != "ID") {
+    stop("First column in genoFile should be named ID.\n")
+  }
+  ## Extract predictions from the model.
+  pred <- STExtract(SSA, traits = traits, what = what)
+  ## Rename first column to match first column in genoFile.
+  colnames(pred)[1] <- "ID"
+  ## Write predictions to temporary file.
+  tmp <- tempfile()
+  write.csv(pred, file = tmp, row.names = FALSE)
+  ## Read cross from temporary file and supplied genoFile.
+  cross <- qtl::read.cross(format = "csvs",
+                           phefile = tmp,
+                           genfile = genoFile,
+                           ...)
+  unlink(tmp)
+  return(cross)
+}
+
+
+
