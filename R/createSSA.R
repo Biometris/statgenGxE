@@ -396,18 +396,31 @@ report.SSA <- function(x, ...,
 #' \code{BLUPs}.
 #' @param genoFile A character string indicating a filename containing
 #' phenotypic data. The data should be in the format required by the
-#' qtl package. See \code{\link[qtl]{read.cross}}. The first column in
-#' the file, i.e. the column containing individuals should be named "ID".
-#'
+#' qtl package. The first column  should contain the individuals, starting
+#' from row 4. Following columns contain markers with in the second and
+#' third row the chromosome and position on the chromosome and in the
+#' following rows the genotypes.
+#' @param genotypes A character vector specifying the genotype codes
+#' corresponding to AA, AB, BB, not BB and not AA.
 #' @param ... Further arguments to be passed to the read.cross function.
+#' See \code{\link[qtl]{read.cross}}.
 #'
 #' @seealso \code{\link[qtl]{read.cross}}
+#'
+#' @examples
+#' ## Run model using SpATS.
+#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+#'                      what = "fixed")
+#' ## Create cross object with BLUEs from myModel.
+#' cross <- SSAtoCross(myModel, genoFile = system.file("extdata", "markers.csv",
+#'                                                    package = "RAP"))
 #'
 #' @export
 SSAtoCross <- function(SSA,
                        traits = SSA$traits,
                        what = c("BLUEs", "BLUPs"),
-                       genoFile = "D:/R packages/RAP/markers.csv",
+                       genoFile,
+                       genotypes = c("A", "H", "B", "D", "C"),
                        ...) {
   ## Checks
   if (!is.SSA(SSA)) {
@@ -417,20 +430,18 @@ SSAtoCross <- function(SSA,
   if (!is.character(genoFile) || length(genoFile) > 1 || !file.exists(genoFile)) {
     stop("genoFile is not a valid filename.\n")
   }
-  if (colnames(read.csv(genoFile, nrow = 1))[1] != "ID") {
-    stop("First column in genoFile should be named ID.\n")
-  }
   ## Extract predictions from the model.
   pred <- STExtract(SSA, traits = traits, what = what)
   ## Rename first column to match first column in genoFile.
-  colnames(pred)[1] <- "ID"
+  colnames(pred)[1] <- colnames(utils::read.csv(genoFile, nrow = 1))[1]
   ## Write predictions to temporary file.
   tmp <- tempfile()
-  write.csv(pred, file = tmp, row.names = FALSE)
+  utils::write.csv(pred, file = tmp, row.names = FALSE)
   ## Read cross from temporary file and supplied genoFile.
   cross <- qtl::read.cross(format = "csvs",
                            phefile = tmp,
                            genfile = genoFile,
+                           genotypes = genotypes,
                            ...)
   unlink(tmp)
   return(cross)
