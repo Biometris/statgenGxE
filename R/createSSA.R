@@ -299,9 +299,9 @@ plot.SSA <- function(x,
       colCoord <- x$data[, "colCoordinates"]
       rowCoord <- x$data[, "rowCoordinates"]
       ## Order plotcols and rows and fill gaps if needed.
-      plotCols <- seq(min(colCoord), max(colCoord),
+      plotCols <- seq(from = min(colCoord), to = max(colCoord),
                       by = min(diff(sort(unique(colCoord)))))
-      plotRows <- seq(min(rowCoord), max(rowCoord),
+      plotRows <- seq(from = min(rowCoord), to = max(rowCoord),
                       by = min(diff(sort(unique(rowCoord)))))
       ## Compute range of values in response + fitted data so same scale
       ## can be used over plots.

@@ -37,7 +37,7 @@
 #'                       genotypes = c("AA", "AB", "BB"),
 #'                       alleles = c("A", "B"), estimate.map = FALSE)
 #' ## Perform a simple interval mapping for detecting QTLs.
-#' QTLDet <- QTLDetect(cross = F2, trait = "trait", type = "SIM")
+#' QTLDet <- QTLDetect(cross = F2, trait = "trait", type = "CIM")
 #' ## Create a pdf report.
 #' report(QTLDet, outfile = "./testReports/reportQTLDectection.pdf")
 #'

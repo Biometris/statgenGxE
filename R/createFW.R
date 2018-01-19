@@ -64,7 +64,7 @@ print.FW <- function(x, ...) {
   print(x$envEffs)
   cat("\nAnova",
       "\n=====\n")
-  printCoefmat(x$anova)
+  printCoefmat(x$anova, na.print = "")
   cat("\nEstimates",
       "\n=========\n")
   print(x$estimates, ..., row.names = FALSE)
