@@ -26,5 +26,6 @@ Imports: dplyr,
     tibble,
     fields,
     qtl,
-    ggplot2
+    ggplot2,
+    rlang
 Suggests: asreml
