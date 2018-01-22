@@ -117,7 +117,7 @@ STModLme4 <- function(TD,
   ## Construct SSA object.
   model <- createSSA(mRand = if ("random" %in% what) mr else NULL,
                      mFix = if ("fixed" %in% what) mf else NULL,
-                     data = TD, traits = traits,
+                     TD = TD, traits = traits,
                      design = design, engine = "lme4")
   return(model)
 }

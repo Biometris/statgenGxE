@@ -278,7 +278,7 @@ gxeVarComp <- function(TD,
   }
   ## Create output.
   model <- createSSA(mRand = NULL, mFix = setNames(list(bestModel), trait),
-                     data = TD, traits = trait,
+                     TD = TD, traits = trait,
                      engine = engine, predicted = "env")
   res <- createVarComp(model = model, choice = rownames(bestTab)[1],
                        summary = bestTab, vcov = vcovBest,

@@ -69,10 +69,10 @@ STExtract <- function(SSA,
   if (!is.SSA(SSA)) {
     stop("SSA has to be an object of class SSA.\n")
   }
-  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(SSA$data))) {
+  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(SSA$TD))) {
     stop("All traits have to be columns in TD.\n")
   }
-  if (!is.null(keep) && (!is.character(keep) || !all(keep %in% colnames(SSA$data)))) {
+  if (!is.null(keep) && (!is.character(keep) || !all(keep %in% colnames(SSA$TD)))) {
     stop("All items in keep have to be columns in TD.\n")
   }
   engine <- SSA$engine
@@ -98,7 +98,7 @@ extractSpATS <- function(SSA,
                          useRepId) {
   mf <- SSA$mFix
   mr <- SSA$mRand
-  TD <- SSA$data
+  TD <- SSA$TD
   predicted <- attr(SSA, "predicted")
   useCheckId <- length(grep(pattern = "checkId",
                             x = deparse(mr[[1]]$model$fixed))) > 0
@@ -241,7 +241,7 @@ extractLme4 <- function(SSA,
                         useRepId) {
   mf <- SSA$mFix
   mr <- SSA$mRand
-  TD <- SSA$data
+  TD <- SSA$TD
   predicted = attr(SSA, "predicted")
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability",
                "varGen", "varErr", "fitted", "resid", "stdRes", "rMeans", "ranEf",
@@ -429,7 +429,7 @@ extractAsreml <- function(SSA,
   }
   mf <- SSA$mFix
   mr <- SSA$mRand
-  TD <- SSA$data
+  TD <- SSA$TD
   predicted <- attr(SSA, "predicted")
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability", "varGen",
                "varErr", "fitted", "resid", "stdRes", "rMeans", "ranEf",

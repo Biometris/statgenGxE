@@ -6,7 +6,7 @@
 #'
 #' @param mRand a model with genotype random.
 #' @param mFix a model with genotype fixed.
-#' @param data an object of class TD containing the data on which
+#' @param TD an object of class \code{\link{TD}} containing the data on which
 #' \code{mRand} and \code{mFix} are based.
 #' @param traits a character vector indicating the traits for which the analysis
 #' is done.
@@ -29,7 +29,7 @@ NULL
 #' @export
 createSSA <- function(mRand,
                       mFix,
-                      data,
+                      TD,
                       traits = NULL,
                       design = NULL,
                       spatial = NULL,
@@ -37,7 +37,7 @@ createSSA <- function(mRand,
                       predicted = "genotype") {
   SSA <- structure(list(mRand = mRand,
                         mFix = mFix,
-                        data = data,
+                        TD = TD,
                         traits = traits,
                         design = design,
                         spatial = spatial,
@@ -91,11 +91,11 @@ summary.SSA <- function(object,
     stop("No trait provided but multiple traits found in SSA object.\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-                          !trait %in% colnames(object$data))) {
-    stop("Trait has to be a single character string defining a column in data.\n")
+                          !trait %in% colnames(object$TD))) {
+    stop("Trait has to be a single character string defining a column in TD.\n")
   }
   ## get summary stats for raw data
-  TD <- object$data
+  TD <- object$TD
   if (is.null(trait)) {
     trait <- object$traits
   }
@@ -208,8 +208,8 @@ plot.SSA <- function(x,
     stop("No trait provided but multiple traits found in SSA x\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-                          !trait %in% colnames(x$data))) {
-    stop("Trait has to be a single character string defining a column in data.\n")
+                          !trait %in% colnames(x$TD))) {
+    stop("Trait has to be a single character string defining a column in TD.\n")
   }
   if (!is.character(what) || length(what) > 1 ||
       !what %in% c("fixed", "random")) {
@@ -230,7 +230,7 @@ plot.SSA <- function(x,
   fitted <- STExtract(x, what = ifelse(what == "fixed", "fitted", "rMeans"))[[trait]]
   pred <- STExtract(x, what = ifelse(what == "fixed", "BLUEs", "BLUPs"))[[trait]]
   ## Extract raw data and compute residuals.
-  response <- x$data[, trait]
+  response <- x$TD[, trait]
   residuals <- response - fitted
   if (plotType == "base") {
     ## Setup frame for plots.
@@ -286,7 +286,7 @@ plot.SSA <- function(x,
       plot(model, main = "")
     } else {
       ## Check whether data contains row/col information
-      if (!all(c("rowCoordinates", "colCoordinates") %in% colnames(x$data))) {
+      if (!all(c("rowCoordinates", "colCoordinates") %in% colnames(x$TD))) {
         stop(paste("Data in", substitute(x), "contains no spatial information.\n"))
       }
       ## Code taken from plot.SpATS and simplified.
@@ -296,8 +296,8 @@ plot.SSA <- function(x,
                        ifelse(what == "fixed", "Genotypic BLUEs", "Genotypic BLUPs"),
                        "Histogram")
       ## Extract spatial coordinates from data.
-      colCoord <- x$data[, "colCoordinates"]
-      rowCoord <- x$data[, "rowCoordinates"]
+      colCoord <- x$TD[, "colCoordinates"]
+      rowCoord <- x$TD[, "rowCoordinates"]
       ## Order plotcols and rows and fill gaps if needed.
       plotCols <- seq(from = min(colCoord), to = max(colCoord),
                       by = min(diff(sort(unique(colCoord)))))

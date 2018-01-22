@@ -147,7 +147,7 @@ STModSpATS <- function(TD,
     mf <- NULL
   }
   ## Construct SSA object.
-  model <- createSSA(mRand = mr, mFix = mf, data = TD, traits = traits,
+  model <- createSSA(mRand = mr, mFix = mf, TD = TD, traits = traits,
                      design = design, spatial = "2 dimensional P-splines", engine = "SpATS")
   return(model)
 }

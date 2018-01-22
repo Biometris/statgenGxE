@@ -44,6 +44,10 @@ gxeAmmi <- function(TD,
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
+  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(TD)) {
+    stop("trait has to be a column in TD.\n")
+  }
   if (!"env" %in% colnames(TD)) {
     stop("TD should contain a column env to be able to run an AMMI analysis.\n")
   }

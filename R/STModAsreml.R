@@ -170,7 +170,7 @@ STModAsreml <- function(TD,
     ## Construct SSA object.
     model <- createSSA(mRand = if ("random" %in% what) mr else NULL,
                        mFix = if ("fixed" %in% what) mf else NULL,
-                       data = TD, traits = traits,
+                       TD = TD, traits = traits,
                        design = design, engine = "asreml")
   } else {
     regular <- min(repTab) == 1 && max(repTab) == 1
@@ -302,7 +302,7 @@ bestSpatMod <- function(TD,
   unlink(tmp)
   model <- createSSA(mRand = if ("random" %in% what) mr else NULL,
                      mFix = if ("fixed" %in% what) mf else NULL,
-                     data = TD,
+                     TD = TD,
                      traits = trait,
                      design = design,
                      spatial = spatial,

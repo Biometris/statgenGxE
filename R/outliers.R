@@ -116,11 +116,11 @@ outlierSSA <- function(SSA,
   if (missing(SSA) || !inherits(SSA, "SSA")) {
     stop("SSA should be a valid object of class SSA.\n")
   }
-  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(SSA$data))) {
+  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(SSA$TD))) {
     stop("traits has to be a vector of columns in TD.\n")
   }
   if (!is.null(commonFactors) && !is.character(commonFactors) &&
-      !all(commonFactors %in% colnames(SSA$data))) {
+      !all(commonFactors %in% colnames(SSA$TD))) {
     stop("commonFactor has to be a vector of columns in TD.\n")
   }
   if (!is.null(rLimit) && (!is.numeric(rLimit) || length(rLimit) > 1 ||
@@ -130,7 +130,7 @@ outlierSSA <- function(SSA,
   stdRes <- STExtract(SSA, traits = traits, what = "stdRes")
   rDf <- STExtract(SSA, traits = traits, what = "rDf")
   ## Create empty data.frame for storing results.
-  indicator <- data.frame(matrix(data = FALSE, nrow = nrow(SSA$data),
+  indicator <- data.frame(matrix(data = FALSE, nrow = nrow(SSA$TD),
                                  ncol = length(traits),
                                  dimnames = list(NULL, traits)))
   outTrait <- vector(mode = "list", length = length(traits)) %>%
@@ -152,7 +152,7 @@ outlierSSA <- function(SSA,
       ## Rename column for easier joining.
       stdRes <- dplyr::rename(stdRes, "res" = !!trait)
       ## Create data.frame with outliers for current trait.
-      outTrait[[trait]] <- dplyr::inner_join(SSA$data, stdRes,
+      outTrait[[trait]] <- dplyr::inner_join(SSA$TD, stdRes,
                                              by = setdiff(colnames(stdRes), "res")) %>%
         dplyr::semi_join(.[.[["res"]] %in% outVals, commonFactors,
                            drop = FALSE], by = commonFactors) %>%

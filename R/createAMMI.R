@@ -60,7 +60,7 @@ print.AMMI <- function(x, ...) {
   print(x$importance[, 1:ncol(x$envScores)])
   cat("\nAnova",
       "\n=====\n")
-  printCoefmat(x$anova)
+  printCoefmat(x$anova, na.print = "")
   cat("\nEnvironment scores",
       "\n==================\n")
   print(x$envScores, ...)
