@@ -13,7 +13,8 @@
 #' the interquartile range will be marked as outliers.
 #' @param commonFactors A character vector specifying the names of columns
 #' in \code{TD} used for selecting observations that are similar to the
-#' outliers.
+#' outliers. If \code{commonFactors = NULL} only outliers are reported and
+#' no similar observations.
 #'
 #' @return A data.frame containing logical values indicating if the
 #' observation is an outlier.
@@ -26,15 +27,15 @@
 outlierTD <- function(TD,
                       traits,
                       coef = 1.5,
-                      commonFactors = "genotype") {
+                      commonFactors = NULL) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
   if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
-    stop("trait has to be a vector of columns in TD.\n")
+    stop("traits has to be a vector of columns in TD.\n")
   }
-  if (is.null(commonFactors) || !is.character(commonFactors) ||
+  if (!is.null(commonFactors) && !is.character(commonFactors) &&
       !all(commonFactors %in% colnames(TD))) {
     stop("commonFactor has to be a vector of columns in TD.\n")
   }
