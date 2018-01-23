@@ -1,18 +1,16 @@
 #' AMMI analysis
 #'
-#' This function fits a model which involves the Additive Main effects (i.e. genotype and
-#' environment) along with the Multiplicative Interaction effects of principal
-#' component analysis (PCA).
+#' This function fits a model which involves the Additive Main effects (i.e.
+#' genotype and environment) along with the Multiplicative Interaction effects
+#' of principal component analysis (PCA).
 #'
-#' @param TD an object of class TD.
-#' @param trait A character string specifying a trait column of the data.
-#' @param nPC An integer specifying the number of principal components used.
-#' as the multiplicative term of genotype-by-environment. \code{nPC=2} by default.
-#' @param center  A logical value indicating whether the variables
-#'  should be shifted to be zero centered.
-#' @param scale A logical value indicating whether the variables should
-#'  be scaled to have unit variance before the analysis takes
-#'  place. The default is \code{FALSE}.
+#' @param TD an object of class \code{\link{TD}}.
+#' @param trait A character string specifying the trait to be analyzed.
+#' @param nPC An integer specifying the number of principal components used
+#' as multiplicative term of genotype-by-environment interaction.
+#' @param center Should the variables be shifted to be zero centered?
+#' @param scale Should the variables be scaled to have unit variance before
+#' the analysis takes place?
 #'
 #' @return an object of class \code{\link{AMMI}}, a list containing
 #' \item{envScores}{a matrix with environmental scores.}
@@ -51,48 +49,40 @@ gxeAmmi <- function(TD,
   if (!"env" %in% colnames(TD)) {
     stop("TD should contain a column env to be able to run an AMMI analysis.\n")
   }
-  ## Drop factor levels.
-  TD$genotype <- droplevels(TD$genotype)
-  TD$env <- droplevels(TD$env)
-  nGeno <- nlevels(TD$genotype)
-  nEnv <- nlevels(TD$env)
+  ## Count number of genotypes, environments and traits.
+  nGeno <- nlevels(droplevels(TD$genotype))
+  nEnv <- nlevels(droplevels(TD$env))
   nTrait <- nrow(TD)
   ## At least 3 environments needed.
   if (nEnv < 3) {
-    stop("Number of environments has to be greater than 2 for running
-         the AMMI model.\n")
+    stop("TD should contain at least 3 environments to run the AMMI model.\n")
   }
-  ## check if the supplied data contains the genotype by environment means
+  ## check if the supplied data contains the genotype by environment means.
   if (nTrait != nGeno * nEnv) {
-    stop("Only allows the genotype by environment means, \ni.e., one trait value per
-         genotype per enviroment.\n")
+    stop("TD should contain only 1 value per environment per genotype.\n")
   }
+  ## Impute missing values
   if (any(is.na(TD[[trait]]))) {
-    y0 <- tapply(X = TD[[trait]], INDEX = TD[, c("genotype", "env")], FUN = identity)
-    yIndex <- tapply(X = 1:nTrait, INDEX = TD[, c("genotype", "env")], FUN = identity)
-    na_yes_no <- is.na(y0)
-    ## imputation
+    ## Transform data to genotype x environment matrix.
+    y0 <- tapply(X = TD[[trait]], INDEX = TD[, c("genotype", "env")],
+                 FUN = identity)
+    yIndex <- tapply(X = 1:nTrait, INDEX = TD[, c("genotype", "env")],
+                     FUN = identity)
+    ## Actual imputation.
     y1 <- multMissing(y0, maxcycle = 10, na.strings = NA)
-    TD[yIndex[na_yes_no], trait] <- y1[na_yes_no]
+    ## Insert imputed values back into original data.
+    TD[yIndex[is.na(y0)], trait] <- y1[is.na(y0)]
   }
-  ## Descriptive statistics.
-  envMean <- tapply(X = TD[[trait]], INDEX = TD$env, FUN = mean)
-  genoMean <- tapply(X = TD[[trait]], INDEX = TD$genotype, FUN = mean)
-  overallMean <- mean(TD[[trait]])
   ## Fit linear model.
   model <- lm(as.formula(paste(trait, "~ genotype + env")), data = TD)
   ## Calculate residuals & fitted values of the linear model.
-  X <- tapply(X = resid(model), INDEX = TD[, c("genotype", "env")], FUN = identity)
+  resids <- tapply(X = resid(model), INDEX = TD[, c("genotype", "env")],
+                   FUN = identity)
   fittedVals <- tapply(X = fitted(model), INDEX = TD[, c("genotype", "env")],
                        FUN = identity)
-  X <- as.matrix(X)
-  gNames <- rownames(X)
-  if (is.null(gNames)) {
-    rownames(X) <- rownames(fittedVals) <- gNames
-  }
-  # Use prcomp for computing principal components.
-  pca <- prcomp(x = X, retx = TRUE, center = center,
-                scale. = scale, rank. = nPC)
+  # Compute principal components.
+  pca <- prcomp(x = resids, retx = TRUE, center = center, scale. = scale,
+                rank. = nPC)
   loadings <- pca$rotation
   scores <- pca$x
   ## Compute AMMI-estimates per genotype per environment.
@@ -102,44 +92,43 @@ gxeAmmi <- function(TD,
   }
   fitted <- fittedVals + mTerms
   ## Extract ANOVA table for linear model.
-  a1 <- anova(model)
-  tNames <- rownames(a1)
-  rownames(a1)[which(tNames == "Residuals")] <- "Interactions"
-  ## Extend the existing ANOVA table.
-  addTbl <- matrix(NA, nPC + 1, 5)
-  colnames(addTbl) <- c("Df", "Sum Sq", "Mean Sq", "F value", "Pr(>F)")
-  tNames <- paste0("PC", 1:nPC)
-  rownames(addTbl) <- c(tNames, "Residuals")
-  ## Add the df for PC scores and residuals.
+  anv <- anova(model)
+  rownames(anv)[rownames(anv) == "Residuals"] <- "Interactions"
+  ## Create empty base table for extending anova table.
+  addTbl <- matrix(data = NA, nrow = nPC + 1, ncol = 5,
+                   dimnames = list(c(paste0("PC", 1:nPC), "Residuals"),
+                                   colnames(anv)))
+  ## Compute degrees of freedom and add to table.
   dfPC <- nGeno + nEnv - 3 - (2 * (1:nPC - 1))
-  dfResid <- a1["Interactions", "Df"] - sum(dfPC)
+  dfResid <- anv["Interactions", "Df"] - sum(dfPC)
   addTbl[, "Df"] <- c(dfPC, dfResid)
-  ## Add the sum of squares for PC scores and residuals.
+  ## Compute sum of squares for PC and residuals and add to table.
   PCAVar <- pca$sdev ^ 2
-  totalVar <- sum(PCAVar)
-  propVar <- PCAVar / totalVar
-  ssPC <- a1["Interactions", "Sum Sq"] * propVar[1:nPC]
-  ssresid <- a1["Interactions", "Sum Sq"] - sum(ssPC)
-  addTbl[, "Sum Sq"] <- c(ssPC, ssresid)
-  ## Add the mean squares for PC scores and residuals.
+  propVar <- PCAVar / sum(PCAVar)
+  ssPC <- anv["Interactions", "Sum Sq"] * propVar[1:nPC]
+  ssResid <- anv["Interactions", "Sum Sq"] - sum(ssPC)
+  addTbl[, "Sum Sq"] <- c(ssPC, ssResid)
+  ## Compute mean squares for PC scores and residuals and add to table.
   addTbl[, "Mean Sq"] <- addTbl[, "Sum Sq"] / addTbl[, "Df"]
-  whichinf <- is.infinite(addTbl[, "Mean Sq"])
-  addTbl[, "Mean Sq"][whichinf] <- NA
+  ## Convert infinite values to NA.
+  addTbl[, "Mean Sq"][is.infinite(addTbl[, "Mean Sq"])] <- NA
   ## Add the F-values for PC scores.
-  addTbl[-(nPC + 1), "F value"] <- addTbl[-(nPC + 1), "Mean Sq"] /
+  addTbl[1:nPC, "F value"] <- addTbl[1:nPC, "Mean Sq"] /
     addTbl["Residuals", "Mean Sq"]
   ## Add the p-values for PC scores.
-  addTbl[-(nPC + 1), "Pr(>F)"] <- 1 - sapply(X = 1:nPC, FUN = function(i) {
-    pf(q = addTbl[i, "F value"], df1 = addTbl[i, "Df"],
-       df2 = addTbl["Residuals", "Df"])
-  })
+  addTbl[1:nPC, "Pr(>F)"] <- 1 - pf(q = addTbl[1:nPC, "F value"],
+                                    df1 = dfPC, df2 = dfResid)
+  ## Create complete ANOVA table.
+  anv <- rbind(anv, addTbl)
+  ## Extract importance from pca object.
   importance <- as.data.frame(summary(pca)$importance)
   colnames(importance) <- paste0("PC", 1:ncol(importance))
-  ## Create complete ANOVA table for AMMI model
-  a0 <- rbind(a1, as.data.frame(addTbl))
+  ## Compute means.
+  envMean <- tapply(X = TD[[trait]], INDEX = TD$env, FUN = mean)
+  genoMean <- tapply(X = TD[[trait]], INDEX = TD$genotype, FUN = mean)
+  overallMean <- mean(TD[[trait]])
   return(createAMMI(envScores = pca$rotation, genoScores = pca$x,
-                    importance = importance,
-                    anova = a0, fitted = fitted,
+                    importance = importance, anova = anv, fitted = fitted,
                     trait = trait, envMean = envMean, genoMean = genoMean,
                     overallMean = overallMean))
 }
