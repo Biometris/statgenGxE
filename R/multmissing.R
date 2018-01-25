@@ -1,116 +1,147 @@
 #' Multmissing procedure
 #'
-#' This function is to estimate missing values for units in a multivariate data set,
+#' This function estimates missing values for units in a multivariate data set,
 #' using an iterative regression technique.
 #'
 #' Initial estimates of the missing values in each variate are formed from the
-#' variate means using the values for units that have no missing values for any variate.
-#' Estimates of the missing values for each variate are then recalculated as the fitted values
-#' from the multiple regression of that variate on all the other variates. When all the missing v
-#' alues have been estimated the variate means are recalculated. If any of the means differs from
-#' the previous mean by more than a tolerance (the initial standard error divided by 1000) the process
-#' is repeated, subject to a maximum number of repetitions defined by the MAXCYCLE option.
-#' The default maximum number of iterations (10) is usually sufficient when there are few missing
-#' values, say two or three. If there are many more, 20 or so, it may be necessary to increase
-#' the maximum number of iterations to around 30. The method is similar to that of
-#' Orchard & Woodbury (1972), but does not adjust for bias in the variance-covariance matrix
-#' as suggested by Beale & Little (1975).
+#' variate means using the values for units that have no missing values for
+#' any variate. Estimates of the missing values for each variate are then
+#' recalculated as the fitted values from the multiple regression of that
+#' variate on all the other variates. When all the missing values have been
+#' estimated the variate means are recalculated. If any of the means differs
+#' from the previous mean by more than a tolerance (the initial standard error
+#' divided by 1000) the process is repeated, subject to a maximum number of
+#' repetitions defined by \code{maxIter} option. The default maximum number
+#' of iterations (10) is usually sufficient when there are few missing
+#' values, say two or three. If there are many more, 20 or so, it may be
+#' necessary to increase the maximum number of iterations to around 30. The
+#' method is similar to that of Orchard & Woodbury (1972), but does not adjust
+#' for bias in the variance-covariance matrix as suggested by Beale &
+#' Little (1975).
 #'
-#' @param Y A data.frame or matrix object of multivariate data.
-#' @param maxcycle An integer specifying the maximum allowed number of iterations; default 10.
-#' @param na.strings A character vector of strings which are to be interpreted as \code{NA} values.
+#' @param Y A Matrix, data.frame or vector of multivariate data.
+#' @param maxIter An integer specifying the maximum allowed number of
+#' iterations.
+#' @param naStrings A character vector of strings which are to be interpreted
+#' as \code{NA} values.
 #'
-#' @return A data.frame object of multivarite data with the missing values replaced by their estimates.
-#' @references (ed.) R.W. Payne (2011). GenStat Release 14 Reference Manual, Part 3 Procedure
-#' Library PL20. VSN International, Hemel Hempstead, UK.\cr
-#' Beale, E.M.L. & Little, R.J.A. (1975). Missing values in multivariate analysis.
-#' Journal of the Royal Statistical Society, Series B, 37, 129-145.\cr
-#' Orchard, T. & Woodbury, M.A. (1972). A missing information principle: theory and applications.
-#' In: Proceedings of the 6th Berkeley Symposium in Mathematical Statistics and Probability,
-#' Vol I, 697-715.
+#' @return A object of the same class as the input with the missing values
+#' replaced by their estimates.
+#'
+#' @references Beale, E.M.L. & Little, R.J.A. (1975). Missing values in
+#' multivariate analysis. Journal of the Royal Statistical Society, Series B,
+#' 37, 129-145.\cr
+#' Orchard, T. & Woodbury, M.A. (1972). A missing information principle:
+#' theory and applications. In: Proceedings of the 6th Berkeley Symposium in
+#' Mathematical Statistics and Probability, Vol I, 697-715.
+#'
+#' @examples
+#' M <- matrix(c("1", "2", "3", NA, "b", "5", "6",
+#'               "6", "5", "b", NA, "3", "2", "1"), nrow = 7, ncol = 2)
+#' ## Estimate missing values treating "b" as NA.
+#' multMissing(M, naStrings = "b")
 #'
 #' @export
 multMissing <- function(Y,
-                        maxcycle = 10,
-                        na.strings = NA) {
-  ## TODO: ?weights update procedure ?adjust for bias in the variance-covariance matrix
-  ##?logistic regression
-  if (is.data.frame(Y)) {
-    cNames <- names(Y)
-    rNames <- rownames(Y)
-  } else if (is.matrix(Y)) {
-    cNames <- colnames(Y)
-    rNames <- rownames(Y)
-    if (is.null(cNames)) {
-      cNames <- colnames(Y) <- paste0("V", 1:ncol(Y))
-    }
-  } else if (!is.vector(Y)) {
-    stop("'Y' must be a data.frame, matrix or vector object.\n")
+                        maxIter = 10,
+                        naStrings = NULL) {
+  ## Checks.
+  if (!is.matrix(Y) && !is.data.frame(Y) && !is.vector(Y)) {
+    stop("Y should be a data.frame, matrix or vector.\n")
   }
-  # To avoid that column name can be converted to integers
-  cNames0 <- cNames
-  cNames <- paste0("V", 1:ncol(Y))
-  if (!all(is.na(na.strings))) {
-    for (i in 1:length(na.strings)) {
-      tmp <- which(Y == na.strings[i])
-      Y[tmp] <- NA
+  if (!is.numeric(maxIter) || length(maxIter) > 1 ||
+      round(maxIter) != maxIter || maxIter < 0) {
+    stop("maxIter should be an integer.\n")
+  }
+  if (!is.null(naStrings) && !is.character(naStrings)) {
+    stop("naStrings should be NULL or a character vector.\n")
+  }
+  if (!is.vector(Y)) {
+    inMat <- is.matrix(Y)
+    if (is.data.frame(Y)) {
+      Y <- as.matrix(Y)
     }
+    ## Save row and column names to reassign in the end.
+    cNames0 <- colnames(Y)
+    rNames0 <- rownames(Y)
+    ## Simplify column names for easier processing.
+    cNames <- colnames(Y) <- paste0("V", 1:ncol(Y))
+  }
+  ## set all naStrings to NA.
+  if (!is.null(naStrings)) {
+    Y[Y %in% naStrings] <- NA
   }
   if (is.vector(Y)) {
+    ## Replace missings by mean.
     Y <- as.numeric(Y)
-    missInd <- which(is.na(Y))
-    Y[missInd] <- mean(Y, na.rm = TRUE)
+    if (anyNA(Y)) {
+      Y[is.na(Y)] <- mean(Y, na.rm = TRUE)
+    } else {
+      warning("no missing values found.\n", call. = FALSE)
+    }
   } else {
-    Y <- apply(X = Y, MARGIN = 2, FUN = as.numeric)
+    Y <- tryCatchExt(apply(X = Y, MARGIN = 2, FUN = as.numeric))
+    if (!is.null(Y$warning)) {
+      warning("Warning when converting data to numeric values. Invalid values
+              were converted to NA. Make sure to check output.\n",
+              call. = FALSE)
+    }
+    Y <- Y$value
     allNA <- apply(X = Y, MARGIN = 2, FUN = function(x) {
       all(is.na(x))
     })
     if (sum(allNA) != 0) {
       stop("At least one unit must have no missing values.\n")
     }
-    d1 <- nrow(Y)
-    d2 <- ncol(Y)
-    # missing positions (row, col) [nmiss x 2]
+    ## missing positions (row, col)
     missInd <- which(is.na(Y), arr.ind = TRUE)
-    # weights
-    W <- matrix(1, d1, d2)
-    W[missInd] <- 0
     if (nrow(missInd) == 0) {
-      warning("no missing values found.\n")
+      warning("no missing values found.\n", call. = FALSE)
     } else {
-      missColLoc <- missInd[, 2]
-      missRowLoc <- missInd[, 1]
-      nmiss <- nrow(missInd)
-      missVariateInd <- unique(missColLoc)
-      ## initializing...
-      # replaces missing values by the means of
-      # non-missing values of each variate
-      for (j in missVariateInd) {
-        tmp <- which(is.na(Y[, j]))
-        Y[tmp, j] <- mean(Y[, j], na.rm = TRUE)
+      ## Extract variates with missing values.
+      missVariateInd <- unique(missInd[, 2])
+      ## Replace missing values by the means of non-missing values per variable.
+      for (i in missVariateInd) {
+        Y[is.na(Y[, i]), i] <- mean(Y[, i], na.rm = TRUE)
       }
-      colnames(Y) <- cNames
-      estPrev <- rep(Inf, d2)
-      estCurr <- colMeans(Y)
-      tol <- sd(as.vector(Y)) / 1000
-      ## iterative regression
-      kk <- 0
-      while (max(abs(estCurr - estPrev) - tol) > 0 && kk <= maxcycle) {
-        kk <- kk + 1
-        for (j in missVariateInd) {
-          formula <- as.formula(paste(cNames[j], "~", paste(cNames[-j], collapse = "+")))
-          model <- lm(formula = formula, data = as.data.frame(Y), weights = W[, j])
-          fVals <- model$fitted.values
-          tmp <- which(missColLoc == j)
-          Y[missRowLoc[tmp], j] <- fVals[missRowLoc[tmp]]
+      ## Create a matrix of weights with values 0/1 for missings/non-missings.
+      W <- matrix(data = 1, nrow = nrow(Y), ncol = ncol(Y))
+      W[missInd] <- 0
+      ## Set initial values for iterative process.
+      maxDiff <- Inf
+      tol <- sd(Y) / 1000
+      iter <- 1
+      Y <- as.data.frame(Y)
+      while (maxDiff > tol && iter <= maxIter) {
+        estPrev <- colMeans(Y)
+        ## Estimate missing values.
+        for (i in missVariateInd) {
+          ## Estimate current column using all other columns.
+          formula <- as.formula(paste(cNames[i], "~", paste(cNames[-i],
+                                                            collapse = "+")))
+          model <- lm(formula = formula, data = Y,
+                      weights = W[, i])
+          ## Replace original missing values with fitted values.
+          fVals <- fitted(model)
+          Y[missInd[missInd[, 2] == i, 1], i] <-
+            fVals[missInd[missInd[, 2] == i, 1]]
         }
-        # Updates
-        estPrev <- estCurr
-        estCurr <- colMeans(Y)
+        ## Update values for iterative process.
+        maxDiff <- max(abs(colMeans(Y) - estPrev))
+        if (iter == maxIter && maxDiff > tol) {
+          warning(paste("No convergence achieved after", iter," iterations.
+                        Tolerance at last iteration", signif(maxDiff, 4),
+                        ".\n"))
+        }
+        iter <- iter + 1
+      }
+      ## Reset row and column names to original values.
+      colnames(Y) <- cNames0
+      rownames(Y) <- rNames0
+      if (inMat) {
+        Y <- as.matrix(Y)
       }
     }
   }
-  colnames(Y) <- cNames0
-  rownames(Y) <- rNames
   return(Y)
 }
