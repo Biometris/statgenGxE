@@ -61,6 +61,10 @@ gxeAmmi <- function(TD,
   if (nTrait != nGeno * nEnv) {
     stop("TD should contain only 1 value per environment per genotype.\n")
   }
+  if (!is.numeric(nPC) || length(nPC) > 1 || round(nPC) != nPC || nPC < 0 ||
+      nPC > min(nEnv, nGeno)) {
+    stop("nPC should be an integer smaller than the number of environments.\n")
+  }
   ## Impute missing values
   if (any(is.na(TD[[trait]]))) {
     ## Transform data to genotype x environment matrix.
@@ -69,7 +73,7 @@ gxeAmmi <- function(TD,
     yIndex <- tapply(X = 1:nTrait, INDEX = TD[, c("genotype", "env")],
                      FUN = identity)
     ## Actual imputation.
-    y1 <- multMissing(y0, maxcycle = 10, na.strings = NA)
+    y1 <- multMissing(y0, maxIter = 10)
     ## Insert imputed values back into original data.
     TD[yIndex[is.na(y0)], trait] <- y1[is.na(y0)]
   }

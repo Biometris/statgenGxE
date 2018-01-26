@@ -28,7 +28,6 @@
 #'                        sorted = "descending")
 #'
 #' @export
-
 gxeStability <- function(TD,
                          trait,
                          method = c("superiority", "static", "wricke"),
@@ -52,7 +51,7 @@ gxeStability <- function(TD,
     yIndex <- tapply(X = 1:nrow(TD), INDEX = TD[, c("genotype","env")],
                      FUN = identity)
     ## imputate missing values.
-    y1 <- multMissing(y0, maxcycle = 10, na.strings = NA)
+    y1 <- multMissing(y0, maxIter = 10)
     replaceVal <- y1[is.na(y0)]
     yIndexReplace <- yIndex[is.na(y0)]
     if (is.list(yIndexReplace)) {

@@ -10,7 +10,6 @@
 #' @param ... Other parameters passed to either \code{asreml()} or \code{lmer()}.
 #'
 #' @examples
-#' data(TDMaize)
 #' myTDMegaEnv <- gxeMegaEnvironment(TD = TDMaize, trait = "yld")
 #' geTab <- gxeTable(TD = myTDMegaEnv, trait = "yld")
 #'
@@ -29,14 +28,12 @@ gxeTable <- function(TD,
     if (is.null(year)) {
       mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
                                random = as.formula("~ genotype:us(megaEnv)"),
-                               data = TD, ...),
-                silent = TRUE)
+                               data = TD, ...), silent = TRUE)
     } else {
       mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env /", year)),
                                random = as.formula(paste("~ genotype:us(megaEnv) +
                                                          genotype:megaEnv:", year)),
-                               data = TD, ...),
-                silent = TRUE)
+                               data = TD, ...), silent = TRUE)
     }
     sink()
     if (inherits(mr, "try-error")) {
@@ -52,8 +49,7 @@ gxeTable <- function(TD,
       mr$call$random <- eval(mr$call$random)
       mr$call$rcov <- eval(mr$call$rcov)
       mr$call$R.param <- eval(mr$call$R.param)
-      mr <- predictAsreml(model = mr, classify = "genotype:megaEnv",
-                          TD = TD)
+      mr <- predictAsreml(model = mr, classify = "genotype:megaEnv", TD = TD)
       predictions <- mr$predictions$pvals
       predVals <- tapply(X = predictions$predicted.value,
                          INDEX = predictions[, c("genotype", "megaEnv")],
@@ -67,12 +63,11 @@ gxeTable <- function(TD,
     if (is.null(year)) {
       mr <- try(lme4::lmer(as.formula(paste(trait, "~ env +
                                             (0 + megaEnv | genotype)")),
-                           data = TD, ...),
-                silent = TRUE)
+                           data = TD, ...), silent = TRUE)
     } else {
-      mr <- try(lme4::lmer(as.formula(paste(trait, "~ env / " , year, "+ (0 +
-                                            megaEnv | genotype) + (0 + megaEnv
-                                            | genotype:", year, ")")),
+      mr <- try(lme4::lmer(as.formula(paste(trait, "~ env / year +
+                                            (0 + megaEnv | genotype) +
+                                            (0 + megaEnv | genotype:year)")),
                            data = TD, ...), silent = TRUE)
     }
     genoLevels <- levels(TD$genotype)

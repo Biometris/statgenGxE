@@ -58,6 +58,19 @@ predictAsreml <- function(model,
 }
 
 #' @keywords internal
+checkCols <- function(cols,
+                      data) {
+  cCheck <- !cols %in% colnames(data)
+  if (any(cCheck)) {
+    stop(paste0("Error in ", deparse(sys.call(-1)), ":\n\t",
+                "The following colomns are not in ",
+                deparse(substitute(data, env = parent.frame(2))),
+                ": ", paste(cols[cCheck], collapse = ", "), "\n"),
+         call. = FALSE)
+  }
+}
+
+#' @keywords internal
 isValidVariableName <- function(x,
                                 allowReserved = TRUE,
                                 unique = FALSE) {
@@ -158,7 +171,8 @@ kurtosis <- function(x,
     m2 <- sum(x ^ 2) / n
     m3 <- sum(x ^ 3) / n
     m4 <- sum(x ^ 4) / n
-    kurt <- (m4 - 4 * m1 * m3 + 6 * m1 * m1 * m2 - 3 * m1 ^ 4) / (m2 - m1 * m1) ^ 2 - 3
+    kurt <- (m4 - 4 * m1 * m3 + 6 * m1 * m1 * m2 - 3 * m1 ^ 4) /
+      (m2 - m1 * m1) ^ 2 - 3
   } else if (is.data.frame(x)) {
     kurt <- sapply(X = x, FUN = seVar, na.rm = na.rm)
   } else {
@@ -170,37 +184,6 @@ kurtosis <- function(x,
 #' @keywords internal
 seKurtosis <- function(n) {
   return(sqrt((24 * n * (n - 1) ^ 2) / ((n - 2) * (n - 3) * (n + 5) * (n + 3))))
-}
-
-#' @keywords internal
-waldTest <- function(b,
-                     sigma,
-                     positions,
-                     df = NULL) {
-  ## this function is a cut-down version of wald.test in aod package
-  w <- length(positions)
-  ## L matrix
-  L <- matrix(rep(x = 0, times = length(b) * w), ncol = length(b))
-  for (i in 1:w) {
-    L[i, positions[i]] <- 1
-  }
-  dimnames(L) <- list(paste0("L", as.character(seq(nrow(L)))), names(b))
-  ## computations
-  f <- L %*% b
-  mat <- qr.solve(tcrossprod(L %*% sigma, L))
-  stat <- crossprod(f, mat %*% f)
-  p <- 1 - pchisq(q = stat, df = w)
-  if (is.null(df)) {
-    res <- list(chi2 = c(chi2 = stat, df = w, P = p))
-  } else {
-    fstat <- stat / nrow(L)
-    df1 <- nrow(L)
-    df2 <- df
-    res <- list(chi2 = c(chi2 = stat, df = w, P = p),
-                Ftest = c(Fstat = fstat, df1 = df1, df2 = df2,
-                          P = 1 - pf(fstat, df1, df2)))
-  }
-  return(list(sigma = sigma, b = b, positions = positions, L = L, result = res, df = df))
 }
 
 #' Base method for creating a report
@@ -332,6 +315,8 @@ qtlPosToName <- function(chrPos, cross) {
   return(list(chrNames = chrPosMap$mrkNames, ext = chrPosMap$posExt))
 }
 
+#' Function for plotting a correlation (or covariance) matrix.
+#
 #' @keywords internal
 plotCorMat <- function(corMat, main = "") {
   meltedCorMat <- reshape2::melt(corMat)
