@@ -1,33 +1,15 @@
----
-output:
-  md_document:
-    variant: markdown_github
----
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, echo = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "README-"
-)
-```
-
 # RAP
 
 R Analytical Pipeline for 
-\itemize{
-\item{Single trial analysis}
-\item{GxE analysis}
-\item{QTL mapping}
-}
+* Single trial analysis
+* GxE analysis
+* QTL mapping
 
-## Example
+# Installation
 
 For direct installation from gitlab use the following code:
 
-```{r, echo = FALSE}
+``` r
 ## Replace the location for public and privatekey with your own.
 creds <- git2r::cred_ssh_key(publickey = "M:\\.ssh\\id_rsa.pub",
                              privatekey = "M:\\.ssh\\id_rsa")
