@@ -6,3 +6,5 @@ exampleBrapi.R
 testReports
 ^data-raw$
 
+^README\.Rmd$
+^README-.*\.png$
