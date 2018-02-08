@@ -27,5 +27,8 @@ Imports: dplyr,
     fields,
     qtl,
     ggplot2,
-    rlang
-Suggests: asreml
+    rlang,
+    Matrix,
+    sommer
+Suggests: asreml,
+    testthat

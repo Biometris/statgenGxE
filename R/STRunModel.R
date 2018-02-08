@@ -20,14 +20,14 @@
 #' In the above models fixed effects are indicated in bold, random effects in
 #' italics. genotype is fitted as fixed or random effect depending on
 #' \code{what}.\cr
-#' In case \code{useCheckId = TRUE} an extra fixed effect \strong{checkId} is included
-#' in the model.\cr
+#' In case \code{useCheckId = TRUE} an extra fixed effect \strong{checkId} is
+#' included in the model.\cr
 #' Variables in \code{covariates} are fitted as extra fixed effects.\cr\cr
-#' When \code{SpATS} is used for modelling an extra spatial term is included in the
-#' model. This term is constructed using \code{\link[SpATS]{PSANOVA}} as
-#' \code{PSANOVA(colCoordinates, rowCoordinates, nseg = nSeg, nest.div = 2)} where
-#' \code{nSeg = (number of columns / 2, number of rows / 2)}. nseg and nest.div can
-#' be modified using the \code{control} parameter.
+#' When \code{SpATS} is used for modelling an extra spatial term is included
+#' in the model. This term is constructed using \code{\link[SpATS]{PSANOVA}} as
+#' \code{PSANOVA(colCoordinates, rowCoordinates, nseg = nSeg, nest.div = 2)}
+#' where \code{nSeg = (number of columns / 2, number of rows / 2)}. nseg and
+#' nest.div can be modified using the \code{control} parameter.
 #'
 #' @param TD An object of class \code{\link{TD}}.
 #' @param design A string specifying the experimental design. One of "ibd"
@@ -41,33 +41,39 @@
 #' @param covariates A string specifying (a) covariate name(s).
 #' @param useCheckId Should a checkId be used as a fixed parameter in the model?\cr
 #' If \code{TRUE} \code{TD} has to contain a column 'checkId'.
-#' @param trySpatial Should spatial models be tried? Spatials models are can only be
-#' fitted with SpATS and asreml.
-#' @param engine A string specifying the name of the mixed modelling engine to use,
-#' either SpATS, lme4 or asreml. For spatial models SpaTS is used as a default, for
-#' other models lme4.
-#' @param control An optional list with control parameters to be passed to the actual
-#' fitting funcions. For now only nSeg and nestDiv are valid and pass a value to
-#' nseg and nest.div in \code{\link[SpATS]{PSANOVA}} respectively.
-#' @param ... Further arguments to be passed to \code{SpATS}, \code{lme4} or \code{asreml}.
+#' @param trySpatial Should spatial models be tried? Spatials models are can
+#' only be fitted with SpATS and asreml.
+#' @param engine A string specifying the name of the mixed modelling engine to
+#' use, either SpATS, lme4 or asreml. For spatial models SpaTS is used as a
+#' default, for other models lme4.
+#' @param control An optional list with control parameters to be passed to the
+#' actual fitting funcions. For now only nSeg and nestDiv are valid and pass a
+#' value to nseg and nest.div in \code{\link[SpATS]{PSANOVA}} respectively.
+#' @param ... Further arguments to be passed to \code{SpATS}, \code{lme4} or
+#' \code{asreml}.
 #'
 #' @return an object of class \code{\link{SSA}}.
 #'
-#' @seealso \code{\link{STModSpATS}}, \code{\link{STModLme4}}, \code{\link{STModAsreml}}
+#' @seealso \code{\link{STModSpATS}}, \code{\link{STModLme4}},
+#' \code{\link{STModAsreml}}
 #'
 #' @references
-#' Maria Xose Rodriguez-Alvarez, Martin P. Boer, Fred A. van Eeuwijk, Paul H.C. Eilers (2017).
-#' Correcting for spatial heterogeneity in plant breeding experiments with P-splines. Spatial
-#' Statistics \url{https://doi.org/10.1016/j.spasta.2017.10.003}\cr
-#' Butler, D. G., et al. (2010). Analysis of Mixed Models for S language environments:
-#' ASReml-R reference manual. Brisbane, DPI Publications\cr
+#' Maria Xose Rodriguez-Alvarez, Martin P. Boer, Fred A. van Eeuwijk, Paul H.C.
+#' Eilers (2017). Correcting for spatial heterogeneity in plant breeding
+#' experiments with P-splines. Spatial Statistics
+#' \url{https://doi.org/10.1016/j.spasta.2017.10.003}
+#' @references
+#' Butler, D. G., et al. (2010). Analysis of Mixed Models for S language
+#' environments: ASReml-R reference manual. Brisbane, DPI Publications
+#' @references
 #' Douglas Bates, Martin Maechler, Ben Bolker, Steve Walker (2015). Fitting Linear
 #' Mixed-Effects Models Using lme4. Journal of Statistical Software, 67(1), 1-48.
 #' \url{https::/doi:10.18637/jss.v067.i01}.
 #'
 #' @examples
 #' ## Fit model using lme4.
-#' myModel1 <- STRunModel(TD = TDHeat05, design = "ibd", traits = "yield", what = "fixed")
+#' myModel1 <- STRunModel(TD = TDHeat05, design = "ibd", traits = "yield",
+#'                       what = "fixed")
 #' summary(myModel1)
 #' \dontrun{
 #' report(myModel1, outfile = "./testReports/reportModelLme4.pdf")
@@ -75,7 +81,7 @@
 #'
 #' ## Fit model using SpATS.
 #' myModel2 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
-#'                        what = "fixed")
+#'                       what = "fixed")
 #' summary(myModel2)
 #' \dontrun{
 #' report(myModel2, outfile = "./testReports/reportModelSpATS.pdf")
@@ -84,7 +90,7 @@
 #' #' ## Fit model using asreml.
 #' \dontrun{
 #' myModel3 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
-#'                        what = "fixed", engine = "asreml")
+#'                       what = "fixed", engine = "asreml")
 #' summary(myModel3)
 #' report(myModel3, outfile = "./testReports/reportModelAsreml.pdf")
 #' }
