@@ -186,7 +186,7 @@ is.TD <- function(x) {
 #' \item{seKurt}{the standard error of kurtosis}
 #' }
 #'
-#' @return A data.frame containing the selected summary statistics.
+#' @return A table containing the selected summary statistics.
 #' @seealso \code{\link{createTD}}
 #'
 #' @examples
@@ -369,10 +369,11 @@ plot.TD <- function(x,
       bpArgs <- list(x = x[[trait]])
     }
     ## Arguments that are equal for both calls.
+    ## show.names needed to display envname even when there is only 1 env.
     bpArgs <- c(bpArgs, list(
       main = paste0("Boxplot", ifelse(isEnv, " by Enviroment", "")),
       xlab = ifelse(isEnv, "Enviroment", ""),
-      ylab = trait))
+      ylab = trait, show.names = TRUE))
     ## Add and overwrite args with custom args from ...
     fixedArgs <- c("formula", "data", "x")
     bpArgs <- modifyList(bpArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
@@ -388,7 +389,7 @@ plot.TD <- function(x,
     histArgs <- modifyList(histArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(lattice::histogram, args = histArgs)
   } else if (plotType == "scatter") {
-    if (isEnv) {
+    if (isEnv && length(unique(x$env)) > 1) {
       ## Function for 'plotting' absolute correlations with text size
       ## proportional to the correlations.
       panelCor <- function(x, y, ...) {
@@ -405,7 +406,7 @@ plot.TD <- function(x,
       panelHist <- function(x, ...) {
         oldPar <- par(usr = c(par("usr")[1:2], 0, 1.5))
         on.exit(par(oldPar))
-        ## Create but don't plot histogram
+        ## Create but don't plot histogram.
         h <- hist(x, plot = FALSE)
         ## Rescale.
         breaks <- h$breaks
@@ -421,15 +422,16 @@ plot.TD <- function(x,
       ## Set arguments for pairs.
       #diag.panel = panelHist, -- suppressed for now.
       pairsArgs <- list(x = X, upper.panel = panelCor,
-                        main = paste("Scatterplot matrix and correlations
-                                     by enviroment:", trait))
+                        main = paste("Scatterplot matrix and correlations",
+                                     "by enviroment:", trait))
       ## Add and overwrite args with custom args from ...
       fixedArgs <- c("x", "upper.panel")
       pairsArgs <- modifyList(pairsArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
       ## Create scatterplots with absolute correlations on the upper part.
       do.call(pairs, args = pairsArgs)
     } else {
-      stop("No column env in data. Scatterplot cannot be made.\n")
+      stop(paste("No column env in data or column env contains only 1 environment.\n",
+                 "Scatterplot cannot be made.\n"))
     }
   } else if (plotType == "cor") {
     if (isEnv) {
