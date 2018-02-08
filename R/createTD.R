@@ -1,43 +1,55 @@
 #' S3 class TD
 #'
-#' Function for creating objects of S3 class TD (Trial Data). The input data is checked
-#' and columns are renamed to default column names for ease of further computations.
-#' The columns for genotype, env, megaEnv, year, repId, subBlock, rowId, colId and
-#' checkId are converted to factor columns, whereas rowCoordinates and colCoordinates
-#' are converted to numerical columsn.
+#' Function for creating objects of S3 class TD (Trial Data). The input data is
+#' checked and columns are renamed to default column names for ease of further
+#' computations. The columns for genotype, env, megaEnv, year, repId, subBlock,
+#' rowId, colId and checkId are converted to factor columns, whereas
+#' rowCoordinates and colCoordinates are converted to numerical columns. One
+#' single column can be mapped to multiple defaults, e.g. one column with x
+#' coordinates can be mapped to both colId and colCoordinates.\cr
+#' Columns other than the default columns, e.g. traits or other covariates
+#' will be included in the output unchanged.
 #'
 #' \code{\link{print}} and \code{\link{summary}} and \code{\link{plot}} methods
 #' are available.
 #'
 #' @param data a data.frame containing trial data with a least a column for
 #' genotype.
-#' @param genotype a character string indicating the column in \code{data} that
-#' contains genotypes.
-#' @param env an optional character string indicating the column in \code{data} that
-#' contains environments. If \code{NULL} a default environment will be added.
-#' @param megaEnv an optional character string indicating the column in \code{data} that
-#' contains megaEnvironments as constructed by \code{\link{gxeMegaEnvironment}}.
-#' @param year an optional character string indicating the column in \code{data} that
-#' contains years.
-#' @param repId an optional character string indicating the column in \code{data} that
-#' contains replicates.
-#' @param subBlock an optional character string indicating the column in \code{data} that
-#' contains sub blocks.
-#' @param rowId an optional character string indicating the column in \code{data} that
-#' contains field rows.
-#' @param colId an optional character string indicating the column in \code{data} that
-#' contains field columns.
+#' @param genotype an optional character string indicating the column in
+#' \code{data} that contains genotypes.
+#' @param env an optional character string indicating the column in \code{data}
+#' that contains environments.
+#' @param megaEnv an optional character string indicating the column in
+#' \code{data} that contains megaEnvironments as constructed by
+#' \code{\link{gxeMegaEnvironment}}.
+#' @param year an optional character string indicating the column in \code{data}
+#' that contains years.
+#' @param repId an optional character string indicating the column in \code{data}
+#' that contains replicates.
+#' @param subBlock an optional character string indicating the column in
+#' \code{data} that contains sub blocks.
+#' @param rowId an optional character string indicating the column in
+#' \code{data} that contains field rows.
+#' @param colId an optional character string indicating the column in
+#' \code{data} that contains field columns.
 #' @param rowCoordinates an optional character string indicating the column in
-#' \code{data} that contains the rowId coordinates used for fitting spatial models.
+#' \code{data} that contains the rowId coordinates used for fitting spatial
+#' models.
 #' @param colCoordinates an optional character string indicating the column in
-#' \code{data} that contains the column coordinates used for fitting spatial models.
-#' @param checkId an optional character string indicating the column in \code{data} that
-#' contains the check ID(s).
-#' @param design an optional character string indicating the design of the trial. Accepted
-#' values are "ibd" (incomplete-block design), "res.ibd" (resolvable incomplete-block design),
-#' "rcbd" (randomized complete block design), "rowcol" (rowId-column design) and
-#' "res.rowcol" (resolvable rowId-column design).
+#' \code{data} that contains the column coordinates used for fitting spatial
+#' models.
+#' @param checkId an optional character string indicating the column in
+#' \code{data} that contains the check ID(s).
+#' @param design an optional character string indicating the design of the
+#' trial. Accepted values are "ibd" (incomplete-block design), "res.ibd"
+#' (resolvable incomplete-block design), "rcbd" (randomized complete block
+#' design), "rowcol" (rowId-column design) and "res.rowcol" (resolvable
+#' rowId-column design).
 #' @param x an \code{R} object
+#'
+#' @return An object of class TD, the input data.frame with renamed columns
+#' and an attribute \code{renamedCols} containing info on which columns have
+#' been renamed.
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -49,7 +61,7 @@ NULL
 #' @rdname TD
 #' @export
 createTD <- function(data,
-                     genotype = "genotype",
+                     genotype = NULL,
                      env = NULL,
                      megaEnv = NULL,
                      year = NULL,
@@ -66,23 +78,21 @@ createTD <- function(data,
     stop("data has to be a data.frame.\n")
   }
   cols <- colnames(data)
-  if (is.null(genotype) || !is.character(genotype) || length(genotype) > 1 ||
-      !genotype %in% cols) {
-    stop("genotype has to be a column in data.\n")
-  }
-  for (param in c(env, megaEnv, year, repId, subBlock, rowId, colId,
+  for (param in c(genotype, env, megaEnv, year, repId, subBlock, rowId, colId,
                   rowCoordinates, colCoordinates, checkId)) {
-    if (!is.null(param) && (!is.character(param) || length(param) > 1 || !param %in% cols)) {
+    if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
+                            !param %in% cols)) {
       stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
     }
   }
-  if (!is.null(design) && (!is.character(design) || length(design) > 1 ||
-                           !design %in% c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol"))) {
-    stop("design has to be NULL or one of ibd, res.ibd, rcbd, rowcol or res.rowcol.\n")
+  if (!is.null(design)) {
+    design <- match.arg("design", choices = c("ibd", "res.ibd", "rcbd",
+                                              "rowcol", "res.rowcol"))
   }
-  ## Rename columns.
-  renameCols <- c("genotype", "env", "megaEnv", "year", "repId", "subBlock", "rowId",
-                  "colId", "rowCoordinates", "colCoordinates", "checkId")
+  ## Create list of reserved column names for renaming columns.
+  renameCols <- c("genotype", "env", "megaEnv", "year", "repId", "subBlock",
+                  "rowId", "colId", "rowCoordinates", "colCoordinates",
+                  "checkId")
   ## First rename duplicate colums and add duplicated columns to data
   renameFrom <- as.character(sapply(X = renameCols, FUN = function(x) {
     get(x)
@@ -107,8 +117,8 @@ createTD <- function(data,
   }
   colnames(data) <- cols
   ## Convert columns to factor if neccessary.
-  factorCols <-  c("genotype", "env", "megaEnv", "year", "repId", "subBlock", "rowId",
-                   "colId", "checkId")
+  factorCols <-  c("genotype", "env", "megaEnv", "year", "repId", "subBlock",
+                   "rowId", "colId", "checkId")
   for (factorCol in factorCols) {
     if (factorCol %in% cols && !is.factor(data[, which(cols == factorCol)])) {
       data[, which(cols == factorCol)] <-
@@ -128,7 +138,9 @@ createTD <- function(data,
   if (!is.null(design)) {
     attr(x = TD, which = "design") <- design
   }
-  attr(TD, "renamedCols") <- renamed
+  if (nrow(renamed) > 0) {
+    attr(TD, "renamedCols") <- renamed
+  }
   return(TD)
 }
 
@@ -276,9 +288,10 @@ summary.TD <- function(object,
       stats["seKurt", i] <- seKurtosis(length(na.omit(object[, traits[i]])))
     }
   }
-  rownames(stats) <- c("Number of values","Number of observations","Number of missing values",
-                       "Mean","Median", "Min","Max","Range","Lower quartile","Upper quartile",
-                       "Standard deviation", "Standard error of mean","Variance",
+  rownames(stats) <- c("Number of values", "Number of observations",
+                       "Number of missing values", "Mean", "Median", "Min",
+                       "Max", "Range", "Lower quartile", "Upper quartile",
+                       "Standard deviation", "Standard error of mean", "Variance",
                        "Standard error of variance", "Coefficient of variation",
                        "sum of values", "sum of squares", "Uncorrected sum of squares",
                        "Skewness", "Standard Error of Skewness", "Kurtosis",
