@@ -1,3 +1,6 @@
+## Get latest version
+devtools::install_github("CIP-RIU/brapi")
+
 ## BrAPI Connection object for Authentication on BMS
 bmscon <- brapi::ba_connect(brapiDb = NULL, secure = FALSE, protocol = "http://",
                             db = "34.226.132.187", port = 48080, apipath = "bmsapi",
