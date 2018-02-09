@@ -286,7 +286,7 @@ gxeVarComp <- function(TD,
   return(res)
 }
 
-#' Helper function
+#' Helper function for computing initial values.
 #'
 #' Replicates '_qvInitial' procedure (S. J. Welham 15/05/09) in GenStat
 #'
@@ -298,7 +298,6 @@ qvInitial <- function(TD,
                                   "outside", "fa", "fa2", "unstructured"),
                       fixed = NULL,
                       unitFactor = NA, ...) {
-
   ## First, form estimate of unstructured matrix
   ## Create tempfile for asreml output.
   tmp <- tempfile()

@@ -19,8 +19,8 @@
 #' \item{R - varSpat}{spatial variance components - only for \code{SpATS}}
 #' \item{F - fitted}{fitted values for the model with genotype as fixed component}
 #' \item{F - resid}{residuals for the model with genotype as fixed component}
-#' \item{F - stdRes}{standardized residuals for the model with genotype as fixed component
-#' - only for \code{lme4} and \code{asreml}}
+#' \item{F - stdRes}{standardized residuals for the model with genotype as fixed
+#' component - only for \code{lme4} and \code{asreml}}
 #' \item{R - rMeans}{fitted values for the model with genotype as random component}
 #' \item{R - ranEf}{random genetic effects}
 #' \item{F - wald}{results of the wald test}
@@ -354,7 +354,7 @@ extractLme4 <- function(SSA,
       ## Estimatie heritability on a line mean basis.
       if (useRepId) {
         result[["heritability"]] <- varGen /
-          (varGen + (varErr / length(unique(TD$repId))))
+          (varGen + (varErr / dplyr::n_distinct(TD$repId)))
       } else {
         result[["heritability"]] <- varGen / (varGen + varErr)
       }
@@ -492,7 +492,7 @@ extractAsreml <- function(SSA,
     })
     result[["seBLUPs"]] <- createTD(data = Reduce(f = merge,
                                                   x = c(list(baseDataPred),
-                                                        predVals)))
+                                                        predErrs)))
   }
   ## Compute unit errors.
   if ("ue" %in% what) {
@@ -674,13 +674,19 @@ extractSommer <- function(SSA,
   # }
   ## Compute BLUPs and se of BLUPs from mixed model.
   if ("BLUPs" %in% what) {
-    result[["BLUPs"]] <- cbind(baseDataPred,
-                               sapply(X = mr, FUN = function(mr0) {
-                                 beta <- coef(mr0)
-                                 ic <- beta[1, ] + (sum(beta[2:nrow(beta), ]) /
-                                                      nrow(beta))
-                                 mr0$u.hat[[predicted]] + ic
-                               }))
+    predVals <- lapply(X = traits, FUN = function(trait) {
+      beta <- coef(mr[[trait]])
+      ic <- beta[1, ] + sum(beta[2:nrow(beta), ]) / nrow(beta)
+      vals <- mr[[trait]]$u.hat[[predicted]]
+      predVal <- data.frame(gsub(pattern = predicted, replacement = "",
+                                 x = rownames(vals)),
+                            vals + ic)
+      colnames(predVal) <- c(predicted, trait)
+      return(predVal)
+    })
+    result[["BLUPs"]] <- createTD(data = Reduce(f = merge,
+                                                x = c(list(baseDataPred),
+                                                      predVals)))
   }
   if ("seBLUPs" %in% what) {
     result[["seBLUPs"]] <- cbind(baseDataPred,
@@ -693,10 +699,13 @@ extractSommer <- function(SSA,
   ## Compute unit errors.
   if ("ue" %in% what) {
     result[["ue"]] <- cbind(baseDataPred,
-                            lapply(X = mf, FUN = function(mf0) {
-                              ## Extract and invert variance covariance matrix.
-                              1 / Matrix::diag(mf0$V.inv) *
-                                (nrow(baseDataPred) / nrow(baseData))
+                            lapply(X = traits, FUN = function(trait) {
+                              ## Extract inverted variance covariance matrix.
+                              ues <- data.frame(1 / Matrix::diag(mf[[trait]]$V.inv) *
+                                                  (nrow(baseDataPred) /
+                                                     nrow(baseData)))
+                              colnames(ues) <- trait
+                              return(ues)
                             }))
   }
   ## Extract variances.
@@ -739,10 +748,17 @@ extractSommer <- function(SSA,
     ## Use sink to suppress randef default text message.
     tmpfile <- tempfile()
     sink(file = tempfile())
-    result[["ranEf"]] <- cbind(baseData,
-                               sapply(X = mr, FUN = function(mr0) {
-                                 sommer::randef(mr0)[[predicted]]
-                               }))
+    ranEffs <- lapply(X = traits, FUN = function(trait) {
+      effs <- sommer::randef(mr[[trait]])[[predicted]]
+      ranEff <- data.frame(gsub(pattern = predicted, replacement = "",
+                                 x = rownames(effs)),
+                           effs)
+      colnames(ranEff) <- c(predicted, trait)
+      return(ranEff)
+    })
+    result[["ranEf"]] <- createTD(data = Reduce(f = merge,
+                                                x = c(list(baseDataPred),
+                                                      ranEffs)))
     sink()
     unlink(tmpfile)
   }

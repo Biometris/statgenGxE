@@ -21,7 +21,7 @@
 #' that contains environments.
 #' @param megaEnv an optional character string indicating the column in
 #' \code{data} that contains megaEnvironments as constructed by
-#' \code{\link{gxeMegaEnvironment}}.
+#' \code{\link{gxeMegaEnv}}.
 #' @param year an optional character string indicating the column in \code{data}
 #' that contains years.
 #' @param repId an optional character string indicating the column in \code{data}
@@ -86,8 +86,8 @@ createTD <- function(data,
     }
   }
   if (!is.null(design)) {
-    design <- match.arg("design", choices = c("ibd", "res.ibd", "rcbd",
-                                              "rowcol", "res.rowcol"))
+    design <- match.arg(design, choices = c("ibd", "res.ibd", "rcbd",
+                                            "rowcol", "res.rowcol"))
   }
   ## Create list of reserved column names for renaming columns.
   renameCols <- c("genotype", "env", "megaEnv", "year", "repId", "subBlock",
@@ -389,7 +389,7 @@ plot.TD <- function(x,
     histArgs <- modifyList(histArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(lattice::histogram, args = histArgs)
   } else if (plotType == "scatter") {
-    if (isEnv && length(unique(x$env)) > 1) {
+    if (isEnv && dplyr::n_distinct(x$env) > 1) {
       ## Function for 'plotting' absolute correlations with text size
       ## proportional to the correlations.
       panelCor <- function(x, y, ...) {

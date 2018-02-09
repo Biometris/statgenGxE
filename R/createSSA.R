@@ -202,7 +202,7 @@ plot.SSA <- function(x,
                      ...,
                      trait = NULL,
                      what = ifelse(is.null(x$mFix), "random", "fixed"),
-                     plotType = "base") {
+                     plotType = c("base", "spatial")) {
   ## Checks.
   if (is.null(trait) && length(x$traits) > 1) {
     stop("No trait provided but multiple traits found in SSA x\n")
@@ -215,7 +215,7 @@ plot.SSA <- function(x,
       !what %in% c("fixed", "random")) {
     stop("what should be fixed or random.\n")
   }
-  plotType <- match.arg(arg = plotType, choices = c("base", "spatial"))
+  plotType <- match.arg(arg = plotType)
   ## If no trait is given as input extract it from the SSA object.
   if (is.null(trait)) {
     trait <- x$traits

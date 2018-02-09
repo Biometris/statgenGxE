@@ -1,5 +1,5 @@
-#' custom tryCatch to return result, errors and warnings
-#' http://stackoverflow.com/a/24569739/2271856
+#' Custom tryCatch to return result, errors and warnings.
+#' Copied from http://stackoverflow.com/a/24569739/2271856.
 #'
 #' @keywords internal
 tryCatchExt <- function(expr) {
@@ -119,8 +119,8 @@ seVar <- function(x, na.rm = FALSE)
     m2 <- sum(x ^ 2) / n
     m3 <- sum(x ^ 3) / n
     m4 <- sum(x ^ 4) / n
-    se <- sqrt((n * (m4 - 4 * m1 * m3 + 6 * m1 * m1 * m2 -
-                       3 * m1 ^ 4) / (n - 1) - (n * (m2 - m1 * m1) /
+    se <- sqrt((n * (m4 - 4 * m1 * m3 + 6 * m1 ^ 2 * m2 -
+                       3 * m1 ^ 4) / (n - 1) - (n * (m2 - m1 ^ 2) /
                                                   (n - 1)) ^ 2) / n)
   } else if (is.data.frame(x)) {
     se <- sapply(X = x, FUN = seVar, na.rm = na.rm)
@@ -143,7 +143,7 @@ skewness <- function(x,
     m1 <- sum(x) / n
     m2 <- sum(x ^ 2) / n
     m3 <- sum(x ^ 3) / n
-    skw <- (m3 - 3 * m1 * m2 + 2 * m1 ^ 3) / (m2 - m1 * m1) ^ (3 / 2)
+    skw <- (m3 - 3 * m1 * m2 + 2 * m1 ^ 3) / (m2 - m1 ^ 2) ^ (3 / 2)
   } else if (is.data.frame(x)) {
     skw <- sapply(X = x, FUN = skewness, na.rm = na.rm)
   } else {
@@ -161,7 +161,7 @@ seSkewness <- function(n) {
 kurtosis <- function(x,
                      na.rm = FALSE) {
   if (is.matrix(x)) {
-    kurt <- apply(X = x, MARGIN = 2, FUN = seVar, na.rm = na.rm)
+    kurt <- apply(X = x, MARGIN = 2, FUN = kurtosis, na.rm = na.rm)
   } else if (is.vector(x)) {
     if (na.rm) {
       x <- x[!is.na(x)]
@@ -171,12 +171,12 @@ kurtosis <- function(x,
     m2 <- sum(x ^ 2) / n
     m3 <- sum(x ^ 3) / n
     m4 <- sum(x ^ 4) / n
-    kurt <- (m4 - 4 * m1 * m3 + 6 * m1 * m1 * m2 - 3 * m1 ^ 4) /
+    kurt <- (m4 - 4 * m1 * m3 + 6 * m1 ^ 2 * m2 - 3 * m1 ^ 4) /
       (m2 - m1 * m1) ^ 2 - 3
   } else if (is.data.frame(x)) {
-    kurt <- sapply(X = x, FUN = seVar, na.rm = na.rm)
+    kurt <- sapply(X = x, FUN = kurtosis, na.rm = na.rm)
   } else {
-    kurt <- seVar(x = as.vector(x), na.rm = na.rm)
+    kurt <- kurtosis(x = as.vector(x), na.rm = na.rm)
   }
   return(kurt)
 }

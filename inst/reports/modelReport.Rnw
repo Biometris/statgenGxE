@@ -269,7 +269,7 @@ predSE <- STExtract(x, what = paste0("se", predName))
 predTot <- STExtract(x, what = predName) %>%
   dplyr::inner_join(predSE , by = "genotype") %>%
   dplyr::arrange_(paste0(ifelse(descending, "desc(", ""),
-                         trait,".x", ifelse(descending, ")", ""))) %>%
+                        trait,".x", ifelse(descending, ")", ""))) %>%
   setNames(c("genotype", trait, "SE"))
 best <- predTot[1:ceiling(nrow(predTot) / 10), ]
 @

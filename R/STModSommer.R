@@ -14,10 +14,6 @@
 #' STModSommer_2 <- STModSommer(TD = TDHeat05, trait = "yield",
 #'                             design = "res.rowcol")
 #'
-#' ## Fit model for resolvable incomplete block design.
-#' STModSommer_3 <- STModSommer(TD = TDHeat05, trait = "yield",
-#'                             design = "res.ibd")
-#'
 #' @export
 STModSommer <- function(TD,
                         traits,
