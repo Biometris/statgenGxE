@@ -49,9 +49,12 @@ gxeAmmi <- function(TD,
   if (!"env" %in% colnames(TD)) {
     stop("TD should contain a column env to be able to run an AMMI analysis.\n")
   }
+  ## Dropping levels to make sure prcomp doesn't crash.
+  TD$genotype <- droplevels(TD$genotype)
+  TD$env <- droplevels(TD$env)
   ## Count number of genotypes, environments and traits.
-  nGeno <- nlevels(droplevels(TD$genotype))
-  nEnv <- nlevels(droplevels(TD$env))
+  nGeno <- nlevels(TD$genotype)
+  nEnv <- nlevels(TD$env)
   nTrait <- nrow(TD)
   ## At least 3 environments needed.
   if (nEnv < 3) {

@@ -9,22 +9,21 @@
 #'
 #' @param method A character string indicating the criterion to determine
 #' the best trait, either \code{"max"} or \code{"min"}.
-#' @param summaryTable Should a summary table will be printed?
+#' @param sumTab Should a summary table be added as an attribute to
+#' the output and be printed?
 #'
 #' @return The input object of class \code{\link{TD}} with an added extra
 #' column megaEnv.
 #'
 #' @examples
-#' TDmegaEnv <- gxeMegaEnvironment(TD = TDMaize, trait = "yld")
-#' attr(TDmegaEnv, "summary")
+#' TDmegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
 #'
 #' @importFrom methods getFunction
 #' @export
-
-gxeMegaEnvironment <- function(TD,
-                               trait,
-                               method = c("max", "min"),
-                               summaryTable = TRUE) {
+gxeMegaEnv <- function(TD,
+                       trait,
+                       method = c("max", "min"),
+                       sumTab = TRUE) {
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
@@ -39,8 +38,8 @@ gxeMegaEnvironment <- function(TD,
     stop("trait has to be a column in TD.\n")
   }
   method <- match.arg(method)
-  ## drop factor levels
-  TD$genotype <- droplevels(TD$genotype)
+  ## Save and then drop factor levels.
+  envLevels <- levels(TD$env)
   TD$env <- droplevels(TD$env)
   ## Perform AMMI anlaysis.
   AMMI <- gxeAmmi(TD = TD, trait = trait, nPC = 2)
@@ -55,17 +54,17 @@ gxeMegaEnvironment <- function(TD,
   ## Merge factor levels to original data.
   TD$megaEnv <- TD$env
   levels(TD$megaEnv) <- as.character(megaFactor)
-  if (summaryTable) {
+  ## Reapply saved levels to ensure input and output TD are identical.
+  levels(TD$env) <- envLevels
+  if (sumTab) {
     ## Create summary table.
     summTab <- data.frame(megaFactor, envNames = colnames(fitted), winGeno,
-                          "AMMI estimates" = sapply(X = 1:ncol(fitted),
-                                                    FUN = function(x) {
-                                                      signif(fitted[winPos[x], x], 5)
-                                                    }),
+                          "AMMI estimates" = fitted[matrix(c(winPos, 1:ncol(fitted)),
+                                                           ncol = 2)],
                           check.names = FALSE)
     summTab <- summTab[order(megaFactor), ]
-    attr(TD, "summary") <- summTab
-    print(summTab)
+    attr(TD, "sumTab") <- summTab
+    print(summTab, row.names = FALSE, digits = 5)
   }
   return(TD)
 }
