@@ -2,7 +2,7 @@
 
 # Read raw data
 SB_Yield <- read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
-                     stringsAsFactors = FALSE, na.strings = c("NA","*"))
+                     stringsAsFactors = FALSE, na.strings = c("NA", "*"))
 # Restrict to HEAT05
 Heat05 <- SB_Yield[SB_Yield$Env == "HEAT05", ]
 # Create object of class TD

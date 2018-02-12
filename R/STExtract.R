@@ -1,4 +1,4 @@
-#' Extracts statistics from Fitted Models
+#' Extract statistics from Fitted Models
 #'
 #' This function extracts and calculates various results for fitted models such as
 #' BLUEs, BLUPs, unit errors, heritabilities. Note that most results can only
@@ -128,9 +128,8 @@ extractSpATS <- function(SSA,
       colnames(predVal) <- c(predicted, trait)
       return(predVal)
     })
-    result[["BLUEs"]] <- createTD(data = Reduce(f = merge,
-                                                x = c(list(baseDataPred),
-                                                      predVals)))
+    result[["BLUEs"]] <- createTD(data = Reduce(f = merge, x = predVals,
+                                                init = baseDataPred))
   }
   if ("seBLUEs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
@@ -139,9 +138,8 @@ extractSpATS <- function(SSA,
       colnames(predErr) <- c(predicted, trait)
       return(predErr)
     })
-    result[["seBLUEs"]] <- createTD(data = Reduce(f = merge,
-                                                  x = c(list(baseDataPred),
-                                                        predErrs)))
+    result[["seBLUEs"]] <- createTD(data = Reduce(f = merge, x = predErrs,
+                                                  init = baseDataPred))
   }
   ## Compute BLUPs and se of BLUPs from mixed model.
   if ("BLUPs" %in% what) {
@@ -152,9 +150,8 @@ extractSpATS <- function(SSA,
       colnames(predVal) <- c(whichPred, trait)
       return(predVal)
     })
-    result[["BLUPs"]] <- createTD(data = Reduce(f = merge,
-                                                x = c(list(baseDataPred),
-                                                      predVals)))
+    result[["BLUPs"]] <- createTD(data = Reduce(f = merge, x = predVals,
+                                                init = baseDataPred))
   }
   if ("seBLUPs" %in% what) {
     whichPred <- c(predicted, if (useCheckId) "checkId")
@@ -164,9 +161,8 @@ extractSpATS <- function(SSA,
       colnames(predErr) <- c(whichPred, trait)
       return(predErr)
     })
-    result[["seBLUPs"]] <- createTD(data = Reduce(f = merge,
-                                                  x = c(list(baseDataPred),
-                                                        predErrs)))
+    result[["seBLUPs"]] <- createTD(data = Reduce(f = merge, x = predErrs,
+                                                  init = baseDataPred))
   }
   ## Compute generalized heritability.
   if ("heritability" %in% what) {
@@ -210,9 +206,8 @@ extractSpATS <- function(SSA,
       colnames(ranEff) <- c(predicted, trait)
       return(ranEff)
     })
-    result[["ranEf"]] <- createTD(data = Reduce(f = merge,
-                                                x = c(list(baseDataPred),
-                                                      ranEffs)))
+    result[["ranEf"]] <- createTD(data = Reduce(f = merge, x = ranEffs,
+                                                init = baseDataPred))
   }
   ## Extract residual degrees of freedom.
   if ("rDf" %in% what) {
@@ -277,18 +272,16 @@ extractLme4 <- function(SSA,
       setNames(emStats[[trait]][c(predicted, "emmean")],
                c(predicted, trait))
     })
-    result[["BLUEs"]] <- createTD(data = Reduce(f = merge,
-                                                x = c(list(baseDataPred),
-                                                      predVals)))
+    result[["BLUEs"]] <- createTD(data = Reduce(f = merge, x = predVals,
+                                                init = baseDataPred))
   }
   if ("seBLUEs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
       setNames(emStats[[trait]][c(predicted, "SE")],
                c(predicted, trait))
     })
-    result[["seBLUEs"]] <- createTD(data = Reduce(f = merge,
-                                                  x = c(list(baseDataPred),
-                                                        predErrs)))
+    result[["seBLUEs"]] <- createTD(data = Reduce(f = merge, x = predErrs,
+                                                  init = baseDataPred))
   }
   ## Compute BLUPs and se of BLUPs from mixed model.
   if ("BLUPs" %in% what) {
@@ -306,9 +299,8 @@ extractLme4 <- function(SSA,
       colnames(predVal) <- c(predicted, trait)
       return(predVal)
     })
-    result[["BLUPs"]] <- createTD(data = Reduce(f = merge,
-                                                x = c(list(baseDataPred),
-                                                      predVals)))
+    result[["BLUPs"]] <- createTD(data = Reduce(f = merge, x = predVals,
+                                                init = baseDataPred))
   }
   if ("seBLUPs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
@@ -318,9 +310,8 @@ extractLme4 <- function(SSA,
       colnames(predErr) <- c(predicted, trait)
       return(predErr)
     })
-    result[["seBLUPs"]] <- createTD(data = Reduce(f = merge,
-                                                  x = c(list(baseDataPred),
-                                                        predErrs)))
+    result[["seBLUPs"]] <- createTD(data = Reduce(f = merge, x = predErrs,
+                                                  init = baseDataPred))
   }
   ## Compute unit errors.
   if ("ue" %in% what) {
@@ -399,9 +390,8 @@ extractLme4 <- function(SSA,
       colnames(ranEff) <- c(predicted, trait)
       return(ranEff)
     })
-    result[["ranEf"]] <- createTD(data = Reduce(f = merge,
-                                                x = c(list(baseDataPred),
-                                                      ranEffs)))
+    result[["ranEf"]] <- createTD(data = Reduce(f = merge, x = ranEffs,
+                                                init = baseDataPred))
   }
   ## Compute wald test.
   if ("wald" %in% what) {
@@ -462,18 +452,16 @@ extractAsreml <- function(SSA,
       setNames(mf[[trait]]$predictions$pvals[c(predicted, "predicted.value")],
                c(predicted, trait))
     })
-    result[["BLUEs"]] <- createTD(data = Reduce(f = merge,
-                                                x = c(list(baseDataPred),
-                                                      predVals)))
+    result[["BLUEs"]] <- createTD(data = Reduce(f = merge, x = predVals,
+                                                init = baseDataPred))
   }
   if ("seBLUEs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
       setNames(mf[[trait]]$predictions$pvals[c(predicted, "standard.error")],
                c(predicted, trait))
     })
-    result[["seBLUEs"]] <- createTD(data = Reduce(f = merge,
-                                                  x = c(list(baseDataPred),
-                                                        predErrs)))
+    result[["seBLUEs"]] <- createTD(data = Reduce(f = merge, x = predErrs,
+                                                  init = baseDataPred))
   }
   ## Extract BLUPs and se of BLUPs from fixed model.
   if ("BLUPs" %in% what) {
@@ -481,18 +469,16 @@ extractAsreml <- function(SSA,
       setNames(mr[[trait]]$predictions$pvals[c(predicted, "predicted.value")],
                c(predicted, trait))
     })
-    result[["BLUPs"]] <- createTD(data = Reduce(f = merge,
-                                                x = c(list(baseDataPred),
-                                                      predVals)))
+    result[["BLUPs"]] <- createTD(data = Reduce(f = merge, x = predVals,
+                                                init = baseDataPred))
   }
   if ("seBLUPs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
       setNames(mr[[trait]]$predictions$pvals[c(predicted, "standard.error")],
                c(predicted, trait))
     })
-    result[["seBLUPs"]] <- createTD(data = Reduce(f = merge,
-                                                  x = c(list(baseDataPred),
-                                                        predErrs)))
+    result[["seBLUPs"]] <- createTD(data = Reduce(f = merge, x = predErrs,
+                                                  init = baseDataPred))
   }
   ## Compute unit errors.
   if ("ue" %in% what) {
@@ -574,9 +560,8 @@ extractAsreml <- function(SSA,
       colnames(ranEff) <- c(predicted, trait)
       ranEff
     })
-    result[["ranEf"]] <- createTD(data = Reduce(f = merge,
-                                                x = c(list(baseDataPred),
-                                                      ranEffs)))
+    result[["ranEf"]] <- createTD(data = Reduce(f = merge, x = ranEffs,
+                                                init = baseDataPred))
   }
   ## Compute wald test.
   if ("wald" %in% what) {
@@ -684,9 +669,8 @@ extractSommer <- function(SSA,
       colnames(predVal) <- c(predicted, trait)
       return(predVal)
     })
-    result[["BLUPs"]] <- createTD(data = Reduce(f = merge,
-                                                x = c(list(baseDataPred),
-                                                      predVals)))
+    result[["BLUPs"]] <- createTD(data = Reduce(f = merge, x = predVals,
+                                                init = baseDataPred))
   }
   if ("seBLUPs" %in% what) {
     result[["seBLUPs"]] <- cbind(baseDataPred,
@@ -756,9 +740,8 @@ extractSommer <- function(SSA,
       colnames(ranEff) <- c(predicted, trait)
       return(ranEff)
     })
-    result[["ranEf"]] <- createTD(data = Reduce(f = merge,
-                                                x = c(list(baseDataPred),
-                                                      ranEffs)))
+    result[["ranEf"]] <- createTD(data = Reduce(f = merge, x = ranEffs,
+                                                init = baseDataPred))
     sink()
     unlink(tmpfile)
   }

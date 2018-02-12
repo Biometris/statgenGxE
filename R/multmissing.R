@@ -30,8 +30,8 @@
 #'
 #' @references Beale, E.M.L. & Little, R.J.A. (1975). Missing values in
 #' multivariate analysis. Journal of the Royal Statistical Society, Series B,
-#' 37, 129-145.\cr
-#' Orchard, T. & Woodbury, M.A. (1972). A missing information principle:
+#' 37, 129-145.
+#' @references Orchard, T. & Woodbury, M.A. (1972). A missing information principle:
 #' theory and applications. In: Proceedings of the 6th Berkeley Symposium in
 #' Mathematical Statistics and Probability, Vol I, 697-715.
 #'
