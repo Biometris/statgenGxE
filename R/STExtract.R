@@ -66,7 +66,7 @@ STExtract <- function(SSA,
                       what = "all",
                       keep = NULL) {
   ## Checks.
-  if (!is.SSA(SSA)) {
+  if (!inherits(SSA, "SSA")) {
     stop("SSA has to be an object of class SSA.\n")
   }
   if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(SSA$TD))) {

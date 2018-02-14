@@ -16,7 +16,6 @@
 #' \code{FALSE} if no spatial design has been used.
 #' @param engine a character string containing the engine used for the analysis.
 #' @param predicted a character string indicating the variable that has been predicted.
-#' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -46,12 +45,6 @@ createSSA <- function(mRand,
   attr(SSA, which = "timestamp") <- Sys.time()
   attr(SSA, which = "predicted") <- predicted
   return(SSA)
-}
-
-#' @rdname SSA
-#' @export
-is.SSA <- function(x) {
-  inherits(x, "SSA")
 }
 
 #' Summarizing objects of class \code{SSA}
@@ -423,7 +416,7 @@ SSAtoCross <- function(SSA,
                        genotypes = c("A", "H", "B", "D", "C"),
                        ...) {
   ## Checks
-  if (!is.SSA(SSA)) {
+  if (!inherits(SSA, "SSA")) {
     stop("SSA is not a valid object of class SSA.\n")
   }
   what <- match.arg(what)

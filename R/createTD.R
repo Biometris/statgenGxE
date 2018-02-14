@@ -43,9 +43,8 @@
 #' @param design an optional character string indicating the design of the
 #' trial. Accepted values are "ibd" (incomplete-block design), "res.ibd"
 #' (resolvable incomplete-block design), "rcbd" (randomized complete block
-#' design), "rowcol" (rowId-column design) and "res.rowcol" (resolvable
-#' rowId-column design).
-#' @param x an \code{R} object
+#' design), "rowcol" (row-column design) and "res.rowcol" (resolvable
+#' row-column design).
 #'
 #' @return An object of class TD, the input data.frame with renamed columns
 #' and an attribute \code{renamedCols} containing info on which columns have
@@ -144,12 +143,6 @@ createTD <- function(data,
   return(TD)
 }
 
-#' @rdname TD
-#' @export
-is.TD <- function(x) {
-  inherits(x, "TD")
-}
-
 #' Summarizing objects of class \code{TD}
 #'
 #' \code{summary} method for class \code{TD}.
@@ -206,11 +199,11 @@ summary.TD <- function(object,
   if (!is.character(traits) || !all(traits %in% colnames(object))) {
     stop(paste("All traits should be columns in", substitute(object), ".\n"))
   }
-  if (!is.character(what) || sum(what %in% allWhat) == 0) {
-    stop("At least one statistic should be chosen.\n")
-  }
   if (what[[1]] == "all") {
     what <- allWhat
+  }
+  if (!is.character(what) || sum(what %in% allWhat) == 0) {
+    stop("At least one statistic should be chosen.\n")
   }
   whichWhat <- which(allWhat %in% what)
   ## Create a data.frame to store the values".

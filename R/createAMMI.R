@@ -13,7 +13,6 @@
 #' @param envMean a numerical vector containing the means per environment
 #' @param genoMean a numerical vector containing the means per genotype
 #' @param overallMean a numerical value containing the overall mean
-#' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -45,12 +44,6 @@ createAMMI <- function(envScores,
                     class = "AMMI")
   attr(AMMI, which = "timestamp") <- Sys.time()
   return(AMMI)
-}
-
-#' @rdname AMMI
-#' @export
-is.AMMI <- function(x) {
-  inherits(x, "AMMI")
 }
 
 #' @export

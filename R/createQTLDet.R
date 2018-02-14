@@ -10,7 +10,6 @@
 #' @param cross An object of class cross in the \code{qtl} package.
 #' @param trait A character string indicating the trait for which the analysis
 #' is done.
-#' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -34,12 +33,6 @@ createQTLDet <- function(scores,
                       class = "QTLDet")
   attr(QTLDet, which = "timestamp") <- Sys.time()
   return(QTLDet)
-}
-
-#' @rdname QTLDet
-#' @export
-is.QTLDet <- function(x) {
-  inherits(x, "QTLDet")
 }
 
 #' @export

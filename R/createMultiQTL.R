@@ -9,7 +9,6 @@
 #' the QTL model.
 #' @param selection A character string indictating the type of selection used for
 #' selecting the markers in the final model.
-#' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -29,12 +28,6 @@ createMultiQTL <- function(qtl,
                         class = "multiQTL")
   attr(multiQTL, which = "timestamp") <- Sys.time()
   return(multiQTL)
-}
-
-#' @rdname multiQTL
-#' @export
-is.multiQTL <- function(x) {
-  inherits(x, "multiQTL")
 }
 
 #' @export

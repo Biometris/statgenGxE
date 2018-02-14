@@ -15,7 +15,6 @@
 #' @param tol a numerical value containing the tolerance used during the analysis
 #' @param iter a numberical value containing the number of iterations for the
 #' analysis to converge
-#' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -49,12 +48,6 @@ createFW <- function(estimates,
                   class = "FW")
   attr(FW, which = "timestamp") <- Sys.time()
   return(FW)
-}
-
-#' @rdname FW
-#' @export
-is.FW <- function(x) {
-  inherits(x, "FW")
 }
 
 #' @export

@@ -9,7 +9,6 @@
 #' @param static a data.frame containing values for Shukla's stabilitye variance.
 #' @param wricke a data.frame containing values for Wricke's ecovalence.
 #' @param trait a character string indicating the trait that has been analyzed.
-#' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -31,12 +30,6 @@ createstability <- function(superiority = NULL,
                          class = "stability")
   attr(stability, which = "timestamp") <- Sys.time()
   return(stability)
-}
-
-#' @rdname stability
-#' @export
-is.stability <- function(x) {
-  inherits(x, "stability")
 }
 
 #' @export
@@ -105,7 +98,6 @@ plot.stability <- function(x,
           outer = TRUE, cex = 1.3, font = 2)
   }
 }
-
 
 #' Report method for class stability
 #'
