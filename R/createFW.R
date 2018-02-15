@@ -31,14 +31,14 @@ createFW <- function(estimates,
                      trait,
                      nGeno,
                      nEnv,
-                     data,
+                     TD,
                      fittedGeno,
                      tol,
                      iter) {
   FW <- structure(list(estimates = estimates,
                        anova = anova,
                        envEffs = envEffs,
-                       data = data,
+                       TD = TD,
                        fittedGeno = fittedGeno,
                        trait = trait,
                        nGeno = nGeno,
@@ -113,7 +113,7 @@ plot.FW <- function(x,
     plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(ifelse(!all(is.na(x$estimates$mse)), pairs, plot), args = plotArgs)
   } else if ("line" %in% plotType) {
-    fVal <- tapply(X = x$fittedGeno, INDEX = x$data[, c("env", "genotype")],
+    fVal <- tapply(X = x$fittedGeno, INDEX = x$TD[, c("env", "genotype")],
                    FUN = mean, na.rm = TRUE)
     if (sorted == "none") {
       orderEnv <- 1:length(envEffs)
@@ -136,13 +136,13 @@ plot.FW <- function(x,
     axis(side = 1, at = envEffs, labels = levels(x$envEffs$Environment),
          las = 2, cex.axis = .75)
   } else if ("trellis" %in% plotType) {
-    trellisData <- data.frame(genotype = x$data$genotype,
-                              trait = x$data[[x$trait]],
+    trellisData <- data.frame(genotype = x$TD$genotype,
+                              trait = x$TD[[x$trait]],
                               fitted = x$fittedGen,
                               xEff = rep(envEffs, x$nGeno))
     if (x$nGeno > 64) {
       ## Select first 64 genotypes for plotting.
-      first64 <- x$data$genotype %in% levels(x$estimates$genotype)[1:64]
+      first64 <- x$TD$genotype %in% levels(x$estimates$genotype)[1:64]
       trellisData <- trellisData[first64, ]
     }
     ## Define panelfunction for xy plot.

@@ -4,8 +4,8 @@
 #'
 #' @inheritParams gxeAmmi
 #'
-#' @param maxCycle An integer specifying the maximum number of iterations to be achieved.
-#' By default, \code{maxCycle = 15}.
+#' @param maxIter An integer specifying the maximum number of iterations to be achieved.
+#' By default, \code{maxIter = 15}.
 #' @param tol A small positive numerical value specifying convergence tolerance.
 #' By default, \code{tol = 0.001}.
 #' @param sorted A character string specifying the sorting order of the results.
@@ -36,7 +36,7 @@
 #' @export
 gxeFw <- function(TD,
                   trait,
-                  maxCycle = 15,
+                  maxIter = 15,
                   tol = 0.001,
                   sorted = c("ascending", "descending", "none")) {
   if (missing(TD) || !inherits(TD, "TD")) {
@@ -50,9 +50,9 @@ gxeFw <- function(TD,
       !trait %in% colnames(TD)) {
     stop("trait has to be a column in TD.\n")
   }
-  if (is.null(maxCycle) || !is.numeric(maxCycle) || length(maxCycle) > 1 ||
-      maxCycle != round(maxCycle) || maxCycle < 1) {
-    stop("maxCycle should be a positive integer.\n")
+  if (is.null(maxIter) || !is.numeric(maxIter) || length(maxIter) > 1 ||
+      maxIter != round(maxIter) || maxIter < 1) {
+    stop("maxIter should be a positive integer.\n")
   }
   if (is.null(tol) || !is.numeric(tol) || length(tol) > 1 || tol < 0) {
     stop("tol should be a numerical value > 10^-6.\n")
@@ -79,7 +79,7 @@ gxeFw <- function(TD,
   ## Set iteration to 1.
   iter <- 1
   ## Iterate to fit 'y(i,j) = genMean(i)+beta(i)*envEffs(j)'
-  while (maxDiff > tol && iter <= maxCycle) {
+  while (maxDiff > tol && iter <= maxIter) {
     beta0 <- TD$beta
     ## Fit model with current genotype sensitivity relevant to each unit.
     model1 <- lm(as.formula(paste(trait, "~-1 + genotype + genotype:envEffs")),
@@ -100,7 +100,7 @@ gxeFw <- function(TD,
     TD$envEffs <- TD$envEffs - mean(TD$envEffs)
     ## Compute maximum difference of sensitivities between the succesive iterations.
     maxDiff <- max(abs(TD$beta - beta0), na.rm = TRUE)
-    if (iter == maxCycle && maxDiff > tol) {
+    if (iter == maxIter && maxDiff > tol) {
       warning(paste0("Convergence not achieved in ", iter," iterations. Tolerance ",
                      tol, ", criterion at last iteration ", signif(maxDiff, 4), ".\n"))
     }
@@ -140,20 +140,24 @@ gxeFw <- function(TD,
                                        "Residual", "Total"),
                          check.names = FALSE)
   ## Extract sensitivity beta.
-  sens <- TD$beta %>% tapply(INDEX = TD$genotype, FUN = mean, na.rm = TRUE)
+  sens <- as.vector(tapply(X = TD$beta, INDEX = TD$genotype,
+                           FUN = mean, na.rm = TRUE))
   ## Compute the standard errors.
   sigmaE <- sqrt(diag(vcov(model1))[match(paste0("genotype", TD$genotype,
                                                  ":envEffs"),
                                           names(coeffsModel1))]) %>%
-    tapply(INDEX = TD$genotype, FUN = mean, na.rm = TRUE)
+    tapply(INDEX = TD$genotype, FUN = mean, na.rm = TRUE) %>%
+    as.vector
   ## Extract the mean for each genotype.
   genMean <- coeffsModel1[match(paste0("genotype", TD$genotype),
                                 names(coeffsModel1))] %>%
-    tapply(INDEX = TD$genotype, FUN = mean, na.rm = TRUE)
+    tapply(INDEX = TD$genotype, FUN = mean, na.rm = TRUE) %>%
+    as.vector
   ## Residual standard error.
   sigma <- sqrt(diag(vcov(model1))[match(paste0("genotype", TD$genotype),
                                          names(coeffsModel1))]) %>%
-    tapply(INDEX = TD$genotype, FUN = mean, na.rm = TRUE)
+    tapply(INDEX = TD$genotype, FUN = mean, na.rm = TRUE) %>%
+    as.vector
   ## Compute mean squared error (MSE) of the trait means for each genotype.
   mse <- residuals(model1) %>%
     tapply(INDEX = TD$genotype, FUN = function(x) {
@@ -163,7 +167,7 @@ gxeFw <- function(TD,
       } else {
         rep(NA, checkG)
       }
-    })
+    }) %>% as.vector
   ## Compute sortting order for estimates.
   if (sorted == "none") {
     orderSens <- 1:nGeno
@@ -190,10 +194,11 @@ gxeFw <- function(TD,
   }
   meansFitted <- meansFitted[matchPos2]
   envEffsSummary <- data.frame(env = names(meansFitted), effect = envEffs,
-                               SE = seEnvEffs, mean = meansFitted,
+                               SE = seEnvEffs, mean = as.vector(meansFitted),
                                rank = rank(-meansFitted), row.names = NULL)
   return(createFW(estimates = estimates, anova = aovTable,
-                  envEffs = envEffsSummary, data = TD,
-                  fittedGeno = fitted(model1), trait = trait, nGeno = nGeno,
-                  nEnv = nlevels(TD$env), tol = tol, iter = iter - 1))
+                  envEffs = envEffsSummary, TD = createTD(TD),
+                  fittedGeno = unname(fitted(model1)), trait = trait,
+                  nGeno = nGeno, nEnv = nlevels(TD$env), tol = tol,
+                  iter = iter - 1))
 }
