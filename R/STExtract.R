@@ -114,7 +114,7 @@ extractSpATS <- function(SSA,
                       several.ok = TRUE)
   }
   ## Create baseData and baseDataPred to which further results will be merged.
-  base <- createBaseData(TD, predicted, keep)
+  base <- createBaseData(TD, predicted, keep, useRepId)
   baseData <- base$baseData
   baseDataPred <- base$baseDataPred
   ## Create empty result list.
@@ -252,7 +252,7 @@ extractLme4 <- function(SSA,
                       several.ok = TRUE)
   }
   ## Create baseData and baseDataPred to which further results will be merged.
-  base <- createBaseData(TD, predicted, keep)
+  base <- createBaseData(TD, predicted, keep, useRepId)
   baseData <- base$baseData
   baseDataPred <- base$baseDataPred
   ## Create empty result list.
@@ -315,18 +315,19 @@ extractLme4 <- function(SSA,
   }
   ## Compute unit errors.
   if ("ue" %in% what) {
-    result[["ue"]] <- cbind(baseDataPred,
-                            lapply(X = em, FUN = function(em0) {
-                              ## Extract and invert variance covariance matrix.
-                              V <- vcov(em0)
-                              Vinv <- try(chol2inv(chol(V)), silent = TRUE)
-                              ## Compute unit errors.
-                              if (!inherits(Vinv, "try-error")) {
-                                ue <- 1 / diag(Vinv)
-                              } else {
-                                ue <- 1 / diag(solve(V))
-                              }
-                            }))
+    result[["ue"]] <- createTD(data = cbind(baseDataPred,
+                                            lapply(X = em, FUN = function(em0) {
+                                              ## Extract and invert variance covariance matrix.
+                                              V <- vcov(em0)
+                                              Vinv <- try(chol2inv(chol(V)),
+                                                          silent = TRUE)
+                                              ## Compute unit errors.
+                                              if (!inherits(Vinv, "try-error")) {
+                                                ue <- 1 / diag(Vinv)
+                                              } else {
+                                                ue <- 1 / diag(solve(V))
+                                              }
+                                            })))
   }
   ## Extract variances.
   if (any(c("varGen", "varErr", "heritability") %in% what)) {
@@ -440,7 +441,7 @@ extractAsreml <- function(SSA,
                       several.ok = TRUE)
   }
   ## Create baseData and baseDataPred to which further results will be merged.
-  base <- createBaseData(TD, predicted, keep)
+  base <- createBaseData(TD, predicted, keep, useRepId)
   baseData <- base$baseData
   baseDataPred <- base$baseDataPred
   ## Create empty result list.
@@ -634,7 +635,7 @@ extractSommer <- function(SSA,
                       several.ok = TRUE)
   }
   ## Create baseData and baseDataPred to which further results will be merged.
-  base <- createBaseData(TD, predicted, keep)
+  base <- createBaseData(TD, predicted, keep, useRepId)
   baseData <- base$baseData
   baseDataPred <- base$baseDataPred
   ## Create empty result list.
@@ -735,7 +736,7 @@ extractSommer <- function(SSA,
     ranEffs <- lapply(X = traits, FUN = function(trait) {
       effs <- sommer::randef(mr[[trait]])[[predicted]]
       ranEff <- data.frame(gsub(pattern = predicted, replacement = "",
-                                 x = rownames(effs)),
+                                x = rownames(effs)),
                            effs)
       colnames(ranEff) <- c(predicted, trait)
       return(ranEff)
@@ -767,10 +768,11 @@ extractSommer <- function(SSA,
 #' Helper function for creating baseData
 #'
 #' @keywords internal
-createBaseData <- function(TD, predicted, keep) {
+createBaseData <- function(TD, predicted, keep, useRepId) {
   ## Create baseData consisting of predicted variable, possibly repId and
   ## selected keep columns.
-  baseData <- TD[, colnames(TD) %in% c(predicted, "repId", keep), drop = FALSE]
+  baseData <- TD[, colnames(TD) %in% c(predicted, ifelse(useRepId, "repId", ""),
+                                       keep), drop = FALSE]
   ## Create baseData for predictions with predicted variable(s).
   baseDataPred <- unique(TD[predicted])
   ## Add columns in keep one-by-one. Only data that is constant within
