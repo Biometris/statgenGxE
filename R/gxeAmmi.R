@@ -132,7 +132,9 @@ gxeAmmi <- function(TD,
   colnames(importance) <- paste0("PC", 1:ncol(importance))
   ## Compute means.
   envMean <- tapply(X = TD[[trait]], INDEX = TD$env, FUN = mean)
+  envMean <- setNames(as.numeric(envMean), names(envMean))
   genoMean <- tapply(X = TD[[trait]], INDEX = TD$genotype, FUN = mean)
+  genoMean <- setNames(as.numeric(genoMean), names(genoMean))
   overallMean <- mean(TD[[trait]])
   return(createAMMI(envScores = pca$rotation, genoScores = pca$x,
                     importance = importance, anova = anv, fitted = fitted,
