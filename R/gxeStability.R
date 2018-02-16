@@ -10,7 +10,7 @@
 #' calculated. Options are superiority (cultivar-superiority measure), static
 #' (Shukla's stability variance) or wricke (wricke's ecovalence). By default
 #' all three measures are calculated.
-#' @param superiorityBestMethod A character string specifying the criterion to define
+#' @param bestMethod A character string specifying the criterion to define
 #' the best genotype ("max","min").
 #' @param sorted A character string specifying the sorting order of the results.
 #'
@@ -31,7 +31,7 @@
 gxeStability <- function(TD,
                          trait,
                          method = c("superiority", "static", "wricke"),
-                         superiorityBestMethod = c("max", "min"),
+                         bestMethod = c("max", "min"),
                          sorted = c("descending", "ascending", "none")) {
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -44,7 +44,7 @@ gxeStability <- function(TD,
     stop("trait has to be a column in TD.\n")
   }
   method <- match.arg(method, several.ok = TRUE)
-  superiorityBestMethod <- match.arg(superiorityBestMethod)
+  bestMethod <- match.arg(bestMethod)
   sorted <- match.arg(sorted)
   if (any(is.na(TD[[trait]]))) {
     y0 <- tapply(TD[[trait]], TD[, c("genotype","env")], mean)
@@ -72,13 +72,13 @@ gxeStability <- function(TD,
   ## Compute the centered trait mean per eniroment.
   Ej <- tapply(TD[[trait]], TD[, "env"], mean)
   ## Compute the maximum or minimum trait mean among all genotypes per enviroment.
-  if (superiorityBestMethod == "max") {
+  if (bestMethod == "max") {
     Mj <- tapply(TD[[trait]], TD[, "env"], max, na.rm = TRUE)
   } else {
     Mj <- tapply(TD[[trait]], TD[, "env"], min, na.rm = TRUE)
   }
   ## Compute the genotype trait mean per environment.
-  Ei <- tapply(TD[[trait]], TD[, "genotype"], mean, na.rm = TRUE)
+  Ei <- as.vector(tapply(TD[[trait]], TD[, "genotype"], mean, na.rm = TRUE))
   ## Compute the grand mean.
   E <- mean(TD[, trait], na.rm = TRUE)
   ## Create empty vectors for storing output
