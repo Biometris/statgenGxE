@@ -49,7 +49,7 @@
 % Load required packages
 <<label=setup, include=FALSE, cache=FALSE>>=
 ## load required packages
-lapply(list("qtl", "xtable"), library, character.only = TRUE)
+lapply(list("qtl"), library, character.only = TRUE)
 @
 
 % Article title and date.
@@ -81,22 +81,26 @@ summTab <- data.frame(c("Cross type", NA, "Number of individuals",
                         summ$n.ind, NA, summ$n.phe,
                         round((1 - summ$missing.phe) * 100, 1), NA,
                         summ$n.chr,
-                        if (!is.null(summ$autosomes)) paste(summ$autosomes, collapse = " "),
+                        if (!is.null(summ$autosomes)) paste(summ$autosomes,
+                                                            collapse = " "),
                         if (!is.null(summ$Xchr)) summ$Xchr, NA, sum(summ$n.mar),
                         paste(summ$n.mar, collapse = " "),
                         round((1 - summ$missing.gen) * 100, 1),
                         if (!is.null(summ$typing.freq.X)) {
                           roundedX <- sprintf("%.1f", summ$typing.freq.X * 100)
-                          genoX <- paste(names(summ$typing.freq.X), roundedX, sep = ":")
+                          genoX <- paste(names(summ$typing.freq.X), roundedX,
+                                         sep = ":")
                           if (!is.null(summ$typing.freq.A)) {
                             roundedA <- sprintf("%.1f", summ$typing.freq.A * 100)
-                            genoA <- paste(names(summ$typing.freq.A), roundedA, sep = ":")
+                            genoA <- paste(names(summ$typing.freq.A), roundedA,
+                                           sep = ":")
                             paste(genoA, collapse = " ")
                           }
                           paste(genoX, collapse = " ")
                         } else {
                           geno <- paste(names(summ$typing.freq),
-                                        sprintf("%.1f", summ$typing.freq * 100), sep = ":")
+                                        sprintf("%.1f", summ$typing.freq * 100),
+                                        sep = ":")
                           paste(geno, collapse = " ")
                         }))
 
@@ -121,12 +125,21 @@ par(op)
 %-------------------------------------------------------------------------------
 \section{Segregation distortion}
 %-------------------------------------------------------------------------------
-<<label=importance, echo=FALSE, results="asis">>=
+<<label=segrDist, echo=FALSE, results="asis">>=
 ## Evaluate the segregation distortion at every marker
 ## (and print those that show some evidence)
 segr <- qtl::geno.table(x)
 segr <- segr[segr$P.value < 1e-3, ]
-if (nrow(segr) > 0) {
+if (nrow(segr) > 15) {
+  ## Too many markers to print. Exported to .csv instead.
+  cat(paste(nrow(segr), "markers show evidence of segregation distortion."))
+  cat(paste0("\\newline Those markers are exported to ",
+             file.path(outDir, paste0(outBase, "csv"))))
+  ## Writing directly to outDir doesn't work when relative paths are used.
+  ## Relative path while knitting is different from actual relative path.
+  ## Therefore .csv is written to package directory and moved from there.
+  write.csv(x = segr, file = paste0(outBase, "csv"))
+} else if (nrow(segr) > 0) {
   cat("Markers that show evidence of segregation distortion.\n")
   print(xtable::xtable(x = segr, label = "segrDist",
                        align = c("l", rep("r", ncol(segr))),
@@ -149,7 +162,7 @@ qtl::checkAlleles(crossRec)
 @
 <<label=recomPlot, echo=FALSE, out.width='85%'>>=
 ## Plot of recombination frequencies
-qtl::plot.rf(crossRec, alternate.chrid = TRUE)
+qtl::plotRF(crossRec, alternate.chrid = TRUE)
 @
 \newpage
 <<label=recom2, echo=FALSE, results="asis">>=
