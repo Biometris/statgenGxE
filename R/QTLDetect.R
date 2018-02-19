@@ -11,14 +11,17 @@
 #'
 #' @param cross An object of class cross created by the qtl package
 #' @param trait A character string indicating the trait to be analysed.
-#' @param type A character sting indicating the type of QTL detection to be performed.
-#' Either "MR" (Marker Response), "SIM" (Simple Interval Mapping) or "CIM"
-#' (Composite Interval Mapping)
+#' @param type A character sting indicating the type of QTL detection to be
+#' performed. Either "MR" (Marker Response), "SIM" (Simple Interval Mapping)
+#' or "CIM" (Composite Interval Mapping)
+#' @param step A numerical value indicating the maximum distance (in cM)
+#' between positions at which the genotype probabilities are calculated. If
+#' \code{step = 0} probabilities are only calculated at the marker locations.
 #' @param thr A numerical value indicating a lower threshold for the lodscore
 #' of the peaks.
 #' @param window A numerical value indicating the window (in cM) used when
 #' selecting peaks.
-#' @param ... Other parameters to be passed on to underlyiing functions used
+#' @param ... Other parameters to be passed on to underlying functions used
 #' for qtl detection, \code{\link[qtl]{scanone}} when \code{type} is "MR"
 #' or "SIM" and \code{\link[qtl]{cim}} when \code{type} is "CIM".
 #'
@@ -45,8 +48,9 @@
 QTLDetect <- function(cross,
                       trait,
                       type = c("MR", "SIM", "CIM"),
+                      step = 5,
                       thr = 3,
-                      window = 15,
+                      window = 30,
                       ...) {
   type <- match.arg(type)
   if (type == "MR") {
@@ -54,13 +58,13 @@ QTLDetect <- function(cross,
     scores <- qtl::scanone(cross, pheno.col = trait, method = "mr", ...)
   } else if (type == "SIM") {
     ## Calculate genotype probabilities.
-    cross <- qtl::calc.genoprob(cross, step = 5, error.prob = 0)
+    cross <- qtl::calc.genoprob(cross, step = step, error.prob = 0)
     ## Perform a QTL search by Simple Interval Mapping (SIM)
     ## (Haley-Knott regression)
     scores <- qtl::scanone(cross, pheno.col = trait, method = "hk", ...)
   } else if (type == "CIM") {
     ## Calculate genotype probabilities.
-    cross <- qtl::calc.genoprob(cross, step = 5, error.prob = 0)
+    cross <- qtl::calc.genoprob(cross, step = step, error.prob = 0)
     ## Perform a QTL search by Simple Interval Mapping (CIM)
     scores <- qtl::cim(cross, pheno.col = trait, n.marcovar = 5, window = window,
                        method = "hk", map.function = "haldane",
@@ -81,13 +85,19 @@ QTLDetect <- function(cross,
     }
   }
   peaksTot <- peaksTot[order(peaksTot$chr, peaksTot$pos), ]
+  peaksTot <- tibble::add_column(.data = peaksTot,
+                                 altName = paste0("Q", peaksTot$chr, "@",
+                                                    peaksTot$pos),
+                                 .before = 1)
   attr(scores, "marker.covar") <- rownames(peaksTot)
   attr(scores, "marker.covar.pos") <- peaksTot[, c("chr", "pos")]
+  info = list(step = step, thr = thr, window = window)
   QTLDet <- createQTLDet(scores = scores,
                          peaks = peaksTot,
                          type = type,
                          cross = cross,
-                         trait = trait)
+                         trait = trait,
+                         info = info)
   return(QTLDet)
 }
 

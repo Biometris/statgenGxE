@@ -10,6 +10,8 @@
 #' @param QTLDet An object of class \code{\link{QTLDet}}
 #' @param selection An integer string indicating whether backward selection should
 #' be applied or no selection at all.
+#' @param thr A numerical value indicating the threshold for dropping terms in
+#' the backwards elemination process.
 #'
 #' @return An object of class \code{\link{multiQTL}}
 #'
@@ -35,9 +37,10 @@
 #' @export
 multiQTLFit <- function(QTLDet,
                         selection = c("backward", "none"),
+                        thr = 0.05,
                         ...) {
   ## Checks
-  if (!is.QTLDet(QTLDet)) {
+  if (!inherits(QTLDet, "QTLDet")) {
     stop("QTLDet should be an object of class QTLDet.\n")
   }
   selection <- match.arg(selection)
@@ -53,7 +56,7 @@ multiQTLFit <- function(QTLDet,
   if (selection == "backward") {
     ## While there are markers with Pvalue remove the one with the
     ## and refit the model without this marker highest value.
-    while (any(qtlFit$result.drop[, "Pvalue(F)"] > 0.05)) {
+    while (any(qtlFit$result.drop[, "Pvalue(F)"] > thr)) {
       ## Drop the marker with the highest P-value.
       qtl <- qtl::dropfromqtl(qtl, qtl.name =
                                 names(which.max(qtlFit$result.drop[, "Pvalue(F)"])))
@@ -71,7 +74,8 @@ multiQTLFit <- function(QTLDet,
   estNames <- qtlPosToName(names(qtlFit$ests$ests)[-1], cross = QTLDet$cross)
   names(qtlFit$ests$ests)[-1] <- paste0(estNames$chrNames, estNames$ext)
   ## Create multiQTL object.
-  multiQtl <- createMultiQTL(qtl = qtlFit, QTLDet = QTLDet, selection = selection)
+  multiQtl <- createMultiQTL(qtl = qtlFit, QTLDet = QTLDet,
+                             selection = selection, thr = thr)
   return(multiQtl)
 }
 

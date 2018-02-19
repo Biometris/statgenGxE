@@ -30,7 +30,7 @@
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Model report}%
+\title{Single trial analysis for \Sexpr{x$traits}}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
@@ -79,15 +79,16 @@ useCheckId <- (engine == "SpATS" && length(grep(pattern = "checkId",
 \singlespacing
 
 %-------------------------------------------------------------------------------
-\section{Background information}
+\section{General information}
 %-------------------------------------------------------------------------------
-<<label=background, echo=FALSE, results="asis">>=
-bgItems <- c(format(attr(x, "timestamp"), "%y-%m-%d"),
-             format(attr(x, "timestamp"), "%H:%M:%S"),
-             x$engine, as.character(packageVersion("RAP")))
-names(bgItems) <- c("Modeling date", "Modeling time", "Modeling engine",
-                    "Pipeline version")
-print(xtable::xtable(x = data.frame(bgItems), label = "background",
+<<label=general, echo=FALSE, results="asis">>=
+bgItems <- c(format(attr(x, "timestamp"), "%y-%m-%d %H:%M:%S"),
+             as.character(packageVersion("RAP")),
+             engine)
+names(bgItems) <- c("Analysis done on",
+                    "Pipeline version",
+                    "Mixed model engine")
+print(xtable::xtable(x = data.frame(bgItems), label = "general",
                      align = c("l", "l")),
       latex.environments = "flushleft", hline.after = NULL,
       include.rownames = TRUE, include.colnames = FALSE)
@@ -130,7 +131,7 @@ if (engine == "SpATS") {
 }
 @
 <<label=summary, echo=FALSE, results="asis">>=
-modSum <- as.data.frame(summary(x$data, traits = trait))
+modSum <- as.data.frame(summary(x$TD, traits = trait))
 modSum <- modSum[!is.na(modSum$Freq), ]
 print(xtable::xtable(x = modSum[, c(1, 3)],
                      caption = "Size of the data set and eight number descriptives",
@@ -215,7 +216,7 @@ if (engine == "SpATS") {
         latex.environments = "flushleft", caption.placement = "top",
         include.rownames = FALSE)
 } else if (engine == "asreml") {
-  varComp <- summary(model)$varcomp[, "component", drop = FALSE]
+  varComp <- summary(model)$varcomp[, c("component", "std.error")]
   rownames(varComp) <- sapply(X = strsplit(x = rownames(varComp), split = "[!.]+"),
                               FUN = function(split) {
                                 if (split[[1]] == "R") {
@@ -236,10 +237,10 @@ if (engine == "SpATS") {
     varComp <- tibble::add_row(.data = varComp,
                                .before = which(varComp$rowname == "Residual"))
   }
-  colnames(varComp) <- c("", "Variance")
+  colnames(varComp) <- c("", "Variance", "SE")
   print(xtable::xtable(x = varComp, label = "varComps",
                        caption =  "Variance components",
-                       align = c("l", "l", "c")),
+                       align = c("l", "l", "r", "r")),
         latex.environments = "flushleft", caption.placement = "top",
         include.rownames = FALSE)
 }
@@ -250,7 +251,7 @@ if (engine == "SpATS") {
 \section{Diagnostic plots}
 %-------------------------------------------------------------------------------
 <<label=spatialPlots, echo=FALSE, results="asis", out.width="90%">>=
-if (all(c("colId", "rowId") %in% colnames(x$data))) {
+if (all(c("colId", "rowId") %in% colnames(x$TD))) {
   plot(x, what = modelType, plotType = "spatial")
 }
 @

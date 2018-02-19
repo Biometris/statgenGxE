@@ -32,12 +32,12 @@
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Multi QTL model report}%
+\title{Multi QTL model fit report}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{\Sexpr{attr(x, "timestamp")}}
+\date{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -61,15 +61,14 @@ summ <- summary(x$qtl)
 \singlespacing
 
 %-------------------------------------------------------------------------------
-\section{Background information}
+\section{General information}
 %-------------------------------------------------------------------------------
-<<label=background, echo=FALSE, results="asis">>=
-bgItems <- c(format(attr(x, "timestamp"), "%y-%m-%d"),
-             format(attr(x, "timestamp"), "%H:%M:%S"),
+<<label=general, echo=FALSE, results="asis">>=
+bgItems <- c(format(attr(x, "timestamp"), "%y-%m-%d %H:%M:%S"),
              as.character(packageVersion("RAP")))
-names(bgItems) <- c("Modeling date", "Modeling time",
+names(bgItems) <- c("Analysis done on",
                     "Pipeline version")
-print(xtable::xtable(x = data.frame(bgItems), label = "background",
+print(xtable::xtable(x = data.frame(bgItems), label = "general",
                      align = c("l", "l")),
       latex.environments = "flushleft", hline.after = NULL,
       include.rownames = TRUE, include.colnames = FALSE)
@@ -79,28 +78,28 @@ print(xtable::xtable(x = data.frame(bgItems), label = "background",
 \section{Model}
 %-------------------------------------------------------------------------------
 <<label=model, echo=FALSE, results="asis">>=
-modSum <- data.frame(c("Full model", "Selection", "Final model"),
-                     c(paste(xtable::sanitize(x$QTLDet$trait), "\\texttildelow\\",
-                       xtable::sanitize(paste(rownames(x$QTLDet$peaks),
-                                              collapse = " + "))),
-                     x$selection,
+fitted <- x$QTLDet$peaks[-3]
+print(xtable::xtable(x = fitted, caption = "List of fitted candidate QTLs",
+                     label = "fitted",
+                     align = c("l", "r", "r", "r")),
+      latex.environments = "flushleft",
+      include.rownames = TRUE, include.colnames = TRUE,
+      caption.placement = "top")
+
+modNames <- x$QTLDet$peaks[rownames(x$qtl$result.drop), "altName"]
+## Because of the ~ in the formula no sanitize has to be applied on the
+## separate parts of the formula and the sanitize function for the whole
+## object has to be set to identity.
+modSum <- data.frame(c("Selection", "Threshold", "Window", "Final model"),
+                     c(x$selection, x$thr, x$QTLDet$info$window,
                      paste(xtable::sanitize(x$QTLDet$trait), "\\texttildelow\\",
-                       xtable::sanitize(paste(rownames(x$qtl$result.drop),
-                                              collapse = " + ")))))
+                       xtable::sanitize(paste(modNames, collapse = " + ")))))
 print(xtable::xtable(x = modSum, caption = "Model",
                      label = "model",
                      align = c("l", "l", "l")),
       latex.environments = "flushleft", hline.after = NULL,
       include.rownames = FALSE, include.colnames = FALSE,
       caption.placement = "top", sanitize.text.function = identity)
-
-fitted <- x$QTLDet$peaks[-3]
-print(xtable::xtable(x = fitted, caption = "List of fitted markers",
-                     label = "fitted",
-                     align = c("l", "r", "r")),
-      latex.environments = "flushleft",
-      include.rownames = TRUE, include.colnames = TRUE,
-      caption.placement = "top")
 @
 \clearpage
 %-------------------------------------------------------------------------------
@@ -143,11 +142,12 @@ print(xtable::xtable(x = anovaTab, label = "anova",
 \section{Effects}
 %-------------------------------------------------------------------------------
 <<label=effects, echo=FALSE, results="asis">>=
-effectTab <- setNames(as.data.frame(x$qtl$ests$ests), "estimate")
+effectTab <- data.frame(estimate = x$qtl$ests$ests,
+                        SE = sqrt(diag(x$qtl$ests$covar)))
 ## Add significance stars.
 print(xtable::xtable(x = effectTab, label = "effects",
-                     align = c("l", "r"),
-                     digits = c(0, 2)),
+                     align = c("l", "r", "r"),
+                     digits = c(0, 2, 2)),
       latex.environments = "flushleft",
       include.rownames = TRUE, include.colnames = TRUE)
 @

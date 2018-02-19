@@ -7,7 +7,8 @@
 #' @param estimates a data.frame containing the estimated values
 #' @param anova a data.frame containing anova scores of the FW analysis
 #' @param envEffs a data.frame containing the environmental effects
-#' @param data the data.frame on which the analysis was performed
+#' @param TD the object of class \code{\link{TD}} on which the analysis was
+#' performed
 #' @param fittedGeno the fitted values for the genotypes
 #' @param trait a character value indicating the analysed trait
 #' @param nGeno a numerical value containing the number of genotypes in the analysis
@@ -100,7 +101,7 @@ plot.FW <- function(x,
   plotType <- match.arg(plotType, several.ok = TRUE)
   sorted <- match.arg(sorted)
   dotArgs <- list(...)
-  envEffs <- x$envEffs$Effect
+  envEffs <- x$envEffs$effect
   if ("scatter" %in% plotType) {
     selCols = c(1, if (!all(is.na(x$estimates$mse))) 2, 3)
     scatterData <- setNames(x$estimates[, c("genMean", "mse", "sens")[selCols]],
@@ -133,7 +134,7 @@ plot.FW <- function(x,
     plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(matplot, args = plotArgs)
     ## Add environments as ticks on axis.
-    axis(side = 1, at = envEffs, labels = levels(x$envEffs$Environment),
+    axis(side = 1, at = envEffs, labels = levels(x$envEffs$env),
          las = 2, cex.axis = .75)
   } else if ("trellis" %in% plotType) {
     trellisData <- data.frame(genotype = x$TD$genotype,

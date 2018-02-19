@@ -9,6 +9,8 @@
 #' the QTL model.
 #' @param selection A character string indictating the type of selection used for
 #' selecting the markers in the final model.
+#' @param thr A numerical value indicating the threshold for dropping terms in
+#' the backwards elemination process.
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -21,10 +23,12 @@ NULL
 #' @export
 createMultiQTL <- function(qtl,
                            QTLDet,
-                           selection) {
+                           selection,
+                           thr) {
   multiQTL <- structure(list(qtl = qtl,
                              QTLDet = QTLDet,
-                             selection = selection),
+                             selection = selection,
+                             thr = thr),
                         class = "multiQTL")
   attr(multiQTL, which = "timestamp") <- Sys.time()
   return(multiQTL)

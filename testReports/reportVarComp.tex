@@ -80,12 +80,12 @@
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Variance covariance modeling report}%
+\title{Variance covariance models for multi-environment data}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{2018-01-11 12:26:15}
+\date{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -97,28 +97,24 @@
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
-% Load required packages
-
-
 % Article title and date.
 \maketitle
 % Start single line spacing
 \singlespacing
 
 %-------------------------------------------------------------------------------
-\section{Background information}
+\section{General information}
 %-------------------------------------------------------------------------------
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Thu Jan 11 12:30:37 2018
+% Fri Feb 16 16:43:21 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{ll}
-  Modeling date & 18-01-11 \\ 
-  Modeling time & 12:26:15 \\ 
-  Modeling engine & asreml \\ 
+  Analysis done on & 18-02-16 16:35:23 \\ 
   Pipeline version & 0.0.0.9000 \\ 
+  Mixed model engine & asreml \\ 
   \end{tabular}
-\label{background}
+\label{general}
 \end{flushleft}
 \end{table}
 
@@ -126,9 +122,8 @@
 %-------------------------------------------------------------------------------
 \section{Summary}
 %-------------------------------------------------------------------------------
-
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Thu Jan 11 12:30:37 2018
+% Fri Feb 16 16:43:21 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Fitted models ordered by BIC} 
@@ -137,13 +132,13 @@
   \hline
  & AIC & BIC & Deviance & NParameters \\ 
   \hline
-fa & 17471 & 17558 & 17439 & 16 \\ 
-  outside & 17523 & 17572 & 17505 & 9 \\ 
-  fa2 & 17455 & 17580 & 17409 & 23 \\ 
-  unstructured & 17456 & 17652 & 17384 & 36 \\ 
-  hcs & 17692 & 17741 & 17674 & 9 \\ 
-  cs & 17918 & 17929 & 17914 & 2 \\ 
-  diagonal & 17906 & 17950 & 17890 & 8 \\ 
+fa & 17471 & 17555 & 17439 & 16 \\ 
+  outside & 17523 & 17571 & 17505 & 9 \\ 
+  fa2 & 17455 & 17577 & 17409 & 23 \\ 
+  unstructured & 17456 & 17647 & 17384 & 36 \\ 
+  hcs & 17692 & 17740 & 17674 & 9 \\ 
+  cs & 17918 & 17928 & 17914 & 2 \\ 
+  diagonal & 17906 & 17949 & 17890 & 8 \\ 
   identity & 18287 & 18292 & 18285 & 1 \\ 
    \hline
 \end{tabular}
@@ -152,13 +147,39 @@ fa & 17471 & 17558 & 17439 & 16 \\
 
 \clearpage
 %-------------------------------------------------------------------------------
+\section{Covariance matrix}
+%-------------------------------------------------------------------------------
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Fri Feb 16 16:43:21 2018
+\begin{table}[ht]
+\begin{flushleft}
+\caption{Covariance matrix for the best model} 
+\begin{tabular}{rrrrrrrrr}
+  \hline
+ & HN96b & IS92a & IS94a & LN96a & LN96b & NS92a & SS92a & SS94a \\ 
+  \hline
+HN96b & 106.81 & 38.67 & 41.05 & 10.14 & 6.89 & 43.59 & 29.72 & 38.41 \\ 
+  IS92a & 38.67 & 101.30 & 59.52 & 14.71 & 9.98 & 63.20 & 43.10 & 55.69 \\ 
+  IS94a & 41.05 & 59.52 & 103.60 & 15.61 & 10.60 & 67.10 & 45.75 & 59.12 \\ 
+  LN96a & 10.14 & 14.71 & 15.61 & 20.63 & 2.62 & 16.58 & 11.31 & 14.61 \\ 
+  LN96b & 6.89 & 9.98 & 10.60 & 2.62 & 18.53 & 11.25 & 7.67 & 9.92 \\ 
+  NS92a & 43.59 & 63.20 & 67.10 & 16.58 & 11.25 & 185.11 & 48.58 & 62.78 \\ 
+  SS92a & 29.72 & 43.10 & 45.75 & 11.31 & 7.67 & 48.58 & 81.36 & 42.81 \\ 
+  SS94a & 38.41 & 55.69 & 59.12 & 14.61 & 9.92 & 62.78 & 42.81 & 107.51 \\ 
+   \hline
+\end{tabular}
+\end{flushleft}
+\end{table}
+
+
+%-------------------------------------------------------------------------------
 \section{Heatmap}
 %-------------------------------------------------------------------------------
 Heatmap for the fitted correlation between environments from the best model
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
 
-\includegraphics[width=10cm,height=10cm]{./figures/011118123036-heatmap-1} \hfill{}
+\includegraphics[width=10cm,height=10cm]{./figures/021618164320-heatmap-1} \hfill{}
 
 
 

@@ -20,7 +20,6 @@
 #' modSpATS3 <- STModSpATS(TD = TDHeat05, trait = "yield", design = "res.ibd")
 #'
 #' @export
-
 STModSpATS <- function(TD,
                        traits,
                        what = c("fixed", "random"),

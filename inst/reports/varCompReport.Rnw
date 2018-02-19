@@ -30,12 +30,12 @@
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Variance covariance modeling report}%
+\title{Variance covariance models for multi-environment data}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{\Sexpr{attr(x, "timestamp")}}
+\date{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -52,15 +52,15 @@
 \singlespacing
 
 %-------------------------------------------------------------------------------
-\section{Background information}
+\section{General information}
 %-------------------------------------------------------------------------------
-<<label=background, echo=FALSE, results="asis">>=
-bgItems <- c(format(attr(x, "timestamp"), "%y-%m-%d"),
-             format(attr(x, "timestamp"), "%H:%M:%S"),
-             x$engine, as.character(packageVersion("RAP")))
-names(bgItems) <- c("Modeling date", "Modeling time", "Modeling engine",
-                    "Pipeline version")
-print(xtable::xtable(x = data.frame(bgItems), label = "background",
+<<label=general, echo=FALSE, results="asis">>=
+bgItems <- c(format(attr(x, "timestamp"), "%y-%m-%d %H:%M:%S"),
+             as.character(packageVersion("RAP")),
+             x$engine)
+names(bgItems) <- c("Analysis done on", "Pipeline version",
+                    "Mixed model engine")
+print(xtable::xtable(x = data.frame(bgItems), label = "general",
                      align = c("l", "l")),
       latex.environments = "flushleft", hline.after = NULL,
       include.rownames = TRUE, include.colnames = FALSE)
@@ -69,7 +69,6 @@ print(xtable::xtable(x = data.frame(bgItems), label = "background",
 %-------------------------------------------------------------------------------
 \section{Summary}
 %-------------------------------------------------------------------------------
-
 <<label=summary, echo=FALSE, results="asis">>=
 summaryTab <- x$summary
 summaryTab[summaryTab == Inf] <- NA
@@ -83,6 +82,16 @@ print(xtable::xtable(x = summaryTab, caption = paste("Fitted models ordered by",
       caption.placement = "top")
 @
 \clearpage
+%-------------------------------------------------------------------------------
+\section{Covariance matrix}
+%-------------------------------------------------------------------------------
+<<label=covmat, echo=FALSE, results="asis">>=
+print(xtable::xtable(x = x$vcov, caption = "Covariance matrix for the best model"),
+      latex.environments = "flushleft",
+      include.rownames = TRUE, include.colnames = TRUE,
+      caption.placement = "top")
+@
+
 %-------------------------------------------------------------------------------
 \section{Heatmap}
 %-------------------------------------------------------------------------------

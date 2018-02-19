@@ -17,15 +17,16 @@
 #' @return A list of one to three data.frames containing the stability measures.
 #'
 #' @references LiN, C. S. and Binns, M. R. 1988. A superiority measure of cultivar
-#' performance for cultivar x location data. Can. J. Plant Sci. 68: 193-198\cr
-#' Shukla, G.K. 1972. Some statistical aspects of partitioning genotype-environmental
-#' components of variability. Heredity 29:237-245\cr
-#' Wricke, G. Uber eine method zur erfassung der okologischen streubreit in feldversuchen.
-#' Zeitschrift für Pflanzenzucht, v. 47, p. 92-96, 1962\cr
+#' performance for cultivar x location data. Can. J. Plant Sci. 68: 193-198
+#' @references Shukla, G.K. 1972. Some statistical aspects of partitioning
+#' genotype-environmental components of variability. Heredity 29:237-245
+#' @references Wricke, G. Uber eine method zur erfassung der okologischen
+#' streubreit in feldversuchen. Zeitschrift für Pflanzenzucht,
+#' v. 47, p. 92-96, 1962
 #'
 #' @examples
-#' geStab <- gxeStability(TD = TDMaize, trait = "yld",
-#'                        sorted = "descending")
+#' geStab <- gxeStability(TD = TDMaize, trait = "yld", sorted = "descending")
+#' report(geStab, outfile = "./testReports/reportStability.pdf")
 #'
 #' @export
 gxeStability <- function(TD,

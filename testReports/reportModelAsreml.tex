@@ -77,30 +77,15 @@
 % For multiple columns.
 \usepackage{multicol}
 
-% Graphics Path definition
-%-------------------------------------------------------------------------------
-\graphicspath{{figures/}}
-
-%-------------------------------------------------------------------------------
-%	Article Information
-%-------------------------------------------------------------------------------
-% Setting PDF properties in the final PDF
-% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
-\hypersetup
-{
-pdfsubject={Model report},
-pdftitle={Model report}
-}
-
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Model report}%
+\title{Single trial analysis for yield}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{2018-01-02 09:21:25}
+\date{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -112,7 +97,7 @@ pdftitle={Model report}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
-% Set knitr options
+% Load required packages
 
 
 
@@ -120,16 +105,32 @@ pdftitle={Model report}
 \maketitle
 %\newpage
 
-% Start double line spacing
+% Start single line spacing
 \singlespacing
-%\doublespacing
+
+%-------------------------------------------------------------------------------
+\section{General information}
+%-------------------------------------------------------------------------------
+% latex table generated in R 3.4.3 by xtable 1.8-2 package
+% Fri Feb 16 16:02:18 2018
+\begin{table}[ht]
+\begin{flushleft}
+\begin{tabular}{ll}
+  Analysis done on & 18-02-16 15:18:38 \\ 
+  Pipeline version & 0.0.0.9000 \\ 
+  Mixed model engine & asreml \\ 
+  \end{tabular}
+\label{general}
+\end{flushleft}
+\end{table}
+
 
 %-------------------------------------------------------------------------------
 \section{Description of the fitted model}
 %-------------------------------------------------------------------------------
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:26:20 2018
+% Fri Feb 16 16:02:18 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{ll}
@@ -142,13 +143,13 @@ pdftitle={Model report}
 \end{flushleft}
 \end{table}
 
-
+\newpage
 %-------------------------------------------------------------------------------
 \section{Summary of the results}
 %-------------------------------------------------------------------------------
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:26:20 2018
+% Fri Feb 16 16:02:18 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Size of the data set and eight number descriptives} 
@@ -172,19 +173,19 @@ Number of observations & 338.00 \\
 
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:26:20 2018
+% Fri Feb 16 16:02:18 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Variance components} 
 \label{varComps}
-\begin{tabular}{lc}
+\begin{tabular}{lrr}
   \hline
- & Variance \\ 
+ & Variance & SE \\ 
   \hline
-Col(replicate) & 227.19 \\ 
-  Row(replicate) & 218.10 \\ 
-   &  \\ 
-  Residual & 246.04 \\ 
+Col(replicate) & 227.19 & 88.45 \\ 
+  Row(replicate) & 218.10 & 85.98 \\ 
+   &  &  \\ 
+  Residual & 246.04 & 30.34 \\ 
    \hline
 \end{tabular}
 \end{flushleft}
@@ -195,39 +196,25 @@ Col(replicate) & 227.19 \\
 %-------------------------------------------------------------------------------
 \section{Diagnostic plots}
 %-------------------------------------------------------------------------------
+
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-
-{\centering \includegraphics[width=\maxwidth]{figures/fig-spatialPlots-1} 
-
-}
-
-
-
-\end{knitrout}
-\newpage
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-
-{\centering \includegraphics[width=\maxwidth]{figures/fig-basePlots-1} 
-
-}
-
-
+\includegraphics[width=0.9\linewidth]{./figures/021618160216-basePlots-1} 
 
 \end{knitrout}
 \newpage
 
 %-------------------------------------------------------------------------------
-\section{List of best 10\% genotypes}
+\section{List of best 10\% genotypes with
+highest BLUEs}
 %-------------------------------------------------------------------------------
 
 \begin{multicols*}{2}
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:26:21 2018
+% Fri Feb 16 16:02:18 2018
 \begin{tabular}{lcc}
   \hline
-genotype & BLUEs & SE \\ 
+genotype & yield & SE \\ 
   \hline
 SB023 & 287.62 & 15.80 \\ 
   SB025 & 283.73 & 15.80 \\ 
@@ -252,17 +239,10 @@ SB023 & 287.62 & 15.80 \\
 \columnbreak
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-
-{\centering \includegraphics[width=\maxwidth]{figures/fig-predPlot-1} 
-
-}
-
-
+\includegraphics[width=0.9\linewidth]{./figures/021618160216-predPlot-1} 
 
 \end{knitrout}
 \end{multicols*}
-
-
 %-------------------------------------------------------------------------------
 % End Document
 \end{document}

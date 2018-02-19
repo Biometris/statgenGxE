@@ -24,12 +24,14 @@ createQTLDet <- function(scores,
                          peaks,
                          type,
                          cross,
-                         trait) {
+                         trait,
+                         info) {
   QTLDet <- structure(list(scores = scores,
                            peaks = peaks,
                            type = type,
                            cross = cross,
-                           trait = trait),
+                           trait = trait,
+                           info = info),
                       class = "QTLDet")
   attr(QTLDet, which = "timestamp") <- Sys.time()
   return(QTLDet)
