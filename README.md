@@ -1,8 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 # RAP
 
 R Analytical Pipeline for 

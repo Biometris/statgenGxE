@@ -2,7 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-man/
 R/redundant
 figure
 figures
