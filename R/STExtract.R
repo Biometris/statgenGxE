@@ -167,7 +167,7 @@ extractSpATS <- function(SSA,
   ## Compute generalized heritability.
   if ("heritability" %in% what) {
     result[["heritability"]] <- sapply(X = mr, FUN = function(mr0) {
-      unname(mr0$eff.dim[predicted] / (mr0$dim[predicted] - 1))
+      unname(SpATS::getHeritability(mr0))
     })
   }
   ## Extract genetic variance.

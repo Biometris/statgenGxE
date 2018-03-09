@@ -10,6 +10,8 @@
 #' @param cross An object of class cross in the \code{qtl} package.
 #' @param trait A character string indicating the trait for which the analysis
 #' is done.
+#' @param info A list containing information on the settings used for
+#' QTL Detection, step, threshold and window.
 #'
 #' @author Bart-Jan van Rossum
 #'

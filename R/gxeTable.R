@@ -16,9 +16,11 @@
 #' containing standard errors for those BLUPs.
 #'
 #' @examples
+#' ## Not run since asreml is used for modeling
+#' \dontrun{
 #' TDMegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld", sumTab = FALSE)
 #' geTab <- gxeTable(TD = TDMegaEnv, trait = "yld")
-#'
+#' }
 #' @export
 gxeTable <- function(TD,
                      trait,
