@@ -3,15 +3,12 @@
 \name{varComp}
 \alias{varComp}
 \alias{createVarComp}
-\alias{is.varComp}
 \title{S3 class varComp}
 \usage{
-createVarComp(model, choice, summary, vcov, criterion, engine)
-
-is.varComp(x)
+createVarComp(SSA, choice, summary, vcov, criterion, engine)
 }
 \arguments{
-\item{model}{The best fitted model.}
+\item{SSA}{The best fitted model.}
 
 \item{choice}{A character string indicating the best fitted model.}
 
@@ -24,8 +21,6 @@ determinening the best model, either "AIC" or "BIC".}
 
 \item{engine}{A character string containing the engine used for
 the analysis.}
-
-\item{x}{an \code{R} object}
 }
 \description{
 Function for creating objects of S3 class varComp.\cr

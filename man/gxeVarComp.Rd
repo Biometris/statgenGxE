@@ -4,22 +4,32 @@
 \alias{gxeVarComp}
 \title{Selects the best variance-covariance model for a set of environments}
 \usage{
-gxeVarComp(TD, trait, engine = "asreml", criterion = "BIC", ...)
+gxeVarComp(TD, trait, engine = c("lme4", "asreml"), criterion = c("BIC",
+  "AIC"), ...)
 }
 \arguments{
 \item{TD}{an object of class \code{\link{TD}}.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 
-\item{engine}{A string specifying the name of a mixed modelling engine to be used.}
+\item{engine}{A character string specifying the engine used for modeling.
+Either "lme4" or "asreml".}
 
-\item{criterion}{A string specifying a goodness-of-fit criterion, i.e., "AIC" or "BIC".}
+\item{criterion}{A string specifying a goodness-of-fit criterion. Either
+"AIC" or "BIC".}
 
 \item{...}{Further arguments to be passed to \code{asreml}.}
 }
 \value{
-A list object consisting of the fitted model objects, a string specifying
-the best model and its related goodness-of-fit criterion.
+An object of class \code{\link{varComp}}, a list object containing:
+\item{SSA}{An object of class SSA containing the best fitted model.}
+\item{choice}{A character string indicating the best fitted model.}
+\item{summary}{A data.frame with a summary of the fitted models.}
+\item{vcov}{The covariance matrix of the best fitted model.}
+\item{criterion}{A character string indicating the goodness-of-fit criterion
+used for determinening the best model, either "AIC" or "BIC".}
+\item{engine}{A character string containing the engine used for
+the analysis.}
 }
 \description{
 This function selects the best covariance structure for genetic correlations
@@ -29,19 +39,26 @@ symmetry, first order factor analysis, second order factor analysis,
 unstructured), and selects the best one using a goodness-of-fit criterion.
 }
 \note{
-If \code{engine = "lme4"}, only the compound symmetry model can be fitted.
+If \code{engine = "lme4"}, only the compound symmetry model can be
+fitted.
 }
 \examples{
-## Fit models.
-geVarComp1 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "lme4",
-                        criterion = "BIC")
-## Display results.
-summary(geVarComp1)
-
+## Select the best variance-covariance model using lme4 for modeling.
+geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+## Summarize results.
+summary(geVarComp)
 \dontrun{
-geVarComp2 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "asreml",
-                        criterion = "BIC")
-report(geVarComp2, outfile = "./testReports/reportVarComp.pdf")
+## Create a pdf report summarizing the results.
+report(geVarComp, outfile = "./testReports/reportVarComp.pdf")
 }
 
+\dontrun{
+## Select the best variance-covariance model using asreml for modeling.
+## Use AIC as a goodness-of-fit criterion.
+geVarComp2 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "asreml",
+                        criterion = "AIC")
+summary(geVarComp2)
+## Create a heatmap of the correlation matrix for the best model.
+plot(geVarComp2)
+}
 }

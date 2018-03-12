@@ -9,30 +9,40 @@
 #' @param nPC An integer specifying the number of principal components used
 #' as multiplicative term of genotype-by-environment interaction.
 #' @param center Should the variables be shifted to be zero centered?
-#' @param scale Should the variables be scaled to have unit variance before
-#' the analysis takes place?
+#' @param scale Should the variables be scaled to have unit variance?
 #'
-#' @return an object of class \code{\link{AMMI}}, a list containing
-#' \item{envScores}{a matrix with environmental scores.}
-#' \item{genoScores}{a matrix with genotypic scores.}
-#' \item{importance}{a data.frame containing the importance of the principal
+#' @return An object of class \code{\link{AMMI}}, a list containing:
+#' \item{envScores}{A matrix with environmental scores.}
+#' \item{genoScores}{A matrix with genotypic scores.}
+#' \item{importance}{A data.frame containing the importance of the principal
 #' components.}
-#' \item{anova}{a data.frame containing anova scores of the AMMI analysis.}
-#' \item{fitted}{a matrix containing fitted values from the AMMI model.}
-#' \item{trait}{a character vector containing the analyzed trait.}
-#' \item{envMean}{a numerical vector containing the means per environment.}
-#' \item{genoMean}{a numerical vector containing the means per genotype.}
-#' \item{overallMean}{a numerical value containing the overall mean.}
+#' \item{anova}{A data.frame containing anova scores of the AMMI analysis.}
+#' \item{fitted}{A matrix containing fitted values from the AMMI model.}
+#' \item{trait}{A character string containing the analyzed trait.}
+#' \item{envMean}{A numerical vector containing the environmental means.}
+#' \item{genoMean}{A numerical vector containing the genotypic means.}
+#' \item{overallMean}{A numerical value containing the overall mean.}
+#'
+#' @seealso \code{\link{AMMI}}, \code{\link{plot.AMMI}},
+#' \code{\link{report.AMMI}}
+#'
+#' @references Gauch H.G. (1992) Statistical Analysis of Regional Yield Trials:
+#' AMMI Analysis of Factorial Designs. Elsevier, Amsterdam.
 #'
 #' @examples
-#' ## Run AMMI
+#' ## Run AMMI analysis on TDMaize.
 #' geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
-#' ## Create report
+#' ## Summarize results.
+#' summary(geAmmi)
+#' ## Create a biplot of genotypes and environment interaction with PC1 and PC2.
+#' plot(geAmmi, plotType = "AMMI2")
+#' ## Create a pdf report summarizing the results.
+#' \dontrun{
 #' report(geAmmi, outfile = "./testReports/reportAmmi.pdf")
+#' }
 #'
 #' @import stats
 #' @export
-
 gxeAmmi <- function(TD,
                     trait,
                     nPC = 2,

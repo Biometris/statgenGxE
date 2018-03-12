@@ -7,13 +7,22 @@
 #'
 #' @inheritParams QTLDetect
 #'
-#' @param QTLDet An object of class \code{\link{QTLDet}}
-#' @param selection An integer string indicating whether backward selection should
-#' be applied or no selection at all.
-#' @param thr A numerical value indicating the threshold for dropping terms in
-#' the backwards elemination process.
+#' @param QTLDet An object of class \code{\link{QTLDet}}.
+#' @param selection A character string indicating whether backward selection
+#' should be applied or no selection at all.
+#' @param thr A positive numerical value indicating the threshold for dropping
+#' terms in the backwards elemination process.
 #'
-#' @return An object of class \code{\link{multiQTL}}
+#' @return An object of class \code{\link{multiQTL}}, a list containing:
+#' \item{scores}{A data.frame containing the lod scores.}
+#' \item{peaks}{A data.frame containing the peaks found.}
+#' \item{type}{A character string indicating the type of QTLDetection performed.}
+#' \item{cross}{An object of class cross in the \code{qtl} package on which
+#' the analysis has been performed.}
+#' \item{trait}{A character string indicating the trait for which the analysis
+#' is done.}
+#' \item{info}{A list containing information on the settings used for
+#' QTL Detection, i.e. step, threshold and window.}
 #'
 #' @seealso \code{\link[qtl]{fitqtl}}
 #'
@@ -23,15 +32,20 @@
 #' @examples
 #' ## Read the data
 #' F2 <- qtl::read.cross(format="csv",
-#'                       file = system.file("extdata", "F2_maize_practical3_ex2.csv",
-#'                       package = "RAP"),
+#'                       file = system.file("extdata",
+#'                                         "F2_maize_practical3_ex2.csv",
+#'                                         package = "RAP"),
 #'                       genotypes = c("AA", "AB", "BB"),
 #'                       alleles = c("A", "B"), estimate.map = FALSE)
 #' ## Perform QTL detection using simple interval mapping.
 #' QTLDet <- QTLDetect(cross = F2, trait = "trait", type = "SIM")
-#' ## Fit the multi QTL model.
+#' ## Fit a multi QTL model.
 #' multiFit <- multiQTLFit(QTLDet)
-#' ## Create a report.
+#' ## Summarize results.
+#' summary(multiFit)
+#' ## Create a manhattan plot of the results.
+#' plot(multiFit)
+#' ## Create a pdf report summarizing results.
 #' report(multiFit, outfile = "./testReports/reportMultiQTLFit.pdf")
 #'
 #' @export

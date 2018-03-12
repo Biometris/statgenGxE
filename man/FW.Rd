@@ -9,30 +9,33 @@ createFW(estimates, anova, envEffs, trait, nGeno, nEnv, TD, fittedGeno, tol,
   iter)
 }
 \arguments{
-\item{estimates}{a data.frame containing the estimated values}
+\item{estimates}{A data.frame containing the estimated values.}
 
-\item{anova}{a data.frame containing anova scores of the FW analysis}
+\item{anova}{A data.frame containing anova scores of the FW analysis.}
 
-\item{envEffs}{a data.frame containing the environmental effects}
+\item{envEffs}{A data.frame containing the environmental effects.}
 
-\item{trait}{a character value indicating the analysed trait}
+\item{trait}{A character value indicating the analysed trait.}
 
-\item{nGeno}{a numerical value containing the number of genotypes in the analysis}
+\item{nGeno}{A numerical value containing the number of genotypes in the
+analysis.}
 
-\item{nEnv}{a numerical value containing the number of environments in the analysis}
+\item{nEnv}{A numerical value containing the number of environments in the
+analysis.}
 
-\item{TD}{the object of class \code{\link{TD}} on which the analysis was
-performed}
+\item{TD}{The object of class \code{\link{TD}} on which the analysis was
+performed.}
 
-\item{fittedGeno}{the fitted values for the genotypes}
+\item{fittedGeno}{The fitted values for the genotypes.}
 
-\item{tol}{a numerical value containing the tolerance used during the analysis}
+\item{tol}{A numerical value containing the tolerance used during the
+analysis.}
 
-\item{iter}{a numberical value containing the number of iterations for the
-analysis to converge}
+\item{iter}{A numerical value containing the number of iterations for the
+analysis to converge.}
 }
 \description{
-Function for creating objects of S3 class FW (Finlay Wilkinson).\cr
+Function for creating objects of S3 class FW (Finlay-Wilkinson).\cr
 \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
 \code{\link{report}} methods are available.
 }

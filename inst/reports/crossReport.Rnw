@@ -30,7 +30,7 @@
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Summary of QTL mapping population}%
+\title{Summary of QTL mapping population}
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------

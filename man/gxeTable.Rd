@@ -4,7 +4,7 @@
 \alias{gxeTable}
 \title{Compute BLUPS and based on a set of mega-environments}
 \usage{
-gxeTable(TD, trait, useYear = FALSE, engine = c("asreml", "lme4"), ...)
+gxeTable(TD, trait, useYear = FALSE, engine = c("lme4", "asreml"), ...)
 }
 \arguments{
 \item{TD}{an object of class \code{\link{TD}}.}
@@ -12,10 +12,10 @@ gxeTable(TD, trait, useYear = FALSE, engine = c("asreml", "lme4"), ...)
 \item{trait}{A character string specifying the trait to be analyzed.}
 
 \item{useYear}{Should year be used for modelling (as years within
-environments). If \code{TRUE} TD should contain a column "year".}
+environments). If \code{TRUE TD} should contain a column "year".}
 
-\item{engine}{A character string specifying the name of the mixed engine to
-use, either lme4 or asreml.}
+\item{engine}{A character string specifying the engine used for modeling.
+Either "lme4" or "asreml".}
 
 \item{...}{Other parameters passed to either \code{asreml} or \code{lmer}.}
 }
@@ -29,7 +29,9 @@ This function calculates predicted means (BLUPS) and associated standard
 errors based on a set of mega-environments.
 }
 \examples{
+## Compute mega-environments for TDMaize.
 TDMegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld", sumTab = FALSE)
+## Compute BLUPS and standard errors for those mega-environments.
 geTab <- gxeTable(TD = TDMegaEnv, trait = "yld")
 
 }

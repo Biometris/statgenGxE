@@ -18,6 +18,9 @@ createQTLDet(scores, peaks, type, cross, trait, info)
 
 \item{trait}{A character string indicating the trait for which the analysis
 is done.}
+
+\item{info}{A list containing information on the settings used for
+QTL Detection, step, threshold and window.}
 }
 \description{
 Function for creating objects of S3 class QTLDet.\cr

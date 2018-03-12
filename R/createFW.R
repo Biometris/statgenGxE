@@ -1,21 +1,24 @@
 #' S3 class FW
 #'
-#' Function for creating objects of S3 class FW (Finlay Wilkinson).\cr
+#' Function for creating objects of S3 class FW (Finlay-Wilkinson).\cr
 #' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
 #' \code{\link{report}} methods are available.
 #'
-#' @param estimates a data.frame containing the estimated values
-#' @param anova a data.frame containing anova scores of the FW analysis
-#' @param envEffs a data.frame containing the environmental effects
-#' @param TD the object of class \code{\link{TD}} on which the analysis was
-#' performed
-#' @param fittedGeno the fitted values for the genotypes
-#' @param trait a character value indicating the analysed trait
-#' @param nGeno a numerical value containing the number of genotypes in the analysis
-#' @param nEnv a numerical value containing the number of environments in the analysis
-#' @param tol a numerical value containing the tolerance used during the analysis
-#' @param iter a numberical value containing the number of iterations for the
-#' analysis to converge
+#' @param estimates A data.frame containing the estimated values.
+#' @param anova A data.frame containing anova scores of the FW analysis.
+#' @param envEffs A data.frame containing the environmental effects.
+#' @param TD The object of class \code{\link{TD}} on which the analysis was
+#' performed.
+#' @param fittedGeno The fitted values for the genotypes.
+#' @param trait A character value indicating the analysed trait.
+#' @param nGeno A numerical value containing the number of genotypes in the
+#' analysis.
+#' @param nEnv A numerical value containing the number of environments in the
+#' analysis.
+#' @param tol A numerical value containing the tolerance used during the
+#' analysis.
+#' @param iter A numerical value containing the number of iterations for the
+#' analysis to converge.
 #'
 #' @author Bart-Jan van Rossum
 #'

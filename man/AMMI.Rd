@@ -9,23 +9,24 @@ createAMMI(envScores, genoScores, importance, anova, fitted, trait, envMean,
   genoMean, overallMean)
 }
 \arguments{
-\item{envScores}{a matrix containing environment scores}
+\item{envScores}{A matrix containing environmental scores.}
 
-\item{genoScores}{a matrix containing genotypic scores}
+\item{genoScores}{A matrix containing genotypic scores.}
 
-\item{importance}{a data.frame containing the importance of the principal components}
+\item{importance}{A data.frame containing the importance of the principal
+components.}
 
-\item{anova}{a data.frame containing anova scores of the AMMI analysis}
+\item{anova}{A data.frame containing anova scores of the AMMI analysis.}
 
-\item{fitted}{a matrix containing fitted values from the AMMI model}
+\item{fitted}{A matrix containing fitted values from the AMMI model.}
 
-\item{trait}{a character value indicating the analysed trait}
+\item{trait}{A character string indicating the analyzed trait.}
 
-\item{envMean}{a numerical vector containing the means per environment}
+\item{envMean}{A numerical vector containing the environmental means.}
 
-\item{genoMean}{a numerical vector containing the means per genotype}
+\item{genoMean}{A numerical vector containing the genotypic means.}
 
-\item{overallMean}{a numerical value containing the overall mean}
+\item{overallMean}{A numerical value containing the overall mean.}
 }
 \description{
 Function for creating objects of S3 class AMMI.\cr

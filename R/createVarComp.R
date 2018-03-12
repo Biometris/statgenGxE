@@ -4,7 +4,7 @@
 #' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
 #' \code{\link{report}} methods are available.
 #'
-#' @param model The best fitted model.
+#' @param SSA The best fitted model.
 #' @param choice A character string indicating the best fitted model.
 #' @param summary A data.frame with a summary of the fitted models.
 #' @param vcov The covariance matrix of the best fitted model.
@@ -12,7 +12,6 @@
 #' determinening the best model, either "AIC" or "BIC".
 #' @param engine A character string containing the engine used for
 #' the analysis.
-#' @param x an \code{R} object
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -23,13 +22,13 @@ NULL
 
 #' @rdname varComp
 #' @export
-createVarComp <- function(model,
+createVarComp <- function(SSA,
                           choice,
                           summary,
                           vcov,
                           criterion,
                           engine) {
-  varComp <- structure(list(model = model,
+  varComp <- structure(list(SSA = SSA,
                             choice = choice,
                             summary = summary,
                             vcov = vcov,
@@ -38,12 +37,6 @@ createVarComp <- function(model,
                        class = "varComp")
   attr(varComp, which = "timestamp") <- Sys.time()
   return(varComp)
-}
-
-#' @rdname varComp
-#' @export
-is.varComp <- function(x) {
-  inherits(x, "varComp")
 }
 
 #' @export

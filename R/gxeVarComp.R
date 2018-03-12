@@ -8,34 +8,50 @@
 #'
 #' @inheritParams gxeAmmi
 #'
-#' @param engine A string specifying the name of a mixed modelling engine to be used.
-#' @param criterion A string specifying a goodness-of-fit criterion, i.e., "AIC" or "BIC".
+#' @param engine A character string specifying the engine used for modeling.
+#' Either "lme4" or "asreml".
+#' @param criterion A string specifying a goodness-of-fit criterion. Either
+#' "AIC" or "BIC".
 #' @param ... Further arguments to be passed to \code{asreml}.
 #'
-#' @note If \code{engine = "lme4"}, only the compound symmetry model can be fitted.
+#' @note If \code{engine = "lme4"}, only the compound symmetry model can be
+#' fitted.
 #'
-#' @return A list object consisting of the fitted model objects, a string specifying
-#' the best model and its related goodness-of-fit criterion.
+#' @return An object of class \code{\link{varComp}}, a list object containing:
+#' \item{SSA}{An object of class SSA containing the best fitted model.}
+#' \item{choice}{A character string indicating the best fitted model.}
+#' \item{summary}{A data.frame with a summary of the fitted models.}
+#' \item{vcov}{The covariance matrix of the best fitted model.}
+#' \item{criterion}{A character string indicating the goodness-of-fit criterion
+#' used for determinening the best model, either "AIC" or "BIC".}
+#' \item{engine}{A character string containing the engine used for
+#' the analysis.}
 #'
 #' @examples
-#' ## Fit models.
-#' geVarComp1 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "lme4",
-#'                         criterion = "BIC")
-#' ## Display results.
-#' summary(geVarComp1)
-#'
+#' ## Select the best variance-covariance model using lme4 for modeling.
+#' geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+#' ## Summarize results.
+#' summary(geVarComp)
 #' \dontrun{
-#' geVarComp2 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "asreml",
-#'                         criterion = "BIC")
-#' report(geVarComp2, outfile = "./testReports/reportVarComp.pdf")
+#' ## Create a pdf report summarizing the results.
+#' report(geVarComp, outfile = "./testReports/reportVarComp.pdf")
 #' }
 #'
+#' \dontrun{
+#' ## Select the best variance-covariance model using asreml for modeling.
+#' ## Use AIC as a goodness-of-fit criterion.
+#' geVarComp2 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "asreml",
+#'                         criterion = "AIC")
+#' summary(geVarComp2)
+#' ## Create a heatmap of the correlation matrix for the best model.
+#' plot(geVarComp2)
+#' }
 #' @export
 
 gxeVarComp <- function(TD,
                        trait,
-                       engine = "asreml",
-                       criterion = "BIC",
+                       engine = c("lme4", "asreml"),
+                       criterion = c("BIC", "AIC"),
                        ...) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
@@ -45,10 +61,8 @@ gxeVarComp <- function(TD,
       !trait %in% colnames(TD)) {
     stop("trait has to be a column in TD.\n")
   }
-  if (!is.null(engine) && (!is.character(engine) || length(engine) > 1 ||
-                           !engine %in% c("asreml", "lme4"))) {
-    stop("engine should be asreml or lme4.\n")
-  }
+  engine <- match.arg(engine)
+  criterion <- match.arg(criterion)
   if (!is.null(criterion) && (!is.character(criterion) || length(criterion) > 1 ||
                               !criterion %in% c("AIC", "BIC"))) {
     stop("criterion should be AIC or BIC.\n")
@@ -277,10 +291,10 @@ gxeVarComp <- function(TD,
     }
   }
   ## Create output.
-  model <- createSSA(mRand = NULL, mFix = setNames(list(bestModel), trait),
-                     TD = TD, traits = trait,
-                     engine = engine, predicted = "env")
-  res <- createVarComp(model = model, choice = rownames(bestTab)[1],
+  SSA <- createSSA(mRand = NULL, mFix = setNames(list(bestModel), trait),
+                   TD = TD, traits = trait,
+                   engine = engine, predicted = "env")
+  res <- createVarComp(SSA = SSA, choice = rownames(bestTab)[1],
                        summary = bestTab, vcov = vcovBest,
                        criterion = criterion, engine = engine)
   return(res)

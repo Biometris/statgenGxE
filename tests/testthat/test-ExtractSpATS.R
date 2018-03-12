@@ -64,7 +64,7 @@ test_that("heritability is computed correctly", {
   expect_is(extSp$heritability, "numeric")
   expect_length(extSp$heritability, 1)
   expect_equal(names(extSp$heritability), "t1")
-  expect_equal(unname(extSp$heritability), 0.457813693460713)
+  expect_equal(unname(extSp$heritability), 0.46)
 })
 
 test_that("varGen is computed correctly", {

@@ -6,9 +6,9 @@
 #' @inheritParams gxeAmmi
 #'
 #' @param useYear Should year be used for modelling (as years within
-#' environments). If \code{TRUE} TD should contain a column "year".
-#' @param engine A character string specifying the name of the mixed engine to
-#' use, either lme4 or asreml.
+#' environments). If \code{TRUE TD} should contain a column "year".
+#' @param engine A character string specifying the engine used for modeling.
+#' Either "lme4" or "asreml".
 #' @param ... Other parameters passed to either \code{asreml} or \code{lmer}.
 #'
 #' @return A list consisting of two data.frames, \code{predictedValue}
@@ -16,16 +16,16 @@
 #' containing standard errors for those BLUPs.
 #'
 #' @examples
-#' ## Not run since asreml is used for modeling
-#' \dontrun{
+#' ## Compute mega-environments for TDMaize.
 #' TDMegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld", sumTab = FALSE)
+#' ## Compute BLUPS and standard errors for those mega-environments.
 #' geTab <- gxeTable(TD = TDMegaEnv, trait = "yld")
-#' }
+#'
 #' @export
 gxeTable <- function(TD,
                      trait,
                      useYear = FALSE,
-                     engine = c("asreml", "lme4"),
+                     engine = c("lme4", "asreml"),
                      ...) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {

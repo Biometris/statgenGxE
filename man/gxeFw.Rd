@@ -2,7 +2,7 @@
 % Please edit documentation in R/gxeFw.R
 \name{gxeFw}
 \alias{gxeFw}
-\title{Modified joint regression analysis}
+\title{Finlay-Wilkinson analysis}
 \usage{
 gxeFw(TD, trait, maxIter = 15, tol = 0.001, sorted = c("ascending",
   "descending", "none"))
@@ -12,40 +12,55 @@ gxeFw(TD, trait, maxIter = 15, tol = 0.001, sorted = c("ascending",
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 
-\item{maxIter}{An integer specifying the maximum number of iterations to be achieved.
-By default, \code{maxIter = 15}.}
+\item{maxIter}{An integer specifying the maximum number of iterations in
+the algorithm.}
 
-\item{tol}{A small positive numerical value specifying convergence tolerance.
-By default, \code{tol = 0.001}.}
+\item{tol}{A positive numerical value specifying convergence tolerance of the
+algorithm.}
 
-\item{sorted}{A character string specifying the sorting order of the results.}
+\item{sorted}{A character string specifying the sorting order of the
+estimated values in the output.}
 }
 \value{
-An object of class \code{\link{FW}}, a list containing
-\item{estimates}{a data.frame containing the estimated values.}
-\item{anova}{a data.frame containing anova scores of the FW analysis.}
-\item{envEffs}{a data.frame containing the environmental effects.}
-\item{data}{the data.frame on which the analysis was performed.}
-\item{fittedGeno}{a numerical vector containing the fitted values for the genotypes.}
-\item{trait}{a character vector containing the analyzed trait.}
-\item{nGeno}{a numerical value containing the number of genotypes in the analysis.}
-\item{nEnv}{a numerical value containing the number of environments in the analysis.}
-\item{tol}{a numerical value containing the tolerance used during the analysis.}
-\item{iter}{a numberical value containing the number of iterations for the
+An object of class \code{\link{FW}}, a list containing:
+\item{estimates}{A data.frame containing the estimated values.}
+\item{anova}{A data.frame containing anova scores of the FW analysis.}
+\item{envEffs}{A data.frame containing the environmental effects.}
+\item{TD}{The object of class TD on which the analysis was performed.}
+\item{fittedGeno}{A numerical vector containing the fitted values for the
+genotypes.}
+\item{trait}{A character string containing the analyzed trait.}
+\item{nGeno}{A numerical value containing the number of genotypes in the
+analysis.}
+\item{nEnv}{A numerical value containing the number of environments in the
+analysis.}
+\item{tol}{A numerical value containing the tolerance used during the
+analysis.}
+\item{iter}{A numerical value containing the number of iterations for the
 analysis to converge.}
 }
 \description{
-This function performs a modified joint analysis of data classified by two factors.
+This function performs a Finlay-Wilkinson analysis of data classified by two
+factors.
 }
 \examples{
-## Run Finlay-Wilkinson analysis
+## Run Finlay-Wilkinson analysis on TDMaize.
 geFW <- gxeFw(TDMaize, trait = "yld")
-## Create report
+## Summarize results.
+summary(geFW)
+## Create a scatterplot of the results.
+plot(geFW, plotType = "scatter")
+\dontrun{
+## Create report.
 report(geFW, outfile = "./testReports/reportFW.pdf")
+}
 
 }
 \references{
 Finlay, K.W. & Wilkinson, G.N. (1963). The analysis of adaptation
 in a plant-breeding programme. Australian Journal of Agricultural
 Research, 14, 742-754.
+}
+\seealso{
+\code{\link{FW}}, \code{\link{plot.FW}}, \code{\link{report.FW}}
 }

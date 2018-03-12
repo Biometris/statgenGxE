@@ -1,4 +1,4 @@
-#' Identifying Outliers
+#' Identifying outliers in objects of class TD
 #'
 #' Function to identify observations that exceed \code{coef} times the
 #' interquartile range. A summary is printed of outliers and observations
@@ -6,7 +6,7 @@
 #' be marked as similar to distinguish them from the former ones.
 #'
 #' @param TD An object of class \code{\link{TD}}.
-#' @param traits A character vector specifying the name(s) of the traits for
+#' @param traits A character vector specifying the names of the traits for
 #' which outliers should be identified.
 #' @param coef A numerical value used for determining when a value is
 #' considered an outlier. All observations that exceed \code{coef} times
@@ -20,6 +20,7 @@
 #' observation is an outlier.
 #'
 #' @examples
+#' ## Detect outliers in TDHeat05.
 #' outliers <- outlierTD(TD = TDHeat05, traits = "yield")
 #'
 #' @export
@@ -81,7 +82,7 @@ outlierTD <- function(TD,
   invisible(indicator)
 }
 
-#' Identifying Outliers
+#' Identifying outliers in objects of class SSA
 #'
 #' Function to identify observations with standardized residuals exceeding
 #' \code{rLimit}. If not provided \code{rLimit} is computed as
@@ -103,8 +104,10 @@ outlierTD <- function(TD,
 #' observation is an outlier.
 #'
 #' @examples
+#' ## Fit a model using lme4.
 #' myModel <- STRunModel(TD = TDHeat05, traits = "yield" ,
 #'                       design = "res.rowcol", engine = "lme4")
+#' ## Detect outliers in the standardized residuals of the fitted model.
 #' outliers <- outlierSSA(SSA = myModel, traits = "yield")
 #'
 #' @export

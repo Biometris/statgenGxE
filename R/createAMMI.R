@@ -4,15 +4,16 @@
 #' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
 #' \code{\link{report}} methods are available.
 #'
-#' @param envScores a matrix containing environment scores
-#' @param genoScores a matrix containing genotypic scores
-#' @param importance a data.frame containing the importance of the principal components
-#' @param anova a data.frame containing anova scores of the AMMI analysis
-#' @param fitted a matrix containing fitted values from the AMMI model
-#' @param trait a character value indicating the analysed trait
-#' @param envMean a numerical vector containing the means per environment
-#' @param genoMean a numerical vector containing the means per genotype
-#' @param overallMean a numerical value containing the overall mean
+#' @param envScores A matrix containing environmental scores.
+#' @param genoScores A matrix containing genotypic scores.
+#' @param importance A data.frame containing the importance of the principal
+#' components.
+#' @param anova A data.frame containing anova scores of the AMMI analysis.
+#' @param fitted A matrix containing fitted values from the AMMI model.
+#' @param trait A character string indicating the analyzed trait.
+#' @param envMean A numerical vector containing the environmental means.
+#' @param genoMean A numerical vector containing the genotypic means.
+#' @param overallMean A numerical value containing the overall mean.
 #'
 #' @author Bart-Jan van Rossum
 #'

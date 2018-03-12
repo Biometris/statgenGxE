@@ -19,14 +19,13 @@
 #' for bias in the variance-covariance matrix as suggested by Beale &
 #' Little (1975).
 #'
-#' @param Y A Matrix, data.frame or vector of multivariate data.
-#' @param maxIter An integer specifying the maximum allowed number of
-#' iterations.
+#' @param Y A matrix, data.frame or vector of multivariate data.
+#' @param maxIter An integer specifying the maximum number of iterations.
 #' @param naStrings A character vector of strings which are to be interpreted
 #' as \code{NA} values.
 #'
-#' @return A object of the same class as the input with the missing values
-#' replaced by their estimates.
+#' @return An object of the same class as the input \code{\link{Y}} with the
+#' missing values replaced by their estimates.
 #'
 #' @references Beale, E.M.L. & Little, R.J.A. (1975). Missing values in
 #' multivariate analysis. Journal of the Royal Statistical Society, Series B,

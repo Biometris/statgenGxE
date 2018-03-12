@@ -1,14 +1,14 @@
 #' Form mega-environments based on winning genotypes from an AMMI model
 #'
 #' This function fits an AMMI model and then using the fitted values produces
-#' a new factor based on the winning genotype in each environment. This factor is
-#' added as a column megaEnv to the input data. If a column megaEnv already
+#' a new factor based on the winning genotype in each environment. This factor
+#' is added as a column megaEnv to the input data. If a column megaEnv already
 #' exists the existing data is overwritten with a warning.
 #'
 #' @inheritParams gxeAmmi
 #'
 #' @param method A character string indicating the criterion to determine
-#' the best trait, either \code{"max"} or \code{"min"}.
+#' the best genotype per environment, either \code{"max"} or \code{"min"}.
 #' @param sumTab Should a summary table be added as an attribute to
 #' the output and be printed?
 #'
@@ -16,7 +16,11 @@
 #' column megaEnv.
 #'
 #' @examples
+#' ## Calculate mega-environments for TDMaize and print a summary of the results.
 #' TDmegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
+#' ## Calculate new mega-environments based on the genotypes with the lowest
+#' ## value per environment.
+#' TDmegaEnv2 <- gxeMegaEnv(TD = TDmegaEnv, trait = "yld", method = "min")
 #'
 #' @importFrom methods getFunction
 #' @export

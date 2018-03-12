@@ -1,32 +1,55 @@
-#' Calculates stability coefficients for genotype-by-environment data
+#' Calculate stability coefficients for genotype-by-environment data
 #'
-#' This function calculate difference measures of stability, such as the
+#' This function calculates different measures of stability, the
 #' cultivar-superiority measure of Lin & Binns (1988), Shukla's (1972) stability
 #' variance and Wricke's (1962) ecovalence.
 #'
 #' @inheritParams gxeAmmi
 #'
-#' @param method A character vector specifying (a) measure(s) of stability to be
+#' @param method A character vector specifying the measures of stability to be
 #' calculated. Options are superiority (cultivar-superiority measure), static
-#' (Shukla's stability variance) or wricke (wricke's ecovalence). By default
-#' all three measures are calculated.
+#' (Shukla's stability variance) or wricke (wricke's ecovalence).
 #' @param bestMethod A character string specifying the criterion to define
-#' the best genotype ("max","min").
+#' the best genotype. Either \code{"max"} or \code{"min"}.
 #' @param sorted A character string specifying the sorting order of the results.
 #'
-#' @return A list of one to three data.frames containing the stability measures.
+#' @return An object of class \code{\link{stability}}, a list containing:
+#' \item{superiority}{A data.frame containing values for the
+#' cultivar-superiority measure of Lin and Binns.}
+#' \item{static}{A data.frame containing values for Shukla's stabilitye
+#' variance.}
+#' \item{wricke}{A data.frame containing values for Wricke's ecovalence.}
+#' \item{trait}{A character string indicating the trait that has been analyzed.}
 #'
-#' @references LiN, C. S. and Binns, M. R. 1988. A superiority measure of cultivar
-#' performance for cultivar x location data. Can. J. Plant Sci. 68: 193-198
+#' @references LiN, C. S. and Binns, M. R. 1988. A superiority measure of
+#' cultivar performance for cultivar x location data. Can. J. Plant Sci. 68:
+#' 193-198
 #' @references Shukla, G.K. 1972. Some statistical aspects of partitioning
 #' genotype-environmental components of variability. Heredity 29:237-245
 #' @references Wricke, G. Uber eine method zur erfassung der okologischen
 #' streubreit in feldversuchen. Zeitschrift für Pflanzenzucht,
 #' v. 47, p. 92-96, 1962
 #'
+#' @seealso \code{\link{stability}}, \code{\link{plot.stability}},
+#' \code{\link{report.stability}}
+#'
 #' @examples
-#' geStab <- gxeStability(TD = TDMaize, trait = "yld", sorted = "descending")
+#' ## Compute three stability measures for TDMaize.
+#' geStab <- gxeStability(TD = TDMaize, trait = "yld")
+#' ## Summarize results.
+#' summary(geStab)
+#' ## Create plot of the computed stability measures against the means.
+#' plot(geStab)
+#' \dontrun{
+#' ## Create a .pdf report summarizing the stability measures.
 #' report(geStab, outfile = "./testReports/reportStability.pdf")
+#' }
+#'
+#' ## Compute Wricke's ecovalance for TDMaize with minimal values for yield as
+#' ## the best values. Sort results in ascending order.
+#' geStab2 <- gxeStability(TD = TDMaize, trait = "yld", method = "wricke",
+#'                        bestMethod = "min", sorted = "ascending")
+#' summary(geStab2)
 #'
 #' @export
 gxeStability <- function(TD,
@@ -72,7 +95,7 @@ gxeStability <- function(TD,
   nEnv <- length(envs)
   ## Compute the centered trait mean per eniroment.
   Ej <- tapply(TD[[trait]], TD[, "env"], mean)
-  ## Compute the maximum or minimum trait mean among all genotypes per enviroment.
+  ## Compute the max or min trait mean among all genotypes per enviroment.
   if (bestMethod == "max") {
     Mj <- tapply(TD[[trait]], TD[, "env"], max, na.rm = TRUE)
   } else {

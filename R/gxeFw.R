@@ -1,37 +1,51 @@
-#' Modified joint regression analysis
+#' Finlay-Wilkinson analysis
 #'
-#' This function performs a modified joint analysis of data classified by two factors.
+#' This function performs a Finlay-Wilkinson analysis of data classified by two
+#' factors.
 #'
 #' @inheritParams gxeAmmi
 #'
-#' @param maxIter An integer specifying the maximum number of iterations to be achieved.
-#' By default, \code{maxIter = 15}.
-#' @param tol A small positive numerical value specifying convergence tolerance.
-#' By default, \code{tol = 0.001}.
-#' @param sorted A character string specifying the sorting order of the results.
+#' @param maxIter An integer specifying the maximum number of iterations in
+#' the algorithm.
+#' @param tol A positive numerical value specifying convergence tolerance of the
+#' algorithm.
+#' @param sorted A character string specifying the sorting order of the
+#' estimated values in the output.
 #'
-#' @return An object of class \code{\link{FW}}, a list containing
-#' \item{estimates}{a data.frame containing the estimated values.}
-#' \item{anova}{a data.frame containing anova scores of the FW analysis.}
-#' \item{envEffs}{a data.frame containing the environmental effects.}
-#' \item{data}{the data.frame on which the analysis was performed.}
-#' \item{fittedGeno}{a numerical vector containing the fitted values for the genotypes.}
-#' \item{trait}{a character vector containing the analyzed trait.}
-#' \item{nGeno}{a numerical value containing the number of genotypes in the analysis.}
-#' \item{nEnv}{a numerical value containing the number of environments in the analysis.}
-#' \item{tol}{a numerical value containing the tolerance used during the analysis.}
-#' \item{iter}{a numberical value containing the number of iterations for the
+#' @return An object of class \code{\link{FW}}, a list containing:
+#' \item{estimates}{A data.frame containing the estimated values.}
+#' \item{anova}{A data.frame containing anova scores of the FW analysis.}
+#' \item{envEffs}{A data.frame containing the environmental effects.}
+#' \item{TD}{The object of class TD on which the analysis was performed.}
+#' \item{fittedGeno}{A numerical vector containing the fitted values for the
+#' genotypes.}
+#' \item{trait}{A character string containing the analyzed trait.}
+#' \item{nGeno}{A numerical value containing the number of genotypes in the
+#' analysis.}
+#' \item{nEnv}{A numerical value containing the number of environments in the
+#' analysis.}
+#' \item{tol}{A numerical value containing the tolerance used during the
+#' analysis.}
+#' \item{iter}{A numerical value containing the number of iterations for the
 #' analysis to converge.}
 #'
 #' @references Finlay, K.W. & Wilkinson, G.N. (1963). The analysis of adaptation
 #' in a plant-breeding programme. Australian Journal of Agricultural
 #' Research, 14, 742-754.
 #'
+#' @seealso \code{\link{FW}}, \code{\link{plot.FW}}, \code{\link{report.FW}}
+#'
 #' @examples
-#' ## Run Finlay-Wilkinson analysis
+#' ## Run Finlay-Wilkinson analysis on TDMaize.
 #' geFW <- gxeFw(TDMaize, trait = "yld")
-#' ## Create report
+#' ## Summarize results.
+#' summary(geFW)
+#' ## Create a scatterplot of the results.
+#' plot(geFW, plotType = "scatter")
+#' \dontrun{
+#' ## Create report.
 #' report(geFW, outfile = "./testReports/reportFW.pdf")
+#' }
 #'
 #' @export
 gxeFw <- function(TD,
@@ -98,11 +112,13 @@ gxeFw <- function(TD,
                                      names(coeffsModel2))]
     TD[is.na(TD$envEffs), "envEffs"] <- 0
     TD$envEffs <- TD$envEffs - mean(TD$envEffs)
-    ## Compute maximum difference of sensitivities between the succesive iterations.
+    ## Compute max difference of sensitivities between the succesive iterations.
     maxDiff <- max(abs(TD$beta - beta0), na.rm = TRUE)
     if (iter == maxIter && maxDiff > tol) {
-      warning(paste0("Convergence not achieved in ", iter," iterations. Tolerance ",
-                     tol, ", criterion at last iteration ", signif(maxDiff, 4), ".\n"))
+      warning(paste0("Convergence not achieved in ", iter,
+                     " iterations. Tolerance ", tol,
+                     ", criterion at last iteration ", signif(maxDiff, 4),
+                     ".\n"))
     }
     iter <- iter + 1
   }
@@ -127,7 +143,7 @@ gxeFw <- function(TD,
   rDf[c(2, 1)] <- rDf[c(1, 5)] - rDf[c(2, 1)]
   rDf[3] <- rDf[1]
   rDf[4] <- rDf[5] - rDf[1] - rDf[2] - rDf[3]
-  ## Calculate mean deviances and F statistics
+  ## Calculate mean deviances and F statistics.
   mDev <- rDev / rDf
   devr <- mDev / mDev[4]
   devr[c(4, 5)] <- NA
