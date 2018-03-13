@@ -8,7 +8,7 @@
 createVarComp(SSA, choice, summary, vcov, criterion, engine)
 }
 \arguments{
-\item{SSA}{The best fitted model.}
+\item{SSA}{An object of class SSA, the best fitted model.}
 
 \item{choice}{A character string indicating the best fitted model.}
 
@@ -16,11 +16,10 @@ createVarComp(SSA, choice, summary, vcov, criterion, engine)
 
 \item{vcov}{The covariance matrix of the best fitted model.}
 
-\item{criterion}{A character string indicating the criterion used for
-determinening the best model, either "AIC" or "BIC".}
+\item{criterion}{A character string indicating the goodness-of-fit criterion
+used for determinening the best model.}
 
-\item{engine}{A character string containing the engine used for
-the analysis.}
+\item{engine}{A character string containing the engine used for the analysis.}
 }
 \description{
 Function for creating objects of S3 class varComp.\cr

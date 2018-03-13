@@ -2,14 +2,14 @@
 % Please edit documentation in R/outliers.R
 \name{outlierTD}
 \alias{outlierTD}
-\title{Identifying Outliers}
+\title{Identifying outliers in objects of class TD}
 \usage{
 outlierTD(TD, traits, coef = 1.5, commonFactors = NULL)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
 
-\item{traits}{A character vector specifying the name(s) of the traits for
+\item{traits}{A character vector specifying the names of the traits for
 which outliers should be identified.}
 
 \item{coef}{A numerical value used for determining when a value is
@@ -32,6 +32,7 @@ that have the same value for \code{commonFactors}. The latter ones will
 be marked as similar to distinguish them from the former ones.
 }
 \examples{
+## Detect outliers in TDHeat05.
 outliers <- outlierTD(TD = TDHeat05, traits = "yield")
 
 }

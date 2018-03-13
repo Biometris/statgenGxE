@@ -8,18 +8,18 @@ SSAtoCross(SSA, traits = SSA$traits, what = c("BLUEs", "BLUPs"), genoFile,
   genotypes = c("A", "H", "B", "D", "C"), ...)
 }
 \arguments{
-\item{SSA}{An object of class \code{\link{SSA}}}
+\item{SSA}{An object of class \code{\link{SSA}}.}
 
 \item{traits}{A character string containing the traits to be exported.}
 
-\item{what}{A character string containing the statistics to be exported.
-as phenotype in the cross object. This can be either \code{BLUEs} or
+\item{what}{A character string containing the statistics to be exported as
+phenotype in the cross object. This can be either \code{BLUEs} or
 \code{BLUPs}.}
 
 \item{genoFile}{A character string indicating a filename containing
 phenotypic data. The data should be in the format required by the
 qtl package. The first column  should contain the individuals, starting
-from row 4. Following columns contain markers with in the second and
+from row 4. The following columns contain markers with in the second and
 third row the chromosome and position on the chromosome and in the
 following rows the genotypes.}
 
@@ -30,14 +30,23 @@ corresponding to AA, AB, BB, not BB and not AA.}
 See \code{\link[qtl]{read.cross}}.}
 }
 \description{
-Convert an SSA object to a cross object from class qtl. Genotypic
-should be available in an .csv file.
+Convert an SSA object to a cross object from class qtl. Genotypic information
+should be available in a .csv file.\cr
+The only way to create an object of class cross is by importing both the
+phenotypic and the genotypic data from external files. Therefore the
+phenotypic data, either the BLUEs or the BLUPs from the fitted model are
+first written to a temporary file. The genotypic data has to be available in
+a .csv file in the correct format as well, see \code{genoFile} for a
+description of this format. These phenotypic and genotypic files are then
+imported into a cross object using the read.cross function in the qtl
+package.
 }
 \examples{
 ## Run model using SpATS.
 myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
                      what = "fixed")
-## Create cross object with BLUEs from myModel.
+## Create cross object with BLUEs from myModel using genotypic information
+## from markers.csv in the package.
 cross <- SSAtoCross(myModel, genoFile = system.file("extdata", "markers.csv",
                                                    package = "RAP"))
 

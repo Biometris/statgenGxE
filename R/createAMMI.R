@@ -68,31 +68,34 @@ summary.AMMI <- function(object, ...) {
   print(object, ...)
 }
 
-#' Plot Function for Class AMMI
+#' Plot function for class AMMI
 #'
 #' Two types of biplot can be made. A biplot of genotype and environment
 #' means vs PC1 (AMMI1) or a biplot of genotypes and environment interaction
 #' with PC1 and PC2 (AMMI2).
 #'
 #' @param x An object of class AMMI
-#' @param ... Other graphical parameters passed on to actual plot function.
+#' @param ... Further graphical parameters passed on to actual plot function.
 #' @param plotType A character string indicating which plot should be made.
 #' Either "AMMI1" or "AMMI2" for an AMMI1 biplot (genotype and
-#' environment means vs PC1) or an AMMI2 biplot respectively.
-#' @param scale A numeric value. The variables are scaled by
-#' \code{lambda ^ scale} and the observations are by \code{lambda ^ (1 - scale)}
+#' environment means vs PC1) or an AMMI2 biplot (genotypes and environment
+#' interaction with PC1 and PC2) respectively.
+#' @param scale A numerical value. The variables are scaled by
+#' \code{lambda ^ scale} and the observations by \code{lambda ^ (1 - scale)}
 #' where \code{lambda} are the singular values computed by
 #' \code{\link[stats]{princomp}} in \code{\link{gxeAmmi}}. Normally
 #' \code{0 <= scale <= 1}, and a warning will be issued if the specified
 #' scale is outside this range.
 #' @param col A character vector with plot colors for genotype and environment.
 #'
-#' @return A biplot depending on \code{plotType}
+#' @return A biplot depending on \code{plotType}.
 #'
 #' @examples
-#' # Run AMMI.
+#' ## Run AMMI analysis.
 #' geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
-#' # Create AMMI2 biplot.
+#' ## Create a biplot of genotype and environment means vs PC1.
+#' plot(geAmmi)
+#' ## Create a biplot of genotypes and environment interaction with PC1 and PC2.
 #' plot(geAmmi, plotType = "AMMI2")
 #'
 #' @import graphics grDevices
@@ -172,21 +175,30 @@ plot.AMMI <- function(x,
 
 #' Report method for class AMMI
 #'
-#' A pdf report will be created containing a summary of AMMI model.
+#' A pdf report will be created containing a summary of an AMMI model.
 #' Simultaneously the same report will be created as a tex file.
 #'
 #' @param x An object of class AMMI.
 #' @param ... Further arguments passed on from other functions - not used yet.
-#' @param outfile A character string, the name and location of the output .pdf and .tex
-#' file for the report. If \code{NULL} a report will be created in the current working
-#' directory.
+#' @param outfile A character string, the name and location of the output .pdf
+#' and .tex file for the report. If \code{NULL} a report with a default name
+#' will be created in the current working directory.
+#'
+#' @return A pdf and tex report.
+#'
+#' @examples
+#' ## Run AMMI analysis on TDMaize.
+#' geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
+#' \dontrun{
+#' ## Create a pdf report summarizing the results.
+#' report(geAmmi, outfile = "./testReports/reportAmmi.pdf")
+#' }
 #'
 #' @export
 report.AMMI <- function(x,
                         ...,
                         outfile = NULL) {
-  createReport(x = x, reportName = "ammiReport.Rnw",
-               outfile = outfile, ...)
+  createReport(x = x, reportName = "ammiReport.Rnw", outfile = outfile, ...)
 }
 
 

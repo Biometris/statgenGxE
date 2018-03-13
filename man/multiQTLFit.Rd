@@ -7,20 +7,29 @@
 multiQTLFit(QTLDet, selection = c("backward", "none"), thr = 0.05, ...)
 }
 \arguments{
-\item{QTLDet}{An object of class \code{\link{QTLDet}}}
+\item{QTLDet}{An object of class \code{\link{QTLDet}}.}
 
-\item{selection}{An integer string indicating whether backward selection should
-be applied or no selection at all.}
+\item{selection}{A character string indicating whether backward selection
+should be applied or no selection at all.}
 
-\item{thr}{A numerical value indicating the threshold for dropping terms in
-the backwards elemination process.}
+\item{thr}{A positive numerical value indicating the threshold for dropping
+terms in the backwards elemination process.}
 
-\item{...}{Other parameters to be passed on to underlying functions used
+\item{...}{Further parameters to be passed on to underlying functions used
 for qtl detection, \code{\link[qtl]{scanone}} when \code{type} is "MR"
 or "SIM" and \code{\link[qtl]{cim}} when \code{type} is "CIM".}
 }
 \value{
-An object of class \code{\link{multiQTL}}
+An object of class \code{\link{multiQTL}}, a list containing:
+\item{scores}{A data.frame containing the lod scores.}
+\item{peaks}{A data.frame containing the peaks found.}
+\item{type}{A character string indicating the type of QTLDetection performed.}
+\item{cross}{An object of class cross in the \code{qtl} package on which
+the analysis has been performed.}
+\item{trait}{A character string indicating the trait for which the analysis
+is done.}
+\item{info}{A list containing information on the settings used for
+QTL Detection, i.e. step, threshold and window.}
 }
 \description{
 An additive multi QTL model is fitted based on the peaks in the QTLDet object.
@@ -31,16 +40,21 @@ the model have a significant P-value.
 \examples{
 ## Read the data
 F2 <- qtl::read.cross(format="csv",
-                      file = system.file("extdata", "F2_maize_practical3_ex2.csv",
-                      package = "RAP"),
+                      file = system.file("extdata",
+                                        "F2_maize_practical3_ex2.csv",
+                                        package = "RAP"),
                       genotypes = c("AA", "AB", "BB"),
                       alleles = c("A", "B"), estimate.map = FALSE)
 ## Perform QTL detection using simple interval mapping.
 QTLDet <- QTLDetect(cross = F2, trait = "trait", type = "SIM")
-## Fit the multi QTL model.
+## Fit a multi QTL model.
 multiFit <- multiQTLFit(QTLDet)
-## Create a report.
+## Summarize results.
+summary(multiFit)
+\dontrun{
+## Create a pdf report summarizing results.
 report(multiFit, outfile = "./testReports/reportMultiQTLFit.pdf")
+}
 
 }
 \references{

@@ -12,7 +12,7 @@ createQTLDet(scores, peaks, type, cross, trait, info)
 
 \item{peaks}{A data.frame containing the peaks found.}
 
-\item{type}{A character string indicating the type of QTLDetection performed.}
+\item{type}{A character string indicating the type of QTL detection performed.}
 
 \item{cross}{An object of class cross in the \code{qtl} package.}
 
@@ -20,7 +20,7 @@ createQTLDet(scores, peaks, type, cross, trait, info)
 is done.}
 
 \item{info}{A list containing information on the settings used for
-QTL Detection, step, threshold and window.}
+QTL detection, i.e. step, threshold and window.}
 }
 \description{
 Function for creating objects of S3 class QTLDet.\cr

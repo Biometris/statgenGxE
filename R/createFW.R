@@ -72,28 +72,35 @@ summary.FW <- function(object, ...) {
   print(object, ...)
 }
 
-#' Plot Function for Class FW
+#' Plot function for class FW
 #'
 #' Three types of plot can be made. A scatter plot for genotypic mean,
 #' mse and sensitivity, a line plot with fitted lines for each genotype and
 #' a trellis plot with individual slopes per genotype (for max 64 genotypes).
+#' If there are more than 64 genotypes only the first 64 are plotted in the
+#' trellis plot.
 #'
-#' @param x An object of class FW
-#' @param ... Other graphical parameters passed on to actual plot function.
+#' @param x An object of class FW.
+#' @param ... Further graphical parameters passed on to actual plot function.
 #' @param plotType A character string indicating which plot should be made.
-#' Possible values are "scatter", "line"  and "trellis" for creating a scatter
-#' plot of sensitivities, a plot of fitted lines for each genotype and a trellis
-#' plot of the individual genotype slopes respectively.
-#' @param sorted A character string specifying whether the results are to be sorted
-#' in an increasing (or decreasing) order of sensitivities.
+#' Either "scatter", "line" or "trellis" for creating a scatter
+#' plot of genotypic means, mse and sensitivities, a plot of fitted lines for
+#' each genotype or a trellis plot of the individual genotype slopes
+#' respectively.
+#' @param sorted A character string specifying whether the results should be
+#' sorted in an increasing (or decreasing) order of sensitivities.
 
-#' @return A plot depending on \code{plotType}
+#' @return A plot depending on \code{plotType}.
 #'
 #' @examples
-#' # Run Finlay-Wilkinson analysis.
+#' ## Run Finlay-Wilkinson analysis.
 #' geFW <- gxeFw(TD = TDMaize, trait = "yld")
-#' # Create scatter plot.
-#' plot(geFW, plotType = "scatter")
+#' ## Create a scatter plot.
+#' plot(geFW)
+#' ## Create a line plot.
+#' plot(geFW, plotType = "line")
+#' ## Create a line plot.
+#' plot(geFW, plotType = "trellis")
 #'
 #' @import graphics grDevices
 #' @export
@@ -169,17 +176,25 @@ plot.FW <- function(x,
 
 #' Report method for class FW
 #'
-#' A pdf report will be created containing a summary of FW analysis.
-#' Simultaneously the same report will be created as a tex file.
+#' A pdf report will be created containing a summary of a Finlay-Wilkinson
+#' analysis. Simultaneously the same report will be created as a tex file.
+#'
+#' @inheritParams report.AMMI
 #'
 #' @param x An object of class FW.
 #' @param sortBy A character string indicating by which variable the estimates
-#' should be sorted. Either \code{sens}(itivity), \code{genMean} (genotypic Mean) or
-#' \code{mse} (mean squared error).
-#' @param ... Further arguments passed on from other functions - not used yet.
-#' @param outfile A character string, the name and location of the output .pdf and .tex
-#' file for the report. If \code{NULL} a report will be created in the current working
-#' directory.
+#' should be sorted. Either \code{sens}(itivity), \code{genMean} (genotypic
+#' Mean) or \code{mse} (mean squared error).
+#'
+#' @return A pdf and tex report.
+#'
+#' @examples
+#' ## Run Finlay-Wilkinson analysis on TDMaize.
+#' geFW <- gxeFw(TDMaize, trait = "yld")
+#' \dontrun{
+#' ## Create a report summarizing the results.
+#' report(geFW, outfile = "./testReports/reportFW.pdf")
+#' }
 #'
 #' @export
 report.FW <- function(x,
@@ -187,10 +202,7 @@ report.FW <- function(x,
                       ...,
                       outfile = NULL) {
   sortBy <- match.arg(arg = sortBy)
-  createReport(x = x,
-               reportName = "FWReport.Rnw",
-               outfile = outfile,
-               ...,
+  createReport(x = x, reportName = "FWReport.Rnw", outfile = outfile, ...,
                sortBy = sortBy)
 }
 

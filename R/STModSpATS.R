@@ -6,20 +6,7 @@
 #'
 #' @seealso \code{\link{STRunModel}}
 #'
-#' @examples
-#' ## Load data.
-#' data(TDHeat05)
-#'
-#' ## Fit basic spatial model - no blocking, no replicates.
-#' modSpATS1 <- STModSpATS(TD = TDHeat05, trait = "yield")
-#'
-#' ## Fit spatial model including replicates - no blocking.
-#' modSpATS2 <- STModSpATS(TD = TDHeat05, trait = "yield", design = "res.rowcol")
-#'
-#' ## Fit spatial model including replicates and blocking.
-#' modSpATS3 <- STModSpATS(TD = TDHeat05, trait = "yield", design = "res.ibd")
-#'
-#' @export
+#' @keywords internal
 STModSpATS <- function(TD,
                        traits,
                        what = c("fixed", "random"),

@@ -15,14 +15,33 @@
 \item{descending}{Should the trait be ordered in descending order? Set to
 \code{FALSE} if low values of the trait indicate better performance.}
 
-\item{outfile}{A character string, the name and location of the output .pdf and .tex
-file for the report. If \code{NULL} a report will be created in the current working
-directory.}
+\item{outfile}{A character string, the name and location of the output .pdf
+and .tex file for the report. If \code{NULL} a report with a default name
+will be created in the current working directory.}
 
-\item{what}{A character string indicating whether the model with genotype fixed
-or genotype random should be reported.}
+\item{what}{A character string indicating whether the model with genotype
+fixed or genotype random should be reported. Can be omitted if only one
+model has been fitted.}
+}
+\value{
+A pdf and tex report.
 }
 \description{
-A pdf report will be created containing a summary of the results of the model.
-Simultaneously the same report will be created as a tex file.
+A pdf report will be created containing a summary of the results of the
+fitted model. Simultaneously the same report will be created as a tex file.
+}
+\examples{
+## Fit model using lme4.
+myModel1 <- STRunModel(TD = TDHeat05, design = "ibd", traits = "yield")
+\dontrun{
+## Create a pdf report summarizing the results for the model with genotype
+## as fixed factor.
+report(myModel1, outfile = "./testReports/reportModelLme4.pdf",
+      what = "fixed")
+## Create a pdf report summarizing the results for the model with genotype
+## as random factor. Order the results in ascending order.
+report(myModel1, outfile = "./testReports/reportModelLme4.pdf",
+      what = "random", descending = FALSE)
+}
+
 }

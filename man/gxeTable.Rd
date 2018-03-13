@@ -17,7 +17,7 @@ environments). If \code{TRUE TD} should contain a column "year".}
 \item{engine}{A character string specifying the engine used for modeling.
 Either "lme4" or "asreml".}
 
-\item{...}{Other parameters passed to either \code{asreml} or \code{lmer}.}
+\item{...}{Further parameters passed to either \code{asreml} or \code{lmer}.}
 }
 \value{
 A list consisting of two data.frames, \code{predictedValue}

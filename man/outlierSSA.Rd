@@ -2,14 +2,14 @@
 % Please edit documentation in R/outliers.R
 \name{outlierSSA}
 \alias{outlierSSA}
-\title{Identifying Outliers}
+\title{Identifying outliers in objects of class SSA}
 \usage{
 outlierSSA(SSA, traits, rLimit = NULL, commonFactors = NULL)
 }
 \arguments{
 \item{SSA}{An object of class \code{\link{SSA}}.}
 
-\item{traits}{A character vector specifying the name(s) of the traits for
+\item{traits}{A character vector specifying the names of the traits for
 which outliers should be identified.}
 
 \item{rLimit}{A numerical value used for determining when a value is
@@ -36,8 +36,10 @@ value for \code{commonFactors}. The latter ones will be marked as
 similar to distinguish them from the former ones.
 }
 \examples{
+## Fit a model using lme4.
 myModel <- STRunModel(TD = TDHeat05, traits = "yield" ,
                       design = "res.rowcol", engine = "lme4")
+## Detect outliers in the standardized residuals of the fitted model.
 outliers <- outlierSSA(SSA = myModel, traits = "yield")
 
 }

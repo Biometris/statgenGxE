@@ -9,33 +9,34 @@
   "BLUPs", naLast = TRUE, decreasing = TRUE, ...)
 }
 \arguments{
-\item{object}{an object of class \code{SSA}.}
+\item{object}{An object of class \code{SSA}.}
 
-\item{trait}{a string indicating the trait to summarize over. If
+\item{trait}{A character string indicating the trait to summarize. If
 \code{trait = NULL} and only one trait is modelled this trait is summarized.}
 
-\item{digits}{an integer. The number of significant digits to use when
+\item{digits}{An integer indicating the number of significant digits for
 printing.}
 
-\item{nBest}{an integer. The number of the best genotypes (sorted by either
-BLUEs or BLUPs) to print. If \code{NA} all genotypes are printed.}
+\item{nBest}{An integer indicating the number of the best genotypes (sorted
+by either BLUEs or BLUPs) to print. If \code{NA} all genotypes will be
+printed.}
 
-\item{sortBy}{a character string specifying how the genotypes will be sorted.
-The options are \code{"BLUEs"}, \code{"BLUPs"} and \code{NA} (i.e. no sort).}
+\item{sortBy}{A character string specifying how the genotypes will be sorted.
+Either \code{"BLUEs"}, \code{"BLUPs"} or \code{NA} (i.e. no sorting).}
 
 \item{naLast}{Should missing values in the data be put last when sorting?}
 
-\item{decreasing}{should the sort order be decreasing?}
+\item{decreasing}{Should the sort order be decreasing?}
 
-\item{...}{further arguments passed to \code{\link[stats]{printCoefmat}}.}
+\item{...}{Further arguments passed to \code{\link[stats]{printCoefmat}}.}
 }
 \description{
 \code{summary} method for class \code{SSA}.
 }
 \examples{
-# Run a single trait analysis using SpATS.
+## Run a single trait analysis using SpATS.
 myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
-# Print a summary of the model.
+## Print a summary of the fitted model.
 summary(myModel)
 
 }

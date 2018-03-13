@@ -2,7 +2,7 @@
 % Please edit documentation in R/createQTLDet.R
 \name{plot.QTLDet}
 \alias{plot.QTLDet}
-\title{Plot Function for Class QTLDet}
+\title{Plot function for class QTLDet}
 \usage{
 \method{plot}{QTLDet}(x, ...)
 }

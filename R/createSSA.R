@@ -4,18 +4,19 @@
 #' \code{\link{summary}}, \code{\link{plot}} and \code{\link{report}}
 #' methods are available.
 #'
-#' @param mRand a model with genotype random.
-#' @param mFix a model with genotype fixed.
-#' @param TD an object of class \code{\link{TD}} containing the data on which
+#' @param mRand A list of models with fitted with genotype as random effect.
+#' @param mFix A list of models fitted with genotype as fixed effect.
+#' @param TD An object of class \code{\link{TD}} containing the data on which
 #' \code{mRand} and \code{mFix} are based.
-#' @param traits a character vector indicating the traits for which the analysis
+#' @param traits A character vector indicating the traits for which the analysis
 #' is done.
-#' @param design a character string containing the design of the trial.
+#' @param design A character string containing the design of the trial.
 #' (see \code{\link{STRunModel}} for the possible designs).
-#' @param spatial a character string indicating the spatial part of the model.
+#' @param spatial A character string indicating the spatial part of the model.
 #' \code{FALSE} if no spatial design has been used.
-#' @param engine a character string containing the engine used for the analysis.
-#' @param predicted a character string indicating the variable that has been predicted.
+#' @param engine A character string containing the engine used for the analysis.
+#' @param predicted A character string indicating the variable that has been
+#' predicted.
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -51,23 +52,24 @@ createSSA <- function(mRand,
 #'
 #' \code{summary} method for class \code{SSA}.
 #'
-#' @param object an object of class \code{SSA}.
-#' @param trait a string indicating the trait to summarize over. If
+#' @param object An object of class \code{SSA}.
+#' @param trait A character string indicating the trait to summarize. If
 #' \code{trait = NULL} and only one trait is modelled this trait is summarized.
-#' @param digits an integer. The number of significant digits to use when
+#' @param digits An integer indicating the number of significant digits for
 #' printing.
-#' @param nBest an integer. The number of the best genotypes (sorted by either
-#' BLUEs or BLUPs) to print. If \code{NA} all genotypes are printed.
-#' @param sortBy a character string specifying how the genotypes will be sorted.
-#' The options are \code{"BLUEs"}, \code{"BLUPs"} and \code{NA} (i.e. no sort).
+#' @param nBest An integer indicating the number of the best genotypes (sorted
+#' by either BLUEs or BLUPs) to print. If \code{NA} all genotypes will be
+#' printed.
+#' @param sortBy A character string specifying how the genotypes will be sorted.
+#' Either \code{"BLUEs"}, \code{"BLUPs"} or \code{NA} (i.e. no sorting).
 #' @param naLast Should missing values in the data be put last when sorting?
-#' @param decreasing should the sort order be decreasing?
-#' @param ... further arguments passed to \code{\link[stats]{printCoefmat}}.
+#' @param decreasing Should the sort order be decreasing?
+#' @param ... Further arguments passed to \code{\link[stats]{printCoefmat}}.
 #'
 #' @examples
-#' # Run a single trait analysis using SpATS.
+#' ## Run a single trait analysis using SpATS.
 #' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
-#' # Print a summary of the model.
+#' ## Print a summary of the fitted model.
 #' summary(myModel)
 #'
 #' @export
@@ -149,45 +151,46 @@ summary.SSA <- function(object,
   invisible(meanTab)
 }
 
-#' Plot Function for Class SSA
+#' Plot function for class SSA
 #'
-#' This function draws either four base plots
+#' This function draws either four base plots:
 #' \itemize{
-#' \item{a histogram of the residuals}
-#' \item{a normal Q-Q plot}
-#' \item{a residuals vs fitted values plot}
-#' \item{an absolute residuals vs fitted values plot}
+#' \item{A histogram of the residuals}
+#' \item{A normal Q-Q plot}
+#' \item{A residuals vs fitted values plot}
+#' \item{An absolute residuals vs fitted values plot}
 #' }
-#' or five or (in case SpATS is used for modelling) six spatial plots
+#' or five or (in case SpATS is used for modelling) six spatial plots:
 #' \itemize{
-#' \item{a spatial plot of the raw data}
-#' \item{a spatial plot of the fitted data}
-#' \item{a spatial plot of the residuals}
-#' \item{a spatial plot of the estimated spatial trend (SpATS only)}
-#' \item{a spatial plot of the BLUEs or BLUPs}
-#' \item{a histogram of the BLUEs or BLUPs}
+#' \item{A spatial plot of the raw data}
+#' \item{A spatial plot of the fitted data}
+#' \item{A spatial plot of the residuals}
+#' \item{A spatial plot of the estimated spatial trend (SpATS only)}
+#' \item{A spatial plot of the BLUEs or BLUPs}
+#' \item{A histogram of the BLUEs or BLUPs}
 #' }
-#' Spatial plots can only be made if the data contains both row and column information.
-#'
-#' @inheritParams summary.SSA
+#' Spatial plots can only be made if the data contains both row and column
+#' information.
 #'
 #' @param x An object of class SSA.
-#' @param ... Other graphical parameters (see \code{\link[lattice]{xyplot}}
+#' @param ... Further graphical parameters (see \code{\link[lattice]{xyplot}}
 #' for details).
-#' @param what A character string indicating whether the model with
-#' genotype fixed or random should be plotted. If \code{x} contains only
-#' one model this model is chosen automatically.
+#' @param trait a character string indicating the trait to plot. If
+#' \code{trait = NULL} and only one trait is modelled this trait is plotted.
+#' @param what A character string indicating whether the fitted model with
+#' genotype as fixed or genotype as random factor should be plotted.
+#' If \code{x} contains only one model this model is chosen automatically.
 #' @param plotType character string indicating whether \code{base} plots or
 #' \code{spatial} plots should be made.
 #'
 #' @seealso \code{\link{SSA}}
 #'
 #' @examples
-#' # Run a single trait analysis using SpATS.
+#' ## Run a single trait analysis using SpATS.
 #' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
-#' # Create base plots
+#' ## Create base plots.
 #' plot(myModel, what = "fixed", plotType = "base")
-#' # Create spatial plots
+#' ## Create spatial plots.
 #' plot(myModel, what = "fixed", plotType = "spatial")
 #'
 #' @export
@@ -204,10 +207,7 @@ plot.SSA <- function(x,
                           !trait %in% colnames(x$TD))) {
     stop("Trait has to be a single character string defining a column in TD.\n")
   }
-  if (!is.character(what) || length(what) > 1 ||
-      !what %in% c("fixed", "random")) {
-    stop("what should be fixed or random.\n")
-  }
+  what <- match.arg(what, choices = c("fixed", "random"))
   plotType <- match.arg(arg = plotType)
   ## If no trait is given as input extract it from the SSA object.
   if (is.null(trait)) {
@@ -339,21 +339,37 @@ plot.SSA <- function(x,
 
 #' Report method for class SSA
 #'
-#' A pdf report will be created containing a summary of the results of the model.
-#' Simultaneously the same report will be created as a tex file.
+#' A pdf report will be created containing a summary of the results of the
+#' fitted model. Simultaneously the same report will be created as a tex file.
+#'
+#' @inheritParams report.AMMI
 #'
 #' @param x An object of class SSA.
-#' @param ... Further arguments passed on from other functions - not used yet.
 #' @param descending Should the trait be ordered in descending order? Set to
 #' \code{FALSE} if low values of the trait indicate better performance.
-#' @param outfile A character string, the name and location of the output .pdf and .tex
-#' file for the report. If \code{NULL} a report will be created in the current working
-#' directory.
-#' @param what A character string indicating whether the model with genotype fixed
-#' or genotype random should be reported.
+#' @param what A character string indicating whether the model with genotype
+#' fixed or genotype random should be reported. Can be omitted if only one
+#' model has been fitted.
+#'
+#' @return A pdf and tex report.
+#'
+#' @examples
+#' ## Fit model using lme4.
+#' myModel1 <- STRunModel(TD = TDHeat05, design = "ibd", traits = "yield")
+#' \dontrun{
+#' ## Create a pdf report summarizing the results for the model with genotype
+#' ## as fixed factor.
+#' report(myModel1, outfile = "./testReports/reportModelLme4.pdf",
+#'       what = "fixed")
+#' ## Create a pdf report summarizing the results for the model with genotype
+#' ## as random factor. Order the results in ascending order.
+#' report(myModel1, outfile = "./testReports/reportModelLme4.pdf",
+#'       what = "random", descending = FALSE)
+#' }
 #'
 #' @export
-report.SSA <- function(x, ...,
+report.SSA <- function(x,
+                       ...,
                        descending = TRUE,
                        outfile = NULL,
                        what = if (is.null(x$mFix)) "random" else "fixed") {
@@ -379,18 +395,26 @@ report.SSA <- function(x, ...,
 
 #' Convert SSA to Cross
 #'
-#' Convert an SSA object to a cross object from class qtl. Genotypic
-#' should be available in an .csv file.
+#' Convert an SSA object to a cross object from class qtl. Genotypic information
+#' should be available in a .csv file.\cr
+#' The only way to create an object of class cross is by importing both the
+#' phenotypic and the genotypic data from external files. Therefore the
+#' phenotypic data, either the BLUEs or the BLUPs from the fitted model are
+#' first written to a temporary file. The genotypic data has to be available in
+#' a .csv file in the correct format as well, see \code{genoFile} for a
+#' description of this format. These phenotypic and genotypic files are then
+#' imported into a cross object using the read.cross function in the qtl
+#' package.
 #'
-#' @param SSA An object of class \code{\link{SSA}}
+#' @param SSA An object of class \code{\link{SSA}}.
 #' @param traits A character string containing the traits to be exported.
-#' @param what A character string containing the statistics to be exported.
-#' as phenotype in the cross object. This can be either \code{BLUEs} or
+#' @param what A character string containing the statistics to be exported as
+#' phenotype in the cross object. This can be either \code{BLUEs} or
 #' \code{BLUPs}.
 #' @param genoFile A character string indicating a filename containing
 #' phenotypic data. The data should be in the format required by the
 #' qtl package. The first column  should contain the individuals, starting
-#' from row 4. Following columns contain markers with in the second and
+#' from row 4. The following columns contain markers with in the second and
 #' third row the chromosome and position on the chromosome and in the
 #' following rows the genotypes.
 #' @param genotypes A character vector specifying the genotype codes
@@ -404,7 +428,8 @@ report.SSA <- function(x, ...,
 #' ## Run model using SpATS.
 #' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                      what = "fixed")
-#' ## Create cross object with BLUEs from myModel.
+#' ## Create cross object with BLUEs from myModel using genotypic information
+#' ## from markers.csv in the package.
 #' cross <- SSAtoCross(myModel, genoFile = system.file("extdata", "markers.csv",
 #'                                                    package = "RAP"))
 #'

@@ -8,42 +8,41 @@
 #' single column can be mapped to multiple defaults, e.g. one column with x
 #' coordinates can be mapped to both colId and colCoordinates.\cr
 #' Columns other than the default columns, e.g. traits or other covariates
-#' will be included in the output unchanged.
-#'
+#' will be included in the output unchanged.\cr
 #' \code{\link{print}} and \code{\link{summary}} and \code{\link{plot}} methods
 #' are available.
 #'
-#' @param data a data.frame containing trial data with a least a column for
+#' @param data A data.frame containing trial data with a least a column for
 #' genotype.
-#' @param genotype an optional character string indicating the column in
+#' @param genotype An optional character string indicating the column in
 #' \code{data} that contains genotypes.
-#' @param env an optional character string indicating the column in \code{data}
+#' @param env An optional character string indicating the column in \code{data}
 #' that contains environments.
-#' @param megaEnv an optional character string indicating the column in
-#' \code{data} that contains megaEnvironments as constructed by
+#' @param megaEnv An optional character string indicating the column in
+#' \code{data} that contains mega-environments as constructed by
 #' \code{\link{gxeMegaEnv}}.
-#' @param year an optional character string indicating the column in \code{data}
+#' @param year An optional character string indicating the column in \code{data}
 #' that contains years.
-#' @param repId an optional character string indicating the column in \code{data}
+#' @param repId An optional character string indicating the column in \code{data}
 #' that contains replicates.
-#' @param subBlock an optional character string indicating the column in
+#' @param subBlock An optional character string indicating the column in
 #' \code{data} that contains sub blocks.
-#' @param rowId an optional character string indicating the column in
+#' @param rowId An optional character string indicating the column in
 #' \code{data} that contains field rows.
-#' @param colId an optional character string indicating the column in
+#' @param colId An optional character string indicating the column in
 #' \code{data} that contains field columns.
-#' @param rowCoordinates an optional character string indicating the column in
+#' @param rowCoordinates An optional character string indicating the column in
 #' \code{data} that contains the rowId coordinates used for fitting spatial
 #' models.
-#' @param colCoordinates an optional character string indicating the column in
+#' @param colCoordinates An optional character string indicating the column in
 #' \code{data} that contains the column coordinates used for fitting spatial
 #' models.
-#' @param checkId an optional character string indicating the column in
-#' \code{data} that contains the check ID(s).
-#' @param design an optional character string indicating the design of the
-#' trial. Accepted values are "ibd" (incomplete-block design), "res.ibd"
+#' @param checkId An optional character string indicating the column in
+#' \code{data} that contains the check IDs.
+#' @param design An optional character string indicating the design of the
+#' trial. Either are "ibd" (incomplete-block design), "res.ibd"
 #' (resolvable incomplete-block design), "rcbd" (randomized complete block
-#' design), "rowcol" (row-column design) and "res.rowcol" (resolvable
+#' design), "rowcol" (row-column design) or "res.rowcol" (resolvable
 #' row-column design).
 #'
 #' @return An object of class TD, the input data.frame with renamed columns
@@ -151,38 +150,40 @@ createTD <- function(data,
 #' @param ... Further arguments - currently not used.
 #' @param traits A character vector specifying the name(s) of the traits
 #' to be summarised.
-#' @param what A character vector indicating which statistics should be computed.\cr
-#' If \code{what = "all"} all available statistics are computed.\cr
+#' @param what A character vector indicating which summary statistics should be
+#' computed. If \code{what = "all"} all available statistics are computed.\cr
 #' Possible options are\cr
 #' \describe{
-#' \item{nVals}{the number of values}
-#' \item{nObs}{the number of observations}
-#' \item{nMiss}{the number of missing values}
-#' \item{mean}{the mean}
-#' \item{median}{the median}
-#' \item{min}{the minimum}
-#' \item{max}{the maximum}
-#' \item{range}{the range (maximum - minimum)}
-#' \item{lowerQ}{the lower (25\%) quantile}
-#' \item{upperQ}{the upper (75\%) quantile}
-#' \item{sd}{the standard deviation}
-#' \item{seMean}{standard error of mean}
-#' \item{var}{the variance}
-#' \item{seVar}{the standard error of variance}
-#' \item{CV}{the coefficient of variation}
-#' \item{sum}{the sum}
-#' \item{sumSq}{sum of squares}
-#' \item{uncorSumSq}{uncorrected sum of squares}
-#' \item{skew}{the skewness}
-#' \item{seSkew}{the standard error of skewness}
-#' \item{kurt}{the kurtosis}
-#' \item{seKurt}{the standard error of kurtosis}
+#' \item{nVals}{The number of values, i.e. non-missing + missing values.}
+#' \item{nObs}{The number of non-missing observations.}
+#' \item{nMiss}{The number of missing values.}
+#' \item{mean}{The mean.}
+#' \item{median}{The median.}
+#' \item{min}{The minimum.}
+#' \item{max}{The maximum.}
+#' \item{range}{The range (maximum - minimum).}
+#' \item{lowerQ}{The lower (25\%) quantile.}
+#' \item{upperQ}{The upper (75\%) quantile.}
+#' \item{sd}{The standard deviation.}
+#' \item{seMean}{The standard error of mean.}
+#' \item{var}{The variance.}
+#' \item{seVar}{The standard error of variance.}
+#' \item{CV}{The coefficient of variation.}
+#' \item{sum}{The sum.}
+#' \item{sumSq}{The sum of squares.}
+#' \item{uncorSumSq}{The uncorrected sum of squares.}
+#' \item{skew}{The skewness.}
+#' \item{seSkew}{The standard error of the skewness.}
+#' \item{kurt}{The kurtosis.}
+#' \item{seKurt}{The standard error of the kurtosis.}
+#' \item{all}{All summary statistics.}
 #' }
 #'
 #' @return A table containing the selected summary statistics.
 #' @seealso \code{\link{createTD}}
 #'
 #' @examples
+#' ## Summarize TDHeat05.
 #' summary(object = TDHeat05, traits = "yield")
 #'
 #' @export
@@ -195,7 +196,7 @@ summary.TD <- function(object,
                "max", "range", "lowerQ", "upperQ", "sd", "seMean",
                "var", "seVar", "CV", "sum", "sumSq", "uncorSumSq",
                "skew", "seSkew", "kurt", "seKurt")
-  ## Checks
+  ## Checks.
   if (!is.character(traits) || !all(traits %in% colnames(object))) {
     stop(paste("All traits should be columns in", substitute(object), ".\n"))
   }
@@ -313,7 +314,7 @@ print.summary.TD <- function(x, ...) {
   cat("\n")
 }
 
-#' Plot Function for Class TD
+#' Plot function for class TD
 #'
 #' Four types of plot can be made. Boxplots and histograms can be made for
 #' all objects of class \code{\link{TD}}. In case there is a column \code{"env"}
@@ -323,10 +324,11 @@ print.summary.TD <- function(x, ...) {
 #' is not the case.
 #'
 #' @param x An object of class TD.
-#' @param ... Other graphical parameters. For boxplots, histograms and
+#' @param ... Further graphical parameters. For boxplots, histograms and
 #' scatterplots all graphical parameters can be changed, for the correlation
 #' only \code{"main"} will be used and other parameters are ignored.
-#' @param trait A character string specifying the name of the traits to be plotted.
+#' @param trait A character string specifying the name of the trait to be
+#' plotted.
 #' @param plotType A character string indicating which plot should be made.
 #' Either \code{"box"} for a boxplot, \code{"hist"} for histograms,
 #' \code{"scatter"} for scatter plots and correlations or \code{"cor"} for a
@@ -337,7 +339,15 @@ print.summary.TD <- function(x, ...) {
 #' @seealso \code{\link{TD}}
 #'
 #' @examples
+#' ## Create a boxplot for TDMaize.
 #' plot(TDMaize, trait = "yld")
+#' ## Create a histogram for TDMaize.
+#' plot(TDMaize, trait = "yld", plotType = "hist")
+#' ## Create a scatter plot for TDMaize.
+#' plot(TDMaize, trait = "yld", plotType = "scatter")
+#' ## Create a plot of correlations between environments for TDMaize.
+#' plot(TDMaize, trait = "yld", plotType = "cor")
+#'
 #'
 #' @importFrom utils modifyList
 #' @export

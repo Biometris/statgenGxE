@@ -2,18 +2,26 @@
 % Please edit documentation in R/createStability.R
 \name{plot.stability}
 \alias{plot.stability}
-\title{Plot Function for Class stability}
+\title{Plot function for class stability}
 \usage{
 \method{plot}{stability}(x, ...)
 }
 \arguments{
-\item{x}{an object of class stability.}
+\item{x}{An object of class stability.}
 
-\item{...}{other arguments to be passed on to underlying plot functions.}
+\item{...}{Further arguments to be passed on to underlying plot functions.}
 }
 \value{
 Plots of stability measures against means.
 }
 \description{
-Function for creating plots of computed stability measures against the means.
+Function for creating scatter plots of computed stability measures against
+the means.
+}
+\examples{
+## Compute three stability measures for TDMaize.
+geStab <- gxeStability(TD = TDMaize, trait = "yld")
+## Create scatter plots of the computed stability measures against the means.
+plot(geStab)
+
 }

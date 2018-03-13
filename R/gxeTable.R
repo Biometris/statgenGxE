@@ -9,7 +9,7 @@
 #' environments). If \code{TRUE TD} should contain a column "year".
 #' @param engine A character string specifying the engine used for modeling.
 #' Either "lme4" or "asreml".
-#' @param ... Other parameters passed to either \code{asreml} or \code{lmer}.
+#' @param ... Further parameters passed to either \code{asreml} or \code{lmer}.
 #'
 #' @return A list consisting of two data.frames, \code{predictedValue}
 #' containing BLUPs per genotype per mega-environment and \code{standardError}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/createAMMI.R
 \name{plot.AMMI}
 \alias{plot.AMMI}
-\title{Plot Function for Class AMMI}
+\title{Plot function for class AMMI}
 \usage{
 \method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2"), scale = 1,
   col = c("orange3", "navyblue"))
@@ -10,14 +10,15 @@
 \arguments{
 \item{x}{An object of class AMMI}
 
-\item{...}{Other graphical parameters passed on to actual plot function.}
+\item{...}{Further graphical parameters passed on to actual plot function.}
 
 \item{plotType}{A character string indicating which plot should be made.
 Either "AMMI1" or "AMMI2" for an AMMI1 biplot (genotype and
-environment means vs PC1) or an AMMI2 biplot respectively.}
+environment means vs PC1) or an AMMI2 biplot (genotypes and environment
+interaction with PC1 and PC2) respectively.}
 
-\item{scale}{A numeric value. The variables are scaled by
-\code{lambda ^ scale} and the observations are by \code{lambda ^ (1 - scale)}
+\item{scale}{A numerical value. The variables are scaled by
+\code{lambda ^ scale} and the observations by \code{lambda ^ (1 - scale)}
 where \code{lambda} are the singular values computed by
 \code{\link[stats]{princomp}} in \code{\link{gxeAmmi}}. Normally
 \code{0 <= scale <= 1}, and a warning will be issued if the specified
@@ -26,7 +27,7 @@ scale is outside this range.}
 \item{col}{A character vector with plot colors for genotype and environment.}
 }
 \value{
-A biplot depending on \code{plotType}
+A biplot depending on \code{plotType}.
 }
 \description{
 Two types of biplot can be made. A biplot of genotype and environment
@@ -34,9 +35,11 @@ means vs PC1 (AMMI1) or a biplot of genotypes and environment interaction
 with PC1 and PC2 (AMMI2).
 }
 \examples{
-# Run AMMI.
+## Run AMMI analysis.
 geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
-# Create AMMI2 biplot.
+## Create a biplot of genotype and environment means vs PC1.
+plot(geAmmi)
+## Create a biplot of genotypes and environment interaction with PC1 and PC2.
 plot(geAmmi, plotType = "AMMI2")
 
 }

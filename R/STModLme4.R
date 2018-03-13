@@ -6,17 +6,7 @@
 #'
 #' @seealso \code{\link{STRunModel}}
 #'
-#' @examples
-#' ## Fit model for row column design.
-#' STModLme4_1 <- STModLme4(TD = TDHeat05, trait = "yield")
-#'
-#' ## Fit model for row column including replicates.
-#' STModLme4_2 <- STModLme4(TD = TDHeat05, trait = "yield", design = "res.rowcol")
-#'
-#' ## Fit model for resolvable incomplete block design.
-#' STModLme4_3 <- STModLme4(TD = TDHeat05, trait = "yield", design = "res.ibd")
-#'
-#' @export
+#' @keywords internal
 STModLme4 <- function(TD,
                       traits,
                       what = c("fixed", "random"),

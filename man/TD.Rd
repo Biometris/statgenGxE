@@ -11,49 +11,49 @@ createTD(data, genotype = NULL, env = NULL, megaEnv = NULL, year = NULL,
   design = NULL)
 }
 \arguments{
-\item{data}{a data.frame containing trial data with a least a column for
+\item{data}{A data.frame containing trial data with a least a column for
 genotype.}
 
-\item{genotype}{an optional character string indicating the column in
+\item{genotype}{An optional character string indicating the column in
 \code{data} that contains genotypes.}
 
-\item{env}{an optional character string indicating the column in \code{data}
+\item{env}{An optional character string indicating the column in \code{data}
 that contains environments.}
 
-\item{megaEnv}{an optional character string indicating the column in
-\code{data} that contains megaEnvironments as constructed by
+\item{megaEnv}{An optional character string indicating the column in
+\code{data} that contains mega-environments as constructed by
 \code{\link{gxeMegaEnv}}.}
 
-\item{year}{an optional character string indicating the column in \code{data}
+\item{year}{An optional character string indicating the column in \code{data}
 that contains years.}
 
-\item{repId}{an optional character string indicating the column in \code{data}
+\item{repId}{An optional character string indicating the column in \code{data}
 that contains replicates.}
 
-\item{subBlock}{an optional character string indicating the column in
+\item{subBlock}{An optional character string indicating the column in
 \code{data} that contains sub blocks.}
 
-\item{rowId}{an optional character string indicating the column in
+\item{rowId}{An optional character string indicating the column in
 \code{data} that contains field rows.}
 
-\item{colId}{an optional character string indicating the column in
+\item{colId}{An optional character string indicating the column in
 \code{data} that contains field columns.}
 
-\item{rowCoordinates}{an optional character string indicating the column in
+\item{rowCoordinates}{An optional character string indicating the column in
 \code{data} that contains the rowId coordinates used for fitting spatial
 models.}
 
-\item{colCoordinates}{an optional character string indicating the column in
+\item{colCoordinates}{An optional character string indicating the column in
 \code{data} that contains the column coordinates used for fitting spatial
 models.}
 
-\item{checkId}{an optional character string indicating the column in
-\code{data} that contains the check ID(s).}
+\item{checkId}{An optional character string indicating the column in
+\code{data} that contains the check IDs.}
 
-\item{design}{an optional character string indicating the design of the
-trial. Accepted values are "ibd" (incomplete-block design), "res.ibd"
+\item{design}{An optional character string indicating the design of the
+trial. Either are "ibd" (incomplete-block design), "res.ibd"
 (resolvable incomplete-block design), "rcbd" (randomized complete block
-design), "rowcol" (row-column design) and "res.rowcol" (resolvable
+design), "rowcol" (row-column design) or "res.rowcol" (resolvable
 row-column design).}
 }
 \value{
@@ -70,9 +70,7 @@ rowCoordinates and colCoordinates are converted to numerical columns. One
 single column can be mapped to multiple defaults, e.g. one column with x
 coordinates can be mapped to both colId and colCoordinates.\cr
 Columns other than the default columns, e.g. traits or other covariates
-will be included in the output unchanged.
-}
-\details{
+will be included in the output unchanged.\cr
 \code{\link{print}} and \code{\link{summary}} and \code{\link{plot}} methods
 are available.
 }

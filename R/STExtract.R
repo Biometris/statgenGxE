@@ -1,64 +1,74 @@
 #' Extract statistics from Fitted Models
 #'
-#' This function extracts and calculates various results for fitted models such as
-#' BLUEs, BLUPs, unit errors, heritabilities. Note that most results can only
-#' calculated if a model is fitted with genotype is fixed or random. This is
-#' indicated in the list below with "F" and "R"
+#' This function extracts and calculates various results for fitted models such
+#' as BLUEs, BLUPs, unit errors and heritabilities. Note that most results can
+#' only be calculated if a model is fitted with genotype as fixed or random.
+#' This is indicated in the list below with "F" and "R"
 #'
 #' Possible options for \code{what} are:
 #' \describe{
-#' \item{F - BLUEs}{Best Lineair Unbiased Estimatiors}
-#' \item{F - seBLUES}{Standard errors of the BLUEs}
-#' \item{R - BLUPs}{Best Lineair Unbiased Predictors}
-#' \item{R - seBLUPs}{Standard errors of the BLUPs}
-#' \item{F - ue}{unit errors - only for \code{lme4} and \code{asreml}}
-#' \item{R - heritability}{heritability}
-#' \item{R - varGen}{genetic variance component}
-#' \item{R - varErr}{residual variance component - only for \code{lme4}
-#' and \code{asreml}}
-#' \item{R - varSpat}{spatial variance components - only for \code{SpATS}}
-#' \item{F - fitted}{fitted values for the model with genotype as fixed component}
-#' \item{F - resid}{residuals for the model with genotype as fixed component}
-#' \item{F - stdRes}{standardized residuals for the model with genotype as fixed
-#' component - only for \code{lme4} and \code{asreml}}
-#' \item{R - rMeans}{fitted values for the model with genotype as random component}
-#' \item{R - ranEf}{random genetic effects}
-#' \item{F - wald}{results of the wald test}
-#' \item{F - CV}{coefficient of variation - only for \code{lme4} and \code{asreml}}
-#' \item{F - rDf}{residual degrees of freedom}
-#' \item{R - effDim}{effective dimensions - only for \code{SpATS}}
-#' \item{F - sed}{standard error of difference - only for \code{asreml}}
-#' \item{F - lsd}{least significant difference - only for \code{asreml}}
+#' \item{F - BLUEs}{Best Lineair Unbiased Estimators.}
+#' \item{F - seBLUES}{Standard errors of the BLUEs.}
+#' \item{R - BLUPs}{Best Lineair Unbiased Predictors.}
+#' \item{R - seBLUPs}{Standard errors of the BLUPs.}
+#' \item{F - ue}{Unit errors - only for \code{lme4} and \code{asreml}.}
+#' \item{R - heritability}{Heritability.}
+#' \item{R - varGen}{Genetic variance component.}
+#' \item{R - varErr}{Residual variance component - only for \code{lme4}
+#' and \code{asreml}.}
+#' \item{R - varSpat}{Spatial variance components - only for \code{SpATS}.}
+#' \item{F - fitted}{Fitted values for the model with genotype as fixed
+#' component.}
+#' \item{F - resid}{Residuals for the model with genotype as fixed component.}
+#' \item{F - stdRes}{Standardized residuals for the model with genotype as fixed
+#' component - only for \code{lme4} and \code{asreml}.}
+#' \item{R - rMeans}{Fitted values for the model with genotype as random
+#' component.}
+#' \item{R - ranEf}{Random genetic effects.}
+#' \item{F - wald}{Results of the wald test - only for \code{lme4} and
+#' \code{asreml}.}
+#' \item{F - CV}{Coefficient of variation - only for \code{lme4} and
+#' \code{asreml}.}
+#' \item{F - rDf}{Residual degrees of freedom.}
+#' \item{R - effDim}{Effective dimensions - only for \code{SpATS}.}
+#' \item{F - sed}{Standard error of difference - only for \code{asreml}.}
+#' \item{F - lsd}{Least significant difference - only for \code{asreml}.}
+#' \item{all}{All available statistics.}
 #' }
 #'
 #' @param SSA An object of class SSA.
 #' @param traits A character vector of traits for which the statistics should be
-#' computed If not supplied statistics are computed for all traits that have
+#' computed. If not supplied statistics are computed for all traits that have
 #' been modelled.
-#' @param what A character vector indicating which statistics should be computed.
-#' Most statistics are available for all models, some only for models fitted using
-#' a certain engine. If this is the case this is indicated in the list with options
-#' in details.\cr
-#' If \code{what = "all"} all available statistics are computed.\cr
+#' @param what A character vector indicating which statistics should be
+#' computed. Most statistics are available for all models, some only for models
+#' fitted using a certain engine. If this is the case this is indicated in the
+#' list with options in details.\cr
+#' If \code{what = "all"} all available statistics are computed.
 #' @param keep A character vector of column(s) in the object of class
 #' \code{\link{TD}} used for modeling. These columns will be kept as output when
-#' computing fitted values, residuals, standardized residuals and rMeans. Columns
-#' can also be kept when computing (se)BLUEs and (se)BLUPs but only if the column
-#' to keep contains unique values for the modeled variables, i.e. a column repId
-#' with several values per genotype cannot be kept.
+#' computing fitted values, residuals, standardized residuals and rMeans.
+#' Columns can also be kept when computing (se)BLUEs and (se)BLUPs but only if
+#' the column to keep contains unique values for the modeled variables, i.e. a
+#' column repId with several different values per genotype cannot be kept.
 #'
-#' @return A list of extracted statistics.
+#' @return A list of extracted statistics or if only one statistic is extracted
+#' a single object containing this statistic.
 #'
 #' @seealso
-#' \code{\link{STRunModel}}, \code{\link{STModSpATS}}, \code{\link{STModLme4}} and
-#' \code{\link{STModAsreml}}
+#' \code{\link{STRunModel}}, \code{\link{STModSpATS}}, \code{\link{STModLme4}}
+#' and \code{\link{STModAsreml}}
 #'
 #' @examples
-#' ## Fit model using lme4.
+#' ## Fit model using SpATS.
 #' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
-#'
-#' ## Extract statistics from fitted model.
+#' ## Extract all available statistics from the fitted model.
 #' extr <- STExtract(myModel)
+#' ## Extract only the BLUEs from the fitted model.
+#' BLUEs <- STExtract(myModel, what = "BLUEs")
+#' ## Extract only the BLUEs from the fitted model and keep env as variable in
+#' ## the output.
+#' BLUEs2 <- STExtract(myModel, what = "BLUEs", keep = "env")
 #'
 #' @export
 STExtract <- function(SSA,

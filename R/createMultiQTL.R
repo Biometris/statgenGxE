@@ -46,14 +46,31 @@ summary.multiQTL <- function(object, ...) {
 
 #' Report method for class multiQTL
 #'
-#' A pdf report will be created containing a summary of multiQTL analysis.
+#' A pdf report will be created containing a summary of a multiQTL analysis.
 #' Simultaneously the same report will be created as a tex file.
 #'
-#' @param x an object of class multiQTL.
-#' @param ... further arguments passed on from other functions - not used yet.
-#' @param outfile a character string, the name and location of the output .pdf and .tex
-#' file for the report. If \code{NULL} a report will be created in the current working
-#' directory.
+#' @inheritParams report.AMMI
+#'
+#' @param x An object of class multiQTL.
+#'
+#' @return A pdf and tex report.
+#'
+#' @examples
+#' ## Read the data
+#' F2 <- qtl::read.cross(format="csv",
+#'                       file = system.file("extdata",
+#'                                         "F2_maize_practical3_ex2.csv",
+#'                                         package = "RAP"),
+#'                       genotypes = c("AA", "AB", "BB"),
+#'                       alleles = c("A", "B"), estimate.map = FALSE)
+#' ## Perform QTL detection using simple interval mapping.
+#' QTLDet <- QTLDetect(cross = F2, trait = "trait", type = "SIM")
+#' ## Fit a multi QTL model.
+#' multiFit <- multiQTLFit(QTLDet)
+#' \dontrun{
+#' ## Create a pdf report summarizing results.
+#' report(multiFit, outfile = "./testReports/reportMultiQTLFit.pdf")
+#' }
 #'
 #' @export
 report.multiQTL <- function(x,

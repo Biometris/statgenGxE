@@ -6,12 +6,12 @@
 #'
 #' @param scores A data.frame containing the lod scores.
 #' @param peaks A data.frame containing the peaks found.
-#' @param type A character string indicating the type of QTLDetection performed.
+#' @param type A character string indicating the type of QTL detection performed.
 #' @param cross An object of class cross in the \code{qtl} package.
 #' @param trait A character string indicating the trait for which the analysis
 #' is done.
 #' @param info A list containing information on the settings used for
-#' QTL Detection, step, threshold and window.
+#' QTL detection, i.e. step, threshold and window.
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -51,7 +51,7 @@ summary.QTLDet <- function(object, ...) {
   print(object, ...)
 }
 
-#' Plot Function for Class QTLDet
+#' Plot function for class QTLDet
 #'
 #' Function for creating a manhattan plot for objects of class QTLDet.
 #'
@@ -70,14 +70,28 @@ plot.QTLDet <- function(x,
 
 #' Report method for class QTLDet
 #'
-#' A pdf report will be created containing a summary of QTLDet analysis.
+#' A pdf report will be created containing a summary of a QTLDet analysis.
 #' Simultaneously the same report will be created as a tex file.
 #'
-#' @param x an object of class QTLDet.
-#' @param ... further arguments passed on from other functions - not used yet.
-#' @param outfile a character string, the name and location of the output .pdf and .tex
-#' file for the report. If \code{NULL} a report will be created in the current working
-#' directory.
+#' @inheritParams report.AMMI
+#'
+#' @param x An object of class QTLDet.
+#'
+#' @return A pdf and tex report.
+#'
+#' @examples
+#' F2 <- qtl::read.cross(format="csv",
+#'                       file = system.file("extdata",
+#'                                         "F2_maize_practical3_ex2.csv",
+#'                                         package = "RAP"),
+#'                       genotypes = c("AA", "AB", "BB"),
+#'                       alleles = c("A", "B"), estimate.map = FALSE)
+#' ## Perform a composite interval mapping for detecting QTLs.
+#' QTLDet <- QTLDetect(cross = F2, trait = "trait", type = "CIM")
+#' \dontrun{
+#' ## Create a pdf report summarizing the results.
+#' report(QTLDet, outfile = "./testReports/reportQTLDectection.pdf")
+#' }
 #'
 #' @export
 report.QTLDet <- function(x,

@@ -51,7 +51,7 @@ summary(geFW)
 ## Create a scatterplot of the results.
 plot(geFW, plotType = "scatter")
 \dontrun{
-## Create report.
+## Create a report summarizing the results.
 report(geFW, outfile = "./testReports/reportFW.pdf")
 }
 

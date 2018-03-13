@@ -43,10 +43,10 @@
 #' multiFit <- multiQTLFit(QTLDet)
 #' ## Summarize results.
 #' summary(multiFit)
-#' ## Create a manhattan plot of the results.
-#' plot(multiFit)
+#' \dontrun{
 #' ## Create a pdf report summarizing results.
 #' report(multiFit, outfile = "./testReports/reportMultiQTLFit.pdf")
+#' }
 #'
 #' @export
 multiQTLFit <- function(QTLDet,

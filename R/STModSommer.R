@@ -6,15 +6,7 @@
 #'
 #' @seealso \code{\link{STRunModel}}
 #'
-#' @examples
-#' ## Fit model for row column design.
-#' STModSommer_1 <- STModSommer(TD = TDHeat05, trait = "yield")
-#'
-#' ## Fit model for row column including replicates.
-#' STModSommer_2 <- STModSommer(TD = TDHeat05, trait = "yield",
-#'                             design = "res.rowcol")
-#'
-#' @export
+#' @keywords internal
 STModSommer <- function(TD,
                         traits,
                         what = c("fixed", "random"),

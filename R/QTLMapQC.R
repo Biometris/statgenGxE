@@ -17,11 +17,11 @@
 #' \code{crossover} are removed.}
 #' }
 #' Steps 1, 3, 4, 5 and 7 are only performed if their respective threshold
-#' values are greater then 0. Setting them to 0 suppresses the check.\cr
+#' values are positive. Setting them to 0 suppresses the corresponding check.\cr
 #' Steps 2 and 6 are performed if respectively \code{removeDuplicates} and
 #' \code{reestimateMap} are \code{TRUE}.
 #'
-#' @param cross An object of class cross created by the qtl package
+#' @param cross An object of class cross created by the qtl package.
 #' @param missMrk A numerical value between 0 and 1 indicating the maximum
 #' allowed fraction of missing values per marker. Markers with a fraction of
 #' missing values above \code{missMrk} will be removed.
@@ -29,7 +29,7 @@
 #' allowed fraction of missing values per individual. Individuals with a fraction of
 #' missing values above \code{missMrk} will be removed.
 #' @param removeDuplicates Should duplicate markers be removed?
-#' @param segDistortion A numberical value between 0 and 1 used a threshold for
+#' @param segDistortion A numerical value between 0 and 1 used a threshold for
 #' Mendelian segregation. Markers with a P-value below \code{segDistortion} will
 #' be removed.
 #' @param recombination A positive numerical value used a threshold for checking
@@ -51,14 +51,24 @@
 #' Bioinformatics 19:889-890
 #'
 #' @examples
-#' # Read the data
+#' ## Read the data.
 #' F2 <- qtl::read.cross(format="csv",
-#'                       file = system.file("extdata", "F2_maize_practical3_ex2.csv",
-#'                                          package = "RAP"),
+#'                       file = system.file("extdata",
+#'                                         "F2_maize_practical3_ex2.csv",
+#'                                         package = "RAP"),
 #'                       genotypes = c("AA", "AB", "BB"),
 #'                       alleles = c("A", "B"), estimate.map = FALSE)
-#' # Run quality control
+#' ## Run quality control.
 #' F2QC <- QTLMapQC(F2)
+#' ## Compare cross object before and after cleaning.
+#' summary(F2)
+#' summary(F2QC)
+#'
+#' ## Run quality control: only remove markers with a fraction of missing
+#' ## values higher than 0.02
+#' F2QC2 <- QTLMapQC(F2, missMrk = 0.02, missInd = 0, removeDuplicates = FALSE,
+#'                  segDistortion = 0, recombination = 0, crossover = 0)
+#' summary(F2QC2)
 #'
 #' @export
 QTLMapQC <- function(cross,
@@ -124,30 +134,31 @@ QTLMapQC <- function(cross,
 
 #' Report method for class cross
 #'
-#' A pdf report will be created containing a summary of cross analysis.
+#' A pdf report will be created containing a summary of a cross object.
 #' Simultaneously the same report will be created as a tex file.
 #'
-#' @param x an object of class cross.
-#' @param ... further arguments passed on from other functions - not used yet.
-#' @param outfile a character string, the name and location of the output .pdf and .tex
-#' file for the report. If \code{NULL} a report will be created in the current working
-#' directory.
+#' @inheritParams report.AMMI
+#'
+#' @param x An object of class cross.
 #'
 #' @examples
 #' ## Read the data
 #' F2 <- qtl::read.cross(format="csv",
-#'                       file = system.file("extdata", "F2_maize_practical3_ex2.csv",
-#'                       package = "RAP"),
+#'                       file = system.file("extdata",
+#'                                         "F2_maize_practical3_ex2.csv",
+#'                                         package = "RAP"),
 #'                       genotypes = c("AA", "AB", "BB"),
 #'                       alleles = c("A", "B"), estimate.map = FALSE)
+#' \dontrun{
+#' ## Create a report
 #' report(F2, outfile = "./testReports/reportCross.pdf")
+#' }
 #'
 #' @export
 report.cross <- function(x,
                          ...,
                          outfile = NULL) {
-  createReport(x = x, reportName = "crossReport.Rnw",
-               outfile = outfile, ...)
+  createReport(x = x, reportName = "crossReport.Rnw", outfile = outfile, ...)
 }
 
 

@@ -7,17 +7,16 @@
 multMissing(Y, maxIter = 10, naStrings = NULL)
 }
 \arguments{
-\item{Y}{A Matrix, data.frame or vector of multivariate data.}
+\item{Y}{A matrix, data.frame or vector of multivariate data.}
 
-\item{maxIter}{An integer specifying the maximum allowed number of
-iterations.}
+\item{maxIter}{An integer specifying the maximum number of iterations.}
 
 \item{naStrings}{A character vector of strings which are to be interpreted
 as \code{NA} values.}
 }
 \value{
-A object of the same class as the input with the missing values
-replaced by their estimates.
+An object of the same class as the input \code{Y} with the
+missing values replaced by their estimates.
 }
 \description{
 This function estimates missing values for units in a multivariate data set,

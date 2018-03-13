@@ -8,10 +8,10 @@
 createstability(superiority = NULL, static = NULL, wricke = NULL, trait)
 }
 \arguments{
-\item{superiority}{a data.frame containing values for the cultivar-superiority
-measure of Lin and Binns.}
+\item{superiority}{a data.frame containing values for the
+cultivar-superiority measure of Lin and Binns.}
 
-\item{static}{a data.frame containing values for Shukla's stabilitye variance.}
+\item{static}{a data.frame containing values for Shukla's stability variance.}
 
 \item{wricke}{a data.frame containing values for Wricke's ecovalence.}
 

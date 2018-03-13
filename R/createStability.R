@@ -4,9 +4,9 @@
 #' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
 #' \code{\link{report}} methods are available.
 #'
-#' @param superiority a data.frame containing values for the cultivar-superiority
-#' measure of Lin and Binns.
-#' @param static a data.frame containing values for Shukla's stabilitye variance.
+#' @param superiority a data.frame containing values for the
+#' cultivar-superiority measure of Lin and Binns.
+#' @param static a data.frame containing values for Shukla's stability variance.
 #' @param wricke a data.frame containing values for Wricke's ecovalence.
 #' @param trait a character string indicating the trait that has been analyzed.
 #'
@@ -54,18 +54,24 @@ summary.stability <- function(object, ...) {
   print(object, ...)
 }
 
-#' Plot Function for Class stability
+#' Plot function for class stability
 #'
-#' Function for creating plots of computed stability measures against the means.
+#' Function for creating scatter plots of computed stability measures against
+#' the means.
 #'
-#' @param x an object of class stability.
-#' @param ... other arguments to be passed on to underlying plot functions.
+#' @param x An object of class stability.
+#' @param ... Further arguments to be passed on to underlying plot functions.
 #'
 #' @return Plots of stability measures against means.
 #'
+#' @examples
+#' ## Compute three stability measures for TDMaize.
+#' geStab <- gxeStability(TD = TDMaize, trait = "yld")
+#' ## Create scatter plots of the computed stability measures against the means.
+#' plot(geStab)
+#'
 #' @import graphics grDevices
 #' @export
-
 plot.stability <- function(x,
                            ...) {
   nPlots <- sum(c(!is.null(x$superiority), !is.null(x$static), !is.null(x$wricke)))
@@ -101,14 +107,22 @@ plot.stability <- function(x,
 
 #' Report method for class stability
 #'
-#' A pdf report will be created containing a summary of stability model.
-#' Simultaneously the same report will be created as a tex file.
+#' A pdf report will be created containing a summary of an object of class
+#' stability. Simultaneously the same report will be created as a tex file.
 #'
-#' @param x an object of class stability.
-#' @param ... further arguments passed on from other functions - not used yet.
-#' @param outfile a character string, the name and location of the output .pdf and .tex
-#' file for the report. If \code{NULL} a report will be created in the current working
-#' directory.
+#' @inheritParams report.AMMI
+#'
+#' @param x An object of class stability.
+#'
+#' @return A pdf and tex report.
+#'
+#' @examples
+#' ## Compute three stability measures for TDMaize.
+#' geStab <- gxeStability(TD = TDMaize, trait = "yld")
+#' \dontrun{
+#' ## Create a .pdf report summarizing the stability measures.
+#' report(geStab, outfile = "./testReports/reportStability.pdf")
+#' }
 #'
 #' @export
 report.stability <- function(x,

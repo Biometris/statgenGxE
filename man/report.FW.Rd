@@ -11,16 +11,28 @@
 \item{x}{An object of class FW.}
 
 \item{sortBy}{A character string indicating by which variable the estimates
-should be sorted. Either \code{sens}(itivity), \code{genMean} (genotypic Mean) or
-\code{mse} (mean squared error).}
+should be sorted. Either \code{sens}(itivity), \code{genMean} (genotypic
+Mean) or \code{mse} (mean squared error).}
 
 \item{...}{Further arguments passed on from other functions - not used yet.}
 
-\item{outfile}{A character string, the name and location of the output .pdf and .tex
-file for the report. If \code{NULL} a report will be created in the current working
-directory.}
+\item{outfile}{A character string, the name and location of the output .pdf
+and .tex file for the report. If \code{NULL} a report with a default name
+will be created in the current working directory.}
+}
+\value{
+A pdf and tex report.
 }
 \description{
-A pdf report will be created containing a summary of FW analysis.
-Simultaneously the same report will be created as a tex file.
+A pdf report will be created containing a summary of a Finlay-Wilkinson
+analysis. Simultaneously the same report will be created as a tex file.
+}
+\examples{
+## Run Finlay-Wilkinson analysis on TDMaize.
+geFW <- gxeFw(TDMaize, trait = "yld")
+\dontrun{
+## Create a report summarizing the results.
+report(geFW, outfile = "./testReports/reportFW.pdf")
+}
+
 }

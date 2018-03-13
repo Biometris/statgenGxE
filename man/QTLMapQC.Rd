@@ -9,7 +9,7 @@ QTLMapQC(cross, missMrk = 0.05, missInd = 0.05, removeDuplicates = TRUE,
   crossover = 0.2)
 }
 \arguments{
-\item{cross}{An object of class cross created by the qtl package}
+\item{cross}{An object of class cross created by the qtl package.}
 
 \item{missMrk}{A numerical value between 0 and 1 indicating the maximum
 allowed fraction of missing values per marker. Markers with a fraction of
@@ -21,7 +21,7 @@ missing values above \code{missMrk} will be removed.}
 
 \item{removeDuplicates}{Should duplicate markers be removed?}
 
-\item{segDistortion}{A numberical value between 0 and 1 used a threshold for
+\item{segDistortion}{A numerical value between 0 and 1 used a threshold for
 Mendelian segregation. Markers with a P-value below \code{segDistortion} will
 be removed.}
 
@@ -56,19 +56,29 @@ are removed.}
 \code{crossover} are removed.}
 }
 Steps 1, 3, 4, 5 and 7 are only performed if their respective threshold
-values are greater then 0. Setting them to 0 suppresses the check.\cr
+values are positive. Setting them to 0 suppresses the corresponding check.\cr
 Steps 2 and 6 are performed if respectively \code{removeDuplicates} and
 \code{reestimateMap} are \code{TRUE}.
 }
 \examples{
-# Read the data
+## Read the data.
 F2 <- qtl::read.cross(format="csv",
-                      file = system.file("extdata", "F2_maize_practical3_ex2.csv",
-                                         package = "RAP"),
+                      file = system.file("extdata",
+                                        "F2_maize_practical3_ex2.csv",
+                                        package = "RAP"),
                       genotypes = c("AA", "AB", "BB"),
                       alleles = c("A", "B"), estimate.map = FALSE)
-# Run quality control
+## Run quality control.
 F2QC <- QTLMapQC(F2)
+## Compare cross object before and after cleaning.
+summary(F2)
+summary(F2QC)
+
+## Run quality control: only remove markers with a fraction of missing
+## values higher than 0.02
+F2QC2 <- QTLMapQC(F2, missMrk = 0.02, missInd = 0, removeDuplicates = FALSE,
+                 segDistortion = 0, recombination = 0, crossover = 0)
+summary(F2QC2)
 
 }
 \references{

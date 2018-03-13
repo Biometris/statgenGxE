@@ -15,32 +15,33 @@
 \item{traits}{A character vector specifying the name(s) of the traits
 to be summarised.}
 
-\item{what}{A character vector indicating which statistics should be computed.\cr
-If \code{what = "all"} all available statistics are computed.\cr
+\item{what}{A character vector indicating which summary statistics should be
+computed. If \code{what = "all"} all available statistics are computed.\cr
 Possible options are\cr
 \describe{
-\item{nVals}{the number of values}
-\item{nObs}{the number of observations}
-\item{nMiss}{the number of missing values}
-\item{mean}{the mean}
-\item{median}{the median}
-\item{min}{the minimum}
-\item{max}{the maximum}
-\item{range}{the range (maximum - minimum)}
-\item{lowerQ}{the lower (25\%) quantile}
-\item{upperQ}{the upper (75\%) quantile}
-\item{sd}{the standard deviation}
-\item{seMean}{standard error of mean}
-\item{var}{the variance}
-\item{seVar}{the standard error of variance}
-\item{CV}{the coefficient of variation}
-\item{sum}{the sum}
-\item{sumSq}{sum of squares}
-\item{uncorSumSq}{uncorrected sum of squares}
-\item{skew}{the skewness}
-\item{seSkew}{the standard error of skewness}
-\item{kurt}{the kurtosis}
-\item{seKurt}{the standard error of kurtosis}
+\item{nVals}{The number of values, i.e. non-missing + missing values.}
+\item{nObs}{The number of non-missing observations.}
+\item{nMiss}{The number of missing values.}
+\item{mean}{The mean.}
+\item{median}{The median.}
+\item{min}{The minimum.}
+\item{max}{The maximum.}
+\item{range}{The range (maximum - minimum).}
+\item{lowerQ}{The lower (25\%) quantile.}
+\item{upperQ}{The upper (75\%) quantile.}
+\item{sd}{The standard deviation.}
+\item{seMean}{The standard error of mean.}
+\item{var}{The variance.}
+\item{seVar}{The standard error of variance.}
+\item{CV}{The coefficient of variation.}
+\item{sum}{The sum.}
+\item{sumSq}{The sum of squares.}
+\item{uncorSumSq}{The uncorrected sum of squares.}
+\item{skew}{The skewness.}
+\item{seSkew}{The standard error of the skewness.}
+\item{kurt}{The kurtosis.}
+\item{seKurt}{The standard error of the kurtosis.}
+\item{all}{All summary statistics.}
 }}
 }
 \value{
@@ -50,6 +51,7 @@ A table containing the selected summary statistics.
 \code{summary} method for class \code{TD}.
 }
 \examples{
+## Summarize TDHeat05.
 summary(object = TDHeat05, traits = "yield")
 
 }

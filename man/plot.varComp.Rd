@@ -2,7 +2,7 @@
 % Please edit documentation in R/createVarComp.R
 \name{plot.varComp}
 \alias{plot.varComp}
-\title{Plot Function for Class varComp}
+\title{Plot function for class varComp}
 \usage{
 \method{plot}{varComp}(x, ...)
 }
@@ -17,7 +17,9 @@ class varComp.
 }
 \examples{
 \dontrun{
+## Select the best variance-covariance model using asreml for modeling.
 geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "asreml")
+## Create a heatmap of the correlation matrix for the best model.
 plot(geVarComp)
 }
 

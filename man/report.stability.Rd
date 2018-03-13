@@ -7,15 +7,27 @@
 \method{report}{stability}(x, ..., outfile = NULL)
 }
 \arguments{
-\item{x}{an object of class stability.}
+\item{x}{An object of class stability.}
 
-\item{...}{further arguments passed on from other functions - not used yet.}
+\item{...}{Further arguments passed on from other functions - not used yet.}
 
-\item{outfile}{a character string, the name and location of the output .pdf and .tex
-file for the report. If \code{NULL} a report will be created in the current working
-directory.}
+\item{outfile}{A character string, the name and location of the output .pdf
+and .tex file for the report. If \code{NULL} a report with a default name
+will be created in the current working directory.}
+}
+\value{
+A pdf and tex report.
 }
 \description{
-A pdf report will be created containing a summary of stability model.
-Simultaneously the same report will be created as a tex file.
+A pdf report will be created containing a summary of an object of class
+stability. Simultaneously the same report will be created as a tex file.
+}
+\examples{
+## Compute three stability measures for TDMaize.
+geStab <- gxeStability(TD = TDMaize, trait = "yld")
+\dontrun{
+## Create a .pdf report summarizing the stability measures.
+report(geStab, outfile = "./testReports/reportStability.pdf")
+}
+
 }

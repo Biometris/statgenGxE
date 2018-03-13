@@ -6,18 +6,7 @@
 #'
 #' @seealso \code{\link{STRunModel}}
 #'
-#' @examples
-#' \dontrun{
-#' ## Fit model for row column design.
-#' STModAsreml_1 <- STModAsreml(TD = TDHeat05, traits = "yield")
-#'
-#' ## Fit model for row column including replicates.
-#' STModAsreml_2 <- STModAsreml(TD = TDHeat05, traits = "yield", design = "res.rowcol")
-#'
-#' ## Fit model for resolvable incomplete block design.
-#' STModAsreml_3 <- STModAsreml(TD = TDHeat05, traits = "yield", design = "res.ibd")
-#' }
-#' @export
+#' @keywords internal
 STModAsreml <- function(TD,
                         traits,
                         what = c("fixed", "random"),

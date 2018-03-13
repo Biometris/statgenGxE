@@ -2,7 +2,7 @@
 % Please edit documentation in R/createTD.R
 \name{plot.TD}
 \alias{plot.TD}
-\title{Plot Function for Class TD}
+\title{Plot function for class TD}
 \usage{
 \method{plot}{TD}(x, ..., trait, plotType = c("box", "hist", "scatter",
   "cor"))
@@ -10,11 +10,12 @@
 \arguments{
 \item{x}{An object of class TD.}
 
-\item{...}{Other graphical parameters. For boxplots, histograms and
+\item{...}{Further graphical parameters. For boxplots, histograms and
 scatterplots all graphical parameters can be changed, for the correlation
 only \code{"main"} will be used and other parameters are ignored.}
 
-\item{trait}{A character string specifying the name of the traits to be plotted.}
+\item{trait}{A character string specifying the name of the trait to be
+plotted.}
 
 \item{plotType}{A character string indicating which plot should be made.
 Either \code{"box"} for a boxplot, \code{"hist"} for histograms,
@@ -33,7 +34,15 @@ if a column \code{"env"} is present in TD and will result in an error if this
 is not the case.
 }
 \examples{
+## Create a boxplot for TDMaize.
 plot(TDMaize, trait = "yld")
+## Create a histogram for TDMaize.
+plot(TDMaize, trait = "yld", plotType = "hist")
+## Create a scatter plot for TDMaize.
+plot(TDMaize, trait = "yld", plotType = "scatter")
+## Create a plot of correlations between environments for TDMaize.
+plot(TDMaize, trait = "yld", plotType = "cor")
+
 
 }
 \seealso{

@@ -7,25 +7,29 @@
 \method{report}{cross}(x, ..., outfile = NULL)
 }
 \arguments{
-\item{x}{an object of class cross.}
+\item{x}{An object of class cross.}
 
-\item{...}{further arguments passed on from other functions - not used yet.}
+\item{...}{Further arguments passed on from other functions - not used yet.}
 
-\item{outfile}{a character string, the name and location of the output .pdf and .tex
-file for the report. If \code{NULL} a report will be created in the current working
-directory.}
+\item{outfile}{A character string, the name and location of the output .pdf
+and .tex file for the report. If \code{NULL} a report with a default name
+will be created in the current working directory.}
 }
 \description{
-A pdf report will be created containing a summary of cross analysis.
+A pdf report will be created containing a summary of a cross object.
 Simultaneously the same report will be created as a tex file.
 }
 \examples{
 ## Read the data
 F2 <- qtl::read.cross(format="csv",
-                      file = system.file("extdata", "F2_maize_practical3_ex2.csv",
-                      package = "RAP"),
+                      file = system.file("extdata",
+                                        "F2_maize_practical3_ex2.csv",
+                                        package = "RAP"),
                       genotypes = c("AA", "AB", "BB"),
                       alleles = c("A", "B"), estimate.map = FALSE)
+\dontrun{
+## Create a report
 report(F2, outfile = "./testReports/reportCross.pdf")
+}
 
 }

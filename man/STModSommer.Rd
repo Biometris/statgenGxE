@@ -11,15 +11,16 @@ STModSommer(TD, traits, what = c("fixed", "random"), covariates = NULL,
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
 
-\item{traits}{A character vector specifying the selected traits.}
+\item{traits}{A character vector specifying the traits for modeling.}
 
-\item{what}{A character vector specififying whether "genotype" should
-be fitted as "fixed" or "random". If not specified both models
+\item{what}{A character vector specifying whether "genotype" should
+be fitted as "fixed" or "random" effect. If not specified both models
 are fitted.}
 
-\item{covariates}{A string specifying (a) covariate name(s).}
+\item{covariates}{A character vector specifying covariates to be fitted as
+extra fixed effects in the model.}
 
-\item{useCheckId}{Should a checkId be used as a fixed parameter in the model?\cr
+\item{useCheckId}{Should checkId be used as a fixed effect in the model?\cr
 If \code{TRUE} \code{TD} has to contain a column 'checkId'.}
 
 \item{control}{An optional list with control parameters to be passed to the
@@ -27,9 +28,11 @@ actual fitting funcions. For now only nSeg and nestDiv are valid and pass a
 value to nseg and nest.div in \code{\link[SpATS]{PSANOVA}} respectively.}
 
 \item{trySpatial}{Should spatial models be tried? Spatials models are can
-only be fitted with SpATS and asreml.}
+only be fitted with SpATS and asreml. If SpATS is used for modeling only
+spatial models can be fitted and trySpatial is always set to \code{TRUE}. If
+asreml is used fitting spatial models is optional.}
 
-\item{design}{A string specifying the experimental design. One of "ibd"
+\item{design}{A string specifying the experimental design. Either "ibd"
 (incomplete block design), "res.ibd" (resolvable incomplete block design),
 "rcbd" (randomized complete block design), "rowcol" (row column design) or
 "res.rowcol" (resolvable row column design).}
@@ -40,15 +43,7 @@ only be fitted with SpATS and asreml.}
 \description{
 Fit Single Trial Model using sommer
 }
-\examples{
-## Fit model for row column design.
-STModSommer_1 <- STModSommer(TD = TDHeat05, trait = "yield")
-
-## Fit model for row column including replicates.
-STModSommer_2 <- STModSommer(TD = TDHeat05, trait = "yield",
-                            design = "res.rowcol")
-
-}
 \seealso{
 \code{\link{STRunModel}}
 }
+\keyword{internal}

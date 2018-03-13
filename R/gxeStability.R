@@ -16,7 +16,7 @@
 #' @return An object of class \code{\link{stability}}, a list containing:
 #' \item{superiority}{A data.frame containing values for the
 #' cultivar-superiority measure of Lin and Binns.}
-#' \item{static}{A data.frame containing values for Shukla's stabilitye
+#' \item{static}{A data.frame containing values for Shukla's stability
 #' variance.}
 #' \item{wricke}{A data.frame containing values for Wricke's ecovalence.}
 #' \item{trait}{A character string indicating the trait that has been analyzed.}

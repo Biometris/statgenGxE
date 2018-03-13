@@ -9,25 +9,26 @@ createSSA(mRand, mFix, TD, traits = NULL, design = NULL, spatial = NULL,
   engine = NULL, predicted = "genotype")
 }
 \arguments{
-\item{mRand}{a model with genotype random.}
+\item{mRand}{A list of models with fitted with genotype as random effect.}
 
-\item{mFix}{a model with genotype fixed.}
+\item{mFix}{A list of models fitted with genotype as fixed effect.}
 
-\item{TD}{an object of class \code{\link{TD}} containing the data on which
+\item{TD}{An object of class \code{\link{TD}} containing the data on which
 \code{mRand} and \code{mFix} are based.}
 
-\item{traits}{a character vector indicating the traits for which the analysis
+\item{traits}{A character vector indicating the traits for which the analysis
 is done.}
 
-\item{design}{a character string containing the design of the trial.
+\item{design}{A character string containing the design of the trial.
 (see \code{\link{STRunModel}} for the possible designs).}
 
-\item{spatial}{a character string indicating the spatial part of the model.
+\item{spatial}{A character string indicating the spatial part of the model.
 \code{FALSE} if no spatial design has been used.}
 
-\item{engine}{a character string containing the engine used for the analysis.}
+\item{engine}{A character string containing the engine used for the analysis.}
 
-\item{predicted}{a character string indicating the variable that has been predicted.}
+\item{predicted}{A character string indicating the variable that has been
+predicted.}
 }
 \description{
 Function for creating objects of S3 class Single Site Analysis (SSA).\cr

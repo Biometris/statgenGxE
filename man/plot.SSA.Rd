@@ -2,7 +2,7 @@
 % Please edit documentation in R/createSSA.R
 \name{plot.SSA}
 \alias{plot.SSA}
-\title{Plot Function for Class SSA}
+\title{Plot function for class SSA}
 \usage{
 \method{plot}{SSA}(x, ..., trait = NULL, what = ifelse(is.null(x$mFix),
   "random", "fixed"), plotType = c("base", "spatial"))
@@ -10,44 +10,45 @@
 \arguments{
 \item{x}{An object of class SSA.}
 
-\item{...}{Other graphical parameters (see \code{\link[lattice]{xyplot}}
+\item{...}{Further graphical parameters (see \code{\link[lattice]{xyplot}}
 for details).}
 
-\item{trait}{a string indicating the trait to summarize over. If
-\code{trait = NULL} and only one trait is modelled this trait is summarized.}
+\item{trait}{a character string indicating the trait to plot. If
+\code{trait = NULL} and only one trait is modelled this trait is plotted.}
 
-\item{what}{A character string indicating whether the model with
-genotype fixed or random should be plotted. If \code{x} contains only
-one model this model is chosen automatically.}
+\item{what}{A character string indicating whether the fitted model with
+genotype as fixed or genotype as random factor should be plotted.
+If \code{x} contains only one model this model is chosen automatically.}
 
 \item{plotType}{character string indicating whether \code{base} plots or
 \code{spatial} plots should be made.}
 }
 \description{
-This function draws either four base plots
+This function draws either four base plots:
 \itemize{
-\item{a histogram of the residuals}
-\item{a normal Q-Q plot}
-\item{a residuals vs fitted values plot}
-\item{an absolute residuals vs fitted values plot}
+\item{A histogram of the residuals}
+\item{A normal Q-Q plot}
+\item{A residuals vs fitted values plot}
+\item{An absolute residuals vs fitted values plot}
 }
-or five or (in case SpATS is used for modelling) six spatial plots
+or five or (in case SpATS is used for modelling) six spatial plots:
 \itemize{
-\item{a spatial plot of the raw data}
-\item{a spatial plot of the fitted data}
-\item{a spatial plot of the residuals}
-\item{a spatial plot of the estimated spatial trend (SpATS only)}
-\item{a spatial plot of the BLUEs or BLUPs}
-\item{a histogram of the BLUEs or BLUPs}
+\item{A spatial plot of the raw data}
+\item{A spatial plot of the fitted data}
+\item{A spatial plot of the residuals}
+\item{A spatial plot of the estimated spatial trend (SpATS only)}
+\item{A spatial plot of the BLUEs or BLUPs}
+\item{A histogram of the BLUEs or BLUPs}
 }
-Spatial plots can only be made if the data contains both row and column information.
+Spatial plots can only be made if the data contains both row and column
+information.
 }
 \examples{
-# Run a single trait analysis using SpATS.
+## Run a single trait analysis using SpATS.
 myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
-# Create base plots
+## Create base plots.
 plot(myModel, what = "fixed", plotType = "base")
-# Create spatial plots
+## Create spatial plots.
 plot(myModel, what = "fixed", plotType = "spatial")
 
 }

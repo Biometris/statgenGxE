@@ -1,10 +1,10 @@
 #' Fit Single Trial Mixed Model
 #'
 #' Perform REML analysis given a specific experimental design.
-#' This is a wrapper function of \code{\link{STModSpATS}}, \code{\link{STModLme4}}
-#' and \code{\link{STModAsreml}}. See details for the exact models fitted.
-#' SpATS is used as a default method when design is rowcol or res.rowcol, lme4
-#' for other designs.
+#' This is a wrapper function of \code{\link{STModSpATS}},
+#' \code{\link{STModLme4}} and \code{\link{STModAsreml}}. See details for the
+#' exact models fitted. SpATS is used as a default method when design is rowcol
+#' or res.rowcol, lme4 for other designs.
 #'
 #' The actual model fitted depends on the design. For the supported designs the
 #' following models are used:
@@ -17,32 +17,36 @@
 #' \item{res.rowcol}{trait = genotype + \strong{repId} +
 #' \emph{repId:rowId} + \emph{repId:colId} + e}
 #' }
-#' In the above models fixed effects are indicated in bold, random effects in
-#' italics. genotype is fitted as fixed or random effect depending on
-#' \code{what}.\cr
+#' In the above models fixed effects are indicated in \strong{bold}, random
+#' effects in \emph{italics}. genotype is fitted as fixed or random effect
+#' depending on the value of \code{what}.\cr
 #' In case \code{useCheckId = TRUE} an extra fixed effect \strong{checkId} is
 #' included in the model.\cr
 #' Variables in \code{covariates} are fitted as extra fixed effects.\cr\cr
 #' When \code{SpATS} is used for modelling an extra spatial term is included
-#' in the model. This term is constructed using \code{\link[SpATS]{PSANOVA}} as
+#' in the model. This term is constructed using the function
+#' \code{\link[SpATS]{PSANOVA}} from the SpATS package as
 #' \code{PSANOVA(colCoordinates, rowCoordinates, nseg = nSeg, nest.div = 2)}
 #' where \code{nSeg = (number of columns / 2, number of rows / 2)}. nseg and
 #' nest.div can be modified using the \code{control} parameter.
 #'
 #' @param TD An object of class \code{\link{TD}}.
-#' @param design A string specifying the experimental design. One of "ibd"
+#' @param design A string specifying the experimental design. Either "ibd"
 #' (incomplete block design), "res.ibd" (resolvable incomplete block design),
 #' "rcbd" (randomized complete block design), "rowcol" (row column design) or
 #' "res.rowcol" (resolvable row column design).
-#' @param traits A character vector specifying the selected traits.
-#' @param what A character vector specififying whether "genotype" should
-#' be fitted as "fixed" or "random". If not specified both models
+#' @param traits A character vector specifying the traits for modeling.
+#' @param what A character vector specifying whether "genotype" should
+#' be fitted as "fixed" or "random" effect. If not specified both models
 #' are fitted.
-#' @param covariates A string specifying (a) covariate name(s).
-#' @param useCheckId Should a checkId be used as a fixed parameter in the model?\cr
+#' @param covariates A character vector specifying covariates to be fitted as
+#' extra fixed effects in the model.
+#' @param useCheckId Should checkId be used as a fixed effect in the model?\cr
 #' If \code{TRUE} \code{TD} has to contain a column 'checkId'.
 #' @param trySpatial Should spatial models be tried? Spatials models are can
-#' only be fitted with SpATS and asreml.
+#' only be fitted with SpATS and asreml. If SpATS is used for modeling only
+#' spatial models can be fitted and trySpatial is always set to \code{TRUE}. If
+#' asreml is used fitting spatial models is optional.
 #' @param engine A string specifying the name of the mixed modelling engine to
 #' use, either SpATS, lme4 or asreml. For spatial models SpaTS is used as a
 #' default, for other models lme4.
@@ -52,7 +56,21 @@
 #' @param ... Further arguments to be passed to \code{SpATS}, \code{lme4} or
 #' \code{asreml}.
 #'
-#' @return an object of class \code{\link{SSA}}.
+#' @return An object of class \code{\link{SSA}}, a list containing:
+#' \item{mRand}{A list of models with fitted with genotype as random effect.}
+#' \item{mFix}{A list of models fitted with genotype as fixed effect.}
+#' \item{TD}{An object of class \code{\link{TD}} containing the data on which
+#' \code{mRand} and \code{mFix} are based.}
+#' \item{traits}{A character vector indicating the traits for which the analysis
+#' is done.}
+#' \item{design}{A character string containing the design of the trial.
+#' (see \code{\link{STRunModel}} for the possible designs).}
+#' \item{spatial}{A character string indicating the spatial part of the model.
+#' \code{FALSE} if no spatial design has been used.}
+#' \item{engine}{A character string containing the engine used for the
+#' analysis.}
+#' \item{predicted}{A character string indicating the variable that has been
+#' predicted.}
 #'
 #' @seealso \code{\link{STModSpATS}}, \code{\link{STModLme4}},
 #' \code{\link{STModAsreml}}
@@ -74,27 +92,31 @@
 #' ## Fit model using lme4.
 #' myModel1 <- STRunModel(TD = TDHeat05, design = "ibd", traits = "yield",
 #'                       what = "fixed")
+#' ## Summarize results.
 #' summary(myModel1)
+#' ## Create base plots of the results.
+#' plot(myModel1)
 #' \dontrun{
+#' ## Create a pdf report summarizing results.
 #' report(myModel1, outfile = "./testReports/reportModelLme4.pdf")
 #' }
-#'
 #' ## Fit model using SpATS.
 #' myModel2 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                       what = "fixed")
 #' summary(myModel2)
+#' ## Create spatial plots of the results.
+#' plot(myModel2, plotType = "spatial")
 #' \dontrun{
 #' report(myModel2, outfile = "./testReports/reportModelSpATS.pdf")
 #' }
 #'
-#' #' ## Fit model using asreml.
+#' ## Fit model using asreml.
 #' \dontrun{
 #' myModel3 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                       what = "fixed", engine = "asreml")
 #' summary(myModel3)
 #' report(myModel3, outfile = "./testReports/reportModelAsreml.pdf")
 #' }
-#'
 #' @export
 STRunModel = function(TD,
                       design = NULL,
