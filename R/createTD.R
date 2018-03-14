@@ -128,7 +128,7 @@ createTD <- function(data,
   for (numCol in numCols) {
     if (numCol %in% cols && !is.numeric(data[, which(cols == numCol)])) {
       data[, which(cols == numCol)] <-
-        as.numeric(levels(data[, which(cols == numCol)]))
+        as.numeric(data[, which(cols == numCol)])
     }
   }
   TD <- structure(data,
