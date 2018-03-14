@@ -12,5 +12,5 @@ report(x, ...)
 \item{...}{Further arguments to be passed on to specific report functions.}
 }
 \description{
-Base method for creating a .pdf report from an \code{R} object
+Base method for creating a .pdf and .tex report from an \code{R} object
 }

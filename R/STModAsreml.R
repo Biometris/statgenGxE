@@ -91,7 +91,7 @@ STModAsreml <- function(TD,
     }
     ## Create empty base lists.
     mr <- mf <- setNames(vector(mode = "list", length = length(traits)),
-                              traits)
+                         traits)
     for (trait in traits) {
       if ("random" %in% what) {
         ## Fit model with genotype random.
@@ -129,15 +129,15 @@ STModAsreml <- function(TD,
         sink(file = tmp)
         if (length(randomfTraitorm) != 0) {
           mfTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
-                                                                  "+ genotype")),
-                                         random = as.formula(paste("~", randomfTraitorm)),
-                                         rcov = ~ units, G.param = GParamTmp, aom = TRUE,
-                                         data = TD, ...)
+                                                             "+ genotype")),
+                                    random = as.formula(paste("~", randomfTraitorm)),
+                                    rcov = ~ units, G.param = GParamTmp, aom = TRUE,
+                                    data = TD, ...)
         } else {
           mfTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
-                                                                  "+ genotype")),
-                                         rcov = ~ units, G.param = GParamTmp, aom = TRUE,
-                                         data = TD, ...)
+                                                             "+ genotype")),
+                                    rcov = ~ units, G.param = GParamTmp, aom = TRUE,
+                                    data = TD, ...)
         }
         sink()
         mfTrait$call$fixed <- eval(mfTrait$call$fixed)
@@ -184,12 +184,13 @@ bestSpatMod <- function(TD,
                         ...) {
   ## Create tempfile to suppress asreml output messages.
   tmp <- tempfile()
+  ## TD needs to be sorted by row and column to prevent asreml from crashing.
+  TD <- TD[order(TD$rowId, TD$colId), ]
   useRepIdFix <- design == "res.rowcol"
   ## Define random terms of models to try.
   randomTerm <- c(rep(x = c("NULL", "units"), each = 3),
                   "repId:rowId", "repId:colId", "repId:rowId + repId:colId",
-                  "repId:rowId + units",
-                  "repId:colId + units",
+                  "repId:rowId + units", "repId:colId + units",
                   "repId:rowId + repId:colId + units")
   if (!useRepIdFix) {
     ## If no repId remove this from randomTerm
@@ -200,7 +201,7 @@ bestSpatMod <- function(TD,
     spatialChoice <- rep(x = c("AR1(x)id", "id(x)AR1", "AR1(x)AR1"), times = 4)
     spatialTerm <- rep(x = c("ar1(rowId):colId",
                              "rowId:ar1(colId)",
-                             "ar1(rowId:ar1(colId)"),
+                             "ar1(rowId):ar1(colId)"),
                        times = 4)
   } else {
     spatialChoice <- rep(x = c("exp(x)id", "id(x)exp",

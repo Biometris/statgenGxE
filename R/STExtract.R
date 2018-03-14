@@ -117,6 +117,7 @@ extractSpATS <- function(SSA,
                "varSpat", "fitted", "resid", "rMeans", "ranEf", "rDf", "effDim")
   whatMod <- c("F", "F", "R", "R", "R", "R", "R", "F", "F", "R", "R", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
+  whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ranEf")
   if (what[[1]] == "all") {
     what <- whatTot[whatMod %in% whatSSA]
   } else {
@@ -124,7 +125,8 @@ extractSpATS <- function(SSA,
                       several.ok = TRUE)
   }
   ## Create baseData and baseDataPred to which further results will be merged.
-  base <- createBaseData(TD, predicted, keep, useRepId)
+  base <- createBaseData(TD, predicted, keep, useRepId,
+                         bdPred = any(what %in% whatPred))
   baseData <- base$baseData
   baseDataPred <- base$baseDataPred
   ## Create empty result list.
@@ -255,6 +257,7 @@ extractLme4 <- function(SSA,
   whatMod <- c("F", "F", "R", "R", "F", "R", "R", "R", "F", "F", "F", "R", "R",
                "F", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
+  whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "ranEf")
   if (what[[1]] == "all") {
     what <- whatTot[whatMod %in% whatSSA]
   } else {
@@ -262,7 +265,8 @@ extractLme4 <- function(SSA,
                       several.ok = TRUE)
   }
   ## Create baseData and baseDataPred to which further results will be merged.
-  base <- createBaseData(TD, predicted, keep, useRepId)
+  base <- createBaseData(TD, predicted, keep, useRepId,
+                         bdPred = any(what %in% whatPred))
   baseData <- base$baseData
   baseDataPred <- base$baseDataPred
   ## Create empty result list.
@@ -444,6 +448,7 @@ extractAsreml <- function(SSA,
   whatMod <- c("F", "F", "R", "R", "F", "R", "R", "R", "F", "F", "F", "R", "R",
                "F", "F", "F", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
+  whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "ranEf")
   if (what[[1]] == "all") {
     what <- whatTot[whatMod %in% whatSSA]
   } else {
@@ -451,7 +456,8 @@ extractAsreml <- function(SSA,
                       several.ok = TRUE)
   }
   ## Create baseData and baseDataPred to which further results will be merged.
-  base <- createBaseData(TD, predicted, keep, useRepId)
+  base <- createBaseData(TD, predicted, keep, useRepId,
+                         bdPred = any(what %in% whatPred))
   baseData <- base$baseData
   baseDataPred <- base$baseDataPred
   ## Create empty result list.
@@ -638,6 +644,7 @@ extractSommer <- function(SSA,
   whatMod <- c("F", "F", "R", "R", "F", "R", "R", "R", "F", "F", "F", "R", "R",
                "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
+  whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "ranEf")
   if (what[[1]] == "all") {
     what <- whatTot[whatMod %in% whatSSA]
   } else {
@@ -645,7 +652,8 @@ extractSommer <- function(SSA,
                       several.ok = TRUE)
   }
   ## Create baseData and baseDataPred to which further results will be merged.
-  base <- createBaseData(TD, predicted, keep, useRepId)
+  base <- createBaseData(TD, predicted, keep, useRepId,
+                         bdPred = any(what %in% whatPred))
   baseData <- base$baseData
   baseDataPred <- base$baseDataPred
   ## Create empty result list.
@@ -778,23 +786,27 @@ extractSommer <- function(SSA,
 #' Helper function for creating baseData
 #'
 #' @keywords internal
-createBaseData <- function(TD, predicted, keep, useRepId) {
+createBaseData <- function(TD, predicted, keep, useRepId, bdPred) {
   ## Create baseData consisting of predicted variable, possibly repId and
   ## selected keep columns.
   baseData <- TD[, colnames(TD) %in% c(predicted, ifelse(useRepId, "repId", ""),
                                        keep), drop = FALSE]
   ## Create baseData for predictions with predicted variable(s).
-  baseDataPred <- unique(TD[predicted])
-  ## Add columns in keep one-by-one. Only data that is constant within
-  ## predicted is actually kept. Other columns are dropped with a warning.
-  for (col in keep) {
-    TDKeep <- unique(TD[, c(predicted, col)])
-    if (!anyDuplicated(TDKeep[, predicted])) {
-      baseDataPred <- merge(baseDataPred, TDKeep, by = predicted)
-    } else {
-      warning(paste0("Duplicate values for ", deparse(substitute(col)),
-                     "Column dropped.\n"), call. = FALSE)
+  if (bdPred) {
+    baseDataPred <- unique(TD[predicted])
+    ## Add columns in keep one-by-one. Only data that is constant within
+    ## predicted is actually kept. Other columns are dropped with a warning.
+    for (col in keep) {
+      TDKeep <- unique(TD[, c(predicted, col)])
+      if (!anyDuplicated(TDKeep[, predicted])) {
+        baseDataPred <- merge(baseDataPred, TDKeep, by = predicted)
+      } else {
+        warning(paste0("Duplicate values for ", deparse(substitute(col)), ". ",
+                       "Column dropped.\n"), call. = FALSE)
+      }
     }
+  } else {
+    baseDataPred <- NULL
   }
   return(list(baseData = baseData, baseDataPred = baseDataPred))
 }

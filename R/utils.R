@@ -188,13 +188,14 @@ seKurtosis <- function(n) {
 
 #' Base method for creating a report
 #'
-#' Base method for creating a .pdf report from an \code{R} object
+#' Base method for creating a .pdf and .tex report from an \code{R} object
 #'
 #' @param x An \code{R} object
 #' @param ... Further arguments to be passed on to specific report functions.
 #'
 #' @export
-report <- function(x, ...) {
+report <- function(x,
+                   ...) {
   UseMethod("report")
 }
 

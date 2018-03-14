@@ -207,7 +207,7 @@ plot.SSA <- function(x,
                           !trait %in% colnames(x$TD))) {
     stop("Trait has to be a single character string defining a column in TD.\n")
   }
-  what <- match.arg(what, choices = c("fixed", "random"))
+  what <- match.arg(arg = what, choices = c("fixed", "random"))
   plotType <- match.arg(arg = plotType)
   ## If no trait is given as input extract it from the SSA object.
   if (is.null(trait)) {
@@ -220,24 +220,32 @@ plot.SSA <- function(x,
     model <- x$mRand[[trait]]
   }
   ## Extract fitted and predicted values from model.
-  fitted <- STExtract(x, what = ifelse(what == "fixed", "fitted", "rMeans"))[[trait]]
+  fitted <- STExtract(x, traits = trait,
+                      what = ifelse(what == "fixed", "fitted", "rMeans"),
+                      keep = c("colCoordinates", "rowCoordinates"))
   pred <- STExtract(x, what = ifelse(what == "fixed", "BLUEs", "BLUPs"))[[trait]]
   ## Extract raw data and compute residuals.
-  response <- x$TD[, trait]
-  residuals <- response - fitted
+  response <- x$TD[, c("genotype", "colCoordinates", "rowCoordinates", trait)]
+  plotData <- merge(response, fitted, by = c("genotype", "colCoordinates",
+                                             "rowCoordinates"))
+  plotData$response <- plotData[[paste0(trait, ".x")]]
+  plotData$fitted <- plotData[[paste0(trait, ".y")]]
+  plotData$residuals <- plotData$response - plotData$fitted
+  plotData <- plotData[order(plotData$colCoordinates, plotData$rowCoordinates), ]
   if (plotType == "base") {
     ## Setup frame for plots.
     trellisObj <- setNames(vector(mode = "list", length = 4),
                            c("histogram", "qq", "residFitted", "absResidFitted"))
     ## Plot histogram of residuals.
-    trellisObj[["histogram"]] <- lattice::histogram(x = ~residuals,
+    trellisObj[["histogram"]] <- lattice::histogram(x = ~plotData$residuals,
                                                     xlab = "Residuals", ...)
     ## Plot Q-Q plot of residuals.
-    trellisObj[["qq"]] <- lattice::qqmath(~residuals, xlab = "Normal quantiles",
+    trellisObj[["qq"]] <- lattice::qqmath(~plotData$residuals,
+                                          xlab = "Normal quantiles",
                                           ylab = "Residuals", ...)
     ## Plot residuals vs fitted values
     trellisObj[["residFitted"]] <-
-      lattice::xyplot(residuals ~ fitted,
+      lattice::xyplot(plotData$residuals ~ plotData$fitted,
                       panel = function(x, y, ...) {
                         lattice::panel.xyplot(x, y, ...,
                                               type = c("p", "g"))
@@ -248,7 +256,7 @@ plot.SSA <- function(x,
                       xlab = "Fitted values", ...)
     ## Plot absolute residuals vs fitted values
     trellisObj[["absResidFitted"]] <-
-      lattice::xyplot(abs(residuals) ~ fitted,
+      lattice::xyplot(abs(plotData$residuals) ~ plotData$fitted,
                       panel = function(x, y, ...) {
                         lattice::panel.xyplot(x, y, ...,
                                               type = c("p", "g"))
@@ -298,41 +306,44 @@ plot.SSA <- function(x,
                       by = min(diff(sort(unique(rowCoord)))))
       ## Compute range of values in response + fitted data so same scale
       ## can be used over plots.
-      range <- range(c(response, fitted), na.rm = TRUE)
+      range <- range(c(plotData$response, plotData$fitted), na.rm = TRUE)
       ## Save plot options to reset when exiting function.
       op <- par(mfrow = c(2, 3), oma = c(2, 1, 3, 2),
-                mar = c(2.5, 4, 2.5, 2.5), mgp = c(1.7, 0.5, 0))
+                mar = c(2.7, 4, 2.5, 2.5), mgp = c(1.7, 0.3, 0))
       on.exit(par(op))
       ## Spatial plot of raw data.
-      fields::image.plot(plotCols, plotRows, t(matrix(response, ncol = length(plotCols),
+      fields::image.plot(plotCols, plotRows, t(matrix(plotData$response,
+                                                      ncol = length(plotCols),
                                                       nrow = length(plotRows))),
                          main = mainLegends[1], col = colors,
                          xlab = "colCoordinates", ylab = "rowCoordinates",
                          zlim = range, graphics.reset = TRUE,
                          ...)
       ## Spatial plot of fitted data.
-      fields::image.plot(plotCols, plotRows, t(matrix(fitted, ncol = length(plotCols),
+      fields::image.plot(plotCols, plotRows, t(matrix(plotData$fitted,
+                                                      ncol = length(plotCols),
                                                       nrow = length(plotRows))),
                          main = mainLegends[2], col = colors,
                          xlab = "colCoordinates", ylab = "rowCoordinates",
                          zlim = range, graphics.reset = TRUE,
                          ...)
       ## Spatial plot of residuals.
-      fields::image.plot(plotCols, plotRows, t(matrix(residuals,
+      fields::image.plot(plotCols, plotRows, t(matrix(plotData$residuals,
                                                       ncol = length(plotCols),
                                                       nrow = length(plotRows))),
                          main = mainLegends[3], col = colors,
                          xlab = "colCoordinates", ylab = "rowCoordinates",
                          graphics.reset = TRUE, ...)
       ## Spatial plot of BLUEs or BLUPs.
-      fields::image.plot(plotCols, plotRows, t(matrix(pred, ncol = length(plotCols),
+      fields::image.plot(plotCols, plotRows, t(matrix(pred,
+                                                      ncol = length(plotCols),
                                                       nrow = length(plotRows))),
                          main = mainLegends[4], col = colors,
                          xlab = "colCoordinates", ylab = "rowCoordinates",
                          graphics.reset = TRUE, ...)
       ## Histogram of BLUEs or BLUPs.
       suppressWarnings(hist(pred, main = mainLegends[5],
-                            xlab = mainLegends[5], ...))
+                            xlab = mainLegends[4], ...))
     }
   }
 }

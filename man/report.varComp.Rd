@@ -24,9 +24,9 @@ varComp. Simultaneously the same report will be created as a tex
 file.
 }
 \examples{
+\dontrun{
 ## Select the best variance-covariance model using asreml for modeling.
 geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "asreml")
-\dontrun{
 ## Create a pdf report summarizing the results.
 report(geVarComp, outfile = "./testReports/reportVarComp.pdf")
 }
