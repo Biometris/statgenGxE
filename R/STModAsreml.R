@@ -188,28 +188,26 @@ bestSpatMod <- function(TD,
   TD <- TD[order(TD$rowId, TD$colId), ]
   useRepIdFix <- design == "res.rowcol"
   ## Define random terms of models to try.
-  randomTerm <- c(rep(x = c("NULL", "units"), each = 3),
-                  "repId:rowId", "repId:colId", "repId:rowId + repId:colId",
-                  "repId:rowId + units", "repId:colId + units",
-                  "repId:rowId + repId:colId + units")
+  randomTerm <- c(rep(x = "NULL", times = 3),
+                  "repId:rowId", "repId:colId", "repId:rowId + repId:colId")
   if (!useRepIdFix) {
     ## If no repId remove this from randomTerm
     randomTerm <- gsub(pattern = "repId:", replacement = "", x = randomTerm)
   }
   if (!regular) {
     ## Define spatial terms of models to try.
-    spatialChoice <- rep(x = c("AR1(x)id", "id(x)AR1", "AR1(x)AR1"), times = 4)
+    spatialChoice <- rep(x = c("AR1(x)id", "id(x)AR1", "AR1(x)AR1"), times = 2)
     spatialTerm <- rep(x = c("ar1(rowId):colId",
                              "rowId:ar1(colId)",
                              "ar1(rowId):ar1(colId)"),
-                       times = 4)
+                       times = 2)
   } else {
     spatialChoice <- rep(x = c("exp(x)id", "id(x)exp",
-                               "isotropic exponential"), times = 4)
+                               "isotropic exponential"), times = 2)
     spatialTerm <- rep(x = c("exp(rowCoordinates):colCoordinates",
                              "rowCoordinates:exp(colCoordinates)",
                              "iexp(rowCoordinates,colCoordinates)"),
-                       times = 4)
+                       times = 2)
   }
   ## Create empty base lists.
   mr <- mf <- spatial <- setNames(vector(mode = "list", length = length(traits)),
