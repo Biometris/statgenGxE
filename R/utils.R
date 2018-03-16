@@ -57,58 +57,12 @@ predictAsreml <- function(model,
   }
 }
 
+#' Helper function for computing the standard error of the variance.
+#'
 #' @keywords internal
-checkCols <- function(cols,
-                      data) {
-  cCheck <- !cols %in% colnames(data)
-  if (any(cCheck)) {
-    stop(paste0("Error in ", deparse(sys.call(-1)), ":\n\t",
-                "The following colomns are not in ",
-                deparse(substitute(data, env = parent.frame(2))),
-                ": ", paste(cols[cCheck], collapse = ", "), "\n"),
-         call. = FALSE)
-  }
-}
-
-#' @keywords internal
-isValidVariableName <- function(x,
-                                allowReserved = TRUE,
-                                unique = FALSE) {
-  # Author: Richie Cotton
-  # http://4dpiecharts.com/tag/regex/
-  ok <- rep.int(x = TRUE, times = length(x))
-  #is name too long?
-  #max_name_length <- if(getRversion() < "2.13.0") 256L else 10000L
-  #ok[nchar(x) > max_name_length] <- FALSE
-  #is it a reserved variable, i.e.
-  #an ellipsis or two dots then a number?
-  if (!allowReserved) {
-    ok[x == "..."] <- FALSE
-    ok[grepl(pattern = "^\\.{2}[[:digit:]]+$", x = x)] <- FALSE
-  }
-  #are names valid (and maybe unique)
-  ok[x != make.names(x, unique = unique)] <- FALSE
-  return(ok)
-}
-
-#' @keywords internal
-char2numeric <- function(x,
-                         dec = ".") {
-  # This function is to convert a vector of characters to numeric with specified dec
-  if (dec == ".") {
-    y <- as.numeric(x)
-  } else {
-    y <- sapply(X = strsplit(x, dec, fixed = TRUE), FUN = function(z) {
-      as.numeric(paste(z, collapse = "."))
-    })
-  }
-  return(y)
-}
-
-#' @keywords internal
-seVar <- function(x, na.rm = FALSE)
-{
-  if (is.matrix(x)) {
+seVar <- function(x,
+                  na.rm = FALSE) {
+  if (inherits(x, c("matrix", "data.frame"))) {
     se <- apply(X = x, MARGIN = 2, FUN = seVar, na.rm = na.rm)
   } else if (is.vector(x)) {
     if (na.rm) {
@@ -119,71 +73,78 @@ seVar <- function(x, na.rm = FALSE)
     m2 <- sum(x ^ 2) / n
     m3 <- sum(x ^ 3) / n
     m4 <- sum(x ^ 4) / n
-    se <- sqrt((n * (m4 - 4 * m1 * m3 + 6 * m1 ^ 2 * m2 -
-                       3 * m1 ^ 4) / (n - 1) - (n * (m2 - m1 ^ 2) /
-                                                  (n - 1)) ^ 2) / n)
-  } else if (is.data.frame(x)) {
-    se <- sapply(X = x, FUN = seVar, na.rm = na.rm)
+    se <- sqrt((n * (m4 - 4 * m1 * m3 + 6 * m1 ^ 2 * m2 - 3 * m1 ^ 4) /
+                  (n - 1) - (n * (m2 - m1 ^ 2) / (n - 1)) ^ 2) / n)
   } else {
     se <- seVar(x = as.vector(x), na.rm = na.rm)
   }
   return(se)
 }
 
+#' Helper function for computing the skewness.
+#' This and following formulas taken from
+#' https://brownmath.com/stat/shape.htm#Normal.
+#'
 #' @keywords internal
 skewness <- function(x,
                      na.rm = FALSE) {
-  if (is.matrix(x)) {
+  if (inherits(x, c("matrix", "data.frame"))) {
     skw <- apply(X = x, MARGIN = 2, FUN = skewness, na.rm = na.rm)
   } else if (is.vector(x)) {
     if (na.rm) {
       x <- x[!is.na(x)]
     }
     n <- length(x)
-    m1 <- sum(x) / n
-    m2 <- sum(x ^ 2) / n
-    m3 <- sum(x ^ 3) / n
-    skw <- (m3 - 3 * m1 * m2 + 2 * m1 ^ 3) / (m2 - m1 ^ 2) ^ (3 / 2)
-  } else if (is.data.frame(x)) {
-    skw <- sapply(X = x, FUN = skewness, na.rm = na.rm)
+    skw <- (sum((x - mean(x)) ^ 3) / n) / (sum((x - mean(x)) ^ 2) / n) ^ (3 / 2)
   } else {
     skw <- skewness(x = as.vector(x), na.rm = na.rm)
   }
   return(skw)
 }
 
+#' Helper function for computing the standard error of the skewness.
+#'
 #' @keywords internal
 seSkewness <- function(n) {
-  return(sqrt((6 * n * (n - 1)) / ((n - 1) * (n + 1) * (n + 3))))
+  if (n <= 2) {
+    warning(paste("For n less than 2 the standard error of skewness cannot be",
+            "calculated"), call. = FALSE)
+    return(NA)
+  }
+  return(sqrt((6 * n * (n - 1)) / ((n - 2) * (n + 1) * (n + 3))))
 }
 
+#' Helper function for computing kurtosis.
+#' Rescaled by subtracting 3 from the result to give the normal distribution
+#' a kurtosis of 0, so basically the excess kurtosis.
+#'
 #' @keywords internal
 kurtosis <- function(x,
                      na.rm = FALSE) {
-  if (is.matrix(x)) {
+  if (inherits(x, c("matrix", "data.frame"))) {
     kurt <- apply(X = x, MARGIN = 2, FUN = kurtosis, na.rm = na.rm)
   } else if (is.vector(x)) {
     if (na.rm) {
       x <- x[!is.na(x)]
     }
     n <- length(x)
-    m1 <- sum(x) / n
-    m2 <- sum(x ^ 2) / n
-    m3 <- sum(x ^ 3) / n
-    m4 <- sum(x ^ 4) / n
-    kurt <- (m4 - 4 * m1 * m3 + 6 * m1 ^ 2 * m2 - 3 * m1 ^ 4) /
-      (m2 - m1 * m1) ^ 2 - 3
-  } else if (is.data.frame(x)) {
-    kurt <- sapply(X = x, FUN = kurtosis, na.rm = na.rm)
+    kurt <- n * sum((x - mean(x)) ^ 4) / (sum((x - mean(x)) ^ 2) ^ 2) - 3
   } else {
     kurt <- kurtosis(x = as.vector(x), na.rm = na.rm)
   }
   return(kurt)
 }
 
+#' Helper function for computing the standard error of the kurtosis.
+#'
 #' @keywords internal
 seKurtosis <- function(n) {
-  return(sqrt((24 * n * (n - 1) ^ 2) / ((n - 2) * (n - 3) * (n + 5) * (n + 3))))
+  if (n <= 3) {
+    warning(paste("For n less than 2 the standard error of kurtosis cannot be",
+                  "calculated"), call. = FALSE)
+    return(NA)
+  }
+  return(sqrt((24 * n * (n - 1) ^ 2) / ((n - 2) * (n - 3) * (n + 3) * (n + 5))))
 }
 
 #' Base method for creating a report
@@ -271,19 +232,19 @@ createReport <- function(x,
   ## Two runs needed to get references right.
   switch(tolower(Sys.info()[["sysname"]]),
          windows = {
-           ## Construct shell command for changing directory
+           ## Construct shell command for changing directory.
            ## cd /d is used instead of cd to account for changing drives on windows.
            ## Note that here dirname(outfile) is needed instead of outDir.
            cmdDir <- paste0("cd /d ", dirname(outfile))
            shell(cmd = paste(cmdDir, "&", cmdRun1, "> nul 2>&1"))
            shell(cmd = paste(cmdDir, "&", cmdRun2, "> nul"))
          }, linux = {
-           ## Construct shell command for changing directory
+           ## Construct shell command for changing directory.
            cmdDir <- paste("cd", outDir)
            system(command = paste(cmdDir, ";", cmdRun1, "> /dev/null 2>&1"))
            system(command = paste(cmdDir, ";", cmdRun2, "> /dev/null"))
          }, darwin = {
-           ## Construct shell command for changing directory
+           ## Construct shell command for changing directory.
            cmdDir <- paste("cd", outDir)
            system(command = paste(cmdDir, ";", cmdRun1, "> /dev/null 2>&1"))
            system(command = paste(cmdDir, ";", cmdRun2, "> /dev/null"))
