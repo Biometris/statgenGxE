@@ -28,7 +28,37 @@
 #' \code{\link[SpATS]{PSANOVA}} from the SpATS package as
 #' \code{PSANOVA(colCoordinates, rowCoordinates, nseg = nSeg, nest.div = 2)}
 #' where \code{nSeg = (number of columns / 2, number of rows / 2)}. nseg and
-#' nest.div can be modified using the \code{control} parameter.
+#' nest.div can be modified using the \code{control} parameter.\cr\cr
+#' When \code{asreml} is used for modeling and \code{trySpatial} is \code{TRUE}
+#' 6 models are fitted with different random term and covariance structure.
+#' The best model is determined based on a goodness-of-fit criterion, either
+#' AIC or BIC. This can be set using the control parameter \code{criterion},
+#' default is AIC.
+#' The fitted random terms depend on the structure of the data. If the design
+#' has a regular structure, i.e. all replicates appear the same amount of times
+#' in the design, the following combinations of random and spatial terms are
+#' fitted
+#' \itemize{
+#' \item{random = NULL, spatial = exp(rowCoordinates):colCoordinates}
+#' \item{random = NULL, spatial = rowCoordinates:exp(colCoordinates)}
+#' \item{random = NULL, spatial = iexp(rowCoordinates,colCoordinates)}
+#' \item{random = repId:rowId, spatial = exp(rowCoordinates):colCoordinates}
+#' \item{random = repId:colId, spatial = rowCoordinates:exp(colCoordinates)}
+#' \item{random = repId:rowId + repId:colId,
+#' spatial = iexp(rowCoordinates,colCoordinates)}
+#' }
+#' If the design is not regular the following following combinations of random
+#' and spatial terms are fitted
+#' \itemize{
+#' \item{random = NULL, spatial = ar1(rowId):colId}
+#' \item{random = NULL, spatial = rowId:ar1(colId)}
+#' \item{random = NULL, spatial = ar1(rowId):ar1(colId)}
+#' \item{random = repId:rowId, spatial = ar1(rowId):colId}
+#' \item{random = repId:colId, spatial = rowId:ar1(colId)}
+#' \item{random = repId:rowId + repId:colId, spatial = ar1(rowId):ar1(colId)}
+#' }
+#' If there are no replicates in the model, in the random parts above, repId is
+#' left out.
 #'
 #' @param TD An object of class \code{\link{TD}}.
 #' @param design A string specifying the experimental design. Either "ibd"
@@ -43,7 +73,7 @@
 #' extra fixed effects in the model.
 #' @param useCheckId Should checkId be used as a fixed effect in the model?\cr
 #' If \code{TRUE} \code{TD} has to contain a column 'checkId'.
-#' @param trySpatial Should spatial models be tried? Spatials models are can
+#' @param trySpatial Should spatial models be tried? Spatial models can
 #' only be fitted with SpATS and asreml. If SpATS is used for modeling only
 #' spatial models can be fitted and trySpatial is always set to \code{TRUE}. If
 #' asreml is used fitting spatial models is optional.
@@ -51,8 +81,12 @@
 #' use, either SpATS, lme4 or asreml. For spatial models SpaTS is used as a
 #' default, for other models lme4.
 #' @param control An optional list with control parameters to be passed to the
-#' actual fitting funcions. For now only nSeg and nestDiv are valid and pass a
-#' value to nseg and nest.div in \code{\link[SpATS]{PSANOVA}} respectively.
+#' actual fitting funcions. Currently \code{nSeg} and \code{nestDiv} are valid
+#' parameters when fitting a model using SpATS. They pass a value to nseg and
+#' nest.div in \code{\link[SpATS]{PSANOVA}} respectively. \code{criterion} is a
+#' valid parameter when fitting a spatial model using asreml. Use this to pass
+#' a goodness-of-fit criterion for comparing different spatial models. See also
+#' in details. Other parameters are ignored.
 #' @param ... Further arguments to be passed to \code{SpATS}, \code{lme4} or
 #' \code{asreml}.
 #'
@@ -84,9 +118,9 @@
 #' Butler, D. G., et al. (2010). Analysis of Mixed Models for S language
 #' environments: ASReml-R reference manual. Brisbane, DPI Publications
 #' @references
-#' Douglas Bates, Martin Maechler, Ben Bolker, Steve Walker (2015). Fitting Linear
-#' Mixed-Effects Models Using lme4. Journal of Statistical Software, 67(1), 1-48.
-#' \url{https::/doi:10.18637/jss.v067.i01}.
+#' Douglas Bates, Martin Maechler, Ben Bolker, Steve Walker (2015). Fitting
+#' Linear Mixed-Effects Models Using lme4. Journal of Statistical Software,
+#' 67(1), 1-48. \url{https::/doi:10.18637/jss.v067.i01}.
 #'
 #' @examples
 #' ## Fit model using lme4.
@@ -144,28 +178,29 @@ STRunModel = function(TD,
   if (is.null(design)) {
     design <- attr(TD, "design")
   }
-  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
-    stop("All traits have to be columns in TD.\n")
+  if (is.null(traits) || !is.character(traits) ||
+      !all(traits %in% colnames(TD))) {
+    stop("All traits should be columns in TD.\n")
   }
   what <- match.arg(arg = what, several.ok = TRUE)
   if (!is.null(covariates) && (!is.character(covariates) ||
                                !(all(covariates %in% colnames(TD))))) {
-    stop("covariates have to be a columns in TD.\n")
+    stop("covariates should be a columns in TD.\n")
   }
   if (!is.logical(trySpatial) || length(trySpatial) > 1) {
     stop("trySpatial should be a single logical value.\n")
   }
   if (!is.na(engine) && (!is.character(engine) || length(engine) > 1 ||
                          !engine %in% c("asreml", "lme4", "SpATS"))) {
-    stop("engine should be SpATS, asreml, lme4.\n")
+    stop("engine should be one of SpATS, asreml or lme4.\n")
   }
   if (is.na(engine)) {
     if (design %in% c("rowcol", "res.rowcol")) {
       message("Using SpATS for fitting models.")
-      engine = "SpATS"
+      engine <- "SpATS"
     } else {
       message("Using lme4 for fitting models.")
-      engine = "lme4"
+      engine <- "lme4"
     }
   }
   if (trySpatial && engine == "lme4") {
@@ -174,9 +209,12 @@ STRunModel = function(TD,
     engine <- "SpATS"
   }
   ## Columns needed depend on design.
-  for (colName in c(if (engine == "SpATS") c("rowCoordinates", "colCoordinates"),
-                    if (design %in% c("rowcol", "res.rowcol")) c("rowId", "colId"),
-                    if (design %in% c("res.ibd", "res.rowcol", "rcbd")) "repId",
+  for (colName in c(if (engine == "SpATS") c("rowCoordinates",
+                                             "colCoordinates"),
+                    if (design %in% c("rowcol", "res.rowcol")) c("rowId",
+                                                                 "colId"),
+                    if (design %in% c("res.ibd", "res.rowcol",
+                                      "rcbd")) "repId",
                     if (design %in% c("ibd", "res.ibd")) "subBlock",
                     if (useCheckId) "checkId")) {
     if (!is.null(colName) && (!is.character(colName) || length(colName) > 1 ||

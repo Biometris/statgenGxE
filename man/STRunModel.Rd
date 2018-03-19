@@ -28,7 +28,7 @@ extra fixed effects in the model.}
 \item{useCheckId}{Should checkId be used as a fixed effect in the model?\cr
 If \code{TRUE} \code{TD} has to contain a column 'checkId'.}
 
-\item{trySpatial}{Should spatial models be tried? Spatials models are can
+\item{trySpatial}{Should spatial models be tried? Spatial models can
 only be fitted with SpATS and asreml. If SpATS is used for modeling only
 spatial models can be fitted and trySpatial is always set to \code{TRUE}. If
 asreml is used fitting spatial models is optional.}
@@ -38,8 +38,12 @@ use, either SpATS, lme4 or asreml. For spatial models SpaTS is used as a
 default, for other models lme4.}
 
 \item{control}{An optional list with control parameters to be passed to the
-actual fitting funcions. For now only nSeg and nestDiv are valid and pass a
-value to nseg and nest.div in \code{\link[SpATS]{PSANOVA}} respectively.}
+actual fitting funcions. Currently \code{nSeg} and \code{nestDiv} are valid
+parameters when fitting a model using SpATS. They pass a value to nseg and
+nest.div in \code{\link[SpATS]{PSANOVA}} respectively. \code{criterion} is a
+valid parameter when fitting a spatial model using asreml. Use this to pass
+a goodness-of-fit criterion for comparing different spatial models. See also
+in details. Other parameters are ignored.}
 
 \item{...}{Further arguments to be passed to \code{SpATS}, \code{lme4} or
 \code{asreml}.}
@@ -91,7 +95,37 @@ in the model. This term is constructed using the function
 \code{\link[SpATS]{PSANOVA}} from the SpATS package as
 \code{PSANOVA(colCoordinates, rowCoordinates, nseg = nSeg, nest.div = 2)}
 where \code{nSeg = (number of columns / 2, number of rows / 2)}. nseg and
-nest.div can be modified using the \code{control} parameter.
+nest.div can be modified using the \code{control} parameter.\cr\cr
+When \code{asreml} is used for modeling and \code{trySpatial} is \code{TRUE}
+6 models are fitted with different random term and covariance structure.
+The best model is determined based on a goodness-of-fit criterion, either
+AIC or BIC. This can be set using the control parameter \code{criterion},
+default is AIC.
+The fitted random terms depend on the structure of the data. If the design
+has a regular structure, i.e. all replicates appear the same amount of times
+in the design, the following combinations of random and spatial terms are
+fitted
+\itemize{
+\item{random = NULL, spatial = exp(rowCoordinates):colCoordinates}
+\item{random = NULL, spatial = rowCoordinates:exp(colCoordinates)}
+\item{random = NULL, spatial = iexp(rowCoordinates,colCoordinates)}
+\item{random = repId:rowId, spatial = exp(rowCoordinates):colCoordinates}
+\item{random = repId:colId, spatial = rowCoordinates:exp(colCoordinates)}
+\item{random = repId:rowId + repId:colId,
+spatial = iexp(rowCoordinates,colCoordinates)}
+}
+If the design is not regular the following following combinations of random
+and spatial terms are fitted
+\itemize{
+\item{random = NULL, spatial = ar1(rowId):colId}
+\item{random = NULL, spatial = rowId:ar1(colId)}
+\item{random = NULL, spatial = ar1(rowId):ar1(colId)}
+\item{random = repId:rowId, spatial = ar1(rowId):colId}
+\item{random = repId:colId, spatial = rowId:ar1(colId)}
+\item{random = repId:rowId + repId:colId, spatial = ar1(rowId):ar1(colId)}
+}
+If there are no replicates in the model, in the random parts above, repId is
+left out.
 }
 \examples{
 ## Fit model using lme4.
@@ -132,9 +166,9 @@ experiments with P-splines. Spatial Statistics
 Butler, D. G., et al. (2010). Analysis of Mixed Models for S language
 environments: ASReml-R reference manual. Brisbane, DPI Publications
 
-Douglas Bates, Martin Maechler, Ben Bolker, Steve Walker (2015). Fitting Linear
-Mixed-Effects Models Using lme4. Journal of Statistical Software, 67(1), 1-48.
-\url{https::/doi:10.18637/jss.v067.i01}.
+Douglas Bates, Martin Maechler, Ben Bolker, Steve Walker (2015). Fitting
+Linear Mixed-Effects Models Using lme4. Journal of Statistical Software,
+67(1), 1-48. \url{https::/doi:10.18637/jss.v067.i01}.
 }
 \seealso{
 \code{\link{STModSpATS}}, \code{\link{STModLme4}},

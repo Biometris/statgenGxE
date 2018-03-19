@@ -23,7 +23,7 @@ extra fixed effects in the model.}
 \item{useCheckId}{Should checkId be used as a fixed effect in the model?\cr
 If \code{TRUE} \code{TD} has to contain a column 'checkId'.}
 
-\item{trySpatial}{Should spatial models be tried? Spatials models are can
+\item{trySpatial}{Should spatial models be tried? Spatial models can
 only be fitted with SpATS and asreml. If SpATS is used for modeling only
 spatial models can be fitted and trySpatial is always set to \code{TRUE}. If
 asreml is used fitting spatial models is optional.}
@@ -34,8 +34,12 @@ asreml is used fitting spatial models is optional.}
 "res.rowcol" (resolvable row column design).}
 
 \item{control}{An optional list with control parameters to be passed to the
-actual fitting funcions. For now only nSeg and nestDiv are valid and pass a
-value to nseg and nest.div in \code{\link[SpATS]{PSANOVA}} respectively.}
+actual fitting funcions. Currently \code{nSeg} and \code{nestDiv} are valid
+parameters when fitting a model using SpATS. They pass a value to nseg and
+nest.div in \code{\link[SpATS]{PSANOVA}} respectively. \code{criterion} is a
+valid parameter when fitting a spatial model using asreml. Use this to pass
+a goodness-of-fit criterion for comparing different spatial models. See also
+in details. Other parameters are ignored.}
 
 \item{...}{Further arguments to be passed to \code{SpATS}, \code{lme4} or
 \code{asreml}.}

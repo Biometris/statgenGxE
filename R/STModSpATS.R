@@ -72,8 +72,8 @@ STModSpATS <- function(TD,
         all(nSegCt <= c(nlevels(TD$colId), nlevels(TD$rowId)))) {
       nSeg <- nSegCt
     } else {
-      warning("Invalid value for control parameter nSeg. Using default values
-              instead.\n")
+      warning(paste("Invalid value for control parameter nSeg.",
+                    "Using default values instead.\n"))
     }
   }
   ## Set default value for nestDiv
@@ -87,8 +87,8 @@ STModSpATS <- function(TD,
     if (is.numeric(nestDivCt) && length(nestDivCt) <= 2 && all(nestDivCt >= 1)) {
       nestDiv <- nestDivCt
     } else {
-      warning("Invalid value for control parameter nestDiv. Using default values
-              instead.\n")
+      warning(paste("Invalid value for control parameter nestDiv.",
+                    "Using default values instead.\n"))
     }
   }
   ## Construct formula for fixed part.

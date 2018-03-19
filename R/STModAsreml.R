@@ -53,6 +53,17 @@ STModAsreml <- function(TD,
   useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
   # Check if spatial models can be fitted.
   if (trySpatial) {
+    ## Set default value for criterion
+    criterion = "AIC"
+    if ("criterion" %in% names(control)) {
+      critCt <- control$criterion
+      if (critCt %in% c("AIC", "BIC")) {
+        criterion <- critCt
+      } else {
+        warning(paste("Invalid value for control parameter criterion.",
+                      "Using default value instead.\n"))
+      }
+    }
     if (useRepIdFix) {
       repTab <- table(TD$repId, TD$rowId, TD$colId)
     } else {
@@ -85,7 +96,9 @@ STModAsreml <- function(TD,
     ## Construct formula for random part. Include repId depending on design.
     if (length(randEff) != 0) {
       randomfTraitorm <- paste0(if (useRepIdFix) "repId:",
-                                paste(randEff, collapse = paste("+", if (useRepIdFix) "repId:")))
+                                paste(randEff,
+                                      collapse = paste("+",
+                                                       if (useRepIdFix) "repId:")))
     } else {
       randomfTraitorm <- character()
     }
@@ -130,14 +143,15 @@ STModAsreml <- function(TD,
         if (length(randomfTraitorm) != 0) {
           mfTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
                                                              "+ genotype")),
-                                    random = as.formula(paste("~", randomfTraitorm)),
-                                    rcov = ~ units, G.param = GParamTmp, aom = TRUE,
-                                    data = TD, ...)
+                                    random = as.formula(paste("~",
+                                                              randomfTraitorm)),
+                                    rcov = ~ units, G.param = GParamTmp,
+                                    aom = TRUE, data = TD, ...)
         } else {
           mfTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
                                                              "+ genotype")),
-                                    rcov = ~ units, G.param = GParamTmp, aom = TRUE,
-                                    data = TD, ...)
+                                    rcov = ~ units, G.param = GParamTmp,
+                                    aom = TRUE, data = TD, ...)
         }
         sink()
         mfTrait$call$fixed <- eval(mfTrait$call$fixed)
@@ -161,10 +175,10 @@ STModAsreml <- function(TD,
                        mFix = if ("fixed" %in% what) mf else NULL,
                        TD = TD, traits = traits,
                        design = design, engine = "asreml")
-  } else {
+  } else {# trySpatial
     regular <- min(repTab) == 1 && max(repTab) == 1
     model <- bestSpatMod(TD = TD, traits = traits, what = what,
-                         regular = regular, criterion = "AIC",
+                         regular = regular, criterion = criterion,
                          useCheckId = useCheckId, design = design,
                          covariates = covariates, ...)
   }
@@ -194,19 +208,19 @@ bestSpatMod <- function(TD,
     ## If no repId remove this from randomTerm
     randomTerm <- gsub(pattern = "repId:", replacement = "", x = randomTerm)
   }
-  if (!regular) {
+  if (regular) {
     ## Define spatial terms of models to try.
-    spatialChoice <- rep(x = c("AR1(x)id", "id(x)AR1", "AR1(x)AR1"), times = 2)
-    spatialTerm <- rep(x = c("ar1(rowId):colId",
-                             "rowId:ar1(colId)",
-                             "ar1(rowId):ar1(colId)"),
-                       times = 2)
-  } else {
     spatialChoice <- rep(x = c("exp(x)id", "id(x)exp",
                                "isotropic exponential"), times = 2)
     spatialTerm <- rep(x = c("exp(rowCoordinates):colCoordinates",
                              "rowCoordinates:exp(colCoordinates)",
                              "iexp(rowCoordinates,colCoordinates)"),
+                       times = 2)
+  } else {
+    spatialChoice <- rep(x = c("AR1(x)id", "id(x)AR1", "AR1(x)AR1"), times = 2)
+    spatialTerm <- rep(x = c("ar1(rowId):colId",
+                             "rowId:ar1(colId)",
+                             "ar1(rowId):ar1(colId)"),
                        times = 2)
   }
   ## Create empty base lists.
