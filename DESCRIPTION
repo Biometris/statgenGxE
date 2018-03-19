@@ -31,4 +31,7 @@ Imports: dplyr,
     Matrix,
     sommer
 Suggests: asreml,
-    testthat
+    testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

@@ -5,6 +5,5 @@
 R/redundant
 figure
 figures
-modelReportTest.pdf
-modelReportTest.tex
-testing_brapi_implementation_BMS.R
+
+inst/doc
