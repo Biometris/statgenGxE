@@ -47,7 +47,7 @@ are removed.}
 \item{Duplicate markers are removed.}
 \item{Individuals with a fraction of missing values higher than \code{missInd}
 are removed.}
-\item{Markers that show evidence of segragation distortion (P-value below
+\item{Markers that show evidence of segregation distortion (P-value below
 \code{segDistortion}) are removed.}
 \item{Markers which might have been switched (with threshold
 \code{recombination} are removed. See also \code{\link[qtl]{checkAlleles}}).}

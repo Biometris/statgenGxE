@@ -4,6 +4,6 @@
 #'
 #' @docType package
 #' @name RAP
-#' @importFrom magrittr %>%
+#' @importFrom dplyr %>%
 #' @importFrom rlang !!
 NULL

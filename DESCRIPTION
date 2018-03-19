@@ -2,36 +2,36 @@ Package: RAP
 Type: Package
 Title: R Analytical Pipeline (RAP)
 Version: 0.0.0.9000
-Date: 2017-11-01
+Date: 2018-19-03
 Authors@R: c(
-    person("Bart-Jan", "van Rossum", email = "bart-jan.vanrossum@wur.nl", role = c("aut", "cre")))
-Description: The R Analytical Pipeline (RAP), commissioned by the Generation Challenge Program (GCP), 
-    is being developed to streamline the analysis of typical plant breeding experiments, 
-    including both phenotypic analysis of field trials and genotype by environment analysis.
+    person("Bart-Jan", "van Rossum", email = "bart-jan.vanrossum@wur.nl", 
+    role = c("aut", "cre")))
+Description: The R Analytical Pipeline (RAP), commissioned by the Generation 
+    Challenge Program (GCP), is being developed to streamline the analysis of 
+    typical plant breeding experiments, including both phenotypic analysis of 
+    field trials and genotype by environment analysis.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
-Depends: R (>=  3.0.0)
-Imports: dplyr,
-    emmeans,
-    lattice,
-    lme4,    
-    methods,
-    reshape2,
-    SpATS,
-    knitr,
-    xtable,
-    magrittr,
-    tibble,
-    fields,
-    qtl,
-    ggplot2,
-    rlang,
-    Matrix,
-    sommer
-Suggests: asreml,
-    testthat,
-    knitr,
-    rmarkdown
+Depends: R (>= 3.4.4)
+Imports: dplyr(>= 0.7.4),
+    emmeans(>= 1.1.2),
+    fields(>= 9.6),
+    ggplot2(>= 2.2.1),
+    knitr(>= 1.20),
+    lattice(>= 0.10-35),
+    lme4(>= 1.1-15),    
+    Matrix(>= 1.2-12),
+    methods(>= 3.4.4),
+    qtl(>= 1.42-8),
+    reshape2(>= 1.4.3),
+    rlang(>= 0.2.0),
+    sommer(>= 3.3),
+    SpATS(>= 1.0-7),
+    tibble(>= 1.4.2),
+    xtable(>= 1.8.2)
+Suggests: asreml(== 3.0),
+    rmarkdown(>= 1.9),
+    testthat(>= 2.0.0)
 VignetteBuilder: knitr
