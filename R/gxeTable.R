@@ -45,18 +45,20 @@ gxeTable <- function(TD,
       tmp <- tempfile()
       sink(file = tmp)
       if (useYear) {
-        mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env / year")),
+        mr <- tryCatchExt(asreml::asreml(fixed = as.formula(paste(trait,
+                                                                  "~ env / year")),
                                  random = as.formula("~ genotype:us(megaEnv) +
                                                      genotype:megaEnv:year"),
-                                 data = TD, ...), silent = TRUE)
+                                 data = TD, ...))
       } else {
-        mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ env")),
+        mr <- tryCatchExt(asreml::asreml(fixed = as.formula(paste(trait,
+                                                                  "~ env")),
                                  random = as.formula("~ genotype:us(megaEnv)"),
-                                 data = TD, ...), silent = TRUE)
+                                 data = TD, ...))
       }
       sink()
       unlink(tmp)
-      if (inherits(mr, "try-error")) {
+      if (!is.null(mr$warning) || !is.null(mr$error)) {
         ## In case asreml gave an error return a data.frame with NAs.
         warning("asreml gave an error. Empty data.frame returned.\n")
         predVals <- se <- data.frame(matrix(nrow = nlevels(TD$genotype),
@@ -65,6 +67,7 @@ gxeTable <- function(TD,
                                                             levels(TD$megaEnv))),
                                      check.names = FALSE)
       } else {
+        mr <-  mr$value
         ## Eval of fixed is needed since fixed contains a variable term trait.
         mr$call$fixed <- eval(mr$call$fixed)
         ## Predict and extract BLUPs
