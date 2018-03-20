@@ -6,7 +6,7 @@
 \usage{
 STModLme4(TD, traits, what = c("fixed", "random"), covariates = NULL,
   useCheckId = FALSE, control = NULL, trySpatial = FALSE,
-  design = "rowcol", ...)
+  design = "rowcol", checks = TRUE, ...)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}

@@ -6,7 +6,7 @@
 \usage{
 STModAsreml(TD, traits, what = c("fixed", "random"), covariates = NULL,
   useCheckId = FALSE, design = "rowcol", trySpatial = FALSE,
-  control = NULL, ...)
+  control = NULL, checks = TRUE, ...)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}

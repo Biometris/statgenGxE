@@ -15,40 +15,16 @@ STModSpATS <- function(TD,
                        trySpatial = FALSE,
                        design = "rowcol",
                        control = NULL,
+                       checks = TRUE,
                        ...) {
-  ## Checks.
-  if (missing(TD) || !inherits(TD, "TD")) {
-    stop("TD should be a valid object of class TD.\n")
-  }
-  designs <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
-  if ((is.null(design) && (is.null(attr(TD, "design")) ||
-                           !attr(TD, "design") %in% designs)) ||
-      (!is.null(design) && (!is.character(design) || length(design) > 1 ||
-                            !design %in% designs))) {
-    stop("design should either be an attribute of TD or one of ibd,
-         res.ibd, rcbd, rowcol or res.rowcol.\n")
-  }
-  ## Extract design from TD if needed.
-  if (is.null(design)) {
-    design <- attr(TD, "design")
-  }
-  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
-    stop("All traits have to be columns in TD.\n")
-  }
-  what <- match.arg(arg = what, choices = c("fixed", "random"), several.ok = TRUE)
-  if (!is.null(covariates) && (!is.character(covariates) ||
-                               !(all(covariates %in% colnames(TD))))) {
-    stop("covariates have to be columns in TD.\n")
-  }
-  for (colName in c("rowCoordinates", "colCoordinates",
-                    if (design %in% c("rowcol", "res.rowcol")) c("rowId", "colId"),
-                    if (design %in% c("res.ibd", "res.rowcol", "rcbd")) "repId",
-                    if (design %in% c("ibd", "res.ibd")) "subBlock",
-                    if (useCheckId) "checkId")) {
-    if (!is.null(colName) && (!is.character(colName) || length(colName) > 1 ||
-                              !colName %in% colnames(TD))) {
-      stop(paste(deparse(colName), "has to be NULL or a column in TD.\n"))
-    }
+  if (checks) {
+    ## Checks.
+    checkOut <- modelChecks(TD = TD, design = design, traits = traits,
+                            what = what, covariates = covariates,
+                            trySpatial = trySpatial, engine = "SpATS",
+                            useCheckId = useCheckId, control = control)
+    ## Convert output to variables.
+    list2env(x = checkOut, envir = environment())
   }
   ## Should repId be used as fixed effect in the model.
   useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")

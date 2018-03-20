@@ -163,16 +163,47 @@ STRunModel = function(TD,
                       control = NULL,
                       ...) {
   ## Checks.
+  checkOut <- modelChecks(TD = TD, design = design, traits = traits,
+                          what = what, covariates = covariates,
+                          trySpatial = trySpatial, engine = engine,
+                          useCheckId = useCheckId, control = control)
+  ## Convert output to variables.
+  list2env(x = checkOut, envir = environment())
+  ## Run model depending on engine.
+  model <- do.call(what = paste0("STMod", tools::toTitleCase(engine)),
+                   args = list(TD = TD, traits = traits,
+                               what = what,
+                               covariates = covariates,
+                               useCheckId = useCheckId,
+                               trySpatial = trySpatial,
+                               design = design,
+                               control = control,
+                               checks = FALSE,
+                               ... = ...))
+  return(model)
+}
+
+## Helper function for performing checks for single trial modeling.
+modelChecks <- function(TD,
+                        design,
+                        traits,
+                        what = c("fixed", "random"),
+                        covariates,
+                        trySpatial,
+                        engine,
+                        useCheckId,
+                        control) {
+  designs <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
+  engines <- c("SpATS", "lme4", "asreml")
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
-  designs <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
   if ((is.null(design) && (is.null(attr(TD, "design")) ||
                            !attr(TD, "design") %in% designs)) ||
       (!is.null(design) && (!is.character(design) || length(design) > 1 ||
                             !design %in% designs))) {
-    stop("design should either be an attribute of TD or one of ibd,
-         res.ibd, rcbd, rowcol or res.rowcol.\n")
+    stop(paste("design should either be an attribute of TD or one of ",
+               paste(designs, collapse = ", "), ".\n"))
   }
   ## Extract design from TD if needed.
   if (is.null(design)) {
@@ -191,8 +222,9 @@ STRunModel = function(TD,
     stop("trySpatial should be a single logical value.\n")
   }
   if (!is.na(engine) && (!is.character(engine) || length(engine) > 1 ||
-                         !engine %in% c("asreml", "lme4", "SpATS"))) {
-    stop("engine should be one of SpATS, asreml or lme4.\n")
+                         !engine %in% engines)) {
+    stop(paste0("engine should be one of ", paste(engines, collapse = ", "),
+                ".\n"))
   }
   if (is.na(engine)) {
     if (design %in% c("rowcol", "res.rowcol")) {
@@ -205,7 +237,7 @@ STRunModel = function(TD,
   }
   if (trySpatial && engine == "lme4") {
     warning("Spatial models can only be fitted using SpATS or asreml.\n
-            Defaulting to SpATS.")
+              Defaulting to SpATS.")
     engine <- "SpATS"
   }
   ## Columns needed depend on design.
@@ -223,17 +255,9 @@ STRunModel = function(TD,
     }
   }
   if (!is.null(control) && !is.list(control)) {
-    stop("control has to be null or a list.\n")
+    stop("control has to be NULL or a list.\n")
   }
-  ## Run model depending on engine.
-  model <- do.call(what = paste0("STMod", tools::toTitleCase(engine)),
-                   args = list(TD = TD, traits = traits,
-                               what = what,
-                               covariates = covariates,
-                               useCheckId = useCheckId,
-                               trySpatial = trySpatial,
-                               design = design,
-                               control = control,
-                               ... = ...))
-  return(model)
+  return(list(design = design, what = what, engine = engine))
 }
+
+

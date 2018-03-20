@@ -23,8 +23,8 @@ expect_SSA <- function(SSA) {
 ## model. Normally this is identical to the engine in SSA but for lme4 this
 ## can vary depending on the fitted model.
 expect_SSAMod <- function(SSA,
-                                 what,
-                                 class = SSA$engine) {
+                          what,
+                          class = SSA$engine) {
   SSAMod <- SSA[[what]]
   test_that(paste(deparse(substitute(what)), "in", deparse(substitute(SSA)),
                   "has correct structure"), {

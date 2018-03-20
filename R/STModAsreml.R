@@ -15,39 +15,16 @@ STModAsreml <- function(TD,
                         design = "rowcol",
                         trySpatial = FALSE,
                         control = NULL,
+                        checks = TRUE,
                         ...) {
-  ## Checks.
-  if (missing(TD) || !inherits(TD, "TD")) {
-    stop("TD should be a valid object of class TD.\n")
-  }
-  designs <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
-  if ((is.null(design) && (is.null(attr(TD, "design")) ||
-                           !attr(TD, "design") %in% designs)) ||
-      (!is.null(design) && (!is.character(design) || length(design) > 1 ||
-                            !design %in% designs))) {
-    stop("design should either be an attribute of TD or one of ibd,
-         res.ibd, rcbd, rowcol or res.rowcol.\n")
-  }
-  ## Extract design from TD if needed.
-  if (is.null(design)) {
-    design <- attr(TD, "design")
-  }
-  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(TD))) {
-    stop("All traits have to be columns in TD.\n")
-  }
-  what <- match.arg(arg = what, choices = c("fixed", "random"), several.ok = TRUE)
-  if (!is.null(covariates) && (!is.character(covariates) ||
-                               !(all(covariates %in% colnames(TD))))) {
-    stop("covariates have to be a columns in TD.\n")
-  }
-  for (colName in c(if (design %in% c("rowcol", "res.rowcol")) c("rowId", "colId"),
-                    if (design %in% c("res.ibd", "res.rowcol", "rcbd")) "repId",
-                    if (design %in% c("ibd", "res.ibd")) "subBlock",
-                    if (useCheckId) "checkId")) {
-    if (!is.null(colName) && (!is.character(colName) || length(colName) > 1 ||
-                              !colName %in% colnames(TD))) {
-      stop(paste(deparse(colName), "has to be NULL or a column in data.\n"))
-    }
+  if (checks) {
+    ## Checks.
+    checkOut <- modelChecks(TD = TD, design = design, traits = traits,
+                            what = what, covariates = covariates,
+                            trySpatial = trySpatial, engine = "asreml",
+                            useCheckId = useCheckId, control = control)
+    ## Convert output to variables.
+    list2env(x = checkOut, envir = environment())
   }
   ## Should repId be used as fixed effect in the model.
   useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
@@ -95,12 +72,12 @@ STModAsreml <- function(TD,
                                                        collapse = "+"))
     ## Construct formula for random part. Include repId depending on design.
     if (length(randEff) != 0) {
-      randomfTraitorm <- paste0(if (useRepIdFix) "repId:",
-                                paste(randEff,
-                                      collapse = paste("+",
-                                                       if (useRepIdFix) "repId:")))
+      randomForm <- paste0(if (useRepIdFix) "repId:",
+                           paste(randEff,
+                                 collapse = paste("+",
+                                                  if (useRepIdFix) "repId:")))
     } else {
-      randomfTraitorm <- character()
+      randomForm <- character()
     }
     ## Create empty base lists.
     mr <- mf <- setNames(vector(mode = "list", length = length(traits)),
@@ -110,8 +87,8 @@ STModAsreml <- function(TD,
         ## Fit model with genotype random.
         sink(file = tmp)
         mrTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm)),
-                                  random = as.formula(paste("~", randomfTraitorm,
-                                                            if (length(randomfTraitorm) != 0) "+",
+                                  random = as.formula(paste("~", randomForm,
+                                                            if (length(randomForm) != 0) "+",
                                                             "genotype")),
                                   rcov = ~ units, aom = TRUE, data = TD, ...)
         sink()
@@ -140,11 +117,11 @@ STModAsreml <- function(TD,
           GParamTmp <- NULL
         }
         sink(file = tmp)
-        if (length(randomfTraitorm) != 0) {
+        if (length(randomForm) != 0) {
           mfTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
                                                              "+ genotype")),
                                     random = as.formula(paste("~",
-                                                              randomfTraitorm)),
+                                                              randomForm)),
                                     rcov = ~ units, G.param = GParamTmp,
                                     aom = TRUE, data = TD, ...)
         } else {
