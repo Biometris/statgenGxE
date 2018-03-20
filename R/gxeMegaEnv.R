@@ -31,8 +31,8 @@ gxeMegaEnv <- function(TD,
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
-  if (!"env" %in% colnames(TD)) {
-    stop("TD should contain a column env to be able to run an AMMI analysis.\n")
+  if (!"trial" %in% colnames(TD)) {
+    stop("TD should contain a column trial to be able to run an AMMI analysis.\n")
   }
   if ("megaEnv" %in% colnames(TD)) {
     warning("TD already contains a column megaEnv. This column will be overwritten.\n")
@@ -43,23 +43,23 @@ gxeMegaEnv <- function(TD,
   }
   method <- match.arg(method)
   ## Save and then drop factor levels.
-  envLevels <- levels(TD$env)
-  TD$env <- droplevels(TD$env)
+  envLevels <- levels(TD$trial)
+  TD$trial <- droplevels(TD$trial)
   ## Perform AMMI anlaysis.
   AMMI <- gxeAmmi(TD = TD, trait = trait, nPC = 2)
   fitted <- AMMI$fitted
-  ## Extract position of best genotype per environment.
+  ## Extract position of best genotype per trial.
   winPos <- apply(X = fitted, MARGIN = 2,
                   FUN = getFunction(paste0("which.", method)))
-  ## Extract best genotype per environment.
+  ## Extract best genotype per trial.
   winGeno <- rownames(fitted)[winPos]
   ## Create factor based on best genotypes.
   megaFactor <- factor(winGeno, labels = "")
   ## Merge factor levels to original data.
-  TD$megaEnv <- TD$env
+  TD$megaEnv <- TD$trial
   levels(TD$megaEnv) <- as.character(megaFactor)
   ## Reapply saved levels to ensure input and output TD are identical.
-  levels(TD$env) <- envLevels
+  levels(TD$trial) <- envLevels
   if (sumTab) {
     ## Create summary table.
     summTab <- data.frame(megaFactor, envNames = colnames(fitted), winGeno,

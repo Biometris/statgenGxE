@@ -1,6 +1,6 @@
 context("Modeling")
 
-## Create testdata containing only one environment.
+## Create testdata containing only one trial.
 testTD <- createTD(data = testData[testData$field == "E1", ],
                    genotype = "seed", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",

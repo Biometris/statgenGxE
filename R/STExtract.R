@@ -66,9 +66,9 @@
 #' extr <- STExtract(myModel)
 #' ## Extract only the BLUEs from the fitted model.
 #' BLUEs <- STExtract(myModel, what = "BLUEs")
-#' ## Extract only the BLUEs from the fitted model and keep env as variable in
+#' ## Extract only the BLUEs from the fitted model and keep trial as variable in
 #' ## the output.
-#' BLUEs2 <- STExtract(myModel, what = "BLUEs", keep = "env")
+#' BLUEs2 <- STExtract(myModel, what = "BLUEs", keep = "trial")
 #'
 #' @export
 STExtract <- function(SSA,

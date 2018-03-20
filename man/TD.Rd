@@ -5,10 +5,10 @@
 \alias{createTD}
 \title{S3 class TD}
 \usage{
-createTD(data, genotype = NULL, env = NULL, megaEnv = NULL, year = NULL,
-  repId = NULL, subBlock = NULL, rowId = NULL, colId = NULL,
-  rowCoordinates = NULL, colCoordinates = NULL, checkId = NULL,
-  design = NULL)
+createTD(data, genotype = NULL, trial = NULL, megaEnv = NULL,
+  year = NULL, repId = NULL, subBlock = NULL, rowId = NULL,
+  colId = NULL, rowCoordinates = NULL, colCoordinates = NULL,
+  checkId = NULL, design = NULL)
 }
 \arguments{
 \item{data}{A data.frame containing trial data with a least a column for
@@ -17,8 +17,8 @@ genotype.}
 \item{genotype}{An optional character string indicating the column in
 \code{data} that contains genotypes.}
 
-\item{env}{An optional character string indicating the column in \code{data}
-that contains environments.}
+\item{trial}{An optional character string indicating the column in \code{data}
+that contains trials.}
 
 \item{megaEnv}{An optional character string indicating the column in
 \code{data} that contains mega-environments as constructed by
@@ -64,7 +64,7 @@ been renamed.
 \description{
 Function for creating objects of S3 class TD (Trial Data). The input data is
 checked and columns are renamed to default column names for ease of further
-computations. The columns for genotype, env, megaEnv, year, repId, subBlock,
+computations. The columns for genotype, trial, megaEnv, year, repId, subBlock,
 rowId, colId and checkId are converted to factor columns, whereas
 rowCoordinates and colCoordinates are converted to numerical columns. One
 single column can be mapped to multiple defaults, e.g. one column with x

@@ -1,6 +1,6 @@
 context("gxeFW")
 
-testTD <- createTD(data = testData, genotype = "seed", env = "field",
+testTD <- createTD(data = testData, genotype = "seed", trial = "field",
                    repId = "rep", subBlock = "block", rowId = "Y", colId = "X",
                    rowCoordinates = "Y", colCoordinates = "X")
 

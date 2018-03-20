@@ -124,7 +124,7 @@ plot.FW <- function(x,
     plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(ifelse(!all(is.na(x$estimates$mse)), pairs, plot), args = plotArgs)
   } else if ("line" %in% plotType) {
-    fVal <- tapply(X = x$fittedGeno, INDEX = x$TD[, c("env", "genotype")],
+    fVal <- tapply(X = x$fittedGeno, INDEX = x$TD[, c("trial", "genotype")],
                    FUN = mean, na.rm = TRUE)
     if (sorted == "none") {
       orderEnv <- 1:length(envEffs)
@@ -143,8 +143,8 @@ plot.FW <- function(x,
     fixedArgs <- c("x", "y", "xlim", "ylim", "xaxt")
     plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(matplot, args = plotArgs)
-    ## Add environments as ticks on axis.
-    axis(side = 1, at = envEffs, labels = levels(x$envEffs$env),
+    ## Add trials as ticks on axis.
+    axis(side = 1, at = envEffs, labels = levels(x$envEffs$trial),
          las = 2, cex.axis = .75)
   } else if ("trellis" %in% plotType) {
     trellisData <- data.frame(genotype = x$TD$genotype,

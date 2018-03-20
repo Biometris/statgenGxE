@@ -6,7 +6,7 @@ SB_Yield <- read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
 # Restrict to HEAT05
 Heat05 <- SB_Yield[SB_Yield$Env == "HEAT05", ]
 # Create object of class TD
-TDHeat05 <- createTD(data = Heat05, genotype = "Genotype", env = "Env",
+TDHeat05 <- createTD(data = Heat05, genotype = "Genotype", trial = "Env",
                      repId = "Rep", subBlock = "Subblock", rowId = "Row",
                      colId = "Column", rowCoordinates = "Row",
                      colCoordinates = "Column")
@@ -19,7 +19,7 @@ devtools::use_data(TDHeat05, overwrite = TRUE)
 F2Maize <- read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
                     stringsAsFactors = FALSE)
 # Create object of class TD
-TDMaize <- createTD(data = F2Maize, genotype = "genotype.", env = "env.")
+TDMaize <- createTD(data = F2Maize, genotype = "genotype.", trial = "env.")
 # Export to package
 devtools::use_data(TDMaize, overwrite = TRUE)
 

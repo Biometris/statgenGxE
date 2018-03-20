@@ -2,7 +2,7 @@
 #'
 #' Function for creating objects of S3 class TD (Trial Data). The input data is
 #' checked and columns are renamed to default column names for ease of further
-#' computations. The columns for genotype, env, megaEnv, year, repId, subBlock,
+#' computations. The columns for genotype, trial, megaEnv, year, repId, subBlock,
 #' rowId, colId and checkId are converted to factor columns, whereas
 #' rowCoordinates and colCoordinates are converted to numerical columns. One
 #' single column can be mapped to multiple defaults, e.g. one column with x
@@ -16,8 +16,8 @@
 #' genotype.
 #' @param genotype An optional character string indicating the column in
 #' \code{data} that contains genotypes.
-#' @param env An optional character string indicating the column in \code{data}
-#' that contains environments.
+#' @param trial An optional character string indicating the column in \code{data}
+#' that contains trials.
 #' @param megaEnv An optional character string indicating the column in
 #' \code{data} that contains mega-environments as constructed by
 #' \code{\link{gxeMegaEnv}}.
@@ -60,7 +60,7 @@ NULL
 #' @export
 createTD <- function(data,
                      genotype = NULL,
-                     env = NULL,
+                     trial = NULL,
                      megaEnv = NULL,
                      year = NULL,
                      repId = NULL,
@@ -76,7 +76,7 @@ createTD <- function(data,
     stop("data has to be a data.frame.\n")
   }
   cols <- colnames(data)
-  for (param in c(genotype, env, megaEnv, year, repId, subBlock, rowId, colId,
+  for (param in c(genotype, trial, megaEnv, year, repId, subBlock, rowId, colId,
                   rowCoordinates, colCoordinates, checkId)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
                             !param %in% cols)) {
@@ -88,7 +88,7 @@ createTD <- function(data,
                                             "rowcol", "res.rowcol"))
   }
   ## Create list of reserved column names for renaming columns.
-  renameCols <- c("genotype", "env", "megaEnv", "year", "repId", "subBlock",
+  renameCols <- c("genotype", "trial", "megaEnv", "year", "repId", "subBlock",
                   "rowId", "colId", "rowCoordinates", "colCoordinates",
                   "checkId")
   ## First rename duplicate colums and add duplicated columns to data
@@ -115,7 +115,7 @@ createTD <- function(data,
   }
   colnames(data) <- cols
   ## Convert columns to factor if neccessary.
-  factorCols <-  c("genotype", "env", "megaEnv", "year", "repId", "subBlock",
+  factorCols <-  c("genotype", "trial", "megaEnv", "year", "repId", "subBlock",
                    "rowId", "colId", "checkId")
   for (factorCol in factorCols) {
     if (factorCol %in% cols && !is.factor(data[, which(cols == factorCol)])) {
@@ -317,10 +317,10 @@ print.summary.TD <- function(x, ...) {
 #' Plot function for class TD
 #'
 #' Four types of plot can be made. Boxplots and histograms can be made for
-#' all objects of class \code{\link{TD}}. In case there is a column \code{"env"}
-#' in TD boxplots and histograms will be made per environment.\cr
-#' Scatterplots and plots of correlation between environments can only be made
-#' if a column \code{"env"} is present in TD and will result in an error if this
+#' all objects of class \code{\link{TD}}. In case there is a column \code{"trial"}
+#' in TD boxplots and histograms will be made per trial.\cr
+#' Scatterplots and plots of correlation between trials can only be made
+#' if a column \code{"trial"} is present in TD and will result in an error if this
 #' is not the case.
 #'
 #' @param x An object of class TD.
@@ -332,7 +332,7 @@ print.summary.TD <- function(x, ...) {
 #' @param plotType A character string indicating which plot should be made.
 #' Either \code{"box"} for a boxplot, \code{"hist"} for histograms,
 #' \code{"scatter"} for scatter plots and correlations or \code{"cor"} for a
-#' plot of the correlations between environments.
+#' plot of the correlations between trials.
 #'
 #' @return One of four plots depending on \code{plotType}.
 #'
@@ -345,7 +345,7 @@ print.summary.TD <- function(x, ...) {
 #' plot(TDMaize, trait = "yld", plotType = "hist")
 #' ## Create a scatter plot for TDMaize.
 #' plot(TDMaize, trait = "yld", plotType = "scatter")
-#' ## Create a plot of correlations between environments for TDMaize.
+#' ## Create a plot of correlations between trials for TDMaize.
 #' plot(TDMaize, trait = "yld", plotType = "cor")
 #'
 #'
@@ -360,22 +360,22 @@ plot.TD <- function(x,
   }
   plotType <- match.arg(plotType)
   dotArgs <- list(...)
-  isEnv <- "env" %in% colnames(x)
+  isTr <- "trial" %in% colnames(x)
   if (plotType == "box") {
     ## Set arguments for boxplot
-    if (isEnv) {
-      ## Call for simple boxplot is different than boxplot per env.
+    if (isTr) {
+      ## Call for simple boxplot is different than boxplot per trail.
       ## Therefore diffentiate between those two.
-      bpArgs <- list(formula = as.formula(paste(trait, "~ env")),
+      bpArgs <- list(formula = as.formula(paste(trait, "~ trial")),
                      data = x)
     } else {
       bpArgs <- list(x = x[[trait]])
     }
     ## Arguments that are equal for both calls.
-    ## show.names needed to display envname even when there is only 1 env.
+    ## show.names needed to display trialname even when there is only 1 trail.
     bpArgs <- c(bpArgs, list(
-      main = paste0("Boxplot", ifelse(isEnv, " by Enviroment", "")),
-      xlab = ifelse(isEnv, "Enviroment", ""),
+      main = paste0("Boxplot", ifelse(isTr, " by trial", "")),
+      xlab = ifelse(isTr, "Trial", ""),
       ylab = trait, show.names = TRUE))
     ## Add and overwrite args with custom args from ...
     fixedArgs <- c("formula", "data", "x")
@@ -383,16 +383,16 @@ plot.TD <- function(x,
     do.call(boxplot, args = bpArgs)
   } else if (plotType == "hist") {
     ## Set arguments for histogram
-    histArgs <- list(x = as.formula(paste("~", trait, if (isEnv) "| env")),
+    histArgs <- list(x = as.formula(paste("~", trait, if (isTr) "| trial")),
                      data = x, main = paste0("Histogram",
-                                             ifelse(isEnv, " by Enviroment", "")),
+                                             ifelse(isTr, " by Enviroment", "")),
                      xlab = trait)
     ## Add and overwrite args with custom args from ...
     fixedArgs <- c("x", "data")
     histArgs <- modifyList(histArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(lattice::histogram, args = histArgs)
   } else if (plotType == "scatter") {
-    if (isEnv && dplyr::n_distinct(x$env) > 1) {
+    if (isTr && dplyr::n_distinct(x$trial) > 1) {
       ## Function for 'plotting' absolute correlations with text size
       ## proportional to the correlations.
       panelCor <- function(x, y, ...) {
@@ -419,27 +419,27 @@ plot.TD <- function(x,
         ## Plot rescaled histogram.
         rect(breaks[-nB], 0, breaks[-1], y, ...)
       }
-      ## Compute mean trait value per genotype per environment.
-      X <- tapply(X = x[, trait], INDEX = x[, c("genotype", "env")],
+      ## Compute mean trait value per genotype per trial.
+      X <- tapply(X = x[, trait], INDEX = x[, c("genotype", "trial")],
                   FUN = mean, na.rm = TRUE)
       ## Set arguments for pairs.
       #diag.panel = panelHist, -- suppressed for now.
       pairsArgs <- list(x = X, upper.panel = panelCor,
                         main = paste("Scatterplot matrix and correlations",
-                                     "by enviroment:", trait))
+                                     "by trial:", trait))
       ## Add and overwrite args with custom args from ...
       fixedArgs <- c("x", "upper.panel")
       pairsArgs <- modifyList(pairsArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
       ## Create scatterplots with absolute correlations on the upper part.
       do.call(pairs, args = pairsArgs)
     } else {
-      stop(paste("No column env in data or column env contains only 1 environment.\n",
+      stop(paste("No column trial in data or column trial contains only 1 trial.\n",
                  "Scatterplot cannot be made.\n"))
     }
   } else if (plotType == "cor") {
-    if (isEnv) {
-      ## Compute mean trait value per genotype per environment.
-      myDat <- tapply(X = x[, trait], INDEX = x[, c("genotype", "env")],
+    if (isTr) {
+      ## Compute mean trait value per genotype per trial.
+      myDat <- tapply(X = x[, trait], INDEX = x[, c("genotype", "trial")],
                       FUN = mean, na.rm = TRUE)
       ## Compute correlation matrix.
       corMat <- cor(myDat, use = "pairwise.complete.obs")
@@ -447,13 +447,13 @@ plot.TD <- function(x,
       ## Plot correlation matrix.
       ## Set arguments for plotCorMat
       corMatArgs <- list(corMat = corMat,
-                         main = paste("Correlations between environments for", trait))
+                         main = paste("Correlations between trials for", trait))
       ## Add and overwrite args with custom args from ...
       fixedArgs <- c("corMat")
       corMatArgs <- modifyList(corMatArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
       do.call(plotCorMat, corMatArgs)
     } else {
-      stop("No column env in data. Correlation plot cannot be made.\n")
+      stop("No column trial in data. Correlation plot cannot be made.\n")
     }
   }
 }

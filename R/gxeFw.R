@@ -56,8 +56,8 @@ gxeFw <- function(TD,
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
-  if (!"env" %in% colnames(TD)) {
-    stop("TD should contain a column env to be able to run a Finlay
+  if (!"trial" %in% colnames(TD)) {
+    stop("TD should contain a column trial to be able to run a Finlay
          Wilkinson analysis.\n")
   }
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
@@ -75,17 +75,17 @@ gxeFw <- function(TD,
   nGeno <- nlevels(TD$genotype)
   ## Setup empty vectors for storing rDev and rDF
   rDev <- rDf <- rep(NA, 5)
-  ## Estimate env effects with the sensitivity beta = 1.
-  model0 <- lm(as.formula(paste(trait, "~-1 + env + genotype")),
+  ## Estimate trial effects with the sensitivity beta = 1.
+  model0 <- lm(as.formula(paste(trait, "~-1 + trial + genotype")),
                data = TD, na.action = na.exclude)
   aov0 <- anova(model0)
   rDev[2] <- aov0["Residuals", "Sum Sq"]
   rDf[2] <- aov0["Residuals", "Df"]
   coeffsModel0 <- coefficients(model0)
-  envEffs0 <- coeffsModel0[grep(pattern = "env", x = names(coeffsModel0))] %>%
+  envEffs0 <- coeffsModel0[grep(pattern = "trial", x = names(coeffsModel0))] %>%
     scale(scale = FALSE) %>% `colnames<-`("envEffs") %>%
-    `rownames<-`(substring(rownames(.), first = 4))
-  TD <- merge(x = TD, y = envEffs0, by.x = "env", by.y = "row.names")
+    `rownames<-`(substring(rownames(.), first = 6))
+  TD <- merge(x = TD, y = envEffs0, by.x = "trial", by.y = "row.names")
   ## Set initial values for sensitivity beta.
   TD$beta <- 1
   ## Set a relative difference to be large.
@@ -103,12 +103,12 @@ gxeFw <- function(TD,
     TD$beta <- coeffsModel1[match(paste0("genotype", TD$genotype, ":envEffs"),
                                   names(coeffsModel1))]
     TD$beta <- TD$beta / mean(TD$beta, na.rm = TRUE)
-    ## Fit model with current env means relevant to each unit.
-    model2 <- lm(as.formula(paste(trait, "~ -genotype + env:beta")),
+    ## Fit model with current trial means relevant to each unit.
+    model2 <- lm(as.formula(paste(trait, "~ -genotype + trial:beta")),
                  data = TD, na.action = na.exclude)
     coeffsModel2 <- coefficients(model2)
     ## Update envEffs.
-    TD$envEffs <- coeffsModel2[match(paste0("env", TD$env, ":beta"),
+    TD$envEffs <- coeffsModel2[match(paste0("trial", TD$trial, ":beta"),
                                      names(coeffsModel2))]
     TD[is.na(TD$envEffs), "envEffs"] <- 0
     TD$envEffs <- TD$envEffs - mean(TD$envEffs)
@@ -152,7 +152,7 @@ gxeFw <- function(TD,
   fProb <- pf(q = devr, df1 = rDf, df2 = rDf[4], lower.tail = FALSE)
   aovTable <- data.frame("Df" = rDf, "Sum Sq" = rDev, "Mean Sq" = mDev,
                          "F value" = devr, "Pr(>F)" = fProb,
-                         row.names = c("genotype", "env", "Sensitivities",
+                         row.names = c("genotype", "trial", "Sensitivities",
                                        "Residual", "Total"),
                          check.names = FALSE)
   ## Extract sensitivity beta.
@@ -194,27 +194,27 @@ gxeFw <- function(TD,
   estimates <- data.frame(genotype = levels(TD$genotype), sens, sigmaE,
                           genMean, sigma, mse,
                           row.names = 1:length(sens))[orderSens, ]
-  ## Construct data.frame with environment effects.
-  matchPos <- match(paste0("env", levels(TD$env), ":beta"), names(coeffsModel2))
+  ## Construct data.frame with trial effects.
+  matchPos <- match(paste0("trial", levels(TD$trial), ":beta"), names(coeffsModel2))
   envEffs <- coeffsModel2[matchPos]
   naPos <- is.na(envEffs)
   envEffs[naPos] <- 0
   envEffs <- envEffs - mean(envEffs)
   seEnvEffs <- sqrt(diag(vcov(model2)[matchPos[!naPos], matchPos[!naPos]]))
-  matchPos2 <- match(paste0("env", levels(TD$env), ":beta"), names(envEffs))
+  matchPos2 <- match(paste0("trial", levels(TD$trial), ":beta"), names(envEffs))
   if (!is.null(model1$na.action)) {
     meansFitted <- tapply(X = model1$fitted,
-                          INDEX = TD$env[-model1$na.action], FUN = mean)
+                          INDEX = TD$trial[-model1$na.action], FUN = mean)
   } else {
-    meansFitted <- tapply(X = model1$fitted, INDEX = TD$env, FUN = mean)
+    meansFitted <- tapply(X = model1$fitted, INDEX = TD$trial, FUN = mean)
   }
   meansFitted <- meansFitted[matchPos2]
-  envEffsSummary <- data.frame(env = names(meansFitted), effect = envEffs,
+  envEffsSummary <- data.frame(trial = names(meansFitted), effect = envEffs,
                                SE = seEnvEffs, mean = as.vector(meansFitted),
                                rank = rank(-meansFitted), row.names = NULL)
   return(createFW(estimates = estimates, anova = aovTable,
                   envEffs = envEffsSummary, TD = createTD(TD),
                   fittedGeno = unname(fitted(model1)), trait = trait,
-                  nGeno = nGeno, nEnv = nlevels(TD$env), tol = tol,
+                  nGeno = nGeno, nEnv = nlevels(TD$trial), tol = tol,
                   iter = iter - 1))
 }

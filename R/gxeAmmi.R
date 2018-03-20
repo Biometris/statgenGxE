@@ -1,13 +1,13 @@
 #' AMMI analysis
 #'
 #' This function fits a model which involves the Additive Main effects (i.e.
-#' genotype and environment) along with the Multiplicative Interaction effects
+#' genotype and trial) along with the Multiplicative Interaction effects
 #' of principal component analysis (PCA).
 #'
 #' @param TD an object of class \code{\link{TD}}.
 #' @param trait A character string specifying the trait to be analyzed.
 #' @param nPC An integer specifying the number of principal components used
-#' as multiplicative term of genotype-by-environment interaction.
+#' as multiplicative term of genotype-by-trial interaction.
 #' @param center Should the variables be shifted to be zero centered?
 #' @param scale Should the variables be scaled to have unit variance?
 #'
@@ -56,34 +56,34 @@ gxeAmmi <- function(TD,
       !trait %in% colnames(TD)) {
     stop("trait has to be a column in TD.\n")
   }
-  if (!"env" %in% colnames(TD)) {
-    stop("TD should contain a column env to be able to run an AMMI analysis.\n")
+  if (!"trial" %in% colnames(TD)) {
+    stop("TD should contain a column trial to be able to run an AMMI analysis.\n")
   }
   ## Dropping levels to make sure prcomp doesn't crash.
   TD$genotype <- droplevels(TD$genotype)
-  TD$env <- droplevels(TD$env)
+  TD$trial <- droplevels(TD$trial)
   ## Count number of genotypes, environments and traits.
   nGeno <- nlevels(TD$genotype)
-  nEnv <- nlevels(TD$env)
+  nEnv <- nlevels(TD$trial)
   nTrait <- nrow(TD)
-  ## At least 3 environments needed.
+  ## At least 3 trials needed.
   if (nEnv < 3) {
-    stop("TD should contain at least 3 environments to run the AMMI model.\n")
+    stop("TD should contain at least 3 trial to run the AMMI model.\n")
   }
   ## check if the supplied data contains the genotype by environment means.
   if (nTrait != nGeno * nEnv) {
-    stop("TD should contain only 1 value per environment per genotype.\n")
+    stop("TD should contain only 1 value per trial per genotype.\n")
   }
   if (!is.numeric(nPC) || length(nPC) > 1 || round(nPC) != nPC || nPC < 0 ||
       nPC > min(nEnv, nGeno)) {
-    stop("nPC should be an integer smaller than the number of environments.\n")
+    stop("nPC should be an integer smaller than the number of trials.\n")
   }
   ## Impute missing values
   if (any(is.na(TD[[trait]]))) {
-    ## Transform data to genotype x environment matrix.
-    y0 <- tapply(X = TD[[trait]], INDEX = TD[, c("genotype", "env")],
+    ## Transform data to genotype x trial matrix.
+    y0 <- tapply(X = TD[[trait]], INDEX = TD[, c("genotype", "trial")],
                  FUN = identity)
-    yIndex <- tapply(X = 1:nTrait, INDEX = TD[, c("genotype", "env")],
+    yIndex <- tapply(X = 1:nTrait, INDEX = TD[, c("genotype", "trial")],
                      FUN = identity)
     ## Actual imputation.
     y1 <- multMissing(y0, maxIter = 10)
@@ -91,18 +91,18 @@ gxeAmmi <- function(TD,
     TD[yIndex[is.na(y0)], trait] <- y1[is.na(y0)]
   }
   ## Fit linear model.
-  model <- lm(as.formula(paste(trait, "~ genotype + env")), data = TD)
+  model <- lm(as.formula(paste(trait, "~ genotype + trial")), data = TD)
   ## Calculate residuals & fitted values of the linear model.
-  resids <- tapply(X = resid(model), INDEX = TD[, c("genotype", "env")],
+  resids <- tapply(X = resid(model), INDEX = TD[, c("genotype", "trial")],
                    FUN = identity)
-  fittedVals <- tapply(X = fitted(model), INDEX = TD[, c("genotype", "env")],
+  fittedVals <- tapply(X = fitted(model), INDEX = TD[, c("genotype", "trial")],
                        FUN = identity)
   # Compute principal components.
   pca <- prcomp(x = resids, retx = TRUE, center = center, scale. = scale,
                 rank. = nPC)
   loadings <- pca$rotation
   scores <- pca$x
-  ## Compute AMMI-estimates per genotype per environment.
+  ## Compute AMMI-estimates per genotype per trial.
   mTerms <- matrix(data = 0, nrow = nGeno, ncol = nEnv)
   for (i in 1:nPC) {
     mTerms <- mTerms + outer(scores[, i], loadings[, i])
@@ -141,7 +141,7 @@ gxeAmmi <- function(TD,
   importance <- as.data.frame(summary(pca)$importance)
   colnames(importance) <- paste0("PC", 1:ncol(importance))
   ## Compute means.
-  envMean <- tapply(X = TD[[trait]], INDEX = TD$env, FUN = mean)
+  envMean <- tapply(X = TD[[trait]], INDEX = TD$trial, FUN = mean)
   envMean <- setNames(as.numeric(envMean), names(envMean))
   genoMean <- tapply(X = TD[[trait]], INDEX = TD$genotype, FUN = mean)
   genoMean <- setNames(as.numeric(genoMean), names(genoMean))

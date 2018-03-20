@@ -68,8 +68,8 @@ multiQTLFit <- function(QTLDet,
                         method = "hk", get.ests = TRUE, dropone = TRUE,
                         ...)
   if (selection == "backward") {
-    ## While there are markers with Pvalue remove the one with the
-    ## and refit the model without this marker highest value.
+    ## While there are markers with Pvalue remove the one with the highest value
+    ## and refit the model without this marker.
     while (any(qtlFit$result.drop[, "Pvalue(F)"] > thr)) {
       ## Drop the marker with the highest P-value.
       qtl <- qtl::dropfromqtl(qtl, qtl.name =

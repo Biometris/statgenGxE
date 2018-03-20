@@ -60,8 +60,8 @@ gxeStability <- function(TD,
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
-  if (!"env" %in% colnames(TD)) {
-    stop("TD should contain a column env to be able to run an AMMI analysis.\n")
+  if (!"trial" %in% colnames(TD)) {
+    stop("TD should contain a column trial to be able to run an AMMI analysis.\n")
   }
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
       !trait %in% colnames(TD)) {
@@ -71,8 +71,8 @@ gxeStability <- function(TD,
   bestMethod <- match.arg(bestMethod)
   sorted <- match.arg(sorted)
   if (any(is.na(TD[[trait]]))) {
-    y0 <- tapply(TD[[trait]], TD[, c("genotype","env")], mean)
-    yIndex <- tapply(X = 1:nrow(TD), INDEX = TD[, c("genotype","env")],
+    y0 <- tapply(TD[[trait]], TD[, c("genotype","trial")], mean)
+    yIndex <- tapply(X = 1:nrow(TD), INDEX = TD[, c("genotype","trial")],
                      FUN = identity)
     ## imputate missing values.
     y1 <- multMissing(y0, maxIter = 10)
@@ -91,35 +91,35 @@ gxeStability <- function(TD,
   }
   lab <- levels(TD$genotype)
   nGeno <- length(lab)
-  envs <- levels(TD$env)
-  nEnv <- length(envs)
+  trials <- levels(TD$trial)
+  nTr <- length(trials)
   ## Compute the centered trait mean per eniroment.
-  Ej <- tapply(TD[[trait]], TD[, "env"], mean)
-  ## Compute the max or min trait mean among all genotypes per enviroment.
+  Ej <- tapply(TD[[trait]], TD[, "trial"], mean)
+  ## Compute the max or min trait mean among all genotypes per trial.
   if (bestMethod == "max") {
-    Mj <- tapply(TD[[trait]], TD[, "env"], max, na.rm = TRUE)
+    Mj <- tapply(TD[[trait]], TD[, "trial"], max, na.rm = TRUE)
   } else {
-    Mj <- tapply(TD[[trait]], TD[, "env"], min, na.rm = TRUE)
+    Mj <- tapply(TD[[trait]], TD[, "trial"], min, na.rm = TRUE)
   }
-  ## Compute the genotype trait mean per environment.
+  ## Compute the genotype trait mean per trial.
   Ei <- as.vector(tapply(TD[[trait]], TD[, "genotype"], mean, na.rm = TRUE))
   ## Compute the grand mean.
   E <- mean(TD[, trait], na.rm = TRUE)
   ## Create empty vectors for storing output
   W <- S <- LB <- rep(NA, nGeno)
   for (i in 1:nGeno) {
-    ## Observed genotype field response in the enviroment j
+    ## Observed genotype field response in the trial j
     ## (averaged across experiment replicates)
-    Rij <- sapply(X = envs, FUN = function(x) {
-      mean(TD[which(TD$genotype == lab[i] & TD$env == x), trait], na.rm = TRUE)
+    Rij <- sapply(X = trials, FUN = function(x) {
+      mean(TD[which(TD$genotype == lab[i] & TD$trial == x), trait], na.rm = TRUE)
     })
-    pos <- (1:nEnv)[!is.na(Rij)]
+    pos <- (1:nTr)[!is.na(Rij)]
     ## Superiority measure (Lin & Binns 1988).
     if ("superiority" %in% method) {
       if (length(pos) > 0) {
         LB[i] <- sum(sapply(X = pos, FUN = function(j) {
           (Rij[j] - Mj[j]) ^ 2
-        }) / (2 * nEnv))
+        }) / (2 * nTr))
       }
     }
     ## Static measure (Shukla's (1972a) stability variance).
@@ -127,7 +127,7 @@ gxeStability <- function(TD,
       if (length(pos) > 0) {
         S[i] <- sum(sapply(X = pos, FUN = function(j) {
           (Rij[j] - Ei[i]) ^ 2
-        }) / (nEnv - 1))
+        }) / (nTr - 1))
       }
     }
     ## Wricke's (1962) ecovalence.

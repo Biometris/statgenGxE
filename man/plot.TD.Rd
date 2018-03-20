@@ -20,17 +20,17 @@ plotted.}
 \item{plotType}{A character string indicating which plot should be made.
 Either \code{"box"} for a boxplot, \code{"hist"} for histograms,
 \code{"scatter"} for scatter plots and correlations or \code{"cor"} for a
-plot of the correlations between environments.}
+plot of the correlations between trials.}
 }
 \value{
 One of four plots depending on \code{plotType}.
 }
 \description{
 Four types of plot can be made. Boxplots and histograms can be made for
-all objects of class \code{\link{TD}}. In case there is a column \code{"env"}
-in TD boxplots and histograms will be made per environment.\cr
-Scatterplots and plots of correlation between environments can only be made
-if a column \code{"env"} is present in TD and will result in an error if this
+all objects of class \code{\link{TD}}. In case there is a column \code{"trial"}
+in TD boxplots and histograms will be made per trial.\cr
+Scatterplots and plots of correlation between trials can only be made
+if a column \code{"trial"} is present in TD and will result in an error if this
 is not the case.
 }
 \examples{
@@ -40,7 +40,7 @@ plot(TDMaize, trait = "yld")
 plot(TDMaize, trait = "yld", plotType = "hist")
 ## Create a scatter plot for TDMaize.
 plot(TDMaize, trait = "yld", plotType = "scatter")
-## Create a plot of correlations between environments for TDMaize.
+## Create a plot of correlations between trials for TDMaize.
 plot(TDMaize, trait = "yld", plotType = "cor")
 
 

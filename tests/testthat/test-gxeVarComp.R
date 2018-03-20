@@ -1,13 +1,13 @@
 context("gxeVarComp")
 
 testTD <- createTD(data = testData, genotype = "seed",
-                   env = "field", repId = "rep",
+                   trial = "field", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",
                    rowCoordinates = "Y", colCoordinates = "X")
-BLUEsList <- lapply(X = levels(testTD$env), FUN = function(e) {
-  modelSp <- STRunModel(testTD[testTD$env == e, ], design = "rowcol",
+BLUEsList <- lapply(X = levels(testTD$trial), FUN = function(e) {
+  modelSp <- STRunModel(testTD[testTD$trial == e, ], design = "rowcol",
                         traits = c("t1", "t2", "t3", "t4"))
-  STExtract(modelSp, what = "BLUEs", keep = "env")
+  STExtract(modelSp, what = "BLUEs", keep = "trial")
 })
 BLUEs <- createTD(Reduce(f = rbind, x = BLUEsList))
 

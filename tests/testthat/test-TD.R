@@ -8,8 +8,8 @@ test_that("renaming columns 'one to one' works properly in createTD", {
   expect_equal(colnames(createTD(data = testData, genotype = "seed"))[1:2],
                c("genotype", "family"))
   expect_equal(colnames(createTD(data = testData, genotype = "seed",
-                                 env = "field"))[1:3],
-               c("genotype", "family", "env"))
+                                 trial = "field"))[1:3],
+               c("genotype", "family", "trial"))
   expect_error(createTD(data = testData, genotype = "a"), "has to be NULL or")
 })
 

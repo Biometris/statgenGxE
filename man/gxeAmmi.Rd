@@ -12,7 +12,7 @@ gxeAmmi(TD, trait, nPC = 2, center = TRUE, scale = FALSE)
 \item{trait}{A character string specifying the trait to be analyzed.}
 
 \item{nPC}{An integer specifying the number of principal components used
-as multiplicative term of genotype-by-environment interaction.}
+as multiplicative term of genotype-by-trial interaction.}
 
 \item{center}{Should the variables be shifted to be zero centered?}
 
@@ -33,7 +33,7 @@ components.}
 }
 \description{
 This function fits a model which involves the Additive Main effects (i.e.
-genotype and environment) along with the Multiplicative Interaction effects
+genotype and trial) along with the Multiplicative Interaction effects
 of principal component analysis (PCA).
 }
 \examples{

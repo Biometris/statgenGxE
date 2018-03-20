@@ -6,7 +6,7 @@
 #' @inheritParams gxeAmmi
 #'
 #' @param useYear Should year be used for modelling (as years within
-#' environments). If \code{TRUE TD} should contain a column "year".
+#' trials). If \code{TRUE TD} should contain a column "year".
 #' @param engine A character string specifying the engine used for modeling.
 #' Either "lme4" or "asreml".
 #' @param ... Further parameters passed to either \code{asreml} or \code{lmer}.
@@ -46,13 +46,13 @@ gxeTable <- function(TD,
       sink(file = tmp)
       if (useYear) {
         mr <- tryCatchExt(asreml::asreml(fixed = as.formula(paste(trait,
-                                                                  "~ env / year")),
+                                                                  "~ trial / year")),
                                  random = as.formula("~ genotype:us(megaEnv) +
                                                      genotype:megaEnv:year"),
                                  data = TD, ...))
       } else {
         mr <- tryCatchExt(asreml::asreml(fixed = as.formula(paste(trait,
-                                                                  "~ env")),
+                                                                  "~ trial")),
                                  random = as.formula("~ genotype:us(megaEnv)"),
                                  data = TD, ...))
       }
@@ -90,12 +90,12 @@ gxeTable <- function(TD,
     }
   } else if (engine == "lme4") {
     if (useYear) {
-      mr <- try(lme4::lmer(as.formula(paste(trait, "~ env / year +
+      mr <- try(lme4::lmer(as.formula(paste(trait, "~ trial / year +
                                             (0 + megaEnv | genotype) +
                                             (0 + megaEnv | genotype:year)")),
                            data = TD, ...), silent = TRUE)
     } else {
-      mr <- try(lme4::lmer(as.formula(paste(trait, "~ env +
+      mr <- try(lme4::lmer(as.formula(paste(trait, "~ trial +
                                             (0 + megaEnv | genotype)")),
                            data = TD, ...), silent = TRUE)
     }
@@ -109,7 +109,7 @@ gxeTable <- function(TD,
     } else {
       ## Extract fixed effects needed to compute intercept.
       fixEff = lme4::fixef(mr)
-      fixEf = fixEff[grep("env", names(fixEff))]
+      fixEf = fixEff[grep("trial", names(fixEff))]
       ## Extract random effects for genotypes.
       ranEff = lme4::ranef(mr, drop = TRUE)[["genotype"]]
       ## Compute BLUPs.

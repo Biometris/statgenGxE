@@ -25,20 +25,20 @@ studyTableTot$locationName <- droplevels(studyTableTot$locationName)
 ## Rename trait column for ease of use
 colnames(studyTableTot)[which(colnames(studyTableTot) == "GY_Calc_tha|22661")] <- "GY_Calc_tha"
 ## Create TD object
-wheatTD <- createTD(data = studyTableTot, genotype = "germplasmName", env = "locationName",
+wheatTD <- createTD(data = studyTableTot, genotype = "germplasmName", trial = "locationName",
                     year = "year", repId = "replicate", subBlock = "blockNumber",
                     design = "rcbd")
 ### Single Site Analysis
 ## Run Single Site Analysis using asreml
-SSA <- STRunModel(TD = wheatTD[wheatTD$env == "Site01", ], traits = "GY_Calc_tha",
+SSA <- STRunModel(TD = wheatTD[wheatTD$trial == "Site01", ], traits = "GY_Calc_tha",
                   engine = "asreml")
 ## Create a report for the single site analysis.
 report(SSA, outfile = "./testReports/SSASite01.pdf")
-## Run Single Site Analysis for all environments and extract BLUPs for gxe analysis.
-BLUPList <- lapply(levels(wheatTD$env), function(site) {
-  SSAEnv <- STRunModel(TD = wheatTD[wheatTD$env == site, ], traits = "GY_Calc_tha",
+## Run Single Site Analysis for all trials and extract BLUPs for gxe analysis.
+BLUPList <- lapply(levels(wheatTD$trial), function(site) {
+  SSAEnv <- STRunModel(TD = wheatTD[wheatTD$trial == site, ], traits = "GY_Calc_tha",
                        what = "random", engine = "asreml")
-  STExtract(SSAEnv, what = "BLUPs", keep = "env")
+  STExtract(SSAEnv, what = "BLUPs", keep = "trial")
 })
 ## Create new TD object from BLUPs
 wheatTDBlup <- createTD(data = Reduce("rbind2", BLUPList))

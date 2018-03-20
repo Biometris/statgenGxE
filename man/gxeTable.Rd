@@ -12,7 +12,7 @@ gxeTable(TD, trait, useYear = FALSE, engine = c("lme4", "asreml"), ...)
 \item{trait}{A character string specifying the trait to be analyzed.}
 
 \item{useYear}{Should year be used for modelling (as years within
-environments). If \code{TRUE TD} should contain a column "year".}
+trials). If \code{TRUE TD} should contain a column "year".}
 
 \item{engine}{A character string specifying the engine used for modeling.
 Either "lme4" or "asreml".}

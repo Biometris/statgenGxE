@@ -2,7 +2,7 @@
 % Please edit documentation in R/gxeVarComp.R
 \name{gxeVarComp}
 \alias{gxeVarComp}
-\title{Selects the best variance-covariance model for a set of environments}
+\title{Selects the best variance-covariance model for a set of trials}
 \usage{
 gxeVarComp(TD, trait, engine = c("lme4", "asreml"), criterion = c("BIC",
   "AIC"), ...)
@@ -33,7 +33,7 @@ the analysis.}
 }
 \description{
 This function selects the best covariance structure for genetic correlations
-between environments. It fits a range of variance-covariance models to
+between trials. It fits a range of variance-covariance models to
 compare (identity, compound symmetry, diagonal, heterogeneous compound
 symmetry, first order factor analysis, second order factor analysis,
 unstructured), and selects the best one using a goodness-of-fit criterion.
