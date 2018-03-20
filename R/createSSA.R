@@ -306,46 +306,54 @@ plot.SSA <- function(x,
                       by = min(diff(sort(unique(rowCoord)))))
       ## Compute range of values in response + fitted data so same scale
       ## can be used over plots.
-      range <- range(c(plotData$response, plotData$fitted), na.rm = TRUE)
+      zlim <- range(c(plotData$response, plotData$fitted), na.rm = TRUE)
       ## Save plot options to reset when exiting function.
       op <- par(mfrow = c(2, 3), oma = c(2, 1, 3, 2),
-                mar = c(2.7, 4, 2.5, 2.5), mgp = c(1.7, 0.3, 0))
+                mar = c(2.7, 4, 2.5, 2.7), mgp = c(1.7, 0.5, 0))
       on.exit(par(op))
       ## Spatial plot of raw data.
-      fields::image.plot(plotCols, plotRows, t(matrix(plotData$response,
-                                                      ncol = length(plotCols),
-                                                      nrow = length(plotRows))),
-                         main = mainLegends[1], col = colors,
-                         xlab = "colCoordinates", ylab = "rowCoordinates",
-                         zlim = range, graphics.reset = TRUE,
-                         ...)
-      ## Spatial plot of fitted data.
-      fields::image.plot(plotCols, plotRows, t(matrix(plotData$fitted,
-                                                      ncol = length(plotCols),
-                                                      nrow = length(plotRows))),
-                         main = mainLegends[2], col = colors,
-                         xlab = "colCoordinates", ylab = "rowCoordinates",
-                         zlim = range, graphics.reset = TRUE,
-                         ...)
+      fieldPlot(x = plotCols, y = plotRows,
+                z = t(matrix(plotData$response, ncol = length(plotCols),
+                             nrow = length(plotRows))), main = mainLegends[1],
+                colors = colors, zlim = zlim, ...)
+      ## Spatial plot of fitted values.
+      fieldPlot(x = plotCols, y = plotRows,
+                z = t(matrix(plotData$fitted, ncol = length(plotCols),
+                             nrow = length(plotRows))), main = mainLegends[2],
+                colors = colors, zlim = zlim, ...)
       ## Spatial plot of residuals.
-      fields::image.plot(plotCols, plotRows, t(matrix(plotData$residuals,
-                                                      ncol = length(plotCols),
-                                                      nrow = length(plotRows))),
-                         main = mainLegends[3], col = colors,
-                         xlab = "colCoordinates", ylab = "rowCoordinates",
-                         graphics.reset = TRUE, ...)
+      fieldPlot(x = plotCols, y = plotRows,
+                z = t(matrix(plotData$residuals, ncol = length(plotCols),
+                             nrow = length(plotRows))), main = mainLegends[3],
+                colors = colors, ...)
       ## Spatial plot of BLUEs or BLUPs.
-      fields::image.plot(plotCols, plotRows, t(matrix(pred,
-                                                      ncol = length(plotCols),
-                                                      nrow = length(plotRows))),
-                         main = mainLegends[4], col = colors,
-                         xlab = "colCoordinates", ylab = "rowCoordinates",
-                         graphics.reset = TRUE, ...)
+      fieldPlot(x = plotCols, y = plotRows,
+                z = t(matrix(pred, ncol = length(plotCols),
+                             nrow = length(plotRows))), main = mainLegends[4],
+                colors = colors, ...)
       ## Histogram of BLUEs or BLUPs.
       suppressWarnings(hist(pred, main = mainLegends[5],
                             xlab = mainLegends[4], ...))
     }
   }
+}
+
+## Helper function for creating field plots with proper axis
+fieldPlot <- function(x,
+                      y,
+                      z,
+                      main,
+                      colors,
+                      zlim = range(z, na.rm = TRUE),
+                      ...) {
+  image(x, y, z, main = main, col = colors, bty = "n",
+        xlab = "colCoordinates", ylab = "rowCoordinates",
+        zlim = zlim, axes = FALSE, ...)
+  axis(side = 1, at = if (length(x) < 5) {x} else {pretty(x)}, lwd = 0,
+       lwd.ticks = 1)
+  axis(side = 2, at = if (length(y) < 5) {y} else {pretty(y)}, lwd = 0,
+       lwd.ticks = 1, las = 2, tck = -0.01, line = 0.15)
+  fields::image.plot(col = colors, zlim = zlim, legend.only = TRUE)
 }
 
 #' Report method for class SSA
