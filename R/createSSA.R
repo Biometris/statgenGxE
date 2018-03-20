@@ -117,6 +117,8 @@ summary.SSA <- function(object,
     meanTab <- meanTab[oList, ]
   }
   if (!is.na(nBest)) {
+    ## Set nBest to number of rows in meanTab to prevent printing of NA rows.
+    nBest <- min(nrow(meanTab), nBest)
     ## Extract the n best genotypes.
     meanTab <- meanTab[1:nBest, ]
   }
@@ -129,7 +131,8 @@ summary.SSA <- function(object,
   }
   meansTxt <- paste(c(if (!is.null(extr$BLUEs)) "BLUEs",
                       if (!is.null(extr$BLUPs)) "BLUPs"), collapse = " & ")
-  cat(paste0("\nPredicted means (", meansTxt, ")"), "\n===============================\n")
+  cat(paste0("\nPredicted means (", meansTxt, ")"),
+      "\n===============================\n")
   if (!is.na(nBest)) {
     cat("Best", nBest,"genotypes\n")
   } else {
@@ -346,6 +349,10 @@ fieldPlot <- function(x,
                       colors,
                       zlim = range(z, na.rm = TRUE),
                       ...) {
+  ## Adding custom axes to a fields::image.plot doesn't work.
+  ## Without custom axes rows and columns will be shown as e.g. 1.5.
+  ## To avoid this first a normal image plot is drawn, then the axes are added
+  ## and finally the legend is added using fields::image.plot
   image(x, y, z, main = main, col = colors, bty = "n",
         xlab = "colCoordinates", ylab = "rowCoordinates",
         zlim = zlim, axes = FALSE, ...)
