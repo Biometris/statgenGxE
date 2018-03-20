@@ -30,8 +30,7 @@ test_that("summary is computed correctly", {
               which = "sumTab"))
 })
 
-geMegaEnvMin <- gxeMegaEnv(TD = BLUEs, trait =
-                             "t1", method = "min")
+geMegaEnvMin <- gxeMegaEnv(TD = BLUEs, trait = "t1", method = "min")
 test_that("option method functions properly", {
   expect_equal(as.numeric(geMegaEnv$megaEnv), rep(x = c(1, 2, 3), each = 15))
   expect_equal(levels(geMegaEnv$megaEnv), c("3", "2", "1"))
@@ -40,3 +39,29 @@ test_that("option method functions properly", {
   expect_equal(attr(x = geMegaEnvMin, which = "sumTab")$`AMMI estimates`,
                c(55.0432001091191, 40.7120064386264, 35.3752613055704))
 })
+
+## Manipulate geMegaEnv to get proper output.
+geMegaEnvNw <- geMegaEnv
+geMegaEnvNw$megaEnv[geMegaEnvNw$megaEnv == 3] <- 2
+geMegaEnvNw$megaEnv <- droplevels(geMegaEnvNw$megaEnv)
+test_that("gxeTable functions correctly", {
+  ## More random effects than observations, so empty data.frame returned.
+  expect_warning(gxeTable(TD = geMegaEnv, trait = "t1"),
+                 "Empty data.frame returned")
+  geTabLm <- gxeTable(TD = geMegaEnvNw, trait = "t1")
+  expect_equal(as.numeric(geTabLm$predictedValue[1, ]),
+               c(80.4334863660089, 81.1059596640736))
+  expect_equal(as.numeric(geTabLm$standardError[3, ]),
+               c(6.08603105487116, 8.51644401840908))
+  skip_on_cran()
+  expect_warning(gxeTable(TD = geMegaEnv, trait = "t1"),
+                 "Empty data.frame returned")
+  geTabAs <- gxeTable(TD = geMegaEnvNw, trait = "t1", engine = "asreml")
+  expect_equal(as.numeric(geTabAs$predictedValue[1, ]),
+               c(80.48351255292, 80.8024527846235))
+  expect_equal(as.numeric(geTabAs$standardError[3, ]),
+               c(7.51107506285916, 8.58944584132335))
+})
+
+
+
