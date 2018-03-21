@@ -240,7 +240,7 @@ plot.SSA <- function(x,
     model <- x[[trial]]$mRand[[trait]]
   }
   if (is.null(model)) {
-    stop(paste0("No model with genotype ", what, "in SSA object.\n"))
+    stop(paste("No model with genotype", what, "in SSA object.\n"))
   }
   ## Extract fitted and predicted values from model.
   fitted <- STExtract(x, trials = trial, traits = trait,
