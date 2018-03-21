@@ -203,7 +203,7 @@ plot.SSA <- function(x,
                      ...,
                      trial = NULL,
                      trait = NULL,
-                     what = ifelse(is.null(x$mFix), "random", "fixed"),
+                     what = NULL,
                      plotType = c("base", "spatial")) {
   ## Checks.
   if (is.null(trial) && length(x) > 1) {
@@ -223,7 +223,11 @@ plot.SSA <- function(x,
                           !trait %in% colnames(x[[trial]]$TD))) {
     stop("Trait has to be a single character string defining a column in TD.\n")
   }
-  what <- match.arg(arg = what, choices = c("fixed", "random"))
+  if (is.null(what)) {
+    what <- ifelse(is.null(x[[trial]]$mFix), "random", "fixed")
+  } else {
+    what <- match.arg(arg = what, choices = c("fixed", "random"))
+  }
   plotType <- match.arg(arg = plotType)
   ## If no trait is given as input extract it from the SSA object.
   if (is.null(trait)) {
@@ -234,6 +238,9 @@ plot.SSA <- function(x,
     model <- x[[trial]]$mFix[[trait]]
   } else if (what == "random") {
     model <- x[[trial]]$mRand[[trait]]
+  }
+  if (is.null(model)) {
+    stop(paste0("No model with genotype ", what, "in SSA object.\n"))
   }
   ## Extract fitted and predicted values from model.
   fitted <- STExtract(x, trials = trial, traits = trait,
