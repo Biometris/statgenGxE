@@ -4,9 +4,9 @@
 \alias{STRunModel}
 \title{Fit Single Trial Mixed Model}
 \usage{
-STRunModel(TD, design = NULL, traits, what = c("fixed", "random"),
-  covariates = NULL, useCheckId = FALSE, trySpatial = FALSE,
-  engine = NA, control = NULL, ...)
+STRunModel(TD, trials = names(TD), design = NULL, traits,
+  what = c("fixed", "random"), covariates = NULL, useCheckId = FALSE,
+  trySpatial = FALSE, engine = NA, control = NULL, ...)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}

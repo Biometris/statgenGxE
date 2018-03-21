@@ -20,31 +20,18 @@
 #'
 #' @author Bart-Jan van Rossum
 #'
-#' @seealso \code{\link{summary.SSA}}, \code{\link{plot.SSA}}, \code{\link{report.SSA}}
+#' @seealso \code{\link{summary.SSA}}, \code{\link{plot.SSA}},
+#' \code{\link{report.SSA}}
 #'
 #' @name SSA
 NULL
 
 #' @rdname SSA
 #' @export
-createSSA <- function(mRand,
-                      mFix,
-                      TD,
-                      traits = NULL,
-                      design = NULL,
-                      spatial = NULL,
-                      engine = NULL,
-                      predicted = "genotype") {
-  SSA <- structure(list(mRand = mRand,
-                        mFix = mFix,
-                        TD = TD,
-                        traits = traits,
-                        design = design,
-                        spatial = spatial,
-                        engine = engine),
-                   class = "SSA")
-  attr(SSA, which = "timestamp") <- Sys.time()
-  attr(SSA, which = "predicted") <- predicted
+createSSA <- function(models) {
+  SSA <- structure(models,
+                   class = c("SSA", "list"),
+                   timestamp = Sys.time())
   return(SSA)
 }
 

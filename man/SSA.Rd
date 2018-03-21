@@ -5,8 +5,7 @@
 \alias{createSSA}
 \title{S3 class SSA}
 \usage{
-createSSA(mRand, mFix, TD, traits = NULL, design = NULL, spatial = NULL,
-  engine = NULL, predicted = "genotype")
+createSSA(models)
 }
 \arguments{
 \item{mRand}{A list of models with fitted with genotype as random effect.}
@@ -36,7 +35,8 @@ Function for creating objects of S3 class Single Site Analysis (SSA).\cr
 methods are available.
 }
 \seealso{
-\code{\link{summary.SSA}}, \code{\link{plot.SSA}}, \code{\link{report.SSA}}
+\code{\link{summary.SSA}}, \code{\link{plot.SSA}},
+\code{\link{report.SSA}}
 }
 \author{
 Bart-Jan van Rossum
