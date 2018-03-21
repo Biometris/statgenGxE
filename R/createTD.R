@@ -169,12 +169,19 @@ addTD <- function(TD,
                   colCoordinates = NULL,
                   checkId = NULL,
                   design = NULL) {
-  return(c(TD, createTD(data = data, genotype = genotype, trial = trial,
-                        megaEnv = megaEnv, year = year, repId = repId,
-                        subBlock = subBlock, rowId = rowId, colId = colId,
-                        rowCoordinates = rowCoordinates,
-                        colCoordinates = colCoordinates, checkId = checkId,
-                        design = design)))
+  TDNw <- createTD(data = data, genotype = genotype, trial = trial,
+                   megaEnv = megaEnv, year = year, repId = repId,
+                   subBlock = subBlock, rowId = rowId, colId = colId,
+                   rowCoordinates = rowCoordinates,
+                   colCoordinates = colCoordinates, checkId = checkId,
+                   design = design)
+  dupTrials <- names(TDNw)[names(TDNw) %in% names(TD)]
+  if (length(dupTrials) > 0) {
+    warning(paste0("The following trials already existed in TD and will be ",
+                   "added again: ", paste(dupTrials, collapse = ", "), ".\n"),
+            call. = FALSE)
+  }
+  return(c(TD, TDNw))
 }
 
 #' Remove data from a TD object
