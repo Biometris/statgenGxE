@@ -153,6 +153,7 @@
 #' }
 #' @export
 STRunModel = function(TD,
+                      trials = names(TD),
                       design = NULL,
                       traits,
                       what = c("fixed", "random"),
@@ -163,28 +164,25 @@ STRunModel = function(TD,
                       control = NULL,
                       ...) {
   ## Checks.
-  checkOut <- modelChecks(TD = TD, design = design, traits = traits,
-                          what = what, covariates = covariates,
+  checkOut <- modelChecks(TD = TD, trials = trials, design = design,
+                          traits = traits, what = what, covariates = covariates,
                           trySpatial = trySpatial, engine = engine,
                           useCheckId = useCheckId, control = control)
   ## Convert output to variables.
   list2env(x = checkOut, envir = environment())
   ## Run model depending on engine.
   model <- do.call(what = paste0("STMod", tools::toTitleCase(engine)),
-                   args = list(TD = TD, traits = traits,
-                               what = what,
-                               covariates = covariates,
-                               useCheckId = useCheckId,
-                               trySpatial = trySpatial,
-                               design = design,
-                               control = control,
-                               checks = FALSE,
-                               ... = ...))
+                   args = list(TD = TD, trials = trials, traits = traits,
+                               what = what, covariates = covariates,
+                               useCheckId = useCheckId, trySpatial = trySpatial,
+                               design = design, control = control,
+                               checks = FALSE, ... = ...))
   return(model)
 }
 
 ## Helper function for performing checks for single trial modeling.
 modelChecks <- function(TD,
+                        trials,
                         design,
                         traits,
                         what = c("fixed", "random"),
@@ -205,18 +203,29 @@ modelChecks <- function(TD,
     stop(paste("design should either be an attribute of TD or one of ",
                paste(designs, collapse = ", "), ".\n"))
   }
+  if (!is.character(trials) || !all(trials %in% names(TD))) {
+    stop("All trials should be in TD")
+  }
   ## Extract design from TD if needed.
   if (is.null(design)) {
     design <- attr(TD, "design")
   }
-  if (is.null(traits) || !is.character(traits) ||
-      !all(traits %in% colnames(TD))) {
-    stop("All traits should be columns in TD.\n")
+  if (is.null(traits) || !is.character(traits)) {
+    stop("Traits should be a character vector.")
+  }
+  for (trial in trials) {
+    if (!all(traits %in% colnames(TD[[trial]]))) {
+      stop(paste0("All traits should be columns in ", trial, ".\n"))
+    }
   }
   what <- match.arg(arg = what, several.ok = TRUE)
-  if (!is.null(covariates) && (!is.character(covariates) ||
-                               !(all(covariates %in% colnames(TD))))) {
-    stop("covariates should be a columns in TD.\n")
+  if (!is.null(covariates) && !is.character(covariates)) {
+    stop("Covariates should be NULL or a character vector.")
+  }
+  for (trial in trials) {
+    if (!all(covariates %in% colnames(TD[[trial]]))) {
+      stop(paste0("All covariates should be columns in ", trial, ".\n"))
+    }
   }
   if (!is.logical(trySpatial) || length(trySpatial) > 1) {
     stop("trySpatial should be a single logical value.\n")
@@ -241,17 +250,16 @@ modelChecks <- function(TD,
     engine <- "SpATS"
   }
   ## Columns needed depend on design.
-  for (colName in c(if (engine == "SpATS") c("rowCoordinates",
-                                             "colCoordinates"),
-                    if (design %in% c("rowcol", "res.rowcol")) c("rowId",
-                                                                 "colId"),
-                    if (design %in% c("res.ibd", "res.rowcol",
-                                      "rcbd")) "repId",
-                    if (design %in% c("ibd", "res.ibd")) "subBlock",
-                    if (useCheckId) "checkId")) {
-    if (!is.null(colName) && (!is.character(colName) || length(colName) > 1 ||
-                              !colName %in% colnames(TD))) {
-      stop(paste(deparse(colName), "has to be NULL or a column in TD.\n"))
+  desCols <- c(if (engine == "SpATS") c("rowCoordinates", "colCoordinates"),
+               if (design %in% c("rowcol", "res.rowcol")) c("rowId", "colId"),
+               if (design %in% c("res.ibd", "res.rowcol", "rcbd")) "repId",
+               if (design %in% c("ibd", "res.ibd")) "subBlock",
+               if (useCheckId) "checkId")
+  for (trial in trials) {
+    for (desCol in desCols) {
+      if (!desCol %in% colnames(TD[[trial]])) {
+        stop(paste0(desCol, " should be a column in ", trial, ".\n"))
+      }
     }
   }
   if (!is.null(control) && !is.list(control)) {
