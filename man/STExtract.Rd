@@ -4,7 +4,8 @@
 \alias{STExtract}
 \title{Extract statistics from Fitted Models}
 \usage{
-STExtract(SSA, traits = SSA$traits, what = "all", keep = NULL)
+STExtract(SSA, trials = names(SSA), traits = NULL, what = "all",
+  keep = NULL)
 }
 \arguments{
 \item{SSA}{An object of class SSA.}

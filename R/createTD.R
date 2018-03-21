@@ -71,6 +71,8 @@ createTD <- function(data,
                      colCoordinates = NULL,
                      checkId = NULL,
                      design = NULL) {
+  ## Save name of original data for naming output.
+  dataName <- deparse(substitute(data))
   ## Checks.
   if (missing(data) || !is.data.frame(data)) {
     stop("data has to be a data.frame.\n")
@@ -131,7 +133,11 @@ createTD <- function(data,
         as.numeric(data[, which(cols == numCol)])
     }
   }
-  listData <- split(x = data, f = droplevels(data$trial))
+  if ("trial" %in% colnames(data)) {
+    listData <- split(x = data, f = droplevels(data$trial))
+  } else {
+    listData <- setNames(list(data), dataName)
+  }
   TD <- structure(listData,
                   class = c("TD", "list"),
                   design = if (!is.null(design)) {design} else {NULL},
