@@ -2,8 +2,8 @@
 #'
 #' Function for creating objects of S3 class TD (Trial Data). The input data is
 #' checked and columns are renamed to default column names for ease of further
-#' computations. The columns for genotype, trial, megaEnv, year, repId, subBlock,
-#' rowId, colId and checkId are converted to factor columns, whereas
+#' computations. The columns for genotype, trial, megaEnv, year, repId,
+#' subBlock, rowId, colId and checkId are converted to factor columns, whereas
 #' rowCoordinates and colCoordinates are converted to numerical columns. One
 #' single column can be mapped to multiple defaults, e.g. one column with x
 #' coordinates can be mapped to both colId and colCoordinates.\cr
@@ -131,15 +131,60 @@ createTD <- function(data,
         as.numeric(data[, which(cols == numCol)])
     }
   }
-  TD <- structure(data,
-                  class = c("TD", "data.frame"))
-  if (!is.null(design)) {
-    attr(x = TD, which = "design") <- design
-  }
-  if (nrow(renamed) > 0) {
-    attr(TD, "renamedCols") <- renamed
-  }
+  listData <- split(x = data, f = droplevels(data$trial))
+  TD <- structure(listData,
+                  class = c("TD", "list"),
+                  design = if (!is.null(design)) {design} else {NULL},
+                  renamedCols = if (nrow(renamed) > 0) {renamed} else {NULL})
   return(TD)
+}
+
+#' Add data to a TD object
+#'
+#' Function for adding extra data to an existing object of class TD.
+#'
+#' @inheritParams createTD
+#'
+#' @param TD An object of class TD to which the data should be added.
+#'
+#' @rdname TD
+#' @export
+addTD <- function(TD,
+                  data,
+                  genotype = NULL,
+                  trial = NULL,
+                  megaEnv = NULL,
+                  year = NULL,
+                  repId = NULL,
+                  subBlock = NULL,
+                  rowId = NULL,
+                  colId = NULL,
+                  rowCoordinates = NULL,
+                  colCoordinates = NULL,
+                  checkId = NULL,
+                  design = NULL) {
+  return(c(TD, createTD(data = data, genotype = genotype, trial = trial,
+                        megaEnv = megaEnv, year = year, repId = repId,
+                        subBlock = subBlock, rowId = rowId, colId = colId,
+                        rowCoordinates = rowCoordinates,
+                        colCoordinates = colCoordinates, checkId = checkId,
+                        design = design)))
+}
+
+#' Remove data from a TD object
+#'
+#' Function for removing data for selected trials from an existing object of
+#' class TD.
+#'
+#' @inheritParams createTD
+#'
+#' @param trials a character vector of trials that should be removed.
+#'
+#' @rdname TD
+#' @export
+dropTD <- function(TD,
+                   trials) {
+  return(TD[!names(TD) %in% trials])
 }
 
 #' Summarizing objects of class \code{TD}

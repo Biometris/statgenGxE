@@ -3,12 +3,21 @@
 \name{TD}
 \alias{TD}
 \alias{createTD}
+\alias{addTD}
+\alias{dropTD}
 \title{S3 class TD}
 \usage{
 createTD(data, genotype = NULL, trial = NULL, megaEnv = NULL,
   year = NULL, repId = NULL, subBlock = NULL, rowId = NULL,
   colId = NULL, rowCoordinates = NULL, colCoordinates = NULL,
   checkId = NULL, design = NULL)
+
+addTD(TD, data, genotype = NULL, trial = NULL, megaEnv = NULL,
+  year = NULL, repId = NULL, subBlock = NULL, rowId = NULL,
+  colId = NULL, rowCoordinates = NULL, colCoordinates = NULL,
+  checkId = NULL, design = NULL)
+
+dropTD(TD, trials)
 }
 \arguments{
 \item{data}{A data.frame containing trial data with a least a column for
@@ -55,6 +64,10 @@ trial. Either are "ibd" (incomplete-block design), "res.ibd"
 (resolvable incomplete-block design), "rcbd" (randomized complete block
 design), "rowcol" (row-column design) or "res.rowcol" (resolvable
 row-column design).}
+
+\item{TD}{An object of class TD to which the data should be added.}
+
+\item{trials}{a character vector of trials that should be removed.}
 }
 \value{
 An object of class TD, the input data.frame with renamed columns
@@ -64,8 +77,8 @@ been renamed.
 \description{
 Function for creating objects of S3 class TD (Trial Data). The input data is
 checked and columns are renamed to default column names for ease of further
-computations. The columns for genotype, trial, megaEnv, year, repId, subBlock,
-rowId, colId and checkId are converted to factor columns, whereas
+computations. The columns for genotype, trial, megaEnv, year, repId,
+subBlock, rowId, colId and checkId are converted to factor columns, whereas
 rowCoordinates and colCoordinates are converted to numerical columns. One
 single column can be mapped to multiple defaults, e.g. one column with x
 coordinates can be mapped to both colId and colCoordinates.\cr
@@ -73,6 +86,11 @@ Columns other than the default columns, e.g. traits or other covariates
 will be included in the output unchanged.\cr
 \code{\link{print}} and \code{\link{summary}} and \code{\link{plot}} methods
 are available.
+
+Function for adding extra data to an existing object of class TD.
+
+Function for removing data for selected trials from an existing object of
+class TD.
 }
 \seealso{
 \code{\link{summary.TD}}, \code{\link{plot.TD}}
