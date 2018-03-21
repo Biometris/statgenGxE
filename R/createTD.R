@@ -190,6 +190,15 @@ addTD <- function(TD,
 #' @export
 dropTD <- function(TD,
                    trials) {
+  naTrials <- trials[!trials %in% names(TD)]
+  if (length(naTrials) > 0) {
+    warning(paste0("The following trials are not in TD: ",
+                   paste(naTrials, collapse = ", "), ".\n"), call. = FALSE)
+  }
+  leftTrials <- names(TD)[!names(TD) %in% trials]
+  if (length(leftTrials) == 0) {
+    warning("All trials have been removed from TD.\n", call. = FALSE)
+  }
   return(TD[!names(TD) %in% trials])
 }
 
