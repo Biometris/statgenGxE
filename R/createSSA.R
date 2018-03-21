@@ -201,36 +201,50 @@ summary.SSA <- function(object,
 #' @export
 plot.SSA <- function(x,
                      ...,
+                     trial = NULL,
                      trait = NULL,
                      what = ifelse(is.null(x$mFix), "random", "fixed"),
                      plotType = c("base", "spatial")) {
   ## Checks.
-  if (is.null(trait) && length(x$traits) > 1) {
-    stop("No trait provided but multiple traits found in SSA x\n")
+  if (is.null(trial) && length(x) > 1) {
+    stop("No trial provided but multiple trials found in SSA object.\n")
+  }
+  if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
+                          !trial %in% names(x))) {
+    stop("Trail has to be a single character string defining a trial in SSA.\n")
+  }
+  if (is.null(trial)) {
+    trial <- names(x)
+  }
+  if (is.null(trait) && length(x[[trial]]$traits) > 1) {
+    stop("No trait provided but multiple traits found.\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-                          !trait %in% colnames(x$TD))) {
+                          !trait %in% colnames(x[[trial]]$TD))) {
     stop("Trait has to be a single character string defining a column in TD.\n")
   }
   what <- match.arg(arg = what, choices = c("fixed", "random"))
   plotType <- match.arg(arg = plotType)
   ## If no trait is given as input extract it from the SSA object.
   if (is.null(trait)) {
-    trait <- x$traits
+    trait <- x[[trial]]$traits
   }
   ## Extract the model to plot from the SSA object.
   if (what == "fixed") {
-    model <- x$mFix[[trait]]
+    model <- x[[trial]]$mFix[[trait]]
   } else if (what == "random") {
-    model <- x$mRand[[trait]]
+    model <- x[[trial]]$mRand[[trait]]
   }
   ## Extract fitted and predicted values from model.
-  fitted <- STExtract(x, traits = trait,
+  fitted <- STExtract(x, trials = trial, traits = trait,
                       what = ifelse(what == "fixed", "fitted", "rMeans"),
-                      keep = c("colCoordinates", "rowCoordinates"))
-  pred <- STExtract(x, what = ifelse(what == "fixed", "BLUEs", "BLUPs"))[[trait]]
+                      keep = c("colCoordinates", "rowCoordinates"))[[trial]]
+  pred <- STExtract(x, trials = trial,
+                    what = ifelse(what == "fixed",
+                                  "BLUEs", "BLUPs"))[[trial]][[trait]]
   ## Extract raw data and compute residuals.
-  response <- x$TD[, c("genotype", "colCoordinates", "rowCoordinates", trait)]
+  response <- x[[trial]]$TD[, c("genotype", "colCoordinates",
+                                "rowCoordinates", trait)]
   plotData <- merge(response, fitted, by = c("genotype", "colCoordinates",
                                              "rowCoordinates"))
   plotData$response <- plotData[[paste0(trait, ".x")]]
@@ -283,27 +297,30 @@ plot.SSA <- function(x,
     ## Fill frame with plots.
     print(trellisObj[["histogram"]], position = c(0, 0.5, 0.5, 1), more = TRUE)
     print(trellisObj[["qq"]], position = c(0.5, 0.5, 1, 1), more = TRUE)
-    suppressWarnings(print(trellisObj[["residFitted"]], position = c(0, 0, 0.5, 0.5),
+    suppressWarnings(print(trellisObj[["residFitted"]],
+                           position = c(0, 0, 0.5, 0.5),
                            more = TRUE))
-    suppressWarnings(print(trellisObj[["absResidFitted"]], position = c(0.5, 0, 1, 0.5)))
+    suppressWarnings(print(trellisObj[["absResidFitted"]],
+                           position = c(0.5, 0, 1, 0.5)))
     invisible(trellisObj)
   } else if (plotType == "spatial") {
-    if (x$engine == "SpATS") {
+    if (x[[trial]]$engine == "SpATS") {
       plot(model, main = "")
     } else {
       ## Check whether data contains row/col information
-      if (!all(c("rowCoordinates", "colCoordinates") %in% colnames(x$TD))) {
+      if (!all(c("rowCoordinates", "colCoordinates") %in%
+               colnames(x[[trial]]$TD))) {
         stop(paste("Data in", substitute(x), "contains no spatial information.\n"))
       }
       ## Code taken from plot.SpATS and simplified.
       ## Set colors and legends.
       colors = topo.colors(100)
       mainLegends <- c("Raw data", "Fitted data", "Residuals",
-                       ifelse(what == "fixed", "Genotypic BLUEs", "Genotypic BLUPs"),
-                       "Histogram")
+                       ifelse(what == "fixed", "Genotypic BLUEs",
+                              "Genotypic BLUPs"), "Histogram")
       ## Extract spatial coordinates from data.
-      colCoord <- x$TD[, "colCoordinates"]
-      rowCoord <- x$TD[, "rowCoordinates"]
+      colCoord <- x[[trial]]$TD[, "colCoordinates"]
+      rowCoord <- x[[trial]]$TD[, "rowCoordinates"]
       ## Order plotcols and rows and fill gaps if needed.
       plotCols <- seq(from = min(colCoord), to = max(colCoord),
                       by = min(diff(sort(unique(colCoord)))))
@@ -316,34 +333,31 @@ plot.SSA <- function(x,
       op <- par(mfrow = c(2, 3), oma = c(2, 1, 3, 2),
                 mar = c(2.7, 4, 2.5, 2.7), mgp = c(1.7, 0.5, 0))
       on.exit(par(op))
+      coord <- list(plotData$colCoordinates, plotData$rowCoordinates)
       ## Spatial plot of raw data.
       fieldPlot(x = plotCols, y = plotRows,
-                z = t(matrix(plotData$response, ncol = length(plotCols),
-                             nrow = length(plotRows))), main = mainLegends[1],
-                colors = colors, zlim = zlim, ...)
+                z = tapply(X = plotData$response, INDEX = coord, FUN = I),
+                main = mainLegends[1], colors = colors, zlim = zlim, ...)
       ## Spatial plot of fitted values.
       fieldPlot(x = plotCols, y = plotRows,
-                z = t(matrix(plotData$fitted, ncol = length(plotCols),
-                             nrow = length(plotRows))), main = mainLegends[2],
-                colors = colors, zlim = zlim, ...)
+                z = tapply(X = plotData$fitted, INDEX = coord, FUN = I),
+                main = mainLegends[2], colors = colors, zlim = zlim, ...)
       ## Spatial plot of residuals.
       fieldPlot(x = plotCols, y = plotRows,
-                z = t(matrix(plotData$residuals, ncol = length(plotCols),
-                             nrow = length(plotRows))), main = mainLegends[3],
-                colors = colors, ...)
+                z = tapply(X = plotData$residuals, INDEX = coord, FUN = I),
+                main = mainLegends[3], colors = colors, ...)
       ## Spatial plot of BLUEs or BLUPs.
       fieldPlot(x = plotCols, y = plotRows,
                 z = t(matrix(pred, ncol = length(plotCols),
                              nrow = length(plotRows))), main = mainLegends[4],
                 colors = colors, ...)
       ## Histogram of BLUEs or BLUPs.
-      suppressWarnings(hist(pred, main = mainLegends[5],
-                            xlab = mainLegends[4], ...))
+      hist(pred, main = mainLegends[5], xlab = mainLegends[4], ...)
     }
   }
 }
 
-## Helper function for creating field plots with proper axis
+## Helper function for creating field plots with proper axes.
 fieldPlot <- function(x,
                       y,
                       z,
@@ -355,6 +369,10 @@ fieldPlot <- function(x,
   ## Without custom axes rows and columns will be shown as e.g. 1.5.
   ## To avoid this first a normal image plot is drawn, then the axes are added
   ## and finally the legend is added using fields::image.plot
+  if (zlim[1] == zlim[2]) {
+    ## image.plot crashes when upper and lower limit are equal.
+    zlim <- zlim + c(-1e-8, 1e-8)
+  }
   image(x, y, z, main = main, col = colors, bty = "n",
         xlab = "colCoordinates", ylab = "rowCoordinates",
         zlim = zlim, axes = FALSE, ...)

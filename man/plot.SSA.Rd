@@ -4,8 +4,9 @@
 \alias{plot.SSA}
 \title{Plot function for class SSA}
 \usage{
-\method{plot}{SSA}(x, ..., trait = NULL, what = ifelse(is.null(x$mFix),
-  "random", "fixed"), plotType = c("base", "spatial"))
+\method{plot}{SSA}(x, ..., trial = NULL, trait = NULL,
+  what = ifelse(is.null(x$mFix), "random", "fixed"), plotType = c("base",
+  "spatial"))
 }
 \arguments{
 \item{x}{An object of class SSA.}
