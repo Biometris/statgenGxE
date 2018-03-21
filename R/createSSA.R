@@ -4,19 +4,23 @@
 #' \code{\link{summary}}, \code{\link{plot}} and \code{\link{report}}
 #' methods are available.
 #'
-#' @param mRand A list of models with fitted with genotype as random effect.
-#' @param mFix A list of models fitted with genotype as fixed effect.
-#' @param TD An object of class \code{\link{TD}} containing the data on which
-#' \code{mRand} and \code{mFix} are based.
-#' @param traits A character vector indicating the traits for which the analysis
-#' is done.
-#' @param design A character string containing the design of the trial.
-#' (see \code{\link{STRunModel}} for the possible designs).
-#' @param spatial A character string indicating the spatial part of the model.
-#' \code{FALSE} if no spatial design has been used.
-#' @param engine A character string containing the engine used for the analysis.
-#' @param predicted A character string indicating the variable that has been
-#' predicted.
+#' @param models A list of trials with for each trial the following elements
+#' \itemize{
+#' \item{mRand}{A list of models with fitted with genotype as random effect.}
+#' \item{mFix}{A list of models fitted with genotype as fixed effect.}
+#' \item{TD}{An object of class \code{\link{TD}} containing the data on which
+#' \code{mRand} and \code{mFix} are based.}
+#' \item{traits}{A character vector indicating the traits for which the analysis
+#' is done.}
+#' \item{design}{A character string containing the design of the trial.
+#' (see \code{\link{STRunModel}} for the possible designs).}
+#' \item{spatial}{A character string indicating the spatial part of the model.
+#' \code{FALSE} if no spatial design has been used.}
+#' \item{engine}{A character string containing the engine used for the
+#' analysis.}
+#' \item{predicted}{A character string indicating the variable that has been
+#' predicted.}
+#' }
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -27,7 +31,7 @@
 NULL
 
 #' @rdname SSA
-#' @export
+#' @keywords internal
 createSSA <- function(models) {
   SSA <- structure(models,
                    class = c("SSA", "list"),
@@ -61,6 +65,7 @@ createSSA <- function(models) {
 #'
 #' @export
 summary.SSA <- function(object,
+                        trial = NULL,
                         trait = NULL,
                         digits = max(getOption("digits") - 2, 3),
                         nBest = 20,
@@ -69,21 +74,31 @@ summary.SSA <- function(object,
                         decreasing = TRUE,
                         ...) {
   ## Checks.
-  if (is.null(trait) && length(object$traits) > 1) {
-    stop("No trait provided but multiple traits found in SSA object.\n")
+  if (is.null(trial) && length(object) > 1) {
+    stop("No trial provided but multiple trials found in SSA object.\n")
+  }
+  if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
+                          !trial %in% names(object))) {
+    stop("Trail has to be a single character string defining a trial in SSA.\n")
+  }
+  if (is.null(trial)) {
+    trial <- names(object)
+  }
+  if (is.null(trait) && length(object[[trial]]$traits) > 1) {
+    stop("No trait provided but multiple traits found.\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-                          !trait %in% colnames(object$TD))) {
+                          !trait %in% colnames(object[[trial]]$TD))) {
     stop("Trait has to be a single character string defining a column in TD.\n")
   }
   ## get summary stats for raw data
-  TD <- object$TD
+  TD <- object[[trial]]$TD
   if (is.null(trait)) {
-    trait <- object$traits
+    trait <- object[[trial]]$traits
   }
   stats <- summary.TD(object = TD, traits = trait)
   ## get predicted means (BLUEs + BLUPs).
-  extr <- STExtract(object)
+  extr <- STExtract(object, trials = trial)[[trial]]
   ## Merge BLUEs, BLUPs + SE.
   joinList <- Filter(f = Negate(f = is.null),
                      x = list(extr$BLUEs, extr$seBLUEs,
@@ -112,7 +127,7 @@ summary.SSA <- function(object,
   cat("Summary statistics:", "\n===================\n")
   ## Print stats using printCoefMat for a nicer layout.
   printCoefmat(stats, digits = digits, ...)
-  if (!is.null(object$mRand)) {
+  if (!is.null(object[[trial]]$mRand)) {
     cat("\nEstimated heritability", "\n======================\n")
     cat("\nHeritability:", extr$heritability, "\n")
   }
@@ -127,7 +142,7 @@ summary.SSA <- function(object,
   }
   ## Print meanTab using printCoefMat for a nicer layout.
   printCoefmat(meanTab, digits = digits, ...)
-  if (object$engine == "asreml" && !is.null(extr$sed) &&
+  if (object[[trial]]$engine == "asreml" && !is.null(extr$sed) &&
       !is.null(extr$lsd)) {
     cat("\nStandard Error of Difference (genotype modelled as fixed effect)",
         "\n================================================================\n")
