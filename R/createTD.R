@@ -1,5 +1,6 @@
 #' S3 class TD
 #'
+#' \code{createTD}\cr
 #' Function for creating objects of S3 class TD (Trial Data). The input data is
 #' checked and columns are renamed to default column names for ease of further
 #' computations. The columns for genotype, trial, megaEnv, year, repId,
@@ -9,22 +10,39 @@
 #' coordinates can be mapped to both colId and colCoordinates.\cr
 #' Columns other than the default columns, e.g. traits or other covariates
 #' will be included in the output unchanged.\cr
-#' \code{\link{print}} and \code{\link{summary}} and \code{\link{plot}} methods
-#' are available.
+#' The input data is split by trial. So for an input data frame with three
+#' different trials in the column assigned to \code{trial} the output will be
+#' generated as a list with three items. In this case metadata describing the
+#' trials will be identical.\cr
+#' To generate a TD object with different metadata for each trial start by
+#' creating a TD object for one trial and then add new trials to it using the
+#' addTD function.\cr\cr
+#' \code{addTD}\cr
+#' Function for adding extra trial data to an existing object of class TD. The
+#' data for the new trials will be added after the data for existing trials. It
+#' is possible to add data for an already existing trial, but this will cause
+#' multiple items in the output with identical names, which might cause problems
+#' later on in the analysis. Therefore a warning will be issued in this
+#' case.\cr\cr
+#' \code{dropTD}\cr
+#' Function for removing data for selected trials from an existing object of
+#' class TD.\cr\cr
+#' \code{\link{print.TD}}, \code{\link{summary.TD}} and \code{\link{plot.TD}}
+#' methods are available.
 #'
 #' @param data A data.frame containing trial data with a least a column for
 #' genotype.
 #' @param genotype An optional character string indicating the column in
 #' \code{data} that contains genotypes.
-#' @param trial An optional character string indicating the column in \code{data}
-#' that contains trials.
+#' @param trial An optional character string indicating the column in
+#' \code{data} that contains trials.
 #' @param megaEnv An optional character string indicating the column in
 #' \code{data} that contains mega-environments as constructed by
 #' \code{\link{gxeMegaEnv}}.
 #' @param year An optional character string indicating the column in \code{data}
 #' that contains years.
-#' @param repId An optional character string indicating the column in \code{data}
-#' that contains replicates.
+#' @param repId An optional character string indicating the column in
+#' \code{data} that contains replicates.
 #' @param subBlock An optional character string indicating the column in
 #' \code{data} that contains sub blocks.
 #' @param rowId An optional character string indicating the column in
@@ -40,14 +58,16 @@
 #' @param checkId An optional character string indicating the column in
 #' \code{data} that contains the check IDs.
 #' @param design An optional character string indicating the design of the
-#' trial. Either are "ibd" (incomplete-block design), "res.ibd"
+#' trial. Either "ibd" (incomplete-block design), "res.ibd"
 #' (resolvable incomplete-block design), "rcbd" (randomized complete block
 #' design), "rowcol" (row-column design) or "res.rowcol" (resolvable
 #' row-column design).
 #'
-#' @return An object of class TD, the input data.frame with renamed columns
+#' @return An object of class TD, a list of data.frames with renamed columns
 #' and an attribute \code{renamedCols} containing info on which columns have
-#' been renamed.
+#' been renamed. For each unique value of trial the output has a data.frame in
+#' the list with the same name as the trial. If there is no column for trial
+#' the list will contain one item named after the input data.
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -138,20 +158,20 @@ createTD <- function(data,
   } else {
     listData <- setNames(list(data), dataName)
   }
+  for (i in seq_along(listData)) {
+    attr(x = listData[[i]], which = "design") <-
+      if (!is.null(design)) {design} else {NULL}
+    attr(x = listData[[i]], which = "renamedCols") <-
+      if (nrow(renamed) > 0) {renamed} else {NULL}
+  }
   TD <- structure(listData,
-                  class = c("TD", "list"),
-                  design = if (!is.null(design)) {design} else {NULL},
-                  renamedCols = if (nrow(renamed) > 0) {renamed} else {NULL})
+                  class = c("TD", "list"))
   return(TD)
 }
 
-#' Add data to a TD object
-#'
-#' Function for adding extra data to an existing object of class TD.
-#'
 #' @inheritParams createTD
 #'
-#' @param TD An object of class TD to which the data should be added.
+#' @param TD An object of class TD which should be modified.
 #'
 #' @rdname TD
 #' @export
@@ -184,11 +204,6 @@ addTD <- function(TD,
   return(c(TD, TDNw))
 }
 
-#' Remove data from a TD object
-#'
-#' Function for removing data for selected trials from an existing object of
-#' class TD.
-#'
 #' @inheritParams createTD
 #'
 #' @param trials a character vector of trials that should be removed.
@@ -431,7 +446,7 @@ plot.TD <- function(x,
   if (plotType == "box") {
     ## Set arguments for boxplot
     if (isTr) {
-      ## Call for simple boxplot is different than boxplot per trail.
+      ## Call for simple boxplot is different than boxplot per trial.
       ## Therefore diffentiate between those two.
       bpArgs <- list(formula = as.formula(paste(trait, "~ trial")),
                      data = x)
@@ -439,7 +454,7 @@ plot.TD <- function(x,
       bpArgs <- list(x = x[[trait]])
     }
     ## Arguments that are equal for both calls.
-    ## show.names needed to display trialname even when there is only 1 trail.
+    ## show.names needed to display trialname even when there is only 1 trial.
     bpArgs <- c(bpArgs, list(
       main = paste0("Boxplot", ifelse(isTr, " by trial", "")),
       xlab = ifelse(isTr, "Trial", ""),
