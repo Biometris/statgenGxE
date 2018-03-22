@@ -27,8 +27,7 @@
 #' \code{dropTD}\cr
 #' Function for removing data for selected trials from an existing object of
 #' class TD.\cr\cr
-#' \code{\link{print.TD}}, \code{\link{summary.TD}} and \code{\link{plot.TD}}
-#' methods are available.
+#' \code{\link{summary.TD}} and \code{\link{plot.TD}} methods are available.
 #'
 #' @param data A data.frame containing trial data with a least a column for
 #' genotype.
@@ -57,7 +56,7 @@
 #' models.
 #' @param checkId An optional character string indicating the column in
 #' \code{data} that contains the check IDs.
-#' @param design An optional character string indicating the design of the
+#' @param trDesign An optional character string indicating the design of the
 #' trial. Either "ibd" (incomplete-block design), "res.ibd"
 #' (resolvable incomplete-block design), "rcbd" (randomized complete block
 #' design), "rowcol" (row-column design) or "res.rowcol" (resolvable
@@ -90,7 +89,15 @@ createTD <- function(data,
                      rowCoordinates = NULL,
                      colCoordinates = NULL,
                      checkId = NULL,
-                     design = NULL) {
+                     trLocation = NULL,
+                     trDate = NULL,
+                     trDesign = NULL,
+                     trLat = NULL,
+                     trLong = NULL,
+                     trPlotWidth = NULL,
+                     trPlotLength = NULL
+
+) {
   ## Save name of original data for naming output.
   dataName <- deparse(substitute(data))
   ## Checks.
@@ -105,9 +112,9 @@ createTD <- function(data,
       stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
     }
   }
-  if (!is.null(design)) {
-    design <- match.arg(design, choices = c("ibd", "res.ibd", "rcbd",
-                                            "rowcol", "res.rowcol"))
+  if (!is.null(trDesign)) {
+    trDesign <- match.arg(trDesign, choices = c("ibd", "res.ibd", "rcbd",
+                                                "rowcol", "res.rowcol"))
   }
   ## Create list of reserved column names for renaming columns.
   renameCols <- c("genotype", "trial", "megaEnv", "year", "repId", "subBlock",
@@ -158,11 +165,15 @@ createTD <- function(data,
   } else {
     listData <- setNames(list(data), dataName)
   }
+  meta <- c("trLocation", "trDate", "trDesign", "trLat", "trLong",
+            "trPlotWidth", "trPlotLength")
   for (i in seq_along(listData)) {
-    attr(x = listData[[i]], which = "design") <-
-      if (!is.null(design)) {design} else {NULL}
+    for (m in meta) {
+      attr(x = listData[[i]], which = m) <-
+        if (!is.null(get(m))) get(m) else NULL
+    }
     attr(x = listData[[i]], which = "renamedCols") <-
-      if (nrow(renamed) > 0) {renamed} else {NULL}
+      if (nrow(renamed) > 0) renamed else NULL
   }
   TD <- structure(listData,
                   class = c("TD", "list"))
@@ -188,13 +199,13 @@ addTD <- function(TD,
                   rowCoordinates = NULL,
                   colCoordinates = NULL,
                   checkId = NULL,
-                  design = NULL) {
+                  trDesign = NULL) {
   TDNw <- createTD(data = data, genotype = genotype, trial = trial,
                    megaEnv = megaEnv, year = year, repId = repId,
                    subBlock = subBlock, rowId = rowId, colId = colId,
                    rowCoordinates = rowCoordinates,
                    colCoordinates = colCoordinates, checkId = checkId,
-                   design = design)
+                   trDesign = trDesign)
   dupTrials <- names(TDNw)[names(TDNw) %in% names(TD)]
   if (length(dupTrials) > 0) {
     warning(paste0("The following trials already existed in TD and will be ",
@@ -398,144 +409,23 @@ print.summary.TD <- function(x, ...) {
 
 #' Plot function for class TD
 #'
-#' Four types of plot can be made. Boxplots and histograms can be made for
-#' all objects of class \code{\link{TD}}. In case there is a column \code{"trial"}
-#' in TD boxplots and histograms will be made per trial.\cr
-#' Scatterplots and plots of correlation between trials can only be made
-#' if a column \code{"trial"} is present in TD and will result in an error if this
-#' is not the case.
-#'
 #' @param x An object of class TD.
-#' @param ... Further graphical parameters. For boxplots, histograms and
-#' scatterplots all graphical parameters can be changed, for the correlation
-#' only \code{"main"} will be used and other parameters are ignored.
-#' @param trait A character string specifying the name of the trait to be
-#' plotted.
+#' @param ... Further graphical parameters.
 #' @param plotType A character string indicating which plot should be made.
-#' Either \code{"box"} for a boxplot, \code{"hist"} for histograms,
-#' \code{"scatter"} for scatter plots and correlations or \code{"cor"} for a
-#' plot of the correlations between trials.
 #'
-#' @return One of four plots depending on \code{plotType}.
-#'
-#' @seealso \code{\link{TD}}
-#'
-#' @examples
-#' ## Create a boxplot for TDMaize.
-#' plot(TDMaize, trait = "yld")
-#' ## Create a histogram for TDMaize.
-#' plot(TDMaize, trait = "yld", plotType = "hist")
-#' ## Create a scatter plot for TDMaize.
-#' plot(TDMaize, trait = "yld", plotType = "scatter")
-#' ## Create a plot of correlations between trials for TDMaize.
-#' plot(TDMaize, trait = "yld", plotType = "cor")
-#'
-#'
-#' @importFrom utils modifyList
 #' @export
 plot.TD <- function(x,
                     ...,
-                    trait,
-                    plotType = c("box", "hist", "scatter", "cor")) {
-  if (!is.character(trait) || !trait %in% colnames(x)) {
-    stop(paste("Traits should be a column in", substitute(x), ".\n"))
-  }
-  plotType <- match.arg(plotType)
-  dotArgs <- list(...)
-  isTr <- "trial" %in% colnames(x)
-  if (plotType == "box") {
-    ## Set arguments for boxplot
-    if (isTr) {
-      ## Call for simple boxplot is different than boxplot per trial.
-      ## Therefore diffentiate between those two.
-      bpArgs <- list(formula = as.formula(paste(trait, "~ trial")),
-                     data = x)
-    } else {
-      bpArgs <- list(x = x[[trait]])
-    }
-    ## Arguments that are equal for both calls.
-    ## show.names needed to display trialname even when there is only 1 trial.
-    bpArgs <- c(bpArgs, list(
-      main = paste0("Boxplot", ifelse(isTr, " by trial", "")),
-      xlab = ifelse(isTr, "Trial", ""),
-      ylab = trait, show.names = TRUE))
-    ## Add and overwrite args with custom args from ...
-    fixedArgs <- c("formula", "data", "x")
-    bpArgs <- modifyList(bpArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-    do.call(boxplot, args = bpArgs)
-  } else if (plotType == "hist") {
-    ## Set arguments for histogram
-    histArgs <- list(x = as.formula(paste("~", trait, if (isTr) "| trial")),
-                     data = x, main = paste0("Histogram",
-                                             ifelse(isTr, " by Enviroment", "")),
-                     xlab = trait)
-    ## Add and overwrite args with custom args from ...
-    fixedArgs <- c("x", "data")
-    histArgs <- modifyList(histArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-    do.call(lattice::histogram, args = histArgs)
-  } else if (plotType == "scatter") {
-    if (isTr && dplyr::n_distinct(x$trial) > 1) {
-      ## Function for 'plotting' absolute correlations with text size
-      ## proportional to the correlations.
-      panelCor <- function(x, y, ...) {
-        oldPar <- par(usr = c(0, 1, 0, 1))
-        on.exit(par(oldPar))
-        ## Compute correlations.
-        r <- abs(cor(x, y))
-        ## Format and print correlations with proper size.
-        txt <- format(c(r, 0.123456789), digits = 2)[1]
-        cexCor <- 0.8 / strwidth(txt)
-        text(0.5, 0.5, txt, cex = cexCor * r)
-      }
-      ## Function for plotting histograms on the diagonal.
-      panelHist <- function(x, ...) {
-        oldPar <- par(usr = c(par("usr")[1:2], 0, 1.5))
-        on.exit(par(oldPar))
-        ## Create but don't plot histogram.
-        h <- hist(x, plot = FALSE)
-        ## Rescale.
-        breaks <- h$breaks
-        nB <- length(breaks)
-        y <- h$counts
-        y <- y / max(y)
-        ## Plot rescaled histogram.
-        rect(breaks[-nB], 0, breaks[-1], y, ...)
-      }
-      ## Compute mean trait value per genotype per trial.
-      X <- tapply(X = x[, trait], INDEX = x[, c("genotype", "trial")],
-                  FUN = mean, na.rm = TRUE)
-      ## Set arguments for pairs.
-      #diag.panel = panelHist, -- suppressed for now.
-      pairsArgs <- list(x = X, upper.panel = panelCor,
-                        main = paste("Scatterplot matrix and correlations",
-                                     "by trial:", trait))
-      ## Add and overwrite args with custom args from ...
-      fixedArgs <- c("x", "upper.panel")
-      pairsArgs <- modifyList(pairsArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-      ## Create scatterplots with absolute correlations on the upper part.
-      do.call(pairs, args = pairsArgs)
-    } else {
-      stop(paste("No column trial in data or column trial contains only 1 trial.\n",
-                 "Scatterplot cannot be made.\n"))
-    }
-  } else if (plotType == "cor") {
-    if (isTr) {
-      ## Compute mean trait value per genotype per trial.
-      myDat <- tapply(X = x[, trait], INDEX = x[, c("genotype", "trial")],
-                      FUN = mean, na.rm = TRUE)
-      ## Compute correlation matrix.
-      corMat <- cor(myDat, use = "pairwise.complete.obs")
-      corMat[upper.tri(corMat, diag = FALSE)] <- NA
-      ## Plot correlation matrix.
-      ## Set arguments for plotCorMat
-      corMatArgs <- list(corMat = corMat,
-                         main = paste("Correlations between trials for", trait))
-      ## Add and overwrite args with custom args from ...
-      fixedArgs <- c("corMat")
-      corMatArgs <- modifyList(corMatArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-      do.call(plotCorMat, corMatArgs)
-    } else {
-      stop("No column trial in data. Correlation plot cannot be made.\n")
-    }
-  }
+                    plotType = c("map")) {
+  locs <- lapply(X = x, FUN = function(tr) {
+    return(data.frame(name = attr(tr, "trLoc"), lat = attr(tr, "trLat"),
+                      long = attr(tr, "trLong"), capital = 0, pop = 10000,
+                      stringsAsFactors = FALSE))
+  })
+  locs <- Reduce(f = "rbind", x = locs)
+  regions <- unique(maps::map.where(x = locs$long, y = locs$lat))
+  maps::map(regions = regions)
+  maps::map.scale(relwidth = .15, ratio = FALSE, cex = .5)
+  maps::map.cities(x = locs, col = seq_along(locs))
 }
+
