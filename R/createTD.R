@@ -116,6 +116,26 @@ createTD <- function(data,
     trDesign <- match.arg(trDesign, choices = c("ibd", "res.ibd", "rcbd",
                                                 "rowcol", "res.rowcol"))
   }
+  if (!is.null(trLat) && (!is.numeric(trLat) || length(trLat) > 1 ||
+                          abs(trLat) > 90)) {
+    stop("trLat should be a single numeric value between -90 and 90.")
+  }
+  if (!is.null(trLong) && (!is.numeric(trLong) || length(trLong) > 1 ||
+                          abs(trLong) > 180)) {
+    stop("trLat should be a single numeric value between -180 and 180.")
+  }
+  if (is.na(maps::map.where(x = trLong, y = trLat))) {
+    warning("Values for trLat and trLong don't match a known land location.",
+            call. = FALSE)
+  }
+  if (!is.null(trPlotWidth) && (!is.numeric(trPlotWidth) ||
+                                length(trPlotWidth) > 1 || trPlotWidth < 0)) {
+    stop("trPlotWidth should be a single positive numeric value.")
+  }
+  if (!is.null(trPlotLength) && (!is.numeric(trPlotLength) ||
+                                length(trPlotLength) > 1 || trPlotLength < 0)) {
+    stop("trPlotLength should be a single positive numeric value.")
+  }
   ## Create list of reserved column names for renaming columns.
   renameCols <- c("genotype", "trial", "megaEnv", "year", "repId", "subBlock",
                   "rowId", "colId", "rowCoordinates", "colCoordinates",
@@ -199,13 +219,21 @@ addTD <- function(TD,
                   rowCoordinates = NULL,
                   colCoordinates = NULL,
                   checkId = NULL,
-                  trDesign = NULL) {
+                  trLocation = NULL,
+                  trDate = NULL,
+                  trDesign = NULL,
+                  trLat = NULL,
+                  trLong = NULL,
+                  trPlotWidth = NULL,
+                  trPlotLength = NULL) {
   TDNw <- createTD(data = data, genotype = genotype, trial = trial,
                    megaEnv = megaEnv, year = year, repId = repId,
                    subBlock = subBlock, rowId = rowId, colId = colId,
                    rowCoordinates = rowCoordinates,
                    colCoordinates = colCoordinates, checkId = checkId,
-                   trDesign = trDesign)
+                   trLocation = trLocation, trDate = trDate,
+                   trDesign = trDesign, trLat = trLat, trLong = trLong,
+                   trPlotWidth = trPlotWidth, trPlotLength = trPlotLength)
   dupTrials <- names(TDNw)[names(TDNw) %in% names(TD)]
   if (length(dupTrials) > 0) {
     warning(paste0("The following trials already existed in TD and will be ",
@@ -215,7 +243,7 @@ addTD <- function(TD,
   return(c(TD, TDNw))
 }
 
-#' @inheritParams createTD
+#' @inheritParams addTD
 #'
 #' @param trials a character vector of trials that should be removed.
 #'
@@ -409,23 +437,76 @@ print.summary.TD <- function(x, ...) {
 
 #' Plot function for class TD
 #'
+#' Plotting function for objects of class TD. Plots either the layout of the
+#' different trials within the TD object or locates the trials on a map.
+#' Mapping the trials is done based on lattitude and longitude that can be
+#' added when creating an object of class TD. The countries in which the trials
+#' are located will be plotted on a single map and the location of the trials
+#' will be indicated on this map.
+#'
 #' @param x An object of class TD.
-#' @param ... Further graphical parameters.
+#' @param ... Further graphical parameters. Currently not used.
 #' @param plotType A character string indicating which plot should be made.
+#' This can be "layout" for a plot of the field layout for the diffent trials
+#' in the TD object. This is only possible if the data contains row and column
+#' information. Alternatively, for \code{plotType = "map"} a plot will be made
+#' depicting the trials on a country map. This is only possible if lattitude
+#' and longitude of the trials are available.
 #'
 #' @export
 plot.TD <- function(x,
                     ...,
-                    plotType = c("map")) {
-  locs <- lapply(X = x, FUN = function(tr) {
-    return(data.frame(name = attr(tr, "trLoc"), lat = attr(tr, "trLat"),
-                      long = attr(tr, "trLong"), capital = 0, pop = 10000,
-                      stringsAsFactors = FALSE))
-  })
-  locs <- Reduce(f = "rbind", x = locs)
-  regions <- unique(maps::map.where(x = locs$long, y = locs$lat))
-  maps::map(regions = regions)
-  maps::map.scale(relwidth = .15, ratio = FALSE, cex = .5)
-  maps::map.cities(x = locs, col = seq_along(locs))
+                    trials = names(x),
+                    plotType = c("layout", "map")) {
+  plotType <- match.arg(plotType)
+  if (plotType == "layout") {
+    for (trial in trials) {
+      trDat <- x[[trial]]
+      if (!"rowCoordinates" %in% colnames(trDat)) {
+        warning(paste0("rowCoordinates should be a column in ", trial, ".\n",
+                       "Plot skipped."), call. = FALSE)
+        break
+      }
+      if (!"colCoordinates" %in% colnames(trDat)) {
+        warning(paste0("colCoordinates should be a column in ", trial, ".\n",
+                       "Plot skipped."), call. = FALSE)
+        break
+      }
+      trLoc <- attr(trDat, "trLocation")
+      ylen <- attr(trDat, "trPlotLength")
+      xlen <- attr(trDat, "trPlotWidth")
+      ## Compute aspect for proper depiction of field size. If no information
+      ## is available plots are assumed to be square.
+      if (is.null(ylen) || is.null(xlen)) {
+        aspect <- length(unique(trDat$rowCoordinates)) /
+          length(unique(trDat$colCoordinates))
+      } else {
+        aspect <- ylen / xlen
+      }
+      ## Compose function call for desplot. A direct call to desplot doesn't
+      ## work inside another function so therefore use eval(parse).
+      ## Desplot uses lattice for plotting which doesn't plot within a loop.
+      ## This is solved by using print.
+      outVar <- ifelse("subBlock" %in% colnames(trDat), "subBlock", "trial")
+      com <- paste("desplot::desplot(", outVar, "~ colCoordinates +",
+                    "rowCoordinates, data = trDat, out1 = ", "repId",    #outVar,
+                    ", main = trLoc, aspect = aspect)")
+      print(eval(parse(text = com)))
+   }
+  } else if (plotType == "map") {
+    ## Create a data.frame for plotting trials.
+    ## Population has a random value but if left out nothing is plotted.
+    locs <- lapply(X = x, FUN = function(tr) {
+      return(data.frame(name = attr(tr, "trLoc"), lat = attr(tr, "trLat"),
+                        long = attr(tr, "trLong"), capital = 0, pop = 10000,
+                        stringsAsFactors = FALSE))
+    })
+    locs <- Reduce(f = "rbind", x = locs)
+    ## Use lattitude and longitude to extract trial regions.
+    regions <- unique(maps::map.where(x = locs$long, y = locs$lat))
+    maps::map(regions = regions)
+    maps::map.scale(relwidth = .15, ratio = FALSE, cex = .5)
+    maps::map.cities(x = locs, col = seq_along(locs))
+  }
 }
 
