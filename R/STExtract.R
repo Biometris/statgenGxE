@@ -37,6 +37,9 @@
 #' }
 #'
 #' @param SSA An object of class SSA.
+#' @param trials A character vector of trials for which the statistics should be
+#' computed. If not supplied statistics are computed for all trials that have
+#' been modelled.
 #' @param traits A character vector of traits for which the statistics should be
 #' computed. If not supplied statistics are computed for all traits that have
 #' been modelled.
@@ -95,10 +98,10 @@ STExtract <- function(SSA,
     if (is.null(traits)) {
       traits <- SSATr$traits
     }
-    if (!all(traits %in% colnames(SSATr$TD))) {
+    if (!all(traits %in% colnames(SSATr$TD[[trial]]))) {
       stop(paste0("All traits should be columns in ", trial, ".\n"))
     }
-    if (!all(keep %in% colnames(SSATr$TD))) {
+    if (!all(keep %in% colnames(SSATr$TD[[trial]]))) {
       stop(paste0("All keep should be columns in ", trial, ".\n"))
     }
     engine <- SSATr$engine
@@ -126,7 +129,7 @@ extractSpATS <- function(SSA,
                          useRepId) {
   mf <- SSA$mFix
   mr <- SSA$mRand
-  TD <- SSA$TD
+  TD <- SSA$TD[[1]]
   predicted <- SSA$predicted
   useCheckId <- length(grep(pattern = "checkId",
                             x = deparse(mr[[1]]$model$fixed))) > 0
@@ -266,7 +269,7 @@ extractLme4 <- function(SSA,
                         useRepId) {
   mf <- SSA$mFix
   mr <- SSA$mRand
-  TD <- SSA$TD
+  TD <- SSA$TD[[1]]
   predicted = SSA$predicted
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability",
                "varGen", "varErr", "fitted", "resid", "stdRes", "rMeans", "ranEf",
@@ -458,7 +461,7 @@ extractAsreml <- function(SSA,
   }
   mf <- SSA$mFix
   mr <- SSA$mRand
-  TD <- SSA$TD
+  TD <- SSA$TD[[1]]
   predicted <- SSA$predicted
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability", "varGen",
                "varErr", "fitted", "resid", "stdRes", "rMeans", "ranEf",

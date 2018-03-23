@@ -10,6 +10,10 @@ STExtract(SSA, trials = names(SSA), traits = NULL, what = "all",
 \arguments{
 \item{SSA}{An object of class SSA.}
 
+\item{trials}{A character vector of trials for which the statistics should be
+computed. If not supplied statistics are computed for all trials that have
+been modelled.}
+
 \item{traits}{A character vector of traits for which the statistics should be
 computed. If not supplied statistics are computed for all traits that have
 been modelled.}

@@ -61,11 +61,29 @@ models.}
 \item{checkId}{An optional character string indicating the column in
 \code{data} that contains the check IDs.}
 
+\item{trLocation}{An optional character string indicating the location of
+the trial. This will be used for constructing default names for plots and
+such.}
+
+\item{trDate}{An optional date indicating the date of the trial.}
+
 \item{trDesign}{An optional character string indicating the design of the
 trial. Either "ibd" (incomplete-block design), "res.ibd"
 (resolvable incomplete-block design), "rcbd" (randomized complete block
 design), "rowcol" (row-column design) or "res.rowcol" (resolvable
 row-column design).}
+
+\item{trLat}{An optional numerical value indicating the latitude of the
+trial on a scale of -90 to 90.}
+
+\item{trLong}{An optional numerical value indicating the longitude of the
+trial on a scale of -180 to 180.}
+
+\item{trPlotWidth}{An optional positive numerical value indicating the
+width of the plot.}
+
+\item{trPlotLength}{An optional positive numerical value indicating the
+length of the plot.}
 
 \item{TD}{An object of class TD which should be modified.}
 

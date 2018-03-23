@@ -30,7 +30,9 @@ Imports: dplyr(>= 0.7.4),
     sommer(>= 3.3),
     SpATS(>= 1.0-7),
     tibble(>= 1.4.2),
-    xtable(>= 1.8.2)
+    xtable(>= 1.8.2),
+    maps,
+    desplot
 Suggests: asreml(== 3.0),
     rmarkdown(>= 1.9),
     testthat(>= 2.0.0)

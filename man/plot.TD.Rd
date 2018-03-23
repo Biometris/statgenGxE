@@ -11,6 +11,8 @@
 
 \item{...}{Further graphical parameters. Currently not used.}
 
+\item{trials}{A character vector indicating the trials to be plotted.}
+
 \item{plotType}{A character string indicating which plot should be made.
 This can be "layout" for a plot of the field layout for the diffent trials
 in the TD object. This is only possible if the data contains row and column

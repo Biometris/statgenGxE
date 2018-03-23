@@ -4,16 +4,18 @@
 \alias{summary.TD}
 \title{Summarizing objects of class \code{TD}}
 \usage{
-\method{summary}{TD}(object, ..., traits, what = c("nObs", "nMiss", "mean",
-  "median", "min", "max", "lowerQ", "upperQ", "var"))
+\method{summary}{TD}(object, ..., trial = names(object), traits,
+  what = c("nObs", "nMiss", "mean", "median", "min", "max", "lowerQ",
+  "upperQ", "var"))
 }
 \arguments{
 \item{object}{An object of class TD.}
 
 \item{...}{Further arguments - currently not used.}
 
-\item{traits}{A character vector specifying the name(s) of the traits
-to be summarised.}
+\item{trial}{A character vector specifying the trials to be plotted.}
+
+\item{traits}{A character vector specifying the traits to be summarised.}
 
 \item{what}{A character vector indicating which summary statistics should be
 computed. If \code{what = "all"} all available statistics are computed.\cr

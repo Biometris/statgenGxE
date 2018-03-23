@@ -4,7 +4,7 @@
 \name{TDHeat05}
 \alias{TDHeat05}
 \title{Test data}
-\format{An object of class \code{TD} (inherits from \code{data.frame}) with 338 rows and 10 columns.}
+\format{An object of class \code{TD} (inherits from \code{list}) of length 1.}
 \usage{
 TDHeat05
 }
