@@ -79,5 +79,6 @@ geFw3 <- gxeFw(testTD, trait = "t3", maxIter = 30)
 test_that("NA in trait causes no problems", {
   expect_is(geFw3, "FW")
   expect_identical(dim(geFw3$estimates), c(15L, 6L))
-  expect_identical(is.na(geFw3$TD$t3), is.na(geFw3$fittedGeno))
+  expect_identical(is.na(c(geFw3$TD[["E1"]]$t3, geFw3$TD[["E2"]]$t3,
+                   geFw3$TD[["E3"]]$t3)), is.na(geFw3$fittedGeno))
 })

@@ -103,6 +103,7 @@ summary.FW <- function(object, ...) {
 #' plot(geFW, plotType = "trellis")
 #'
 #' @import graphics grDevices
+#' @importFrom utils modifyList
 #' @export
 plot.FW <- function(x,
                     ...,
@@ -112,6 +113,7 @@ plot.FW <- function(x,
   sorted <- match.arg(sorted)
   dotArgs <- list(...)
   envEffs <- x$envEffs$effect
+  TDTot <- Reduce(f = rbind, x = x$TD)
   if ("scatter" %in% plotType) {
     selCols = c(1, if (!all(is.na(x$estimates$mse))) 2, 3)
     scatterData <- setNames(x$estimates[, c("genMean", "mse", "sens")[selCols]],
@@ -124,7 +126,7 @@ plot.FW <- function(x,
     plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(ifelse(!all(is.na(x$estimates$mse)), pairs, plot), args = plotArgs)
   } else if ("line" %in% plotType) {
-    fVal <- tapply(X = x$fittedGeno, INDEX = x$TD[, c("trial", "genotype")],
+    fVal <- tapply(X = x$fittedGeno, INDEX = TDTot[, c("trial", "genotype")],
                    FUN = mean, na.rm = TRUE)
     if (sorted == "none") {
       orderEnv <- 1:length(envEffs)
@@ -147,13 +149,13 @@ plot.FW <- function(x,
     axis(side = 1, at = envEffs, labels = levels(x$envEffs$trial),
          las = 2, cex.axis = .75)
   } else if ("trellis" %in% plotType) {
-    trellisData <- data.frame(genotype = x$TD$genotype,
-                              trait = x$TD[[x$trait]],
+    trellisData <- data.frame(genotype = TDTot$genotype,
+                              trait = TDTot[[x$trait]],
                               fitted = x$fittedGen,
                               xEff = rep(envEffs, x$nGeno))
     if (x$nGeno > 64) {
       ## Select first 64 genotypes for plotting.
-      first64 <- x$TD$genotype %in% levels(x$estimates$genotype)[1:64]
+      first64 <- TDTot$genotype %in% levels(x$estimates$genotype)[1:64]
       trellisData <- trellisData[first64, ]
     }
     ## Define panelfunction for xy plot.

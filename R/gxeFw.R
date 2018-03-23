@@ -49,6 +49,7 @@
 #'
 #' @export
 gxeFw <- function(TD,
+                  trials = names(TD),
                   trait,
                   maxIter = 15,
                   tol = 0.001,
@@ -56,12 +57,20 @@ gxeFw <- function(TD,
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
-  if (!"trial" %in% colnames(TD)) {
+  if (!is.character(trials) || !all(trials %in% names(TD))) {
+    stop("All trials should be in TD.")
+  }
+  TDTot <- Reduce(f = rbind, x = TD[trials])
+  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(TDTot)) {
+    stop("trait has to be a column in TD.\n")
+  }
+  if (!"trial" %in% colnames(TDTot)) {
     stop("TD should contain a column trial to be able to run a Finlay
          Wilkinson analysis.\n")
   }
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TD)) {
+      !trait %in% colnames(TDTot)) {
     stop("trait has to be a column in TD.\n")
   }
   if (is.null(maxIter) || !is.numeric(maxIter) || length(maxIter) > 1 ||
@@ -72,12 +81,12 @@ gxeFw <- function(TD,
     stop("tol should be a numerical value > 10^-6.\n")
   }
   sorted <- match.arg(sorted)
-  nGeno <- nlevels(TD$genotype)
+  nGeno <- nlevels(TDTot$genotype)
   ## Setup empty vectors for storing rDev and rDF
   rDev <- rDf <- rep(NA, 5)
   ## Estimate trial effects with the sensitivity beta = 1.
   model0 <- lm(as.formula(paste(trait, "~-1 + trial + genotype")),
-               data = TD, na.action = na.exclude)
+               data = TDTot, na.action = na.exclude)
   aov0 <- anova(model0)
   rDev[2] <- aov0["Residuals", "Sum Sq"]
   rDf[2] <- aov0["Residuals", "Df"]
@@ -85,35 +94,35 @@ gxeFw <- function(TD,
   envEffs0 <- coeffsModel0[grep(pattern = "trial", x = names(coeffsModel0))] %>%
     scale(scale = FALSE) %>% `colnames<-`("envEffs") %>%
     `rownames<-`(substring(rownames(.), first = 6))
-  TD <- merge(x = TD, y = envEffs0, by.x = "trial", by.y = "row.names")
+  TDTot <- merge(x = TDTot, y = envEffs0, by.x = "trial", by.y = "row.names")
   ## Set initial values for sensitivity beta.
-  TD$beta <- 1
+  TDTot$beta <- 1
   ## Set a relative difference to be large.
   maxDiff <- Inf
   ## Set iteration to 1.
   iter <- 1
   ## Iterate to fit 'y(i,j) = genMean(i)+beta(i)*envEffs(j)'
   while (maxDiff > tol && iter <= maxIter) {
-    beta0 <- TD$beta
+    beta0 <- TDTot$beta
     ## Fit model with current genotype sensitivity relevant to each unit.
     model1 <- lm(as.formula(paste(trait, "~-1 + genotype + genotype:envEffs")),
-                 data = TD, na.action = na.exclude)
+                 data = TDTot, na.action = na.exclude)
     coeffsModel1 <- coefficients(model1)
     ## Update beta.
-    TD$beta <- coeffsModel1[match(paste0("genotype", TD$genotype, ":envEffs"),
-                                  names(coeffsModel1))]
-    TD$beta <- TD$beta / mean(TD$beta, na.rm = TRUE)
+    TDTot$beta <- coeffsModel1[match(paste0("genotype", TDTot$genotype,
+                                            ":envEffs"), names(coeffsModel1))]
+    TDTot$beta <- TDTot$beta / mean(TDTot$beta, na.rm = TRUE)
     ## Fit model with current trial means relevant to each unit.
     model2 <- lm(as.formula(paste(trait, "~ -genotype + trial:beta")),
-                 data = TD, na.action = na.exclude)
+                 data = TDTot, na.action = na.exclude)
     coeffsModel2 <- coefficients(model2)
     ## Update envEffs.
-    TD$envEffs <- coeffsModel2[match(paste0("trial", TD$trial, ":beta"),
+    TDTot$envEffs <- coeffsModel2[match(paste0("trial", TDTot$trial, ":beta"),
                                      names(coeffsModel2))]
-    TD[is.na(TD$envEffs), "envEffs"] <- 0
-    TD$envEffs <- TD$envEffs - mean(TD$envEffs)
+    TDTot[is.na(TDTot$envEffs), "envEffs"] <- 0
+    TDTot$envEffs <- TDTot$envEffs - mean(TDTot$envEffs)
     ## Compute max difference of sensitivities between the succesive iterations.
-    maxDiff <- max(abs(TD$beta - beta0), na.rm = TRUE)
+    maxDiff <- max(abs(TDTot$beta - beta0), na.rm = TRUE)
     if (iter == maxIter && maxDiff > tol) {
       warning(paste0("Convergence not achieved in ", iter,
                      " iterations. Tolerance ", tol,
@@ -127,13 +136,13 @@ gxeFw <- function(TD,
   rDev[4] <- aov1["Residuals","Sum Sq"]
   rDf[4] <- aov1["Residuals", "Df"]
   ## Extract total deviance.
-  modelA <- lm(as.formula(paste(trait, "~ genotype")), data = TD,
+  modelA <- lm(as.formula(paste(trait, "~ genotype")), data = TDTot,
                na.action = na.exclude)
   aovA <- anova(modelA)
   rDev[5] <- sum(aovA[["Sum Sq"]])
   rDf[5] <- sum(aovA[["Df"]])
   ## Fit varieties only for first entry in aov.
-  modelB <- lm(as.formula(paste(trait, "~-1 + genotype")), data = TD,
+  modelB <- lm(as.formula(paste(trait, "~-1 + genotype")), data = TDTot,
                na.action = na.exclude)
   aovB <- anova(modelB)
   rDev[1] <- aovB["Residuals", "Sum Sq"]
@@ -156,27 +165,27 @@ gxeFw <- function(TD,
                                        "Residual", "Total"),
                          check.names = FALSE)
   ## Extract sensitivity beta.
-  sens <- as.vector(tapply(X = TD$beta, INDEX = TD$genotype,
+  sens <- as.vector(tapply(X = TDTot$beta, INDEX = TDTot$genotype,
                            FUN = mean, na.rm = TRUE))
   ## Compute the standard errors.
-  sigmaE <- sqrt(diag(vcov(model1))[match(paste0("genotype", TD$genotype,
+  sigmaE <- sqrt(diag(vcov(model1))[match(paste0("genotype", TDTot$genotype,
                                                  ":envEffs"),
                                           names(coeffsModel1))]) %>%
-    tapply(INDEX = TD$genotype, FUN = mean, na.rm = TRUE) %>%
+    tapply(INDEX = TDTot$genotype, FUN = mean, na.rm = TRUE) %>%
     as.vector
   ## Extract the mean for each genotype.
-  genMean <- coeffsModel1[match(paste0("genotype", TD$genotype),
+  genMean <- coeffsModel1[match(paste0("genotype", TDTot$genotype),
                                 names(coeffsModel1))] %>%
-    tapply(INDEX = TD$genotype, FUN = mean, na.rm = TRUE) %>%
+    tapply(INDEX = TDTot$genotype, FUN = mean, na.rm = TRUE) %>%
     as.vector
   ## Residual standard error.
-  sigma <- sqrt(diag(vcov(model1))[match(paste0("genotype", TD$genotype),
+  sigma <- sqrt(diag(vcov(model1))[match(paste0("genotype", TDTot$genotype),
                                          names(coeffsModel1))]) %>%
-    tapply(INDEX = TD$genotype, FUN = mean, na.rm = TRUE) %>%
+    tapply(INDEX = TDTot$genotype, FUN = mean, na.rm = TRUE) %>%
     as.vector
   ## Compute mean squared error (MSE) of the trait means for each genotype.
   mse <- residuals(model1) %>%
-    tapply(INDEX = TD$genotype, FUN = function(x) {
+    tapply(INDEX = TDTot$genotype, FUN = function(x) {
       checkG <- length(x)
       if (checkG > 2) {
         sum(x ^ 2, na.rm = TRUE) / (checkG - 2)
@@ -191,30 +200,32 @@ gxeFw <- function(TD,
     orderSens <- order(sens, decreasing = (sorted == "descending"))
   }
   ## Construct estimate data.frame.
-  estimates <- data.frame(genotype = levels(TD$genotype), sens, sigmaE,
+  estimates <- data.frame(genotype = levels(TDTot$genotype), sens, sigmaE,
                           genMean, sigma, mse,
                           row.names = 1:length(sens))[orderSens, ]
   ## Construct data.frame with trial effects.
-  matchPos <- match(paste0("trial", levels(TD$trial), ":beta"), names(coeffsModel2))
+  matchPos <- match(paste0("trial", levels(TDTot$trial), ":beta"),
+                    names(coeffsModel2))
   envEffs <- coeffsModel2[matchPos]
   naPos <- is.na(envEffs)
   envEffs[naPos] <- 0
   envEffs <- envEffs - mean(envEffs)
   seEnvEffs <- sqrt(diag(vcov(model2)[matchPos[!naPos], matchPos[!naPos]]))
-  matchPos2 <- match(paste0("trial", levels(TD$trial), ":beta"), names(envEffs))
+  matchPos2 <- match(paste0("trial", levels(TDTot$trial), ":beta"),
+                     names(envEffs))
   if (!is.null(model1$na.action)) {
     meansFitted <- tapply(X = model1$fitted,
-                          INDEX = TD$trial[-model1$na.action], FUN = mean)
+                          INDEX = TDTot$trial[-model1$na.action], FUN = mean)
   } else {
-    meansFitted <- tapply(X = model1$fitted, INDEX = TD$trial, FUN = mean)
+    meansFitted <- tapply(X = model1$fitted, INDEX = TDTot$trial, FUN = mean)
   }
   meansFitted <- meansFitted[matchPos2]
   envEffsSummary <- data.frame(trial = names(meansFitted), effect = envEffs,
                                SE = seEnvEffs, mean = as.vector(meansFitted),
                                rank = rank(-meansFitted), row.names = NULL)
   return(createFW(estimates = estimates, anova = aovTable,
-                  envEffs = envEffsSummary, TD = createTD(TD),
+                  envEffs = envEffsSummary, TD = createTD(TDTot),
                   fittedGeno = unname(fitted(model1)), trait = trait,
-                  nGeno = nGeno, nEnv = nlevels(TD$trial), tol = tol,
+                  nGeno = nGeno, nEnv = nlevels(TDTot$trial), tol = tol,
                   iter = iter - 1))
 }

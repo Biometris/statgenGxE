@@ -107,14 +107,14 @@ plot.AMMI <- function(x,
                       scale = 1,
                       col = c("orange3", "navyblue")) {
   ## Checks.
-  if (length(col) != 2) {
-    stop("col should contain exactly two colors.\n")
-  }
   if (!is.numeric(scale) || length(scale) > 1) {
     stop("scale should be a single numeric value.\n")
   }
   if (scale < 0 || scale > 1) {
     warning("Scale is outside [0, 1].\n", call. = FALSE)
+  }
+  if (length(col) != 2) {
+    stop("col should contain exactly two colors.\n")
   }
   plotType <- match.arg(plotType)
   dotArgs <- list(...)
