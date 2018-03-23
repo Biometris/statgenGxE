@@ -83,9 +83,9 @@ STModLme4 <- function(TD,
     }
     ## Construct SSA object.
     return(list(mRand = if ("random" %in% what) mr else NULL,
-                mFix = if ("fixed" %in% what) mf else NULL, TD = TDTr,
-                traits = traits, design = design, engine = "lme4",
-                predicted = "genotype"))
+                mFix = if ("fixed" %in% what) mf else NULL, TD = TD[trial],
+                traits = traits, design = design, spatial = trySpatial,
+                engine = "lme4", predicted = "genotype"))
   }, simplify = FALSE)
   ## Construct and return SSA object.
   return(createSSA(models = models))

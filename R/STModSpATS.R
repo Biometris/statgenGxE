@@ -113,7 +113,7 @@ STModSpATS <- function(TD,
       mf <- NULL
     }
 
-    return(list(mRand = mr, mFix = mf, TD = TDTr, traits = traits,
+    return(list(mRand = mr, mFix = mf, TD = TD[trial], traits = traits,
                   design = design, spatial = "2 dimensional P-splines",
                   engine = "SpATS", predicted = "genotype"))
   }, simplify = FALSE)

@@ -153,12 +153,12 @@ STModAsreml <- function(TD,
       unlink(tmp)
       ## Construct SSA object.
       return(list(mRand = if ("random" %in% what) mr else NULL,
-                  mFix = if ("fixed" %in% what) mf else NULL, TD = TDTr,
-                  traits = traits, design = design, engine = "asreml",
-                  predicted = "genotype"))
+                  mFix = if ("fixed" %in% what) mf else NULL, TD = TD[trial],
+                  traits = traits, design = design, spatial = trySpatial,
+                  engine = "asreml", predicted = "genotype"))
     } else {# trySpatial
       regular <- min(repTab) == 1 && max(repTab) == 1
-      return(bestSpatMod(TD = TDTr, traits = traits, what = what,
+      return(bestSpatMod(TD = TD[trial], traits = traits, what = what,
                          regular = regular, criterion = criterion,
                          useCheckId = useCheckId, design = design,
                          covariates = covariates, ...))
@@ -182,7 +182,8 @@ bestSpatMod <- function(TD,
   ## Create tempfile to suppress asreml output messages.
   tmp <- tempfile()
   ## TD needs to be sorted by row and column to prevent asreml from crashing.
-  TD <- TD[order(TD$rowId, TD$colId), ]
+  TDTr <- TD[[1]]
+  TDTr <- TDTr[order(TDTr$rowId, TDTr$colId), ]
   useRepIdFix <- design == "res.rowcol"
   ## Define random terms of models to try.
   randomTerm <- c(rep(x = "NULL", times = 3),
@@ -223,7 +224,7 @@ bestSpatMod <- function(TD,
                                 random = as.formula(paste("~ genotype +",
                                                           randomTerm[i])),
                                 rcov = as.formula(paste("~", spatialTerm[i])),
-                                aom = TRUE, data = TD, ...)
+                                aom = TRUE, data = TDTr, ...)
       sink()
       ## If current model is better than best so far based on chosen criterion
       ## define best model as current model.
@@ -261,14 +262,14 @@ bestSpatMod <- function(TD,
     mfTrait <- asreml::asreml(fixed = fixedFormfTrait,
                               random = as.formula(paste("~", randomTerm[bestLoc])),
                               rcov = as.formula(paste("~", spatialTerm[bestLoc])),
-                              G.param = GParamTmp, aom = TRUE, data = TD, ...)
+                              G.param = GParamTmp, aom = TRUE, data = TDTr, ...)
     sink()
     ## evaluate call terms in bestNidek and mfTrait so predict can be run.
     bestModelTrait$call$fixed <- eval(bestModelTrait$call$fixed)
     bestModelTrait$call$random <- eval(bestModelTrait$call$random)
     bestModelTrait$call$rcov <- eval(bestModelTrait$call$rcov)
     # Run predict.
-    bestModelTrait <- predictAsreml(bestModelTrait, TD = TD)
+    bestModelTrait <- predictAsreml(bestModelTrait, TD = TDTr)
     mfTrait$call$fixed <- eval(mfTrait$call$fixed)
     mfTrait$call$random <- eval(mfTrait$call$random)
     mfTrait$call$rcov <- eval(mfTrait$call$rcov)
@@ -279,7 +280,7 @@ bestSpatMod <- function(TD,
       assocForm <- as.formula("~ NULL")
     }
     ## Run predict.
-    mfTrait <- predictAsreml(mfTrait, TD = TD, associate = assocForm)
+    mfTrait <- predictAsreml(mfTrait, TD = TDTr, associate = assocForm)
     mr[[trait]] <- bestModelTrait
     mf[[trait]] <- mfTrait
     spatial[[trait]] <- spatialChoice[bestLoc]

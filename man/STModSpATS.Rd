@@ -11,6 +11,8 @@ STModSpATS(TD, trials = names(TD), traits, what = c("fixed", "random"),
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
 
+\item{trials}{A character vector specifying the trials for modeling.}
+
 \item{traits}{A character vector specifying the traits for modeling.}
 
 \item{what}{A character vector specifying whether "genotype" should
@@ -28,10 +30,10 @@ only be fitted with SpATS and asreml. If SpATS is used for modeling only
 spatial models can be fitted and trySpatial is always set to \code{TRUE}. If
 asreml is used fitting spatial models is optional.}
 
-\item{design}{A string specifying the experimental design. Either "ibd"
-(incomplete block design), "res.ibd" (resolvable incomplete block design),
-"rcbd" (randomized complete block design), "rowcol" (row column design) or
-"res.rowcol" (resolvable row column design).}
+\item{design}{A character string specifying the experimental design. Either
+"ibd" (incomplete block design), "res.ibd" (resolvable incomplete block
+design), "rcbd" (randomized complete block design), "rowcol" (row column
+design) or "res.rowcol" (resolvable row column design).}
 
 \item{control}{An optional list with control parameters to be passed to the
 actual fitting funcions. Currently \code{nSeg} and \code{nestDiv} are valid

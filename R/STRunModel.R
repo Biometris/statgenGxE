@@ -61,10 +61,11 @@
 #' left out.
 #'
 #' @param TD An object of class \code{\link{TD}}.
-#' @param design A string specifying the experimental design. Either "ibd"
-#' (incomplete block design), "res.ibd" (resolvable incomplete block design),
-#' "rcbd" (randomized complete block design), "rowcol" (row column design) or
-#' "res.rowcol" (resolvable row column design).
+#' @param trials A character vector specifying the trials for modeling.
+#' @param design A character string specifying the experimental design. Either
+#' "ibd" (incomplete block design), "res.ibd" (resolvable incomplete block
+#' design), "rcbd" (randomized complete block design), "rowcol" (row column
+#' design) or "res.rowcol" (resolvable row column design).
 #' @param traits A character vector specifying the traits for modeling.
 #' @param what A character vector specifying whether "genotype" should
 #' be fitted as "fixed" or "random" effect. If not specified both models

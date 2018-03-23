@@ -11,6 +11,8 @@ STModAsreml(TD, trials = names(TD), traits, what = c("fixed", "random"),
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
 
+\item{trials}{A character vector specifying the trials for modeling.}
+
 \item{traits}{A character vector specifying the traits for modeling.}
 
 \item{what}{A character vector specifying whether "genotype" should
@@ -23,10 +25,10 @@ extra fixed effects in the model.}
 \item{useCheckId}{Should checkId be used as a fixed effect in the model?\cr
 If \code{TRUE} \code{TD} has to contain a column 'checkId'.}
 
-\item{design}{A string specifying the experimental design. Either "ibd"
-(incomplete block design), "res.ibd" (resolvable incomplete block design),
-"rcbd" (randomized complete block design), "rowcol" (row column design) or
-"res.rowcol" (resolvable row column design).}
+\item{design}{A character string specifying the experimental design. Either
+"ibd" (incomplete block design), "res.ibd" (resolvable incomplete block
+design), "rcbd" (randomized complete block design), "rowcol" (row column
+design) or "res.rowcol" (resolvable row column design).}
 
 \item{trySpatial}{Should spatial models be tried? Spatial models can
 only be fitted with SpATS and asreml. If SpATS is used for modeling only

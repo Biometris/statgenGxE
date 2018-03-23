@@ -11,10 +11,12 @@ STRunModel(TD, trials = names(TD), design = NULL, traits,
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
 
-\item{design}{A string specifying the experimental design. Either "ibd"
-(incomplete block design), "res.ibd" (resolvable incomplete block design),
-"rcbd" (randomized complete block design), "rowcol" (row column design) or
-"res.rowcol" (resolvable row column design).}
+\item{trials}{A character vector specifying the trials for modeling.}
+
+\item{design}{A character string specifying the experimental design. Either
+"ibd" (incomplete block design), "res.ibd" (resolvable incomplete block
+design), "rcbd" (randomized complete block design), "rowcol" (row column
+design) or "res.rowcol" (resolvable row column design).}
 
 \item{traits}{A character vector specifying the traits for modeling.}
 
