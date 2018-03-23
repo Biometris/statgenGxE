@@ -8,16 +8,16 @@ testTD <- createTD(data = testData[testData$field == "E1", ],
 modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
 
 test_that("the output of extract is of the proper type", {
-  expect_is(STExtract(modelSp, what = "BLUEs"), "TD")
+  expect_is(STExtract(modelSp, what = "BLUEs"), "list")
   expect_is(STExtract(modelSp), "list")
-  expect_length(STExtract(modelSp), 13)
+  expect_length(STExtract(modelSp)[[1]], 13)
   expect_is(STExtract(modelSp, what = c("BLUEs", "BLUPs")), "list")
-  expect_length(STExtract(modelSp, what = c("BLUEs", "BLUPs")), 2)
+  expect_length(STExtract(modelSp, what = c("BLUEs", "BLUPs"))[[1]], 2)
 })
 
-extSp <- STExtract(modelSp)
+extSp <- STExtract(modelSp)[[1]]
 test_that("BLUEs are computed correctly", {
-  expect_is(extSp$BLUEs, "TD")
+  expect_is(extSp$BLUEs, "data.frame")
   expect_identical(dim(extSp$BLUEs), c(15L, 2L))
   expect_equal(colnames(extSp$BLUEs), c("genotype", "t1"))
   expect_equal(extSp$BLUEs$t1, c(74.7151036023947, 84.6863159645867, 69.2058701507397,
@@ -28,7 +28,7 @@ test_that("BLUEs are computed correctly", {
 })
 
 test_that("SE of BLUEs are computed correctly", {
-  expect_is(extSp$seBLUEs, "TD")
+  expect_is(extSp$seBLUEs, "data.frame")
   expect_identical(dim(extSp$seBLUEs), c(15L, 2L))
   expect_equal(colnames(extSp$seBLUEs), c("genotype", "t1"))
   expect_equal(extSp$seBLUEs$t1, c(13.0937552217265, 12.7812399928054, 12.6750833951795,
@@ -39,7 +39,7 @@ test_that("SE of BLUEs are computed correctly", {
 })
 
 test_that("BLUPs are computed correctly", {
-  expect_is(extSp$BLUPs, "TD")
+  expect_is(extSp$BLUPs, "data.frame")
   expect_identical(dim(extSp$BLUPs), c(15L, 2L))
   expect_equal(colnames(extSp$BLUPs), c("genotype", "t1"))
   expect_equal(extSp$BLUPs$t1, c(82.6087679270256, 76.8599245205723, 77.1948690330156,
@@ -50,7 +50,7 @@ test_that("BLUPs are computed correctly", {
 })
 
 test_that("SE of BLUPs are computed correctly", {
-  expect_is(extSp$seBLUPs, "TD")
+  expect_is(extSp$seBLUPs, "data.frame")
   expect_identical(dim(extSp$seBLUPs), c(15L, 2L))
   expect_equal(colnames(extSp$seBLUPs), c("genotype", "t1"))
   expect_equal(extSp$seBLUPs$t1, c(10.9599851074304, 10.6712268311788, 10.9772900363026,
@@ -84,7 +84,7 @@ test_that("varSpat is computed correctly", {
 })
 
 test_that("fitted values are computed correctly", {
-  expect_is(extSp$fitted, "TD")
+  expect_is(extSp$fitted, "data.frame")
   expect_identical(dim(extSp$fitted), c(30L, 2L))
   expect_equal(colnames(extSp$fitted), c("genotype", "t1"))
   expect_equal(extSp$fitted$t1, c(106.455101381075, 85.6286934936669, 72.2169491624962,
@@ -100,7 +100,7 @@ test_that("fitted values are computed correctly", {
 })
 
 test_that("residuals are computed correctly", {
-  expect_is(extSp$resid, "TD")
+  expect_is(extSp$resid, "data.frame")
   expect_identical(dim(extSp$resid), c(30L, 2L))
   expect_equal(colnames(extSp$resid), c("genotype", "t1"))
   expect_equal(extSp$resid$t1, c(-1.61750498202204, 8.08123049403487, 13.7513442152898,
@@ -116,7 +116,7 @@ test_that("residuals are computed correctly", {
 })
 
 test_that("rMeans are computed correctly", {
-  expect_is(extSp$rMeans, "TD")
+  expect_is(extSp$rMeans, "data.frame")
   expect_identical(dim(extSp$rMeans), c(30L, 2L))
   expect_equal(colnames(extSp$rMeans), c("genotype", "t1"))
   expect_equal(extSp$rMeans$t1, c(96.1268799967542, 86.6221907998668, 83.1663794313222,
@@ -132,7 +132,7 @@ test_that("rMeans are computed correctly", {
 })
 
 test_that("random effects are computed correctly", {
-  expect_is(extSp$ranEf, "TD")
+  expect_is(extSp$ranEf, "data.frame")
   expect_identical(dim(extSp$ranEf), c(15L, 2L))
   expect_equal(colnames(extSp$ranEf), c("genotype", "t1"))
   expect_equal(extSp$ranEf$t1, c(4.11450226950924, -1.63434113694407, -1.29939662450081,
