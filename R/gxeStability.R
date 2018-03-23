@@ -53,6 +53,7 @@
 #'
 #' @export
 gxeStability <- function(TD,
+                         trials = names(TD),
                          trait,
                          method = c("superiority", "static", "wricke"),
                          bestMethod = c("max", "min"),
@@ -60,19 +61,27 @@ gxeStability <- function(TD,
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
-  if (!"trial" %in% colnames(TD)) {
+  if (!is.character(trials) || !all(trials %in% names(TD))) {
+    stop("All trials should be in TD.")
+  }
+  TDTot <- Reduce(f = rbind, x = TD[trials])
+  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(TDTot)) {
+    stop("trait has to be a column in TD.\n")
+  }
+  if (!"trial" %in% colnames(TDTot)) {
     stop("TD should contain a column trial to be able to run an AMMI analysis.\n")
   }
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TD)) {
+      !trait %in% colnames(TDTot)) {
     stop("trait has to be a column in TD.\n")
   }
   method <- match.arg(method, several.ok = TRUE)
   bestMethod <- match.arg(bestMethod)
   sorted <- match.arg(sorted)
-  if (any(is.na(TD[[trait]]))) {
-    y0 <- tapply(TD[[trait]], TD[, c("genotype","trial")], mean)
-    yIndex <- tapply(X = 1:nrow(TD), INDEX = TD[, c("genotype","trial")],
+  if (any(is.na(TDTot[[trait]]))) {
+    y0 <- tapply(TDTot[[trait]], TDTot[, c("genotype","trial")], mean)
+    yIndex <- tapply(X = 1:nrow(TDTot), INDEX = TDTot[, c("genotype","trial")],
                      FUN = identity)
     ## imputate missing values.
     y1 <- multMissing(y0, maxIter = 10)
@@ -80,38 +89,40 @@ gxeStability <- function(TD,
     yIndexReplace <- yIndex[is.na(y0)]
     if (is.list(yIndexReplace)) {
       for (i in 1:length(yIndexReplace)) {
-        for (j in 1:length(TD[yIndexReplace[[i]], trait])) {
-          if (is.na(TD[yIndexReplace[[i]][j], trait]))
-            TD[yIndexReplace[[i]][j], trait] <- replaceVal[i]
+        for (j in 1:length(TDTot[yIndexReplace[[i]], trait])) {
+          if (is.na(TDTot[yIndexReplace[[i]][j], trait]))
+            TDTot[yIndexReplace[[i]][j], trait] <- replaceVal[i]
         }
       }
     } else {
-      TD[yIndexReplace, trait] <- replaceVal
+      TDTot[yIndexReplace, trait] <- replaceVal
     }
   }
-  lab <- levels(TD$genotype)
+  lab <- levels(TDTot$genotype)
   nGeno <- length(lab)
-  trials <- levels(TD$trial)
+  trials <- levels(TDTot$trial)
   nTr <- length(trials)
   ## Compute the centered trait mean per eniroment.
-  Ej <- tapply(TD[[trait]], TD[, "trial"], mean)
+  Ej <- tapply(TDTot[[trait]], TDTot[, "trial"], mean)
   ## Compute the max or min trait mean among all genotypes per trial.
   if (bestMethod == "max") {
-    Mj <- tapply(TD[[trait]], TD[, "trial"], max, na.rm = TRUE)
+    Mj <- tapply(TDTot[[trait]], TDTot[, "trial"], max, na.rm = TRUE)
   } else {
-    Mj <- tapply(TD[[trait]], TD[, "trial"], min, na.rm = TRUE)
+    Mj <- tapply(TDTot[[trait]], TDTot[, "trial"], min, na.rm = TRUE)
   }
   ## Compute the genotype trait mean per trial.
-  Ei <- as.vector(tapply(TD[[trait]], TD[, "genotype"], mean, na.rm = TRUE))
+  Ei <- as.vector(tapply(TDTot[[trait]], TDTot[, "genotype"], mean,
+                         na.rm = TRUE))
   ## Compute the grand mean.
-  E <- mean(TD[, trait], na.rm = TRUE)
+  E <- mean(TDTot[, trait], na.rm = TRUE)
   ## Create empty vectors for storing output
   W <- S <- LB <- rep(NA, nGeno)
   for (i in 1:nGeno) {
     ## Observed genotype field response in the trial j
     ## (averaged across experiment replicates)
     Rij <- sapply(X = trials, FUN = function(x) {
-      mean(TD[which(TD$genotype == lab[i] & TD$trial == x), trait], na.rm = TRUE)
+      mean(TDTot[which(TDTot$genotype == lab[i] & TDTot$trial == x), trait],
+           na.rm = TRUE)
     })
     pos <- (1:nTr)[!is.na(Rij)]
     ## Superiority measure (Lin & Binns 1988).
