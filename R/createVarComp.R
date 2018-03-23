@@ -65,6 +65,7 @@ summary.varComp <- function(object, ...) {
 #' }
 #'
 #' @import stats
+#' @importFrom utils modifyList
 #' @export
 plot.varComp <- function(x, ...) {
   dotArgs <- list(...)
