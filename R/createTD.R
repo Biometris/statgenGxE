@@ -534,13 +534,12 @@ plot.TD <- function(x,
   }
 }
 
-#' Function for extracting for objects of class TD that keeps attributes
-#' including class.
+#' Function for extracting for objects of class TD that keeps class.
 #'
 #' @keywords internal
 `[.TD` <- function(x, i, ...) {
   r <- NextMethod("[")
-  mostattributes(r) <- attributes(x)
+  attr(r, "class") <- attr(x, "class")
   return(r)
 }
 

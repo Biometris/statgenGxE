@@ -2,13 +2,11 @@
 % Please edit documentation in R/createTD.R
 \name{[.TD}
 \alias{[.TD}
-\title{Function for extracting for objects of class TD that keeps attributes
-including class.}
+\title{Function for extracting for objects of class TD that keeps class.}
 \usage{
 \method{[}{TD}(x, i, ...)
 }
 \description{
-Function for extracting for objects of class TD that keeps attributes
-including class.
+Function for extracting for objects of class TD that keeps class.
 }
 \keyword{internal}

@@ -205,14 +205,14 @@ modelChecks <- function(TD,
                paste(designs, collapse = ", "), ".\n"))
   }
   if (!is.character(trials) || !all(trials %in% names(TD))) {
-    stop("All trials should be in TD")
+    stop("All trials should be in TD.\n")
   }
   ## Extract design from TD if needed.
   if (is.null(design)) {
     design <- attr(TD, "design")
   }
   if (is.null(traits) || !is.character(traits)) {
-    stop("Traits should be a character vector.")
+    stop("Traits should be a character vector.\n")
   }
   for (trial in trials) {
     if (!all(traits %in% colnames(TD[[trial]]))) {
@@ -221,7 +221,7 @@ modelChecks <- function(TD,
   }
   what <- match.arg(arg = what, several.ok = TRUE)
   if (!is.null(covariates) && !is.character(covariates)) {
-    stop("Covariates should be NULL or a character vector.")
+    stop("Covariates should be NULL or a character vector.\n")
   }
   for (trial in trials) {
     if (!all(covariates %in% colnames(TD[[trial]]))) {
@@ -247,7 +247,7 @@ modelChecks <- function(TD,
   }
   if (trySpatial && engine == "lme4") {
     warning("Spatial models can only be fitted using SpATS or asreml.\n
-              Defaulting to SpATS.")
+              Defaulting to SpATS.", call. = FALSE)
     engine <- "SpATS"
   }
   ## Columns needed depend on design.
