@@ -44,6 +44,8 @@ createSSA <- function(models) {
 #' \code{summary} method for class \code{SSA}.
 #'
 #' @param object An object of class \code{SSA}.
+#' @param trial A character string indicating the trial to summarize. If
+#' \code{trial = NULL} and only one trial is modelled this trial is summarized.
 #' @param trait A character string indicating the trait to summarize. If
 #' \code{trait = NULL} and only one trait is modelled this trait is summarized.
 #' @param digits An integer indicating the number of significant digits for
@@ -69,7 +71,7 @@ summary.SSA <- function(object,
                         trait = NULL,
                         digits = max(getOption("digits") - 2, 3),
                         nBest = 20,
-                        sortBy = if (!is.null(object$mFix)) "BLUEs" else "BLUPs",
+                        sortBy = NULL,
                         naLast = TRUE,
                         decreasing = TRUE,
                         ...) {
@@ -79,7 +81,7 @@ summary.SSA <- function(object,
   }
   if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
                           !trial %in% names(object))) {
-    stop("Trail has to be a single character string defining a trial in SSA.\n")
+    stop("Trial has to be a single character string defining a trial in SSA.\n")
   }
   if (is.null(trial)) {
     trial <- names(object)
@@ -90,6 +92,11 @@ summary.SSA <- function(object,
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
                           !trait %in% colnames(object[[trial]]$TD))) {
     stop("Trait has to be a single character string defining a column in TD.\n")
+  }
+  if (is.null(sortBy)) {
+    sortBy <- ifelse(!is.null(object[[trial]]$mFix), "BLUEs", "BLUPs")
+  } else {
+    sortBy <- match.arg(sortBy)
   }
   ## get summary stats for raw data
   TD <- object[[trial]]$TD
@@ -180,6 +187,8 @@ summary.SSA <- function(object,
 #' @param x An object of class SSA.
 #' @param ... Further graphical parameters (see \code{\link[lattice]{xyplot}}
 #' for details).
+#' @param trial a character string indicating the trial to plot. If
+#' \code{trial = NULL} and only one trial is modelled this trial is plotted.
 #' @param trait a character string indicating the trait to plot. If
 #' \code{trait = NULL} and only one trait is modelled this trait is plotted.
 #' @param what A character string indicating whether the fitted model with
@@ -211,7 +220,7 @@ plot.SSA <- function(x,
   }
   if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
                           !trial %in% names(x))) {
-    stop("Trail has to be a single character string defining a trial in SSA.\n")
+    stop("Trial has to be a single character string defining a trial in SSA.\n")
   }
   if (is.null(trial)) {
     trial <- names(x)
@@ -250,8 +259,8 @@ plot.SSA <- function(x,
                     what = ifelse(what == "fixed",
                                   "BLUEs", "BLUPs"))[[trial]][[trait]]
   ## Extract raw data and compute residuals.
-  response <- x[[trial]]$TD[, c("genotype", "colCoordinates",
-                                "rowCoordinates", trait)]
+  response <- x[[trial]]$TD[[trial]][, c("genotype", "colCoordinates",
+                                         "rowCoordinates", trait)]
   plotData <- merge(response, fitted, by = c("genotype", "colCoordinates",
                                              "rowCoordinates"))
   plotData$response <- plotData[[paste0(trait, ".x")]]
@@ -316,7 +325,7 @@ plot.SSA <- function(x,
     } else {
       ## Check whether data contains row/col information
       if (!all(c("rowCoordinates", "colCoordinates") %in%
-               colnames(x[[trial]]$TD))) {
+               colnames(x[[trial]]$TD[[trial]]))) {
         stop(paste("Data in", substitute(x), "contains no spatial information.\n"))
       }
       ## Code taken from plot.SpATS and simplified.
@@ -326,8 +335,8 @@ plot.SSA <- function(x,
                        ifelse(what == "fixed", "Genotypic BLUEs",
                               "Genotypic BLUPs"), "Histogram")
       ## Extract spatial coordinates from data.
-      colCoord <- x[[trial]]$TD[, "colCoordinates"]
-      rowCoord <- x[[trial]]$TD[, "rowCoordinates"]
+      colCoord <- x[[trial]]$TD[[trial]][, "colCoordinates"]
+      rowCoord <- x[[trial]]$TD[[trial]][, "rowCoordinates"]
       ## Order plotcols and rows and fill gaps if needed.
       plotCols <- seq(from = min(colCoord), to = max(colCoord),
                       by = min(diff(sort(unique(colCoord)))))

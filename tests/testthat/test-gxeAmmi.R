@@ -4,16 +4,11 @@ testTD <- createTD(data = testData, genotype = "seed",
                    trial = "field", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",
                    rowCoordinates = "Y", colCoordinates = "X")
-
-BLUEsList <- lapply(X = levels(testTD$trial), FUN = function(e) {
-  modelSp <- STRunModel(testTD[testTD$trial == e, ], design = "rowcol",
-                        traits = "t1")
-  STExtract(modelSp, what = "BLUEs", keep = "trial")
-})
+modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
+BLUEsList <- STExtract(modelSp, what = "BLUEs", keep = "trial")
 BLUEs <- createTD(Reduce(f = rbind, x = BLUEsList))
 
 geAmmi <- gxeAmmi(BLUEs, trait = "t1")
-
 test_that("output is of the right class", {
   expect_is(geAmmi, "AMMI")
   expect_is(geAmmi$envScores, "matrix")

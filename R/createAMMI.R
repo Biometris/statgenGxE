@@ -99,6 +99,7 @@ summary.AMMI <- function(object, ...) {
 #' plot(geAmmi, plotType = "AMMI2")
 #'
 #' @import graphics grDevices
+#' @importFrom utils modifyList
 #' @export
 plot.AMMI <- function(x,
                       ...,
