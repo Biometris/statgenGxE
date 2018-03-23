@@ -131,10 +131,12 @@ createTD <- function(data,
     stop("trLat should be a single numeric value between -90 and 90.")
   }
   if (!is.null(trLong) && (!is.numeric(trLong) || length(trLong) > 1 ||
-                          abs(trLong) > 180)) {
+                           abs(trLong) > 180)) {
     stop("trLat should be a single numeric value between -180 and 180.")
   }
-  if (is.na(maps::map.where(x = trLong, y = trLat))) {
+  ## Check that coordinates point to a proper location so plotting can be done.
+  loc <- maps::map.where(x = trLong, y = trLat)
+  if (length(loc) > 0 && is.na(loc)) {
     warning("Values for trLat and trLong don't match a known land location.",
             call. = FALSE)
   }
@@ -143,7 +145,7 @@ createTD <- function(data,
     stop("trPlotWidth should be a single positive numeric value.")
   }
   if (!is.null(trPlotLength) && (!is.numeric(trPlotLength) ||
-                                length(trPlotLength) > 1 || trPlotLength < 0)) {
+                                 length(trPlotLength) > 1 || trPlotLength < 0)) {
     stop("trPlotLength should be a single positive numeric value.")
   }
   ## Create list of reserved column names for renaming columns.
@@ -279,8 +281,8 @@ dropTD <- function(TD,
 #'
 #' @param object An object of class TD.
 #' @param ... Further arguments - currently not used.
-#' @param traits A character vector specifying the name(s) of the traits
-#' to be summarised.
+#' @param trial A character vector specifying the trials to be plotted.
+#' @param traits A character vector specifying the traits to be summarised.
 #' @param what A character vector indicating which summary statistics should be
 #' computed. If \code{what = "all"} all available statistics are computed.\cr
 #' Possible options are\cr
@@ -320,6 +322,7 @@ dropTD <- function(TD,
 #' @export
 summary.TD <- function(object,
                        ...,
+                       trial = names(object),
                        traits,
                        what = c("nObs", "nMiss", "mean", "median", "min",
                                 "max", "lowerQ", "upperQ", "var")) {
@@ -328,13 +331,18 @@ summary.TD <- function(object,
                "var", "seVar", "CV", "sum", "sumSq", "uncorSumSq",
                "skew", "seSkew", "kurt", "seKurt")
   ## Checks.
-  if (!is.character(traits) || !all(traits %in% colnames(object))) {
-    stop(paste("All traits should be columns in", substitute(object), ".\n"))
+  if (!is.character(trial) || length(trial) > 1 || !trial %in% names(object)) {
+    stop(paste0(trial, " should be a single character string in ",
+                deparse(substitute(object)), ".\n"))
+  }
+  trDat <- object[[trial]]
+  if (!is.character(traits) || !all(traits %in% colnames(trDat))) {
+    stop("All traits should be columns in trial.\n")
   }
   if (what[[1]] == "all") {
     what <- allWhat
   }
-  if (!is.character(what) || sum(what %in% allWhat) == 0) {
+  if (!is.character(what) || !all(what %in% allWhat)) {
     stop("At least one statistic should be chosen.\n")
   }
   whichWhat <- which(allWhat %in% what)
@@ -343,74 +351,74 @@ summary.TD <- function(object,
                   dimnames = list(what, traits))
   for (i in 1:length(traits)) {
     if ("nVals" %in% what) {
-      stats["nVals", i] <- length(object[, traits[i]])
+      stats["nVals", i] <- length(trDat[, traits[i]])
     }
     if ("nObs" %in% what) {
-      stats["nObs", i] <- length(na.omit(object[, traits[i]]))
+      stats["nObs", i] <- length(na.omit(trDat[, traits[i]]))
     }
     if ("nMiss" %in% what) {
-      stats["nMiss", i] <- sum(is.na(object[, traits[i]]))
+      stats["nMiss", i] <- sum(is.na(trDat[, traits[i]]))
     }
     if ("mean" %in% what) {
-      stats["mean", i] <- mean(object[, traits[i]], na.rm = TRUE)
+      stats["mean", i] <- mean(trDat[, traits[i]], na.rm = TRUE)
     }
     if ("median" %in% what) {
-      stats["median", i] <- median(object[, traits[i]], na.rm = TRUE)
+      stats["median", i] <- median(trDat[, traits[i]], na.rm = TRUE)
     }
     if ("min" %in% what) {
-      stats["min", i] <- min(object[, traits[i]], na.rm = TRUE)
+      stats["min", i] <- min(trDat[, traits[i]], na.rm = TRUE)
     }
     if ("max" %in% what) {
-      stats["max", i] <- max(object[, traits[i]], na.rm = TRUE)
+      stats["max", i] <- max(trDat[, traits[i]], na.rm = TRUE)
     }
     if ("range" %in% what) {
-      stats["range", i] <- max(object[, traits[i]], na.rm = TRUE) -
-        min(object[, traits[i]], na.rm = TRUE)
+      stats["range", i] <- max(trDat[, traits[i]], na.rm = TRUE) -
+        min(trDat[, traits[i]], na.rm = TRUE)
     }
     if ("lowerQ" %in% what) {
-      stats["lowerQ", i] <- quantile(object[, traits[i]], prob = .25, na.rm = TRUE)
+      stats["lowerQ", i] <- quantile(trDat[, traits[i]], prob = .25, na.rm = TRUE)
     }
     if ("upperQ" %in% what) {
-      stats["upperQ", i] <- quantile(object[,traits[i]], prob = .75, na.rm = TRUE)
+      stats["upperQ", i] <- quantile(trDat[,traits[i]], prob = .75, na.rm = TRUE)
     }
     if ("sd" %in% what) {
-      stats["sd", i] <- sd(object[, traits[i]], na.rm = TRUE)
+      stats["sd", i] <- sd(trDat[, traits[i]], na.rm = TRUE)
     }
     if ("seMean" %in% what) {
-      stats["seMean", i] <- sd(object[, traits[i]], na.rm = TRUE) /
-        sqrt(length(na.omit(object[, traits[i]])))
+      stats["seMean", i] <- sd(trDat[, traits[i]], na.rm = TRUE) /
+        sqrt(length(na.omit(trDat[, traits[i]])))
     }
     if ("var" %in% what) {
-      stats["var", i] <- var(object[, traits[i]], na.rm = TRUE)
+      stats["var", i] <- var(trDat[, traits[i]], na.rm = TRUE)
     }
     if ("seVar" %in% what) {
-      stats["seVar", i] <- seVar(object[, traits[i]], na.rm = TRUE)
+      stats["seVar", i] <- seVar(trDat[, traits[i]], na.rm = TRUE)
     }
     if ("CV" %in% what) {
-      stats["CV", i] <- 100 * sd(object[, traits[i]], na.rm = TRUE) /
-        mean(object[, traits[i]], na.rm = TRUE)
+      stats["CV", i] <- 100 * sd(trDat[, traits[i]], na.rm = TRUE) /
+        mean(trDat[, traits[i]], na.rm = TRUE)
     }
     if ("sum" %in% what) {
-      stats["sum", i] <- sum(object[, traits[i]], na.rm = TRUE)
+      stats["sum", i] <- sum(trDat[, traits[i]], na.rm = TRUE)
     }
     if ("sumSq" %in% what) {
-      stats["sumSq", i] <- sum((na.omit(object[, traits[i]]) -
-                                  mean(object[, traits[i]], na.rm = TRUE)) ^ 2)
+      stats["sumSq", i] <- sum((na.omit(trDat[, traits[i]]) -
+                                  mean(trDat[, traits[i]], na.rm = TRUE)) ^ 2)
     }
     if ("uncorSumSq" %in% what) {
-      stats["uncorSumSq", i] <- sum(object[, traits[i]] ^ 2, na.rm = TRUE)
+      stats["uncorSumSq", i] <- sum(trDat[, traits[i]] ^ 2, na.rm = TRUE)
     }
     if ("skew" %in% what) {
-      stats["skew", i] <- skewness(object[, traits[i]], na.rm = TRUE)
+      stats["skew", i] <- skewness(trDat[, traits[i]], na.rm = TRUE)
     }
     if ("seSkew" %in% what) {
-      stats["seSkew", i] <- seSkewness(length(na.omit(object[, traits[i]])))
+      stats["seSkew", i] <- seSkewness(length(na.omit(trDat[, traits[i]])))
     }
     if ("kurt" %in% what) {
-      stats["kurt", i] <- kurtosis(object[, traits[i]], na.rm = TRUE)
+      stats["kurt", i] <- kurtosis(trDat[, traits[i]], na.rm = TRUE)
     }
     if ("seKurt" %in% what) {
-      stats["seKurt", i] <- seKurtosis(length(na.omit(object[, traits[i]])))
+      stats["seKurt", i] <- seKurtosis(length(na.omit(trDat[, traits[i]])))
     }
   }
   rownames(stats) <- c("Number of values", "Number of observations",
@@ -423,7 +431,8 @@ summary.TD <- function(object,
                        "Standard Error of Kurtosis")[whichWhat]
   attr(x = stats, which = "whichWhat") <- whichWhat
   return(structure(stats,
-                   class = c("summary.TD", "table")))
+                   class = c("summary.TD", "table"),
+                   trial = trial))
 }
 
 #' @export
@@ -434,7 +443,8 @@ print.summary.TD <- function(x, ...) {
                 rep(x = 3, times = 4))[whichWhat]
   maxLength <- max(nchar(rownames(x)))
   for (i in 1:ncol(x)) {
-    cat("\nSummary statistics for", colnames(x)[i], "\n\n")
+    cat(paste("\nSummary statistics for", colnames(x)[i], "in",
+              attr(x, "trial"), "\n\n"))
     for (j in 1:nrow(x)) {
       cat(paste0(paste0(rep(x = " ",
                             times = maxLength - nchar(rownames(x)[j]) + 2),
@@ -456,6 +466,7 @@ print.summary.TD <- function(x, ...) {
 #'
 #' @param x An object of class TD.
 #' @param ... Further graphical parameters. Currently not used.
+#' @param trials A character vector indicating the trials to be plotted.
 #' @param plotType A character string indicating which plot should be made.
 #' This can be "layout" for a plot of the field layout for the diffent trials
 #' in the TD object. This is only possible if the data contains row and column
@@ -468,6 +479,9 @@ plot.TD <- function(x,
                     ...,
                     trials = names(x),
                     plotType = c("layout", "map")) {
+  if (!is.character(trials) || !all(trials %in% names(x))) {
+    stop(paste0("All trials should be in ", deparse(x), ".\n"))
+  }
   plotType <- match.arg(plotType)
   if (plotType == "layout") {
     for (trial in trials) {
@@ -499,10 +513,10 @@ plot.TD <- function(x,
       ## This is solved by using print.
       outVar <- ifelse("subBlock" %in% colnames(trDat), "subBlock", "trial")
       com <- paste("desplot::desplot(", outVar, "~ colCoordinates +",
-                    "rowCoordinates, data = trDat, out1 = ", "repId",    #outVar,
-                    ", main = trLoc, aspect = aspect)")
+                   "rowCoordinates, data = trDat, out1 = ", "repId",    #outVar,
+                   ", main = trLoc, aspect = aspect)")
       print(eval(parse(text = com)))
-   }
+    }
   } else if (plotType == "map") {
     ## Create a data.frame for plotting trials.
     ## Population has a random value but if left out nothing is plotted.
@@ -518,5 +532,15 @@ plot.TD <- function(x,
     maps::map.scale(relwidth = .15, ratio = FALSE, cex = .5)
     maps::map.cities(x = locs, col = seq_along(locs))
   }
+}
+
+#' Function for extracting for objects of class TD that keeps attributes
+#' including class.
+#'
+#' @keywords internal
+`[.TD` <- function(x, i, ...) {
+  r <- NextMethod("[")
+  mostattributes(r) <- attributes(x)
+  return(r)
 }
 
