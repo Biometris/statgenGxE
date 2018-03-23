@@ -4,10 +4,14 @@
 \alias{gxeMegaEnv}
 \title{Form mega-environments based on winning genotypes from an AMMI model}
 \usage{
-gxeMegaEnv(TD, trait, method = c("max", "min"), sumTab = TRUE)
+gxeMegaEnv(TD, trials = names(TD), trait, method = c("max", "min"),
+  sumTab = TRUE)
 }
 \arguments{
 \item{TD}{an object of class \code{\link{TD}}.}
+
+\item{trials}{A character string specifying the trials to be analyzed. If
+not supplied all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 
