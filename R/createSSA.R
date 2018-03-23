@@ -469,7 +469,10 @@ report.SSA <- function(x,
 #' package.
 #'
 #' @param SSA An object of class \code{\link{SSA}}.
-#' @param traits A character string containing the traits to be exported.
+#' @param trial A character string indicating the trial to be exported. If
+#' \code{NULL} and \code{SSA} contains only one trial that trial is exported.
+#' @param traits A character string containing the traits to be exported. If
+#' \code{NULL} all traits for the selected trial are exported.
 #' @param what A character string containing the statistics to be exported as
 #' phenotype in the cross object. This can be either \code{BLUEs} or
 #' \code{BLUPs}.
@@ -497,7 +500,8 @@ report.SSA <- function(x,
 #'
 #' @export
 SSAtoCross <- function(SSA,
-                       traits = SSA$traits,
+                       trial = NULL,
+                       traits = NULL,
                        what = c("BLUEs", "BLUPs"),
                        genoFile,
                        genotypes = c("A", "H", "B", "D", "C"),
@@ -506,12 +510,26 @@ SSAtoCross <- function(SSA,
   if (!inherits(SSA, "SSA")) {
     stop("SSA is not a valid object of class SSA.\n")
   }
+  if (is.null(trial) && length(SSA) > 1) {
+    stop("No trial provided but multiple trials found in SSA object.\n")
+  }
+  if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
+                          !trial %in% names(SSA))) {
+    stop("Trial has to be a single character string defining a trial in SSA.\n")
+  }
+  if (is.null(trial)) {
+    trial <- names(SSA)
+  }
+  if (!is.null(traits) && (!is.character(traits) ||
+                           !all(traits %in% colnames(SSA[[trial]]$TD)))) {
+    stop("Trait has to be a character vector defining columns in TD.\n")
+  }
   what <- match.arg(what)
   if (!is.character(genoFile) || length(genoFile) > 1 || !file.exists(genoFile)) {
     stop("genoFile is not a valid filename.\n")
   }
   ## Extract predictions from the model.
-  pred <- STExtract(SSA, traits = traits, what = what)
+  pred <- STExtract(SSA, traits = traits, what = what)[[trial]]
   ## Rename first column to match first column in genoFile.
   colnames(pred)[1] <- colnames(utils::read.csv(genoFile, nrow = 1))[1]
   ## Write predictions to temporary file.
