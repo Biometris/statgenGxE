@@ -56,11 +56,23 @@
 #' models.
 #' @param checkId An optional character string indicating the column in
 #' \code{data} that contains the check IDs.
+#' @param trLocation An optional character string indicating the location of
+#' the trial. This will be used for constructing default names for plots and
+#' such.
+#' @param trDate An optional date indicating the date of the trial.
 #' @param trDesign An optional character string indicating the design of the
 #' trial. Either "ibd" (incomplete-block design), "res.ibd"
 #' (resolvable incomplete-block design), "rcbd" (randomized complete block
 #' design), "rowcol" (row-column design) or "res.rowcol" (resolvable
 #' row-column design).
+#' @param trLat An optional numerical value indicating the latitude of the
+#' trial on a scale of -90 to 90.
+#' @param trLong An optional numerical value indicating the longitude of the
+#' trial on a scale of -180 to 180.
+#' @param trPlotWidth An optional positive numerical value indicating the
+#' width of the plot.
+#' @param trPlotLength An optional positive numerical value indicating the
+#' length of the plot.
 #'
 #' @return An object of class TD, a list of data.frames with renamed columns
 #' and an attribute \code{renamedCols} containing info on which columns have
@@ -95,9 +107,7 @@ createTD <- function(data,
                      trLat = NULL,
                      trLong = NULL,
                      trPlotWidth = NULL,
-                     trPlotLength = NULL
-
-) {
+                     trPlotLength = NULL) {
   ## Save name of original data for naming output.
   dataName <- deparse(substitute(data))
   ## Checks.
