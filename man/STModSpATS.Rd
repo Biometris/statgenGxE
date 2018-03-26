@@ -4,14 +4,12 @@
 \alias{STModSpATS}
 \title{Fit Single Trial Model using SpATS}
 \usage{
-STModSpATS(TD, trials = names(TD), traits, what = c("fixed", "random"),
+STModSpATS(TD, trial = NULL, traits, what = c("fixed", "random"),
   covariates = NULL, useCheckId = FALSE, trySpatial = FALSE,
   design = "rowcol", control = NULL, checks = TRUE, ...)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
-
-\item{trials}{A character vector specifying the trials for modeling.}
 
 \item{traits}{A character vector specifying the traits for modeling.}
 

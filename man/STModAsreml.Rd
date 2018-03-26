@@ -4,14 +4,12 @@
 \alias{STModAsreml}
 \title{Fit Single Trial Model using asreml}
 \usage{
-STModAsreml(TD, trials = names(TD), traits, what = c("fixed", "random"),
+STModAsreml(TD, trial = NULL, traits, what = c("fixed", "random"),
   covariates = NULL, useCheckId = FALSE, design = "rowcol",
   trySpatial = FALSE, control = NULL, checks = TRUE, ...)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
-
-\item{trials}{A character vector specifying the trials for modeling.}
 
 \item{traits}{A character vector specifying the traits for modeling.}
 

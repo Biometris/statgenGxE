@@ -616,6 +616,9 @@ checkTDMeta <- function(trLocation = NULL,
                         trLong = NULL,
                         trPlotWidth = NULL,
                         trPlotLength = NULL) {
+  ## Maps seems to change graphics parameters without resetting. Do so here.
+  op <- par()
+  on.exit(par(op))
   if (!is.null(trDesign)) {
     trDesign <- match.arg(trDesign, choices = c("ibd", "res.ibd", "rcbd",
                                                 "rowcol", "res.rowcol"))
@@ -630,11 +633,13 @@ checkTDMeta <- function(trLocation = NULL,
     stop("trLat should be a single numeric value between -180 and 180.\n",
          call. = FALSE)
   }
+  if (!is.null(trLat) && !is.null(trLong)) {
   ## Check that coordinates point to a proper location so plotting can be done.
-  loc <- maps::map.where(x = trLong, y = trLat)
-  if (length(loc) > 0 && is.na(loc)) {
-    warning("Values for trLat and trLong don't match a known land location.\n",
-            call. = FALSE)
+    loc <- maps::map.where(x = trLong, y = trLat)
+    if (length(loc) > 0 && is.na(loc)) {
+      warning("Values for trLat and trLong don't match a known land location.\n",
+              call. = FALSE)
+    }
   }
   if (!is.null(trPlotWidth) && (!is.numeric(trPlotWidth) ||
                                 length(trPlotWidth) > 1 || trPlotWidth < 0)) {

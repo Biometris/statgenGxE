@@ -8,7 +8,7 @@
 #'
 #' @keywords internal
 STModLme4 <- function(TD,
-                      trials = names(TD),
+                      trial = NULL,
                       traits,
                       what = c("fixed", "random"),
                       covariates = NULL,
@@ -20,7 +20,7 @@ STModLme4 <- function(TD,
                       ...) {
   if (checks) {
     ## Checks.
-    checkOut <- modelChecks(TD = TD, trials = trials, design = design,
+    checkOut <- modelChecks(TD = TD, trial = trial, design = design,
                             traits = traits, what = what,
                             covariates = covariates, trySpatial = trySpatial,
                             engine = "lme4", useCheckId = useCheckId,
@@ -28,65 +28,61 @@ STModLme4 <- function(TD,
     ## Convert output to variables.
     list2env(x = checkOut, envir = environment())
   }
-  models <- sapply(X = trials, FUN = function(trial) {
-    TDTr <- TD[[trial]]
-    ## Should repId be used as fixed effect in the model.
-    useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
-    ## Indicate extra random effects.
-    if (design %in% c("ibd", "res.ibd")) {
-      randEff <- "subBlock"
-    } else if (design %in% c("rowcol", "res.rowcol")) {
-      randEff <- c("rowId", "colId")
-    } else if (design == "rcbd") {
-      randEff <- character()
-    }
-    ## Construct formula for fixed part.
-    fixedForm <- paste("~",
-                       if (useRepIdFix) "repId" else "1",
-                       if (useCheckId) "+ checkId",
-                       if (!is.null(covariates)) paste(c("", covariates),
-                                                       collapse = "+"))
-    ## Construct formula for random part. Include repId depending on design.
-    if (length(randEff) != 0) {
-      randomForm <- paste0("(1 | ", if (useRepIdFix) "repId:",
-                           paste(randEff,
-                                 collapse = paste(") + (1 | ", if (useRepIdFix) "repId:")),
-                           ")")
-    } else {
-      randomForm <- character()
-    }
-    if ("random" %in% what) {
-      mr <- sapply(X = traits, FUN = function(trait) {
-        ## Fit model with genotype random.
+  TDTr <- TD[[trial]]
+  ## Should repId be used as fixed effect in the model.
+  useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
+  ## Indicate extra random effects.
+  if (design %in% c("ibd", "res.ibd")) {
+    randEff <- "subBlock"
+  } else if (design %in% c("rowcol", "res.rowcol")) {
+    randEff <- c("rowId", "colId")
+  } else if (design == "rcbd") {
+    randEff <- character()
+  }
+  ## Construct formula for fixed part.
+  fixedForm <- paste("~",
+                     if (useRepIdFix) "repId" else "1",
+                     if (useCheckId) "+ checkId",
+                     if (!is.null(covariates)) paste(c("", covariates),
+                                                     collapse = "+"))
+  ## Construct formula for random part. Include repId depending on design.
+  if (length(randEff) != 0) {
+    randomForm <- paste0("(1 | ", if (useRepIdFix) "repId:",
+                         paste(randEff,
+                               collapse = paste(") + (1 | ", if (useRepIdFix) "repId:")),
+                         ")")
+  } else {
+    randomForm <- character()
+  }
+  if ("random" %in% what) {
+    mr <- sapply(X = traits, FUN = function(trait) {
+      ## Fit model with genotype random.
+      lme4::lmer(as.formula(paste(trait, fixedForm,
+                                  "+ (1 | genotype) ",
+                                  if (length(randomForm) != 0) paste("+", randomForm))),
+                 data = TDTr, na.action = na.exclude, ...)
+    }, simplify = FALSE)
+  } else {
+    mr <- NULL
+  }
+  if ("fixed" %in% what) {
+    ## Fit model with genotype fixed.
+    ## lme4 cannot handle models without random effect so in that case lm is called.
+    mf <- sapply(X = traits, FUN = function(trait) {
+      if (length(randomForm) != 0) {
         lme4::lmer(as.formula(paste(trait, fixedForm,
-                                    "+ (1 | genotype) ",
-                                    if (length(randomForm) != 0) paste("+", randomForm))),
+                                    "+ genotype + ", randomForm)),
                    data = TDTr, na.action = na.exclude, ...)
-      }, simplify = FALSE)
-    } else {
-      mr <- NULL
-    }
-    if ("fixed" %in% what) {
-      ## Fit model with genotype fixed.
-      ## lme4 cannot handle models without random effect so in that case lm is called.
-      mf <- sapply(X = traits, FUN = function(trait) {
-        if (length(randomForm) != 0) {
-          lme4::lmer(as.formula(paste(trait, fixedForm,
-                                      "+ genotype + ", randomForm)),
-                     data = TDTr, na.action = na.exclude, ...)
-        } else  {
-          lm(as.formula(paste(trait, fixedForm, "+ genotype")),
-             data = TDTr, na.action = na.exclude, ...)
-        }}, simplify = FALSE)
-    } else {
-      mf <- NULL
-    }
-    ## Construct SSA object.
-    return(list(mRand = if ("random" %in% what) mr else NULL,
-                mFix = if ("fixed" %in% what) mf else NULL, TD = TD[trial],
-                traits = traits, design = design, spatial = trySpatial,
-                engine = "lme4", predicted = "genotype"))
-  }, simplify = FALSE)
-  ## Construct and return SSA object.
-  return(createSSA(models = models))
+      } else  {
+        lm(as.formula(paste(trait, fixedForm, "+ genotype")),
+           data = TDTr, na.action = na.exclude, ...)
+      }}, simplify = FALSE)
+  } else {
+    mf <- NULL
+  }
+  ## Construct SSA object.
+  return(list(mRand = if ("random" %in% what) mr else NULL,
+              mFix = if ("fixed" %in% what) mf else NULL, TD = TD[trial],
+              traits = traits, design = design, spatial = trySpatial,
+              engine = "lme4", predicted = "genotype"))
 }

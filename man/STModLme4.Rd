@@ -4,14 +4,12 @@
 \alias{STModLme4}
 \title{Fit Single Trial Model using lme4}
 \usage{
-STModLme4(TD, trials = names(TD), traits, what = c("fixed", "random"),
+STModLme4(TD, trial = NULL, traits, what = c("fixed", "random"),
   covariates = NULL, useCheckId = FALSE, control = NULL,
   trySpatial = FALSE, design = "rowcol", checks = TRUE, ...)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
-
-\item{trials}{A character vector specifying the trials for modeling.}
 
 \item{traits}{A character vector specifying the traits for modeling.}
 

@@ -4,7 +4,7 @@ testTD <- createTD(data = testData, genotype = "seed",
                    trial = "field", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",
                    rowCoordinates = "Y", colCoordinates = "X")
-modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
+modelSp <- STRunModel(testTD, design = "rowcol", traits = c("t1", "t2"))
 BLUEsList <- STExtract(modelSp, what = "BLUEs", keep = "trial")
 BLUEs <- createTD(Reduce(f = rbind, x = BLUEsList))
 
