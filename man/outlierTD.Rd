@@ -33,6 +33,6 @@ be marked as similar to distinguish them from the former ones.
 }
 \examples{
 ## Detect outliers in TDHeat05.
-outliers <- outlierTD(TD = TDHeat05, traits = "yield")
+#outliers <- outlierTD(TD = TDHeat05, traits = "yield")
 
 }

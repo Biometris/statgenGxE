@@ -511,9 +511,10 @@ plot.TD <- function(x,
       ## work inside another function so therefore use eval(parse).
       ## Desplot uses lattice for plotting which doesn't plot within a loop.
       ## This is solved by using print.
-      outVar <- ifelse("subBlock" %in% colnames(trDat), "subBlock", "trial")
-      com <- paste("desplot::desplot(", outVar, "~ colCoordinates +",
-                   "rowCoordinates, data = trDat, out1 = ", "repId",    #outVar,
+      plotVar <- ifelse("subBlock" %in% colnames(trDat), "subBlock", "trial")
+      out <- ifelse("repId" %in% colnames(trDat), ", out1 = repId", "")
+      com <- paste("desplot::desplot(", plotVar, "~ colCoordinates +",
+                   "rowCoordinates, data = trDat", out,
                    ", main = trLoc, aspect = aspect)")
       print(eval(parse(text = com)))
     }
@@ -532,6 +533,39 @@ plot.TD <- function(x,
     maps::map.scale(relwidth = .15, ratio = FALSE, cex = .5)
     maps::map.cities(x = locs, col = seq_along(locs))
   }
+}
+
+#' Extract metadata from TD objects
+#'
+#' Function for extracting metadata as a data.frame from objects of class TD.
+#' Location, data, design, latitude, longitude, plotWidth and plotLength for
+#' all trials in TD will be extracted and return in the form of a data.frame.
+#'
+#' @param TD An object of class TD.
+#'
+#' @return A data.frame containing the metadata for all trials in TD.
+#'
+#' @export
+getMeta <- function(TD) {
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be an object of class TD")
+  }
+  metaVars <- c("trLocation", "trDate", "trDesign", "trLat", "trLong",
+                "trPlotWidth", "trPlotLength")
+  meta <- as.data.frame(matrix(nrow = length(TD), ncol = length(metaVars),
+                               dimnames = list(names(TD), metaVars)))
+  for (mv in metaVars) {
+    meta[mv] <- sapply(X = TD, FUN = function(tr) {
+      mvTr <- attr(tr, which = mv)
+      ## Replace NULL by NA to ensure correct output format for inserting in df.
+      if (!is.null(mvTr)) {
+        return(mvTr)
+      } else {
+        return(NA)
+      }
+    })
+  }
+  return(meta)
 }
 
 #' Function for extracting for objects of class TD that keeps class.
