@@ -77,30 +77,15 @@
 % For multiple columns.
 \usepackage{multicol}
 
-% Graphics Path definition
-%-------------------------------------------------------------------------------
-\graphicspath{{figures/}}
-
-%-------------------------------------------------------------------------------
-%	Article Information
-%-------------------------------------------------------------------------------
-% Setting PDF properties in the final PDF
-% !! Works only with PDFLaTeX and LaTeX->DVI->PS->PDF
-\hypersetup
-{
-pdfsubject={Model report},
-pdftitle={Model report}
-}
-
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Model report}%
+\title{Single trial analysis for }%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % Dates
-\date{2018-01-02 09:08:17}
+\date{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
 % End article header
 
@@ -112,7 +97,7 @@ pdftitle={Model report}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
-% Set knitr options
+% Load required packages
 
 
 
@@ -120,16 +105,32 @@ pdftitle={Model report}
 \maketitle
 %\newpage
 
-% Start double line spacing
+% Start single line spacing
 \singlespacing
-%\doublespacing
+
+%-------------------------------------------------------------------------------
+\section{General information}
+%-------------------------------------------------------------------------------
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Mon Mar 26 14:45:19 2018
+\begin{table}[ht]
+\begin{flushleft}
+\begin{tabular}{ll}
+  Analysis done on & 18-03-26 14:41:25 \\ 
+  Pipeline version & 0.0.0.9000 \\ 
+  Mixed model engine & SpATS \\ 
+  \end{tabular}
+\label{general}
+\end{flushleft}
+\end{table}
+
 
 %-------------------------------------------------------------------------------
 \section{Description of the fitted model}
 %-------------------------------------------------------------------------------
 
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:08:18 2018
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Mon Mar 26 14:45:19 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{ll}
@@ -142,13 +143,13 @@ pdftitle={Model report}
 \end{flushleft}
 \end{table}
 
-
+\newpage
 %-------------------------------------------------------------------------------
 \section{Summary of the results}
 %-------------------------------------------------------------------------------
 
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:08:18 2018
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Mon Mar 26 14:45:19 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Size of the data set and eight number descriptives} 
@@ -171,56 +172,56 @@ Number of observations & 338.00 \\
 \end{table}
 
 \newpage
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:08:18 2018
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Mon Mar 26 14:45:19 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Effective dimensions} 
 \label{effDims}
-\begin{tabular}{lccccc}
+\begin{tabular}{lrrrrr}
   \hline
  & Effective & Model & Nominal & Ratio & Type \\ 
   \hline
 Genotype & 168.0 & 168 & 168 & 1.00 & F \\ 
   Intercept & 1.0 & 1 & 1 & 1.00 & F \\ 
   Replicate & 1.0 & 1 & 1 & 1.00 & F \\ 
-  Row(replicate) & 18.3 & 52 & 51 & 0.36 & R \\ 
-  Col(replicate) & 1.1 & 26 & 25 & 0.04 & R \\ 
+  Row(replicate) & 10.5 & 52 & 51 & 0.21 & R \\ 
+  Col(replicate) & 0.0 & 26 & 25 & 0.00 & R \\ 
   Linear trend along cols & 1.0 & 1 & 1 & 1.00 & S \\ 
   Linear trend along rows & 1.0 & 1 & 1 & 1.00 & S \\ 
   Linear trend along rows and cols & 1.0 & 1 & 1 & 1.00 & S \\ 
-  Smooth trend along cols & 4.2 & 8 & 8 & 0.52 & S \\ 
-  Smooth trend along rows & 0.0 & 14 & 14 & 0.00 & S \\ 
+  Smooth trend along cols & 0.0 & 8 & 8 & 0.00 & S \\ 
+  Smooth trend along rows & 1.6 & 14 & 14 & 0.12 & S \\ 
   Linear trend in rows changing smoothly along cols & 0.0 & 8 & 8 & 0.00 & S \\ 
-  Linear trend in cols changing smoothly along rows & 1.3 & 14 & 14 & 0.09 & S \\ 
-  Smooth-by-smooth interaction trend over rows and cols & 2.3 & 28 & 28 & 0.08 & S \\ 
+  Linear trend in cols changing smoothly along rows & 0.1 & 14 & 14 & 0.00 & S \\ 
+  Smooth-by-smooth interaction trend over rows and cols & 5.7 & 28 & 28 & 0.20 & S \\ 
    &  &  &  &  &  \\ 
-  Total & 200.2 & 323 & 321 & 0.62 &  \\ 
-  Residual & 137.8 &  &  &  &  \\ 
+  Total & 190.8 & 323 & 321 & 0.59 &  \\ 
+  Residual & 147.2 &  &  &  &  \\ 
   Number of observations & 338 &  &  &  &  \\ 
    \hline
 \end{tabular}
 \end{flushleft}
 \end{table}
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:08:18 2018
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Mon Mar 26 14:45:19 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Variance components} 
 \label{varComps}
-\begin{tabular}{lc}
+\begin{tabular}{lr}
   \hline
  & Variance \\ 
   \hline
-Row(replicate) & 233.60 \\ 
-  Col(replicate) & 4.99 \\ 
-  Smooth trend along cols & 22290.00 \\ 
-  Smooth trend along rows & 0.00 \\ 
-  Linear trend in rows changing smoothly along cols & 1.00 \\ 
-  Linear trend in cols changing smoothly along rows & 28.82 \\ 
-  Smooth-by-smooth interaction trend over rows and cols & 465.30 \\ 
+Row(replicate) & 34.27 \\ 
+  Col(replicate) & 0.00 \\ 
+  Smooth trend along cols & 0.00 \\ 
+  Smooth trend along rows & 78.89 \\ 
+  Linear trend in rows changing smoothly along cols & 0.00 \\ 
+  Linear trend in cols changing smoothly along rows & 0.59 \\ 
+  Smooth-by-smooth interaction trend over rows and cols & 1732.00 \\ 
    &  \\ 
-  Residual & 234.50 \\ 
+  Residual & 213.80 \\ 
    \hline
 \end{tabular}
 \end{flushleft}
@@ -231,74 +232,55 @@ Row(replicate) & 233.60 \\
 %-------------------------------------------------------------------------------
 \section{Diagnostic plots}
 %-------------------------------------------------------------------------------
+
+\includegraphics[width=0.9\linewidth]{./figures/032618144518-spatialPlots-1} 
+
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-
-{\centering \includegraphics[width=\maxwidth]{figures/fig-spatialPlots-1} 
-
-}
-
-
-
-\end{knitrout}
-\newpage
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-
-{\centering \includegraphics[width=\maxwidth]{figures/fig-basePlots-1} 
-
-}
-
-
+\includegraphics[width=0.9\linewidth]{./figures/032618144518-basePlots-1} 
 
 \end{knitrout}
 \newpage
 
 %-------------------------------------------------------------------------------
-\section{List of best 10\% genotypes}
+\section{List of best 10\% genotypes with
+highest BLUEs}
 %-------------------------------------------------------------------------------
 
 \begin{multicols*}{2}
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Tue Jan 02 09:08:19 2018
+% latex table generated in R 3.4.4 by xtable 1.8-2 package
+% Mon Mar 26 14:45:20 2018
 \begin{tabular}{lcc}
   \hline
-genotype & BLUEs & SE \\ 
+genotype & yield & SE \\ 
   \hline
-SB025 & 297.93 & 13.75 \\ 
-  SB032 & 297.77 & 14.51 \\ 
-  SB023 & 296.40 & 13.61 \\ 
-  SB022 & 291.29 & 14.43 \\ 
-  SB011 & 290.38 & 13.95 \\ 
-  SB144 & 287.02 & 14.18 \\ 
-  SB156 & 281.01 & 14.80 \\ 
-  SB031 & 273.75 & 14.56 \\ 
-  SB055 & 272.72 & 14.23 \\ 
-  SB054 & 270.55 & 14.87 \\ 
-  SB143 & 260.58 & 14.96 \\ 
-  SB194 & 258.68 & 14.00 \\ 
-  SB183 & 255.15 & 14.91 \\ 
-  SB020 & 253.16 & 13.15 \\ 
-  SB155 & 253.15 & 13.77 \\ 
-  SB140 & 253.07 & 14.69 \\ 
-  SB128 & 252.18 & 15.89 \\ 
+SB023 & 288.69 & 11.81 \\ 
+  SB025 & 287.90 & 11.75 \\ 
+  SB022 & 285.49 & 11.86 \\ 
+  SB032 & 282.39 & 11.92 \\ 
+  SB011 & 274.11 & 12.03 \\ 
+  SB156 & 270.44 & 11.78 \\ 
+  SB144 & 268.80 & 11.89 \\ 
+  SB031 & 256.97 & 11.99 \\ 
+  SB093 & 251.19 & 12.26 \\ 
+  SB055 & 250.36 & 11.99 \\ 
+  SB054 & 250.21 & 12.05 \\ 
+  SB020 & 244.95 & 11.87 \\ 
+  SB028 & 242.94 & 12.12 \\ 
+  SB194 & 241.81 & 11.57 \\ 
+  SB128 & 241.31 & 11.97 \\ 
+  SB155 & 239.79 & 11.76 \\ 
+  SB027 & 239.54 & 11.88 \\ 
    \hline
 \end{tabular}
 
 \columnbreak
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-
-{\centering \includegraphics[width=\maxwidth]{figures/fig-predPlot-1} 
-
-}
-
-
+\includegraphics[width=0.9\linewidth]{./figures/032618144518-predPlot-1} 
 
 \end{knitrout}
 \end{multicols*}
-
-
 %-------------------------------------------------------------------------------
 % End Document
 \end{document}
