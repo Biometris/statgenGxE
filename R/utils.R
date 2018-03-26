@@ -31,6 +31,7 @@ predictAsreml <- function(model,
                           vcov = TRUE,
                           TD,
                           ...) {
+  wrnMsg <- "Insufficient workspace - (reset workspace or pworkspace arguments)"
   ## Create tempfile to suppress asreml output messages.
   tmp <- tempfile()
   sink(tmp)
@@ -40,7 +41,9 @@ predictAsreml <- function(model,
                                 data = TD, ...))
   pWorkSpace <- 8e6
   ## While there is a warning, increase pWorkSpace and predict again.
-  while (!is.null(modelP$warning) && pWorkSpace < 160e6) {
+  while (!is.null(modelP$warning) &&
+         grepl(pattern = wrnMsg, x = modelP$warning)
+         && pWorkSpace < 160e6) {
     pWorkSpace <- pWorkSpace + 8e6
     modelP <- tryCatchExt(predict(model, classify = classify,
                                   vcov = vcov, associate = associate, data = TD,
@@ -48,7 +51,11 @@ predictAsreml <- function(model,
   }
   sink()
   unlink(tmp)
-  if (is.null(modelP$warning) && is.null(modelP$error)) {
+  if (!is.null(modelP$warning) && !grepl(pattern = wrnMsg, x = modelP$warning)) {
+    warning(modelP$warning$message, call. = FALSE)
+  }
+  if ((is.null(modelP$warning) ||
+       !grepl(pattern = wrnMsg, x = modelP$warning)) && is.null(modelP$error)) {
     return(modelP$value)
   } else {
     stop(paste("Error in asreml when running predict. Asreml message:\n",
@@ -108,7 +115,7 @@ skewness <- function(x,
 seSkewness <- function(n) {
   if (n <= 2) {
     warning(paste("For n less than 2 the standard error of skewness cannot be",
-            "calculated"), call. = FALSE)
+                  "calculated"), call. = FALSE)
     return(NA)
   }
   return(sqrt((6 * n * (n - 1)) / ((n - 2) * (n + 1) * (n + 3))))
