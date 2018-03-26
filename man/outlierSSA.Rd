@@ -4,10 +4,14 @@
 \alias{outlierSSA}
 \title{Identifying outliers in objects of class SSA}
 \usage{
-outlierSSA(SSA, traits, rLimit = NULL, commonFactors = NULL)
+outlierSSA(SSA, trial = NULL, traits, rLimit = NULL, commonFactors = NULL)
 }
 \arguments{
 \item{SSA}{An object of class \code{\link{SSA}}.}
+
+\item{trial}{A character string specifying the trial for which outliers
+should be identified. If \code{NULL} and \code{SSA} contains only one trial
+that trial is used.}
 
 \item{traits}{A character vector specifying the names of the traits for
 which outliers should be identified.}
@@ -40,6 +44,6 @@ similar to distinguish them from the former ones.
 myModel <- STRunModel(TD = TDHeat05, traits = "yield" ,
                       design = "res.rowcol", engine = "lme4")
 ## Detect outliers in the standardized residuals of the fitted model.
-#outliers <- outlierSSA(SSA = myModel, traits = "yield")
+outliers <- outlierSSA(SSA = myModel, traits = "yield")
 
 }

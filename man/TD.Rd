@@ -113,7 +113,8 @@ generated as a list with three items. In this case metadata describing the
 trials will be identical.\cr
 To generate a TD object with different metadata for each trial start by
 creating a TD object for one trial and then add new trials to it using the
-addTD function.\cr\cr
+addTD function. Alternatively create a TD object with all data and then use
+\code{\link{setMeta}} to add metadata for all trials at once.\cr\cr
 \code{addTD}\cr
 Function for adding extra trial data to an existing object of class TD. The
 data for the new trials will be added after the data for existing trials. It
