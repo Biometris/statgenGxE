@@ -16,7 +16,8 @@
 #' trials will be identical.\cr
 #' To generate a TD object with different metadata for each trial start by
 #' creating a TD object for one trial and then add new trials to it using the
-#' addTD function.\cr\cr
+#' addTD function. Alternatively create a TD object with all data and then use
+#' \code{\link{setMeta}} to add metadata for all trials at once.\cr\cr
 #' \code{addTD}\cr
 #' Function for adding extra trial data to an existing object of class TD. The
 #' data for the new trials will be added after the data for existing trials. It
@@ -129,7 +130,9 @@ createTD <- function(data,
                   "rowId", "colId", "rowCoordinates", "colCoordinates",
                   "checkId")
   ## First rename duplicate colums and add duplicated columns to data
-  renameFrom <- as.character(sapply(X = renameCols, FUN = get))
+  renameFrom <- as.character(sapply(X = renameCols, FUN = function(x) {
+    get(x)
+  }))
   ## Create a data.frame with renamed cols to add to TD as an attribute.
   renamed <- data.frame(orig = renameFrom[renameFrom != "NULL"],
                         new = renameCols[renameFrom != "NULL"],
@@ -580,7 +583,7 @@ setMeta <- function(TD,
       mvTr <- meta[tr, mv]
       if (!is.na(mvTr)) {
         chk <- try(do.call(what = checkTDMeta, args = setNames(list(mvTr), mv)),
-            silent = TRUE)
+                   silent = TRUE)
         if (inherits(chk, "try-error")) {
           ## Get message from check function but remove first 8 chars to
           ## prevent having an error text with 3x error in it.
