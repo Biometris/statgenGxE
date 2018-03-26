@@ -122,40 +122,14 @@ createTD <- function(data,
       stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
     }
   }
-  if (!is.null(trDesign)) {
-    trDesign <- match.arg(trDesign, choices = c("ibd", "res.ibd", "rcbd",
-                                                "rowcol", "res.rowcol"))
-  }
-  if (!is.null(trLat) && (!is.numeric(trLat) || length(trLat) > 1 ||
-                          abs(trLat) > 90)) {
-    stop("trLat should be a single numeric value between -90 and 90.")
-  }
-  if (!is.null(trLong) && (!is.numeric(trLong) || length(trLong) > 1 ||
-                           abs(trLong) > 180)) {
-    stop("trLat should be a single numeric value between -180 and 180.")
-  }
-  ## Check that coordinates point to a proper location so plotting can be done.
-  loc <- maps::map.where(x = trLong, y = trLat)
-  if (length(loc) > 0 && is.na(loc)) {
-    warning("Values for trLat and trLong don't match a known land location.",
-            call. = FALSE)
-  }
-  if (!is.null(trPlotWidth) && (!is.numeric(trPlotWidth) ||
-                                length(trPlotWidth) > 1 || trPlotWidth < 0)) {
-    stop("trPlotWidth should be a single positive numeric value.")
-  }
-  if (!is.null(trPlotLength) && (!is.numeric(trPlotLength) ||
-                                 length(trPlotLength) > 1 || trPlotLength < 0)) {
-    stop("trPlotLength should be a single positive numeric value.")
-  }
+  checkTDMeta(trDesign = trDesign, trLat = trLat, trLong = trLong,
+              trPlotWidth = trPlotWidth, trPlotLength = trPlotLength)
   ## Create list of reserved column names for renaming columns.
   renameCols <- c("genotype", "trial", "megaEnv", "year", "repId", "subBlock",
                   "rowId", "colId", "rowCoordinates", "colCoordinates",
                   "checkId")
   ## First rename duplicate colums and add duplicated columns to data
-  renameFrom <- as.character(sapply(X = renameCols, FUN = function(x) {
-    get(x)
-  }))
+  renameFrom <- as.character(sapply(X = renameCols, FUN = get))
   ## Create a data.frame with renamed cols to add to TD as an attribute.
   renamed <- data.frame(orig = renameFrom[renameFrom != "NULL"],
                         new = renameCols[renameFrom != "NULL"],
@@ -548,7 +522,7 @@ plot.TD <- function(x,
 #' @export
 getMeta <- function(TD) {
   if (missing(TD) || !inherits(TD, "TD")) {
-    stop("TD should be an object of class TD")
+    stop("TD should be an object of class TD.\n")
   }
   metaVars <- c("trLocation", "trDate", "trDesign", "trLat", "trLong",
                 "trPlotWidth", "trPlotLength")
@@ -568,6 +542,58 @@ getMeta <- function(TD) {
   return(meta)
 }
 
+#' Set metadata of TD objects
+#'
+#' Function for setting metadata of a TD object for one or more trials
+#' simultaneously. Metadata can be set using a data.frame with rownames
+#' corresponding to the trials in \code{TD}. The data.frame should contain one
+#' or  more of the following columns: trLocation, trDate, trDesign, trLat,
+#' trLong, trPlotWidth and trPlotLength. The values of the metadata of TD
+#' will be set to the values in the corresponding column in \code{meta}.
+#' Existing values will be overwritten, but \code{NA} will be ignored so
+#' setting a value to \code{NA} won't result in accidentally removing it.
+#'
+#' @param TD An object of class TD.
+#' @param meta A data.frame containing metadata.
+#'
+#' @return The object of class TD with updated metadata.
+#'
+#' @export
+setMeta <- function(TD,
+                    meta) {
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be an object of class TD.\n")
+  }
+  if (missing(meta) || !inherits(meta, "data.frame")) {
+    stop("meta should be a data.frame.\n")
+  }
+  naTr <- rownames(meta)[!rownames(meta) %in% names(TD)]
+  if (length(naTr) > 0) {
+    warning(paste0("The following trials in meta are not in TD: ",
+                   paste(naTr, collapse = ", "), ".\n"), call. = FALSE)
+  }
+  metaVars <- c("trLocation", "trDate", "trDesign", "trLat", "trLong",
+                "trPlotWidth", "trPlotLength")
+  ## Set metadata for trials in meta that are also in TD.
+  for (tr in rownames(meta)[rownames(meta) %in% names(TD)]) {
+    for (mv in metaVars) {
+      mvTr <- meta[tr, mv]
+      if (!is.na(mvTr)) {
+        chk <- try(do.call(what = checkTDMeta, args = setNames(list(mvTr), mv)),
+            silent = TRUE)
+        if (inherits(chk, "try-error")) {
+          ## Get message from check function but remove first 8 chars to
+          ## prevent having an error text with 3x error in it.
+          stop(paste0("\nError for ", tr, ":\n",
+                      substring(text = chk, first = 9)))
+        }
+        attr(TD[[tr]], which = mv) <- mvTr
+      }
+    }
+  }
+  return(TD)
+}
+
 #' Function for extracting for objects of class TD that keeps class.
 #'
 #' @keywords internal
@@ -576,4 +602,48 @@ getMeta <- function(TD) {
   attr(r, "class") <- attr(x, "class")
   return(r)
 }
+
+#' Helper function for checking metadata structure for TD objects.
+#'
+#' @keywords internal
+checkTDMeta <- function(trLocation = NULL,
+                        trDate = NULL,
+                        trDesign = NULL,
+                        trLat = NULL,
+                        trLong = NULL,
+                        trPlotWidth = NULL,
+                        trPlotLength = NULL) {
+  if (!is.null(trDesign)) {
+    trDesign <- match.arg(trDesign, choices = c("ibd", "res.ibd", "rcbd",
+                                                "rowcol", "res.rowcol"))
+  }
+  if (!is.null(trLat) && (!is.numeric(trLat) || length(trLat) > 1 ||
+                          abs(trLat) > 90)) {
+    stop("trLat should be a single numeric value between -90 and 90.\n",
+         call. = FALSE)
+  }
+  if (!is.null(trLong) && (!is.numeric(trLong) || length(trLong) > 1 ||
+                           abs(trLong) > 180)) {
+    stop("trLat should be a single numeric value between -180 and 180.\n",
+         call. = FALSE)
+  }
+  ## Check that coordinates point to a proper location so plotting can be done.
+  loc <- maps::map.where(x = trLong, y = trLat)
+  if (length(loc) > 0 && is.na(loc)) {
+    warning("Values for trLat and trLong don't match a known land location.\n",
+            call. = FALSE)
+  }
+  if (!is.null(trPlotWidth) && (!is.numeric(trPlotWidth) ||
+                                length(trPlotWidth) > 1 || trPlotWidth < 0)) {
+    stop("trPlotWidth should be a single positive numeric value.\n",
+         call. = FALSE)
+  }
+  if (!is.null(trPlotLength) && (!is.numeric(trPlotLength) ||
+                                 length(trPlotLength) > 1 || trPlotLength < 0)) {
+    stop("trPlotLength should be a single positive numeric value.\n",
+         call. = FALSE)
+  }
+}
+
+
 
