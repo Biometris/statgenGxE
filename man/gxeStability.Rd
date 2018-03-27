@@ -4,12 +4,15 @@
 \alias{gxeStability}
 \title{Calculate stability coefficients for genotype-by-environment data}
 \usage{
-gxeStability(TD, trait, method = c("superiority", "static", "wricke"),
-  bestMethod = c("max", "min"), sorted = c("descending", "ascending",
-  "none"))
+gxeStability(TD, trials = names(TD), trait, method = c("superiority",
+  "static", "wricke"), bestMethod = c("max", "min"),
+  sorted = c("descending", "ascending", "none"))
 }
 \arguments{
 \item{TD}{an object of class \code{\link{TD}}.}
+
+\item{trials}{A character string specifying the trials to be analyzed. If
+not supplied all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 

@@ -8,6 +8,7 @@
 #'
 #' @keywords internal
 STModAsreml <- function(TD,
+                        trial = NULL,
                         traits,
                         what = c("fixed", "random"),
                         covariates = NULL,
@@ -19,13 +20,15 @@ STModAsreml <- function(TD,
                         ...) {
   if (checks) {
     ## Checks.
-    checkOut <- modelChecks(TD = TD, design = design, traits = traits,
-                            what = what, covariates = covariates,
-                            trySpatial = trySpatial, engine = "asreml",
-                            useCheckId = useCheckId, control = control)
+    checkOut <- modelChecks(TD = TD, trial = trial, design = design,
+                            traits = traits, what = what,
+                            covariates = covariates, trySpatial = trySpatial,
+                            engine = "asreml", useCheckId = useCheckId,
+                            control = control)
     ## Convert output to variables.
     list2env(x = checkOut, envir = environment())
   }
+  TDTr <- TD[[trial]]
   ## Should repId be used as fixed effect in the model.
   useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
   # Check if spatial models can be fitted.
@@ -42,9 +45,9 @@ STModAsreml <- function(TD,
       }
     }
     if (useRepIdFix) {
-      repTab <- table(TD$repId, TD$rowId, TD$colId)
+      repTab <- table(TDTr$repId, TDTr$rowId, TDTr$colId)
     } else {
-      repTab <- table(TD$rowId, TD$colId)
+      repTab <- table(TDTr$rowId, TDTr$colId)
     }
     if (min(repTab) > 1) {
       warning(paste("There should only be one plot at each combination of",
@@ -90,7 +93,7 @@ STModAsreml <- function(TD,
                                   random = as.formula(paste("~", randomForm,
                                                             if (length(randomForm) != 0) "+",
                                                             "genotype")),
-                                  rcov = ~ units, aom = TRUE, data = TD, ...)
+                                  rcov = ~ units, aom = TRUE, data = TDTr, ...)
         sink()
         if ("fixed" %in% what) {
           ## Constrain variance of the variance components to be fixed as the values in mr.
@@ -107,8 +110,8 @@ STModAsreml <- function(TD,
         mrTrait$call$random <- eval(mrTrait$call$random)
         mrTrait$call$rcov <- eval(mrTrait$call$rcov)
         # Run predict.
-        mrTrait <- predictAsreml(mrTrait, TD = TD)
-        mrTrait$call$data <- substitute(TD)
+        mrTrait <- predictAsreml(mrTrait, TD = TDTr)
+        mrTrait$call$data <- substitute(TDTr)
         mr[[trait]] <- mrTrait
       }
       if ("fixed" %in% what) {
@@ -123,12 +126,12 @@ STModAsreml <- function(TD,
                                     random = as.formula(paste("~",
                                                               randomForm)),
                                     rcov = ~ units, G.param = GParamTmp,
-                                    aom = TRUE, data = TD, ...)
+                                    aom = TRUE, data = TDTr, ...)
         } else {
           mfTrait <- asreml::asreml(fixed = as.formula(paste(trait, fixedForm,
                                                              "+ genotype")),
                                     rcov = ~ units, G.param = GParamTmp,
-                                    aom = TRUE, data = TD, ...)
+                                    aom = TRUE, data = TDTr, ...)
         }
         sink()
         mfTrait$call$fixed <- eval(mfTrait$call$fixed)
@@ -141,25 +144,24 @@ STModAsreml <- function(TD,
           assocForm <- as.formula("~ NULL")
         }
         ## Run predict.
-        mfTrait <- predictAsreml(mfTrait, TD = TD, associate = assocForm)
-        mfTrait$call$data <- substitute(TD)
+        mfTrait <- predictAsreml(mfTrait, TD = TDTr, associate = assocForm)
+        mfTrait$call$data <- substitute(TDTr)
         mf[[trait]] <- mfTrait
       }
     }
     unlink(tmp)
     ## Construct SSA object.
-    model <- createSSA(mRand = if ("random" %in% what) mr else NULL,
-                       mFix = if ("fixed" %in% what) mf else NULL,
-                       TD = TD, traits = traits,
-                       design = design, engine = "asreml")
+    return(list(mRand = if ("random" %in% what) mr else NULL,
+                mFix = if ("fixed" %in% what) mf else NULL, TD = TD[trial],
+                traits = traits, design = design, spatial = trySpatial,
+                engine = "asreml", predicted = "genotype"))
   } else {# trySpatial
     regular <- min(repTab) == 1 && max(repTab) == 1
-    model <- bestSpatMod(TD = TD, traits = traits, what = what,
-                         regular = regular, criterion = criterion,
-                         useCheckId = useCheckId, design = design,
-                         covariates = covariates, ...)
+    return(bestSpatMod(TD = TD[trial], traits = traits, what = what,
+                       regular = regular, criterion = criterion,
+                       useCheckId = useCheckId, design = design,
+                       covariates = covariates, ...))
   }
-  return(model)
 }
 
 #' Helper function for calculating best spatial model using asreml.
@@ -176,7 +178,8 @@ bestSpatMod <- function(TD,
   ## Create tempfile to suppress asreml output messages.
   tmp <- tempfile()
   ## TD needs to be sorted by row and column to prevent asreml from crashing.
-  TD <- TD[order(TD$rowId, TD$colId), ]
+  TDTr <- TD[[1]]
+  TDTr <- TDTr[order(TDTr$rowId, TDTr$colId), ]
   useRepIdFix <- design == "res.rowcol"
   ## Define random terms of models to try.
   randomTerm <- c(rep(x = "NULL", times = 3),
@@ -217,7 +220,7 @@ bestSpatMod <- function(TD,
                                 random = as.formula(paste("~ genotype +",
                                                           randomTerm[i])),
                                 rcov = as.formula(paste("~", spatialTerm[i])),
-                                aom = TRUE, data = TD, ...)
+                                aom = TRUE, data = TDTr, ...)
       sink()
       ## If current model is better than best so far based on chosen criterion
       ## define best model as current model.
@@ -255,14 +258,14 @@ bestSpatMod <- function(TD,
     mfTrait <- asreml::asreml(fixed = fixedFormfTrait,
                               random = as.formula(paste("~", randomTerm[bestLoc])),
                               rcov = as.formula(paste("~", spatialTerm[bestLoc])),
-                              G.param = GParamTmp, aom = TRUE, data = TD, ...)
+                              G.param = GParamTmp, aom = TRUE, data = TDTr, ...)
     sink()
     ## evaluate call terms in bestNidek and mfTrait so predict can be run.
     bestModelTrait$call$fixed <- eval(bestModelTrait$call$fixed)
     bestModelTrait$call$random <- eval(bestModelTrait$call$random)
     bestModelTrait$call$rcov <- eval(bestModelTrait$call$rcov)
     # Run predict.
-    bestModelTrait <- predictAsreml(bestModelTrait, TD = TD)
+    bestModelTrait <- predictAsreml(bestModelTrait, TD = TDTr)
     mfTrait$call$fixed <- eval(mfTrait$call$fixed)
     mfTrait$call$random <- eval(mfTrait$call$random)
     mfTrait$call$rcov <- eval(mfTrait$call$rcov)
@@ -273,20 +276,16 @@ bestSpatMod <- function(TD,
       assocForm <- as.formula("~ NULL")
     }
     ## Run predict.
-    mfTrait <- predictAsreml(mfTrait, TD = TD, associate = assocForm)
+    mfTrait <- predictAsreml(mfTrait, TD = TDTr, associate = assocForm)
     mr[[trait]] <- bestModelTrait
     mf[[trait]] <- mfTrait
     spatial[[trait]] <- spatialChoice[bestLoc]
   }
   unlink(tmp)
-  model <- createSSA(mRand = if ("random" %in% what) mr else NULL,
-                     mFix = if ("fixed" %in% what) mf else NULL,
-                     TD = TD,
-                     traits = trait,
-                     design = design,
-                     spatial = spatial,
-                     engine = "asreml")
-  return(model)
+  return(list(mRand = if ("random" %in% what) mr else NULL,
+              mFix = if ("fixed" %in% what) mf else NULL, TD = TD,
+              traits = trait, design = design, spatial = spatial,
+              engine = "asreml", predicted = "genotype"))
 }
 
 

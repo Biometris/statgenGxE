@@ -53,14 +53,15 @@ descending <- list(...)$descending
 @
 <<label=extractInfo, echo=FALSE, include=FALSE>>=
 ## Extract basic modelling information
-engine <- x$engine
-trait <- x$traits
-if (is.null(x$mFix)) {
-  model <- x$mRand[[1]]
+trial <- names(x)
+engine <- x[[trial]]$engine
+trait <- x[[trial]]$traits
+if (is.null(x[[trial]]$mFix)) {
+  model <- x[[trial]]$mRand[[1]]
   modelType <- "random"
   predName <- "BLUPs"
 } else {
-  model <- x$mFix[[1]]
+  model <- x[[trial]]$mFix[[1]]
   modelType <- "fixed"
   predName <- "BLUEs"
 }
@@ -108,8 +109,9 @@ names(modelDesigns) <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
 if (useCheckId) {
   modelDesigns <- paste("checkId (F) +", modelDesigns)
 }
-descrItems <- c(trait, modelDesigns[x$design],
-                if (is.null(x$spatial)) "id" else as.character(x$spatial[1]),
+descrItems <- c(trait, modelDesigns[x[[trial]]$design],
+                if (is.null(x[[trial]]$spatial)) "id" else
+                  as.character(x[[trial]]$spatial[1]),
                 modelType)
 names(descrItems) <- c("Trait",
                        "Experimental design features",
@@ -131,7 +133,7 @@ if (engine == "SpATS") {
 }
 @
 <<label=summary, echo=FALSE, results="asis">>=
-modSum <- as.data.frame(summary(x$TD, traits = trait))
+modSum <- as.data.frame(summary(x[[trial]]$TD, traits = trait))
 modSum <- modSum[!is.na(modSum$Freq), ]
 print(xtable::xtable(x = modSum[, c(1, 3)],
                      caption = "Size of the data set and eight number descriptives",
@@ -251,13 +253,13 @@ if (engine == "SpATS") {
 \section{Diagnostic plots}
 %-------------------------------------------------------------------------------
 <<label=spatialPlots, echo=FALSE, results="asis", out.width="90%">>=
-if (all(c("colId", "rowId") %in% colnames(x$TD))) {
-  plot(x, what = modelType, plotType = "spatial")
+if (all(c("colId", "rowId") %in% colnames(x[[trial]]$TD[[trial]]))) {
+  plot(x, trial = trial, what = modelType, plotType = "spatial")
 }
 @
 <<label=basePlots, echo=FALSE, out.width="90%">>=
 ## Base diagnostic plots, identical for all models
-plot(x, what = modelType, plotType = "base")
+plot(x, trial = trial, what = modelType, plotType = "base")
 @
 \newpage
 
@@ -266,8 +268,8 @@ plot(x, what = modelType, plotType = "base")
 \Sexpr{paste(ifelse(descending, "highest", "lowest"), predName)}}
 %-------------------------------------------------------------------------------
 <<label=best10perc, echo=FALSE, results="hide">>=
-predSE <- STExtract(x, what = paste0("se", predName))
-predTot <- STExtract(x, what = predName) %>%
+predSE <- STExtract(x, what = paste0("se", predName))[[trial]]
+predTot <- STExtract(x, what = predName)[[trial]] %>%
   dplyr::inner_join(predSE , by = "genotype") %>%
   dplyr::arrange_(paste0(ifelse(descending, "desc(", ""),
                         trait,".x", ifelse(descending, ")", ""))) %>%

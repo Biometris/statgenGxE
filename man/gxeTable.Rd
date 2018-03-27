@@ -4,15 +4,19 @@
 \alias{gxeTable}
 \title{Compute BLUPS and based on a set of mega-environments}
 \usage{
-gxeTable(TD, trait, useYear = FALSE, engine = c("lme4", "asreml"), ...)
+gxeTable(TD, trials = names(TD), trait, useYear = FALSE,
+  engine = c("lme4", "asreml"), ...)
 }
 \arguments{
 \item{TD}{an object of class \code{\link{TD}}.}
 
+\item{trials}{A character string specifying the trials to be analyzed. If
+not supplied all trials are used in the analysis.}
+
 \item{trait}{A character string specifying the trait to be analyzed.}
 
 \item{useYear}{Should year be used for modelling (as years within
-environments). If \code{TRUE TD} should contain a column "year".}
+trials). If \code{TRUE TD} should contain a column "year".}
 
 \item{engine}{A character string specifying the engine used for modeling.
 Either "lme4" or "asreml".}

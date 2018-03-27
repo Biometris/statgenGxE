@@ -8,6 +8,7 @@
 #'
 #' @keywords internal
 STModLme4 <- function(TD,
+                      trial = NULL,
                       traits,
                       what = c("fixed", "random"),
                       covariates = NULL,
@@ -19,13 +20,15 @@ STModLme4 <- function(TD,
                       ...) {
   if (checks) {
     ## Checks.
-    checkOut <- modelChecks(TD = TD, design = design, traits = traits,
-                            what = what, covariates = covariates,
-                            trySpatial = trySpatial, engine = "lme4",
-                            useCheckId = useCheckId, control = control)
+    checkOut <- modelChecks(TD = TD, trial = trial, design = design,
+                            traits = traits, what = what,
+                            covariates = covariates, trySpatial = trySpatial,
+                            engine = "lme4", useCheckId = useCheckId,
+                            control = control)
     ## Convert output to variables.
     list2env(x = checkOut, envir = environment())
   }
+  TDTr <- TD[[trial]]
   ## Should repId be used as fixed effect in the model.
   useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
   ## Indicate extra random effects.
@@ -57,7 +60,7 @@ STModLme4 <- function(TD,
       lme4::lmer(as.formula(paste(trait, fixedForm,
                                   "+ (1 | genotype) ",
                                   if (length(randomForm) != 0) paste("+", randomForm))),
-                 data = TD, na.action = na.exclude, ...)
+                 data = TDTr, na.action = na.exclude, ...)
     }, simplify = FALSE)
   } else {
     mr <- NULL
@@ -69,18 +72,17 @@ STModLme4 <- function(TD,
       if (length(randomForm) != 0) {
         lme4::lmer(as.formula(paste(trait, fixedForm,
                                     "+ genotype + ", randomForm)),
-                   data = TD, na.action = na.exclude, ...)
+                   data = TDTr, na.action = na.exclude, ...)
       } else  {
         lm(as.formula(paste(trait, fixedForm, "+ genotype")),
-           data = TD, na.action = na.exclude, ...)
+           data = TDTr, na.action = na.exclude, ...)
       }}, simplify = FALSE)
   } else {
     mf <- NULL
   }
   ## Construct SSA object.
-  model <- createSSA(mRand = if ("random" %in% what) mr else NULL,
-                     mFix = if ("fixed" %in% what) mf else NULL,
-                     TD = TD, traits = traits,
-                     design = design, engine = "lme4")
-  return(model)
+  return(list(mRand = if ("random" %in% what) mr else NULL,
+              mFix = if ("fixed" %in% what) mf else NULL, TD = TD[trial],
+              traits = traits, design = design, spatial = trySpatial,
+              engine = "lme4", predicted = "genotype"))
 }

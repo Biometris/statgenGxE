@@ -4,11 +4,14 @@
 \alias{gxeFw}
 \title{Finlay-Wilkinson analysis}
 \usage{
-gxeFw(TD, trait, maxIter = 15, tol = 0.001, sorted = c("ascending",
-  "descending", "none"))
+gxeFw(TD, trials = names(TD), trait, maxIter = 15, tol = 0.001,
+  sorted = c("ascending", "descending", "none"))
 }
 \arguments{
 \item{TD}{an object of class \code{\link{TD}}.}
+
+\item{trials}{A character string specifying the trials to be analyzed. If
+not supplied all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 

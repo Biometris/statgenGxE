@@ -4,10 +4,15 @@
 \alias{STExtract}
 \title{Extract statistics from Fitted Models}
 \usage{
-STExtract(SSA, traits = SSA$traits, what = "all", keep = NULL)
+STExtract(SSA, trials = names(SSA), traits = NULL, what = "all",
+  keep = NULL)
 }
 \arguments{
 \item{SSA}{An object of class SSA.}
+
+\item{trials}{A character vector of trials for which the statistics should be
+computed. If not supplied statistics are computed for all trials that have
+been modelled.}
 
 \item{traits}{A character vector of traits for which the statistics should be
 computed. If not supplied statistics are computed for all traits that have
@@ -75,9 +80,9 @@ myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 extr <- STExtract(myModel)
 ## Extract only the BLUEs from the fitted model.
 BLUEs <- STExtract(myModel, what = "BLUEs")
-## Extract only the BLUEs from the fitted model and keep env as variable in
+## Extract only the BLUEs from the fitted model and keep trial as variable in
 ## the output.
-BLUEs2 <- STExtract(myModel, what = "BLUEs", keep = "env")
+BLUEs2 <- STExtract(myModel, what = "BLUEs", keep = "trial")
 
 }
 \seealso{

@@ -3,12 +3,23 @@
 \name{TD}
 \alias{TD}
 \alias{createTD}
+\alias{addTD}
+\alias{dropTD}
 \title{S3 class TD}
 \usage{
-createTD(data, genotype = NULL, env = NULL, megaEnv = NULL, year = NULL,
-  repId = NULL, subBlock = NULL, rowId = NULL, colId = NULL,
-  rowCoordinates = NULL, colCoordinates = NULL, checkId = NULL,
-  design = NULL)
+createTD(data, genotype = NULL, trial = NULL, megaEnv = NULL,
+  year = NULL, repId = NULL, subBlock = NULL, rowId = NULL,
+  colId = NULL, rowCoordinates = NULL, colCoordinates = NULL,
+  checkId = NULL, trLocation = NULL, trDate = NULL, trDesign = NULL,
+  trLat = NULL, trLong = NULL, trPlotWidth = NULL, trPlotLength = NULL)
+
+addTD(TD, data, genotype = NULL, trial = NULL, megaEnv = NULL,
+  year = NULL, repId = NULL, subBlock = NULL, rowId = NULL,
+  colId = NULL, rowCoordinates = NULL, colCoordinates = NULL,
+  checkId = NULL, trLocation = NULL, trDate = NULL, trDesign = NULL,
+  trLat = NULL, trLong = NULL, trPlotWidth = NULL, trPlotLength = NULL)
+
+dropTD(TD, trials)
 }
 \arguments{
 \item{data}{A data.frame containing trial data with a least a column for
@@ -17,8 +28,8 @@ genotype.}
 \item{genotype}{An optional character string indicating the column in
 \code{data} that contains genotypes.}
 
-\item{env}{An optional character string indicating the column in \code{data}
-that contains environments.}
+\item{trial}{An optional character string indicating the column in
+\code{data} that contains trials.}
 
 \item{megaEnv}{An optional character string indicating the column in
 \code{data} that contains mega-environments as constructed by
@@ -27,8 +38,8 @@ that contains environments.}
 \item{year}{An optional character string indicating the column in \code{data}
 that contains years.}
 
-\item{repId}{An optional character string indicating the column in \code{data}
-that contains replicates.}
+\item{repId}{An optional character string indicating the column in
+\code{data} that contains replicates.}
 
 \item{subBlock}{An optional character string indicating the column in
 \code{data} that contains sub blocks.}
@@ -50,29 +61,71 @@ models.}
 \item{checkId}{An optional character string indicating the column in
 \code{data} that contains the check IDs.}
 
-\item{design}{An optional character string indicating the design of the
-trial. Either are "ibd" (incomplete-block design), "res.ibd"
+\item{trLocation}{An optional character string indicating the location of
+the trial. This will be used for constructing default names for plots and
+such.}
+
+\item{trDate}{An optional date indicating the date of the trial.}
+
+\item{trDesign}{An optional character string indicating the design of the
+trial. Either "ibd" (incomplete-block design), "res.ibd"
 (resolvable incomplete-block design), "rcbd" (randomized complete block
 design), "rowcol" (row-column design) or "res.rowcol" (resolvable
 row-column design).}
+
+\item{trLat}{An optional numerical value indicating the latitude of the
+trial on a scale of -90 to 90.}
+
+\item{trLong}{An optional numerical value indicating the longitude of the
+trial on a scale of -180 to 180.}
+
+\item{trPlotWidth}{An optional positive numerical value indicating the
+width of the plot.}
+
+\item{trPlotLength}{An optional positive numerical value indicating the
+length of the plot.}
+
+\item{TD}{An object of class TD which should be modified.}
+
+\item{trials}{a character vector of trials that should be removed.}
 }
 \value{
-An object of class TD, the input data.frame with renamed columns
+An object of class TD, a list of data.frames with renamed columns
 and an attribute \code{renamedCols} containing info on which columns have
-been renamed.
+been renamed. For each unique value of trial the output has a data.frame in
+the list with the same name as the trial. If there is no column for trial
+the list will contain one item named after the input data.
 }
 \description{
+\code{createTD}\cr
 Function for creating objects of S3 class TD (Trial Data). The input data is
 checked and columns are renamed to default column names for ease of further
-computations. The columns for genotype, env, megaEnv, year, repId, subBlock,
-rowId, colId and checkId are converted to factor columns, whereas
+computations. The columns for genotype, trial, megaEnv, year, repId,
+subBlock, rowId, colId and checkId are converted to factor columns, whereas
 rowCoordinates and colCoordinates are converted to numerical columns. One
 single column can be mapped to multiple defaults, e.g. one column with x
 coordinates can be mapped to both colId and colCoordinates.\cr
 Columns other than the default columns, e.g. traits or other covariates
 will be included in the output unchanged.\cr
-\code{\link{print}} and \code{\link{summary}} and \code{\link{plot}} methods
-are available.
+The input data is split by trial. So for an input data frame with three
+different trials in the column assigned to \code{trial} the output will be
+generated as a list with three items. In this case metadata describing the
+trials will be identical.\cr
+To generate a TD object with different metadata for each trial start by
+creating a TD object for one trial and then add new trials to it using the
+addTD function. Alternatively create a TD object with all data and then use
+\code{\link{setMeta}} to add metadata for all trials at once.\cr\cr
+\code{addTD}\cr
+Function for adding extra trial data to an existing object of class TD. The
+data for the new trials will be added after the data for existing trials. It
+is possible to add data for an already existing trial, but this will cause
+multiple items in the output with identical names, which might cause problems
+later on in the analysis. Therefore a warning will be issued in this
+case.\cr\cr
+\code{dropTD}\cr
+Function for removing data for selected trials from an existing object of
+class TD.\cr\cr
+\code{\link{summary.TD}} and \code{\link{plot.TD}} methods are available.
 }
 \seealso{
 \code{\link{summary.TD}}, \code{\link{plot.TD}}

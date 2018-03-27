@@ -4,13 +4,17 @@
 \alias{SSAtoCross}
 \title{Convert SSA to Cross}
 \usage{
-SSAtoCross(SSA, traits = SSA$traits, what = c("BLUEs", "BLUPs"), genoFile,
-  genotypes = c("A", "H", "B", "D", "C"), ...)
+SSAtoCross(SSA, trial = NULL, traits = NULL, what = c("BLUEs", "BLUPs"),
+  genoFile, genotypes = c("A", "H", "B", "D", "C"), ...)
 }
 \arguments{
 \item{SSA}{An object of class \code{\link{SSA}}.}
 
-\item{traits}{A character string containing the traits to be exported.}
+\item{trial}{A character string indicating the trial to be exported. If
+\code{NULL} and \code{SSA} contains only one trial that trial is exported.}
+
+\item{traits}{A character string containing the traits to be exported. If
+\code{NULL} all traits for the selected trial are exported.}
 
 \item{what}{A character string containing the statistics to be exported as
 phenotype in the cross object. This can be either \code{BLUEs} or

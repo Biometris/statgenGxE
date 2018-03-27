@@ -2,13 +2,16 @@
 % Please edit documentation in R/gxeVarComp.R
 \name{gxeVarComp}
 \alias{gxeVarComp}
-\title{Selects the best variance-covariance model for a set of environments}
+\title{Selects the best variance-covariance model for a set of trials}
 \usage{
-gxeVarComp(TD, trait, engine = c("lme4", "asreml"), criterion = c("BIC",
-  "AIC"), ...)
+gxeVarComp(TD, trials = names(TD), trait, engine = c("lme4", "asreml"),
+  criterion = c("BIC", "AIC"), ...)
 }
 \arguments{
 \item{TD}{an object of class \code{\link{TD}}.}
+
+\item{trials}{A character string specifying the trials to be analyzed. If
+not supplied all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 
@@ -33,7 +36,7 @@ the analysis.}
 }
 \description{
 This function selects the best covariance structure for genetic correlations
-between environments. It fits a range of variance-covariance models to
+between trials. It fits a range of variance-covariance models to
 compare (identity, compound symmetry, diagonal, heterogeneous compound
 symmetry, first order factor analysis, second order factor analysis,
 unstructured), and selects the best one using a goodness-of-fit criterion.
@@ -54,9 +57,9 @@ report(geVarComp, outfile = "./testReports/reportVarComp.pdf")
 
 \dontrun{
 ## Select the best variance-covariance model using asreml for modeling.
-## Use AIC as a goodness-of-fit criterion.
+## Use BIC as a goodness-of-fit criterion.
 geVarComp2 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "asreml",
-                        criterion = "AIC")
+                        criterion = "BIC")
 summary(geVarComp2)
 ## Create a heatmap of the correlation matrix for the best model.
 plot(geVarComp2)

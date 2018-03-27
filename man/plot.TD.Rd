@@ -4,47 +4,27 @@
 \alias{plot.TD}
 \title{Plot function for class TD}
 \usage{
-\method{plot}{TD}(x, ..., trait, plotType = c("box", "hist", "scatter",
-  "cor"))
+\method{plot}{TD}(x, ..., trials = names(x), plotType = c("layout", "map"))
 }
 \arguments{
 \item{x}{An object of class TD.}
 
-\item{...}{Further graphical parameters. For boxplots, histograms and
-scatterplots all graphical parameters can be changed, for the correlation
-only \code{"main"} will be used and other parameters are ignored.}
+\item{...}{Further graphical parameters. Currently not used.}
 
-\item{trait}{A character string specifying the name of the trait to be
-plotted.}
+\item{trials}{A character vector indicating the trials to be plotted.}
 
 \item{plotType}{A character string indicating which plot should be made.
-Either \code{"box"} for a boxplot, \code{"hist"} for histograms,
-\code{"scatter"} for scatter plots and correlations or \code{"cor"} for a
-plot of the correlations between environments.}
-}
-\value{
-One of four plots depending on \code{plotType}.
+This can be "layout" for a plot of the field layout for the diffent trials
+in the TD object. This is only possible if the data contains row and column
+information. Alternatively, for \code{plotType = "map"} a plot will be made
+depicting the trials on a country map. This is only possible if lattitude
+and longitude of the trials are available.}
 }
 \description{
-Four types of plot can be made. Boxplots and histograms can be made for
-all objects of class \code{\link{TD}}. In case there is a column \code{"env"}
-in TD boxplots and histograms will be made per environment.\cr
-Scatterplots and plots of correlation between environments can only be made
-if a column \code{"env"} is present in TD and will result in an error if this
-is not the case.
-}
-\examples{
-## Create a boxplot for TDMaize.
-plot(TDMaize, trait = "yld")
-## Create a histogram for TDMaize.
-plot(TDMaize, trait = "yld", plotType = "hist")
-## Create a scatter plot for TDMaize.
-plot(TDMaize, trait = "yld", plotType = "scatter")
-## Create a plot of correlations between environments for TDMaize.
-plot(TDMaize, trait = "yld", plotType = "cor")
-
-
-}
-\seealso{
-\code{\link{TD}}
+Plotting function for objects of class TD. Plots either the layout of the
+different trials within the TD object or locates the trials on a map.
+Mapping the trials is done based on lattitude and longitude that can be
+added when creating an object of class TD. The countries in which the trials
+are located will be plotted on a single map and the location of the trials
+will be indicated on this map.
 }

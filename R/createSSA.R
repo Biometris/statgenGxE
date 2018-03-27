@@ -4,47 +4,38 @@
 #' \code{\link{summary}}, \code{\link{plot}} and \code{\link{report}}
 #' methods are available.
 #'
-#' @param mRand A list of models with fitted with genotype as random effect.
-#' @param mFix A list of models fitted with genotype as fixed effect.
-#' @param TD An object of class \code{\link{TD}} containing the data on which
-#' \code{mRand} and \code{mFix} are based.
-#' @param traits A character vector indicating the traits for which the analysis
-#' is done.
-#' @param design A character string containing the design of the trial.
-#' (see \code{\link{STRunModel}} for the possible designs).
-#' @param spatial A character string indicating the spatial part of the model.
-#' \code{FALSE} if no spatial design has been used.
-#' @param engine A character string containing the engine used for the analysis.
-#' @param predicted A character string indicating the variable that has been
-#' predicted.
+#' @param models A list of trials with for each trial the following elements
+#' \itemize{
+#' \item{mRand}{A list of models with fitted with genotype as random effect.}
+#' \item{mFix}{A list of models fitted with genotype as fixed effect.}
+#' \item{TD}{An object of class \code{\link{TD}} containing the data on which
+#' \code{mRand} and \code{mFix} are based.}
+#' \item{traits}{A character vector indicating the traits for which the analysis
+#' is done.}
+#' \item{design}{A character string containing the design of the trial.
+#' (see \code{\link{STRunModel}} for the possible designs).}
+#' \item{spatial}{A character string indicating the spatial part of the model.
+#' \code{FALSE} if no spatial design has been used.}
+#' \item{engine}{A character string containing the engine used for the
+#' analysis.}
+#' \item{predicted}{A character string indicating the variable that has been
+#' predicted.}
+#' }
 #'
 #' @author Bart-Jan van Rossum
 #'
-#' @seealso \code{\link{summary.SSA}}, \code{\link{plot.SSA}}, \code{\link{report.SSA}}
+#' @seealso \code{\link{summary.SSA}}, \code{\link{plot.SSA}},
+#' \code{\link{report.SSA}}
 #'
 #' @name SSA
 NULL
 
 #' @rdname SSA
-#' @export
-createSSA <- function(mRand,
-                      mFix,
-                      TD,
-                      traits = NULL,
-                      design = NULL,
-                      spatial = NULL,
-                      engine = NULL,
-                      predicted = "genotype") {
-  SSA <- structure(list(mRand = mRand,
-                        mFix = mFix,
-                        TD = TD,
-                        traits = traits,
-                        design = design,
-                        spatial = spatial,
-                        engine = engine),
-                   class = "SSA")
-  attr(SSA, which = "timestamp") <- Sys.time()
-  attr(SSA, which = "predicted") <- predicted
+#' @keywords internal
+createSSA <- function(models) {
+  SSA <- structure(models,
+                   class = c("SSA", "list"),
+                   timestamp = Sys.time())
   return(SSA)
 }
 
@@ -53,6 +44,8 @@ createSSA <- function(mRand,
 #' \code{summary} method for class \code{SSA}.
 #'
 #' @param object An object of class \code{SSA}.
+#' @param trial A character string indicating the trial to summarize. If
+#' \code{trial = NULL} and only one trial is modelled this trial is summarized.
 #' @param trait A character string indicating the trait to summarize. If
 #' \code{trait = NULL} and only one trait is modelled this trait is summarized.
 #' @param digits An integer indicating the number of significant digits for
@@ -74,29 +67,45 @@ createSSA <- function(mRand,
 #'
 #' @export
 summary.SSA <- function(object,
+                        trial = NULL,
                         trait = NULL,
                         digits = max(getOption("digits") - 2, 3),
                         nBest = 20,
-                        sortBy = if (!is.null(object$mFix)) "BLUEs" else "BLUPs",
+                        sortBy = NULL,
                         naLast = TRUE,
                         decreasing = TRUE,
                         ...) {
   ## Checks.
-  if (is.null(trait) && length(object$traits) > 1) {
-    stop("No trait provided but multiple traits found in SSA object.\n")
+  if (is.null(trial) && length(object) > 1) {
+    stop("No trial provided but multiple trials found in SSA object.\n")
+  }
+  if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
+                          !trial %in% names(object))) {
+    stop("Trial has to be a single character string defining a trial in SSA.\n")
+  }
+  if (is.null(trial)) {
+    trial <- names(object)
+  }
+  if (is.null(trait) && length(object[[trial]]$traits) > 1) {
+    stop("No trait provided but multiple traits found.\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-                          !trait %in% colnames(object$TD))) {
+                          !trait %in% colnames(object[[trial]]$TD))) {
     stop("Trait has to be a single character string defining a column in TD.\n")
   }
+  if (is.null(sortBy)) {
+    sortBy <- ifelse(!is.null(object[[trial]]$mFix), "BLUEs", "BLUPs")
+  } else {
+    sortBy <- match.arg(sortBy)
+  }
   ## get summary stats for raw data
-  TD <- object$TD
+  TD <- object[[trial]]$TD
   if (is.null(trait)) {
-    trait <- object$traits
+    trait <- object[[trial]]$traits
   }
   stats <- summary.TD(object = TD, traits = trait)
   ## get predicted means (BLUEs + BLUPs).
-  extr <- STExtract(object)
+  extr <- STExtract(object, trials = trial)[[trial]]
   ## Merge BLUEs, BLUPs + SE.
   joinList <- Filter(f = Negate(f = is.null),
                      x = list(extr$BLUEs, extr$seBLUEs,
@@ -125,7 +134,7 @@ summary.SSA <- function(object,
   cat("Summary statistics:", "\n===================\n")
   ## Print stats using printCoefMat for a nicer layout.
   printCoefmat(stats, digits = digits, ...)
-  if (!is.null(object$mRand)) {
+  if (!is.null(object[[trial]]$mRand)) {
     cat("\nEstimated heritability", "\n======================\n")
     cat("\nHeritability:", extr$heritability, "\n")
   }
@@ -140,7 +149,7 @@ summary.SSA <- function(object,
   }
   ## Print meanTab using printCoefMat for a nicer layout.
   printCoefmat(meanTab, digits = digits, ...)
-  if (object$engine == "asreml" && !is.null(extr$sed) &&
+  if (object[[trial]]$engine == "asreml" && !is.null(extr$sed) &&
       !is.null(extr$lsd)) {
     cat("\nStandard Error of Difference (genotype modelled as fixed effect)",
         "\n================================================================\n")
@@ -178,6 +187,8 @@ summary.SSA <- function(object,
 #' @param x An object of class SSA.
 #' @param ... Further graphical parameters (see \code{\link[lattice]{xyplot}}
 #' for details).
+#' @param trial a character string indicating the trial to plot. If
+#' \code{trial = NULL} and only one trial is modelled this trial is plotted.
 #' @param trait a character string indicating the trait to plot. If
 #' \code{trait = NULL} and only one trait is modelled this trait is plotted.
 #' @param what A character string indicating whether the fitted model with
@@ -199,36 +210,57 @@ summary.SSA <- function(object,
 #' @export
 plot.SSA <- function(x,
                      ...,
+                     trial = NULL,
                      trait = NULL,
-                     what = ifelse(is.null(x$mFix), "random", "fixed"),
+                     what = NULL,
                      plotType = c("base", "spatial")) {
   ## Checks.
-  if (is.null(trait) && length(x$traits) > 1) {
-    stop("No trait provided but multiple traits found in SSA x\n")
+  if (is.null(trial) && length(x) > 1) {
+    stop("No trial provided but multiple trials found in SSA object.\n")
+  }
+  if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
+                          !trial %in% names(x))) {
+    stop("Trial has to be a single character string defining a trial in SSA.\n")
+  }
+  if (is.null(trial)) {
+    trial <- names(x)
+  }
+  if (is.null(trait) && length(x[[trial]]$traits) > 1) {
+    stop("No trait provided but multiple traits found.\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-                          !trait %in% colnames(x$TD))) {
+                          !trait %in% colnames(x[[trial]]$TD))) {
     stop("Trait has to be a single character string defining a column in TD.\n")
   }
-  what <- match.arg(arg = what, choices = c("fixed", "random"))
+  if (is.null(what)) {
+    what <- ifelse(is.null(x[[trial]]$mFix), "random", "fixed")
+  } else {
+    what <- match.arg(arg = what, choices = c("fixed", "random"))
+  }
   plotType <- match.arg(arg = plotType)
   ## If no trait is given as input extract it from the SSA object.
   if (is.null(trait)) {
-    trait <- x$traits
+    trait <- x[[trial]]$traits
   }
   ## Extract the model to plot from the SSA object.
   if (what == "fixed") {
-    model <- x$mFix[[trait]]
+    model <- x[[trial]]$mFix[[trait]]
   } else if (what == "random") {
-    model <- x$mRand[[trait]]
+    model <- x[[trial]]$mRand[[trait]]
+  }
+  if (is.null(model)) {
+    stop(paste("No model with genotype", what, "in SSA object.\n"))
   }
   ## Extract fitted and predicted values from model.
-  fitted <- STExtract(x, traits = trait,
+  fitted <- STExtract(x, trials = trial, traits = trait,
                       what = ifelse(what == "fixed", "fitted", "rMeans"),
-                      keep = c("colCoordinates", "rowCoordinates"))
-  pred <- STExtract(x, what = ifelse(what == "fixed", "BLUEs", "BLUPs"))[[trait]]
+                      keep = c("colCoordinates", "rowCoordinates"))[[trial]]
+  pred <- STExtract(x, trials = trial,
+                    what = ifelse(what == "fixed",
+                                  "BLUEs", "BLUPs"))[[trial]][[trait]]
   ## Extract raw data and compute residuals.
-  response <- x$TD[, c("genotype", "colCoordinates", "rowCoordinates", trait)]
+  response <- x[[trial]]$TD[[trial]][, c("genotype", "colCoordinates",
+                                         "rowCoordinates", trait)]
   plotData <- merge(response, fitted, by = c("genotype", "colCoordinates",
                                              "rowCoordinates"))
   plotData$response <- plotData[[paste0(trait, ".x")]]
@@ -281,27 +313,30 @@ plot.SSA <- function(x,
     ## Fill frame with plots.
     print(trellisObj[["histogram"]], position = c(0, 0.5, 0.5, 1), more = TRUE)
     print(trellisObj[["qq"]], position = c(0.5, 0.5, 1, 1), more = TRUE)
-    suppressWarnings(print(trellisObj[["residFitted"]], position = c(0, 0, 0.5, 0.5),
+    suppressWarnings(print(trellisObj[["residFitted"]],
+                           position = c(0, 0, 0.5, 0.5),
                            more = TRUE))
-    suppressWarnings(print(trellisObj[["absResidFitted"]], position = c(0.5, 0, 1, 0.5)))
+    suppressWarnings(print(trellisObj[["absResidFitted"]],
+                           position = c(0.5, 0, 1, 0.5)))
     invisible(trellisObj)
   } else if (plotType == "spatial") {
-    if (x$engine == "SpATS") {
+    if (x[[trial]]$engine == "SpATS") {
       plot(model, main = "")
     } else {
       ## Check whether data contains row/col information
-      if (!all(c("rowCoordinates", "colCoordinates") %in% colnames(x$TD))) {
+      if (!all(c("rowCoordinates", "colCoordinates") %in%
+               colnames(x[[trial]]$TD[[trial]]))) {
         stop(paste("Data in", substitute(x), "contains no spatial information.\n"))
       }
       ## Code taken from plot.SpATS and simplified.
       ## Set colors and legends.
       colors = topo.colors(100)
       mainLegends <- c("Raw data", "Fitted data", "Residuals",
-                       ifelse(what == "fixed", "Genotypic BLUEs", "Genotypic BLUPs"),
-                       "Histogram")
+                       ifelse(what == "fixed", "Genotypic BLUEs",
+                              "Genotypic BLUPs"), "Histogram")
       ## Extract spatial coordinates from data.
-      colCoord <- x$TD[, "colCoordinates"]
-      rowCoord <- x$TD[, "rowCoordinates"]
+      colCoord <- x[[trial]]$TD[[trial]][, "colCoordinates"]
+      rowCoord <- x[[trial]]$TD[[trial]][, "rowCoordinates"]
       ## Order plotcols and rows and fill gaps if needed.
       plotCols <- seq(from = min(colCoord), to = max(colCoord),
                       by = min(diff(sort(unique(colCoord)))))
@@ -314,34 +349,31 @@ plot.SSA <- function(x,
       op <- par(mfrow = c(2, 3), oma = c(2, 1, 3, 2),
                 mar = c(2.7, 4, 2.5, 2.7), mgp = c(1.7, 0.5, 0))
       on.exit(par(op))
+      coord <- list(plotData$colCoordinates, plotData$rowCoordinates)
       ## Spatial plot of raw data.
       fieldPlot(x = plotCols, y = plotRows,
-                z = t(matrix(plotData$response, ncol = length(plotCols),
-                             nrow = length(plotRows))), main = mainLegends[1],
-                colors = colors, zlim = zlim, ...)
+                z = tapply(X = plotData$response, INDEX = coord, FUN = I),
+                main = mainLegends[1], colors = colors, zlim = zlim, ...)
       ## Spatial plot of fitted values.
       fieldPlot(x = plotCols, y = plotRows,
-                z = t(matrix(plotData$fitted, ncol = length(plotCols),
-                             nrow = length(plotRows))), main = mainLegends[2],
-                colors = colors, zlim = zlim, ...)
+                z = tapply(X = plotData$fitted, INDEX = coord, FUN = I),
+                main = mainLegends[2], colors = colors, zlim = zlim, ...)
       ## Spatial plot of residuals.
       fieldPlot(x = plotCols, y = plotRows,
-                z = t(matrix(plotData$residuals, ncol = length(plotCols),
-                             nrow = length(plotRows))), main = mainLegends[3],
-                colors = colors, ...)
+                z = tapply(X = plotData$residuals, INDEX = coord, FUN = I),
+                main = mainLegends[3], colors = colors, ...)
       ## Spatial plot of BLUEs or BLUPs.
       fieldPlot(x = plotCols, y = plotRows,
                 z = t(matrix(pred, ncol = length(plotCols),
                              nrow = length(plotRows))), main = mainLegends[4],
                 colors = colors, ...)
       ## Histogram of BLUEs or BLUPs.
-      suppressWarnings(hist(pred, main = mainLegends[5],
-                            xlab = mainLegends[4], ...))
+      hist(pred, main = mainLegends[5], xlab = mainLegends[4], ...)
     }
   }
 }
 
-## Helper function for creating field plots with proper axis
+## Helper function for creating field plots with proper axes.
 fieldPlot <- function(x,
                       y,
                       z,
@@ -353,6 +385,10 @@ fieldPlot <- function(x,
   ## Without custom axes rows and columns will be shown as e.g. 1.5.
   ## To avoid this first a normal image plot is drawn, then the axes are added
   ## and finally the legend is added using fields::image.plot
+  if (zlim[1] == zlim[2]) {
+    ## image.plot crashes when upper and lower limit are equal.
+    zlim <- zlim + c(-1e-8, 1e-8)
+  }
   image(x, y, z, main = main, col = colors, bty = "n",
         xlab = "colCoordinates", ylab = "rowCoordinates",
         zlim = zlim, axes = FALSE, ...)
@@ -433,7 +469,10 @@ report.SSA <- function(x,
 #' package.
 #'
 #' @param SSA An object of class \code{\link{SSA}}.
-#' @param traits A character string containing the traits to be exported.
+#' @param trial A character string indicating the trial to be exported. If
+#' \code{NULL} and \code{SSA} contains only one trial that trial is exported.
+#' @param traits A character string containing the traits to be exported. If
+#' \code{NULL} all traits for the selected trial are exported.
 #' @param what A character string containing the statistics to be exported as
 #' phenotype in the cross object. This can be either \code{BLUEs} or
 #' \code{BLUPs}.
@@ -461,7 +500,8 @@ report.SSA <- function(x,
 #'
 #' @export
 SSAtoCross <- function(SSA,
-                       traits = SSA$traits,
+                       trial = NULL,
+                       traits = NULL,
                        what = c("BLUEs", "BLUPs"),
                        genoFile,
                        genotypes = c("A", "H", "B", "D", "C"),
@@ -470,12 +510,26 @@ SSAtoCross <- function(SSA,
   if (!inherits(SSA, "SSA")) {
     stop("SSA is not a valid object of class SSA.\n")
   }
+  if (is.null(trial) && length(SSA) > 1) {
+    stop("No trial provided but multiple trials found in SSA object.\n")
+  }
+  if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
+                          !trial %in% names(SSA))) {
+    stop("Trial has to be a single character string defining a trial in SSA.\n")
+  }
+  if (is.null(trial)) {
+    trial <- names(SSA)
+  }
+  if (!is.null(traits) && (!is.character(traits) ||
+                           !all(traits %in% colnames(SSA[[trial]]$TD)))) {
+    stop("Trait has to be a character vector defining columns in TD.\n")
+  }
   what <- match.arg(what)
   if (!is.character(genoFile) || length(genoFile) > 1 || !file.exists(genoFile)) {
     stop("genoFile is not a valid filename.\n")
   }
   ## Extract predictions from the model.
-  pred <- STExtract(SSA, traits = traits, what = what)
+  pred <- STExtract(SSA, traits = traits, what = what)[[trial]]
   ## Rename first column to match first column in genoFile.
   colnames(pred)[1] <- colnames(utils::read.csv(genoFile, nrow = 1))[1]
   ## Write predictions to temporary file.

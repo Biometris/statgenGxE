@@ -5,30 +5,26 @@
 \alias{createSSA}
 \title{S3 class SSA}
 \usage{
-createSSA(mRand, mFix, TD, traits = NULL, design = NULL, spatial = NULL,
-  engine = NULL, predicted = "genotype")
+createSSA(models)
 }
 \arguments{
+\item{models}{A list of trials with for each trial the following elements
+\itemize{
 \item{mRand}{A list of models with fitted with genotype as random effect.}
-
 \item{mFix}{A list of models fitted with genotype as fixed effect.}
-
 \item{TD}{An object of class \code{\link{TD}} containing the data on which
 \code{mRand} and \code{mFix} are based.}
-
 \item{traits}{A character vector indicating the traits for which the analysis
 is done.}
-
 \item{design}{A character string containing the design of the trial.
 (see \code{\link{STRunModel}} for the possible designs).}
-
 \item{spatial}{A character string indicating the spatial part of the model.
 \code{FALSE} if no spatial design has been used.}
-
-\item{engine}{A character string containing the engine used for the analysis.}
-
+\item{engine}{A character string containing the engine used for the
+analysis.}
 \item{predicted}{A character string indicating the variable that has been
 predicted.}
+}}
 }
 \description{
 Function for creating objects of S3 class Single Site Analysis (SSA).\cr
@@ -36,8 +32,10 @@ Function for creating objects of S3 class Single Site Analysis (SSA).\cr
 methods are available.
 }
 \seealso{
-\code{\link{summary.SSA}}, \code{\link{plot.SSA}}, \code{\link{report.SSA}}
+\code{\link{summary.SSA}}, \code{\link{plot.SSA}},
+\code{\link{report.SSA}}
 }
 \author{
 Bart-Jan van Rossum
 }
+\keyword{internal}

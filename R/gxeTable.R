@@ -6,7 +6,7 @@
 #' @inheritParams gxeAmmi
 #'
 #' @param useYear Should year be used for modelling (as years within
-#' environments). If \code{TRUE TD} should contain a column "year".
+#' trials). If \code{TRUE TD} should contain a column "year".
 #' @param engine A character string specifying the engine used for modeling.
 #' Either "lme4" or "asreml".
 #' @param ... Further parameters passed to either \code{asreml} or \code{lmer}.
@@ -23,6 +23,7 @@
 #'
 #' @export
 gxeTable <- function(TD,
+                     trials = names(TD),
                      trait,
                      useYear = FALSE,
                      engine = c("lme4", "asreml"),
@@ -31,13 +32,22 @@ gxeTable <- function(TD,
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
+  if (!is.character(trials) || !all(trials %in% names(TD))) {
+    stop("All trials should be in TD.")
+  }
+  TDTot <- Reduce(f = rbind, x = TD[trials])
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TD)) {
+      !trait %in% colnames(TDTot)) {
     stop("trait has to be a column in TD.\n")
   }
-  if (useYear && !"year" %in% colnames(TD)) {
+  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(TDTot)) {
+    stop("trait has to be a column in TD.\n")
+  }
+  if (useYear && !"year" %in% colnames(TDTot)) {
     stop("year has to be a column in TD.\n")
   }
+  TDTot$megaEnv <- droplevels(TDTot$megaEnv)
   engine <- match.arg(engine)
   if (engine == "asreml") {
     if (requireNamespace("asreml", quietly = TRUE)) {
@@ -46,37 +56,37 @@ gxeTable <- function(TD,
       sink(file = tmp)
       if (useYear) {
         mr <- tryCatchExt(asreml::asreml(fixed = as.formula(paste(trait,
-                                                                  "~ env / year")),
+                                                                  "~ trial / year")),
                                  random = as.formula("~ genotype:us(megaEnv) +
                                                      genotype:megaEnv:year"),
-                                 data = TD, ...))
+                                 data = TDTot, ...))
       } else {
         mr <- tryCatchExt(asreml::asreml(fixed = as.formula(paste(trait,
-                                                                  "~ env")),
+                                                                  "~ trial")),
                                  random = as.formula("~ genotype:us(megaEnv)"),
-                                 data = TD, ...))
+                                 data = TDTot, ...))
       }
       sink()
       unlink(tmp)
       if (!is.null(mr$warning) || !is.null(mr$error)) {
         ## In case asreml gave an error return a data.frame with NAs.
         warning("asreml gave an error. Empty data.frame returned.\n")
-        predVals <- se <- data.frame(matrix(nrow = nlevels(TD$genotype),
-                                            ncol = nlevels(TD$megaEnv),
-                                            dimnames = list(levels(TD$genotype),
-                                                            levels(TD$megaEnv))),
+        predVals <- se <- data.frame(matrix(nrow = nlevels(TDTot$genotype),
+                                            ncol = nlevels(TDTot$megaEnv),
+                                            dimnames = list(levels(TDTot$genotype),
+                                                            levels(TDTot$megaEnv))),
                                      check.names = FALSE)
       } else {
         mr <-  mr$value
         ## Eval of fixed is needed since fixed contains a variable term trait.
         mr$call$fixed <- eval(mr$call$fixed)
         ## Predict and extract BLUPs
-        mr <- predictAsreml(model = mr, classify = "genotype:megaEnv", TD = TD)
+        mr <- predictAsreml(model = mr, classify = "genotype:megaEnv", TD = TDTot)
         pVal <- mr$predictions$pvals
         ## If megaEnv consists of numeric values megaEnv will be a numeric
         ## column in pVal instead of the expected factor. This causes a
         ## shift in column order. Therefore set it back to factor.
-        pVal$megaEnv <- factor(pVal$megaEnv, levels = levels(TD$megaEnv))
+        pVal$megaEnv <- factor(pVal$megaEnv, levels = levels(TDTot$megaEnv))
         ## Reshape to a data.frame with genotypes in rows and megaEnv in cols.
         predVals <- as.data.frame(tapply(X = pVal$predicted.value,
                                          INDEX = pVal[, c("genotype", "megaEnv")],
@@ -90,26 +100,26 @@ gxeTable <- function(TD,
     }
   } else if (engine == "lme4") {
     if (useYear) {
-      mr <- try(lme4::lmer(as.formula(paste(trait, "~ env / year +
+      mr <- try(lme4::lmer(as.formula(paste(trait, "~ trial / year +
                                             (0 + megaEnv | genotype) +
                                             (0 + megaEnv | genotype:year)")),
-                           data = TD, ...), silent = TRUE)
+                           data = TDTot, ...), silent = TRUE)
     } else {
-      mr <- try(lme4::lmer(as.formula(paste(trait, "~ env +
+      mr <- try(lme4::lmer(as.formula(paste(trait, "~ trial +
                                             (0 + megaEnv | genotype)")),
-                           data = TD, ...), silent = TRUE)
+                           data = TDTot, ...), silent = TRUE)
     }
     if (inherits(mr, "try-error")) {
       warning("lme4 gave an error. Empty data.frame returned.\n")
-      predVals <- se <- data.frame(matrix(nrow = nlevels(TD$genotype),
-                                          ncol = nlevels(TD$megaEnv),
-                                          dimnames = list(levels(TD$genotype),
-                                                          levels(TD$megaEnv))),
+      predVals <- se <- data.frame(matrix(nrow = nlevels(TDTot$genotype),
+                                          ncol = nlevels(TDTot$megaEnv),
+                                          dimnames = list(levels(TDTot$genotype),
+                                                          levels(TDTot$megaEnv))),
                                    check.names = FALSE)
     } else {
       ## Extract fixed effects needed to compute intercept.
       fixEff = lme4::fixef(mr)
-      fixEf = fixEff[grep("env", names(fixEff))]
+      fixEf = fixEff[grep("trial", names(fixEff))]
       ## Extract random effects for genotypes.
       ranEff = lme4::ranef(mr, drop = TRUE)[["genotype"]]
       ## Compute BLUPs.
@@ -121,7 +131,7 @@ gxeTable <- function(TD,
       seBlups = t(sqrt(apply(X = predErrs, MARGIN = 3, FUN = diag)))
       se <- data.frame(seBlups, row.names = rownames(predVals),
                        check.names = FALSE)
-      colnames(se) <- colnames(predVals) <- levels(TD$megaEnv)
+      colnames(se) <- colnames(predVals) <- levels(TDTot$megaEnv)
     }
   }
   return(list(predictedValue = predVals, standardError = se))

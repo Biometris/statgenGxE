@@ -4,9 +4,9 @@
 \alias{STModLme4}
 \title{Fit Single Trial Model using lme4}
 \usage{
-STModLme4(TD, traits, what = c("fixed", "random"), covariates = NULL,
-  useCheckId = FALSE, control = NULL, trySpatial = FALSE,
-  design = "rowcol", checks = TRUE, ...)
+STModLme4(TD, trial = NULL, traits, what = c("fixed", "random"),
+  covariates = NULL, useCheckId = FALSE, control = NULL,
+  trySpatial = FALSE, design = "rowcol", checks = TRUE, ...)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
@@ -36,10 +36,10 @@ only be fitted with SpATS and asreml. If SpATS is used for modeling only
 spatial models can be fitted and trySpatial is always set to \code{TRUE}. If
 asreml is used fitting spatial models is optional.}
 
-\item{design}{A string specifying the experimental design. Either "ibd"
-(incomplete block design), "res.ibd" (resolvable incomplete block design),
-"rcbd" (randomized complete block design), "rowcol" (row column design) or
-"res.rowcol" (resolvable row column design).}
+\item{design}{A character string specifying the experimental design. Either
+"ibd" (incomplete block design), "res.ibd" (resolvable incomplete block
+design), "rcbd" (randomized complete block design), "rowcol" (row column
+design) or "res.rowcol" (resolvable row column design).}
 
 \item{...}{Further arguments to be passed to \code{SpATS}, \code{lme4} or
 \code{asreml}.}

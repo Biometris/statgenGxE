@@ -4,15 +4,19 @@
 \alias{gxeAmmi}
 \title{AMMI analysis}
 \usage{
-gxeAmmi(TD, trait, nPC = 2, center = TRUE, scale = FALSE)
+gxeAmmi(TD, trials = names(TD), trait, nPC = 2, center = TRUE,
+  scale = FALSE)
 }
 \arguments{
 \item{TD}{an object of class \code{\link{TD}}.}
 
+\item{trials}{A character string specifying the trials to be analyzed. If
+not supplied all trials are used in the analysis.}
+
 \item{trait}{A character string specifying the trait to be analyzed.}
 
 \item{nPC}{An integer specifying the number of principal components used
-as multiplicative term of genotype-by-environment interaction.}
+as multiplicative term of genotype-by-trial interaction.}
 
 \item{center}{Should the variables be shifted to be zero centered?}
 
@@ -33,7 +37,7 @@ components.}
 }
 \description{
 This function fits a model which involves the Additive Main effects (i.e.
-genotype and environment) along with the Multiplicative Interaction effects
+genotype and trial) along with the Multiplicative Interaction effects
 of principal component analysis (PCA).
 }
 \examples{

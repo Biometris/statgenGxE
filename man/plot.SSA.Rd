@@ -4,14 +4,17 @@
 \alias{plot.SSA}
 \title{Plot function for class SSA}
 \usage{
-\method{plot}{SSA}(x, ..., trait = NULL, what = ifelse(is.null(x$mFix),
-  "random", "fixed"), plotType = c("base", "spatial"))
+\method{plot}{SSA}(x, ..., trial = NULL, trait = NULL, what = NULL,
+  plotType = c("base", "spatial"))
 }
 \arguments{
 \item{x}{An object of class SSA.}
 
 \item{...}{Further graphical parameters (see \code{\link[lattice]{xyplot}}
 for details).}
+
+\item{trial}{a character string indicating the trial to plot. If
+\code{trial = NULL} and only one trial is modelled this trial is plotted.}
 
 \item{trait}{a character string indicating the trait to plot. If
 \code{trait = NULL} and only one trait is modelled this trait is plotted.}

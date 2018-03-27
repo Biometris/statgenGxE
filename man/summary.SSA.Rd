@@ -4,12 +4,15 @@
 \alias{summary.SSA}
 \title{Summarizing objects of class \code{SSA}}
 \usage{
-\method{summary}{SSA}(object, trait = NULL, digits = max(getOption("digits")
-  - 2, 3), nBest = 20, sortBy = if (!is.null(object$mFix)) "BLUEs" else
-  "BLUPs", naLast = TRUE, decreasing = TRUE, ...)
+\method{summary}{SSA}(object, trial = NULL, trait = NULL,
+  digits = max(getOption("digits") - 2, 3), nBest = 20, sortBy = NULL,
+  naLast = TRUE, decreasing = TRUE, ...)
 }
 \arguments{
 \item{object}{An object of class \code{SSA}.}
+
+\item{trial}{A character string indicating the trial to summarize. If
+\code{trial = NULL} and only one trial is modelled this trial is summarized.}
 
 \item{trait}{A character string indicating the trait to summarize. If
 \code{trait = NULL} and only one trait is modelled this trait is summarized.}

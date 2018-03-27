@@ -4,7 +4,7 @@
 \name{TDMaize}
 \alias{TDMaize}
 \title{Test data maize}
-\format{An object of class \code{TD} (inherits from \code{data.frame}) with 1688 rows and 3 columns.}
+\format{An object of class \code{TD} (inherits from \code{list}) of length 8.}
 \usage{
 TDMaize
 }

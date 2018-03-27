@@ -37,6 +37,9 @@
 #' }
 #'
 #' @param SSA An object of class SSA.
+#' @param trials A character vector of trials for which the statistics should be
+#' computed. If not supplied statistics are computed for all trials that have
+#' been modelled.
 #' @param traits A character vector of traits for which the statistics should be
 #' computed. If not supplied statistics are computed for all traits that have
 #' been modelled.
@@ -66,36 +69,53 @@
 #' extr <- STExtract(myModel)
 #' ## Extract only the BLUEs from the fitted model.
 #' BLUEs <- STExtract(myModel, what = "BLUEs")
-#' ## Extract only the BLUEs from the fitted model and keep env as variable in
+#' ## Extract only the BLUEs from the fitted model and keep trial as variable in
 #' ## the output.
-#' BLUEs2 <- STExtract(myModel, what = "BLUEs", keep = "env")
+#' BLUEs2 <- STExtract(myModel, what = "BLUEs", keep = "trial")
 #'
 #' @export
 STExtract <- function(SSA,
-                      traits = SSA$traits,
+                      trials = names(SSA),
+                      traits = NULL,
                       what = "all",
                       keep = NULL) {
   ## Checks.
   if (!inherits(SSA, "SSA")) {
     stop("SSA has to be an object of class SSA.\n")
   }
-  if (is.null(traits) || !is.character(traits) || !all(traits %in% colnames(SSA$TD))) {
-    stop("All traits have to be columns in TD.\n")
+  if (is.null(trials) || !is.character(trials) ||
+      !all(trials %in% names(SSA))) {
+    stop("All trials should be in SSA.")
   }
-  if (!is.null(keep) && (!is.character(keep) || !all(keep %in% colnames(SSA$TD)))) {
-    stop("All items in keep have to be columns in TD.\n")
+  if (!is.null(traits) && !is.character(traits)) {
+    stop("traits should be NULL or a character vector.")
   }
-  engine <- SSA$engine
-  ## Set useRepId to TRUE when it is used as fixed effect in the model.
-  useRepId <- (SSA$design %in% c("res.ibd", "res.rowcol", "rcbd"))
-  ## Extract statistics from fitted model.
-  result <- do.call(what = paste0("extract", tools::toTitleCase(engine)),
-                    args = list(SSA = SSA, traits = traits, what = what,
-                                useRepId = useRepId, keep = keep))
-  attr(x = result, which = "traits") <- traits
-  attr(x = result, which = "design") <- SSA$design
-  attr(x = result, which = "engine") <- engine
-  return(result)
+  if (!is.null(keep) && !is.character(keep)) {
+    stop("keep should be NULL or a character vector.")
+  }
+  sapply(X = trials, FUN = function(trial) {
+    SSATr <- SSA[[trial]]
+    if (is.null(traits)) {
+      traits <- SSATr$traits
+    }
+    if (!all(traits %in% colnames(SSATr$TD[[trial]]))) {
+      stop(paste0("All traits should be columns in ", trial, ".\n"))
+    }
+    if (!all(keep %in% colnames(SSATr$TD[[trial]]))) {
+      stop(paste0("All keep should be columns in ", trial, ".\n"))
+    }
+    engine <- SSATr$engine
+    ## Set useRepId to TRUE when it is used as fixed effect in the model.
+    useRepId <- (SSATr$design %in% c("res.ibd", "res.rowcol", "rcbd"))
+    ## Extract statistics from fitted model.
+    result <- do.call(what = paste0("extract", tools::toTitleCase(engine)),
+                      args = list(SSA = SSATr, traits = traits, what = what,
+                                  useRepId = useRepId, keep = keep))
+    attr(x = result, which = "traits") <- traits
+    attr(x = result, which = "design") <- SSATr$design
+    attr(x = result, which = "engine") <- engine
+    return(result)
+  }, simplify = FALSE)
 }
 
 #' Extract statistics from model fitted using SpATS
@@ -109,8 +129,8 @@ extractSpATS <- function(SSA,
                          useRepId) {
   mf <- SSA$mFix
   mr <- SSA$mRand
-  TD <- SSA$TD
-  predicted <- attr(SSA, "predicted")
+  TD <- SSA$TD[[1]]
+  predicted <- SSA$predicted
   useCheckId <- length(grep(pattern = "checkId",
                             x = deparse(mr[[1]]$model$fixed))) > 0
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "heritability", "varGen",
@@ -140,8 +160,8 @@ extractSpATS <- function(SSA,
       colnames(predVal) <- c(predicted, trait)
       return(predVal)
     })
-    result[["BLUEs"]] <- createTD(data = Reduce(f = merge, x = predVals,
-                                                init = baseDataPred))
+    BLUEs <- Reduce(f = merge, x = predVals, init = baseDataPred)
+    result[["BLUEs"]] <- BLUEs
   }
   if ("seBLUEs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
@@ -150,8 +170,8 @@ extractSpATS <- function(SSA,
       colnames(predErr) <- c(predicted, trait)
       return(predErr)
     })
-    result[["seBLUEs"]] <- createTD(data = Reduce(f = merge, x = predErrs,
-                                                  init = baseDataPred))
+    seBLUEs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
+    result[["seBLUEs"]] <- seBLUEs
   }
   ## Compute BLUPs and se of BLUPs from mixed model.
   if ("BLUPs" %in% what) {
@@ -162,8 +182,8 @@ extractSpATS <- function(SSA,
       colnames(predVal) <- c(whichPred, trait)
       return(predVal)
     })
-    result[["BLUPs"]] <- createTD(data = Reduce(f = merge, x = predVals,
-                                                init = baseDataPred))
+    BLUPs <- Reduce(f = merge, x = predVals, init = baseDataPred)
+    result[["BLUPs"]] <- BLUPs
   }
   if ("seBLUPs" %in% what) {
     whichPred <- c(predicted, if (useCheckId) "checkId")
@@ -173,8 +193,8 @@ extractSpATS <- function(SSA,
       colnames(predErr) <- c(whichPred, trait)
       return(predErr)
     })
-    result[["seBLUPs"]] <- createTD(data = Reduce(f = merge, x = predErrs,
-                                                  init = baseDataPred))
+    seBLUPs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
+    result[["seBLUPs"]] <- seBLUPs
   }
   ## Compute generalized heritability.
   if ("heritability" %in% what) {
@@ -196,18 +216,18 @@ extractSpATS <- function(SSA,
   }
   ## Extract fitted values.
   if ("fitted" %in% what) {
-    result[["fitted"]] <- createTD(data = cbind(baseData,
-                                                sapply(X = mf, FUN = fitted)))
+    fitVal <- cbind(baseData, sapply(X = mf, FUN = fitted))
+    result[["fitted"]] <- fitVal
   }
   ## Extract residuals.
   if ("resid" %in% what) {
-    result[["resid"]] <- createTD(data = cbind(baseData,
-                                               sapply(X = mf, FUN = residuals)))
+    resVal <- cbind(baseData, sapply(X = mf, FUN = residuals))
+    result[["resid"]] <- resVal
   }
   ## Extract rMeans.
   if ("rMeans" %in% what) {
-    result[["rMeans"]] <- createTD(data = cbind(baseData,
-                                                sapply(X = mr, FUN = fitted)))
+    rMeans <- cbind(baseData, sapply(X = mr, FUN = fitted))
+    result[["rMeans"]] <- rMeans
   }
   ## Extract random effects.
   if ("ranEf" %in% what) {
@@ -218,8 +238,8 @@ extractSpATS <- function(SSA,
       colnames(ranEff) <- c(predicted, trait)
       return(ranEff)
     })
-    result[["ranEf"]] <- createTD(data = Reduce(f = merge, x = ranEffs,
-                                                init = baseDataPred))
+    ranEf <- Reduce(f = merge, x = ranEffs, init = baseDataPred)
+    result[["ranEf"]] <- ranEf
   }
   ## Extract residual degrees of freedom.
   if ("rDf" %in% what) {
@@ -249,8 +269,8 @@ extractLme4 <- function(SSA,
                         useRepId) {
   mf <- SSA$mFix
   mr <- SSA$mRand
-  TD <- SSA$TD
-  predicted = attr(SSA, "predicted")
+  TD <- SSA$TD[[1]]
+  predicted = SSA$predicted
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability",
                "varGen", "varErr", "fitted", "resid", "stdRes", "rMeans", "ranEf",
                "wald", "CV", "rDf")
@@ -286,16 +306,16 @@ extractLme4 <- function(SSA,
       setNames(emStats[[trait]][c(predicted, "emmean")],
                c(predicted, trait))
     })
-    result[["BLUEs"]] <- createTD(data = Reduce(f = merge, x = predVals,
-                                                init = baseDataPred))
+    BLUEs <- Reduce(f = merge, x = predVals, init = baseDataPred)
+    result[["BLUEs"]] <- BLUEs
   }
   if ("seBLUEs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
       setNames(emStats[[trait]][c(predicted, "SE")],
                c(predicted, trait))
     })
-    result[["seBLUEs"]] <- createTD(data = Reduce(f = merge, x = predErrs,
-                                                  init = baseDataPred))
+    seBLUEs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
+    result[["seBLUEs"]] <- seBLUEs
   }
   ## Compute BLUPs and se of BLUPs from mixed model.
   if ("BLUPs" %in% what) {
@@ -313,8 +333,8 @@ extractLme4 <- function(SSA,
       colnames(predVal) <- c(predicted, trait)
       return(predVal)
     })
-    result[["BLUPs"]] <- createTD(data = Reduce(f = merge, x = predVals,
-                                                init = baseDataPred))
+    BLUPs <- Reduce(f = merge, x = predVals, init = baseDataPred)
+    result[["BLUPs"]] <- BLUPs
   }
   if ("seBLUPs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
@@ -324,24 +344,24 @@ extractLme4 <- function(SSA,
       colnames(predErr) <- c(predicted, trait)
       return(predErr)
     })
-    result[["seBLUPs"]] <- createTD(data = Reduce(f = merge, x = predErrs,
-                                                  init = baseDataPred))
+    seBLUPs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
+    result[["seBLUPs"]] <- seBLUPs
   }
   ## Compute unit errors.
   if ("ue" %in% what) {
-    result[["ue"]] <- createTD(data = cbind(baseDataPred,
-                                            lapply(X = em, FUN = function(em0) {
-                                              ## Extract and invert variance covariance matrix.
-                                              V <- vcov(em0)
-                                              Vinv <- try(chol2inv(chol(V)),
-                                                          silent = TRUE)
-                                              ## Compute unit errors.
-                                              if (!inherits(Vinv, "try-error")) {
-                                                ue <- 1 / diag(Vinv)
-                                              } else {
-                                                ue <- 1 / diag(solve(V))
-                                              }
-                                            })))
+    ue <- cbind(baseDataPred,
+                lapply(X = em, FUN = function(em0) {
+                  ## Extract and invert variance covariance matrix.
+                  V <- vcov(em0)
+                  Vinv <- try(chol2inv(chol(V)), silent = TRUE)
+                  ## Compute unit errors.
+                  if (!inherits(Vinv, "try-error")) {
+                    ue <- 1 / diag(Vinv)
+                  } else {
+                    ue <- 1 / diag(solve(V))
+                  }
+                }))
+    result[["ue"]] <- ue
   }
   ## Extract variances.
   if (any(c("varGen", "varErr", "heritability") %in% what)) {
@@ -368,34 +388,35 @@ extractLme4 <- function(SSA,
   }
   ## Extract fitted values.
   if ("fitted" %in% what) {
-    result[["fitted"]] <- createTD(data = cbind(baseData,
-                                                sapply(X = mf, FUN = fitted)))
+    fitVal <- cbind(baseData, sapply(X = mf, FUN = fitted))
+    result[["fitted"]] <- fitVal
   }
   ## Extract residuals.
   if ("resid" %in% what) {
-    result[["resid"]] <- createTD(data = cbind(baseData,
-                                               sapply(X = mf, FUN = residuals)))
+    resVal <- cbind(baseData, sapply(X = mf, FUN = residuals))
+    result[["resid"]] <- resVal
   }
   ## Extract standardized residuals.
   if ("stdRes" %in% what) {
-    result[["stdRes"]] <- createTD(data = cbind(baseData,
-                                                sapply(X = mf, FUN = function(mf0) {
-                                                  if (inherits(mf0, "lm")) {
-                                                    stdRes <- rstandard(mf0)
-                                                  } else if (inherits(mf0, "lmerMod")) {
-                                                    stdRes <- residuals(mf0, scaled = TRUE)
-                                                  }
-                                                })))
+    stdRes <- cbind(baseData,
+                    sapply(X = mf, FUN = function(mf0) {
+                      if (inherits(mf0, "lm")) {
+                        stdRes <- rstandard(mf0)
+                      } else if (inherits(mf0, "lmerMod")) {
+                        stdRes <- residuals(mf0, scaled = TRUE)
+                      }
+                    }))
+    result[["stdRes"]] <- stdRes
   }
   ## Compute rMeans.
   ## Use napredict to fill in NAs in data with NAs.
   if ("rMeans" %in% what) {
-    result[["rMeans"]] <- createTD(data = cbind(baseData,
-                                                sapply(X = mr, FUN = function(mr0) {
-                                                  napredict(attr(model.frame(mr0),
-                                                                 "na.action"),
-                                                            x = lme4::getME(mr0, "mu"))
-                                                })))
+    rMeans <- cbind(baseData,
+                    sapply(X = mr, FUN = function(mr0) {
+                      napredict(attr(model.frame(mr0), "na.action"),
+                                x = lme4::getME(mr0, "mu"))
+                    }))
+    result[["rMeans"]] <- rMeans
   }
   ## Extract random effects.
   if ("ranEf" %in% what) {
@@ -405,8 +426,8 @@ extractLme4 <- function(SSA,
       colnames(ranEff) <- c(predicted, trait)
       return(ranEff)
     })
-    result[["ranEf"]] <- createTD(data = Reduce(f = merge, x = ranEffs,
-                                                init = baseDataPred))
+    ranEf <- Reduce(f = merge, x = ranEffs, init = baseDataPred)
+    result[["ranEf"]] <- ranEf
   }
   ## Compute wald test.
   if ("wald" %in% what) {
@@ -440,8 +461,8 @@ extractAsreml <- function(SSA,
   }
   mf <- SSA$mFix
   mr <- SSA$mRand
-  TD <- SSA$TD
-  predicted <- attr(SSA, "predicted")
+  TD <- SSA$TD[[1]]
+  predicted <- SSA$predicted
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability", "varGen",
                "varErr", "fitted", "resid", "stdRes", "rMeans", "ranEf",
                "wald", "CV", "rDf", "sed", "lsd")
@@ -469,16 +490,16 @@ extractAsreml <- function(SSA,
       setNames(mf[[trait]]$predictions$pvals[c(predicted, "predicted.value")],
                c(predicted, trait))
     })
-    result[["BLUEs"]] <- createTD(data = Reduce(f = merge, x = predVals,
-                                                init = baseDataPred))
+    BLUEs <- Reduce(f = merge, x = predVals, init = baseDataPred)
+    result[["BLUEs"]] <- BLUEs
   }
   if ("seBLUEs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
       setNames(mf[[trait]]$predictions$pvals[c(predicted, "standard.error")],
                c(predicted, trait))
     })
-    result[["seBLUEs"]] <- createTD(data = Reduce(f = merge, x = predErrs,
-                                                  init = baseDataPred))
+    seBLUEs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
+    result[["seBLUEs"]] <- seBLUEs
   }
   ## Extract BLUPs and se of BLUPs from fixed model.
   if ("BLUPs" %in% what) {
@@ -486,39 +507,36 @@ extractAsreml <- function(SSA,
       setNames(mr[[trait]]$predictions$pvals[c(predicted, "predicted.value")],
                c(predicted, trait))
     })
-    result[["BLUPs"]] <- createTD(data = Reduce(f = merge, x = predVals,
-                                                init = baseDataPred))
+    BLUPs <- Reduce(f = merge, x = predVals, init = baseDataPred)
+    result[["BLUPs"]] <- BLUPs
   }
   if ("seBLUPs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
       setNames(mr[[trait]]$predictions$pvals[c(predicted, "standard.error")],
                c(predicted, trait))
     })
-    result[["seBLUPs"]] <- createTD(data = Reduce(f = merge, x = predErrs,
-                                                  init = baseDataPred))
+    seBLUPs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
+    result[["seBLUPs"]] <- seBLUPs
   }
   ## Compute unit errors.
   if ("ue" %in% what) {
-    result[["ue"]] <- createTD(data = cbind(baseDataPred,
-                                            sapply(X = mf, FUN = function(mf0) {
-                                              ## Extract V from mf.
-                                              V <- mf0$predictions$vcov
-                                              ## Remove columns and rows containing NA.
-                                              VMiss <- apply(X = V, MARGIN = 2,
-                                                             FUN = anyNA)
-                                              V <- V[!VMiss, !VMiss]
-                                              Vinv <- try(chol2inv(chol(V)),
-                                                          silent = TRUE)
-                                              ## Compute unit errors.
-                                              ue <- rep(x = NA,
-                                                        times = nrow(baseDataPred))
-                                              if (!inherits(Vinv, "try-error")) {
-                                                ue[!VMiss] <- 1 / diag(Vinv)
-                                              } else {
-                                                ue[!VMiss] <- 1 / diag(solve(V))
-                                              }
-                                              return(ue)
-                                            })))
+    ue <- cbind(baseDataPred, sapply(X = mf, FUN = function(mf0) {
+      ## Extract V from mf.
+      V <- mf0$predictions$vcov
+      ## Remove columns and rows containing NA.
+      VMiss <- apply(X = V, MARGIN = 2, FUN = anyNA)
+      V <- V[!VMiss, !VMiss]
+      Vinv <- try(chol2inv(chol(V)), silent = TRUE)
+      ## Compute unit errors.
+      ue <- rep(x = NA, times = nrow(baseDataPred))
+      if (!inherits(Vinv, "try-error")) {
+        ue[!VMiss] <- 1 / diag(Vinv)
+      } else {
+        ue[!VMiss] <- 1 / diag(solve(V))
+      }
+      return(ue)
+    }))
+    result[["ue"]] <- ue
   }
   ## Extract variances
   varGen <- sapply(X = mr, FUN = function(mr0) {
@@ -545,25 +563,24 @@ extractAsreml <- function(SSA,
   }
   ## Extract fitted values.
   if ("fitted" %in% what) {
-    result[["fitted"]] <- createTD(data = cbind(baseData,
-                                                sapply(X = mf, FUN = fitted)))
+    fitVal <- cbind(baseData, sapply(X = mf, FUN = fitted))
+    result[["fitted"]] <- fitVal
   }
   ## Extract residuals.
   if ("resid" %in% what) {
-    result[["resid"]] <- createTD(data = cbind(baseData,
-                                               sapply(X = mf, FUN = residuals,
-                                                      type = "response")))
+    resVal <- cbind(baseData, sapply(X = mf, FUN = residuals,
+                                     type = "response"))
+    result[["resid"]] <- resVal
   }
   ## Extract standardized residuals.
   if ("stdRes" %in% what) {
-    result[["stdRes"]] <- createTD(data = cbind(baseData,
-                                                sapply(X = mf, FUN = residuals,
-                                                       type = "stdCond")))
+    stdRes <- cbind(baseData, sapply(X = mf, FUN = residuals, type = "stdCond"))
+    result[["stdRes"]] <- stdRes
   }
   ## Extract rMeans.
   if ("rMeans" %in% what) {
-    result[["rMeans"]] <- createTD(data = cbind(baseData,
-                                                sapply(X = mr, FUN = fitted)))
+    rMeans <- cbind(baseData, sapply(X = mr, FUN = fitted))
+    result[["rMeans"]] <- rMeans
   }
   ## Extract random effects.
   if ("ranEf" %in% what) {
@@ -575,10 +592,10 @@ extractAsreml <- function(SSA,
                                                       x = names(coefs))]),
                            coefs[grep(pattern = predicted, x = names(coefs))])
       colnames(ranEff) <- c(predicted, trait)
-      ranEff
+      return(ranEff)
     })
-    result[["ranEf"]] <- createTD(data = Reduce(f = merge, x = ranEffs,
-                                                init = baseDataPred))
+    ranEf <- Reduce(f = merge, x = ranEffs, init = baseDataPred)
+    result[["ranEf"]] <- ranEf
   }
   ## Compute wald test.
   if ("wald" %in% what) {
@@ -637,7 +654,7 @@ extractSommer <- function(SSA,
   mf <- SSA$mFix
   mr <- SSA$mRand
   TD <- SSA$TD
-  predicted = attr(SSA, "predicted")
+  predicted = SSA$predicted
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability",
                "varGen", "varErr", "fitted", "resid", "stdRes", "rMeans",
                "ranEf", "rDf", "CV")

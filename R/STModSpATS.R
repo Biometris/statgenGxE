@@ -8,6 +8,7 @@
 #'
 #' @keywords internal
 STModSpATS <- function(TD,
+                       trial = NULL,
                        traits,
                        what = c("fixed", "random"),
                        covariates = NULL,
@@ -19,38 +20,13 @@ STModSpATS <- function(TD,
                        ...) {
   if (checks) {
     ## Checks.
-    checkOut <- modelChecks(TD = TD, design = design, traits = traits,
-                            what = what, covariates = covariates,
-                            trySpatial = trySpatial, engine = "SpATS",
-                            useCheckId = useCheckId, control = control)
+    checkOut <- modelChecks(TD = TD, trial = trial, design = design,
+                            traits = traits, what = what,
+                            covariates = covariates, trySpatial = trySpatial,
+                            engine = "SpATS", useCheckId = useCheckId,
+                            control = control)
     ## Convert output to variables.
     list2env(x = checkOut, envir = environment())
-  }
-  ## Should repId be used as fixed effect in the model.
-  useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
-  ## Indicate extra random effects.
-  if (design %in% c("ibd", "res.ibd")) {
-    randEff <- "subBlock"
-  } else if (design %in% c("rowcol", "res.rowcol")) {
-    randEff <- c("rowId", "colId")
-  } else if (design == "rcbd") {
-    randEff <- character()
-  }
-  ## Compute number of segments.
-  nSeg <- c(ceiling(nlevels(TD$colId) / 2), ceiling(nlevels(TD$rowId) / 2))
-  ## If valid values for nSeg are provided in control use these instead.
-  if ("nSeg" %in% names(control)) {
-    nSegCt <- control$nSeg
-    if (length(nSegCt) == 1) {
-      nSegCt <- rep(x = nSegCt, times = 2)
-    }
-    if (is.numeric(nSegCt) && length(nSegCt) <= 2 && all(nSegCt >= 1) &&
-        all(nSegCt <= c(nlevels(TD$colId), nlevels(TD$rowId)))) {
-      nSeg <- nSegCt
-    } else {
-      warning(paste("Invalid value for control parameter nSeg.",
-                    "Using default values instead.\n"))
-    }
   }
   ## Set default value for nestDiv
   nestDiv <- 2
@@ -64,6 +40,33 @@ STModSpATS <- function(TD,
       nestDiv <- nestDivCt
     } else {
       warning(paste("Invalid value for control parameter nestDiv.",
+                    "Using default values instead.\n"))
+    }
+  }
+  TDTr <- TD[[trial]]
+  ## Should repId be used as fixed effect in the model.
+  useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
+  ## Indicate extra random effects.
+  if (design %in% c("ibd", "res.ibd")) {
+    randEff <- "subBlock"
+  } else if (design %in% c("rowcol", "res.rowcol")) {
+    randEff <- c("rowId", "colId")
+  } else if (design == "rcbd") {
+    randEff <- character()
+  }
+  ## Compute number of segments.
+  nSeg <- c(ceiling(nlevels(TDTr$colId) / 2), ceiling(nlevels(TDTr$rowId) / 2))
+  ## If valid values for nSeg are provided in control use these instead.
+  if ("nSeg" %in% names(control)) {
+    nSegCt <- control$nSeg
+    if (length(nSegCt) == 1) {
+      nSegCt <- rep(x = nSegCt, times = 2)
+    }
+    if (is.numeric(nSegCt) && length(nSegCt) <= 2 && all(nSegCt >= 1) &&
+        all(nSegCt <= c(nlevels(TDTr$colId), nlevels(TDTr$rowId)))) {
+      nSeg <- nSegCt
+    } else {
+      warning(paste("Invalid value for control parameter nSeg.",
                     "Using default values instead.\n"))
     }
   }
@@ -89,7 +92,7 @@ STModSpATS <- function(TD,
                                               nseg = nSeg, nest.div = nestDiv),
                    fixed = fixedForm,
                    random = randomForm,
-                   data = TD, control = list(monitoring = 0), ...)
+                   data = TDTr, control = list(monitoring = 0), ...)
     }, simplify = FALSE)
   } else {
     mr <- NULL
@@ -103,13 +106,12 @@ STModSpATS <- function(TD,
                                               nseg = nSeg, nest.div = nestDiv),
                    fixed = fixedForm,
                    random = randomForm,
-                   data = TD, control = list(monitoring = 0), ...)
+                   data = TDTr, control = list(monitoring = 0), ...)
     }, simplify = FALSE)
   } else {
     mf <- NULL
   }
-  ## Construct SSA object.
-  model <- createSSA(mRand = mr, mFix = mf, TD = TD, traits = traits,
-                     design = design, spatial = "2 dimensional P-splines", engine = "SpATS")
-  return(model)
+  return(list(mRand = mr, mFix = mf, TD = TD[trial], traits = traits,
+              design = design, spatial = "2 dimensional P-splines",
+              engine = "SpATS", predicted = "genotype"))
 }

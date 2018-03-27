@@ -8,16 +8,16 @@ testTD <- createTD(data = testData[testData$field == "E1", ],
 modelLm <- STRunModel(testTD, design = "rcbd", traits = "t1")
 
 test_that("the output of extract is of the proper type", {
-  expect_is(STExtract(modelLm, what = "BLUEs"), "TD")
+  expect_is(STExtract(modelLm, what = "BLUEs"), "list")
   expect_is(STExtract(modelLm), "list")
-  expect_length(STExtract(modelLm), 16)
+  expect_length(STExtract(modelLm)[[1]], 16)
   expect_is(STExtract(modelLm, what = c("BLUEs", "BLUPs")), "list")
-  expect_length(STExtract(modelLm, what = c("BLUEs", "BLUPs")), 2)
+  expect_length(STExtract(modelLm, what = c("BLUEs", "BLUPs"))[[1]], 2)
 })
 
-extLm <- STExtract(modelLm)
+extLm <- STExtract(modelLm)[[1]]
 test_that("BLUEs are computed correctly", {
-  expect_is(extLm$BLUEs, "TD")
+  expect_is(extLm$BLUEs, "data.frame"	)
   expect_identical(dim(extLm$BLUEs), c(15L, 2L))
   expect_equal(colnames(extLm$BLUEs), c("genotype", "t1"))
   expect_equal(extLm$BLUEs$t1, c(91.855951639415, 73.6623287954585, 74.8843349808426,
@@ -28,14 +28,14 @@ test_that("BLUEs are computed correctly", {
 })
 
 test_that("SE of BLUEs are computed correctly", {
-  expect_is(extLm$seBLUEs, "TD")
+  expect_is(extLm$seBLUEs, "data.frame"	)
   expect_identical(dim(extLm$seBLUEs), c(15L, 2L))
   expect_equal(colnames(extLm$seBLUEs), c("genotype", "t1"))
   expect_equal(extLm$seBLUEs$t1, rep(x = 14.6535394925134, times = 15))
 })
 
 test_that("BLUPs are computed correctly", {
-  expect_is(extLm$BLUPs, "TD")
+  expect_is(extLm$BLUPs, "data.frame"	)
   expect_identical(dim(extLm$BLUPs), c(15L, 2L))
   expect_equal(colnames(extLm$BLUPs), c("genotype", "t1"))
   expect_equal(extLm$BLUPs$t1, c(80.770606359766, 76.7768080023636, 77.0450583853567,
@@ -46,14 +46,14 @@ test_that("BLUPs are computed correctly", {
 })
 
 test_that("SE of BLUPs are computed correctly", {
-  expect_is(extLm$seBLUPs, "TD")
+  expect_is(extLm$seBLUPs, "data.frame"	)
   expect_identical(dim(extLm$seBLUPs), c(15L, 2L))
   expect_equal(colnames(extLm$seBLUPs), c("genotype", "t1"))
   expect_equal(extLm$seBLUPs$t1, rep(x = 6.86556085594243, times = 15))
 })
 
 test_that("unit errors are computed correctly", {
-  expect_is(extLm$ue, "TD")
+  expect_is(extLm$ue, "data.frame"	)
   expect_identical(dim(extLm$ue), c(15L, 2L))
   expect_equal(colnames(extLm$ue), c("genotype", "t1"))
   expect_equal(extLm$ue$t1, rep(x = 214.726219658649, times = 15))
@@ -81,7 +81,7 @@ test_that("varErr is computed correctly", {
 })
 
 test_that("fitted values are computed correctly", {
-  expect_is(extLm$fitted, "TD")
+  expect_is(extLm$fitted, "data.frame"	)
   expect_identical(dim(extLm$fitted), c(30L, 3L))
   expect_equal(colnames(extLm$fitted), c("genotype", "repId", "t1"))
   expect_equal(extLm$fitted$t1, c(98.1557845869273, 83.3434890731497, 68.4347054290536,
@@ -97,7 +97,7 @@ test_that("fitted values are computed correctly", {
 })
 
 test_that("residuals are computed correctly", {
-  expect_is(extLm$resid, "TD")
+  expect_is(extLm$resid, "data.frame"	)
   expect_identical(dim(extLm$resid), c(30L, 3L))
   expect_equal(colnames(extLm$resid), c("genotype", "repId", "t1"))
   expect_equal(extLm$resid$t1, c(6.68181181212573, 10.3664349145521, 17.5335879487325,
@@ -113,7 +113,7 @@ test_that("residuals are computed correctly", {
 })
 
 test_that("standardized residuals are computed correctly", {
-  expect_is(extLm$stdRes, "TD")
+  expect_is(extLm$stdRes, "data.frame"	)
   expect_identical(dim(extLm$stdRes), c(30L, 3L))
   expect_equal(colnames(extLm$stdRes), c("genotype", "repId", "t1"))
   expect_equal(extLm$stdRes$t1, c(0.4719905598143, 0.732265372951495, 1.23853951954428,
@@ -129,7 +129,7 @@ test_that("standardized residuals are computed correctly", {
 })
 
 test_that("rMeans are computed correctly", {
-  expect_is(extLm$rMeans, "TD")
+  expect_is(extLm$rMeans, "data.frame"	)
   expect_identical(dim(extLm$rMeans), c(30L, 3L))
   expect_equal(colnames(extLm$rMeans), c("genotype", "repId", "t1"))
   expect_equal(extLm$rMeans$t1, c(87.0704393072783, 83.8188977094521, 80.5461753858475,
@@ -145,7 +145,7 @@ test_that("rMeans are computed correctly", {
 })
 
 test_that("random effects are computed correctly", {
-  expect_is(extLm$ranEf, "TD")
+  expect_is(extLm$ranEf, "data.frame"	)
   expect_identical(dim(extLm$ranEf), c(15L, 2L))
   expect_equal(colnames(extLm$ranEf), c("genotype", "t1"))
   expect_equal(extLm$ranEf$t1, c(3.11782964719197, -0.875968710210448, -0.607718327217375,

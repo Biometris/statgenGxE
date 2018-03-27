@@ -4,9 +4,9 @@
 \alias{STModSpATS}
 \title{Fit Single Trial Model using SpATS}
 \usage{
-STModSpATS(TD, traits, what = c("fixed", "random"), covariates = NULL,
-  useCheckId = FALSE, trySpatial = FALSE, design = "rowcol",
-  control = NULL, checks = TRUE, ...)
+STModSpATS(TD, trial = NULL, traits, what = c("fixed", "random"),
+  covariates = NULL, useCheckId = FALSE, trySpatial = FALSE,
+  design = "rowcol", control = NULL, checks = TRUE, ...)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
@@ -28,10 +28,10 @@ only be fitted with SpATS and asreml. If SpATS is used for modeling only
 spatial models can be fitted and trySpatial is always set to \code{TRUE}. If
 asreml is used fitting spatial models is optional.}
 
-\item{design}{A string specifying the experimental design. Either "ibd"
-(incomplete block design), "res.ibd" (resolvable incomplete block design),
-"rcbd" (randomized complete block design), "rowcol" (row column design) or
-"res.rowcol" (resolvable row column design).}
+\item{design}{A character string specifying the experimental design. Either
+"ibd" (incomplete block design), "res.ibd" (resolvable incomplete block
+design), "rcbd" (randomized complete block design), "rowcol" (row column
+design) or "res.rowcol" (resolvable row column design).}
 
 \item{control}{An optional list with control parameters to be passed to the
 actual fitting funcions. Currently \code{nSeg} and \code{nestDiv} are valid
