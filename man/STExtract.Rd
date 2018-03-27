@@ -32,7 +32,8 @@ the column to keep contains unique values for the modeled variables, i.e. a
 column repId with several different values per genotype cannot be kept.}
 }
 \value{
-A list of extracted statistics or if only one statistic is extracted
+A list with per trial for which statistics have been extracted either
+a list of those statistics or if only one statistic is extracted
 a single object containing this statistic.
 }
 \description{

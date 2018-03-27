@@ -4,11 +4,11 @@
 #' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
 #' \code{\link{report}} methods are available.
 #'
-#' @param superiority a data.frame containing values for the
+#' @param superiority A data.frame containing values for the
 #' cultivar-superiority measure of Lin and Binns.
-#' @param static a data.frame containing values for Shukla's stability variance.
-#' @param wricke a data.frame containing values for Wricke's ecovalence.
-#' @param trait a character string indicating the trait that has been analyzed.
+#' @param static A data.frame containing values for Shukla's stability variance.
+#' @param wricke A data.frame containing values for Wricke's ecovalence.
+#' @param trait A character string indicating the trait that has been analyzed.
 #'
 #' @author Bart-Jan van Rossum
 #'

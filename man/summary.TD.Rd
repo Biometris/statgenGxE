@@ -19,7 +19,7 @@
 
 \item{what}{A character vector indicating which summary statistics should be
 computed. If \code{what = "all"} all available statistics are computed.\cr
-Possible options are\cr
+Possible options are:
 \describe{
 \item{nVals}{The number of values, i.e. non-missing + missing values.}
 \item{nObs}{The number of non-missing observations.}

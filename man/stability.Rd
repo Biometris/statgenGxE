@@ -8,14 +8,14 @@
 createstability(superiority = NULL, static = NULL, wricke = NULL, trait)
 }
 \arguments{
-\item{superiority}{a data.frame containing values for the
+\item{superiority}{A data.frame containing values for the
 cultivar-superiority measure of Lin and Binns.}
 
-\item{static}{a data.frame containing values for Shukla's stability variance.}
+\item{static}{A data.frame containing values for Shukla's stability variance.}
 
-\item{wricke}{a data.frame containing values for Wricke's ecovalence.}
+\item{wricke}{A data.frame containing values for Wricke's ecovalence.}
 
-\item{trait}{a character string indicating the trait that has been analyzed.}
+\item{trait}{A character string indicating the trait that has been analyzed.}
 }
 \description{
 Function for creating objects of S3 class stability.\cr

@@ -13,17 +13,17 @@
 \item{...}{Further graphical parameters (see \code{\link[lattice]{xyplot}}
 for details).}
 
-\item{trial}{a character string indicating the trial to plot. If
+\item{trial}{A character string indicating the trial to plot. If
 \code{trial = NULL} and only one trial is modelled this trial is plotted.}
 
-\item{trait}{a character string indicating the trait to plot. If
+\item{trait}{A character string indicating the trait to plot. If
 \code{trait = NULL} and only one trait is modelled this trait is plotted.}
 
 \item{what}{A character string indicating whether the fitted model with
 genotype as fixed or genotype as random factor should be plotted.
 If \code{x} contains only one model this model is chosen automatically.}
 
-\item{plotType}{character string indicating whether \code{base} plots or
+\item{plotType}{A Character string indicating whether \code{base} plots or
 \code{spatial} plots should be made.}
 }
 \description{

@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{An object of class varComp}
 
-\item{...}{not unused}
+\item{...}{Not used}
 }
 \description{
 Function for plotting a heatmap of the correlation matrix for objects of

@@ -55,8 +55,8 @@ summary.QTLDet <- function(object, ...) {
 #'
 #' Function for creating a manhattan plot for objects of class QTLDet.
 #'
-#' @param x an object of class QTLDet
-#' @param ... not unused
+#' @param x An object of class QTLDet
+#' @param ... Not used
 #'
 #' @import graphics grDevices
 #' @export

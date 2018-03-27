@@ -8,7 +8,7 @@ gxeVarComp(TD, trials = names(TD), trait, engine = c("lme4", "asreml"),
   criterion = c("BIC", "AIC"), ...)
 }
 \arguments{
-\item{TD}{an object of class \code{\link{TD}}.}
+\item{TD}{An object of class \code{\link{TD}}.}
 
 \item{trials}{A character string specifying the trials to be analyzed. If
 not supplied all trials are used in the analysis.}

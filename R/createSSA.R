@@ -187,14 +187,14 @@ summary.SSA <- function(object,
 #' @param x An object of class SSA.
 #' @param ... Further graphical parameters (see \code{\link[lattice]{xyplot}}
 #' for details).
-#' @param trial a character string indicating the trial to plot. If
+#' @param trial A character string indicating the trial to plot. If
 #' \code{trial = NULL} and only one trial is modelled this trial is plotted.
-#' @param trait a character string indicating the trait to plot. If
+#' @param trait A character string indicating the trait to plot. If
 #' \code{trait = NULL} and only one trait is modelled this trait is plotted.
 #' @param what A character string indicating whether the fitted model with
 #' genotype as fixed or genotype as random factor should be plotted.
 #' If \code{x} contains only one model this model is chosen automatically.
-#' @param plotType character string indicating whether \code{base} plots or
+#' @param plotType A Character string indicating whether \code{base} plots or
 #' \code{spatial} plots should be made.
 #'
 #' @seealso \code{\link{SSA}}

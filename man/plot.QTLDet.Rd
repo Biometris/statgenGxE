@@ -7,9 +7,9 @@
 \method{plot}{QTLDet}(x, ...)
 }
 \arguments{
-\item{x}{an object of class QTLDet}
+\item{x}{An object of class QTLDet}
 
-\item{...}{not unused}
+\item{...}{Not used}
 }
 \description{
 Function for creating a manhattan plot for objects of class QTLDet.

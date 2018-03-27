@@ -4,7 +4,7 @@
 #' genotype and trial) along with the Multiplicative Interaction effects
 #' of principal component analysis (PCA).
 #'
-#' @param TD an object of class \code{\link{TD}}.
+#' @param TD An object of class \code{\link{TD}}.
 #' @param trials A character string specifying the trials to be analyzed. If
 #' not supplied all trials are used in the analysis.
 #' @param trait A character string specifying the trait to be analyzed.

@@ -54,7 +54,7 @@ summary.varComp <- function(object, ...) {
 #' class varComp.
 #'
 #' @param x An object of class varComp
-#' @param ... not unused
+#' @param ... Not used
 #'
 #' @examples
 #' \dontrun{

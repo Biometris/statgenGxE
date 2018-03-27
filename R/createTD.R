@@ -78,8 +78,9 @@
 #' @return An object of class TD, a list of data.frames with renamed columns
 #' and an attribute \code{renamedCols} containing info on which columns have
 #' been renamed. For each unique value of trial the output has a data.frame in
-#' the list with the same name as the trial. If there is no column for trial
-#' the list will contain one item named after the input data.
+#' the list with the same name as the trial. These data.frames have attributes
+#' containing the metadata for the corresponding trial. If there is no column
+#' for trial the list will contain one item named after the input data.
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -234,7 +235,7 @@ addTD <- function(TD,
 
 #' @inheritParams addTD
 #'
-#' @param trials a character vector of trials that should be removed.
+#' @param trials A character vector of trials that should be removed.
 #'
 #' @rdname TD
 #' @export
@@ -262,7 +263,7 @@ dropTD <- function(TD,
 #' @param traits A character vector specifying the traits to be summarised.
 #' @param what A character vector indicating which summary statistics should be
 #' computed. If \code{what = "all"} all available statistics are computed.\cr
-#' Possible options are\cr
+#' Possible options are:
 #' \describe{
 #' \item{nVals}{The number of values, i.e. non-missing + missing values.}
 #' \item{nObs}{The number of non-missing observations.}

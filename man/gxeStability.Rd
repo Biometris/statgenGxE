@@ -9,7 +9,7 @@ gxeStability(TD, trials = names(TD), trait, method = c("superiority",
   sorted = c("descending", "ascending", "none"))
 }
 \arguments{
-\item{TD}{an object of class \code{\link{TD}}.}
+\item{TD}{An object of class \code{\link{TD}}.}
 
 \item{trials}{A character string specifying the trials to be analyzed. If
 not supplied all trials are used in the analysis.}

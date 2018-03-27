@@ -51,7 +51,8 @@ in details. Other parameters are ignored.}
 \code{asreml}.}
 }
 \value{
-An object of class \code{\link{SSA}}, a list containing:
+An object of class \code{\link{SSA}}, a list containing per trial
+that has been analyzed a list of:
 \item{mRand}{A list of models with fitted with genotype as random effect.}
 \item{mFix}{A list of models fitted with genotype as fixed effect.}
 \item{TD}{An object of class \code{\link{TD}} containing the data on which

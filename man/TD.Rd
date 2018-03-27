@@ -87,14 +87,15 @@ length of the plot.}
 
 \item{TD}{An object of class TD which should be modified.}
 
-\item{trials}{a character vector of trials that should be removed.}
+\item{trials}{A character vector of trials that should be removed.}
 }
 \value{
 An object of class TD, a list of data.frames with renamed columns
 and an attribute \code{renamedCols} containing info on which columns have
 been renamed. For each unique value of trial the output has a data.frame in
-the list with the same name as the trial. If there is no column for trial
-the list will contain one item named after the input data.
+the list with the same name as the trial. These data.frames have attributes
+containing the metadata for the corresponding trial. If there is no column
+for trial the list will contain one item named after the input data.
 }
 \description{
 \code{createTD}\cr
