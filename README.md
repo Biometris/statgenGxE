@@ -1,3 +1,5 @@
+[![pipeline status](https://git.wur.nl/rossu027/RAP/badges/master/pipeline.svg)](https://git.wur.nl/rossu027/RAP/commits/master)
+
 # RAP
 
 R Analytical Pipeline for 
