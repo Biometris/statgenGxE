@@ -63,9 +63,10 @@ test_that("lme4 model gives correct output", {
   expect_equivalent(summLm[, "BIC"], 390.067023332152)
   expect_equivalent(summLm[, "Deviance"], 382.498644064315)
   expect_equivalent(summLm[, "NParameters"], 2)
-  expect_equivalent(geVCLm$vcov, c(36.6109167394648, 4.44290083464202, 4.442900834642,
-                                   4.44290083464202, 36.6109167394648, 4.442900834642,
-                                   4.442900834642, 4.442900834642, 39.1572940974083))
+  expect_equal(as.numeric(geVCLm$vcov),
+               c(36.6109167394648, 4.44290083464202, 4.442900834642,
+                 4.44290083464202, 36.6109167394648, 4.442900834642,
+                 4.442900834642, 4.442900834642, 39.1572940974083))
 })
 
 test_that("option criterion works properly", {

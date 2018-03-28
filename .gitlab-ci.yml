@@ -1,12 +1,10 @@
-image: rocker/tidyverse
-
 before_script:
   - apt-get install -y libglu1-mesa-dev
-  - export _R_CHECK_FORCE_SUGGESTS_=FALSE
 
-test:  
+r-base:
+   stage: test
+   image: r-base:latest
    script:
-    - R -e 'install.packages(c("desplot", "emmeans", "fields", "lme4", "qtl", "SpATS"))'
-    - R CMD build . --no-build-vignettes --no-manual
-    - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
-    - R CMD check "${PKG_FILE_NAME}" --no-build-vignettes --no-manual
+    - Rscript -e 'install.packages(c("devtools", "roxygen2"))'
+    - Rscript -e 'devtools::install_dev_deps()'
+    - Rscript -e 'devtools::check(force_suggests)'
