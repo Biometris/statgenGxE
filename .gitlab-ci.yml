@@ -1,4 +1,8 @@
 image: rocker/tidyverse
+
+before_script:
+  - apt-get install -y libglu1-mesa-dev
+
 test:  
    script:
     - R -e 'install.packages(c("desplot", "emmeans", "fields", "lme4", "qtl", "SpATS"))'
