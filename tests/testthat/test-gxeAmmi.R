@@ -96,16 +96,16 @@ geAmmi1 <- gxeAmmi(BLUEs, trait = "t1", nPC = 1)
 test_that("options nPC functions properly", {
   expect_identical(ncol(geAmmi1$envScores), 1L)
   expect_identical(ncol(geAmmi1$genoScores), 1L)
-  expect_identical(geAmmi1$envScores, geAmmi$envScores[, 1, drop = FALSE])
-  expect_identical(geAmmi1$genoScores, geAmmi$genoScores[, 1, drop = FALSE])
-  expect_identical(geAmmi1$importance, geAmmi$importance)
+  expect_equal(geAmmi1$envScores, geAmmi$envScores[, 1, drop = FALSE])
+  expect_equal(geAmmi1$genoScores, geAmmi$genoScores[, 1, drop = FALSE])
+  expect_equal(geAmmi1$importance, geAmmi$importance)
   ## Third PC is very close to zero.
   expect_warning(geAmmi1 <- gxeAmmi(BLUEs, trait = "t1", nPC = 3))
 })
 
 geAmmiNC <- gxeAmmi(BLUEs, trait = "t1", center = FALSE)
 test_that("option center functions properly", {
-  expect_identical(geAmmiNC$envScores, geAmmi$envScores)
+  expect_equal(geAmmiNC$envScores, geAmmi$envScores)
   expect_equal(geAmmiNC$importance, geAmmi$importance)
   expect_equal(geAmmiNC$genoScores, geAmmi$genoScores)
 })
@@ -118,5 +118,5 @@ test_that("option scale functions properly", {
   expect_equal(as.numeric(as.matrix(geAmmiSC$importance)),
                c(1.26175320476596, 0.53067, 0.53067, 1.18658284593316, 0.46933,
                  1, 4.3080241892555e-16, 0, 1))
-  expect_identical(geAmmiSC$anova[1:3, ], geAmmi$anova[1:3, ])
+  expect_equal(geAmmiSC$anova[1:3, ], geAmmi$anova[1:3, ])
 })
