@@ -1,5 +1,6 @@
 before_script:
   - apt-get update -qq
+  - apt-get install -y --no-install-recommends qpdf
   - apt-get install -y libglu1-mesa-dev
 
 r-base:

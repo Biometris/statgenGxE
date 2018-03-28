@@ -24,7 +24,7 @@ if (requireNamespace("asreml", quietly = TRUE)) {
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
 }
 test_that("output is of the right class for asreml", {
-  skip_on_cran()
+  testthat::skip_on_cran()
   expect_is(geVCAs, "varComp")
   expect_is(geVCAs$SSA, "SSA")
   expect_is(geVCAs$choice, "character")
@@ -35,7 +35,7 @@ test_that("output is of the right class for asreml", {
 })
 
 test_that("asreml model gives correct output", {
-  skip_on_cran()
+  testthat::skip_on_cran()
   summAs <- geVCAs$summary
   expect_equal(geVCAs$choice, "identity")
   expect_equal(rownames(summAs),
@@ -70,7 +70,7 @@ test_that("lme4 model gives correct output", {
 })
 
 test_that("option criterion works properly", {
-  skip_on_cran()
+  testthat::skip_on_cran()
   geVCAsA <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml",
                         criterion = "AIC")
   expect_identical(geVCAs$summary[, "BIC"],

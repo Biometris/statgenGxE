@@ -67,7 +67,7 @@ test_that("running models creates objects with correct structure - lme4", {
 })
 
 test_that("running models creates objects with correct structure - asreml", {
-  skip_on_cran()
+  testthat::skip_on_cran()
   modelAs <- STRunModel(testTD, trials = "E1", design = "res.ibd",
                         traits = "t1", engine = "asreml")
   expect_SSA(modelAs)
@@ -112,7 +112,7 @@ test_that("option what produces expected output - lme4", {
 })
 
 test_that("option what produces expected output - asreml", {
-  skip_on_cran()
+  testthat::skip_on_cran()
   modelAs <- STRunModel(testTD, trials = "E1", design = "rowcol", traits = "t1",
                         engine = "asreml")
   modelAsF <- STRunModel(testTD, trials = "E1", design = "rowcol",
@@ -180,7 +180,7 @@ test_that("option covariates produces expected output structure", {
   expect_SSAMod(modelLmCov, "mFix", "lm")
   expect_true("repId" %in% colnames(modelLmCov[["E1"]]$mRand$t1@frame))
   expect_true("repId" %in% colnames(modelLmCov[["E1"]]$mFix$t1$model))
-  skip_on_cran()
+  testthat::skip_on_cran()
   modelAsCov <- STRunModel(testTD, trials = "E1", design = "rowcol",
                            traits = "t1", covariates = "repId",
                            engine = "asreml")
@@ -224,7 +224,7 @@ test_that("option trySpatial produces expected output structure", {
   expect_warning(STRunModel(testTD, trials = "E1", design = "rowcol",
                             traits = "t1", trySpatial = TRUE, engine = "lme4"),
                  "Spatial models can only be fitted using SpATS or asreml.")
-  skip_on_cran()
+  testthat::skip_on_cran()
   modelAsTs <- STRunModel(testTD, trials = "E1", design = "rowcol",
                           traits = "t1", trySpatial = TRUE, engine = "asreml")
   expect_SSA(modelAsTs)

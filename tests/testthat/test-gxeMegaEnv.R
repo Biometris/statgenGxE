@@ -51,7 +51,7 @@ test_that("gxeTable functions correctly", {
                c(80.4703105526859, 80.0424618298571))
   expect_equal(as.numeric(geTabLm$standardError[3, ]),
                c(9.50660071605727, 5.93819059539989))
-  skip_on_cran()
+  testthat::skip_on_cran()
   expect_warning(gxeTable(TD = geMegaEnv, trait = "t1"),
                  "Empty data.frame returned")
   geTabAs <- gxeTable(TD = geMegaEnvNw, trait = "t1", engine = "asreml")
