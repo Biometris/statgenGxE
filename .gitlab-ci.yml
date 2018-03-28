@@ -10,5 +10,5 @@ r-base:
     - Rscript -e 'devtools::install_dev_deps()'
     - R CMD build . --no-build-vignettes --no-manual
     - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
-    - R CMD check "${PKG_FILE_NAME}" --as-cran --no-tests
+    - R CMD check "${PKG_FILE_NAME}" --as-cran --no-tests --no-manual
     - Rscript -e 'res<-devtools::test(reporter="summary");df<-as.data.frame(res);if(sum(df$failed) > 0 || any(df$error)) {q(status=1)}'
