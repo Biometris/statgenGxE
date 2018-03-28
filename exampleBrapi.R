@@ -12,7 +12,7 @@ bmscon <- brapi::ba_login(con = bmscon)
 ## Select "wheat" as crop and write to connection object
 bmscon$crop <- "wheat"
 ## Extract data for all fields (studyDBIDs "21" to "38")
-studyDbIds <- as.character(21:21)  #  38)
+studyDbIds <- as.character(21:38)  #  38)
 studyTablesList <- lapply(studyDbIds, function(id) {
   brapi::ba_studies_table(con = bmscon, studyDbId = id)
 })
