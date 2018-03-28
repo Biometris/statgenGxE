@@ -457,6 +457,9 @@ plot.TD <- function(x,
                     ...,
                     trials = names(x),
                     plotType = c("layout", "map")) {
+  ## Maps seems to change graphics parameters without resetting. Do so here.
+  op <- par(no.readonly = TRUE)
+  on.exit(par(op))
   if (!is.character(trials) || !all(trials %in% names(x))) {
     stop(paste0("All trials should be in ", deparse(x), ".\n"))
   }
@@ -617,9 +620,6 @@ checkTDMeta <- function(trLocation = NULL,
                         trLong = NULL,
                         trPlotWidth = NULL,
                         trPlotLength = NULL) {
-  ## Maps seems to change graphics parameters without resetting. Do so here.
-  op <- par()
-  on.exit(par(op))
   if (!is.null(trDesign)) {
     trDesign <- match.arg(trDesign, choices = c("ibd", "res.ibd", "rcbd",
                                                 "rowcol", "res.rowcol"))

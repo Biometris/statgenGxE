@@ -9,22 +9,34 @@ modelSp <- STRunModel(testTD, design = "rowcol",
 BLUEsList <- STExtract(modelSp, what = "BLUEs", keep = "trial")
 BLUEs <- createTD(Reduce(f = rbind, x = BLUEsList))
 
-geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
 geVCLm <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "lme4")
-for (geVC in list(geVCAs, geVCLm)) {
-  test_that("output is of the right class", {
-    expect_is(geVC, "varComp")
-    expect_is(geVC$SSA, "SSA")
-    expect_is(geVC$choice, "character")
-    expect_is(geVC$summary, "matrix")
-    expect_is(geVC$vcov, "matrix")
-    expect_is(geVC$criterion, "character")
-    expect_is(geVC$engine, "character")
-  })
-}
+test_that("output is of the right class for lme4", {
+  expect_is(geVCLm, "varComp")
+  expect_is(geVCLm$SSA, "SSA")
+  expect_is(geVCLm$choice, "character")
+  expect_is(geVCLm$summary, "matrix")
+  expect_is(geVCLm$vcov, "matrix")
+  expect_is(geVCLm$criterion, "character")
+  expect_is(geVCLm$engine, "character")
+})
 
-summAs <- geVCAs$summary
+if (requireNamespace("asreml", quietly = TRUE)) {
+  geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
+}
+test_that("output is of the right class for asreml", {
+  skip_on_cran()
+  expect_is(geVCAs, "varComp")
+  expect_is(geVCAs$SSA, "SSA")
+  expect_is(geVCAs$choice, "character")
+  expect_is(geVCAs$summary, "matrix")
+  expect_is(geVCAs$vcov, "matrix")
+  expect_is(geVCAs$criterion, "character")
+  expect_is(geVCAs$engine, "character")
+})
+
 test_that("asreml model gives correct output", {
+  skip_on_cran()
+  summAs <- geVCAs$summary
   expect_equal(geVCAs$choice, "identity")
   expect_equal(rownames(summAs),
                c("identity", "cs", "diagonal", "outside", "hcs", "unstructured",
@@ -56,9 +68,10 @@ test_that("lme4 model gives correct output", {
                                    4.442900834642, 4.442900834642, 39.1572940974083))
 })
 
-geVCAsA <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml",
-                      criterion = "AIC")
 test_that("option criterion works properly", {
+  skip_on_cran()
+  geVCAsA <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml",
+                        criterion = "AIC")
   expect_identical(geVCAs$summary[, "BIC"],
                    geVCAs$summary[, "BIC"][order(geVCAs$summary[, "BIC"])])
   expect_identical(geVCAsA$summary[, "AIC"],
