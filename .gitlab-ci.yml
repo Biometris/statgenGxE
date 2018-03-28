@@ -1,13 +1,10 @@
 before_script:
   - apt-get update -qq
-  - apt-get install -y --no-install-recommends libcurl4-openssl-dev libssh2-1-dev libssl-dev git
-  - apt-get install -y --no-install-recommends qpdf pandoc pandoc-citeproc
   - apt-get install -y libglu1-mesa-dev
 
 r-base:
    stage: test
-   image: r-base:latest
+   image: rocker/tidyverse
    script:
-    - Rscript -e 'install.packages(c("devtools", "roxygen2"))'
     - Rscript -e 'devtools::install_dev_deps()'
-    - Rscript -e 'devtools::check(force_suggests)'
+    - Rscript -e 'devtools::check()'
