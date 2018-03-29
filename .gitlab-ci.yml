@@ -9,6 +9,7 @@ r-base:
    stage: test
    image: r-base:latest
    script:
+    - Rscript =e 'install.packages("devtools")'
     - Rscript -e 'devtools::install_dev_deps()'
     - R CMD build . --no-build-vignettes --no-manual
     - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
