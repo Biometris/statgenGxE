@@ -257,14 +257,18 @@ plot.SSA <- function(x,
                       keep = c("colCoordinates", "rowCoordinates"))[[trial]]
   pred <- STExtract(x, trials = trial,
                     what = ifelse(what == "fixed",
-                                  "BLUEs", "BLUPs"))[[trial]][[trait]]
+                                  "BLUEs", "BLUPs"))[[trial]][c("genotype",
+                                                                trait)]
   ## Extract raw data and compute residuals.
   response <- x[[trial]]$TD[[trial]][, c("genotype", "colCoordinates",
                                          "rowCoordinates", trait)]
   plotData <- merge(response, fitted, by = c("genotype", "colCoordinates",
                                              "rowCoordinates"))
+  plotData <- merge(plotData, pred, by = "genotype")
   plotData$response <- plotData[[paste0(trait, ".x")]]
   plotData$fitted <- plotData[[paste0(trait, ".y")]]
+  plotData$pred <- plotData[[trait]]
+  plotData$pred[is.na(plotData$fitted)] <- NA
   plotData$residuals <- plotData$response - plotData$fitted
   plotData <- plotData[order(plotData$colCoordinates, plotData$rowCoordinates), ]
   if (plotType == "base") {
@@ -364,11 +368,10 @@ plot.SSA <- function(x,
                 main = mainLegends[3], colors = colors, ...)
       ## Spatial plot of BLUEs or BLUPs.
       fieldPlot(x = plotCols, y = plotRows,
-                z = t(matrix(pred, ncol = length(plotCols),
-                             nrow = length(plotRows))), main = mainLegends[4],
-                colors = colors, ...)
+                z = tapply(X = plotData$pred, INDEX = coord, FUN = I),
+                main = mainLegends[4], colors = colors, ...)
       ## Histogram of BLUEs or BLUPs.
-      hist(pred, main = mainLegends[5], xlab = mainLegends[4], ...)
+      hist(plotData$pred, main = mainLegends[5], xlab = mainLegends[4], ...)
     }
   }
 }

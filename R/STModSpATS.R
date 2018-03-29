@@ -18,6 +18,10 @@ STModSpATS <- function(TD,
                        control = NULL,
                        checks = TRUE,
                        ...) {
+  ## Base check.
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be a valid object of class TD.\n")
+  }
   if (checks) {
     ## Checks.
     checkOut <- modelChecks(TD = TD, trial = trial, design = design,

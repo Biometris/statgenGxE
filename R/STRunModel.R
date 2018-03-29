@@ -165,6 +165,10 @@ STRunModel = function(TD,
                       engine = NA,
                       control = NULL,
                       ...) {
+  ## Base check.
+  if (missing(TD) || !inherits(TD, "TD")) {
+    stop("TD should be a valid object of class TD.\n")
+  }
   ## Run models depending on engine.
   models <- sapply(X = trials, FUN = function(trial) {
     ## Checks.
@@ -200,8 +204,8 @@ modelChecks <- function(TD,
                         control) {
   designs <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
   engines <- c("SpATS", "lme4", "asreml")
-  if (missing(TD) || !inherits(TD, "TD")) {
-    stop("TD should be a valid object of class TD.\n")
+  if (!is.character(trial) || !trial %in% names(TD)) {
+    stop("trial should be in TD.\n")
   }
   if ((is.null(design) && (is.null(attr(TD[[trial]], "trDesign")) ||
                            !attr(TD[[trial]], "trDesign") %in% designs)) ||
@@ -209,9 +213,6 @@ modelChecks <- function(TD,
                             !design %in% designs))) {
     stop(paste("design should either be an attribute of TD or one of ",
                paste(designs, collapse = ", "), ".\n"))
-  }
-  if (!is.character(trial) || !trial %in% names(TD)) {
-    stop("trial should be in TD.\n")
   }
   ## Extract design from TD if needed.
   if (is.null(design)) {
