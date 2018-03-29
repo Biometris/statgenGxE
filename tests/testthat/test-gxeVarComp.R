@@ -69,7 +69,7 @@ test_that("lme4 model gives correct output", {
                     c(36.6109167394648, 4.44290083464202, 4.442900834642,
                       4.44290083464202, 36.6109167394648, 4.442900834642,
                       4.442900834642, 4.442900834642, 39.1572940974083),
-                    tolerance = 1e-7)
+                    tolerance = 1e-6)
 })
 
 test_that("option criterion works properly", {
