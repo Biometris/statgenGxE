@@ -145,6 +145,8 @@ extractSpATS <- function(SSA,
     what <- match.arg(arg = what, choices = whatTot[whatMod %in% whatSSA],
                       several.ok = TRUE)
   }
+  ## Fitted values and residuals are not set to NA by SpATS in case the original
+  ## data is NA. Get missing values per trait to set them to NA later.
   naTr <- sapply(X = traits, FUN = function(trait) {
     which(is.na(TD[[trait]]))
   }, simplify = FALSE)

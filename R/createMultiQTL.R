@@ -44,6 +44,18 @@ summary.multiQTL <- function(object, ...) {
   summary(object$qtl, ...)
 }
 
+#' @export
+plot.multiQTL <- function(x,
+                          ...) {
+  plotData <- as.data.frame(qtl:::summary.fitqtl(x$qtl)$ests[-1, 1:2])
+  plotData$qtl <- rownames(plotData)
+  ggplot2::ggplot(plotData, ggplot2::aes(x = qtl, y = est)) +
+    ggplot2::geom_point(size = 2) +
+    ggplot2::geom_errorbar(ggplot2::aes(ymin = est - SE, ymax = est + SE),
+                           width = 0.15) +
+    ggplot2::geom_hline(yintercept = 0)
+}
+
 #' Report method for class multiQTL
 #'
 #' A pdf report will be created containing a summary of a multiQTL analysis.
