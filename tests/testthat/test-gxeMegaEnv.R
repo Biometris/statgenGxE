@@ -24,7 +24,7 @@ test_that("summary is computed correctly", {
   expect_equal(summ$`AMMI estimates`,
                c(137.826424971715, 109.450972152511, 127.386419996042))
   expect_null(attr(x = gxeMegaEnv(TD = BLUEs, trait = "t1", sumTab = FALSE),
-              which = "sumTab"))
+                   which = "sumTab"))
 })
 
 geMegaEnvMin <- gxeMegaEnv(TD = BLUEs, trait = "t1", method = "min")
@@ -34,7 +34,7 @@ test_that("option method functions properly", {
                                                         each = 15))
   expect_equal(levels(geMegaEnvMinTot$megaEnv), c("3", "2", "1"))
   expect_equal(as.character(attr(x = geMegaEnvMin, which = "sumTab")$winGeno),
-              c("G12", "G15", "G6"))
+               c("G12", "G15", "G6"))
   expect_equal(attr(x = geMegaEnvMin, which = "sumTab")$`AMMI estimates`,
                c(55.0432001091191, 40.7120064386264, 35.3752613055704))
 })
@@ -47,18 +47,18 @@ test_that("gxeTable functions correctly", {
   expect_warning(gxeTable(TD = geMegaEnv, trait = "t1"),
                  "Empty data.frame returned")
   geTabLm <- gxeTable(TD = geMegaEnvNw, trait = "t1")
-  expect_equal(as.numeric(geTabLm$predictedValue[1, ]),
-               c(80.4703105526859, 80.0424618298571))
-  expect_equal(unname(unlist(geTabLm$standardError[3, ])),
-               c(9.50660071605727, 5.93819059539989))
+  expect_equivalent(geTabLm$predictedValue[1, ],
+                    c(80.4703105526859, 80.0424618298571))
+  expect_equivalent(geTabLm$standardError[1, ],
+                    c(9.50660071605727, 5.93819059539989))
   testthat::skip_on_cran()
   expect_warning(gxeTable(TD = geMegaEnv, trait = "t1"),
                  "Empty data.frame returned")
   geTabAs <- gxeTable(TD = geMegaEnvNw, trait = "t1", engine = "asreml")
-  expect_equal(as.numeric(geTabAs$predictedValue[1, ]),
-               c(80.4703103942918, 80.0424619340866))
-  expect_equal(as.numeric(geTabAs$standardError[3, ]),
-               c(9.77290639163707, 6.58334962888759))
+  expect_equivalent(geTabAs$predictedValue[1, ],
+                    c(80.4703103942918, 80.0424619340866))
+  expect_equivalent(geTabAs$standardError[1, ],
+                    c(9.77290639163707, 6.58334962888759))
 })
 
 
