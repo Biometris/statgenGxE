@@ -145,6 +145,9 @@ extractSpATS <- function(SSA,
     what <- match.arg(arg = what, choices = whatTot[whatMod %in% whatSSA],
                       several.ok = TRUE)
   }
+  naTr <- sapply(X = traits, FUN = function(trait) {
+    which(is.na(TD[[trait]]))
+  }, simplify = FALSE)
   ## Create baseData and baseDataPred to which further results will be merged.
   base <- createBaseData(TD, predicted, keep, useRepId,
                          bdPred = any(what %in% whatPred))
@@ -209,7 +212,7 @@ extractSpATS <- function(SSA,
       unname(mr0$var.comp[predicted])
     })
   }
-  ## Extract spartial variance.
+  ## Extract spatial variance.
   if ("varSpat" %in% what) {
     result[["varSpat"]] <- sapply(X = mr, FUN = function(mr0) {
       mr0$var.comp[grep(pattern = "Coordinates", x = names(mr0$var.comp))]
@@ -217,17 +220,29 @@ extractSpATS <- function(SSA,
   }
   ## Extract fitted values.
   if ("fitted" %in% what) {
-    fitVal <- cbind(baseData, sapply(X = mf, FUN = fitted))
+    fitVal <- cbind(baseData, sapply(X = traits, FUN = function(trait) {
+      fitVals <- fitted(mf[[trait]])
+      fitVals[naTr[[trait]]] <- NA
+      fitVals
+    }))
     result[["fitted"]] <- fitVal
   }
   ## Extract residuals.
   if ("resid" %in% what) {
-    resVal <- cbind(baseData, sapply(X = mf, FUN = residuals))
+    resVal <- cbind(baseData, sapply(X = traits, FUN = function(trait) {
+      resVals <- residuals(mf[[trait]])
+      resVals[naTr[[trait]]] <- NA
+      resVals
+    }))
     result[["resid"]] <- resVal
   }
   ## Extract rMeans.
   if ("rMeans" %in% what) {
-    rMeans <- cbind(baseData, sapply(X = mr, FUN = fitted))
+    rMeans <- cbind(baseData, sapply(X = traits, FUN = function(trait) {
+      fitVals <- fitted(mr[[trait]])
+      fitVals[naTr[[trait]]] <- NA
+      fitVals
+    }))
     result[["rMeans"]] <- rMeans
   }
   ## Extract random effects.
