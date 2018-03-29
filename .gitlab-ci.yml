@@ -11,4 +11,4 @@ r-base:
     - Rscript -e 'devtools::install_dev_deps()'
     - R CMD build . --no-build-vignettes --no-manual
     - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
-    - R CMD check "${PKG_FILE_NAME}" --as-cran --no-build-vignette --no-manual
+    - R CMD check "${PKG_FILE_NAME}" --as-cran --no-build-vignettes --no-manual
