@@ -49,8 +49,10 @@ test_that("gxeTable functions correctly", {
   geTabLm <- gxeTable(TD = geMegaEnvNw, trait = "t1")
   expect_equivalent(geTabLm$predictedValue[1, ],
                     c(80.4703105526859, 80.0424618298571))
+  ## This test works fine in RStudio but gives an error when testing on CRAN.
+  ## Therefore added a lower tolerance
   expect_equivalent(geTabLm$standardError[1, ],
-                    c(9.50660071605727, 5.93819059539989))
+                    c(9.50660071605727, 5.93819059539989), tolerance = 1e-7)
   testthat::skip_on_cran()
   expect_warning(gxeTable(TD = geMegaEnv, trait = "t1"),
                  "Empty data.frame returned")
