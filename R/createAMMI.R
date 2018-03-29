@@ -138,10 +138,10 @@ plot.AMMI <- function(x,
     ## Setup plot frame.
     do.call(plot, args = bp1Args)
     ## Add genotypes to empty plot.
-    text(x = x$genoMean, y = scores[, 1] / lam, labels = row.names(x$genoMean),
+    text(x = x$genoMean, y = scores[, 1] / lam, labels = names(x$genoMean),
          adj = c(0.5, 0.5), col = col[1])
     ## Add environments to empty plot
-    text(x = x$envMean, y = loadings[, 1] * lam, labels = row.names(x$envMean),
+    text(x = x$envMean, y = loadings[, 1] * lam, labels = names(x$envMean),
          adj = c(0.5, 0.5), col = col[2])
     abline(h = 0, v = x$overallMean, lty = 5)
   } else if (plotType == "AMMI2") {
