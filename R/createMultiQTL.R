@@ -46,13 +46,17 @@ summary.multiQTL <- function(object, ...) {
 
 #' @export
 plot.multiQTL <- function(x,
-                          ...) {
+                          ...,
+                          main = "QTL estimates and confidence intervals") {
   plotData <- as.data.frame(qtl:::summary.fitqtl(x$qtl)$ests[-1, 1:2])
   plotData$qtl <- rownames(plotData)
   ggplot2::ggplot(plotData, ggplot2::aes(x = qtl, y = est)) +
     ggplot2::geom_point(size = 2) +
     ggplot2::geom_errorbar(ggplot2::aes(ymin = est - SE, ymax = est + SE),
-                           width = 0.15) +
+                           width = 0.1) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
+    ggplot2::ggtitle(main) +
+    ggplot2::ylab("estimates") +
     ggplot2::geom_hline(yintercept = 0)
 }
 
