@@ -36,9 +36,9 @@ An object of class \code{\link{QTLDet}}, a list containing:
 \item{peaks}{A data.frame containing the peaks found.}
 \item{type}{A character string indicating the type of QTL detection
 performed.}
-\item{cross}{An object of class cross in the \code{qtl} package.}
-\item{trait}{A character string indicating the trait for which the analysis
-is done.}
+\item{cross}{The object of class cross used for QTL detection.}
+\item{trait}{A character string indicating the trait for which the detection
+was done.}
 \item{info}{A list containing information on the settings used for
 QTL detection, i.e. step, threshold and window.}
 }
@@ -47,10 +47,13 @@ This function is essentially a wrapper for \code{\link[qtl]{scanone}} and
 \code{\link[qtl]{cim}} in the qtl package. Depending on \code{type} one
 of these functions is used for QTL detection. After this is done, from
 the set of candidate QTLs that are returned proper peaks are selected
-by an iterative process using the \code{threshold} and \code{window}
-provided. All resulting peaks will have a LOD score above \code{threshold}
+by an iterative process using the \code{thr}(eshold) and \code{window}
+provided. All resulting peaks will have a LOD score above \code{thr}
 and the distance between pairs of peaks will always be at least
 the value given as \code{window}.
+}
+\note{
+Composite Interval Mapping is not implemented for 4 way crosses.
 }
 \examples{
 ## Read the data.

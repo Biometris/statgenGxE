@@ -4,10 +4,12 @@
 #' \code{\link[qtl]{cim}} in the qtl package. Depending on \code{type} one
 #' of these functions is used for QTL detection. After this is done, from
 #' the set of candidate QTLs that are returned proper peaks are selected
-#' by an iterative process using the \code{threshold} and \code{window}
-#' provided. All resulting peaks will have a LOD score above \code{threshold}
+#' by an iterative process using the \code{thr}(eshold) and \code{window}
+#' provided. All resulting peaks will have a LOD score above \code{thr}
 #' and the distance between pairs of peaks will always be at least
 #' the value given as \code{window}.
+#'
+#' @note Composite Interval Mapping is not implemented for 4 way crosses.
 #'
 #' @param cross An object of class cross created by the qtl package.
 #' @param trait A character string indicating the trait to be analyzed.
@@ -30,9 +32,9 @@
 #' \item{peaks}{A data.frame containing the peaks found.}
 #' \item{type}{A character string indicating the type of QTL detection
 #' performed.}
-#' \item{cross}{An object of class cross in the \code{qtl} package.}
-#' \item{trait}{A character string indicating the trait for which the analysis
-#' is done.}
+#' \item{cross}{The object of class cross used for QTL detection.}
+#' \item{trait}{A character string indicating the trait for which the detection
+#' was done.}
 #' \item{info}{A list containing information on the settings used for
 #' QTL detection, i.e. step, threshold and window.}
 #'
@@ -74,7 +76,27 @@ QTLDetect <- function(cross,
                       thr = 3,
                       window = 30,
                       ...) {
+  ## Checks.
+  if (missing(cross) || !inherits(cross, "cross")) {
+    stop("cross should be an object of class cross\n")
+  }
+  if (missing(trait) || !is.character(trait) || length(trait) > 1 ||
+      !trait %in% colnames(cross$pheno)) {
+    stop("trait should be a single character string for a trait in cross")
+  }
   type <- match.arg(type)
+  if (type == "CIM" && "4way" %in% class(cross)) {
+    stop("CIM has not been implemented for 4-way crosses.\n")
+  }
+  if (!is.numeric(step) || length(step) > 1 || step < 0) {
+    stop("step should be a single positive numerical value.\n")
+  }
+  if (!is.numeric(thr) || length(thr) > 1 || thr < 0) {
+    stop("thr should be a single positive numerical value.\n")
+  }
+  if (!is.numeric(window) || length(window) > 1 || window < 0) {
+    stop("window should be a single positive numerical value.\n")
+  }
   if (type == "MR") {
     ## Perform a marker-based QTL detection.
     scores <- qtl::scanone(cross, pheno.col = trait, method = "mr", ...)
@@ -87,7 +109,7 @@ QTLDetect <- function(cross,
   } else if (type == "CIM") {
     ## Calculate genotype probabilities.
     cross <- qtl::calc.genoprob(cross, step = step, error.prob = 0)
-    ## Perform a QTL search by Simple Interval Mapping (CIM)
+    ## Perform a QTL search by Composite Interval Mapping (CIM)
     scores <- qtl::cim(cross, pheno.col = trait, n.marcovar = 5,
                        window = window, method = "hk", map.function = "haldane",
                        ...)

@@ -83,7 +83,7 @@ gxeTable <- function(TD,
         ## Predict and extract BLUPs
         mr <- predictAsreml(model = mr, classify = "genotype:megaEnv", TD = TDTot)
         pVal <- mr$predictions$pvals
-        ## If megaEnv consists of numeric values megaEnv will be a numeric
+        ## If megaEnv consists of numerical values megaEnv will be a numerical
         ## column in pVal instead of the expected factor. This causes a
         ## shift in column order. Therefore set it back to factor.
         pVal$megaEnv <- factor(pVal$megaEnv, levels = levels(TDTot$megaEnv))

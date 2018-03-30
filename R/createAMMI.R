@@ -108,7 +108,7 @@ plot.AMMI <- function(x,
                       col = c("orange3", "navyblue")) {
   ## Checks.
   if (!is.numeric(scale) || length(scale) > 1) {
-    stop("scale should be a single numeric value.\n")
+    stop("scale should be a single numerical value.\n")
   }
   if (scale < 0 || scale > 1) {
     warning("Scale is outside [0, 1].\n", call. = FALSE)

@@ -626,12 +626,12 @@ checkTDMeta <- function(trLocation = NULL,
   }
   if (!is.null(trLat) && (!is.numeric(trLat) || length(trLat) > 1 ||
                           abs(trLat) > 90)) {
-    stop("trLat should be a single numeric value between -90 and 90.\n",
+    stop("trLat should be a single numerical value between -90 and 90.\n",
          call. = FALSE)
   }
   if (!is.null(trLong) && (!is.numeric(trLong) || length(trLong) > 1 ||
                            abs(trLong) > 180)) {
-    stop("trLat should be a single numeric value between -180 and 180.\n",
+    stop("trLat should be a single numerical value between -180 and 180.\n",
          call. = FALSE)
   }
   if (!is.null(trLat) && !is.null(trLong)) {
@@ -644,12 +644,12 @@ checkTDMeta <- function(trLocation = NULL,
   }
   if (!is.null(trPlotWidth) && (!is.numeric(trPlotWidth) ||
                                 length(trPlotWidth) > 1 || trPlotWidth < 0)) {
-    stop("trPlotWidth should be a single positive numeric value.\n",
+    stop("trPlotWidth should be a single positive numerical value.\n",
          call. = FALSE)
   }
   if (!is.null(trPlotLength) && (!is.numeric(trPlotLength) ||
                                  length(trPlotLength) > 1 || trPlotLength < 0)) {
-    stop("trPlotLength should be a single positive numeric value.\n",
+    stop("trPlotLength should be a single positive numerical value.\n",
          call. = FALSE)
   }
 }
