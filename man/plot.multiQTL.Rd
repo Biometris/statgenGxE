@@ -7,12 +7,30 @@
 \method{plot}{multiQTL}(x, ...,
   main = "QTL estimates and confidence intervals")
 }
+\arguments{
+\item{x}{An object of class multiQTL}
+
+\item{...}{Further graphical parameters. Currently not used.}
+
+\item{main}{A character string used as overall title for the plot.}
+}
 \description{
 Plotting function for objects of class multiQTL. Plots the estimates of the
 QTLs in the final model with their respective confidence intervals.
 }
-\details{
-@param x An object of class multiQTL
- @param ... Further graphical parameters. Currently not used.
- @param main A character string used as overall title for the plot.
+\examples{
+## Read the data
+F2 <- qtl::read.cross(format="csv",
+                      file = system.file("extdata",
+                                        "F2_maize_practical3_ex2.csv",
+                                        package = "RAP"),
+                      genotypes = c("AA", "AB", "BB"),
+                      alleles = c("A", "B"), estimate.map = FALSE)
+## Perform QTL detection using simple interval mapping.
+QTLDet <- QTLDetect(cross = F2, trait = "trait", type = "SIM")
+## Fit a multi QTL model.
+multiFit <- multiQTLFit(QTLDet)
+## Plot the results.
+plot(multiFit)
+
 }

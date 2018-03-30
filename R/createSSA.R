@@ -270,11 +270,13 @@ plot.SSA <- function(x,
   plotData$pred <- plotData[[trait]]
   plotData$pred[is.na(plotData$fitted)] <- NA
   plotData$residuals <- plotData$response - plotData$fitted
-  plotData <- plotData[order(plotData$colCoordinates, plotData$rowCoordinates), ]
+  plotData <- plotData[order(plotData$colCoordinates,
+                             plotData$rowCoordinates), ]
   if (plotType == "base") {
     ## Setup frame for plots.
     trellisObj <- setNames(vector(mode = "list", length = 4),
-                           c("histogram", "qq", "residFitted", "absResidFitted"))
+                           c("histogram", "qq", "residFitted",
+                             "absResidFitted"))
     ## Plot histogram of residuals.
     trellisObj[["histogram"]] <- lattice::histogram(x = ~plotData$residuals,
                                                     xlab = "Residuals", ...)
@@ -327,10 +329,11 @@ plot.SSA <- function(x,
     if (x[[trial]]$engine == "SpATS") {
       plot(model, main = "")
     } else {
-      ## Check whether data contains row/col information
+      ## Check whether data contains row/col information.
       if (!all(c("rowCoordinates", "colCoordinates") %in%
                colnames(x[[trial]]$TD[[trial]]))) {
-        stop(paste("Data in", substitute(x), "contains no spatial information.\n"))
+        stop(paste("Data in", substitute(x),
+                   "contains no spatial information.\n"))
       }
       ## Code taken from plot.SpATS and simplified.
       ## Set colors and legends.
@@ -460,8 +463,8 @@ report.SSA <- function(x,
 
 #' Convert SSA to Cross
 #'
-#' Convert an SSA object to a cross object from class qtl. Genotypic information
-#' should be available in a .csv file.\cr
+#' Convert an SSA object to a cross object from package qtl. Genotypic
+#' information should be available in a .csv file.\cr
 #' The only way to create an object of class cross is by importing both the
 #' phenotypic and the genotypic data from external files. Therefore the
 #' phenotypic data, either the BLUEs or the BLUPs from the fitted model are

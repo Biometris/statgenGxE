@@ -10,22 +10,22 @@ createMultiQTL(qtl, QTLDet, selection, thr)
 \arguments{
 \item{qtl}{A fitted multi QTL model.}
 
-\item{QTLDet}{The object of class \code{\link{QTLDet}} used as base for fitting
-the QTL model.}
+\item{QTLDet}{The object of class \code{\link{QTLDet}} used as base for
+fitting the QTL model.}
 
-\item{selection}{A character string indictating the type of selection used for
-selecting the markers in the final model.}
+\item{selection}{A character string indictating the type of selection used
+for selecting the markers in the final model.}
 
 \item{thr}{A numerical value indicating the threshold for dropping terms in
 the backwards elemination process.}
 }
 \description{
 Function for creating objects of S3 class multiQTL.\cr
-\code{\link{print}}, \code{\link{summary}} and \code{\link{report}}
+\code{\link{summary}}, \code{\link{plot}} and \code{\link{report}}
 methods are available.
 }
 \seealso{
-\code{\link{report.multiQTL}}
+\code{\link{plot.multiQTL}}, \code{\link{report.multiQTL}}
 }
 \author{
 Bart-Jan van Rossum

@@ -69,11 +69,11 @@ analysis.}
 predicted.}
 }
 \description{
-Perform REML analysis given a specific experimental design.
-This is a wrapper function of \code{\link{STModSpATS}},
-\code{\link{STModLme4}} and \code{\link{STModAsreml}}. See details for the
-exact models fitted. SpATS is used as a default method when design is rowcol
-or res.rowcol, lme4 for other designs.
+Perform REML analysis given a specific experimental design. This is a wrapper
+function of \code{\link{STModSpATS}}, \code{\link{STModLme4}} and
+\code{\link{STModAsreml}}. See details for the exact models fitted. SpATS is
+used as a default method when design is rowcol or res.rowcol, lme4 for other
+designs.
 }
 \details{
 The actual model fitted depends on the design. For the supported designs the

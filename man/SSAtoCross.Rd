@@ -34,8 +34,8 @@ corresponding to AA, AB, BB, not BB and not AA.}
 See \code{\link[qtl]{read.cross}}.}
 }
 \description{
-Convert an SSA object to a cross object from class qtl. Genotypic information
-should be available in a .csv file.\cr
+Convert an SSA object to a cross object from package qtl. Genotypic
+information should be available in a .csv file.\cr
 The only way to create an object of class cross is by importing both the
 phenotypic and the genotypic data from external files. Therefore the
 phenotypic data, either the BLUEs or the BLUPs from the fitted model are
