@@ -79,6 +79,33 @@ QTLMapQC <- function(cross,
                      recombination = 3,
                      reestimateMap = FALSE,
                      crossover = 0.20) {
+  ## Checks.
+  if (missing(cross) || !inherits(cross, "cross")) {
+    stop("cross should be an object of class cross\n")
+  }
+  if (!is.numeric(missMrk) || length(missMrk) > 1 || missMrk < 0 ||
+      missMrk > 1) {
+    stop("missMrk should be a single numerical value between 0 and 1.\n")
+  }
+  if (!is.numeric(missInd) || length(missInd) > 1 || missInd < 0 ||
+      missInd > 1) {
+    stop("missInd should be a single numerical value between 0 and 1.\n")
+  }
+  if (!is.numeric(recombination) || length(recombination) > 1 ||
+      recombination < 0) {
+    stop("recombination should be a single numerical value between 0 and 1.\n")
+  }
+  if (!is.numeric(crossover) || length(crossover) > 1 || crossover < 0 ||
+      crossover > 1) {
+    stop("crossover should be a single numerical value between 0 and 1.\n")
+  }
+  crossType <- setdiff(class(cross), "cross")
+  if (!crossType %in% c("f2", "bc", "risib", "riself", "dh", "haploid") &&
+      recombination > 0) {
+    warning(paste0("Recombination is not possible for cross of type ",
+                   crossType, ". Recombination set to 0.\n"), call. = FALSE)
+    recombination <- 0
+  }
   ## Extract number of individuals
   nInd <- qtl::nind(cross)
   if (missMrk > 0) {
