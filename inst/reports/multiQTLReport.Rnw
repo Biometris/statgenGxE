@@ -86,7 +86,11 @@ print(xtable::xtable(x = fitted, caption = "List of fitted candidate QTLs",
       include.rownames = TRUE, include.colnames = TRUE,
       caption.placement = "top")
 
-modNames <- x$QTLDet$peaks[rownames(x$qtl$result.drop), "altName"]
+if (!is.null(x$qtl$result.drop)) {
+  modNames <- x$QTLDet$peaks[rownames(x$qtl$result.drop), "altName"]
+} else {
+  modNames <- x$QTLDet$peaks$altName
+}
 ## Because of the ~ in the formula no sanitize has to be applied on the
 ## separate parts of the formula and the sanitize function for the whole
 ## object has to be set to identity.
@@ -94,6 +98,10 @@ modSum <- data.frame(c("Selection", "Threshold", "Window", "Final model"),
                      c(x$selection, x$thr, x$QTLDet$info$window,
                      paste(xtable::sanitize(x$QTLDet$trait), "\\texttildelow\\",
                        xtable::sanitize(paste(modNames, collapse = " + ")))))
+## When no selection was done remove threshold and window from model summary.
+if (x$selection == "none") {
+  modSum <- modSum[c(1, 4), ]
+}
 print(xtable::xtable(x = modSum, caption = "Model",
                      label = "model",
                      align = c("l", "l", "l")),
@@ -115,9 +123,8 @@ print(xtable::xtable(x = summ$result.full, caption = "Full model result",
       include.colnames = TRUE, caption.placement = "top")
 @
 %-------------------------------------------------------------------------------
-\section{Anova}
-%-------------------------------------------------------------------------------
-<<label=anova, echo=FALSE, results="asis">>=
+<<label=anova, echo=FALSE, results="asis", eval=!is.null(summ$result.drop)>>=
+cat("\\section{Anova}")
 anovaTab <- data.frame(summ$result.drop, check.names = FALSE)
 ## Add significance stars.
 anovaTab[, ncol(anovaTab) + 1] <- symnum(x = anovaTab[, ncol(anovaTab)],
@@ -136,8 +143,8 @@ print(xtable::xtable(x = anovaTab, label = "anova",
                         command = paste0("\\hline  \\multicolumn{",
                                          ncol(anovaTab), "}{c}{",
                                          legendText)))
+cat("\\clearpage")
 @
-\clearpage
 %-------------------------------------------------------------------------------
 \section{Effects}
 %-------------------------------------------------------------------------------
