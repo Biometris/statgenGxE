@@ -137,7 +137,7 @@ QTLMapQC <- function(cross,
   }
   ## Estimate recombination frequencies between all pairs of markers.
   ## Suppress warning generated when there is recombination.
-  crossRec <- suppressWarnings(qtl::est.rf(cross))
+  crossRec <- supprWarn(qtl::est.rf(cross), "Alleles potentially switched")
   if (recombination > 0) {
     ## Identify markers which might have been switched and remove those.
     dropRecom <- qtl::checkAlleles(crossRec, threshold = recombination,

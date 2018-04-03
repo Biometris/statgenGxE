@@ -17,7 +17,7 @@ test_that("option missMrk functions properly", {
 
 test_that("option missInd functions properly", {
   expect_equal(qtl::nind(QTLMapQC(testF2, missMrk = 0, missInd = 0)), 41)
-  expect_equal(qtl::nind(QTLMapQC(testF2, missMrk = 0, missInd = 0.2)), 40)
+  expect_equal(qtl::nind(QTLMapQC(testF2, missMrk = 0, missInd = 0.2)), 30)
 })
 
 test_that("option removeDuplicates functions properly", {
@@ -33,7 +33,7 @@ test_that("option segDistortion functions properly", {
 })
 
 test_that("option recombination functions properly", {
-  testF2Sw <- switchAlleles(testF2, "D1M430")
+  testF2Sw <- qtl::switchAlleles(testF2, "D1M430")
   expect_equivalent(qtl::nmar(QTLMapQC(testF2Sw, missMrk = 0, missInd = 0,
                                        recombination = 0)), c(7, 5, 3))
   expect_equivalent(qtl::nmar(QTLMapQC(testF2Sw, missMrk = 0, missInd = 0,

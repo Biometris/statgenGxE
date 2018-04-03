@@ -169,10 +169,10 @@ test_that("option covariates produces expected output structure", {
   expect_SSA(modelSpCov)
   expect_SSAMod(modelSpCov, "mRand")
   expect_SSAMod(modelSpCov, "mFix")
-  expect_gt(grep(pattern = "repId",
-                 x = deparse(modelSpCov[["E1"]]$mRand$t1$model$fixed)), 0)
-  expect_gt(grep(pattern = "repId",
-                 x = deparse(modelSpCov[["E1"]]$mFix$t1$model$fixed)), 0)
+  expect_true(grepl(pattern = "repId",
+                    x = deparse(modelSpCov[["E1"]]$mRand$t1$model$fixed)))
+  expect_true(grepl(pattern = "repId",
+                    x = deparse(modelSpCov[["E1"]]$mFix$t1$model$fixed)))
   modelLmCov <- STRunModel(testTD, trials = "E1", design = "rcbd",
                            traits = "t1", covariates = "repId")
   expect_SSA(modelLmCov)
@@ -187,10 +187,10 @@ test_that("option covariates produces expected output structure", {
   expect_SSA(modelAsCov)
   expect_SSAMod(modelAsCov, "mRand")
   expect_SSAMod(modelAsCov, "mFix")
-  expect_gt(grep(pattern = "repId",
-                 x = deparse(modelAsCov[["E1"]]$mRand$t1$fixed.formula)), 0)
-  expect_gt(grep(pattern = "repId",
-                 x = deparse(modelAsCov[["E1"]]$mFix$t1$fixed.formula)), 0)
+  expect_true(grepl(pattern = "repId",
+                    x = deparse(modelAsCov[["E1"]]$mRand$t1$fixed.formula)))
+  expect_true(grepl(pattern = "repId",
+                    x = deparse(modelAsCov[["E1"]]$mFix$t1$fixed.formula)))
 })
 
 test_that("option useCheckId produces expected output structure", {
@@ -199,10 +199,10 @@ test_that("option useCheckId produces expected output structure", {
   expect_SSA(modelSpCi)
   expect_SSAMod(modelSpCi, "mRand")
   expect_SSAMod(modelSpCi, "mFix")
-  expect_gt(grep(pattern = "checkId",
-                 x = deparse(modelSpCi[["E1"]]$mRand$t1$model$fixed)), 0)
-  expect_gt(grep(pattern = "checkId",
-                 x = deparse(modelSpCi[["E1"]]$mFix$t1$model$fixed)), 0)
+  expect_true(grepl(pattern = "checkId",
+                    x = deparse(modelSpCi[["E1"]]$mRand$t1$model$fixed)))
+  expect_true(grepl(pattern = "checkId",
+                    x = deparse(modelSpCi[["E1"]]$mFix$t1$model$fixed)))
   modelLmCi <- STRunModel(testTD, trials = "E1", design = "rcbd", traits = "t1",
                           useCheckId = TRUE)
   expect_SSA(modelLmCi)
