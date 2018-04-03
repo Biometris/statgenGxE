@@ -15,6 +15,18 @@ tryCatchExt <- function(expr) {
   list(value = value, warning = warn, error = err)
 }
 
+#' Helper function for suppressing a single warning message.
+#' @keywords internal
+supprWarn <- function(expression,
+                      message) {
+  withCallingHandlers(expression,
+                      warning = function(w) {
+                        if (grepl(message, w$message)) {
+                          invokeRestart("muffleWarning")
+                        }
+                      })
+}
+
 #' Extended version of asreml.predict
 #'
 #' Asreml has a bug that may throw a warning message:
