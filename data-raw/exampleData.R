@@ -44,3 +44,16 @@ testData$t4[sample.int(n = 90, size = 15)] <- NA
 ## Export to package
 devtools::use_data(testData, overwrite = TRUE)
 
+## Use data from qtl package for testing cross functions.
+## Save locally to prevent errors from changes in data.
+data(fake.f2, package = "qtl")
+## Add a duplicate marker on chr 1 for testing purposes.
+testF2 <- fake.f2[c(1,2,"X"), 1:50]
+testF2$geno$`1`$data <- cbind(testF2$geno$`1`$data, testF2$geno$`1`$data[, 7])
+colnames(testF2$geno$`1`$data)[8] <- "D1M37"
+testF2$geno$`1`$map <- c(testF2$geno$`1`$map, 137.37)
+names(testF2$geno$`1`$map)[8] <- "D1M37"
+## Export to package
+devtools::use_data(testF2, overwrite = TRUE)
+
+
