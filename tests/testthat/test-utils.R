@@ -36,3 +36,9 @@ test_that("function tryCatchExt returns combinations of outputs", {
   expect_is(catchWarnErr$error, "error")
   expect_identical(catchWarnErr$error$message, "testErr")
 })
+
+test_that("function supprWarn functions properly", {
+  expect_warning(supprWarn(sqrt(-1), "testMsg"), "NaNs produced")
+  expect_silent(supprWarn(sqrt(-1), "NaNs produced"))
+})
+

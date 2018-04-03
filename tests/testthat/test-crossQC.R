@@ -5,7 +5,9 @@ test_that("quality control on cross objects produces new cross object", {
   ## Warning caused by low number of individuals in check segDistortion.
   expect_warning(QTLMapQC(testF2, missMrk = 0.2),
                  "Chi-squared approximation may be incorrect")
-  expect_is(QTLMapQC(testF2, missMrk = 0.2, missInd = 0.2), "cross")
+  expect_is(QTLMapQC(testF2, missMrk = 0.2, missInd = 0.2), "f2")
+  expect_is(QTLMapQC(testBc), "bc")
+  expect_is(QTLMapQC(test4way, recombination = 0), "4way")
 })
 
 test_that("option missMrk functions properly", {
@@ -38,6 +40,8 @@ test_that("option recombination functions properly", {
                                        recombination = 0)), c(7, 5, 3))
   expect_equivalent(qtl::nmar(QTLMapQC(testF2Sw, missMrk = 0, missInd = 0,
                                        recombination = 3)), c(6, 5, 3))
+  expect_warning(QTLMapQC(test4way, recombination = 3),
+                 "Recombination is not possible")
 })
 
 test_that("options reestimateMap functions properly", {
@@ -57,4 +61,5 @@ test_that("option crossover functions properly", {
   expect_equal(qtl::nind(QTLMapQC(testF2, missMrk = 0, missInd = 0,
                                   crossover = 0.3)), 46)
 })
+
 
