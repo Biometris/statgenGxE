@@ -116,7 +116,8 @@ QTLMapQC <- function(cross,
   }
   if (removeDuplicates) {
     ## Remove duplicate markers.
-    cross <- qtl::drop.dupmarkers(cross, verbose = FALSE)
+    dupMar <- qtl::findDupMarkers(cross)
+    cross <- qtl::drop.markers(cross, markers = unlist(dupMar))
   }
   nMrk <- sum(qtl::nmar(cross))
   if (missInd > 0) {
@@ -135,7 +136,8 @@ QTLMapQC <- function(cross,
     cross <- qtl::drop.markers(cross, markers = dropSegDist)
   }
   ## Estimate recombination frequencies between all pairs of markers.
-  crossRec <- qtl::est.rf(cross)
+  ## Suppress warning generated when there is recombination.
+  crossRec <- suppressWarnings(qtl::est.rf(cross))
   if (recombination > 0) {
     ## Identify markers which might have been switched and remove those.
     dropRecom <- qtl::checkAlleles(crossRec, threshold = recombination,
