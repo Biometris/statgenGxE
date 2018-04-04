@@ -288,10 +288,12 @@ qtlPosToName <- function(chrPos, cross) {
     unlist(strsplit(cp, "@"))[1]
   })
   pos <- sapply(X = chrPos, function(cp) {
-    as.numeric(unlist(strsplit(unlist(strsplit(cp, "@"))[2], ".[[:alpha:]]"))[1])
+    regmatches(x = unlist(strsplit(cp, "@"))[2],
+               gregexpr("[[:digit:]]+\\.*[[:digit:]]",
+                        unlist(strsplit(cp, "@"))[2]))[[1]]
   })
   posExt <- sapply(X = chrPos, function(cp) {
-    sub(pattern = "[^[:alpha:]]+", replacement = "",
+    sub(pattern = "\\d*(\\.\\d)", replacement = "",
         x = unlist(strsplit(cp, "@"))[2])
   })
   chrPosDf <- data.frame(chr, pos, posExt, stringsAsFactors = FALSE)
@@ -300,6 +302,7 @@ qtlPosToName <- function(chrPos, cross) {
   ## If there is an X chromosome, position is named pos.female. Rename for
   ## easier merging. Pos.male is ignored.
   colnames(mapTot)[2] <- "pos"
+  mapTot$pos <- round(mapTot$pos, digits = 1)
   chrPosMap <- merge(chrPosDf, mapTot, by = c("chr", "pos"), all.x = TRUE)
   chrPosMap[is.na(chrPosMap$mrkNames), "mrkNames"] <-
     paste0("c", chrPosMap[is.na(chrPosMap$mrkNames), "chr"], ".loc",

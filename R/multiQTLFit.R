@@ -57,7 +57,13 @@ multiQTLFit <- function(QTLDet,
   if (!inherits(QTLDet, "QTLDet")) {
     stop("QTLDet should be an object of class QTLDet.\n")
   }
+  if (nrow(QTLDet$peaks) == 0) {
+    stop("QTLDet should contain at least one peak to fit a multi QTL model.\n")
+  }
   selection <- match.arg(selection)
+  if (!is.numeric(thr) || length(thr) > 1 || thr < 0) {
+    stop("thr should be a single positive numerical value.\n")
+  }
   ## Create an object of class qtl for modelling.
   qtl <- qtl::makeqtl(QTLDet$cross, chr = QTLDet$peaks$chr,
                       pos = QTLDet$peaks$pos, what = "prob")

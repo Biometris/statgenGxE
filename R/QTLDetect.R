@@ -97,18 +97,18 @@ QTLDetect <- function(cross,
   if (!is.numeric(window) || length(window) > 1 || window < 0) {
     stop("window should be a single positive numerical value.\n")
   }
+  ## Calculate genotype probabilities.
+  ## Not strictly needed for "MR" but when perferming multiQTLFit after
+  ## QTLDetect is has to be done.
+  cross <- qtl::calc.genoprob(cross, step = step, error.prob = 0)
   if (type == "MR") {
     ## Perform a marker-based QTL detection.
     scores <- qtl::scanone(cross, pheno.col = trait, method = "mr", ...)
   } else if (type == "SIM") {
-    ## Calculate genotype probabilities.
-    cross <- qtl::calc.genoprob(cross, step = step, error.prob = 0)
     ## Perform a QTL search by Simple Interval Mapping (SIM)
     ## (Haley-Knott regression)
     scores <- qtl::scanone(cross, pheno.col = trait, method = "hk", ...)
   } else if (type == "CIM") {
-    ## Calculate genotype probabilities.
-    cross <- qtl::calc.genoprob(cross, step = step, error.prob = 0)
     ## Perform a QTL search by Composite Interval Mapping (CIM)
     scores <- qtl::cim(cross, pheno.col = trait, n.marcovar = 5,
                        window = window, method = "hk", map.function = "haldane",
