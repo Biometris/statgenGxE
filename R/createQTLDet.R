@@ -41,9 +41,13 @@ createQTLDet <- function(scores,
 
 #' @export
 print.QTLDet <- function(x, ...) {
-  cat("Peaks\n")
-  cat("=====\n")
-  print(x$peaks)
+  if (nrow(x$peaks) != 0) {
+    cat("Peaks\n")
+    cat("=====\n")
+    print(x$peaks)
+  } else {
+    cat("No peaks detected")
+  }
 }
 
 #' @export

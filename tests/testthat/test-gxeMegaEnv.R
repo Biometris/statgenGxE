@@ -8,7 +8,7 @@ modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
 BLUEsList <- STExtract(modelSp, what = "BLUEs", keep = "trial")
 BLUEs <- createTD(Reduce(f = rbind, x = BLUEsList))
 
-geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1")
+tmp <- capture_output(geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1"))
 geMegaEnvTot <- Reduce(f = rbind, x = geMegaEnv)
 test_that("mega-environments are computed correctly", {
   expect_is(geMegaEnv, "TD")
@@ -27,7 +27,8 @@ test_that("summary is computed correctly", {
                    which = "sumTab"))
 })
 
-geMegaEnvMin <- gxeMegaEnv(TD = BLUEs, trait = "t1", method = "min")
+tmp <- capture_output(geMegaEnvMin <- gxeMegaEnv(TD = BLUEs, trait = "t1",
+                                                 method = "min"))
 geMegaEnvMinTot <- Reduce(f = rbind, x = geMegaEnvMin)
 test_that("option method functions properly", {
   expect_equal(as.numeric(geMegaEnvMinTot$megaEnv), rep(x = c(1, 2, 3),
