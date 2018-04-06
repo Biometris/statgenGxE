@@ -166,7 +166,8 @@ extractSpATS <- function(SSA,
       colnames(predVal) <- c(predicted, trait)
       return(predVal)
     })
-    BLUEs <- Reduce(f = merge, x = predVals, init = baseDataPred)
+    BLUEs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
+                    x = predVals, init = baseDataPred)
     result[["BLUEs"]] <- BLUEs
   }
   if ("seBLUEs" %in% what) {
@@ -176,7 +177,8 @@ extractSpATS <- function(SSA,
       colnames(predErr) <- c(predicted, trait)
       return(predErr)
     })
-    seBLUEs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
+    seBLUEs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
+                      x = predErrs, init = baseDataPred)
     result[["seBLUEs"]] <- seBLUEs
   }
   ## Compute BLUPs and se of BLUPs from mixed model.
@@ -188,7 +190,8 @@ extractSpATS <- function(SSA,
       colnames(predVal) <- c(whichPred, trait)
       return(predVal)
     })
-    BLUPs <- Reduce(f = merge, x = predVals, init = baseDataPred)
+    BLUPs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
+                    x = predVals, init = baseDataPred)
     result[["BLUPs"]] <- BLUPs
   }
   if ("seBLUPs" %in% what) {
@@ -199,7 +202,8 @@ extractSpATS <- function(SSA,
       colnames(predErr) <- c(whichPred, trait)
       return(predErr)
     })
-    seBLUPs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
+    seBLUPs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
+                      x = predErrs, init = baseDataPred)
     result[["seBLUPs"]] <- seBLUPs
   }
   ## Compute generalized heritability.
@@ -256,7 +260,8 @@ extractSpATS <- function(SSA,
       colnames(ranEff) <- c(predicted, trait)
       return(ranEff)
     })
-    ranEf <- Reduce(f = merge, x = ranEffs, init = baseDataPred)
+    ranEf <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
+                    x = ranEffs, init = baseDataPred)
     result[["ranEf"]] <- ranEf
   }
   ## Extract residual degrees of freedom.
@@ -324,7 +329,8 @@ extractLme4 <- function(SSA,
       setNames(emStats[[trait]][c(predicted, "emmean")],
                c(predicted, trait))
     })
-    BLUEs <- Reduce(f = merge, x = predVals, init = baseDataPred)
+    BLUEs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
+                    x = predVals, init = baseDataPred)
     result[["BLUEs"]] <- BLUEs
   }
   if ("seBLUEs" %in% what) {
@@ -332,7 +338,8 @@ extractLme4 <- function(SSA,
       setNames(emStats[[trait]][c(predicted, "SE")],
                c(predicted, trait))
     })
-    seBLUEs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
+    seBLUEs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
+                      x = predErrs, init = baseDataPred)
     result[["seBLUEs"]] <- seBLUEs
   }
   ## Compute BLUPs and se of BLUPs from mixed model.
@@ -351,7 +358,8 @@ extractLme4 <- function(SSA,
       colnames(predVal) <- c(predicted, trait)
       return(predVal)
     })
-    BLUPs <- Reduce(f = merge, x = predVals, init = baseDataPred)
+    BLUPs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
+                    x = predVals, init = baseDataPred)
     result[["BLUPs"]] <- BLUPs
   }
   if ("seBLUPs" %in% what) {
@@ -362,7 +370,8 @@ extractLme4 <- function(SSA,
       colnames(predErr) <- c(predicted, trait)
       return(predErr)
     })
-    seBLUPs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
+    seBLUPs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
+                      x = predErrs, init = baseDataPred)
     result[["seBLUPs"]] <- seBLUPs
   }
   ## Compute unit errors.
@@ -444,7 +453,8 @@ extractLme4 <- function(SSA,
       colnames(ranEff) <- c(predicted, trait)
       return(ranEff)
     })
-    ranEf <- Reduce(f = merge, x = ranEffs, init = baseDataPred)
+    ranEf <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
+                    x = ranEffs, init = baseDataPred)
     result[["ranEf"]] <- ranEf
   }
   ## Compute wald test.

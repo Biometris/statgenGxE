@@ -42,33 +42,33 @@ test_that("asreml model gives correct output", {
                c("identity", "cs", "diagonal", "outside", "hcs", "unstructured",
                  "fa", "fa2"))
   expect_equivalent(summAs[, "AIC"],
-                    c(309.722795184198, 311.145684341532, 313.533669549437,
-                      314.991580913606, 315.030761318384, 318.54873092037, NA, NA))
+                    c(316.133524782187, 317.509091360267, 319.974781981561,
+                      321.37350203058, 321.400027844011, 324.919291077454, NA, NA))
   expect_equivalent(summAs[, "BIC"],
-                    c(311.12399256586, 313.948079104857, 317.737261694423,
-                      320.596370440255, 320.635550845033, 326.955915210343, NA, NA))
+                    c(317.534722163849, 320.311486123591, 324.178374126547,
+                      326.978291557229, 327.00481737066, 333.326475367427, NA, NA))
   expect_equivalent(summAs[, "Deviance"],
-                    c(307.722795184198, 307.145684341532, 307.533669549437,
-                      306.991580913606, 307.030761318384, 306.54873092037, NA, NA))
+                    c(314.133524782187, 313.509091360267, 313.974781981561,
+                      313.37350203058, 313.400027844011, 312.919291077454, NA, NA))
   expect_equivalent(summAs[, "NParameters"], c(1, 2, 3, 4, 4, 6, NA, NA))
-  expect_equivalent(geVCAs$vcov, c(36.6317945197525, 0, 0, 0, 36.6317945197525,
-                                   0, 0, 0, 39.2483512711634))
+  expect_equivalent(geVCAs$vcov, c(35.7978300824404, 0, 0, 0, 35.7978300824404,
+                                   0, 0, 0, 35.7978300824404))
 })
 
 summLm <- geVCLm$summary
 test_that("lme4 model gives correct output", {
   expect_equal(geVCLm$choice, "cs")
   expect_equal(rownames(summLm), "cs")
-  expect_equivalent(summLm[, "AIC"], 386.498644064315)
-  expect_equivalent(summLm[, "BIC"], 390.067023332152)
-  expect_equivalent(summLm[, "Deviance"], 382.498644064315)
+  expect_equivalent(summLm[, "AIC"], 394.699928149459)
+  expect_equivalent(summLm[, "BIC"], 398.313253129)
+  expect_equivalent(summLm[, "Deviance"], 390.699928149459)
   expect_equivalent(summLm[, "NParameters"], 2)
   ## This test works fine in RStudio but gives an error when testing on CRAN.
   ## Therefore added a lower tolerance
   expect_equivalent(geVCLm$vcov,
-                    c(36.6109167394648, 4.44290083464202, 4.442900834642,
-                      4.44290083464202, 36.6109167394648, 4.442900834642,
-                      4.442900834642, 4.442900834642, 39.1572940974083),
+                    c(35.7978301877475, 4.51026038047197, 4.51026038047198,
+                      4.51026038047197, 35.7978301877475, 4.51026038047197,
+                      4.51026038047198, 4.51026038047197, 35.7978301877475),
                     tolerance = 1e-6)
 })
 
