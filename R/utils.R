@@ -27,6 +27,31 @@ supprWarn <- function(expression,
                       })
 }
 
+#' Helper function for checking whether error message about 1% change on
+#' last iteration for asreml is worth mentioning as a warning.
+#' If the corresponding parameter is close to zero and then changes off 1%
+#' or more can be expected an are ok.
+#' @keywords internal
+chkLastIter <- function(model) {
+  wrnMsg <- paste("At least one parameter changed by more than 1%",
+                  "on the last iteration")
+  if (grepl(pattern = wrnMsg, x = model$warning)) {
+    ## EXtract monitor df from model object.
+    mon <- model$value$monitor
+    ## Extract values for parameters for last 2 iterations.
+    ## First 3 rows give general model info. Last col a summary.
+    lastIt <- mon[-(1:3), c(ncol(mon) - 2, ncol(mon) - 1)]
+    ## Compute change of parameters in last iteration.
+    change <- abs((lastIt[, 2] - lastIt[, 1]) / lastIt[, 1]) * 100
+    ## Suppress waning if the change was less than 5% or the param value less
+    ## than 0.1.
+    if (all(change <= 5) || all(lastIt[change > 5, 1] < 0.1)) {
+      model$warning <- NULL
+    }
+  }
+  return(model)
+}
+
 #' Extended version of asreml.predict
 #'
 #' Asreml has a bug that may throw a warning message:
@@ -50,7 +75,7 @@ predictAsreml <- function(model,
   ## Predict using default settings, i.e. pworkspace = 8e6
   modelP <- tryCatchExt(predict(model, classify = classify,
                                 vcov = vcov, associate = associate,
-                                data = TD, ...))
+                                data = TD, maxiter = 20, ...))
   pWorkSpace <- 8e6
   ## While there is a warning, increase pWorkSpace and predict again.
   while (!is.null(modelP$warning) &&
@@ -59,12 +84,15 @@ predictAsreml <- function(model,
     pWorkSpace <- pWorkSpace + 8e6
     modelP <- tryCatchExt(predict(model, classify = classify,
                                   vcov = vcov, associate = associate, data = TD,
-                                  pworkspace = pWorkSpace, ...))
+                                  maxiter = 20, pworkspace = pWorkSpace, ...))
   }
   sink()
   unlink(tmp)
   if (!is.null(modelP$warning) && !grepl(pattern = wrnMsg, x = modelP$warning)) {
-    warning(modelP$warning$message, call. = FALSE)
+    modelP <- chkLastIter(modelP)
+    if (!is.null(modelP$warning)) {
+      warning(modelP$warning$message, call. = FALSE)
+    }
   }
   if ((is.null(modelP$warning) ||
        !grepl(pattern = wrnMsg, x = modelP$warning)) && is.null(modelP$error)) {
