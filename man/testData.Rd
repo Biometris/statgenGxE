@@ -11,4 +11,4 @@ testData
 \description{
 Random test data for unit testing.
 }
-\keyword{datasets}
+\keyword{internal}

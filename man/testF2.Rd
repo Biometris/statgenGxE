@@ -11,4 +11,4 @@ testF2
 \description{
 Fake data of f2 cross for unit testing.
 }
-\keyword{datasets}
+\keyword{internal}

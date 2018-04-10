@@ -11,4 +11,4 @@ test4way
 \description{
 Fake data of 4way cross for unit testing.
 }
-\keyword{datasets}
+\keyword{internal}

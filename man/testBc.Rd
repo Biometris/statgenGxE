@@ -11,4 +11,4 @@ testBc
 \description{
 Fake data of backcross for unit testing.
 }
-\keyword{datasets}
+\keyword{internal}
