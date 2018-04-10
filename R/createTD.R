@@ -59,7 +59,7 @@
 #' \code{data} that contains the check IDs.
 #' @param trLocation An optional character string indicating the location of
 #' the trial. This will be used for constructing default names for plots and
-#' such.
+#' such. If no location is provided the trialname will be used as default name.
 #' @param trDate An optional date indicating the date of the trial.
 #' @param trDesign An optional character string indicating the design of the
 #' trial. Either "ibd" (incomplete-block design), "res.ibd"
@@ -175,13 +175,23 @@ createTD <- function(data,
   } else {
     listData <- setNames(list(data), dataName)
   }
+  ## Define meta data to set from input variables.
   meta <- c("trLocation", "trDate", "trDesign", "trLat", "trLong",
             "trPlotWidth", "trPlotLength")
+  ## Set meta for all trials in data.
   for (i in seq_along(listData)) {
     for (m in meta) {
+      ## Set meta data. Set to NULL if not in input so meta variable is
+      ## left out meta data. This to avoid a list of NULL.
       attr(x = listData[[i]], which = m) <-
         if (!is.null(get(m))) get(m) else NULL
     }
+    ## Location should always be filled since it is used in plot titles as
+    ## well. Use trial name as default value.
+    if (is.null(trLocation)) {
+      attr(x = listData[[i]], which = "trLocation") <- names(listData)[i]
+    }
+    ## Add a list of columns that have been renamed as attribute to TD.
     attr(x = listData[[i]], which = "renamedCols") <-
       if (nrow(renamed) > 0) renamed else NULL
   }

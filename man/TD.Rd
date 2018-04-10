@@ -63,7 +63,7 @@ models.}
 
 \item{trLocation}{An optional character string indicating the location of
 the trial. This will be used for constructing default names for plots and
-such.}
+such. If no location is provided the trialname will be used as default name.}
 
 \item{trDate}{An optional date indicating the date of the trial.}
 
