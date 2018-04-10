@@ -252,13 +252,13 @@ bestSpatMod <- function(TD,
       if (!is.null(mrTrait$warning)) {
         mrTrait <- chkLastIter(mrTrait)
       }
-      if (!is.null(mrTrait$warning)) {
-        warning(mrTrait$warning$message, call. = FALSE)
+      if (length(mrTrait$warning) != 0) {
+        warning(mrTrait$warning, call. = FALSE)
       }
       if (is.null(mrTrait$error)) {
         mrTrait <- mrTrait$value
       } else {
-        stop(mrTrait$error$message)
+        stop(mrTrait$error)
       }
       ## If current model is better than best so far based on chosen criterion
       ## define best model as current model.
@@ -304,13 +304,13 @@ bestSpatMod <- function(TD,
     if (!is.null(mfTrait$warning)) {
       mfTrait <- chkLastIter(mfTrait)
     }
-    if (!is.null(mfTrait$warning)) {
-      warning(mfTrait$warning$message, call. = FALSE)
+    if (length(mfTrait$warning) != 0) {
+      warning(mfTrait$warning, call. = FALSE)
     }
     if (is.null(mfTrait$error)) {
       mfTrait <- mfTrait$value
     } else {
-      stop(mfTrait$error$message)
+      stop(mfTrait$error)
     }
     ## evaluate call terms in bestModelTrait and mfTrait so predict can be run.
     bestModelTrait$call$fixed <- eval(bestModelTrait$call$fixed)

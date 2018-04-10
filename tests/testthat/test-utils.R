@@ -4,16 +4,17 @@ test_that("function tryCatchExt catches errors", {
   catchErr <- tryCatchExt(stop("testErr"))
   expect_null(catchErr$value)
   expect_null(catchErr$warning)
-  expect_is(catchErr$error, "error")
-  expect_identical(catchErr$error$message, "testErr")
+  expect_equal(catchErr$error, "testErr")
 })
 
 test_that("function tryCatchExt catches warnings", {
   catchWarn <- tryCatchExt(warning("testWng"))
-  expect_identical(catchWarn$value, "testWng")
-  expect_is(catchWarn$warning, "warning")
-  expect_identical(catchWarn$warning$message, "testWng")
+  expect_equal(catchWarn$value, "testWng")
+  expect_equal(catchWarn$warning, "testWng")
   expect_null(catchWarn$error)
+  catch2Warn <- tryCatchExt({warning("testWng"); warning("testWng2")})
+  expect_equal(catch2Warn$value, "testWng2")
+  expect_equal(catch2Warn$warning, c("testWng", "testWng2"))
 })
 
 test_that("function tryCatchExt returns values", {
@@ -26,15 +27,12 @@ test_that("function tryCatchExt returns values", {
 test_that("function tryCatchExt returns combinations of outputs", {
   catchWarnVal <- tryCatchExt({warning("testWng"); 1})
   expect_equal(catchWarnVal$value, 1)
-  expect_is(catchWarnVal$warning, "warning")
-  expect_identical(catchWarnVal$warning$message, "testWng")
+  expect_equal(catchWarnVal$warning, "testWng")
   expect_null(catchWarnVal$error)
   catchWarnErr <- tryCatchExt({warning("testWng"); stop("testErr")})
   expect_null(catchWarnErr$value)
-  expect_is(catchWarnErr$warning, "warning")
-  expect_identical(catchWarnErr$warning$message, "testWng")
-  expect_is(catchWarnErr$error, "error")
-  expect_identical(catchWarnErr$error$message, "testErr")
+  expect_equal(catchWarnErr$warning, "testWng")
+  expect_equal(catchWarnErr$error, "testErr")
 })
 
 test_that("function supprWarn functions properly", {

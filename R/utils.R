@@ -6,10 +6,10 @@ tryCatchExt <- function(expr) {
   warn <- err <- NULL
   value <- withCallingHandlers(
     tryCatch(expr, error = function(e) {
-      err <<- e
+      err <<- conditionMessage(e)
       NULL
     }), warning = function(w) {
-      warn <<- w
+      warn <<- c(warn, conditionMessage(w))
       invokeRestart("muffleWarning")
     })
   list(value = value, warning = warn, error = err)
@@ -35,7 +35,7 @@ supprWarn <- function(expression,
 chkLastIter <- function(model) {
   wrnMsg <- paste("At least one parameter changed by more than 1%",
                   "on the last iteration")
-  if (grepl(pattern = wrnMsg, x = model$warning)) {
+  if (any(grepl(pattern = wrnMsg, x = model$warning))) {
     ## EXtract monitor df from model object.
     mon <- model$value$monitor
     ## Extract values for parameters for last 2 iterations.
@@ -46,7 +46,8 @@ chkLastIter <- function(model) {
     ## Suppress waning if the change was less than 5% or the param value less
     ## than 0.1.
     if (all(change <= 5) || all(lastIt[change > 5, 1] < 0.1)) {
-      model$warning <- NULL
+      model$warning <- model$warning[!grepl(pattern = wrnMsg,
+                                            x = model$warning)]
     }
   }
   return(model)
@@ -79,7 +80,7 @@ predictAsreml <- function(model,
   pWorkSpace <- 8e6
   ## While there is a warning, increase pWorkSpace and predict again.
   while (!is.null(modelP$warning) &&
-         grepl(pattern = wrnMsg, x = modelP$warning)
+         any(grepl(pattern = wrnMsg, x = modelP$warning))
          && pWorkSpace < 160e6) {
     pWorkSpace <- pWorkSpace + 8e6
     modelP <- tryCatchExt(predict(model, classify = classify,
@@ -88,19 +89,21 @@ predictAsreml <- function(model,
   }
   sink()
   unlink(tmp)
-  if (!is.null(modelP$warning) && !grepl(pattern = wrnMsg, x = modelP$warning)) {
+  if (!is.null(modelP$warning) && !all(grepl(pattern = wrnMsg,
+                                             x = modelP$warning))) {
     modelP <- chkLastIter(modelP)
-    if (!is.null(modelP$warning)) {
-      warning(modelP$warning$message, call. = FALSE)
+    if (length(modelP$warning) != 0) {
+      warning(modelP$warning, call. = FALSE)
     }
   }
-  if ((is.null(modelP$warning) ||
-       !grepl(pattern = wrnMsg, x = modelP$warning)) && is.null(modelP$error)) {
+  if ((length(modelP$warning) == 0 ||
+       !all(grepl(pattern = wrnMsg, x = modelP$warning))) &&
+      is.null(modelP$error)) {
     return(modelP$value)
   } else {
     stop(paste("Error in asreml when running predict. Asreml message:\n",
-               modelP$error$message, "\n",
-               modelP$warning$message, "\n"), call. = FALSE)
+               modelP$error, "\n",
+               modelP$warning, "\n"), call. = FALSE)
   }
 }
 
