@@ -458,8 +458,8 @@ plot.TD <- function(x,
                     trials = names(x),
                     plotType = c("layout", "map")) {
   ## Maps seems to change graphics parameters without resetting. Do so here.
-  op <- par(no.readonly = TRUE)
-  on.exit(par(op))
+  #op <- par(no.readonly = TRUE)
+  #on.exit(par(op))
   if (!is.character(trials) || !all(trials %in% names(x))) {
     stop(paste0("All trials should be in ", deparse(x), ".\n"))
   }
@@ -496,7 +496,7 @@ plot.TD <- function(x,
       out <- ifelse("repId" %in% colnames(trDat), ", out1 = repId", "")
       com <- paste("desplot::desplot(", plotVar, "~ colCoordinates +",
                    "rowCoordinates, data = trDat", out,
-                   ", main = trLoc, aspect = aspect)")
+                   ", main = trLoc, aspect = ", aspect, ")")
       print(eval(parse(text = com)))
     }
   } else if (plotType == "map") {

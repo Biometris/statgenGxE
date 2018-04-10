@@ -229,7 +229,7 @@ plot.SSA <- function(x,
     stop("No trait provided but multiple traits found.\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-                          !trait %in% colnames(x[[trial]]$TD))) {
+                          !trait %in% colnames(x[[trial]]$TD[[trial]]))) {
     stop("Trait has to be a single character string defining a column in TD.\n")
   }
   if (is.null(what)) {
