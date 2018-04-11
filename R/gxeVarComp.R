@@ -68,13 +68,9 @@ gxeVarComp <- function(TD,
   }
   engine <- match.arg(engine)
   criterion <- match.arg(criterion)
-  if (!is.null(criterion) && (!is.character(criterion) || length(criterion) > 1 ||
-                              !criterion %in% c("AIC", "BIC"))) {
-    stop("criterion should be AIC or BIC.\n")
-  }
   ## Increase maximum number of iterations for asreml. Needed for more complex
   ## designs to converge.
-  maxIter <- 100
+  maxIter <- 200
   ## Add combinations of trial and genotype currently not in TD to TD.
   TDTot <- reshape2::melt(data = reshape2::dcast(data = TDTot,
                                                  formula = trial ~ genotype,
@@ -95,7 +91,7 @@ gxeVarComp <- function(TD,
   ## Main procedure to fit mixed models.
   if (engine == "lme4") {
     ## Compound symmetry ("cs") only.
-    mr = lme4::lmer(as.formula(paste(trait, "~ trial + (1 | genotype)")),
+    mr = lme4::lmer(formula(paste(trait, "~ trial + (1 | genotype)")),
                     data = TDTot, ...)
     nPar <- 2
     ## Construct SSA object.
@@ -110,181 +106,186 @@ gxeVarComp <- function(TD,
     colnames(vcovBest) <- rownames(vcovBest) <- levels(TDTot$trial)
   } else if (engine == "asreml") {
     if (requireNamespace("asreml", quietly = TRUE)) {
+      nTr <- nlevels(TDTot$trial)
+      fixedForm <- formula(paste(trait, "~ trial"))
       tmp <- tempfile()
       for (choice in choices) {
         if (choice == "identity") {
           sink(file = tmp)
-          mr <- asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                               rcov = ~ genotype:trial,
-                               data = TDTot, maxiter = maxIter, ...)
+          mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
+                                           rcov = ~ genotype:trial,
+                                           data = TDTot, maxiter = maxIter,
+                                           ...))
           sink()
           nPar <- 1
         } else if (choice == "cs") {
           sink(file = tmp)
-          mr <- asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                               random = ~ genotype,
-                               rcov = ~ genotype:trial,
-                               data = TDTot, maxiter = maxIter, ...)
+          mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
+                                           random = ~ genotype,
+                                           rcov = ~ genotype:trial,
+                                           data = TDTot, maxiter = maxIter,
+                                           ...))
           sink()
           nPar <- 2
         } else if (choice == "diagonal") {
           sink(file = tmp)
-          mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                                   rcov = as.formula("~ genotype:diag(trial)"),
-                                   data = TDTot, maxiter = maxIter, ...),
-                    silent = TRUE)
+          mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
+                                           rcov = ~ genotype:diag(trial),
+                                           data = TDTot, maxiter = maxIter,
+                                           ...))
           sink()
-          nPar <- nlevels(TDTot$trial)
+          nPar <- nTr
         } else if (choice == "hcs") {
           sink(file = tmp)
-          mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                                   random = as.formula("~ genotype"),
-                                   rcov = as.formula("~ genotype:diag(trial)"),
-                                   data = TDTot, maxiter = maxIter, ...),
-                    silent = TRUE)
+          mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
+                                           random = ~ genotype,
+                                           rcov = ~ genotype:diag(trial),
+                                           data = TDTot, maxiter = maxIter,
+                                           ...))
           sink()
-          nPar <- nlevels(TDTot$trial) + 1
+          nPar <- nTr + 1
         } else if (choice == "outside") {
           sink(file = tmp)
-          initVals <- asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                                     random = as.formula("~ genotype:corh(trial)"),
+          initVals <- asreml::asreml(fixed = fixedForm,
+                                     random = ~ genotype:corh(trial),
                                      start.values = TRUE, data = TDTot, ...)
           sink()
-          tmpValues <- qvInitial(TD = TDTot, trait = trait, unitError = NA,
-                                 vcmodel = "outside",
-                                 fixed = as.formula(paste(trait, "~ trial")),
-                                 unitFactor = NA, ...)
+          tmpValues <- qvInitial(TD = TDTot, trait = trait, vcmodel = "outside",
+                                 fixed = fixedForm, ...)
           tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(tmpValues$vg, tmpValues$diag, 1)
           tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
           ## Fix residual variance at almost zero.
-          tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), c(2, 3)] <-
-            c(1e-4, "F")
+          tmpTable[tmpTable$Gamma == "R!variance", c(2, 3)] <- c(1e-4, "F")
           sink(file = tmp)
-          mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                                   random = as.formula("~ genotype:corh(trial)"),
-                                   G.param = tmpTable, R.param = tmpTable,
-                                   data = TDTot, maxiter = maxIter, ...),
-                    silent = TRUE)
+          mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
+                                           random = ~ genotype:corh(trial),
+                                           G.param = tmpTable,
+                                           R.param = tmpTable, data = TDTot,
+                                           maxiter = maxIter, workspace = 160e6,
+                                           ...))
           sink()
-          nPar <- nlevels(TDTot$trial) + 1
-        } else if (choice == "fa" && nlevels(TDTot$trial) > 4) {
+          nPar <- nTr + 1
+        } else if (choice == "fa" && nTr > 4) {
           sink(file = tmp)
-          initVals <- asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                                     random = as.formula("~ genotype:fa(trial, 1)"),
+          initVals <- asreml::asreml(fixed = fixedForm,
+                                     random = ~ genotype:fa(trial, 1),
                                      start.values = TRUE, data = TDTot, ...)
           sink()
           tmpTable <- initVals$gammas.table
-          tmpValues <- qvInitial(TD = TDTot, trait = trait, unitError = NA,
-                                 vcmodel = "fa",
-                                 fixed = as.formula(paste(trait, "~ trial")),
-                                 unitFactor = NA, ...)
+          tmpValues <- qvInitial(TD = TDTot, trait = trait, vcmodel = "fa",
+                                 fixed = fixedForm, ...)
           if (is.null(tmpValues)) {
             sink(file = tmp)
-            mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                                     random = as.formula("~ genotype:fa(trial, 1)"),
-                                     data = TDTot, maxiter = maxIter, ...),
-                      silent = TRUE)
+            mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
+                                             random = ~ genotype:fa(trial, 1),
+                                             data = TDTot, maxiter = maxIter,
+                                             workspace = 160e6, ...))
             sink()
           } else {
             tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma, 1)
             sink(file = tmp)
-            mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                                     random = as.formula("~ genotype:fa(trial, 1)"),
-                                     R.param = tmpTable, G.param = tmpTable,
-                                     data = TDTot, maxiter = maxIter, ...),
-                      silent = TRUE)
+            mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
+                                             random = ~ genotype:fa(trial, 1),
+                                             R.param = tmpTable,
+                                             G.param = tmpTable, data = TDTot,
+                                             maxiter = maxIter,
+                                             workspace = 160e6, ...))
             sink()
           }
-          nPar <- nlevels(TDTot$trial) * 2
-        } else if (choice == "fa2" && nlevels(TDTot$trial) > 4) {
+          nPar <- nTr * 2
+        } else if (choice == "fa2" && nTr > 4) {
           sink(file = tmp)
-          initVals <- asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                                     random = as.formula("~ genotype:fa(trial, 2)"),
+          initVals <- asreml::asreml(fixed = fixedForm,
+                                     random = ~ genotype:fa(trial, 2),
                                      start.values = TRUE, data = TDTot, ...)
           sink()
           tmpTable <- initVals$gammas.table
-          tmpValues <- qvInitial(TD = TDTot, trait = trait, unitError = NA,
-                                 vcmodel = "fa2",
-                                 fixed = as.formula(paste(trait, "~ trial")),
-                                 unitFactor = NA, ...)
+          tmpValues <- qvInitial(TD = TDTot, trait = trait, vcmodel = "fa2",
+                                 fixed = fixedForm, ...)
           if (is.null(tmpValues)) {
             sink(file = tmp)
-            mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                                     random = as.formula("~ genotype:fa(trial, 2)"),
-                                     data = TDTot, maxiter = maxIter, ...),
-                      silent = TRUE)
+            mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
+                                             random = ~ genotype:fa(trial, 2),
+                                             data = TDTot, maxiter = maxIter,
+                                             workspace = 160e6, ...))
             sink()
           } else {
             ## Keep loadings of factor 2 away from 0.
-            tmpValues$gamma[2, which(tmpValues$gamma[2, ] < 1e-3)] <- 1e-3
+            tmpValues$gamma[2, tmpValues$gamma[2, ] < 1e-3] <- 1e-3
             ## Make sure that first entry is 0.
             tmpValues$gamma[2, 1] <- 0
             tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma[1, ],
                                      tmpValues$gamma[2, ], 1)
             sink(file = tmp)
-            ## Sometimes gives warnings about change in LL of more than 1%
-            ## These are suppressed.
-            mr <- suppressWarnings(try(asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                                                      random = as.formula("~ genotype:fa(trial, 2)"),
-                                                      R.param = tmpTable, G.param = tmpTable,
-                                                      data = TDTot, maxiter = maxIter, ...),
-                                       silent = TRUE))
+            mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
+                                             random = ~ genotype:fa(trial, 2),
+                                             R.param = tmpTable,
+                                             G.param = tmpTable, data = TDTot,
+                                             maxiter = maxIter,
+                                             workspace = 160e6, ...))
             sink()
           }
-          nPar <- nlevels(TDTot$trial) * 3 - 1
+          nPar <- nTr * 3 - 1
         } else if (choice == "unstructured") {
           ## Check model.
           sink(file = tmp)
-          initVals <- asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                                     random = as.formula("~ genotype:us(trial)"),
+          initVals <- asreml::asreml(fixed = fixedForm,
+                                     random = ~ genotype:us(trial),
                                      start.values = TRUE, data = TDTot, ...)
           sink()
-          tmpValues <- qvInitial(TD = TDTot, trait = trait, vcmodel = "unstructured",
-                                 fixed = as.formula(paste(trait, "~ trial")),
-                                 unitFactor = NA, ...)
+          tmpValues <- qvInitial(TD = TDTot, trait = trait,
+                                 vcmodel = "unstructured", fixed = fixedForm,
+                                 ...)
           tmpValues <- tmpValues$evCov[upper.tri(tmpValues$evCov, diag = TRUE)]
           tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(tmpValues, 1)
           tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
           ## All off diagonal elements are unconstrained, diagonal elements
           ## should be positive
-          tmpTable[-c((1:nlevels(TDTot$trial)) * ((1:nlevels(TDTot$trial)) + 1) / 2),
-                   "Constraint"] <- "U"
+          tmpTable[-c((1:nTr) * ((1:nTr) + 1) / 2), "Constraint"] <- "U"
           ## Fix residual variance at almost zero.
-          tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), c(2, 3)] <-
-            c(1e-4, "F")
+          tmpTable[tmpTable$Gamma == "R!variance", c(2, 3)] <- c(1e-4, "F")
           sink(file = tmp)
-          mr <- try(asreml::asreml(fixed = as.formula(paste(trait, "~ trial")),
-                                   random = as.formula("~ genotype:us(trial)"),
-                                   G.param = tmpTable, R.param = tmpTable,
-                                   data = TDTot, maxiter = maxIter, ...),
-                    silent = TRUE)
+          mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
+                                           random = ~ genotype:us(trial),
+                                           G.param = tmpTable,
+                                           R.param = tmpTable, data = TDTot,
+                                           maxiter = maxIter, workspace = 160e6,
+                                           ...))
           sink()
-          nPar <- nlevels(TDTot$trial) * (nlevels(TDTot$trial) - 1) / 2 +
-            nlevels(TDTot$trial)
+          nPar <- nTr * (nTr - 1) / 2 + nTr
         }
-        if (inherits(mr, "try-error")) {
+        if (!is.null(mr$warning)) {
+          ## Check if param 1% increase is significant. Remove warning if not.
+          mr <- chkLastIter(mr)
+        }
+        if (length(mr$warning) != 0) {
+          warning(paste0("Asreml gave the following warning for ", choice,
+                         ":\n", mr$warning, "\n"), call. = FALSE)
+        } else if (!mr$value$converge) {
+          warning(paste0("No convergence for ", choice, ".\n"), call. = FALSE)
+          mr$loglik <- -Inf
+        }
+        if (!is.null(mr$error)) {
+          warning(paste0("Asreml gave the following error for ", choice,
+                         ":\n", mr$error), call. = FALSE)
           mr <- list(loglik = -Inf)
-        } else {
+        } else if (!(nTr <= 4 && choice %in% c("fa", "fa2"))) {
+          mr <- mr$value
           mr$call$fixed <- eval(mr$call$fixed)
           mr$call$random <- eval(mr$call$random)
           mr$call$rcov <- eval(mr$call$rcov)
           mr$call$G.param <- eval(mr$call$G.param)
           mr$call$R.param <- eval(mr$call$R.param)
           models[[choice]] <- mr
-          if (!mr$converge) {
-            mr$loglik <- -Inf
-          }
-        }
-        if (!(nlevels(TDTot$trial) <= 4 && choice %in% c("fa", "fa2"))) {
           bestTab[choice, "AIC"] <- -2 * mr$loglik + 2 * nPar
           bestTab[choice, "BIC"] <- -2 * mr$loglik +
             (log(length(mr$fitted.values) - nlevels(TDTot$genotype)) * nPar)
           bestTab[choice, "Deviance"] <- -2 * mr$loglik
           bestTab[choice, "NParameters"] <- nPar
         }
-      }
+      } # End loop over choices
       bestTab <- bestTab[order(bestTab[, criterion]), ]
       bestModel <- models[[rownames(bestTab)[1]]]
       bestModel <- predictAsreml(model = bestModel, classify = "trial",
@@ -325,8 +326,7 @@ qvInitial <- function(TD,
   tmp <- tempfile()
   ## Remove the rows with NA.
   X <- na.omit(TD[, c(trait, "genotype", "trial")])
-  X$genotype <- droplevels(X$genotype)
-  X$trial <- droplevels(X$trial)
+  X <- droplevels(X)
   nEnv <- nlevels(X$trial)
   nGeno <- nlevels(X$genotype)
   ## Get fixed df by stealth - in absence of other info, share among trials.
@@ -338,7 +338,7 @@ qvInitial <- function(TD,
     fixedForm <- fixed
   } else {
     P <- 1
-    fixedForm <- as.formula(paste(trait, "~ trial"))
+    fixedForm <- formula(paste(trait, "~ trial"))
   }
   ## Get number of effects contributing to each sum of squares.
   nobsEnv <- rowSums(table(X[, c("trial", "genotype")]))
@@ -352,18 +352,18 @@ qvInitial <- function(TD,
     X["weights"] <- weights
     sink(file = tmp)
     initValues <- asreml::asreml(fixed = fixedForm,
-                                 random = as.formula("~ genotype:idh(trial)"),
+                                 random = ~ genotype:idh(trial),
                                  weights = weights, start.values = TRUE,
                                  data = X, ...)
     sink()
     tmpTable <- initValues$gammas.table
     tmpTable[, "Constraint"] <- as.character(tmpTable[,"Constraint"])
-    tmpTable[which(tmpTable[, "Gamma"] == "R!variance"), "Constraint"] <- "F"
+    tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
     tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
     sink(file = tmpTable)
     mr <- asreml::asreml(fixed = fixedForm,
-                         random = as.formula("~ genotype:idh(trial)"),
-                         weights = weights, R.param = tmpTable, data = X, ...)
+                         random = ~ genotype:idh(trial), weights = weights,
+                         R.param = tmpTable, data = X, ...)
     sink()
     RMat <- matrix(data = coefficients(mr)$random, nrow = nGeno,
                    ncol = nEnv, byrow = TRUE)
@@ -372,13 +372,11 @@ qvInitial <- function(TD,
     sink(file = tmp)
     mr <- asreml::asreml(fixed = fixedForm, data = X, ...)
     sink()
-    mr$call$fixed <- eval(mr$call$fixed)
-    mr$call$random <- eval(mr$call$random)
-    mr$call$rcov <- eval(mr$call$rcov)
-    mr$call$data <- substitute(TD)
+    mr$call$fixed <- fixedForm
+    mr$call$data <- X
     res <- residuals(mr, type = "response")
     RMat <- tapply(X = res, INDEX = list(X$genotype, X$trial), FUN = mean)
-    RMat[which(is.na(RMat))] <- 0
+    RMat[is.na(RMat)] <- 0
   }
   evCov <- crossprod(RMat) / (Nobs - (P / nEnv))
   ## Get off-diagonal elements of evCov only.
