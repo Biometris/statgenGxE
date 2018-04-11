@@ -263,9 +263,6 @@ gxeVarComp <- function(TD,
         if (length(mr$warning) != 0) {
           warning(paste0("Asreml gave the following warning for ", choice,
                          ":\n", mr$warning, "\n"), call. = FALSE)
-        } else if (!mr$value$converge) {
-          warning(paste0("No convergence for ", choice, ".\n"), call. = FALSE)
-          mr$loglik <- -Inf
         }
         if (!is.null(mr$error)) {
           warning(paste0("Asreml gave the following error for ", choice,
@@ -278,6 +275,10 @@ gxeVarComp <- function(TD,
           mr$call$rcov <- eval(mr$call$rcov)
           mr$call$G.param <- eval(mr$call$G.param)
           mr$call$R.param <- eval(mr$call$R.param)
+          if (!mr$converge) {
+            warning(paste0("No convergence for ", choice, ".\n"), call. = FALSE)
+            mr$loglik <- -Inf
+          }
           models[[choice]] <- mr
           bestTab[choice, "AIC"] <- -2 * mr$loglik + 2 * nPar
           bestTab[choice, "BIC"] <- -2 * mr$loglik +
