@@ -9,6 +9,7 @@
 test4way
 }
 \description{
-Fake data of 4way cross for unit testing.
+Base data taken from qtl package. Decreased size by removing most individuals
+and SNPs. To be used for (unit) testing only.
 }
 \keyword{internal}

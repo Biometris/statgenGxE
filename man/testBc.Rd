@@ -9,6 +9,7 @@
 testBc
 }
 \description{
-Fake data of backcross for unit testing.
+Base data taken from qtl package. Decreased size by removing most individuals
+and SNPs. To be used for (unit) testing only.
 }
 \keyword{internal}
