@@ -224,7 +224,7 @@ bestSpatMod <- function(TD,
                        colnames(TDTr))
     extObs$trial <- TDTr$trial[1]
     extObs[, c("colId", "rowId")] <- TDTab[, c("Var1", "Var2")]
-    extObs[, c("colCoordinates", "rowCoordinates")] <-
+    extObs[, c("colCoord", "rowCoord")] <-
       c(as.numeric(levels(TDTab[, "Var1"]))[TDTab[, "Var1"]],
         as.numeric(levels(TDTab[, "Var2"]))[TDTab[, "Var2"]])
     TDTr <- rbind(TDTr, extObs)
@@ -242,9 +242,9 @@ bestSpatMod <- function(TD,
     ## Define spatial terms of models to try.
     spatCh <- rep(x = c("exp(x)id", "id(x)exp",
                         "isotropic exponential"), times = 2)
-    spatTerm <- paste("~", rep(x = c("exp(rowCoordinates):colCoordinates",
-                                     "rowCoordinates:exp(colCoordinates)",
-                                     "iexp(rowCoordinates,colCoordinates)"),
+    spatTerm <- paste("~", rep(x = c("exp(rowCoord):colCoord",
+                                     "rowCoord:exp(colCoord)",
+                                     "iexp(rowCoord,colCoord)"),
                                times = 2))
   } else {
     spatCh <- rep(x = c("AR1(x)id", "id(x)AR1", "AR1(x)AR1"), times = 2)

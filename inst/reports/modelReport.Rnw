@@ -150,11 +150,11 @@ if (engine == "SpATS") {
 <<label=SpATSsummary, echo=FALSE, results="asis">>=
 renameFrom <- c("genotype", "repId", "rowId", "colId", "subBlock",
                 "repId:rowId", "repId:colId", "repId:subBlock",
-                "colCoordinates", "rowCoordinates", "rowCoordinatescolCoordinates",
-                "f(colCoordinates)", "f(rowCoordinates)",
-                "f(colCoordinates):rowCoordinates",
-                "colCoordinates:f(rowCoordinates)",
-                "f(colCoordinates):f(rowCoordinates)", "Nobs", "R", "variance",
+                "colCoord", "rowCoord", "rowCoordcolCoord",
+                "f(colCoord)", "f(rowCoord)",
+                "f(colCoord):rowCoord",
+                "colCoord:f(rowCoord)",
+                "f(colCoord):f(rowCoord)", "Nobs", "R", "variance",
                 "pow", "units")
 renameTo <- c("Genotype", "Replicate", "Row", "Col", "Block",
               "Row(replicate)", "Col(replicate)", "Block(replicate)",

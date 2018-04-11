@@ -221,7 +221,7 @@ extractSpATS <- function(SSA,
   ## Extract spatial variance.
   if ("varSpat" %in% what) {
     result[["varSpat"]] <- sapply(X = mr, FUN = function(mr0) {
-      mr0$var.comp[grep(pattern = "Coordinates", x = names(mr0$var.comp))]
+      mr0$var.comp[grep(pattern = "Coord", x = names(mr0$var.comp))]
     })
   }
   ## Extract fitted values.

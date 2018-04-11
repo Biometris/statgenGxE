@@ -8,8 +8,8 @@ Heat05 <- SB_Yield[SB_Yield$Env == "HEAT05", ]
 # Create object of class TD
 TDHeat05 <- createTD(data = Heat05, genotype = "Genotype", trial = "Env",
                      repId = "Rep", subBlock = "Subblock", rowId = "Row",
-                     colId = "Column", rowCoordinates = "Row",
-                     colCoordinates = "Column")
+                     colId = "Column", rowCoord = "Row",
+                     colCoord = "Column")
 # Export to package
 devtools::use_data(TDHeat05, overwrite = TRUE)
 

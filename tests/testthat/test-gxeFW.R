@@ -2,7 +2,7 @@ context("gxeFW")
 
 testTD <- createTD(data = testData, genotype = "seed", trial = "field",
                    repId = "rep", subBlock = "block", rowId = "Y", colId = "X",
-                   rowCoordinates = "Y", colCoordinates = "X")
+                   rowCoord = "Y", colCoord = "X")
 
 test_that("settings for tolerance and maxIter work", {
   expect_warning(gxeFw(testTD, trait = "t1"), "Convergence not achieved in ")

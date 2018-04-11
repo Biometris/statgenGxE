@@ -15,17 +15,17 @@ test_that("renaming columns 'one to one' works properly in createTD", {
 
 test_that("renaming columns 'one to many' works properly in createTD", {
   expect_equal(ncol(createTD(data = testData, rowId = "Y",
-                             rowCoordinates = "Y")[[1]]), ncol(testData) + 1)
+                             rowCoord = "Y")[[1]]), ncol(testData) + 1)
   expect_equal(colnames(createTD(data = testData, rowId = "Y",
-                                 rowCoordinates = "Y")[[1]])[c(7, 13)],
-  c("rowId", "rowCoordinates"))
+                                 rowCoord = "Y")[[1]])[c(7, 13)],
+  c("rowId", "rowCoord"))
 })
 
 test_that("class conversion works properly in createTD", {
   expect_is(createTD(data = testData)[[1]][, "Y"], "numeric")
   expect_is(createTD(data = testData, rowId = "Y")[[1]][, "rowId"], "factor")
   expect_is(createTD(data = testData,
-                     rowCoordinates = "Y")[[1]][, "rowCoordinates"], "numeric")
+                     rowCoord = "Y")[[1]][, "rowCoord"], "numeric")
   expect_is(createTD(data = testData)[[1]][, "checkId"], "factor")
 })
 
@@ -34,9 +34,9 @@ test_that("attribute renamed is properly filled in createTD", {
   expect_is(attr(createTD(data = testData, genotype = "seed")[[1]], "renamed"),
             "data.frame")
   expect_equal(attr(createTD(data = testData, rowId = "Y",
-                             rowCoordinates = "Y")[[1]], "renamed"),
+                             rowCoord = "Y")[[1]], "renamed"),
                data.frame(orig = c("Y", "Y"),
-                          new = c("rowId", "rowCoordinates"),
+                          new = c("rowId", "rowCoord"),
                           stringsAsFactors = FALSE))
 })
 

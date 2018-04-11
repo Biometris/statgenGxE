@@ -3,7 +3,7 @@ context("Extract SpATS")
 testTD <- createTD(data = testData[testData$field == "E1", ],
                    genotype = "seed", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",
-                   rowCoordinates = "Y", colCoordinates = "X")
+                   rowCoord = "Y", colCoord = "X")
 
 modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
 

@@ -5,9 +5,9 @@
 #' checked and columns are renamed to default column names for ease of further
 #' computations. The columns for genotype, trial, megaEnv, year, repId,
 #' subBlock, rowId, colId and checkId are converted to factor columns, whereas
-#' rowCoordinates and colCoordinates are converted to numerical columns. One
+#' rowCoord and colCoord are converted to numerical columns. One
 #' single column can be mapped to multiple defaults, e.g. one column with x
-#' coordinates can be mapped to both colId and colCoordinates.\cr
+#' coordinates can be mapped to both colId and colCoord.\cr
 #' Columns other than the default columns, e.g. traits or other covariates
 #' will be included in the output unchanged.\cr
 #' The input data is split by trial. So for an input data frame with three
@@ -49,10 +49,10 @@
 #' \code{data} that contains field rows.
 #' @param colId An optional character string indicating the column in
 #' \code{data} that contains field columns.
-#' @param rowCoordinates An optional character string indicating the column in
+#' @param rowCoord An optional character string indicating the column in
 #' \code{data} that contains the rowId coordinates used for fitting spatial
 #' models.
-#' @param colCoordinates An optional character string indicating the column in
+#' @param colCoord An optional character string indicating the column in
 #' \code{data} that contains the column coordinates used for fitting spatial
 #' models.
 #' @param checkId An optional character string indicating the column in
@@ -100,8 +100,8 @@ createTD <- function(data,
                      subBlock = NULL,
                      rowId = NULL,
                      colId = NULL,
-                     rowCoordinates = NULL,
-                     colCoordinates = NULL,
+                     rowCoord = NULL,
+                     colCoord = NULL,
                      checkId = NULL,
                      trLocation = NULL,
                      trDate = NULL,
@@ -118,7 +118,7 @@ createTD <- function(data,
   }
   cols <- colnames(data)
   for (param in c(genotype, trial, megaEnv, year, repId, subBlock, rowId, colId,
-                  rowCoordinates, colCoordinates, checkId)) {
+                  rowCoord, colCoord, checkId)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
                             !param %in% cols)) {
       stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
@@ -128,7 +128,7 @@ createTD <- function(data,
               trPlotWidth = trPlotWidth, trPlotLength = trPlotLength)
   ## Create list of reserved column names for renaming columns.
   renameCols <- c("genotype", "trial", "megaEnv", "year", "repId", "subBlock",
-                  "rowId", "colId", "rowCoordinates", "colCoordinates",
+                  "rowId", "colId", "rowCoord", "colCoord",
                   "checkId")
   ## First rename duplicate colums and add duplicated columns to data
   renameFrom <- as.character(sapply(X = renameCols, FUN = function(x) {
@@ -163,7 +163,7 @@ createTD <- function(data,
     }
   }
   ## Convert columns to numeric if neccessary.
-  numCols <- c("rowCoordinates", "colCoordinates")
+  numCols <- c("rowCoord", "colCoord")
   for (numCol in numCols) {
     if (numCol %in% cols && !is.numeric(data[, which(cols == numCol)])) {
       data[, which(cols == numCol)] <-
@@ -216,8 +216,8 @@ addTD <- function(TD,
                   subBlock = NULL,
                   rowId = NULL,
                   colId = NULL,
-                  rowCoordinates = NULL,
-                  colCoordinates = NULL,
+                  rowCoord = NULL,
+                  colCoord = NULL,
                   checkId = NULL,
                   trLocation = NULL,
                   trDate = NULL,
@@ -229,8 +229,8 @@ addTD <- function(TD,
   TDNw <- createTD(data = data, genotype = genotype, trial = trial,
                    megaEnv = megaEnv, year = year, repId = repId,
                    subBlock = subBlock, rowId = rowId, colId = colId,
-                   rowCoordinates = rowCoordinates,
-                   colCoordinates = colCoordinates, checkId = checkId,
+                   rowCoord = rowCoord,
+                   colCoord = colCoord, checkId = checkId,
                    trLocation = trLocation, trDate = trDate,
                    trDesign = trDesign, trLat = trLat, trLong = trLong,
                    trPlotWidth = trPlotWidth, trPlotLength = trPlotLength)
@@ -477,13 +477,13 @@ plot.TD <- function(x,
   if (plotType == "layout") {
     for (trial in trials) {
       trDat <- x[[trial]]
-      if (!"rowCoordinates" %in% colnames(trDat)) {
-        warning(paste0("rowCoordinates should be a column in ", trial, ".\n",
+      if (!"rowCoord" %in% colnames(trDat)) {
+        warning(paste0("rowCoord should be a column in ", trial, ".\n",
                        "Plot skipped."), call. = FALSE)
         break
       }
-      if (!"colCoordinates" %in% colnames(trDat)) {
-        warning(paste0("colCoordinates should be a column in ", trial, ".\n",
+      if (!"colCoord" %in% colnames(trDat)) {
+        warning(paste0("colCoord should be a column in ", trial, ".\n",
                        "Plot skipped."), call. = FALSE)
         break
       }
@@ -493,8 +493,8 @@ plot.TD <- function(x,
       ## Compute aspect for proper depiction of field size. If no information
       ## is available plots are assumed to be square.
       if (is.null(ylen) || is.null(xlen)) {
-        aspect <- length(unique(trDat$rowCoordinates)) /
-          length(unique(trDat$colCoordinates))
+        aspect <- length(unique(trDat$rowCoord)) /
+          length(unique(trDat$colCoord))
       } else {
         aspect <- ylen / xlen
       }
@@ -504,8 +504,8 @@ plot.TD <- function(x,
       ## This is solved by using print.
       plotVar <- ifelse("subBlock" %in% colnames(trDat), "subBlock", "trial")
       out <- ifelse("repId" %in% colnames(trDat), ", out1 = repId", "")
-      com <- paste("desplot::desplot(", plotVar, "~ colCoordinates +",
-                   "rowCoordinates, data = trDat", out,
+      com <- paste("desplot::desplot(", plotVar, "~ colCoord +",
+                   "rowCoord, data = trDat", out,
                    ", main = trLoc, aspect = ", aspect, ")")
       print(eval(parse(text = com)))
     }

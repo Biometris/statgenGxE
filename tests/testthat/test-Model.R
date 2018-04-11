@@ -4,7 +4,7 @@ context("Modeling")
 testTD <- createTD(data = testData, trial = "field",
                    genotype = "seed", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",
-                   rowCoordinates = "Y", colCoordinates = "X")
+                   rowCoord = "Y", colCoord = "X")
 
 ## Helper function for testing base structure that has to be consistent
 ## for all SSA objects independent of engine and options.

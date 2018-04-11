@@ -3,7 +3,7 @@ context("gxeMegaEnv")
 testTD <- createTD(data = testData, genotype = "seed",
                    trial = "field", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",
-                   rowCoordinates = "Y", colCoordinates = "X")
+                   rowCoord = "Y", colCoord = "X")
 modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
 BLUEsList <- STExtract(modelSp, what = "BLUEs", keep = "trial")
 BLUEs <- createTD(Reduce(f = rbind, x = BLUEsList))

@@ -9,15 +9,15 @@
 \usage{
 createTD(data, genotype = NULL, trial = NULL, megaEnv = NULL,
   year = NULL, repId = NULL, subBlock = NULL, rowId = NULL,
-  colId = NULL, rowCoordinates = NULL, colCoordinates = NULL,
-  checkId = NULL, trLocation = NULL, trDate = NULL, trDesign = NULL,
-  trLat = NULL, trLong = NULL, trPlotWidth = NULL, trPlotLength = NULL)
+  colId = NULL, rowCoord = NULL, colCoord = NULL, checkId = NULL,
+  trLocation = NULL, trDate = NULL, trDesign = NULL, trLat = NULL,
+  trLong = NULL, trPlotWidth = NULL, trPlotLength = NULL)
 
 addTD(TD, data, genotype = NULL, trial = NULL, megaEnv = NULL,
   year = NULL, repId = NULL, subBlock = NULL, rowId = NULL,
-  colId = NULL, rowCoordinates = NULL, colCoordinates = NULL,
-  checkId = NULL, trLocation = NULL, trDate = NULL, trDesign = NULL,
-  trLat = NULL, trLong = NULL, trPlotWidth = NULL, trPlotLength = NULL)
+  colId = NULL, rowCoord = NULL, colCoord = NULL, checkId = NULL,
+  trLocation = NULL, trDate = NULL, trDesign = NULL, trLat = NULL,
+  trLong = NULL, trPlotWidth = NULL, trPlotLength = NULL)
 
 dropTD(TD, trials)
 }
@@ -50,11 +50,11 @@ that contains years.}
 \item{colId}{An optional character string indicating the column in
 \code{data} that contains field columns.}
 
-\item{rowCoordinates}{An optional character string indicating the column in
+\item{rowCoord}{An optional character string indicating the column in
 \code{data} that contains the rowId coordinates used for fitting spatial
 models.}
 
-\item{colCoordinates}{An optional character string indicating the column in
+\item{colCoord}{An optional character string indicating the column in
 \code{data} that contains the column coordinates used for fitting spatial
 models.}
 
@@ -103,9 +103,9 @@ Function for creating objects of S3 class TD (Trial Data). The input data is
 checked and columns are renamed to default column names for ease of further
 computations. The columns for genotype, trial, megaEnv, year, repId,
 subBlock, rowId, colId and checkId are converted to factor columns, whereas
-rowCoordinates and colCoordinates are converted to numerical columns. One
+rowCoord and colCoord are converted to numerical columns. One
 single column can be mapped to multiple defaults, e.g. one column with x
-coordinates can be mapped to both colId and colCoordinates.\cr
+coordinates can be mapped to both colId and colCoord.\cr
 Columns other than the default columns, e.g. traits or other covariates
 will be included in the output unchanged.\cr
 The input data is split by trial. So for an input data frame with three

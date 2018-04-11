@@ -79,7 +79,7 @@ gxeAmmi <- function(TD,
   }
   ## check if the supplied data contains the genotype by environment means.
   if (nTrait != nGeno * nEnv) {
-    stop("TD should contain only 1 value per trial per genotype.\n")
+    stop("TD should contain 1 value per trial per genotype.\n")
   }
   if (!is.numeric(nPC) || length(nPC) > 1 || round(nPC) != nPC || nPC < 0 ||
       nPC > min(nEnv, nGeno)) {

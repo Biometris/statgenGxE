@@ -3,7 +3,7 @@ context("Extract Lme4")
 testTD <- createTD(data = testData[testData$field == "E1", ],
                    genotype = "seed", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",
-                   rowCoordinates = "Y", colCoordinates = "X")
+                   rowCoord = "Y", colCoord = "X")
 
 modelLm <- STRunModel(testTD, design = "rcbd", traits = "t1")
 

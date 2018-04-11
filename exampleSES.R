@@ -10,8 +10,8 @@ load("D:/R packages/SESvdH/results/2016/heritabilities.RData")
 
 ## Create TD object.
 TDARC601 <- createTD(data = dfARC601, genotype = "Seedname",
-                     rowId = "Yf", colId = "Xf", rowCoordinates = "Y",
-                     colCoordinates = "X", trDesign = "rowcol")
+                     rowId = "Yf", colId = "Xf", rowCoord = "Y",
+                     colCoord = "X", trDesign = "rowcol")
 
 ## Perform SpATS analysis for computing BLUEs. - step 5 in SES workflow
 ARC601Sp <- STRunModel(TDARC601, traits = traitnames, engine = "SpATS",
@@ -46,8 +46,8 @@ abline(a = 0, b = 1, col = "blue")
 ## Create new TD object since for this calculation column Geno is used as genotype
 ## and "Check" as a fixed factor
 TDARC601H <- createTD(data = dfARC601, genotype = "Geno", checkId = "Check",
-                     rowId = "Yf", colId = "Xf", rowCoordinates = "Y",
-                     colCoordinates = "X", trDesign = "rowcol")
+                     rowId = "Yf", colId = "Xf", rowCoord = "Y",
+                     colCoord = "X", trDesign = "rowcol")
 ## Only fit model with genotype random.
 ## Because of the structure of the data, genotype fixed leads to collinearity
 ARC601SpH <- STRunModel(TDARC601H, traits = traitnames, what = "random",

@@ -4,7 +4,7 @@ if (requireNamespace("asreml", quietly = TRUE)) {
   testTD <- createTD(data = testData[testData$field == "E1", ],
                      genotype = "seed", repId = "rep",
                      subBlock = "block", rowId = "Y", colId = "X",
-                     rowCoordinates = "Y", colCoordinates = "X")
+                     rowCoord = "Y", colCoord = "X")
 
   modelAs <- STRunModel(testTD, design = "res.ibd", traits = "t1",
                         engine = "asreml")

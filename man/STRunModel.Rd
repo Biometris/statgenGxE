@@ -96,7 +96,7 @@ Variables in \code{covariates} are fitted as extra fixed effects.\cr\cr
 When \code{SpATS} is used for modelling an extra spatial term is included
 in the model. This term is constructed using the function
 \code{\link[SpATS]{PSANOVA}} from the SpATS package as
-\code{PSANOVA(colCoordinates, rowCoordinates, nseg = nSeg, nest.div = 2)}
+\code{PSANOVA(colCoord, rowCoord, nseg = nSeg, nest.div = 2)}
 where \code{nSeg = (number of columns / 2, number of rows / 2)}. nseg and
 nest.div can be modified using the \code{control} parameter.\cr\cr
 When \code{asreml} is used for modeling and \code{trySpatial} is \code{TRUE}
@@ -109,13 +109,13 @@ has a regular structure, i.e. all replicates appear the same amount of times
 in the design, the following combinations of random and spatial terms are
 fitted
 \itemize{
-\item{random = NULL, spatial = exp(rowCoordinates):colCoordinates}
-\item{random = NULL, spatial = rowCoordinates:exp(colCoordinates)}
-\item{random = NULL, spatial = iexp(rowCoordinates,colCoordinates)}
-\item{random = repId:rowId, spatial = exp(rowCoordinates):colCoordinates}
-\item{random = repId:colId, spatial = rowCoordinates:exp(colCoordinates)}
+\item{random = NULL, spatial = exp(rowCoord):colCoord}
+\item{random = NULL, spatial = rowCoord:exp(colCoord)}
+\item{random = NULL, spatial = iexp(rowCoord,colCoord)}
+\item{random = repId:rowId, spatial = exp(rowCoord):colCoord}
+\item{random = repId:colId, spatial = rowCoord:exp(colCoord)}
 \item{random = repId:rowId + repId:colId,
-spatial = iexp(rowCoordinates,colCoordinates)}
+spatial = iexp(rowCoord,colCoord)}
 }
 If the design is not regular the following following combinations of random
 and spatial terms are fitted

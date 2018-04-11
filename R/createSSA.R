@@ -254,24 +254,24 @@ plot.SSA <- function(x,
   ## Extract fitted and predicted values from model.
   fitted <- STExtract(x, trials = trial, traits = trait,
                       what = ifelse(what == "fixed", "fitted", "rMeans"),
-                      keep = c("colCoordinates", "rowCoordinates"))[[trial]]
+                      keep = c("colCoord", "rowCoord"))[[trial]]
   pred <- STExtract(x, trials = trial,
                     what = ifelse(what == "fixed",
                                   "BLUEs", "BLUPs"))[[trial]][c("genotype",
                                                                 trait)]
   ## Extract raw data and compute residuals.
-  response <- x[[trial]]$TD[[trial]][, c("genotype", "colCoordinates",
-                                         "rowCoordinates", trait)]
-  plotData <- merge(response, fitted, by = c("genotype", "colCoordinates",
-                                             "rowCoordinates"))
+  response <- x[[trial]]$TD[[trial]][, c("genotype", "colCoord",
+                                         "rowCoord", trait)]
+  plotData <- merge(response, fitted, by = c("genotype", "colCoord",
+                                             "rowCoord"))
   plotData <- merge(plotData, pred, by = "genotype")
   plotData$response <- plotData[[paste0(trait, ".x")]]
   plotData$fitted <- plotData[[paste0(trait, ".y")]]
   plotData$pred <- plotData[[trait]]
   plotData$pred[is.na(plotData$fitted)] <- NA
   plotData$residuals <- plotData$response - plotData$fitted
-  plotData <- plotData[order(plotData$colCoordinates,
-                             plotData$rowCoordinates), ]
+  plotData <- plotData[order(plotData$colCoord,
+                             plotData$rowCoord), ]
   if (plotType == "base") {
     ## Setup frame for plots.
     trellisObj <- setNames(vector(mode = "list", length = 4),
@@ -330,7 +330,7 @@ plot.SSA <- function(x,
       plot(model, main = "")
     } else {
       ## Check whether data contains row/col information.
-      if (!all(c("rowCoordinates", "colCoordinates") %in%
+      if (!all(c("rowCoord", "colCoord") %in%
                colnames(x[[trial]]$TD[[trial]]))) {
         stop(paste("Data in", substitute(x),
                    "contains no spatial information.\n"))
@@ -342,8 +342,8 @@ plot.SSA <- function(x,
                        ifelse(what == "fixed", "Genotypic BLUEs",
                               "Genotypic BLUPs"), "Histogram")
       ## Extract spatial coordinates from data.
-      colCoord <- x[[trial]]$TD[[trial]][, "colCoordinates"]
-      rowCoord <- x[[trial]]$TD[[trial]][, "rowCoordinates"]
+      colCoord <- x[[trial]]$TD[[trial]][, "colCoord"]
+      rowCoord <- x[[trial]]$TD[[trial]][, "rowCoord"]
       ## Order plotcols and rows and fill gaps if needed.
       plotCols <- seq(from = min(colCoord), to = max(colCoord),
                       by = min(diff(sort(unique(colCoord)))))
@@ -356,7 +356,7 @@ plot.SSA <- function(x,
       op <- par(mfrow = c(2, 3), oma = c(2, 1, 3, 2),
                 mar = c(2.7, 4, 2.5, 2.7), mgp = c(1.7, 0.5, 0))
       on.exit(par(op))
-      coord <- list(plotData$colCoordinates, plotData$rowCoordinates)
+      coord <- list(plotData$colCoord, plotData$rowCoord)
       ## Spatial plot of raw data.
       fieldPlot(x = plotCols, y = plotRows,
                 z = tapply(X = plotData$response, INDEX = coord, FUN = I),
@@ -396,7 +396,7 @@ fieldPlot <- function(x,
     zlim <- zlim + c(-1e-8, 1e-8)
   }
   image(x, y, z, main = main, col = colors, bty = "n",
-        xlab = "colCoordinates", ylab = "rowCoordinates",
+        xlab = "colCoord", ylab = "rowCoord",
         zlim = zlim, axes = FALSE, ...)
   axis(side = 1, at = if (length(x) < 5) {x} else {pretty(x)}, lwd = 0,
        lwd.ticks = 1)
