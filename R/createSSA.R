@@ -292,7 +292,7 @@ plot.SSA <- function(x,
                                               type = c("p", "g"))
                         lattice::panel.abline(h = 0)
                         lattice::panel.loess(x, y,
-                                             col = "red", ...)
+                                             col.line = "red", ...)
                       }, ylab = "Residuals",
                       xlab = "Fitted values", ...)
     ## Plot absolute residuals vs fitted values
@@ -302,7 +302,7 @@ plot.SSA <- function(x,
                         lattice::panel.xyplot(x, y, ...,
                                               type = c("p", "g"))
                         lattice::panel.loess(x, y,
-                                             col = "red", ...)
+                                             col.line = "red", ...)
                       }, ylab = "|Residuals|",
                       xlab = "Fitted values", ...)
     ## Save trellis options to reset when exiting function
