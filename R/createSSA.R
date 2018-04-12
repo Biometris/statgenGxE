@@ -238,6 +238,11 @@ plot.SSA <- function(x,
     what <- match.arg(arg = what, choices = c("fixed", "random"))
   }
   plotType <- match.arg(arg = plotType)
+  ## Check whether data contains row/col information.
+  if (plotType == "spatial" && !all(c("rowCoord", "colCoord") %in%
+                                    colnames(x[[trial]]$TD[[trial]]))) {
+    stop(paste("Data in", substitute(x), "contains no spatial information.\n"))
+  }
   ## If no trait is given as input extract it from the SSA object.
   if (is.null(trait)) {
     trait <- x[[trial]]$traits
@@ -251,27 +256,28 @@ plot.SSA <- function(x,
   if (is.null(model)) {
     stop(paste("No model with genotype", what, "in SSA object.\n"))
   }
+  ##
+  spatCols <- c("colCoord", "rowCoord")
   ## Extract fitted and predicted values from model.
   fitted <- STExtract(x, trials = trial, traits = trait,
                       what = ifelse(what == "fixed", "fitted", "rMeans"),
-                      keep = c("colCoord", "rowCoord"))[[trial]]
+                      keep = if (plotType == "spatial") spatCols else
+                        NULL)[[trial]]
   pred <- STExtract(x, trials = trial,
                     what = ifelse(what == "fixed",
                                   "BLUEs", "BLUPs"))[[trial]][c("genotype",
                                                                 trait)]
   ## Extract raw data and compute residuals.
-  response <- x[[trial]]$TD[[trial]][, c("genotype", "colCoord",
-                                         "rowCoord", trait)]
-  plotData <- merge(response, fitted, by = c("genotype", "colCoord",
-                                             "rowCoord"))
+  response <- x[[trial]]$TD[[trial]][, c("genotype", trait,
+                                         if (plotType == "spatial") spatCols)]
+  plotData <- merge(response, fitted, by = c("genotype",
+                                             if (plotType == "spatial") spatCols))
   plotData <- merge(plotData, pred, by = "genotype")
   plotData$response <- plotData[[paste0(trait, ".x")]]
   plotData$fitted <- plotData[[paste0(trait, ".y")]]
   plotData$pred <- plotData[[trait]]
   plotData$pred[is.na(plotData$fitted)] <- NA
   plotData$residuals <- plotData$response - plotData$fitted
-  plotData <- plotData[order(plotData$colCoord,
-                             plotData$rowCoord), ]
   if (plotType == "base") {
     ## Setup frame for plots.
     trellisObj <- setNames(vector(mode = "list", length = 4),
@@ -329,12 +335,7 @@ plot.SSA <- function(x,
     if (x[[trial]]$engine == "SpATS") {
       plot(model, main = "")
     } else {
-      ## Check whether data contains row/col information.
-      if (!all(c("rowCoord", "colCoord") %in%
-               colnames(x[[trial]]$TD[[trial]]))) {
-        stop(paste("Data in", substitute(x),
-                   "contains no spatial information.\n"))
-      }
+      plotData <- plotData[order(plotData$colCoord, plotData$rowCoord), ]
       ## Code taken from plot.SpATS and simplified.
       ## Set colors and legends.
       colors = topo.colors(100)
