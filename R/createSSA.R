@@ -239,7 +239,8 @@ plot.SSA <- function(x,
   }
   plotType <- match.arg(arg = plotType)
   ## Check whether data contains row/col information.
-  if (plotType == "spatial" && !all(c("rowCoord", "colCoord") %in%
+  spatCols <- c("colCoord", "rowCoord")
+  if (plotType == "spatial" && !all(spatCols %in%
                                     colnames(x[[trial]]$TD[[trial]]))) {
     stop(paste("Data in", substitute(x), "contains no spatial information.\n"))
   }
@@ -256,8 +257,6 @@ plot.SSA <- function(x,
   if (is.null(model)) {
     stop(paste("No model with genotype", what, "in SSA object.\n"))
   }
-  ##
-  spatCols <- c("colCoord", "rowCoord")
   ## Extract fitted and predicted values from model.
   fitted <- STExtract(x, trials = trial, traits = trait,
                       what = ifelse(what == "fixed", "fitted", "rMeans"),
@@ -270,8 +269,9 @@ plot.SSA <- function(x,
   ## Extract raw data and compute residuals.
   response <- x[[trial]]$TD[[trial]][, c("genotype", trait,
                                          if (plotType == "spatial") spatCols)]
-  plotData <- merge(response, fitted, by = c("genotype",
-                                             if (plotType == "spatial") spatCols))
+  plotData <- merge(response,
+                    fitted, by = c("genotype",
+                                   if (plotType == "spatial") spatCols))
   plotData <- merge(plotData, pred, by = "genotype")
   plotData$response <- plotData[[paste0(trait, ".x")]]
   plotData$fitted <- plotData[[paste0(trait, ".y")]]

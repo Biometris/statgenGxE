@@ -453,7 +453,8 @@ print.summary.TD <- function(x, ...) {
 #' will be indicated on this map.
 #'
 #' @param x An object of class TD.
-#' @param ... Further graphical parameters. Currently not used.
+#' @param ... Further graphical parameters. Only used when
+#' \code{plotType = "layout"}.
 #' @param trials A character vector indicating the trials to be plotted.
 #' @param plotType A character string indicating which plot should be made.
 #' This can be "layout" for a plot of the field layout for the diffent trials
@@ -474,6 +475,7 @@ plot.TD <- function(x,
     stop(paste0("All trials should be in ", deparse(x), ".\n"))
   }
   plotType <- match.arg(plotType)
+  dotArgs <- list(...)
   if (plotType == "layout") {
     for (trial in trials) {
       trDat <- x[[trial]]
@@ -498,16 +500,17 @@ plot.TD <- function(x,
       } else {
         aspect <- ylen / xlen
       }
-      ## Compose function call for desplot. A direct call to desplot doesn't
-      ## work inside another function so therefore use eval(parse).
       ## Desplot uses lattice for plotting which doesn't plot within a loop.
       ## This is solved by using print.
       plotVar <- ifelse("subBlock" %in% colnames(trDat), "subBlock", "trial")
-      out <- ifelse("repId" %in% colnames(trDat), ", out1 = repId", "")
-      com <- paste("desplot::desplot(", plotVar, "~ colCoord +",
-                   "rowCoord, data = trDat", out,
-                   ", main = trLoc, aspect = ", aspect, ")")
-      print(eval(parse(text = com)))
+      plotArgs <- list(form = formula(paste(plotVar, "~ colCoord + rowCoord")),
+                       out1 = if ("repId" %in% colnames(trDat)) "repId" else NULL,
+                       data = trDat, ticks = TRUE, main = trLoc,
+                       aspect = aspect)
+      ## Add and overwrite args with custom args from ...
+      fixedArgs <- c("form", "data")
+      plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
+      print(do.call(desplot::desplot, args = plotArgs))
     }
   } else if (plotType == "map") {
     ## Create a data.frame for plotting trials.

@@ -9,7 +9,8 @@
 \arguments{
 \item{x}{An object of class TD.}
 
-\item{...}{Further graphical parameters. Currently not used.}
+\item{...}{Further graphical parameters. Only used when
+\code{plotType = "layout"}.}
 
 \item{trials}{A character vector indicating the trials to be plotted.}
 
