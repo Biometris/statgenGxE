@@ -453,8 +453,9 @@ print.summary.TD <- function(x, ...) {
 #' will be indicated on this map.
 #'
 #' @param x An object of class TD.
-#' @param ... Further graphical parameters. Only used when
-#' \code{plotType = "layout"}.
+#' @param ... Further graphical parameters. Fully functional when
+#' \code{plotType = "layout"}. For \code{plotType = "layout"} only parameters
+#' effecting the plot title will be passed.
 #' @param trials A character vector indicating the trials to be plotted.
 #' @param plotType A character string indicating which plot should be made.
 #' This can be "layout" for a plot of the field layout for the diffent trials
@@ -515,17 +516,17 @@ plot.TD <- function(x,
   } else if (plotType == "map") {
     ## Create a data.frame for plotting trials.
     ## Population has a random value but if left out nothing is plotted.
-    locs <- lapply(X = x, FUN = function(tr) {
-      return(data.frame(name = attr(tr, "trLoc"), lat = attr(tr, "trLat"),
-                        long = attr(tr, "trLong"), capital = 0, pop = 10000,
-                        stringsAsFactors = FALSE))
-    })
-    locs <- Reduce(f = "rbind", x = locs)
+    locs <- setNames(getMeta(x)[c("trLocation", "trLat", "trLong")],
+                      c("name", "lat", "long"))
+    locs[c("capital", "pop")] <- rep(c(0, 10000), each = nrow(locs))
     ## Use lattitude and longitude to extract trial regions.
     regions <- unique(maps::map.where(x = locs$long, y = locs$lat))
     maps::map(regions = regions)
     maps::map.scale(relwidth = .15, ratio = FALSE, cex = .5)
     maps::map.cities(x = locs, col = seq_along(locs))
+    plotArgs <- list(main = "Trial locations")
+    plotArgs <- modifyList(plotArgs, dotArgs)
+    do.call(title, args = plotArgs)
   }
 }
 
