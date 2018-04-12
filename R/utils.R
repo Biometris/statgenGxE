@@ -42,7 +42,8 @@ chkLastIter <- function(model) {
     ## First 3 rows give general model info. Last col a summary.
     lastIt <- mon[-(1:3), c(ncol(mon) - 2, ncol(mon) - 1)]
     ## Compute change of parameters in last iteration.
-    change <- abs((lastIt[, 2] - lastIt[, 1]) / lastIt[, 1]) * 100
+    change <- ifelse(lastIt[, 1] == 0, 0, abs((lastIt[, 2] - lastIt[, 1]) /
+                                         lastIt[, 1]) * 100)
     ## Suppress waning if the change was less than 5% or the param value less
     ## than 0.1.
     if (all(change <= 5) || all(lastIt[change > 5, 1] < 0.1)) {
