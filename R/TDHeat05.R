@@ -1,3 +1,6 @@
+#' Data used in vignette
+"wheatAus"
+
 #' Test data
 "TDHeat05"
 

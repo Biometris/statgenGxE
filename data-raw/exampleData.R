@@ -68,3 +68,13 @@ data(fake.bc, package = "qtl")
 testBc <- fake.bc[1:3, 1:50]
 ## Export to package
 devtools::use_data(testBc, overwrite = TRUE)
+
+## Create data for vignette
+# Read raw data
+wheatAus <- read.csv(system.file("extdata", "wheat_Australia_recoded.csv",
+                                 package = "RAP"), stringsAsFactors = FALSE)
+wheatAus$year <- 2000 + as.numeric(substring(text = wheatAus$Trial, first = 1,
+                                             last = 2))
+wheatAus$loc <- substring(text = wheatAus$Trial, first = 3)
+# Export to package
+devtools::use_data(wheatAus, overwrite = TRUE)
