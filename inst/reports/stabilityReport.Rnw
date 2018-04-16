@@ -76,7 +76,7 @@ if (!is.null(x$superiority)) {
                        caption = "Cultivar-superiority measure (Top 10\\% genotypes)",
                        label = "cultSup",
                        align = c("l", "l", "r", "r"),
-                       digits = c(0, 0, 0, 2)),
+                       digits = c(0, 0, 2, 2)),
         latex.environments = "flushleft", hline.after = NULL,
         include.rownames = FALSE, include.colnames = TRUE,
         caption.placement = "top")
@@ -87,7 +87,7 @@ if (!is.null(x$static)) {
                        caption = "Static stability (Top 10\\% genotypes)",
                        label = "static",
                        align = c("l", "l", "r", "r"),
-                       digits = c(0, 0, 0, 2)),
+                       digits = c(0, 0, 2, 2)),
         latex.environments = "flushleft", hline.after = NULL,
         include.rownames = FALSE, include.colnames = TRUE,
         caption.placement = "top")
@@ -98,7 +98,7 @@ if (!is.null(x$wricke)) {
                        caption = "Wricke's ecovalence (Top 10\\% genotypes)",
                        label = "wricke",
                        align = c("l", "l", "r", "r"),
-                       digits = c(0, 0, 0, 2)),
+                       digits = c(0, 0, 2, 2)),
         latex.environments = "flushleft", hline.after = NULL,
         include.rownames = FALSE, include.colnames = TRUE,
         caption.placement = "top")
