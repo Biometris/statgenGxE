@@ -12,6 +12,9 @@
 
 \item{...}{Further arguments passed on from other functions - not used yet.}
 
+\item{trial}{A character string indicating the trial to be reported. If
+\code{NULL} and \code{SSA} contains only one trial that trial is reported.}
+
 \item{descending}{Should the trait be ordered in descending order? Set to
 \code{FALSE} if low values of the trait indicate better performance.}
 

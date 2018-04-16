@@ -298,11 +298,13 @@ gxeVarComp <- function(TD,
       stop("Failed to load 'asreml'.\n")
     }
   }
+  TDTot$trial <- rownames(bestTab)[1]
   ## Create output.
   model <- setNames(list(list(mRand = NULL,
                               mFix = setNames(list(bestModel), trait),
-                              TD = TD[trials], traits = trait, engine = engine,
-                              predicted = "trial")), rownames(bestTab)[1])
+                              TD = createTD(TDTot), traits = trait,
+                              engine = engine, predicted = "trial")),
+                    rownames(bestTab)[1])
   SSA <- createSSA(models = model)
   res <- createVarComp(SSA = SSA, choice = rownames(bestTab)[1],
                        summary = bestTab, vcov = vcovBest,

@@ -414,6 +414,8 @@ fieldPlot <- function(x,
 #' @inheritParams report.AMMI
 #'
 #' @param x An object of class SSA.
+#' @param trial A character string indicating the trial to be reported. If
+#' \code{NULL} and \code{SSA} contains only one trial that trial is reported.
 #' @param descending Should the trait be ordered in descending order? Set to
 #' \code{FALSE} if low values of the trait indicate better performance.
 #' @param what A character string indicating whether the model with genotype
