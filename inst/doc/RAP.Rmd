@@ -1,10 +1,11 @@
 ---
-title: "Vignette Title"
-author: "Vignette Author"
+title: "Use of RAP package"
+author: "Bart-Jan van Rossum"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Use of RAP package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,50 +17,40 @@ knitr::opts_chunk$set(
 )
 ```
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+General introduction about package
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+## Create TD object
 
-## Vignette Info
+The first step when modeling a field trial or performing a GxE analysis using 
+the RAP package will always be creating an object of class TD. Such an object
+is used internally by the package for performing all types of analysis.  
+A TD object can be easily created from a data.frame by calling the function
+*createTD*. This function will do a couple of things:  
+* Rename columns to default column names used by the RAP package. For example, 
+the column in the data containing variety/accession/genotype will allways be 
+renamed to genotype. Original column names will be stored as an attribute to 
+the final object of class TD.
+* Convert column type to the default column types. For example the column 
+genotype will always be converted to a factor and rowCoord will always be 
+converted to a numeric column.
+* Split the data by trial. The output TD object will be a list of data.frames
+where each data.frame contains the data for a single trial. If there is only 
+one trial or no column trial is defined the output will be a list with one
+item only.
+* Add meta data to the seperate data.frames in 
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
 
-## Styles
 
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+## Modeling
 
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
+Explanation on how to do basic modeling using a TD object  
+$Y = X\beta + \epsilon$  
+test[see @Rodrguezlvarez2017]
 
-## Figures
+## Extract 
 
-The figure sizes have been customised so that you can easily put two images side-by-side. 
+Explanation on what can be extracted from a model and how
 
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
-```
+## References
 
-You can enable figure captions by `fig_caption: yes` in YAML:
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
-
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
-```
-
-Also a quote using `>`:
-
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
