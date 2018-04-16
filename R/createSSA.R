@@ -439,27 +439,45 @@ fieldPlot <- function(x,
 #' @export
 report.SSA <- function(x,
                        ...,
+                       trial = NULL,
                        descending = TRUE,
                        outfile = NULL,
-                       what = if (is.null(x$mFix)) "random" else "fixed") {
+                       what = c("fixed", "random")) {
+  if (is.null(trial) && length(x) > 1) {
+    stop("No trial provided but multiple trials found in SSA object.\n")
+  }
+  if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
+                          !trial %in% names(x))) {
+    stop("Trial has to be a single character string defining a trial in SSA.\n")
+  }
+  if (is.null(trial)) {
+    trial <- names(x)
+  }
   if (length(x$traits) > 1) {
     stop("Model contains models for multiple traits. Reporting can only be done
          for a single trait.\n")
   }
-  what <- match.arg(what, choices = c("fixed", "random"))
-  if (!is.null(x$mFix) && !is.null(x$mRand)) {
+  what <- match.arg(what)
+  if (is.null(x[[trial]]$mFix)) {
+    what <- "random"
+    }
+  if (is.null(x[[trial]]$mRand)) {
+    what <- "fixed"
+  }
+  if (is.null(what) && !is.null(x[[trial]]$mFix) &&
+      !is.null(x[[trial]]$mRand)) {
     warning("Model contains both a fitted model with fixed genotype and random
             genotype. Reporting can be done for only one. By default the model with
             genotype fixed is reported. Use option what for changing this.\n",
             call. = FALSE)
   }
   if (what == "fixed") {
-    x$mRand <- NULL
+    x[[trial]]$mRand <- NULL
   } else {
-    x$mFix <- NULL
+    x[[trial]]$mFix <- NULL
   }
   createReport(x = x, reportName = "modelReport.Rnw",
-               outfile = outfile, ..., descending = descending)
+               outfile = outfile, ..., trial = trial, descending = descending)
 }
 
 #' Convert SSA to Cross

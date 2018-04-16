@@ -49,11 +49,11 @@
 % Load required packages
 <<label=setup, include=FALSE, cache=FALSE>>=
 lapply(list("SpATS"), library, character.only = TRUE)
+trial <- list(...)$trial
 descending <- list(...)$descending
 @
 <<label=extractInfo, echo=FALSE, include=FALSE>>=
 ## Extract basic modelling information
-trial <- names(x)
 engine <- x[[trial]]$engine
 trait <- x[[trial]]$traits
 if (is.null(x[[trial]]$mFix)) {
@@ -181,7 +181,8 @@ if (engine == "SpATS") {
   ## Print generalized heritability
   if (modelType == "random") {
     cat(paste("The generalized heritability is",
-              round(STExtract(x, what = "heritability"), 2)))
+              round(STExtract(x, trials = trial,
+                              what = "heritability")[[1]], 2)))
   }
   ## Print table of variance components.
   varComp <- SpATSSum$p.table.vc

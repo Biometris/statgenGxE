@@ -180,7 +180,7 @@ STRunModel = function(TD,
     ## Convert output to variables.
     list2env(x = checkOut, envir = environment())
     model <- do.call(what = paste0("STMod", tools::toTitleCase(engine)),
-                     args = list(TD = TD, trial = trial, traits = traits,
+                     args = list(TD = TD[trial], trial = trial, traits = traits,
                                  what = what, covariates = covariates,
                                  useCheckId = useCheckId,
                                  trySpatial = trySpatial, design = design,
@@ -269,5 +269,3 @@ modelChecks <- function(TD,
   }
   return(list(design = design, what = what, engine = engine))
 }
-
-
