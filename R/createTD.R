@@ -560,6 +560,7 @@ getMeta <- function(TD) {
       }
     })
   }
+  class(meta$trDate) <- "Date"
   return(meta)
 }
 
