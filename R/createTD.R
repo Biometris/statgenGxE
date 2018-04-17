@@ -517,16 +517,22 @@ plot.TD <- function(x,
     ## Create a data.frame for plotting trials.
     ## Population has a random value but if left out nothing is plotted.
     locs <- setNames(getMeta(x)[c("trLocation", "trLat", "trLong")],
-                      c("name", "lat", "long"))
-    locs[c("capital", "pop")] <- rep(c(0, 10000), each = nrow(locs))
-    ## Use lattitude and longitude to extract trial regions.
-    regions <- unique(maps::map.where(x = locs$long, y = locs$lat))
-    maps::map(regions = regions)
-    maps::map.scale(relwidth = .15, ratio = FALSE, cex = .5)
-    maps::map.cities(x = locs, col = seq_along(locs))
-    plotArgs <- list(main = "Trial locations")
-    plotArgs <- modifyList(plotArgs, dotArgs)
-    do.call(title, args = plotArgs)
+                     c("name", "lat", "long"))
+    locs <- locs[!is.na(locs$lat) && !is.na(locs$long), ]
+    if (nrow(locs) == 0) {
+      stop(paste("At leaste one trial should have latitute and longitude",
+                 "for plotting on map.\n"))
+    } else {
+      locs[c("capital", "pop")] <- rep(c(0, 10000), each = nrow(locs))
+      ## Use lattitude and longitude to extract trial regions.
+      regions <- unique(maps::map.where(x = locs$long, y = locs$lat))
+      maps::map(regions = regions)
+      maps::map.scale(relwidth = .15, ratio = FALSE, cex = .5)
+      maps::map.cities(x = locs, col = seq_along(locs))
+      plotArgs <- list(main = "Trial locations")
+      plotArgs <- modifyList(plotArgs, dotArgs)
+      do.call(title, args = plotArgs)
+    }
   }
 }
 
@@ -650,7 +656,7 @@ checkTDMeta <- function(trLocation = NULL,
          call. = FALSE)
   }
   if (!is.null(trLat) && !is.null(trLong)) {
-  ## Check that coordinates point to a proper location so plotting can be done.
+    ## Check that coordinates point to a proper location so plotting can be done.
     loc <- maps::map.where(x = trLong, y = trLat)
     if (length(loc) > 0 && is.na(loc)) {
       warning("Values for trLat and trLong don't match a known land location.\n",
