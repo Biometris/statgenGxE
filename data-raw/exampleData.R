@@ -66,15 +66,55 @@ devtools::use_data(test4way, overwrite = TRUE)
 data(fake.bc, package = "qtl")
 ## Restrict data.
 testBc <- fake.bc[1:3, 1:50]
-## Export to package
+## Export to package.
 devtools::use_data(testBc, overwrite = TRUE)
 
-## Create data for vignette
-# Read raw data
+## Create data for vignette.
+# Read raw data.
 wheatAus <- read.csv(system.file("extdata", "wheat_Australia_recoded.csv",
                                  package = "RAP"), stringsAsFactors = FALSE)
 wheatAus$year <- 2000 + as.numeric(substring(text = wheatAus$Trial, first = 1,
                                              last = 2))
 wheatAus$loc <- substring(text = wheatAus$Trial, first = 3)
-# Export to package
+# Export to package.
 devtools::use_data(wheatAus, overwrite = TRUE)
+
+# Read raw data.
+dat2011 <- read.delim(system.file("extdata", "pheno_data2011.txt",
+                                  package = "RAP"))
+dat2012 <- read.delim(system.file("extdata", "pheno_data2012.txt",
+                                  package = "RAP"))
+# Split data into separate year/trials.
+dat2011_1 <- dat2011[, 1:11]
+dat2011_1$trial <- "SR_FI_11"
+colnames(dat2011_1)[8:11] <- c("DH", "GY", "NKS", "TKW")
+dat2011_2 <- dat2011[, c(1:7, 12:15)]
+dat2011_2$trial <- "SR_MWS_11"
+colnames(dat2011_2)[8:11] <- c("DH", "GY", "NKS", "TKW")
+dat2011tot <- rbind(dat2011_1, dat2011_2)
+dat2011tot$year <- 2011
+
+dat2012_1 <- dat2012[, 1:8]
+dat2012_1$trial <- "SR_FI_12"
+colnames(dat2012_1)[8] <- "GY"
+dat2012_2 <- dat2012[, c(1:7, 9)]
+dat2012_2$trial <- "SR_MWS_12"
+colnames(dat2012_2)[8] <- "GY"
+dat2012_3 <- dat2012[, c(1:7, 10)]
+dat2012_3$trial <- "C_SWS_12"
+colnames(dat2012_3)[8] <- "GY"
+dat2012tot <- rbind(dat2012_1, dat2012_2, dat2012_3)
+dat2012tot$year <- 2012
+dat2012tot[c("DH", "NKS", "TKW")] <- NA
+# Bind year data together and rename genotypes.
+wheatChl <- rbind(dat2011tot, dat2012tot)
+wheatChl$trt_id <- sprintf("G%03d", wheatChl$trt_id)
+# Export to package
+devtools::use_data(wheatChl, overwrite = TRUE)
+
+
+
+
+
+
+
