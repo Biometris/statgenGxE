@@ -240,7 +240,9 @@ addTD <- function(TD,
                    "added again: ", paste(dupTrials, collapse = ", "), ".\n"),
             call. = FALSE)
   }
-  return(c(TD, TDNw))
+  TDTot <- c(TD, TDNw)
+  class(TDTot) <- c("TD", "list")
+  return(TDTot)
 }
 
 #' @inheritParams addTD
