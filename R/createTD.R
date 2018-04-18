@@ -518,7 +518,7 @@ plot.TD <- function(x,
     ## Population has a random value but if left out nothing is plotted.
     locs <- setNames(getMeta(x)[c("trLocation", "trLat", "trLong")],
                      c("name", "lat", "long"))
-    locs <- locs[!is.na(locs$lat) && !is.na(locs$long), ]
+    locs <- locs[!is.na(locs$lat) & !is.na(locs$long), ]
     if (nrow(locs) == 0) {
       stop(paste("At leaste one trial should have latitute and longitude",
                  "for plotting on map.\n"))
