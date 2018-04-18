@@ -12,12 +12,50 @@
 
 <meta name="author" content="Bart-Jan van Rossum" />
 
-<meta name="date" content="2018-04-16" />
+<meta name="date" content="2018-04-18" />
 
 <title>Use of RAP package</title>
 
 
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
 
 
 
@@ -32,32 +70,127 @@
 
 <h1 class="title toc-ignore">Use of RAP package</h1>
 <h4 class="author"><em>Bart-Jan van Rossum</em></h4>
-<h4 class="date"><em>2018-04-16</em></h4>
+<h4 class="date"><em>2018-04-18</em></h4>
 
 
 
-<p>General introduction about package</p>
-<div id="create-td-object" class="section level2">
-<h2>Create TD object</h2>
-<p>The first step when modeling a field trial or performing a GxE analysis using the RAP package will always be creating an object of class TD. Such an object is used internally by the package for performing all types of analysis.<br />
-A TD object can be easily created from a data.frame by calling the function <em>createTD</em>. This function will do a couple of things:<br />
-* Rename columns to default column names used by the RAP package. For example, the column in the data containing variety/accession/genotype will allways be renamed to genotype. Original column names will be stored as an attribute to the final object of class TD. * Convert column type to the default column types. For example the column genotype will always be converted to a factor and rowCoord will always be converted to a numeric column. * Split the data by trial. The output TD object will be a list of data.frames where each data.frame contains the data for a single trial. If there is only one trial or no column trial is defined the output will be a list with one item only. * Add meta data to the seperate data.frames in</p>
+<div id="general-introduction-about-package" class="section level1">
+<h1><span class="header-section-number">1</span> General introduction about package</h1>
+<p>TO BE WRITTEN</p>
+<hr />
 </div>
-<div id="modeling" class="section level2">
-<h2>Modeling</h2>
-<p>Explanation on how to do basic modeling using a TD object<br />
-<span class="math inline">\(Y = X\beta + \epsilon\)</span><br />
-test<span class="citation">(see Rodríguez-Álvarez et al. 2017)</span></p>
+<div id="create-td-object" class="section level1">
+<h1><span class="header-section-number">2</span> Create TD object</h1>
+<p>The first step when modeling a field trial or performing a GxE analysis using the RAP package will always be creating an object of class TD. Such an object is used internally by the package for performing all types of analysis.</p>
+<p>A TD object can be easily created from a data.frame by calling the function <code>createTD</code>. This function will do a several things:<br />
+* Rename columns to default column names used by the RAP package. For example, the column in the data containing variety/accession/genotype will allways be renamed to genotype. Original column names will be stored as an attribute to the final object of class TD.<br />
+* Convert column type to the default column types. For example the column genotype will always be converted to a factor and rowCoord will always be converted to a numeric column.<br />
+* Split the data by trial. The output TD object will be a list of data.frames where each data.frame contains the data for a single trial. If there is only one trial or no column trial is defined the output will be a list with one item only.<br />
+* Add meta data to the seperate data.frames in the TD object. This meta data consists of location, date, longitude, latitude, plot design, width and length. None of this is strictly neccessary for doing analysis but it is used for plotting field layouts, plotting trials on a map and naming plots. For a single trial can simply be added when creating the TD object using the function parameters in <code>createTD</code>. However if the data consists of multiple trials with different meta data per trial it is more convenient to first create a TD object without using the parameters for adding meta data. Doing so only a location will be added based on the name of the trial. After creating the TD object the meta data can be extracted using <code>getMeta</code>. This function outputs a data.frame with the meta data per trial. The content of this data.frame can then be modified and added back to the TD object using <code>setMeta</code>.</p>
+<p>After creating a TD object data for new trials can be added to it using <code>addTD</code>. This function works in exactly the same way as <code>createTD</code> except that it adds data to an existing TD object instead of creating a new one. Still the output needs to be assigned to a variable.</p>
+<p>As an example we will create a TD object using field data from an experiment with wheat in Chili described by <span class="citation">Lado et al. (2013)</span>. This data will be used as an example throughout this vignette.</p>
+<p>The experiment was performed in two locations with 2 different drought regimes in two years for the first location and 1 trial for the second location. For the sake of the example we will create an TD object for the first location first and add the data for the second location later on. In practice this could also be done in one go.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;wheatChl&quot;</span>)
+wheatTD &lt;-<span class="st"> </span><span class="kw">createTD</span>(<span class="dt">data =</span> wheatChl[wheatChl<span class="op">$</span>trial <span class="op">!=</span><span class="st"> &quot;C_SWS_12&quot;</span>, ], 
+                    <span class="dt">genotype =</span> <span class="st">&quot;trt_id&quot;</span>, <span class="dt">repId =</span> <span class="st">&quot;rep&quot;</span>, <span class="dt">subBlock =</span> <span class="st">&quot;bl&quot;</span>, 
+                    <span class="dt">rowId =</span> <span class="st">&quot;row&quot;</span>, <span class="dt">colId =</span> <span class="st">&quot;col&quot;</span>, <span class="dt">rowCoord =</span> <span class="st">&quot;row&quot;</span>, 
+                    <span class="dt">colCoord =</span> <span class="st">&quot;col&quot;</span>)</code></pre></div>
+<p>Note that both row and col are used twice. This is done since whenever a spatial model is fitted both a factor column containing the spatial information and a numeric column containing this information are needed. <code>rowId</code> and <code>colId</code> will be converted to a factor and <code>rowCoord</code> and <code>colCoord</code> will remain numerical column as they were in the input.</p>
+<p>The TD object we just created will be a list with 4 items, 1 for each trial (combination of location, drought regime and year) in the original data.frame. The meta data will be a data.frame with 4 rows.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">wheatMeta &lt;-<span class="st"> </span><span class="kw">getMeta</span>(<span class="dt">TD =</span> wheatTD)
+<span class="kw">head</span>(wheatMeta)
+<span class="co">#&gt;           trLocation trDate trDesign trLat trLong trPlotWidth trPlotLength</span>
+<span class="co">#&gt; SR_FI_11    SR_FI_11   &lt;NA&gt;       NA    NA     NA          NA           NA</span>
+<span class="co">#&gt; SR_FI_12    SR_FI_12   &lt;NA&gt;       NA    NA     NA          NA           NA</span>
+<span class="co">#&gt; SR_MWS_11  SR_MWS_11   &lt;NA&gt;       NA    NA     NA          NA           NA</span>
+<span class="co">#&gt; SR_MWS_12  SR_MWS_12   &lt;NA&gt;       NA    NA     NA          NA           NA</span></code></pre></div>
+<p>Now we can modify the meta data and then add it back to the original TD object.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">wheatMeta<span class="op">$</span>trLocation &lt;-<span class="st"> &quot;Santa Rosa&quot;</span>
+wheatMeta<span class="op">$</span>trDate &lt;-<span class="st"> </span><span class="kw">as.Date</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;310811&quot;</span>, <span class="st">&quot;310812&quot;</span>), <span class="dt">times =</span> <span class="dv">2</span>), <span class="st">&quot;%d%m%y&quot;</span>)
+wheatMeta<span class="op">$</span>trLat &lt;-<span class="st"> </span><span class="op">-</span><span class="fl">36.32</span>
+wheatMeta<span class="op">$</span>trLong &lt;-<span class="st"> </span><span class="op">-</span><span class="fl">71.55</span>
+wheatMeta<span class="op">$</span>trPlotLength =<span class="st"> </span><span class="dv">2</span>
+wheatMeta<span class="op">$</span>trPlotWidth =<span class="st"> </span><span class="dv">1</span>
+wheatTD &lt;-<span class="st"> </span><span class="kw">setMeta</span>(<span class="dt">TD =</span> wheatTD, <span class="dt">meta =</span> wheatMeta)</code></pre></div>
+<p>To get an idea of the content of the data and the field layout of the data we can summarize and plot the TD object.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(wheatTD, <span class="dt">trial =</span> <span class="st">&quot;SR_FI_11&quot;</span>, <span class="dt">traits =</span> <span class="st">&quot;GY&quot;</span>)
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Summary statistics for GY in SR_FI_11 </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     Number of observations  794</span>
+<span class="co">#&gt;   Number of missing values  6</span>
+<span class="co">#&gt;                       Mean  8015.6</span>
+<span class="co">#&gt;                     Median  8021</span>
+<span class="co">#&gt;                        Min  2239.5</span>
+<span class="co">#&gt;                        Max  12992</span>
+<span class="co">#&gt;             Lower quartile  6728.5</span>
+<span class="co">#&gt;             Upper quartile  9321.75</span>
+<span class="co">#&gt;                   Variance  3080361.436</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(wheatTD, <span class="dt">trials =</span> <span class="st">&quot;SR_FI_11&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>The default plot creates plots for the layout of all trials in the TD object. This can be restricted to selected trials using the <code>trials</code> parameter. The width and length of the plot will be derived from the trPlotWidth and trPlotLength in the meta data if these are available.</p>
+<p>A second type of plot will plot the trial locations on a map. This plot is made based on trLat and trLong in the meta data. If not available the corresponding location will not be plotted.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(wheatTD, <span class="dt">plotType =</span> <span class="st">&quot;map&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<hr />
 </div>
-<div id="extract" class="section level2">
-<h2>Extract</h2>
+<div id="modeling" class="section level1">
+<h1><span class="header-section-number">3</span> Modeling</h1>
+<p>After creating a TD object the next step will usually be fitting a model on the trial data. This can be done using the function <code>STRunModel</code>. Depending on the design of the trial several different models can be fitted. The design can be given as a parameter in the function or can be included in the meta data of the TD object. In the first case the same model will be fitted for all trials, in the latter case different models can be fitted for different trials depending on the design.</p>
+<p>All models can be fitted using 3 different model fitting engines, SpATS, lme4 and asreml. For models with rowcol or res.rowcol design SpATS is the default engine, for the other models lme4. This can be overruled by the function parameter <code>engine</code>.</p>
+<p>The exact models fitted are the following<br />
+* ibd trait = genotype + <em>subBlock</em> + e<br />
+* res.ibd trait = genotype + <strong>repId</strong> + <strong>repId:subBlock</strong> + e<br />
+* rcbd trait = genotype + <strong>repId</strong> + e<br />
+* rowcol trait = genotype + <em>rowId</em> + <em>colId</em> + e<br />
+* res.rowcol trait = genotype + <strong>repId</strong> + <em>repId:rowId</em> + <em>repId:colId</em> + e</p>
+<p>In the models above fixed effects are indicated in <em>italics</em> whereas random effects are indicated in <strong>bold</strong>. genotype will be fitted as fixed or as random effect, or both, depending on the value of the parameter <code>what</code>. Extra fixed effects may be fitted using the parameter <code>covariates</code>.<br />
+In case SpATS is used as engine for fitting models an extra spatial term is always included in the model. The same is done when the engine is asreml and the function parameter <code>trySpatial</code> is set to true.</p>
+<p>Using the TD object wheatTD we created in the previous section we can now fit a model on the data.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modWheat &lt;-<span class="st"> </span><span class="kw">STRunModel</span>(<span class="dt">TD =</span> wheatTD, <span class="dt">trials =</span> <span class="st">&quot;SR_FI_11&quot;</span>, <span class="dt">traits =</span> <span class="st">&quot;GY&quot;</span>,
+                       <span class="dt">design =</span> <span class="st">&quot;res.rowcol&quot;</span>)</code></pre></div>
+<p>Note that by not supplying the <code>what</code> argument to the function two models will be fitted, one with genotype as a fixed effect and one with genotype as a random effect. Because of this both BLUEs and BLUPs can be calculated from the output and this will be done when summarizing the results. If genotype would have been fitted as fixed effect only, the summary would only have contained BLUEs. When fitting genotype as random effect only the summary would only have contained the BLUPs.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Set nBest to 5 to decrease size of output.
+<span class="kw">summary</span>(modWheat, <span class="dt">nBest =</span> <span class="dv">5</span>)
+<span class="co">#&gt; Summary statistics: </span>
+<span class="co">#&gt; ===================</span>
+<span class="co">#&gt;                                 GY</span>
+<span class="co">#&gt; Number of observations       794.0</span>
+<span class="co">#&gt; Number of missing values       6.0</span>
+<span class="co">#&gt; Mean                        8015.6</span>
+<span class="co">#&gt; Median                      8021.0</span>
+<span class="co">#&gt; Min                         2239.5</span>
+<span class="co">#&gt; Max                        12992.0</span>
+<span class="co">#&gt; Lower quartile              6728.5</span>
+<span class="co">#&gt; Upper quartile              9321.8</span>
+<span class="co">#&gt; Variance                 3080361.4</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Estimated heritability </span>
+<span class="co">#&gt; ======================</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Heritability: 0.65 </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Predicted means (BLUEs &amp; BLUPs) </span>
+<span class="co">#&gt; ===============================</span>
+<span class="co">#&gt; Best 5 genotypes</span>
+<span class="co">#&gt;         BLUEs       SE    BLUPs     SE</span>
+<span class="co">#&gt; G369 10649.75   681.05  9643.18 542.30</span>
+<span class="co">#&gt; G349 10351.81   668.15  9563.50 537.49</span>
+<span class="co">#&gt; G341 10294.38   665.01  9468.74 536.49</span>
+<span class="co">#&gt; G227 10043.79   673.05  9351.96 540.84</span>
+<span class="co">#&gt; G271 10010.28   663.48  9398.66 536.11</span></code></pre></div>
+<hr />
+</div>
+<div id="extract" class="section level1">
+<h1><span class="header-section-number">4</span> Extract</h1>
 <p>Explanation on what can be extracted from a model and how</p>
+<hr />
 </div>
-<div id="references" class="section level2 unnumbered">
-<h2>References</h2>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
 <div id="refs" class="references">
-<div id="ref-Rodrguezlvarez2017">
-<p>Rodríguez-Álvarez, María, Martin P. Boer, Fred Eeuwijk, and Paul H.C. Eilers. 2017. “Correcting for Spatial Heterogeneity in Plant Breeding Experiments with P-Splines.” <em>Spatial Statistics</em> 23 (October): 52–71. doi:<a href="https://doi.org/10.1016/j.spasta.2017.10.003">10.1016/j.spasta.2017.10.003</a>.</p>
+<div id="ref-Lado2013">
+<p>Lado, Bettina, Ivan Matus, Alejandra Rodríguez, Luis Inostroza, Jesse Poland, François Belzile, Alejandro del Pozo, Martín Quincke, Marina Castro, and Jarislav von Zitzewitz. 2013. “Increased Genomic Prediction Accuracy in Wheat Breeding Through Spatial Adjustment of Field Trial Data.” <em>G3: Genes<span class="math inline">\(\vert\)</span>Genomes<span class="math inline">\(\vert\)</span>Genetics</em> 3 (12): 2105–14. doi:<a href="https://doi.org/10.1534/g3.113.007807">10.1534/g3.113.007807</a>.</p>
 </div>
 </div>
 </div>
