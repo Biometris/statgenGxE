@@ -376,18 +376,22 @@ extractLme4 <- function(SSA,
   }
   ## Compute unit errors.
   if ("ue" %in% what) {
-    ue <- cbind(baseDataPred,
-                lapply(X = em, FUN = function(em0) {
-                  ## Extract and invert variance covariance matrix.
-                  V <- vcov(em0)
-                  Vinv <- try(chol2inv(chol(V)), silent = TRUE)
-                  ## Compute unit errors.
-                  if (!inherits(Vinv, "try-error")) {
-                    ue <- 1 / diag(Vinv)
-                  } else {
-                    ue <- 1 / diag(solve(V))
-                  }
-                }))
+    unitErrs <- lapply(X = traits, FUN = function(trait) {
+      ## Extract and invert variance covariance matrix.
+      V <- vcov(em[[trait]])
+      Vinv <- try(chol2inv(chol(V)), silent = TRUE)
+      ## Compute unit errors.
+      if (!inherits(Vinv, "try-error")) {
+        ue <- 1 / diag(Vinv)
+      } else {
+        ue <- 1 / diag(solve(V))
+      }
+      unitErr <- data.frame(levels(em[[trait]]), ue)
+      colnames(unitErr) <- c(predicted, trait)
+      return(unitErr)
+    })
+    ue <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
+                 x = unitErrs, init = baseDataPred)
     result[["ue"]] <- ue
   }
   ## Extract variances.
