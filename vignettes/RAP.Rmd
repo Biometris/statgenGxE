@@ -100,13 +100,28 @@ wheatMeta$trLocation <- "Santa Rosa"
 wheatMeta$trDate <- as.Date(rep(c("310811", "310812"), times = 2), "%d%m%y")
 wheatMeta$trLat <- -36.32
 wheatMeta$trLong <- -71.55
-wheatMeta$trPlotLength = 2
-wheatMeta$trPlotWidth = 1
+wheatMeta$trPlotWidth = 2
+wheatMeta$trPlotLength = 1
 wheatTD <- setMeta(TD = wheatTD, meta = wheatMeta)
 ```
 
+To add the final trial to the TD object the function `addTD` can be used. Since
+in this case we are only adding 1 new trial it makes sense to immediately add 
+the meta data for this trial as well. 
+```{r addTD}
+wheatTD <- addTD(TD = wheatTD, data = wheatChl[wheatChl$trial == "C_SWS_12", ], 
+                 genotype = "trt_id", repId = "rep", subBlock = "bl", 
+                 rowId = "row", colId = "col", rowCoord = "row", 
+                 colCoord = "col", trLocation = "Cauquenes", 
+                 trDate = as.Date("070712", "%d%m%y"), trLat = -35.58,
+                 trLong = -72.17, trPlotWidth = 2, trPlotLength = 1)
+## Inspect the meta data after the extra trial was added.
+getMeta(TD = wheatTD)
+```
+
 To get an idea of the content of the data and the field layout of the data we 
-can summarize and plot the TD object. 
+can summarize and plot the TD object. Multiple traits can be summarized at once 
+but in order to save space we only look at GY (grain yield).
 ```{r TDsum}
 summary(wheatTD, trial = "SR_FI_11", traits = "GY")
 ```
@@ -139,8 +154,9 @@ the TD object. In the first case the same model will be fitted for all trials,
 in the latter case different models can be fitted for different trials 
 depending on the design.  
 
-All models can be fitted using 3 different model fitting engines, SpATS, lme4 
-and asreml. For models with rowcol or res.rowcol design SpATS is the default 
+All models can be fitted using 3 different model fitting engines, 
+SpATS [@RodAlv2017], lme4 [@Bates2015] and asreml. For models with rowcol or
+res.rowcol design SpATS is the default 
 engine, for the other models lme4. This can be overruled by the function 
 parameter `engine`.
 

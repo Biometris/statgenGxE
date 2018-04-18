@@ -21,9 +21,19 @@ wheatMeta$trLocation <- "Santa Rosa"
 wheatMeta$trDate <- as.Date(rep(c("310811", "310812"), times = 2), "%d%m%y")
 wheatMeta$trLat <- -36.32
 wheatMeta$trLong <- -71.55
-wheatMeta$trPlotLength = 2
-wheatMeta$trPlotWidth = 1
+wheatMeta$trPlotWidth = 2
+wheatMeta$trPlotLength = 1
 wheatTD <- setMeta(TD = wheatTD, meta = wheatMeta)
+
+## ----addTD---------------------------------------------------------------
+wheatTD <- addTD(TD = wheatTD, data = wheatChl[wheatChl$trial == "C_SWS_12", ], 
+                 genotype = "trt_id", repId = "rep", subBlock = "bl", 
+                 rowId = "row", colId = "col", rowCoord = "row", 
+                 colCoord = "col", trLocation = "Cauquenes", 
+                 trDate = as.Date("070712", "%d%m%y"), trLat = -35.58,
+                 trLong = -72.17, trPlotWidth = 2, trPlotLength = 1)
+## Inspect the meta data after the extra trial was added.
+getMeta(TD = wheatTD)
 
 ## ----TDsum---------------------------------------------------------------
 summary(wheatTD, trial = "SR_FI_11", traits = "GY")
