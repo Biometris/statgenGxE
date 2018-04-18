@@ -153,10 +153,11 @@ gxeVarComp <- function(TD,
           tmpValues <- qvInitial(TD = TDTot, trait = trait, vcmodel = "outside",
                                  fixed = fixedForm, ...)
           tmpTable <- initVals$gammas.table
-          tmpTable[, "Value"] <- c(tmpValues$vg, tmpValues$diag, 1)
+          tmpTable[, "Value"] <- c(tmpValues$vg,
+                                   scale(tmpValues$diag, center = FALSE), 1)
           tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
-          ## Fix residual variance at almost zero.
-          tmpTable[tmpTable$Gamma == "R!variance", c(2, 3)] <- c(1e-4, "F")
+          ## Fix residual variance.
+          tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
           sink(file = tmp)
           mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
                                            random = ~ genotype:corh(trial),
@@ -183,7 +184,8 @@ gxeVarComp <- function(TD,
                                              workspace = 160e6, ...))
             sink()
           } else {
-            tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma, 1)
+            tmpTable[, "Value"] <- c(scale(tmpValues$psi, center = FALSE),
+                                     tmpValues$gamma, 1)
             sink(file = tmp)
             mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
                                              random = ~ genotype:fa(trial, 1),
@@ -215,7 +217,8 @@ gxeVarComp <- function(TD,
             tmpValues$gamma[2, tmpValues$gamma[2, ] < 1e-3] <- 1e-3
             ## Make sure that first entry is 0.
             tmpValues$gamma[2, 1] <- 0
-            tmpTable[, "Value"] <- c(tmpValues$psi, tmpValues$gamma[1, ],
+            tmpTable[, "Value"] <- c(scale(tmpValues$psi, center = FALSE),
+                                     tmpValues$gamma[1, ],
                                      tmpValues$gamma[2, ], 1)
             sink(file = tmp)
             mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
@@ -239,13 +242,13 @@ gxeVarComp <- function(TD,
                                  ...)
           tmpValues <- tmpValues$evCov[upper.tri(tmpValues$evCov, diag = TRUE)]
           tmpTable <- initVals$gammas.table
-          tmpTable[, "Value"] <- c(tmpValues, 1)
+          tmpTable[, "Value"] <- c(scale(tmpValues, center = FALSE), 1)
           tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
           ## All off diagonal elements are unconstrained, diagonal elements
           ## should be positive
           tmpTable[-c((1:nTr) * ((1:nTr) + 1) / 2), "Constraint"] <- "U"
-          ## Fix residual variance at almost zero.
-          tmpTable[tmpTable$Gamma == "R!variance", c(2, 3)] <- c(1e-4, "F")
+          ## Fix residual variance.
+          tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
           sink(file = tmp)
           mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
                                            random = ~ genotype:us(trial),
