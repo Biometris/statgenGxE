@@ -30,7 +30,7 @@
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Stability analysis report for \Sexpr{x$trait}}%
+\title{Stability analysis report for \Sexpr{escapeLatex(x$trait)}}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------

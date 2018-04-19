@@ -361,5 +361,19 @@ plotCorMat <- function(corMat, main = "") {
     ggplot2::coord_fixed()
 }
 
-
+#' Function for escaping special LaTeX characters
+#'
+#' Taken from knitr. Copied since it is an internal knitr function.
+#
+#' @keywords internal
+escapeLatex = function(x, newlines = FALSE, spaces = FALSE) {
+  x = gsub('\\\\', '\\\\textbackslash', x)
+  x = gsub('([#$%&_{}])', '\\\\\\1', x)
+  x = gsub('\\\\textbackslash', '\\\\textbackslash{}', x)
+  x = gsub('~', '\\\\textasciitilde{}', x)
+  x = gsub('\\^', '\\\\textasciicircum{}', x)
+  if (newlines) x = gsub('(?<!\n)\n(?!\n)', '\\\\\\\\', x, perl = TRUE)
+  if (spaces) x = gsub('  ', '\\\\ \\\\ ', x)
+  x
+}
 

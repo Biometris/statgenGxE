@@ -30,7 +30,7 @@
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Single trial analysis for \Sexpr{x$traits}}%
+\title{Single trial analysis for \Sexpr{escapeLatex(x$traits)}}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
