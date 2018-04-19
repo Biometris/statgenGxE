@@ -16,7 +16,8 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
 collapse = TRUE,
-comment = "#>"
+comment = "#>",
+fig.dim = c(7, 5)
 )
 library(RAP)
 ```
@@ -152,13 +153,13 @@ the design of the trial several different models can be fitted. The design can
 be given as a parameter in the function or can be included in the meta data of 
 the TD object. In the first case the same model will be fitted for all trials, 
 in the latter case different models can be fitted for different trials 
-depending on the design.  
+depending on the design. If both are available the function parameter will 
+always be leading. 
 
 All models can be fitted using 3 different model fitting engines, 
 SpATS [@RodAlv2017], lme4 [@Bates2015] and asreml. For models with rowcol or
-res.rowcol design SpATS is the default 
-engine, for the other models lme4. This can be overruled by the function 
-parameter `engine`.
+res.rowcol design SpATS is the default engine, for the other models lme4. 
+This can be overruled by the function parameter `engine`.
 
 The exact models fitted are the following  
 * ibd trait = genotype + *subBlock* + e  
@@ -193,7 +194,64 @@ only have contained the BLUPs.
 summary(modWheat, nBest = 5)
 ```
 
+## Model plots
 
+Two types of plots can be made based on the fitted model. The first is a series
+of 4 plots, a histogram of the residuals, normal quantiles of the residuals, 
+a scatter plot of residuals against fitted values and a scatter plot of absolute
+value of residuals against fitted values. These plots can be made by calling 
+plot on the model object. A plot will always be made for 1 trait in 1 trial for
+1 fitted model, either with genotype as fixed or genotype as random effect. If
+only 1 trait and/or trial were used for fitting the model these are 
+automatically used for plotting. Otherwise use the parameters `trait` and 
+`trial` for selecting. If only one model is fitted, i.e. only genotype as fixed
+effect or only genotype as random effect, the results of this model will be 
+plotted. In case both models were fitted as a default the results will be 
+plotted for the model with genotype fixed. This can be changed using the 
+parameter `what`.
+```{r basePlot}
+plot(modWheat, what = "random")
+```
+
+The second type of plot consists of 5 plots, spatial plots of the raw data, 
+fitted values, residuals and either BLUEs or BLUPs, and a histogram of the BLUEs 
+or BLUPs. In case SpATS was used as modeling engine an extra plot an extra plot
+with the fitted spatial trend is included. The call for creating these plots 
+differs from the base plots only by an extra parameter `plotType = "spatial"`. 
+```{r spatPlot}
+plot(modWheat, plotType = "spatial")
+```
+
+## Model reports
+
+As with many object in the RAP package there is a report function available for
+model objects. This `report` function will create a pdf report describing the 
+main results of the fitted model. Also a tex file will be created that was used 
+for generating the pdf report. By editing the tex file it is possible to modify
+the report to ones needs.  
+
+When no outfile is given a report will be created with a default name in the 
+current working directory. The parameter `outfile` can be used to change this. 
+This value of this parameter should be a valid location and name for a **pdf**
+file. Non existing directories will be created by the reporting function.  
+
+The report will contain some background information on the model fitted, a 
+summary of the results, the plots described in the previous section, a list of
+best (highest BLUEs or BLUPs) genotypes and a scatter plot of all genotypes
+and their BLUEs or BLUPs. If for the modeled trait a low value means the 
+genotype is performing well then the best genotypes can be based on the lowest
+BLUEs or BLUPs by setting `descending` to `TRUE` when calling the report 
+function.
+```{r modRep, eval=FALSE}
+## Create a report in the current working directory
+report(modWheat)
+## Create a report for the model with genotype fitted as random.
+report(modWheat, outfile = "./myReports/wheatReport.pdf", what = "random")
+```
+Similar to plotting a model object reporting is also done for 1 trait in 1 trial 
+for 1 fitted model. Selection of the model to report is done in the same way 
+as for plotting described in the previous section. Parameters `trait`, `trial`
+and `what` can be used for this.
 
 ----
 
