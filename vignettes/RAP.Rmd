@@ -157,9 +157,9 @@ depending on the design. If both are available the function parameter will
 always be leading. 
 
 All models can be fitted using 3 different model fitting engines, 
-SpATS [@RodAlv2017], lme4 [@Bates2015] and asreml. For models with rowcol or
-res.rowcol design SpATS is the default engine, for the other models lme4. 
-This can be overruled by the function parameter `engine`.
+SpATS [@RodAlv2017], lme4 [@Bates2015] and asreml [@Gilmour2009]. For models 
+with rowcol or res.rowcol design SpATS is the default engine, for the other 
+models lme4. This can be overruled by the function parameter `engine`.
 
 The exact models fitted are the following  
 * ibd trait = genotype + *subBlock* + e  
@@ -200,7 +200,7 @@ Two types of plots can be made based on the fitted model. The first is a series
 of 4 plots, a histogram of the residuals, normal quantiles of the residuals, 
 a scatter plot of residuals against fitted values and a scatter plot of absolute
 value of residuals against fitted values. These plots can be made by calling 
-plot on the model object. A plot will always be made for 1 trait in 1 trial for
+plot on the SSA object. A plot will always be made for 1 trait in 1 trial for
 1 fitted model, either with genotype as fixed or genotype as random effect. If
 only 1 trait and/or trial were used for fitting the model these are 
 automatically used for plotting. Otherwise use the parameters `trait` and 
@@ -225,7 +225,7 @@ plot(modWheat, plotType = "spatial")
 ## Model reports
 
 As with many object in the RAP package there is a report function available for
-model objects. This `report` function will create a pdf report describing the 
+SSA objects. This `report` function will create a pdf report describing the 
 main results of the fitted model. Also a tex file will be created that was used 
 for generating the pdf report. By editing the tex file it is possible to modify
 the report to ones needs.  
@@ -248,7 +248,7 @@ report(modWheat)
 ## Create a report for the model with genotype fitted as random.
 report(modWheat, outfile = "./myReports/wheatReport.pdf", what = "random")
 ```
-Similar to plotting a model object reporting is also done for 1 trait in 1 trial 
+Similar to plotting a SSA object reporting is also done for 1 trait in 1 trial 
 for 1 fitted model. Selection of the model to report is done in the same way 
 as for plotting described in the previous section. Parameters `trait`, `trial`
 and `what` can be used for this.
@@ -257,7 +257,77 @@ and `what` can be used for this.
 
 # Extract 
 
-Explanation on what can be extracted from a model and how
+After fitting a model various results can be extracted or calculated from the 
+fitted model using the function `STExtract`. This can be a single result for 1 
+trait and 1 trial or a list of different results for all models in a SSA object. 
+The results that can be extracted depend on the type of model fitted and 
+sometimes on the engine as well. BLUEs can only extracted is genotype was fitted 
+as fixed effect whereas BLUPs and heritabilities can only be extracted and 
+calculated if genotype was fitted as random effect.  
+All results that can be extracted are shown in the table below. The first column
+shows what model needs to be fitted in order to be able to extract the result.
+F stands for genotype as fixed effect, R for genotype as random effect. In the 
+second column is the result. This is also the value to be used for the parameter
+`what` in `STExtract`. The last column gives a short description of the result
+that will be extracted and where needed also states for which modeling engines 
+it can be extracted.
+
+model | result | description |
+----- | ------ | ------------------------------------------------------------- |
+F | BLUEs | Best Lineair Unbiased Estimators |
+F | seBLUES | standard errors of the BLUEs |
+R | BLUPs | Best Lineair Unbiased Predictors |
+R | seBLUPs | standard errors of the BLUPs |
+F | ue | unit errors - only for `lme4` and `asreml` |
+R | heritability | broad sense heritability |
+R | varGen | genetic variance component |
+R | varErr | residual variance component - only for `lme4` and `asreml` |
+R | varSpat | spatial variance components - only for `SpATS` |
+F | fitted | fitted values for the model with genotype as fixed component |
+F | resid | residuals for the model with genotype as fixed component |
+F | stdRes | standardized residuals for the model with genotype as fixed component - only for `lme4` and `asreml` |
+R | rMeans | fitted values for the model with genotype as random component |
+R | ranEf | random genetic effects |
+F | wald | results of the wald test - only for `lme4` and `asreml` |
+F | CV | Coefficient of variation - only for `lme4` and `asreml` |
+F | rDf | residual degrees of freedom |
+R | effDim | effective dimensions - only for `SpATS` |
+F | sed | standard error of difference - only for `asreml` |
+F | lsd | least significant difference - only for `asreml` |
+
+Using `what = "all"` in the function call extracts all results possible for the
+fitted model. This is also the default.  
+
+Some examples of extracting results from a fitted model. Recall that `modWheat`
+contains 2 fitted models, 1 with genotype as fixed effect and 1 with genotype as
+random effect.
+```{r extBLUEs}
+## Extract BLUEs
+BLUEsWheat <- STExtract(SSA = modWheat, what = "BLUEs")
+## Extract BLUEs and BLUPs
+predWheat <- STExtract(SSA = modWheat, what = c("BLUEs", "BLUPs"))
+```
+Both `BLUEsWheat` and `predWheat` are a list with 1 item, the trial used for
+modeling. In general there will be an item in the list for every trial for 
+which results were extracted. However where the item in `BLUEsWheat` is a 
+data.frame containing the BLUEs `predWheat` itself is again a list with 2 items,
+the data.frames BLUEs and BLUPs. Looking at the data.frame BLUEs in either of 
+the list it only consists of 2 columns, genotype and GY. In case the model 
+would have been fitted for multiple traits all these traits would become columns
+in the data.frame. It might be useful to add extra information to the output. 
+This can be achieved using the paramater `keep` in `STExtract`. If we would 
+like to include the trial for example so later on we can easily combine the
+several data.frames with BLUEs and use the for a GxE analysis this can be done
+like this.
+```{r extBLUEsKeep}
+BLUEsWheat2 <- STExtract(SSA = modWheat, what = "BLUEs", keep = "trial")
+```
+Not every column from the original TD object can be included in the extracted 
+data in this way. Only column for which the values are uniform per genotype can 
+be included. For example the column repId that usually has several different 
+values for a single genotype cannot be included. When trying to do so it will be
+dropped with a warning.  
+
 
 ----
 

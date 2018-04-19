@@ -1,7 +1,8 @@
 ## ----setup, include = FALSE----------------------------------------------
 knitr::opts_chunk$set(
 collapse = TRUE,
-comment = "#>"
+comment = "#>",
+fig.dim = c(7, 5)
 )
 library(RAP)
 
@@ -51,4 +52,25 @@ modWheat <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
 ## ----fitSum, message=FALSE-----------------------------------------------
 ## Set nBest to 5 to decrease size of output.
 summary(modWheat, nBest = 5)
+
+## ----basePlot------------------------------------------------------------
+plot(modWheat, what = "random")
+
+## ----spatPlot------------------------------------------------------------
+plot(modWheat, plotType = "spatial")
+
+## ----modRep, eval=FALSE--------------------------------------------------
+#  ## Create a report in the current working directory
+#  report(modWheat)
+#  ## Create a report for the model with genotype fitted as random.
+#  report(modWheat, outfile = "./myReports/wheatReport.pdf", what = "random")
+
+## ----extBLUEs------------------------------------------------------------
+## Extract BLUEs
+BLUEsWheat <- STExtract(SSA = modWheat, what = "BLUEs")
+## Extract BLUEs and BLUPs
+predWheat <- STExtract(SSA = modWheat, what = c("BLUEs", "BLUPs"))
+
+## ----extBLUEsKeep--------------------------------------------------------
+BLUEsWheat2 <- STExtract(SSA = modWheat, what = "BLUEs", keep = "trial")
 
