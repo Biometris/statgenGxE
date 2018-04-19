@@ -289,8 +289,8 @@ print(xtable::xtable(x = best, label = "bestTab",
 ## Plot of predictions, BLUEs or BLUPs
 plot(rev(predTot[[trait]]), col = "#0080ff", xlab = "Genotypes", xaxt = "n",
      cex.lab = 1.5, ylab = trait, mar = c(5, 5, 4, 2) + 0.1)
-abline(h = quantile(x = predTot[[trait]], probs = 0.9), col = "red")
-abline(h = quantile(x = predTot[[trait]], probs = 0.1), col = "red")
+abline(h = quantile(x = na.omit(predTot[[trait]]), probs = 0.9), col = "red")
+abline(h = quantile(x = na.omit(predTot[[trait]]), probs = 0.1), col = "red")
 @
 \end{multicols*}
 %-------------------------------------------------------------------------------
