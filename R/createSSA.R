@@ -416,6 +416,8 @@ fieldPlot <- function(x,
 #' @param x An object of class SSA.
 #' @param trial A character string indicating the trial to be reported. If
 #' \code{NULL} and \code{SSA} contains only one trial that trial is reported.
+#' @param trait A character string indicating the trait to be reported. If
+#' \code{NULL} and \code{SSA} contains only one trait that trait is reported.
 #' @param descending Should the trait be ordered in descending order? Set to
 #' \code{FALSE} if low values of the trait indicate better performance.
 #' @param what A character string indicating whether the model with genotype
@@ -442,6 +444,7 @@ fieldPlot <- function(x,
 report.SSA <- function(x,
                        ...,
                        trial = NULL,
+                       trait = NULL,
                        descending = TRUE,
                        outfile = NULL,
                        what = c("fixed", "random")) {
@@ -455,9 +458,16 @@ report.SSA <- function(x,
   if (is.null(trial)) {
     trial <- names(x)
   }
-  if (length(x$traits) > 1) {
-    stop("Model contains models for multiple traits. Reporting can only be done
-         for a single trait.\n")
+  if (is.null(trait) && length(x[[trial]]$traits) > 1) {
+    stop("No trait provided but multiple traits found.\n")
+  }
+  if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
+                          !trait %in% colnames(x[[trial]]$TD[[trial]]))) {
+    stop("Trait has to be a single character string defining a column in TD.\n")
+  }
+  ## If no trait is given as input extract it from the SSA object.
+  if (is.null(trait)) {
+    trait <- x[[trial]]$traits
   }
   what <- match.arg(what)
   if (is.null(x[[trial]]$mFix)) {
@@ -479,7 +489,8 @@ report.SSA <- function(x,
     x[[trial]]$mFix <- NULL
   }
   createReport(x = x, reportName = "modelReport.Rnw",
-               outfile = outfile, ..., trial = trial, descending = descending)
+               outfile = outfile, ..., trial = trial, trait = trait,
+               descending = descending)
 }
 
 #' Convert SSA to Cross

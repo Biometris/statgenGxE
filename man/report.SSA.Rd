@@ -4,8 +4,8 @@
 \alias{report.SSA}
 \title{Report method for class SSA}
 \usage{
-\method{report}{SSA}(x, ..., trial = NULL, descending = TRUE,
-  outfile = NULL, what = c("fixed", "random"))
+\method{report}{SSA}(x, ..., trial = NULL, trait = NULL,
+  descending = TRUE, outfile = NULL, what = c("fixed", "random"))
 }
 \arguments{
 \item{x}{An object of class SSA.}

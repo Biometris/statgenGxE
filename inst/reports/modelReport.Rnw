@@ -27,10 +27,18 @@
 % For multiple columns.
 \usepackage{multicol}
 
+% Load required packages
+<<label=setup, include=FALSE, cache=FALSE>>=
+lapply(list("SpATS"), library, character.only = TRUE)
+trial <- list(...)$trial
+trait <- list(...)$trait
+descending <- list(...)$descending
+@
+
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Single trial analysis for \Sexpr{escapeLatex(x$traits)}}%
+\title{Single trial analysis for \Sexpr{escapeLatex(trait)}}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
@@ -46,16 +54,9 @@
 %-------------------------------------------------------------------------------
 \begin{document}
 
-% Load required packages
-<<label=setup, include=FALSE, cache=FALSE>>=
-lapply(list("SpATS"), library, character.only = TRUE)
-trial <- list(...)$trial
-descending <- list(...)$descending
-@
 <<label=extractInfo, echo=FALSE, include=FALSE>>=
 ## Extract basic modelling information
 engine <- x[[trial]]$engine
-trait <- x[[trial]]$traits
 if (is.null(x[[trial]]$mFix)) {
   model <- x[[trial]]$mRand[[1]]
   modelType <- "random"
@@ -74,7 +75,6 @@ useCheckId <- (engine == "SpATS" && length(grep(pattern = "checkId",
 
 % Article title, Authors and Affiliations
 \maketitle
-%\newpage
 
 % Start single line spacing
 \singlespacing
