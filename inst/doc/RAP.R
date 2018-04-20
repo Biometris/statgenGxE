@@ -25,7 +25,7 @@ wheatMeta$trPlWidth = 2
 wheatMeta$trPlLength = 1
 wheatTD <- setMeta(TD = wheatTD, meta = wheatMeta)
 
-## ----addTD---------------------------------------------------------------
+## ----addTD, R.options=list(width=90)----------------------------------------------------
 wheatTD <- addTD(TD = wheatTD, data = wheatChl[wheatChl$trial == "C_SWS_12", ], 
                  genotype = "trt_id", repId = "rep", subBlock = "bl", 
                  rowId = "row", colId = "col", rowCoord = "row", 
@@ -53,9 +53,11 @@ modWheat <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
 summary(modWheat, nBest = 5)
 
 ## ----basePlot------------------------------------------------------------
+## Plot for the model with genotype fitted as random effect.
 plot(modWheat, what = "random")
 
 ## ----spatPlot------------------------------------------------------------
+## Spatial plot for the model with genotype fitted as fixed effect.
 plot(modWheat, plotType = "spatial")
 
 ## ----modRep, eval=FALSE--------------------------------------------------
@@ -72,4 +74,10 @@ predWheat <- STExtract(SSA = modWheat, what = c("BLUEs", "BLUPs"))
 
 ## ----extBLUEsKeep--------------------------------------------------------
 BLUEsWheat2 <- STExtract(SSA = modWheat, what = "BLUEs", keep = "trial")
+head(BLUEsWheat2[[1]])
+
+## ----extFit--------------------------------------------------------------
+fitVals <- STExtract(SSA = modWheat, what = "fitted", 
+                     keep = c("trial", "repId"))
+head(fitVals[[1]])
 
