@@ -11,13 +11,13 @@ createTD(data, genotype = NULL, trial = NULL, megaEnv = NULL,
   year = NULL, repId = NULL, subBlock = NULL, rowId = NULL,
   colId = NULL, rowCoord = NULL, colCoord = NULL, checkId = NULL,
   trLocation = NULL, trDate = NULL, trDesign = NULL, trLat = NULL,
-  trLong = NULL, trPlotWidth = NULL, trPlotLength = NULL)
+  trLong = NULL, trPlWidth = NULL, trPlLength = NULL)
 
 addTD(TD, data, genotype = NULL, trial = NULL, megaEnv = NULL,
   year = NULL, repId = NULL, subBlock = NULL, rowId = NULL,
   colId = NULL, rowCoord = NULL, colCoord = NULL, checkId = NULL,
   trLocation = NULL, trDate = NULL, trDesign = NULL, trLat = NULL,
-  trLong = NULL, trPlotWidth = NULL, trPlotLength = NULL)
+  trLong = NULL, trPlWidth = NULL, trPlLength = NULL)
 
 dropTD(TD, trials)
 }
@@ -79,10 +79,10 @@ trial on a scale of -90 to 90.}
 \item{trLong}{An optional numerical value indicating the longitude of the
 trial on a scale of -180 to 180.}
 
-\item{trPlotWidth}{An optional positive numerical value indicating the
+\item{trPlWidth}{An optional positive numerical value indicating the
 width of the plot.}
 
-\item{trPlotLength}{An optional positive numerical value indicating the
+\item{trPlLength}{An optional positive numerical value indicating the
 length of the plot.}
 
 \item{TD}{An object of class TD which should be modified.}

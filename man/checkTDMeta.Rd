@@ -5,7 +5,7 @@
 \title{Helper function for checking metadata structure for TD objects.}
 \usage{
 checkTDMeta(trLocation = NULL, trDate = NULL, trDesign = NULL,
-  trLat = NULL, trLong = NULL, trPlotWidth = NULL, trPlotLength = NULL)
+  trLat = NULL, trLong = NULL, trPlWidth = NULL, trPlLength = NULL)
 }
 \description{
 Helper function for checking metadata structure for TD objects.

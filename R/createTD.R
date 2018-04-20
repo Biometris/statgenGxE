@@ -70,9 +70,9 @@
 #' trial on a scale of -90 to 90.
 #' @param trLong An optional numerical value indicating the longitude of the
 #' trial on a scale of -180 to 180.
-#' @param trPlotWidth An optional positive numerical value indicating the
+#' @param trPlWidth An optional positive numerical value indicating the
 #' width of the plot.
-#' @param trPlotLength An optional positive numerical value indicating the
+#' @param trPlLength An optional positive numerical value indicating the
 #' length of the plot.
 #'
 #' @return An object of class TD, a list of data.frames with renamed columns
@@ -108,8 +108,8 @@ createTD <- function(data,
                      trDesign = NULL,
                      trLat = NULL,
                      trLong = NULL,
-                     trPlotWidth = NULL,
-                     trPlotLength = NULL) {
+                     trPlWidth = NULL,
+                     trPlLength = NULL) {
   ## Save name of original data for naming output.
   dataName <- deparse(substitute(data))
   ## Checks.
@@ -125,7 +125,7 @@ createTD <- function(data,
     }
   }
   checkTDMeta(trDesign = trDesign, trLat = trLat, trLong = trLong,
-              trPlotWidth = trPlotWidth, trPlotLength = trPlotLength)
+              trPlWidth = trPlWidth, trPlLength = trPlLength)
   ## Create list of reserved column names for renaming columns.
   renameCols <- c("genotype", "trial", "megaEnv", "year", "repId", "subBlock",
                   "rowId", "colId", "rowCoord", "colCoord",
@@ -177,7 +177,7 @@ createTD <- function(data,
   }
   ## Define meta data to set from input variables.
   meta <- c("trLocation", "trDate", "trDesign", "trLat", "trLong",
-            "trPlotWidth", "trPlotLength")
+            "trPlWidth", "trPlLength")
   ## Set meta for all trials in data.
   for (i in seq_along(listData)) {
     for (m in meta) {
@@ -224,8 +224,8 @@ addTD <- function(TD,
                   trDesign = NULL,
                   trLat = NULL,
                   trLong = NULL,
-                  trPlotWidth = NULL,
-                  trPlotLength = NULL) {
+                  trPlWidth = NULL,
+                  trPlLength = NULL) {
   TDNw <- createTD(data = data, genotype = genotype, trial = trial,
                    megaEnv = megaEnv, year = year, repId = repId,
                    subBlock = subBlock, rowId = rowId, colId = colId,
@@ -233,7 +233,7 @@ addTD <- function(TD,
                    colCoord = colCoord, checkId = checkId,
                    trLocation = trLocation, trDate = trDate,
                    trDesign = trDesign, trLat = trLat, trLong = trLong,
-                   trPlotWidth = trPlotWidth, trPlotLength = trPlotLength)
+                   trPlWidth = trPlWidth, trPlLength = trPlLength)
   dupTrials <- names(TDNw)[names(TDNw) %in% names(TD)]
   if (length(dupTrials) > 0) {
     warning(paste0("The following trials already existed in TD and will be ",
@@ -493,8 +493,8 @@ plot.TD <- function(x,
         break
       }
       trLoc <- attr(trDat, "trLocation")
-      ylen <- attr(trDat, "trPlotLength")
-      xlen <- attr(trDat, "trPlotWidth")
+      ylen <- attr(trDat, "trPlLength")
+      xlen <- attr(trDat, "trPlWidth")
       ## Compute aspect for proper depiction of field size. If no information
       ## is available plots are assumed to be square.
       if (is.null(ylen) || is.null(xlen)) {
@@ -554,7 +554,7 @@ getMeta <- function(TD) {
     stop("TD should be an object of class TD.\n")
   }
   metaVars <- c("trLocation", "trDate", "trDesign", "trLat", "trLong",
-                "trPlotWidth", "trPlotLength")
+                "trPlWidth", "trPlLength")
   meta <- as.data.frame(matrix(nrow = length(TD), ncol = length(metaVars),
                                dimnames = list(names(TD), metaVars)))
   for (mv in metaVars) {
@@ -578,7 +578,7 @@ getMeta <- function(TD) {
 #' simultaneously. Metadata can be set using a data.frame with rownames
 #' corresponding to the trials in \code{TD}. The data.frame should contain one
 #' or  more of the following columns: trLocation, trDate, trDesign, trLat,
-#' trLong, trPlotWidth and trPlotLength. The values of the metadata of TD
+#' trLong, trPlWidth and trPlLength. The values of the metadata of TD
 #' will be set to the values in the corresponding column in \code{meta}.
 #' Existing values will be overwritten, but \code{NA} will be ignored so
 #' setting a value to \code{NA} won't result in accidentally removing it.
@@ -603,7 +603,7 @@ setMeta <- function(TD,
                    paste(naTr, collapse = ", "), ".\n"), call. = FALSE)
   }
   metaVars <- c("trLocation", "trDate", "trDesign", "trLat", "trLong",
-                "trPlotWidth", "trPlotLength")
+                "trPlWidth", "trPlLength")
   ## Set metadata for trials in meta that are also in TD.
   for (tr in rownames(meta)[rownames(meta) %in% names(TD)]) {
     for (mv in metaVars) {
@@ -641,8 +641,8 @@ checkTDMeta <- function(trLocation = NULL,
                         trDesign = NULL,
                         trLat = NULL,
                         trLong = NULL,
-                        trPlotWidth = NULL,
-                        trPlotLength = NULL) {
+                        trPlWidth = NULL,
+                        trPlLength = NULL) {
   if (!is.null(trDesign)) {
     trDesign <- match.arg(trDesign, choices = c("ibd", "res.ibd", "rcbd",
                                                 "rowcol", "res.rowcol"))
@@ -665,14 +665,14 @@ checkTDMeta <- function(trLocation = NULL,
               call. = FALSE)
     }
   }
-  if (!is.null(trPlotWidth) && (!is.numeric(trPlotWidth) ||
-                                length(trPlotWidth) > 1 || trPlotWidth < 0)) {
-    stop("trPlotWidth should be a single positive numerical value.\n",
+  if (!is.null(trPlWidth) && (!is.numeric(trPlWidth) ||
+                                length(trPlWidth) > 1 || trPlWidth < 0)) {
+    stop("trPlWidth should be a single positive numerical value.\n",
          call. = FALSE)
   }
-  if (!is.null(trPlotLength) && (!is.numeric(trPlotLength) ||
-                                 length(trPlotLength) > 1 || trPlotLength < 0)) {
-    stop("trPlotLength should be a single positive numerical value.\n",
+  if (!is.null(trPlLength) && (!is.numeric(trPlLength) ||
+                                 length(trPlLength) > 1 || trPlLength < 0)) {
+    stop("trPlLength should be a single positive numerical value.\n",
          call. = FALSE)
   }
 }

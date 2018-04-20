@@ -19,7 +19,7 @@ Function for setting metadata of a TD object for one or more trials
 simultaneously. Metadata can be set using a data.frame with rownames
 corresponding to the trials in \code{TD}. The data.frame should contain one
 or  more of the following columns: trLocation, trDate, trDesign, trLat,
-trLong, trPlotWidth and trPlotLength. The values of the metadata of TD
+trLong, trPlWidth and trPlLength. The values of the metadata of TD
 will be set to the values in the corresponding column in \code{meta}.
 Existing values will be overwritten, but \code{NA} will be ignored so
 setting a value to \code{NA} won't result in accidentally removing it.
