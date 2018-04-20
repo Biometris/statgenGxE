@@ -86,10 +86,26 @@ print(xtable::xtable(x = summaryTab, caption = paste("Fitted models ordered by",
 \section{Covariance matrix}
 %-------------------------------------------------------------------------------
 <<label=covmat, echo=FALSE, results="asis">>=
-print(xtable::xtable(x = x$vcov, caption = "Covariance matrix for the best model"),
-      latex.environments = "flushleft",
-      include.rownames = TRUE, include.colnames = TRUE,
-      caption.placement = "top")
+## xtable doesn't support \resizebox needed for fitting table to page.
+## By using floating = FALSE only a tabular is printed and the full latex
+## command is constructed around that.
+cat("\\begin{table}[ht]")
+cat("\\begin{flushleft}")
+cat("\\caption{Covariance matrix for the best model}")
+if (sum(nchar(colnames(x$vcov))) + ncol(x$vcov) > 80) {
+  cat("\\resizebox{\\textwidth}{!} {")
+}
+print(xtable::xtable(x = x$vcov,
+                     display = c("s",
+                                 rep(x = ifelse(max(x$vcov) > 0.1, "f", "e"),
+                                     times = ncol(x$vcov)))),
+      floating = FALSE,
+      include.rownames = TRUE, include.colnames = TRUE)
+if (sum(nchar(colnames(x$vcov))) + ncol(x$vcov) > 80) {
+  cat("}")
+}
+cat("\\end{flushleft}")
+cat("\\end{table}")
 @
 
 %-------------------------------------------------------------------------------
