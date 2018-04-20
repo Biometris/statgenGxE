@@ -31,49 +31,50 @@ TO BE WRITTEN
 # Create TD object
 
 The first step when modeling a field trial or performing a GxE analysis using 
-the RAP package will always be creating an object of class TD. Such an object
+the RAP package will always be creating an object of class `TD`. Such an object
 is used internally by the package for performing all types of analysis.  
 
-A TD object can be easily created from a data.frame by calling the function
+A `TD` object can be easily created from a `data.frame` with the function
 `createTD`. This function will do a several things:  
 * Rename columns to default column names used by the RAP package. For example, 
 the column in the data containing variety/accession/genotype will allways be 
 renamed to genotype. Original column names will be stored as an attribute to 
-the final object of class TD.  
+the final object of class `TD`.  
 * Convert column type to the default column types. For example the column 
 genotype will always be converted to a factor and rowCoord will always be 
 converted to a numeric column.  
-* Split the data by trial. The output TD object will be a list of data.frames
-where each data.frame contains the data for a single trial. If there is only 
-one trial or no column trial is defined the output will be a list with one
-item only.  
-* Add meta data to the seperate data.frames in the TD object. This meta data 
+* Split the data by trial. The output `TD` object will be a `list` of 
+`data.frames` where each `data.frame` contains the data for a single trial. 
+If there is only one trial or no column trial is defined the output will be a 
+`list` with only one item.    
+* Add meta data to the seperate `data.frames` in the `TD` object. This meta data 
 consists of location, date, longitude, latitude, plot design, width and length.
-None of this is strictly neccessary for doing analysis but it is used for 
-plotting field layouts, plotting trials on a map and naming plots. For a single 
-trial can simply be added when creating the TD object using the function 
-parameters in `createTD`. However if the data consists of multiple trials with
-different meta data per trial it is more convenient to first create a TD object
-without using the parameters for adding meta data. Doing so only a location will
-be added based on the name of the trial. After creating the TD object the meta
-data can be extracted using `getMeta`. This function outputs a data.frame with 
-the meta data per trial. The content of this data.frame can then be modified 
-and added back to the TD object using `setMeta`.  
+None of these is strictly neccessary for doing analysis but the meta data is 
+used for plotting field layouts, plotting trials on a map and naming plots. 
+Meta data for a single trial can simply be added when creating the `TD` object 
+using the parameters in `createTD`. However if the data consists of 
+multiple trials with different meta data per trial it is more convenient to 
+first create a `TD` object without adding meta data. This will only add a trial
+location based on the name of the trial. After creating the `TD` object the meta
+data can then be extracted using `getMeta`. This function outputs a `data.frame`
+with the meta data per trial. The content of this `data.frame` can then be 
+modified and added back to the `TD` object using `setMeta`.  
 
-After creating a TD object data for new trials can be added to it using 
+
+After creating a `TD` object data for new trials can be added to it using 
 `addTD`. This function works in exactly the same way as `createTD` except that
-it adds data to an existing TD object instead of creating a new one. Still the
+it adds data to an existing `TD` object instead of creating a new one. Still the
 output needs to be assigned to a variable.  
 
-As an example we will create a TD object using field data from an experiment
+As an example we will create a `TD` object using field data from an experiment
 with wheat in Chili described by @Lado2013. This data will be used as an 
 example throughout this vignette.  
 
 The experiment was performed in two locations with 2 different drought regimes 
 in two years for the first location and 1 trial for the second location. For the
-sake of the example we will create an TD object for the first location first and
-add the data for the second location later on. In practice this could also be 
-done in one go.
+sake of the example we will create an `TD` object for the first location first 
+and add the data for the second location later on. In practice this could also 
+be done in one go.
 ```{r createTD}
 data("wheatChl")
 wheatTD <- createTD(data = wheatChl[wheatChl$trial != "C_SWS_12", ], 
@@ -87,58 +88,57 @@ numeric column containing this information are needed. `rowId` and `colId` will
 be converted to a factor and `rowCoord` and `colCoord` will remain numerical 
 column as they were in the input.  
 
-The TD object we just created will be a list with 4 items, 1 for each trial 
-(combination of location, drought regime and year) in the original data.frame. 
-The meta data will be a data.frame with 4 rows.
+The `TD` object we just created will be a `list` with 4 items, 1 for each trial 
+(combination of location, drought regime and year) in the original `data.frame`. 
+The meta data will be a `data.frame` with 4 rows.
 ```{r getMeta}
-wheatMeta <- getMeta(TD = wheatTD)
-head(wheatMeta)
+(wheatMeta <- getMeta(TD = wheatTD))
 ```
 
-Now we can modify the meta data and then add it back to the original TD object.
+Now the meta data can be modified and then added it back to the original `TD` 
+object.
 ```{r setMeta}
 wheatMeta$trLocation <- "Santa Rosa"
 wheatMeta$trDate <- as.Date(rep(c("310811", "310812"), times = 2), "%d%m%y")
 wheatMeta$trLat <- -36.32
 wheatMeta$trLong <- -71.55
-wheatMeta$trPlotWidth = 2
-wheatMeta$trPlotLength = 1
+wheatMeta$trPlWidth = 2
+wheatMeta$trPlLength = 1
 wheatTD <- setMeta(TD = wheatTD, meta = wheatMeta)
 ```
 
-To add the final trial to the TD object the function `addTD` can be used. Since
-in this case we are only adding 1 new trial it makes sense to immediately add 
-the meta data for this trial as well. 
+To add the final trial to the `TD` object the function `addTD` can be used. 
+Since now 1 new trial is added it makes sense to immediately add the meta data 
+for this trial as well. 
 ```{r addTD}
 wheatTD <- addTD(TD = wheatTD, data = wheatChl[wheatChl$trial == "C_SWS_12", ], 
                  genotype = "trt_id", repId = "rep", subBlock = "bl", 
                  rowId = "row", colId = "col", rowCoord = "row", 
                  colCoord = "col", trLocation = "Cauquenes", 
-                 trDate = as.Date("070712", "%d%m%y"), trLat = -35.58,
-                 trLong = -72.17, trPlotWidth = 2, trPlotLength = 1)
+                 trDate = as.Date("070912", "%d%m%y"), trLat = -35.58,
+                 trLong = -72.17, trPlWidth = 2, trPlLength = 1)
 ## Inspect the meta data after the extra trial was added.
 getMeta(TD = wheatTD)
 ```
 
-To get an idea of the content of the data and the field layout of the data we 
-can summarize and plot the TD object. Multiple traits can be summarized at once 
-but in order to save space we only look at GY (grain yield).
+Use the `plot` and `summary` functions to get an idea of the content of the data
+and the field layout of the trials in the `TD` object. Multiple traits may be 
+summarized at once but for clarity a summary is only made for GY (grain yield).
 ```{r TDsum}
 summary(wheatTD, trial = "SR_FI_11", traits = "GY")
 ```
 
+The default plot creates plots for the layout of all trials in the `TD` object.
+This can be restricted to selected trials using the `trials` parameter. The 
+width and length of the plot will be derived from the trPlWidth and 
+trPlLength in the meta data if these are available.  
 ```{r layoutPlot}
 plot(wheatTD, trials = "SR_FI_11")
 ```
 
-The default plot creates plots for the layout of all trials in the TD object.
-This can be restricted to selected trials using the `trials` parameter. The 
-width and length of the plot will be derived from the trPlotWidth and 
-trPlotLength in the meta data if these are available.  
-
-A second type of plot will plot the trial locations on a map. This plot is made
-based on trLat and trLong in the meta data. If not available the corresponding
-location will not be plotted.
+A second type of plot will display the trial locations on a map. This plot is 
+made based on trLat and trLong in the meta data. If not available the 
+corresponding location will not be plotted.
 ```{r mapPlot}
 plot(wheatTD, plotType = "map")
 ```
@@ -147,48 +147,58 @@ plot(wheatTD, plotType = "map")
 
 # Modeling
 
-After creating a TD object the next step will usually be fitting a model on
+After creating a `TD` object the next step will usually be fitting a model on
 the trial data. This can be done using the function `STRunModel`. Depending on 
 the design of the trial several different models can be fitted. The design can 
 be given as a parameter in the function or can be included in the meta data of 
-the TD object. In the first case the same model will be fitted for all trials, 
+the `TD` object. In the first case the same model will be fitted for all trials, 
 in the latter case different models can be fitted for different trials 
 depending on the design. If both are available the function parameter will 
 always be leading. 
 
-All models can be fitted using 3 different model fitting engines, 
+The output of `STRunModel` is an object of class `SSA` (Single Site Analysis), a
+`list` of fitted models with 1 item for each trial a model was fitted for. 
+
+`STRunModel` uses 3 different engines for fitting the models, 
 SpATS [@RodAlv2017], lme4 [@Bates2015] and asreml [@Gilmour2009]. For models 
 with rowcol or res.rowcol design SpATS is the default engine, for the other 
-models lme4. This can be overruled by the function parameter `engine`.
+models lme4. This can always be overruled by the specifying the function 
+parameter `engine`.
 
-The exact models fitted are the following  
-* ibd trait = genotype + *subBlock* + e  
-* res.ibd trait = genotype + **repId** + **repId:subBlock** + e  
-* rcbd trait = genotype + **repId** + e  
-* rowcol trait = genotype + *rowId* + *colId* + e  
-* res.rowcol trait = genotype + **repId** + *repId:rowId* + *repId:colId* + e  
+At the moment of writing models can be fitted for 5 different trial designs. 
+These are listed in the following table with their respective specifications.  
+
+design | model fitted
+------- | ---------------------------------------------------------------------
+ibd | trait = genotype + *subBlock* + e  
+res.ibd | trait = genotype + **repId** + **repId:subBlock** + e  
+rcbd | trait = genotype + **repId** + e  
+rowcol | trait = genotype + *rowId* + *colId* + e  
+res.rowcol | trait = genotype + **repId** + *repId:rowId* + *repId:colId* + e  
 
 In the models above fixed effects are indicated in *italics* whereas random 
-effects are indicated in **bold**. genotype will be fitted as fixed or as 
+effects are indicated in **bold**. genotype can be fitted as fixed or as 
 random effect, or both, depending on the value of the parameter `what`. Extra
 fixed effects may be fitted using the parameter `covariates`.  
-In case SpATS is used as engine for fitting models an extra spatial term is 
-always included in the model. The same is done when the engine is asreml and 
+In case SpATS is used as modeling engine an extra spatial term is always 
+included in the model. The same is done when the engine is asreml and 
 the function parameter `trySpatial` is set to true.
 
-Using the TD object wheatTD we created in the previous section we can now fit 
-a model on the data. 
+Using the `TD` object wheatTD from the previous section a model can now be 
+fitted on the data as follows. 
 ```{r fitSp, message=FALSE}
 modWheat <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
                        design = "res.rowcol")
 ```
 Note that by not supplying the `what` argument to the function two models will
 be fitted, one with genotype as a fixed effect and one with genotype as a 
-random effect. Because of this both BLUEs and BLUPs can be calculated from 
-the output and this will be done when summarizing the results. If genotype 
-would have been fitted as fixed effect only, the summary would only have 
-contained BLUEs. When fitting genotype as random effect only the summary would 
-only have contained the BLUPs.
+random effect. The results of both these models are stored in the `SSA` object
+`modWheat`. This is very useful for extracting different results from the model
+later on. A trade off is that fitting 2 models simply takes more time than
+fitting only 1.
+
+Since genotype has been fitted both as fixed and as random factor in `modWheat`
+it is possible to calculate both BLUEs and BLUPs. This will show in the summary.
 ```{r fitSum, message=FALSE}
 ## Set nBest to 5 to decrease size of output.
 summary(modWheat, nBest = 5)
@@ -236,7 +246,7 @@ This value of this parameter should be a valid location and name for a **pdf**
 file. Non existing directories will be created by the reporting function.  
 
 The report will contain some background information on the model fitted, a 
-summary of the results, the plots described in the previous section, a list of
+summary of the results, the plots described in the previous section, a `list` of
 best (highest BLUEs or BLUPs) genotypes and a scatter plot of all genotypes
 and their BLUEs or BLUPs. If for the modeled trait a low value means the 
 genotype is performing well then the best genotypes can be based on the lowest
@@ -259,8 +269,8 @@ and `what` can be used for this.
 
 After fitting a model various results can be extracted or calculated from the 
 fitted model using the function `STExtract`. This can be a single result for 1 
-trait and 1 trial or a list of different results for all models in a SSA object. 
-The results that can be extracted depend on the type of model fitted and 
+trait and 1 trial or a `list` of different results for all models in a SSA 
+object. The results that can be extracted depend on the type of model fitted and 
 sometimes on the engine as well. BLUEs can only extracted is genotype was fitted 
 as fixed effect whereas BLUPs and heritabilities can only be extracted and 
 calculated if genotype was fitted as random effect.  
@@ -307,22 +317,22 @@ BLUEsWheat <- STExtract(SSA = modWheat, what = "BLUEs")
 ## Extract BLUEs and BLUPs
 predWheat <- STExtract(SSA = modWheat, what = c("BLUEs", "BLUPs"))
 ```
-Both `BLUEsWheat` and `predWheat` are a list with 1 item, the trial used for
-modeling. In general there will be an item in the list for every trial for 
+Both `BLUEsWheat` and `predWheat` are a `list` with 1 item, the trial used for
+modeling. In general there will be an item in the `list` for every trial for 
 which results were extracted. However where the item in `BLUEsWheat` is a 
-data.frame containing the BLUEs `predWheat` itself is again a list with 2 items,
-the data.frames BLUEs and BLUPs. Looking at the data.frame BLUEs in either of 
-the list it only consists of 2 columns, genotype and GY. In case the model 
-would have been fitted for multiple traits all these traits would become columns
-in the data.frame. It might be useful to add extra information to the output. 
-This can be achieved using the paramater `keep` in `STExtract`. If we would 
-like to include the trial for example so later on we can easily combine the
-several data.frames with BLUEs and use the for a GxE analysis this can be done
-like this.
+`data.frame` containing the BLUEs `predWheat` itself is again a `list` with 2 
+items, the `data.frames` BLUEs and BLUPs. Looking at the `data.frame` BLUEs in 
+either of the `list` it only consists of 2 columns, genotype and GY. In case 
+the model would have been fitted for multiple traits all these traits would 
+become columns in the `data.frame`. It might be useful to add extra information 
+to the output. This can be achieved using the paramater `keep` in `STExtract`. 
+If we would like to include the trial for example so later on we can easily 
+combine the several `data.frames` with BLUEs and use the for a GxE analysis this 
+can be done like this.
 ```{r extBLUEsKeep}
 BLUEsWheat2 <- STExtract(SSA = modWheat, what = "BLUEs", keep = "trial")
 ```
-Not every column from the original TD object can be included in the extracted 
+Not every column from the original `TD` object can be included in the extracted 
 data in this way. Only column for which the values are uniform per genotype can 
 be included. For example the column repId that usually has several different 
 values for a single genotype cannot be included. When trying to do so it will be
