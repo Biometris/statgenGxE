@@ -87,6 +87,9 @@
 #' valid parameter when fitting a spatial model using asreml. Use this to pass
 #' a goodness-of-fit criterion for comparing different spatial models. See also
 #' in details. Other parameters are ignored.
+#' @param progress Should the progress of the modeling be printed. If
+#' \code{TRUE} for every trial a line is output indicating the traits fitted
+#' for the particular trial.
 #' @param ... Further arguments to be passed to \code{SpATS}, \code{lme4} or
 #' \code{asreml}.
 #'
@@ -163,6 +166,7 @@ STRunModel = function(TD,
                       trySpatial = FALSE,
                       engine = NA,
                       control = NULL,
+                      progress = FALSE,
                       ...) {
   ## Base check.
   if (missing(TD) || !inherits(TD, "TD")) {
@@ -177,6 +181,10 @@ STRunModel = function(TD,
                             engine = engine, useCheckId = useCheckId,
                             control = control)
     ## Convert output to variables.
+    if (progress) {
+      cat(paste0("Fitting models for ", paste(traits, collapse = ", "),
+                 " in ", trial, ".\n"))
+    }
     list2env(x = checkOut, envir = environment())
     model <- do.call(what = paste0("STMod", tools::toTitleCase(engine)),
                      args = list(TD = TD[trial], trial = trial, traits = traits,

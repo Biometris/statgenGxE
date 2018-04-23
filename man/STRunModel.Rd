@@ -6,7 +6,8 @@
 \usage{
 STRunModel(TD, trials = names(TD), design = NULL, traits,
   what = c("fixed", "random"), covariates = NULL, useCheckId = FALSE,
-  trySpatial = FALSE, engine = NA, control = NULL, ...)
+  trySpatial = FALSE, engine = NA, control = NULL, progress = FALSE,
+  ...)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
@@ -46,6 +47,10 @@ nest.div in \code{\link[SpATS]{PSANOVA}} respectively. \code{criterion} is a
 valid parameter when fitting a spatial model using asreml. Use this to pass
 a goodness-of-fit criterion for comparing different spatial models. See also
 in details. Other parameters are ignored.}
+
+\item{progress}{Should the progress of the modeling be printed. If
+\code{TRUE} for every trial a line is output indicating the traits fitted
+for the particular trial.}
 
 \item{...}{Further arguments to be passed to \code{SpATS}, \code{lme4} or
 \code{asreml}.}
@@ -114,8 +119,7 @@ fitted
 \item{random = NULL, spatial = iexp(rowCoord,colCoord)}
 \item{random = repId:rowId, spatial = exp(rowCoord):colCoord}
 \item{random = repId:colId, spatial = rowCoord:exp(colCoord)}
-\item{random = repId:rowId + repId:colId,
-spatial = iexp(rowCoord,colCoord)}
+\item{random = repId:rowId + repId:colId, spatial = iexp(rowCoord,colCoord)}
 }
 If the design is not regular the following following combinations of random
 and spatial terms are fitted
