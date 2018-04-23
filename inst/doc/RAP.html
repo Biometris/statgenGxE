@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bart-Jan van Rossum" />
 
-<meta name="date" content="2018-04-20" />
+<meta name="date" content="2018-04-23" />
 
 <title>Modeling field trials using RAP</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Modeling field trials using RAP</h1>
 <h4 class="author"><em>Bart-Jan van Rossum</em></h4>
-<h4 class="date"><em>2018-04-20</em></h4>
+<h4 class="date"><em>2018-04-23</em></h4>
 
 
 
@@ -79,7 +79,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The RAP package is developed as an easy to use package for analysing data of plant breeding experiments with plenty of options for plotting and reporting the results of the analyses.</p>
 <p>The package has 3 main components:</p>
 <ul>
-<li>Modeling and extracting results</li>
+<li>Modeling trial data for single trials and extracting results</li>
 <li>Genotype by Environment (GxE) analysis</li>
 <li>QTL analysis</li>
 </ul>
@@ -88,7 +88,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="data-preparation" class="section level1">
 <h1><span class="header-section-number">2</span> Data preparation</h1>
-<p>The first step when modeling field trial data or performing a GxE analysis with the RAP package is always creating an object of class <code>TD</code>. Such an object is used by the RAP package for performing most analyses.</p>
+<p>The first step when modeling field trial data or performing a GxE analysis with the RAP package is creating an object of class <code>TD</code>. This object is used by the RAP package for performing most analyses.</p>
 <div id="creating-a-td-object" class="section level2">
 <h2><span class="header-section-number">2.1</span> Creating a <code>TD</code> object</h2>
 <p>A <code>TD</code> object can be created from a <code>data.frame</code> with the function <code>createTD</code>. This function does a number of things:</p>
@@ -96,14 +96,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li>Rename columns to default column names used by the RAP package. For example, the column in the data containing variety/accession/genotype is renamed to <code>genotype</code>. Original column names are stored as an attribute of the <code>TD</code> object.</li>
 <li>Convert column type to the default column types. For example the column genotype is converted to a factor and rowCoord to a numeric column.</li>
 <li>Split the data into separate data.frames by trial. The output <code>TD</code> object is a <code>list</code> of <code>data.frames</code> where each <code>data.frame</code> contains the data for a single trial. If there is only one trial or no column trial is defined the output will be a <code>list</code> with only one item.</li>
-<li>Add meta data to the separate <code>data.frames</code> in the <code>TD</code> object. The meta data consists of location, date, longitude, latitude, plot design, width and length. None of these is strictly neccessary for any analysis but the meta data is used for plotting field layouts, plotting trials on a map and naming plots. Meta data for a single trial can simply be added when creating the <code>TD</code> object using the parameters in <code>createTD</code>. However if the data consists of multiple trials with different meta data per trial it is more convenient to first create a <code>TD</code> object without adding meta data. This will still add a location based on the name of the trial. After creating the <code>TD</code> object the meta data can then be extracted using <code>getMeta</code>. This function outputs a <code>data.frame</code> with the meta data per trial. The content of this <code>data.frame</code> can then be modified and added back to the <code>TD</code> object using <code>setMeta</code>.</li>
+<li>Add meta data to the separate <code>data.frames</code> in the <code>TD</code> object. The meta data consists of location, date of the experiment, longitude, latitude, trial design, plot width and plot length. None of these is strictly neccessary for any analysis but the meta data is used for plotting field layouts, plotting trials on a map and naming plots. Meta data for a single trial can simply be added when creating the <code>TD</code> object using the parameters in <code>createTD</code>. However if the data consists of multiple trials with different meta data per trial it is more convenient to first create a <code>TD</code> object without adding meta data. This will still add a location based on the name of the trial. After creating the <code>TD</code> object the meta data can then be extracted using <code>getMeta</code>. This function outputs a <code>data.frame</code> with the meta data per trial. The content of this <code>data.frame</code> can then be modified and added back to the <code>TD</code> object using <code>setMeta</code>.</li>
 </ul>
 <p>After creating a <code>TD</code> object data for new trials can be added to it using <code>addTD</code>. This function works in exactly the same way as <code>createTD</code> except that it adds data to an existing <code>TD</code> object instead of creating a new one.</p>
 </div>
 <div id="example" class="section level2">
 <h2><span class="header-section-number">2.2</span> Example</h2>
 <p>Field data from an experiment with wheat in Chili described in detail by <span class="citation">Lado et al. (2013)</span> will be used as an example throughout this vignette. The experiment was performed in 2 locations in Chili with 2 different drought regimes in 2011 and 2012 for the first location and 1 trial in 2012 for the second location. For 384 genotypes 4 traits were measured in 2011 but in 2012 only grain yield (GY) was measured and the examples will mainly focus on this trait.</p>
-<p>For the example first an <code>TD</code> object is created for the first location and the data for the second location is then added later on. In practice all this could be done in one go.</p>
+<p>For the example first a <code>TD</code> object is created for the first location and the data for the second location is then added later on. In practice all this could be done in one go.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;wheatChl&quot;</span>)
 wheatTD &lt;-<span class="st"> </span><span class="kw">createTD</span>(<span class="dt">data =</span> wheatChl[wheatChl<span class="op">$</span>trial <span class="op">!=</span><span class="st"> &quot;C_SWS_12&quot;</span>, ], 
                     <span class="dt">genotype =</span> <span class="st">&quot;trt_id&quot;</span>, <span class="dt">repId =</span> <span class="st">&quot;rep&quot;</span>, <span class="dt">subBlock =</span> <span class="st">&quot;bl&quot;</span>, 
@@ -148,8 +148,8 @@ wheatTD &lt;-<span class="st"> </span><span class="kw">setMeta</span>(<span clas
 <span class="co">#&gt; SR_MWS_12 Santa Rosa 2012-08-31       NA -36.32 -71.55         2          1</span>
 <span class="co">#&gt; C_SWS_12   Cauquenes 2012-09-07       NA -35.58 -72.17         2          1</span></code></pre></div>
 </div>
-<div id="summarise-a-td-object" class="section level2">
-<h2><span class="header-section-number">2.5</span> Summarise a <code>TD</code> object</h2>
+<div id="summarising-a-td-object" class="section level2">
+<h2><span class="header-section-number">2.5</span> Summarising a <code>TD</code> object</h2>
 <p>Use the <code>summary</code> function to get an idea of the content of the data in the <code>TD</code> object. Multiple traits may be summarised at once but for clarity a summary is only made for GY.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(wheatTD, <span class="dt">trial =</span> <span class="st">&quot;SR_FI_11&quot;</span>, <span class="dt">traits =</span> <span class="st">&quot;GY&quot;</span>)
 <span class="co">#&gt; </span>
@@ -166,8 +166,8 @@ wheatTD &lt;-<span class="st"> </span><span class="kw">setMeta</span>(<span clas
 <span class="co">#&gt;                   Variance  3080361.436</span></code></pre></div>
 <p>Using the default options 9 summary statistics are printed, but many more are available. These can be accessed using the parameter <code>what</code> in the <code>summary</code> function. For a full list of available statistics use <code>help(summary.TD)</code>. It is also possible to output all statistics using <code>what = &quot;all&quot;</code>.</p>
 </div>
-<div id="plot-a-td-object" class="section level2">
-<h2><span class="header-section-number">2.6</span> Plot a <code>TD</code> object</h2>
+<div id="plotting-a-td-object" class="section level2">
+<h2><span class="header-section-number">2.6</span> Plotting a <code>TD</code> object</h2>
 <p>The default plot creates plots for the layout of all trials in the <code>TD</code> object. This can be restricted to selected trials using the <code>trials</code> parameter. The width and length of the plot are derived from the trPlWidth and trPlLength in the meta data if these are available.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(wheatTD, <span class="dt">trials =</span> <span class="st">&quot;SR_FI_11&quot;</span>)</code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
@@ -195,23 +195,27 @@ wheatTD &lt;-<span class="st"> </span><span class="kw">setMeta</span>(<span clas
 <tbody>
 <tr class="odd">
 <td>ibd</td>
-<td>trait = genotype + <em>subBlock</em> + e</td>
+<td>trait = genotype + <em>subBlock</em> + \epsilon</td>
 </tr>
 <tr class="even">
 <td>res.ibd</td>
-<td>trait = genotype + <strong>repId</strong> + <strong>repId:subBlock</strong> + e</td>
+<td>trait = genotype + <strong>repId</strong> + <strong>repId:subBlock</strong> + \epsilon</td>
 </tr>
 <tr class="odd">
 <td>rcbd</td>
-<td>trait = genotype + <strong>repId</strong> + e</td>
+<td>trait = genotype + <strong>repId</strong> + \epsilon</td>
 </tr>
 <tr class="even">
 <td>rowcol</td>
-<td>trait = genotype + <em>rowId</em> + <em>colId</em> + e</td>
+<td>trait = genotype + <em>rowId</em> + <em>colId</em> + \epsilon</td>
 </tr>
 <tr class="odd">
 <td>res.rowcol</td>
-<td>trait = genotype + <strong>repId</strong> + <em>repId:rowId</em> + <em>repId:colId</em> + e</td>
+<td>trait = genotype + <strong>repId</strong> + <em>repId:rowId</em> + <em>repId:colId</em> +</td>
+</tr>
+<tr class="even">
+<td>\epsilon</td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -268,9 +272,9 @@ If SpATS is used as modeling engine an extra spatial term is always included in 
 </div>
 <div id="model-reports" class="section level2">
 <h2><span class="header-section-number">3.4</span> Model reports</h2>
-<p>As with many object in the RAP package there is a <code>report</code> function available for <code>SSA</code> objects. This <code>report</code> function will create a pdf report describing the main results of the fitted model. Also a tex file will be created that was used for generating the pdf report. By editing the tex file it is possible to modify the report to ones needs creating high flexibility.</p>
-<p>When no outfile is given a report will be created with a default name in the current working directory. The parameter <code>outfile</code> can be used to change this. This value of this parameter should be a valid location and name for a <strong>pdf</strong> file. Non-existing directories are be created by the <code>report</code> function.</p>
-<p>The report contains some background information on the model fitted, a summary of the results, the plots described in the previous section, a <code>list</code> of best (highest BLUEs or BLUPs) genotypes and a scatter plot of all genotypes and their BLUEs or BLUPs. If for the modeled trait a low value means the genotype is performing well then the best genotypes can be based on the lowest BLUEs or BLUPs by setting <code>descending</code> to <code>TRUE</code> when calling the report function.</p>
+<p>As with many objects in the RAP package there is a <code>report</code> function available for <code>SSA</code> objects. This <code>report</code> function creates a pdf report describing the main results of the fitted model. Also the tex file is saved that was used for generating the pdf report. By editing the tex file it is possible to modify the report to ones needs creating high flexibility.</p>
+<p>When no outfile is given a report will be created with a default name in the current working directory. The parameter <code>outfile</code> can be used to change this. This value of this parameter should be a valid location and name for a <strong>pdf</strong> file, i.e. including the postfix “.pdf”. Non-existing directories are be created by the <code>report</code> function.</p>
+<p>The report contains general information on the model fitted, a summary of the results, the plots described in the previous section, a <code>list</code> of best (highest BLUEs or BLUPs) genotypes and a scatter plot of all genotypes and their BLUEs or BLUPs. If for the modeled trait a low value means the genotype is performing well then the selection on the best genotypes can be based on the lowest BLUEs or BLUPs by setting <code>descending</code> to <code>TRUE</code> when calling the report function.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Create a report in the current working directory
 <span class="kw">report</span>(modWheat)
 ## Create a report for the model with genotype fitted as random.
@@ -281,7 +285,7 @@ If SpATS is used as modeling engine an extra spatial term is always included in 
 </div>
 <div id="extracting-model-results" class="section level1">
 <h1><span class="header-section-number">4</span> Extracting model results</h1>
-<p>After fitting a model various results can be extracted or calculated from the fitted model using the function <code>STExtract</code>. This can be a single result for 1 trait and 1 trial or a <code>list</code> of different results for all models in an <code>SSA</code> object. The results that can be extracted depend on the type of model fitted and sometimes on the modeling engine as well. For example, BLUEs can only extracted if genotype was fitted as fixed effect whereas BLUPs and heritabilities can only be extracted and calculated if genotype was fitted as random effect.</p>
+<p>After fitting a model various results can be extracted or calculated from the fitted model using the function <code>STExtract</code>. This can be anything from a single result for 1 trait and 1 trial to a <code>list</code> of different results for all models in an <code>SSA</code> object. The results that can be extracted depend on the type of model fitted and sometimes on the modeling engine as well. For example, BLUEs can only extracted if genotype was fitted as fixed effect whereas BLUPs and heritabilities can only be extracted and calculated if genotype was fitted as random effect.</p>
 <div id="possible-results-to-extract" class="section level2">
 <h2><span class="header-section-number">4.1</span> Possible results to extract</h2>
 <p>All results that can be extracted are shown in the table below. The first column shows what model needs to be fitted in order to be able to extract the result. F stands for genotype as fixed effect, R for genotype as random effect. In the second column is the result. This is also the value to be used for the parameter <code>what</code> in <code>STExtract</code> needed to extract the corresponding result. The last column gives a short description of the result that will be extracted and where needed also states for which modeling engines it can be extracted.</p>
@@ -377,7 +381,7 @@ If SpATS is used as modeling engine an extra spatial term is always included in 
 <tr class="even">
 <td>F</td>
 <td>CV</td>
-<td>Coefficient of variation - only for <code>lme4</code> and <code>asreml</code></td>
+<td>Coefficient of Variation - only for <code>lme4</code> and <code>asreml</code></td>
 </tr>
 <tr class="odd">
 <td>F</td>

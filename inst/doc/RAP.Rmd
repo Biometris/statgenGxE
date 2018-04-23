@@ -30,7 +30,7 @@ the results of the analyses.
 
 The package has 3 main components:
 
-* Modeling and extracting results
+* Modeling trial data for single trials and extracting results
 * Genotype by Environment (GxE) analysis
 * QTL analysis
 
@@ -43,8 +43,8 @@ modeling engines and extract the results from the models.
 # Data preparation
 
 The first step when modeling field trial data or performing a GxE analysis with 
-the RAP package is always creating an object of class `TD`. Such an object
-is used by the RAP package for performing most analyses.  
+the RAP package is creating an object of class `TD`. This object is used by the 
+RAP package for performing most analyses.  
 
 ## Creating a `TD` object
 
@@ -61,18 +61,16 @@ genotype is converted to a factor and rowCoord to a numeric column.
 trial. If there is only one trial or no column trial is defined the output will 
 be a `list` with only one item.
 * Add meta data to the separate `data.frames` in the `TD` object. The meta data 
-consists of location, date, longitude, latitude, plot design, width and length.
-None of these is strictly neccessary for any analysis but the meta data is 
-used for plotting field layouts, plotting trials on a map and naming plots. 
-Meta data for a single trial can simply be added when creating the `TD` object 
-using the parameters in `createTD`. However if the data consists of 
-multiple trials with different meta data per trial it is more convenient to 
-first create a `TD` object without adding meta data. This will still add a 
-location based on the name of the trial. After creating the `TD` object the meta
-data can then be extracted using `getMeta`. This function outputs a `data.frame`
-with the meta data per trial. The content of this `data.frame` can then be 
-modified and added back to the `TD` object using `setMeta`.  
-
+consists of location, date of the experiment, longitude, latitude, trial design,
+plot width and plot length. None of these is strictly neccessary for any 
+analysis but the meta data is used for plotting field layouts, plotting trials 
+on a map and naming plots. Meta data for a single trial can simply be added when creating the `TD` object using the parameters in `createTD`. However if the data consists of multiple trials with different meta data per trial it is more 
+convenient to first create a `TD` object without adding meta data. This will 
+still add a location based on the name of the trial. After creating the `TD` 
+object the meta data can then be extracted using `getMeta`. This function 
+outputs a `data.frame` with the meta data per trial. The content of this 
+`data.frame` can then be modified and added back to the `TD` object using 
+`setMeta`.  
 
 After creating a `TD` object data for new trials can be added to it using 
 `addTD`. This function works in exactly the same way as `createTD` except that
@@ -87,7 +85,7 @@ and 2012 for the first location and 1 trial in 2012 for the second location. For
 384 genotypes 4 traits were measured in 2011 but in 2012 only grain yield (GY) 
 was measured and the examples will mainly focus on this trait.  
 
-For the example first an `TD` object is created for the first location and 
+For the example first a `TD` object is created for the first location and 
 the data for the second location is then added later on. In practice all this
 could be done in one go.
 ```{r createTD}
@@ -139,7 +137,7 @@ wheatTD <- addTD(TD = wheatTD, data = wheatChl[wheatChl$trial == "C_SWS_12", ],
 getMeta(TD = wheatTD)
 ```
 
-## Summarise a `TD` object
+## Summarising a `TD` object
 
 Use the `summary` function to get an idea of the content of the data in the `TD` object. Multiple traits may be summarised at once but for clarity a summary is
 only made for GY.
@@ -152,7 +150,7 @@ available. These can be accessed using the parameter `what` in the `summary`
 function. For a full list of available statistics use `help(summary.TD)`. It is 
 also possible to output all statistics using `what = "all"`.
 
-## Plot a `TD` object
+## Plotting a `TD` object
 
 The default plot creates plots for the layout of all trials in the `TD` object.
 This can be restricted to selected trials using the `trials` parameter. The 
@@ -196,13 +194,14 @@ parameter `engine`.
 At the moment of writing models can be fitted for 5 different trial designs. 
 These are listed in the following table with their respective specifications.  
 
-design | model fitted
-------- | ---------------------------------------------------------------------
-ibd | trait = genotype + *subBlock* + e  
-res.ibd | trait = genotype + **repId** + **repId:subBlock** + e  
-rcbd | trait = genotype + **repId** + e  
-rowcol | trait = genotype + *rowId* + *colId* + e  
-res.rowcol | trait = genotype + **repId** + *repId:rowId* + *repId:colId* + e  
+design | model fitted |
+------- | -------------------------------------------------------------------- |
+ibd | trait = genotype + *subBlock* + \\epsilon |
+res.ibd | trait = genotype + **repId** + **repId:subBlock** + \\epsilon |
+rcbd | trait = genotype + **repId** + \\epsilon | 
+rowcol | trait = genotype + *rowId* + *colId* + \\epsilon |
+res.rowcol | trait = genotype + **repId** + *repId:rowId* + *repId:colId* + 
+\\epsilon |
 
 In the models above fixed effects are indicated in *italics* whereas random 
 effects are indicated in **bold**. genotype can be fitted as fixed or as 
@@ -270,24 +269,25 @@ plot(modWheat, plotType = "spatial")
 
 ## Model reports
 
-As with many object in the RAP package there is a `report` function available 
-for `SSA` objects. This `report` function will create a pdf report describing 
-the main results of the fitted model. Also a tex file will be created that was 
+As with many objects in the RAP package there is a `report` function available 
+for `SSA` objects. This `report` function creates a pdf report describing 
+the main results of the fitted model. Also the tex file is saved that was 
 used for generating the pdf report. By editing the tex file it is possible to 
 modify the report to ones needs creating high flexibility.  
 
 When no outfile is given a report will be created with a default name in the 
 current working directory. The parameter `outfile` can be used to change this. 
 This value of this parameter should be a valid location and name for a **pdf**
-file. Non-existing directories are be created by the `report` function.  
+file, i.e. including the postfix ".pdf". Non-existing directories are be created 
+by the `report` function.  
 
-The report contains some background information on the model fitted, a 
+The report contains general information on the model fitted, a 
 summary of the results, the plots described in the previous section, a `list` of
 best (highest BLUEs or BLUPs) genotypes and a scatter plot of all genotypes
 and their BLUEs or BLUPs. If for the modeled trait a low value means the 
-genotype is performing well then the best genotypes can be based on the lowest
-BLUEs or BLUPs by setting `descending` to `TRUE` when calling the report 
-function.
+genotype is performing well then the selection on the best genotypes can be 
+based on the lowest BLUEs or BLUPs by setting `descending` to `TRUE` when 
+calling the report function.
 ```{r modRep, eval=FALSE}
 ## Create a report in the current working directory
 report(modWheat)
@@ -304,12 +304,12 @@ way as for plotting described in the previous section. Parameters `trait`,
 # Extracting model results
 
 After fitting a model various results can be extracted or calculated from the 
-fitted model using the function `STExtract`. This can be a single result for 1 
-trait and 1 trial or a `list` of different results for all models in an `SSA` 
-object. The results that can be extracted depend on the type of model fitted and 
-sometimes on the modeling engine as well. For example, BLUEs can only extracted 
-if genotype was fitted as fixed effect whereas BLUPs and heritabilities can only
-be extracted and calculated if genotype was fitted as random effect.  
+fitted model using the function `STExtract`. This can be anything from a single 
+result for 1 trait and 1 trial to a `list` of different results for all models 
+in an `SSA` object. The results that can be extracted depend on the type of 
+model fitted and sometimes on the modeling engine as well. For example, BLUEs 
+can only extracted if genotype was fitted as fixed effect whereas BLUPs and heritabilities can only be extracted and calculated if genotype was fitted as 
+random effect.  
 
 ## Possible results to extract
 
@@ -338,7 +338,7 @@ F | stdRes | standardized residuals for the model with genotype as fixed compone
 R | rMeans | fitted values for the model with genotype as random component |
 R | ranEf | random genetic effects |
 F | wald | results of the wald test - only for `lme4` and `asreml` |
-F | CV | Coefficient of variation - only for `lme4` and `asreml` |
+F | CV | Coefficient of Variation - only for `lme4` and `asreml` |
 F | rDf | residual degrees of freedom |
 R | effDim | effective dimensions - only for `SpATS` |
 F | sed | standard error of difference - only for `asreml` |
