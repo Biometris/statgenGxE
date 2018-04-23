@@ -45,39 +45,56 @@ plot(wheatTD, trials = "SR_FI_11")
 plot(wheatTD, plotType = "map")
 
 ## ----fitSp, message=FALSE------------------------------------------------
-modWheat <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                       design = "res.rowcol")
+modWheatSp <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                         design = "res.rowcol")
+
+## ----fitSpSm, message=FALSE----------------------------------------------
+## Fit a single trial model with genotype as random effect.
+modWheatSp2 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                          what = "random", design = "res.rowcol")
+
+## ----fitSpCtr, message=FALSE---------------------------------------------
+modWheatSp3 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                          design = "res.rowcol", 
+                          control = list(nSeg = c(20, 20)))
+
+## ----fitAs, message=FALSE, results='hide'--------------------------------
+if (requireNamespace("asreml")) {
+  modWheatSp2 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                            design = "res.rowcol", engine = "asreml",
+                            control = list(criterion = "BIC"))
+}
 
 ## ----fitSum, message=FALSE-----------------------------------------------
 ## Set nBest to 5 to decrease size of output.
-summary(modWheat, nBest = 5)
+summary(modWheatSp, nBest = 5)
 
 ## ----basePlot------------------------------------------------------------
 ## Plot for the model with genotype fitted as random effect.
-plot(modWheat, what = "random")
+plot(modWheatSp, what = "random")
 
 ## ----spatPlot------------------------------------------------------------
 ## Spatial plot for the model with genotype fitted as fixed effect.
-plot(modWheat, plotType = "spatial")
+plot(modWheatSp, plotType = "spatial")
 
 ## ----modRep, eval=FALSE--------------------------------------------------
 #  ## Create a report in the current working directory
-#  report(modWheat)
+#  report(modWheatSp)
 #  ## Create a report for the model with genotype fitted as random.
-#  report(modWheat, outfile = "./myReports/wheatReport.pdf", what = "random")
+#  report(modWheatSp, outfile = "./myReports/wheatReport.pdf", what = "random")
 
 ## ----extBLUEs------------------------------------------------------------
 ## Extract BLUEs
-BLUEsWheat <- STExtract(SSA = modWheat, what = "BLUEs")
+BLUEsWheat <- STExtract(SSA = modWheatSp, what = "BLUEs")
 ## Extract BLUEs and BLUPs
-predWheat <- STExtract(SSA = modWheat, what = c("BLUEs", "BLUPs"))
+predWheat <- STExtract(SSA = modWheatSp, what = c("BLUEs", "BLUPs"))
 
 ## ----extBLUEsKeep--------------------------------------------------------
-BLUEsWheat2 <- STExtract(SSA = modWheat, what = "BLUEs", keep = "trial")
+BLUEsWheat2 <- STExtract(SSA = modWheatSp, what = "BLUEs", keep = "trial")
 head(BLUEsWheat2[[1]])
 
 ## ----extFit--------------------------------------------------------------
-fitVals <- STExtract(SSA = modWheat, what = "fitted", 
+fitVals <- STExtract(SSA = modWheatSp, what = "fitted", 
                      keep = c("trial", "repId"))
 head(fitVals[[1]])
 

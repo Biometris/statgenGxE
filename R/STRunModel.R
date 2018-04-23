@@ -44,8 +44,7 @@
 #' \item{random = NULL, spatial = iexp(rowCoord,colCoord)}
 #' \item{random = repId:rowId, spatial = exp(rowCoord):colCoord}
 #' \item{random = repId:colId, spatial = rowCoord:exp(colCoord)}
-#' \item{random = repId:rowId + repId:colId,
-#' spatial = iexp(rowCoord,colCoord)}
+#' \item{random = repId:rowId + repId:colId, spatial = iexp(rowCoord,colCoord)}
 #' }
 #' If the design is not regular the following following combinations of random
 #' and spatial terms are fitted
