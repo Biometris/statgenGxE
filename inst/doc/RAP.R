@@ -60,10 +60,13 @@ modWheatSp3 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
 
 ## ----fitAs, message=FALSE, results='hide'--------------------------------
 if (requireNamespace("asreml")) {
-  modWheatSp2 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                            design = "res.rowcol", engine = "asreml",
-                            control = list(criterion = "BIC"))
+  modWheatAs <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                           design = "res.rowcol", trySpatial = TRUE,
+                           engine = "asreml", control = list(criterion = "BIC"))
 }
+
+## ----spatCh--------------------------------------------------------------
+modWheatAs$SR_FI_11$spatial
 
 ## ----fitSum, message=FALSE-----------------------------------------------
 ## Set nBest to 5 to decrease size of output.

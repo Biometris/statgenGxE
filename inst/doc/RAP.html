@@ -237,17 +237,21 @@ Refitting the model in the previous section specifying the number of segments fo
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modWheatSp3 &lt;-<span class="st"> </span><span class="kw">STRunModel</span>(<span class="dt">TD =</span> wheatTD, <span class="dt">trials =</span> <span class="st">&quot;SR_FI_11&quot;</span>, <span class="dt">traits =</span> <span class="st">&quot;GY&quot;</span>,
                           <span class="dt">design =</span> <span class="st">&quot;res.rowcol&quot;</span>, 
                           <span class="dt">control =</span> <span class="kw">list</span>(<span class="dt">nSeg =</span> <span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">20</span>)))</code></pre></div>
-<p>Alternatively, spatial models can be fitted using asreml as modeling engine. In this case 6 models are fitted and the best model, based on a goodness-of-fit criterion, either AIC or BIC, is chosen. For a full specification of the models fitted see <code>help(STRunModel)</code>. The criterion to be used can be specified using the <code>control</code> parameter in <code>STRunModel</code>.<br />
+<p>Alternatively, spatial models can be fitted using asreml as modeling engine and setting the parameter <code>trySpatial = TRUE</code> . In this case 6 models are fitted and the best model, based on a goodness-of-fit criterion, either AIC or BIC, is chosen. For a full specification of the models fitted see <code>help(STRunModel)</code>. The criterion to be used can be specified using the <code>control</code> parameter in <code>STRunModel</code>.<br />
 Fitting a model similar to the one above using asreml with BIC as goodness-of-fit criterion works as follows</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw">requireNamespace</span>(<span class="st">&quot;asreml&quot;</span>)) {
-  modWheatSp2 &lt;-<span class="st"> </span><span class="kw">STRunModel</span>(<span class="dt">TD =</span> wheatTD, <span class="dt">trials =</span> <span class="st">&quot;SR_FI_11&quot;</span>, <span class="dt">traits =</span> <span class="st">&quot;GY&quot;</span>,
-                            <span class="dt">design =</span> <span class="st">&quot;res.rowcol&quot;</span>, <span class="dt">engine =</span> <span class="st">&quot;asreml&quot;</span>,
-                            <span class="dt">control =</span> <span class="kw">list</span>(<span class="dt">criterion =</span> <span class="st">&quot;BIC&quot;</span>))
+  modWheatAs &lt;-<span class="st"> </span><span class="kw">STRunModel</span>(<span class="dt">TD =</span> wheatTD, <span class="dt">trials =</span> <span class="st">&quot;SR_FI_11&quot;</span>, <span class="dt">traits =</span> <span class="st">&quot;GY&quot;</span>,
+                           <span class="dt">design =</span> <span class="st">&quot;res.rowcol&quot;</span>, <span class="dt">trySpatial =</span> <span class="ot">TRUE</span>,
+                           <span class="dt">engine =</span> <span class="st">&quot;asreml&quot;</span>, <span class="dt">control =</span> <span class="kw">list</span>(<span class="dt">criterion =</span> <span class="st">&quot;BIC&quot;</span>))
 }</code></pre></div>
+<p>The chosen model is stored in the output:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modWheatAs<span class="op">$</span>SR_FI_<span class="dv">11</span><span class="op">$</span>spatial
+<span class="co">#&gt; $GY</span>
+<span class="co">#&gt; [1] &quot;AR1(x)AR1&quot;</span></code></pre></div>
 </div>
 <div id="model-output" class="section level2">
 <h2><span class="header-section-number">3.3</span> Model output</h2>
-<p>Since genotype has been fitted both as fixed and as random factor in <code>modWheatSp</code> it is possible to calculate both BLUEs and BLUPs. Therefore both will show in the summary of the model together with their respective standard errors.</p>
+<p>Since genotype has been fitted both as fixed and as random factor in <code>modWheatSp</code> it is possible to calculate both Best Lineair Unbiased Estimators (BLUEs) and Best Lineair Unbiased Predictors (BLUPs). Therefore both are printed in the summary of the model together with their respective standard errors.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Set nBest to 5 to decrease size of output.
 <span class="kw">summary</span>(modWheatSp, <span class="dt">nBest =</span> <span class="dv">5</span>)
 <span class="co">#&gt; Summary statistics: </span>
@@ -430,7 +434,7 @@ Fitting a model similar to the one above using asreml with BIC as goodness-of-fi
 BLUEsWheat &lt;-<span class="st"> </span><span class="kw">STExtract</span>(<span class="dt">SSA =</span> modWheatSp, <span class="dt">what =</span> <span class="st">&quot;BLUEs&quot;</span>)
 ## Extract BLUEs and BLUPs
 predWheat &lt;-<span class="st"> </span><span class="kw">STExtract</span>(<span class="dt">SSA =</span> modWheatSp, <span class="dt">what =</span> <span class="kw">c</span>(<span class="st">&quot;BLUEs&quot;</span>, <span class="st">&quot;BLUPs&quot;</span>))</code></pre></div>
-<p>Both <code>BLUEsWheat</code> and <code>predWheat</code> are a <code>list</code> with 1 item, the trial used for modeling. In general there will be an item in the <code>list</code> for every trial for which results were extracted. However where the item in <code>BLUEsWheat</code> is a <code>data.frame</code> containing the BLUEs <code>predWheat</code> itself is again a <code>list</code> with 2 items, the <code>data.frames</code> BLUEs and BLUPs.</p>
+<p>Both <code>BLUEsWheat</code> and <code>predWheat</code> are a <code>list</code> with 1 item, the trial used for modeling. In general there will be an item in the <code>list</code> for every trial for which results were extracted. However where the item in <code>BLUEsWheat</code> is a <code>data.frame</code> containing the BLUEs <code>predWheat</code> itself is again a <code>list</code> with 2 items, the <code>data.frames</code> containing BLUEs and BLUPs respectively.</p>
 </div>
 <div id="adding-extra-variables" class="section level2">
 <h2><span class="header-section-number">4.2</span> Adding extra variables</h2>

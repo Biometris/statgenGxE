@@ -249,27 +249,31 @@ modWheatSp3 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
                           control = list(nSeg = c(20, 20)))
 ```
 
-Alternatively, spatial models can be fitted using asreml as modeling engine. In
-this case 6 models are fitted and the best model, based on a goodness-of-fit 
-criterion, either AIC or BIC, is chosen. For a full specification of the models 
-fitted see `help(STRunModel)`. The criterion to be used can be specified using
-the `control` parameter in `STRunModel`.  
+Alternatively, spatial models can be fitted using asreml as modeling engine 
+and setting the parameter `trySpatial = TRUE` . In this case 6 models are fitted 
+and the best model, based on a goodness-of-fit criterion, either AIC or BIC, is 
+chosen. For a full specification of the models fitted see `help(STRunModel)`. 
+The criterion to be used can be specified using the `control` parameter in `STRunModel`.  
 Fitting a model similar to the one above using asreml with BIC as 
 goodness-of-fit criterion works as follows
 ```{r fitAs, message=FALSE, results='hide'}
 if (requireNamespace("asreml")) {
-  modWheatSp2 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                            design = "res.rowcol", engine = "asreml",
-                            control = list(criterion = "BIC"))
+  modWheatAs <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                           design = "res.rowcol", trySpatial = TRUE,
+                           engine = "asreml", control = list(criterion = "BIC"))
 }
+```
+The chosen model is stored in the output:
+```{r spatCh}
+modWheatAs$SR_FI_11$spatial
 ```
 
 ## Model output
 
 Since genotype has been fitted both as fixed and as random factor in 
-`modWheatSp` it is possible to calculate both BLUEs and BLUPs. Therefore both 
-will show in the summary of the model together with their respective standard 
-errors.
+`modWheatSp` it is possible to calculate both Best Lineair Unbiased Estimators 
+(BLUEs) and Best Lineair Unbiased Predictors (BLUPs). Therefore both are printed 
+in the summary of the model together with their respective standard errors.
 ```{r fitSum, message=FALSE}
 ## Set nBest to 5 to decrease size of output.
 summary(modWheatSp, nBest = 5)
@@ -396,7 +400,7 @@ Both `BLUEsWheat` and `predWheat` are a `list` with 1 item, the trial used for
 modeling. In general there will be an item in the `list` for every trial for 
 which results were extracted. However where the item in `BLUEsWheat` is a 
 `data.frame` containing the BLUEs `predWheat` itself is again a `list` with 2 
-items, the `data.frames` BLUEs and BLUPs. 
+items, the `data.frames` containing BLUEs and BLUPs respectively. 
 
 ## Adding extra variables
 
