@@ -66,7 +66,9 @@ if (requireNamespace("asreml")) {
 }
 
 ## ----spatCh--------------------------------------------------------------
-modWheatAs$SR_FI_11$spatial
+if (requireNamespace("asreml")) {
+  modWheatAs$SR_FI_11$spatial
+}
 
 ## ----fitSum, message=FALSE-----------------------------------------------
 ## Set nBest to 5 to decrease size of output.

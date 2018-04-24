@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bart-Jan van Rossum" />
 
-<meta name="date" content="2018-04-23" />
+<meta name="date" content="2018-04-24" />
 
 <title>Modeling field trials using RAP</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Modeling field trials using RAP</h1>
 <h4 class="author"><em>Bart-Jan van Rossum</em></h4>
-<h4 class="date"><em>2018-04-23</em></h4>
+<h4 class="date"><em>2018-04-24</em></h4>
 
 
 
@@ -245,9 +245,10 @@ Fitting a model similar to the one above using asreml with BIC as goodness-of-fi
                            <span class="dt">engine =</span> <span class="st">&quot;asreml&quot;</span>, <span class="dt">control =</span> <span class="kw">list</span>(<span class="dt">criterion =</span> <span class="st">&quot;BIC&quot;</span>))
 }</code></pre></div>
 <p>The chosen model is stored in the output:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modWheatAs<span class="op">$</span>SR_FI_<span class="dv">11</span><span class="op">$</span>spatial
-<span class="co">#&gt; $GY</span>
-<span class="co">#&gt; [1] &quot;AR1(x)AR1&quot;</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw">requireNamespace</span>(<span class="st">&quot;asreml&quot;</span>)) {
+  modWheatAs<span class="op">$</span>SR_FI_<span class="dv">11</span><span class="op">$</span>spatial
+}
+<span class="co">#&gt; Loading required namespace: asreml</span></code></pre></div>
 </div>
 <div id="model-output" class="section level2">
 <h2><span class="header-section-number">3.3</span> Model output</h2>

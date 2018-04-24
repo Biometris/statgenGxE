@@ -265,7 +265,9 @@ if (requireNamespace("asreml")) {
 ```
 The chosen model is stored in the output:
 ```{r spatCh}
-modWheatAs$SR_FI_11$spatial
+if (requireNamespace("asreml")) {
+  modWheatAs$SR_FI_11$spatial
+}
 ```
 
 ## Model output
