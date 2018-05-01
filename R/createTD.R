@@ -112,6 +112,9 @@ createTD <- function(data,
                      trPlLength = NULL) {
   ## Save name of original data for naming output.
   dataName <- deparse(substitute(data))
+  if (length(dataName) > 1) {
+    dataName <- "dat"
+  }
   ## Checks.
   if (missing(data) || !is.data.frame(data)) {
     stop("data has to be a data.frame.\n")
