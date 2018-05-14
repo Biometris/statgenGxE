@@ -33,7 +33,8 @@ Imports: desplot(>= 1.3),
     rlang(>= 0.1.2),
     SpATS(>= 1.0-7),
     tibble(>= 1.4.2),
-    xtable(>= 1.8.2)
+    xtable(>= 1.8.2),
+    brms
 Suggests: asreml(== 3.0),
     rmarkdown(>= 1.9),
     testthat(>= 2.0.0)
