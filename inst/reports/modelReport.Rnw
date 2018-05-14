@@ -220,6 +220,8 @@ if (engine == "SpATS") {
         include.rownames = FALSE)
 } else if (engine == "asreml") {
   varComp <- summary(model)$varcomp[, c("component", "std.error")]
+  varComp <- varComp[!grepl(pattern = ".cor", x = rownames(varComp)), ,
+                     drop = FALSE]
   rownames(varComp) <- sapply(X = strsplit(x = rownames(varComp), split = "[!.]+"),
                               FUN = function(split) {
                                 if (split[[1]] == "R") {
