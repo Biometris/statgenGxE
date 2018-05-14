@@ -84,9 +84,10 @@ STModLme4 <- function(TD,
   } else {
     mf <- NULL
   }
+  spatial <- setNames(rep(FALSE, times = length(traits)), traits)
   ## Construct SSA object.
   return(list(mRand = if ("random" %in% what) mr else NULL,
               mFix = if ("fixed" %in% what) mf else NULL, TD = TD[trial],
-              traits = traits, design = design, spatial = trySpatial,
+              traits = traits, design = design, spatial = spatial,
               engine = "lme4", predicted = "genotype"))
 }

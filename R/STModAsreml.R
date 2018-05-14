@@ -89,8 +89,8 @@ STModAsreml <- function(TD,
       randomForm <- character()
     }
     ## Create empty base lists.
-    mr <- mf <- setNames(vector(mode = "list", length = length(traits)),
-                         traits)
+    mr <- mf <- spatial <- setNames(vector(mode = "list",
+                                           length = length(traits)), traits)
     for (trait in traits) {
       if ("random" %in% what) {
         ## Fit model with genotype random.
@@ -182,12 +182,13 @@ STModAsreml <- function(TD,
         mfTrait$call$data <- substitute(TDTr)
         mf[[trait]] <- mfTrait
       }
+      spatial[trait] <- FALSE
     }
     unlink(tmp)
     ## Construct SSA object.
     return(list(mRand = if ("random" %in% what) mr else NULL,
                 mFix = if ("fixed" %in% what) mf else NULL, TD = TD[trial],
-                traits = traits, design = design, spatial = trySpatial,
+                traits = traits, design = design, spatial = spatial,
                 engine = "asreml", predicted = "genotype"))
   } else {# trySpatial
     regular <- min(repTab) == 1 && max(repTab) == 1

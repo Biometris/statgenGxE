@@ -131,6 +131,10 @@ summary.SSA <- function(object,
     ## Extract the n best genotypes.
     meanTab <- meanTab[1:nBest, ]
   }
+  if (object[[trial]]$engine == "asreml" &&
+      is.character(object[[trial]]$spatial[[trait]])) {
+    cat("Selected spatial model: ", object[[trial]]$spatial[[trait]], "\n\n")
+  }
   cat("Summary statistics:", "\n===================\n")
   ## Print stats using printCoefMat for a nicer layout.
   printCoefmat(stats, digits = digits, ...)

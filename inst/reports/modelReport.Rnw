@@ -58,11 +58,11 @@ descending <- list(...)$descending
 ## Extract basic modelling information
 engine <- x[[trial]]$engine
 if (is.null(x[[trial]]$mFix)) {
-  model <- x[[trial]]$mRand[[1]]
+  model <- x[[trial]]$mRand[[trait]]
   modelType <- "random"
   predName <- "BLUPs"
 } else {
-  model <- x[[trial]]$mFix[[1]]
+  model <- x[[trial]]$mFix[[trait]]
   modelType <- "fixed"
   predName <- "BLUEs"
 }
@@ -110,8 +110,8 @@ if (useCheckId) {
   modelDesigns <- paste("checkId (F) +", modelDesigns)
 }
 descrItems <- c(trait, modelDesigns[x[[trial]]$design],
-                if (is.null(x[[trial]]$spatial)) "id" else
-                  as.character(x[[trial]]$spatial[1]),
+                if (!is.character(x[[trial]]$spatial[trait])) "none" else
+                  as.character(x[[trial]]$spatial[trait]),
                 modelType)
 names(descrItems) <- c("Trait",
                        "Experimental design features",
