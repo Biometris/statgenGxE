@@ -110,8 +110,8 @@ if (useCheckId) {
   modelDesigns <- paste("checkId (F) +", modelDesigns)
 }
 descrItems <- c(trait, modelDesigns[x[[trial]]$design],
-                if (!is.character(x[[trial]]$spatial[trait])) "none" else
-                  as.character(x[[trial]]$spatial[trait]),
+                if (!is.character(x[[trial]]$spatial[[trait]])) "none" else
+                  x[[trial]]$spatial[[trait]],
                 modelType)
 names(descrItems) <- c("Trait",
                        "Experimental design features",
@@ -218,6 +218,12 @@ if (engine == "SpATS") {
                        align = c("l", "l", "c")),
         latex.environments = "flushleft", caption.placement = "top",
         include.rownames = FALSE)
+  ## Print generalized heritability
+  if (modelType == "random") {
+    cat(paste("The generalized heritability is",
+              round(STExtract(x, trials = trial,
+                              what = "heritability")[[1]], 2)))
+  }
 } else if (engine == "asreml") {
   varComp <- summary(model)$varcomp[, c("component", "std.error")]
   varComp <- varComp[!grepl(pattern = ".cor", x = rownames(varComp)), ,
@@ -248,6 +254,12 @@ if (engine == "SpATS") {
                        align = c("l", "l", "r", "r")),
         latex.environments = "flushleft", caption.placement = "top",
         include.rownames = FALSE)
+  ## Print generalized heritability
+  if (modelType == "random") {
+    cat(paste("The generalized heritability is",
+              round(STExtract(x, trials = trial,
+                              what = "heritability")[[1]], 2)))
+  }
 }
 @
 \clearpage

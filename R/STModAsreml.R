@@ -236,8 +236,12 @@ bestSpatMod <- function(TD,
   TDTr <- TDTr[order(TDTr$rowId, TDTr$colId), ]
   repIdFix <- design == "res.rowcol"
   ## Define random terms of models to try.
-  randTerm <- c(rep(x = "NULL", times = 3),
-                "repId:rowId", "repId:colId", "repId:rowId + repId:colId")
+  # randTerm <- c(rep(x = "NULL", times = 3),
+  #               "repId:rowId", "repId:colId", "repId:rowId + repId:colId")
+
+  randTerm <- rep(x = c("NULL", "units"), each = 3)
+
+
   if (!repIdFix) {
     ## If no repId remove this from randTerm
     randTerm <- gsub(pattern = "repId:", replacement = "", x = randTerm)
@@ -260,6 +264,8 @@ bestSpatMod <- function(TD,
   mr <- mf <- spatial <- setNames(vector(mode = "list", length = length(traits)),
                                   traits)
   for (trait in traits) {
+    ## Reset criterion to Inf
+    criterionBest <- Inf
     ## Create formula for the fixed part.
     fixedFormR <- formula(paste(trait, fixedForm))
     ## Fit model with genotype random for all different random/spatial terms.
@@ -291,23 +297,22 @@ bestSpatMod <- function(TD,
       }
       ## If current model is better than best so far based on chosen criterion
       ## define best model as current model.
-      if (i == 1) {
-        bestModTr <- mrTrait
-        bestLoc <- 1
+      if (criterion == "AIC") {
+        criterionCur  <- -2 * mrTrait$loglik + 2 * length(mrTrait$gammas)
       } else {
-        if (criterion == "AIC") {
-          criterionCur  <- -2 * mrTrait$loglik + 2 * length(mrTrait$gammas)
-          criterionPrev <- -2 * bestModTr$loglik + 2 * length(bestModTr$gammas)
-        } else {
-          criterionCur  <- -2 * mrTrait$loglik +
-            log(length(mrTrait$fitted.values)) * length(mrTrait$gammas)
-          criterionPrev <- -2 * bestModTr$loglik +
-            log(length(bestModTr$fitted.values)) * length(bestModTr$gammas)
-        }
-        if (criterionCur < criterionPrev) {
-          bestModTr <- mrTrait
-          bestLoc <- i
-        }
+        criterionCur  <- -2 * mrTrait$loglik +
+          log(length(mrTrait$fitted.values)) * length(mrTrait$gammas)
+      }
+      if (criterionCur < criterionBest) {
+        bestModTr <- mrTrait
+        ## Evaluate call terms in bestModTr and mfTrait so predict can be run.
+        ## Needs to be called in every iteration to prevent final result
+        ## from always having the values of the last iteration.
+        bestModTr$call$fixed <- eval(bestModTr$call$fixed)
+        bestModTr$call$random <- eval(bestModTr$call$random)
+        bestModTr$call$rcov <- eval(bestModTr$call$rcov)
+        criterionBest <- criterionCur
+        bestLoc <- i
       }
     }
     fixedFormfTrait <- formula(paste(deparse(fixedFormR), "+ genotype"))
@@ -345,10 +350,6 @@ bestSpatMod <- function(TD,
     } else {
       stop(mfTrait$error)
     }
-    ## evaluate call terms in bestModTr and mfTrait so predict can be run.
-    bestModTr$call$fixed <- eval(bestModTr$call$fixed)
-    bestModTr$call$random <- eval(bestModTr$call$random)
-    bestModTr$call$rcov <- eval(bestModTr$call$rcov)
     # Run predict.
     bestModTr <- predictAsreml(bestModTr, TD = TDTr)
     mfTrait$call$fixed <- eval(mfTrait$call$fixed)
