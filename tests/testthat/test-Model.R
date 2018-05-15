@@ -51,7 +51,7 @@ test_that("running models creates objects with correct structure - SpATS", {
   expect_SSAMod(modelSp, "mFix")
   expect_identical(modelSp[["E1"]]$traits, "t1")
   expect_identical(modelSp[["E1"]]$design, "rowcol")
-  expect_identical(modelSp[["E1"]]$spatial, "2 dimensional P-splines")
+  expect_identical(modelSp[["E1"]]$spatial[["t1"]], "2 dimensional P-splines")
   expect_identical(modelSp[["E1"]]$engine, "SpATS")
 })
 
@@ -75,7 +75,7 @@ test_that("running models creates objects with correct structure - asreml", {
   expect_SSAMod(modelAs, "mFix")
   expect_identical(modelAs[["E1"]]$traits, "t1")
   expect_identical(modelAs[["E1"]]$design, "res.ibd")
-  expect_false(modelAs[["E1"]]$spatial)
+  expect_false(modelAs[["E1"]]$spatial[["t1"]])
   expect_identical(modelAs[["E1"]]$engine, "asreml")
 })
 
