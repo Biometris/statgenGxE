@@ -6,7 +6,7 @@
 \usage{
 bestSpatMod(TD, traits, what = c("fixed", "random"), regular = TRUE,
   criterion = "AIC", useCheckId = FALSE, design = "rowcol",
-  covariates = NULL, ...)
+  covariates = NULL, fixedForm, randomForm, ...)
 }
 \description{
 Helper function for calculating best spatial model using asreml.

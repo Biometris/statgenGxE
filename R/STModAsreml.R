@@ -60,34 +60,34 @@ STModAsreml <- function(TD,
       trySpatial <- FALSE
     }
   }
+  ## Indicate extra random effects.
+  if (design %in% c("ibd", "res.ibd")) {
+    randEff <- "subBlock"
+  } else if (design %in% c("rowcol", "res.rowcol")) {
+    randEff <- c("rowId", "colId")
+  } else if (design == "rcbd") {
+    randEff <- character()
+  }
+  ## Construct formula for fixed part.
+  fixedForm <- paste("~",
+                     if (repIdFix) "repId" else "1",
+                     if (useCheckId) "+ checkId",
+                     if (!is.null(covariates)) paste(c("", covariates),
+                                                     collapse = "+"))
+  ## Construct formula for random part. Include repId depending on design.
+  if (length(randEff) != 0) {
+    randomForm <- paste0(if (repIdFix) "repId:",
+                         paste(randEff,
+                               collapse = paste("+",
+                                                if (repIdFix) "repId:")))
+  } else {
+    randomForm <- character()
+  }
   if (!trySpatial) {
-    ## Indicate extra random effects.
-    if (design %in% c("ibd", "res.ibd")) {
-      randEff <- "subBlock"
-    } else if (design %in% c("rowcol", "res.rowcol")) {
-      randEff <- c("rowId", "colId")
-    } else if (design == "rcbd") {
-      randEff <- character()
-    }
     ## Create tempfile to suppress asreml output messages.
     tmp <- tempfile()
     ## Increase max number of iterations for asreml.
     maxIter <- 200
-    ## Construct formula for fixed part.
-    fixedForm <- paste("~",
-                       if (repIdFix) "repId" else "1",
-                       if (useCheckId) "+ checkId",
-                       if (!is.null(covariates)) paste(c("", covariates),
-                                                       collapse = "+"))
-    ## Construct formula for random part. Include repId depending on design.
-    if (length(randEff) != 0) {
-      randomForm <- paste0(if (repIdFix) "repId:",
-                           paste(randEff,
-                                 collapse = paste("+",
-                                                  if (repIdFix) "repId:")))
-    } else {
-      randomForm <- character()
-    }
     ## Create empty base lists.
     mr <- mf <- spatial <- setNames(vector(mode = "list",
                                            length = length(traits)), traits)
@@ -195,7 +195,8 @@ STModAsreml <- function(TD,
     return(bestSpatMod(TD = TD[trial], traits = traits, what = what,
                        regular = regular, criterion = criterion,
                        useCheckId = useCheckId, design = design,
-                       covariates = covariates, ...))
+                       covariates = covariates, fixedForm = fixedForm,
+                       randomForm = randomForm, ...))
   }
 }
 
@@ -209,6 +210,8 @@ bestSpatMod <- function(TD,
                         useCheckId = FALSE,
                         design = "rowcol",
                         covariates = NULL,
+                        fixedForm,
+                        randomForm,
                         ...) {
   ## Create tempfile to suppress asreml output messages.
   tmp <- tempfile()
@@ -258,17 +261,17 @@ bestSpatMod <- function(TD,
                                   traits)
   for (trait in traits) {
     ## Create formula for the fixed part.
-    fixedFormR <- formula(paste(trait, "~",
-                                if (repIdFix) "repId" else "1",
-                                if (useCheckId) "+ checkId",
-                                if (!is.null(covariates)) paste(
-                                  c("", covariates), collapse = "+")))
+    fixedFormR <- formula(paste(trait, fixedForm))
     ## Fit model with genotype random for all different random/spatial terms.
     for (i in 1:length(randTerm)) {
+      if (length(randomForm) > 0) {
+        randFormR <- formula(paste("~ genotype +", randomForm, "+", randTerm[i]))
+      } else {
+        randFormR <- formula(paste("~ genotype +", randTerm[i]))
+      }
       sink(file = tmp)
       mrTrait <- tryCatchExt(asreml::asreml(fixed = fixedFormR,
-                                            random = formula(paste(
-                                              "~ genotype +", randTerm[i])),
+                                            random = randFormR,
                                             rcov = formula(spatTerm[i]),
                                             aom = TRUE, data = TDTr,
                                             maxiter = maxIter,
@@ -317,11 +320,15 @@ bestSpatMod <- function(TD,
       GParamTmp[[paste0(ifelse(repIdFix, "repId:", ""),
                         randEf)]][[ifelse(repIdFix, "repId", randEf)]]$con <- "F"
     }
+    if (length(randomForm) > 0) {
+      randFormF <- formula(paste("~", randomForm, "+", randTerm[bestLoc]))
+    } else {
+      randFormF <- formula(paste("~", randTerm[bestLoc]))
+    }
     sink(file = tmp)
     ## Fit the model with genotype fixed only for the best model.
     mfTrait <- tryCatchExt(asreml::asreml(fixed = fixedFormfTrait,
-                                          random = formula(paste(
-                                            "~", randTerm[bestLoc])),
+                                          random = randFormF,
                                           rcov = formula(spatTerm[bestLoc]),
                                           G.param = GParamTmp, aom = TRUE,
                                           data = TDTr, na.method.X = "include",
