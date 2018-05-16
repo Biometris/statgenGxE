@@ -33,6 +33,10 @@ lapply(list("SpATS"), library, character.only = TRUE)
 trial <- list(...)$trial
 trait <- list(...)$trait
 descending <- list(...)$descending
+## helper function to display table rows starting with "BOLD" in bold.
+boldRow <- function(x) {
+  gsub(pattern = "BOLD(.*)", replacement = paste("\\\\textbf{\\1", "}"), x)
+}
 @
 
 % Start Article header
@@ -121,13 +125,34 @@ print(xtable::xtable(x = data.frame(descrItems), label = "modelDescription",
                      align = c("l", "l")),
       latex.environments = "flushleft", hline.after = NULL,
       include.rownames = TRUE, include.colnames = FALSE)
+
+if (engine == "asreml" && !is.null(x[[trial]]$sumTab[[trait]])) {
+  sumTab <- x[[trial]]$sumTab[[trait]]
+  sumTab$random[sumTab$random == "NULL"] <- NA
+  chMod <- attr(x = sumTab, which = "chosen")
+  sumTab$AIC <- round(sumTab$AIC)
+  sumTab$BIC <- round(sumTab$BIC)
+  sumTab$row <- round(sumTab$row, 2)
+  sumTab$col <- round(sumTab$col, 2)
+  sumTab$units <- round(sumTab$units, 1)
+  sumTab$residual <- round(sumTab$residual, 1)
+  sumTab[chMod, ] <- paste0("BOLD", sumTab[chMod, ])
+  print(xtable::xtable(x = sumTab,
+                       caption = paste("Overview of spatial models tried",
+                                       "- selected model shown in bold"),
+                       label = "summaryTab",
+                       digits = c(0, 0, 0, 0, 0, 2, 2, 1, 1, 0)),
+        latex.environments = "flushleft", caption.placement = "top",
+        include.rownames = FALSE, include.colnames = TRUE,
+        sanitize.text.function = boldRow)
+}
 @
 \newpage
 %-------------------------------------------------------------------------------
 \section{Summary of the results}
 %-------------------------------------------------------------------------------
 <<label=extrSummary, echo=FALSE, results="hide">>=
-## Create summary SpATS in seperate chunck to suppress output.
+## Create summary SpATS in separate chunck to suppress output.
 if (engine == "SpATS") {
   SpATSSum <- summary(model)
 }

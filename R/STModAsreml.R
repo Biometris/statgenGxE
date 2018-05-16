@@ -299,21 +299,20 @@ bestSpatMod <- function(TD,
       summ <- summary(mrTrait)$varcomp["component"]
       modSum[i, "spatial"] <- spatCh[i]
       modSum[i, "random"] <- randTerm[i]
-      modSum[i, "AIC"] <- round(-2 * mrTrait$loglik +
-                                  2 * length(mrTrait$gammas))
-      modSum[i, "BIC"] <- round(-2 * mrTrait$loglik +
-        log(length(mrTrait$fitted.values)) * length(mrTrait$gammas))
+      modSum[i, "AIC"] <- -2 * mrTrait$loglik + 2 * length(mrTrait$gammas)
+      modSum[i, "BIC"] <- -2 * mrTrait$loglik +
+        log(length(mrTrait$fitted.values)) * length(mrTrait$gammas)
       ## Row and column output differs for regular/non-regular.
       ## Always max. one of the possibilities is in summary so rowVal and
       ## colVal are always a single value.
       rowVal <- summ[rownames(summ) %in%
                        c("R!rowId.cor", "R!rowCoord.pow", "R!pow"), ]
-      modSum[i, "row"] <- ifelse(length(rowVal) == 0, NA, round(rowVal, 2))
+      modSum[i, "row"] <- ifelse(length(rowVal) == 0, NA, rowVal)
       colVal <- summ[rownames(summ) %in%
                        c("R!colId.cor", "R!colCoord.pow", "R!pow"), ]
-      modSum[i, "col"] <- ifelse(length(colVal) == 0, NA, round(colVal, 2))
-      modSum[i, "units"] <- round(summ["units!units.var", ], 1)
-      modSum[i, "residual"] <- round(summ["R!variance", ], 1)
+      modSum[i, "col"] <- ifelse(length(colVal) == 0, NA, colVal)
+      modSum[i, "units"] <- summ["units!units.var", ]
+      modSum[i, "residual"] <- summ["R!variance", ]
       modSum[i, "converge"] <- mrTrait$converge
       ## If current model is better than best so far based on chosen criterion
       ## define best model as current model.
@@ -332,7 +331,7 @@ bestSpatMod <- function(TD,
         bestModTr$call$random <- eval(bestModTr$call$random)
         bestModTr$call$rcov <- eval(bestModTr$call$rcov)
         criterionBest <- criterionCur
-        bestLoc <- i
+        bestMod <- i
       }
     }
     fixedFormfTrait <- update(fixedFormR, ~ . + genotype)
@@ -346,15 +345,15 @@ bestSpatMod <- function(TD,
                         randEf)]][[ifelse(repIdFix, "repId", randEf)]]$con <- "F"
     }
     if (length(randomForm) > 0) {
-      randFormF <- formula(paste("~", randomForm, "+", randTerm[bestLoc]))
+      randFormF <- formula(paste("~", randomForm, "+", randTerm[bestMod]))
     } else {
-      randFormF <- formula(paste("~", randTerm[bestLoc]))
+      randFormF <- formula(paste("~", randTerm[bestMod]))
     }
     asrArgsF <- c(list(fixed = fixedFormfTrait, random = randFormF,
                        G.param = GParamTmp, aom = TRUE, data = TDTr,
                        maxiter = maxIter, na.method.X = "include"), dotArgs)
-    if (!is.na(spatTerm[bestLoc])) {
-      asrArgsF$rcov <- formula(spatTerm[bestLoc])
+    if (!is.na(spatTerm[bestMod])) {
+      asrArgsF$rcov <- formula(spatTerm[bestMod])
     }
     sink(file = tmp)
     ## Fit the model with genotype fixed only for the best model.
@@ -386,7 +385,8 @@ bestSpatMod <- function(TD,
     mfTrait <- predictAsreml(mfTrait, TD = TDTr, associate = assocForm)
     mr[[trait]] <- bestModTr
     mf[[trait]] <- mfTrait
-    spatial[[trait]] <- spatCh[bestLoc]
+    spatial[[trait]] <- spatCh[bestMod]
+    attr(x = modSum, which = "chosen") <- bestMod
     sumTab[[trait]] <- modSum
   } # End for traits.
   unlink(tmp)
