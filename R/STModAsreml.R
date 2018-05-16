@@ -115,7 +115,8 @@ STModAsreml <- function(TD,
           stop(mrTrait$error)
         }
         if ("fixed" %in% what) {
-          ## Constrain variance of the variance components to be fixed as the values in mr.
+          ## Constrain variance of the variance components to be fixed as
+          ## the values in mr.
           GParamTmp <- mrTrait$G.param
           for (randEf in randEff) {
             ## When there are no replicates the structure is [[randEf]][[randEf]]
@@ -128,11 +129,11 @@ STModAsreml <- function(TD,
         mrTrait$call$fixed <- eval(mrTrait$call$fixed)
         mrTrait$call$random <- eval(mrTrait$call$random)
         mrTrait$call$rcov <- eval(mrTrait$call$rcov)
-        # Run predict.
+        ## Run predict.
         mrTrait <- predictAsreml(mrTrait, TD = TDTr)
         mrTrait$call$data <- substitute(TDTr)
         mr[[trait]] <- mrTrait
-      }
+      } # End random.
       if ("fixed" %in% what) {
         ## Fit model with genotype fixed.
         if (!"random" %in% what) {
@@ -151,10 +152,10 @@ STModAsreml <- function(TD,
         } else {
           mfTrait <- tryCatchExt(asreml::asreml(fixed = formula(paste(
             trait, fixedForm, "+ genotype")),
-                                                rcov = ~ units,
-                                                G.param = GParamTmp, aom = TRUE,
-                                                data = TDTr, maxiter = maxIter,
-                                                ...))
+            rcov = ~ units,
+            G.param = GParamTmp, aom = TRUE,
+            data = TDTr, maxiter = maxIter,
+            ...))
         }
         if (!is.null(mfTrait$warning)) {
           mfTrait <- chkLastIter(mfTrait)
@@ -181,9 +182,9 @@ STModAsreml <- function(TD,
         mfTrait <- predictAsreml(mfTrait, TD = TDTr, associate = assocForm)
         mfTrait$call$data <- substitute(TDTr)
         mf[[trait]] <- mfTrait
-      }
+      } # End fixed.
       spatial[trait] <- FALSE
-    }
+    } # End for traits.
     unlink(tmp)
     ## Construct SSA object.
     return(list(mRand = if ("random" %in% what) mr else NULL,
@@ -213,11 +214,11 @@ bestSpatMod <- function(TD,
                         fixedForm,
                         randomForm,
                         ...) {
+  dotArgs <- list(...)
   ## Create tempfile to suppress asreml output messages.
   tmp <- tempfile()
   ## Increase max number of iterations for asreml.
   maxIter <- 200
-  ## TD needs to be sorted by row and column to prevent asreml from crashing.
   TDTr <- droplevels(TD[[1]])
   ## Add empty observations.
   TDTab <- as.data.frame(table(TDTr$colId, TDTr$rowId))
@@ -233,56 +234,55 @@ bestSpatMod <- function(TD,
         as.numeric(levels(TDTab[, "Var2"]))[TDTab[, "Var2"]])
     TDTr <- rbind(TDTr, extObs)
   }
+  ## TD needs to be sorted by row and column to prevent asreml from crashing.
   TDTr <- TDTr[order(TDTr$rowId, TDTr$colId), ]
   repIdFix <- design == "res.rowcol"
   ## Define random terms of models to try.
-  # randTerm <- c(rep(x = "NULL", times = 3),
-  #               "repId:rowId", "repId:colId", "repId:rowId + repId:colId")
-
-  randTerm <- rep(x = c("NULL", "units"), each = 3)
-
-
-  if (!repIdFix) {
-    ## If no repId remove this from randTerm
-    randTerm <- gsub(pattern = "repId:", replacement = "", x = randTerm)
-  }
+  randTerm <- c("NULL", rep(x = c("NULL", "units"), each = 3))
   if (regular) {
     ## Define spatial terms of models to try.
-    spatCh <- rep(x = c("exp(x)id", "id(x)exp",
-                        "isotropic exponential"), times = 2)
-    spatTerm <- paste("~", rep(x = c("exp(rowCoord):colCoord",
-                                     "rowCoord:exp(colCoord)",
-                                     "iexp(rowCoord,colCoord)"),
-                               times = 2))
+    spatCh <- c("none", rep(x = c("exp(x)id", "id(x)exp",
+                                  "isotropic exponential"), times = 2))
+    spatTerm <- c(NA, paste("~", rep(x = c("exp(rowCoord):colCoord",
+                                           "rowCoord:exp(colCoord)",
+                                           "iexp(rowCoord,colCoord)"),
+                                     times = 2)))
   } else {
-    spatCh <- rep(x = c("AR1(x)id", "id(x)AR1", "AR1(x)AR1"), times = 2)
-    spatTerm <- paste("~", rep(x = c("ar1(rowId):colId", "rowId:ar1(colId)",
-                                     "ar1(rowId):ar1(colId)"),
-                               times = 2))
+    spatCh <- c("none", rep(x = c("AR1(x)id", "id(x)AR1", "AR1(x)AR1"),
+                            times = 2))
+    spatTerm <- c(NA, paste("~",
+                            rep(x = c("ar1(rowId):colId", "rowId:ar1(colId)",
+                                      "ar1(rowId):ar1(colId)"), times = 2)))
   }
   ## Create empty base lists.
-  mr <- mf <- spatial <- setNames(vector(mode = "list", length = length(traits)),
-                                  traits)
+  mr <- mf <- spatial <- sumTab <- setNames(vector(mode = "list",
+                                                   length = length(traits)),
+                                            traits)
+  btCols <- c("spatial", "random", "AIC", "BIC", "row", "col", "units",
+              "residual", "converge")
   for (trait in traits) {
-    ## Reset criterion to Inf
+    ## Reset criterion to Inf.
     criterionBest <- Inf
+    ## Create data.frame for storing summary for current trait.
+    modSum <- as.data.frame(matrix(nrow = length(spatCh), ncol = length(btCols),
+                                   dimnames = list(NULL, btCols)))
     ## Create formula for the fixed part.
     fixedFormR <- formula(paste(trait, fixedForm))
     ## Fit model with genotype random for all different random/spatial terms.
-    for (i in 1:length(randTerm)) {
+    for (i in seq_along(randTerm)) {
       if (length(randomForm) > 0) {
         randFormR <- formula(paste("~ genotype +", randomForm, "+", randTerm[i]))
       } else {
         randFormR <- formula(paste("~ genotype +", randTerm[i]))
       }
+      asrArgsR <- c(list(fixed = fixedFormR, random = randFormR, aom = TRUE,
+                         data = TDTr, maxiter = maxIter,
+                         na.method.X = "include"), dotArgs)
+      if (!is.na(spatTerm[i])) {
+        asrArgsR$rcov <- formula(spatTerm[i])
+      }
       sink(file = tmp)
-      mrTrait <- tryCatchExt(asreml::asreml(fixed = fixedFormR,
-                                            random = randFormR,
-                                            rcov = formula(spatTerm[i]),
-                                            aom = TRUE, data = TDTr,
-                                            maxiter = maxIter,
-                                            na.method.X = "include",
-                                            ...))
+      mrTrait <- tryCatchExt(do.call(what = asreml::asreml, args = asrArgsR))
       sink()
       if (!is.null(mrTrait$warning)) {
         mrTrait <- chkLastIter(mrTrait)
@@ -295,6 +295,26 @@ bestSpatMod <- function(TD,
       } else {
         stop(mrTrait$error)
       }
+      ## Fill model summary table
+      summ <- summary(mrTrait)$varcomp["component"]
+      modSum[i, "spatial"] <- spatCh[i]
+      modSum[i, "random"] <- randTerm[i]
+      modSum[i, "AIC"] <- round(-2 * mrTrait$loglik +
+                                  2 * length(mrTrait$gammas))
+      modSum[i, "BIC"] <- round(-2 * mrTrait$loglik +
+        log(length(mrTrait$fitted.values)) * length(mrTrait$gammas))
+      ## Row and column output differs for regular/non-regular.
+      ## Always max. one of the possibilities is in summary so rowVal and
+      ## colVal are always a single value.
+      rowVal <- summ[rownames(summ) %in%
+                       c("R!rowId.cor", "R!rowCoord.pow", "R!pow"), ]
+      modSum[i, "row"] <- ifelse(length(rowVal) == 0, NA, round(rowVal, 2))
+      colVal <- summ[rownames(summ) %in%
+                       c("R!colId.cor", "R!colCoord.pow", "R!pow"), ]
+      modSum[i, "col"] <- ifelse(length(colVal) == 0, NA, round(colVal, 2))
+      modSum[i, "units"] <- round(summ["units!units.var", ], 1)
+      modSum[i, "residual"] <- round(summ["R!variance", ], 1)
+      modSum[i, "converge"] <- mrTrait$converge
       ## If current model is better than best so far based on chosen criterion
       ## define best model as current model.
       if (criterion == "AIC") {
@@ -315,7 +335,7 @@ bestSpatMod <- function(TD,
         bestLoc <- i
       }
     }
-    fixedFormfTrait <- formula(paste(deparse(fixedFormR), "+ genotype"))
+    fixedFormfTrait <- update(fixedFormR, ~ . + genotype)
     ## Constrain variance of the variance components to be fixed as the values
     ## in the best model.
     GParamTmp <- bestModTr$G.param
@@ -330,14 +350,15 @@ bestSpatMod <- function(TD,
     } else {
       randFormF <- formula(paste("~", randTerm[bestLoc]))
     }
+    asrArgsF <- c(list(fixed = fixedFormfTrait, random = randFormF,
+                       G.param = GParamTmp, aom = TRUE, data = TDTr,
+                       maxiter = maxIter, na.method.X = "include"), dotArgs)
+    if (!is.na(spatTerm[bestLoc])) {
+      asrArgsF$rcov <- formula(spatTerm[bestLoc])
+    }
     sink(file = tmp)
     ## Fit the model with genotype fixed only for the best model.
-    mfTrait <- tryCatchExt(asreml::asreml(fixed = fixedFormfTrait,
-                                          random = randFormF,
-                                          rcov = formula(spatTerm[bestLoc]),
-                                          G.param = GParamTmp, aom = TRUE,
-                                          data = TDTr, na.method.X = "include",
-                                          maxiter = maxIter, ...))
+    mfTrait <- tryCatchExt(do.call(what = asreml::asreml, args = asrArgsF))
     sink()
     if (!is.null(mfTrait$warning)) {
       mfTrait <- chkLastIter(mfTrait)
@@ -366,15 +387,12 @@ bestSpatMod <- function(TD,
     mr[[trait]] <- bestModTr
     mf[[trait]] <- mfTrait
     spatial[[trait]] <- spatCh[bestLoc]
-  }
+    sumTab[[trait]] <- modSum
+  } # End for traits.
   unlink(tmp)
   TD[[1]] <- TDTr
   return(list(mRand = if ("random" %in% what) mr else NULL,
               mFix = if ("fixed" %in% what) mf else NULL, TD = TD,
               traits = traits, design = design, spatial = spatial,
-              engine = "asreml", predicted = "genotype"))
+              engine = "asreml", predicted = "genotype", sumTab = sumTab))
 }
-
-
-
-
