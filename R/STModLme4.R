@@ -85,9 +85,10 @@ STModLme4 <- function(TD,
     mf <- NULL
   }
   spatial <- setNames(rep(FALSE, times = length(traits)), traits)
+  sumTab <- setNames(vector(mode = "list", length = length(traits)), traits)
   ## Construct SSA object.
   return(list(mRand = if ("random" %in% what) mr else NULL,
               mFix = if ("fixed" %in% what) mf else NULL, TD = TD[trial],
               traits = traits, design = design, spatial = spatial,
-              engine = "lme4", predicted = "genotype"))
+              engine = "lme4", predicted = "genotype", sumTab = sumTab))
 }

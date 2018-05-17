@@ -140,7 +140,7 @@ if (engine == "asreml" && !is.null(x[[trial]]$sumTab[[trait]])) {
     paste0("BOLD", sumTab[chMod, ][!is.na(sumTab[chMod, ])])
   print(xtable::xtable(x = sumTab,
                        caption = paste("Overview of spatial models tried",
-                                       "- selected model shown in bold"),
+                                       "- selected model indicated in bold"),
                        label = "summaryTab",
                        digits = c(0, 0, 0, 0, 0, 2, 2, 1, 1, 0)),
         latex.environments = "flushleft", caption.placement = "top",

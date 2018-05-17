@@ -12,9 +12,9 @@ expect_SSA <- function(SSA) {
   test_that(paste(deparse(substitute(SSA)), "has correct SSA structure"), {
     expect_is(SSA, "SSA")
     for (tr in names(SSA)) {
-      expect_length(SSA[[tr]], 8)
+      expect_length(SSA[[tr]], 9)
       expect_named(SSA[[tr]], c("mRand", "mFix", "TD", "traits", "design",
-                                "spatial", "engine", "predicted"))
+                                "spatial", "engine", "predicted", "sumTab"))
       expect_is(SSA[[tr]]$TD, "TD")
     }
   })
@@ -225,14 +225,15 @@ test_that("option trySpatial produces expected output structure", {
                             traits = "t1", trySpatial = TRUE, engine = "lme4"),
                  "Spatial models can only be fitted using SpATS or asreml.")
   testthat::skip_on_cran()
-  modelAsTs <- STRunModel(testTD, trials = "E1", design = "rowcol",
-                          traits = "t1", trySpatial = TRUE, engine = "asreml")
+  expect_warning(modelAsTs <- STRunModel(testTD, trials = "E1",
+                                         design = "rowcol", traits = "t1",
+                                         trySpatial = TRUE, engine = "asreml"))
   expect_SSA(modelAsTs)
   expect_SSAMod(modelAsTs, "mRand")
   expect_SSAMod(modelAsTs, "mFix")
   expect_is(modelAsTs[["E1"]]$spatial, "list")
   expect_length(modelAsTs[["E1"]]$spatial, 1)
   expect_named(modelAsTs[["E1"]]$spatial, "t1")
-  expect_identical(modelAsTs[["E1"]]$spatial$t1, "id(x)exp")
+  expect_identical(modelAsTs[["E1"]]$spatial$t1, "none")
 })
 

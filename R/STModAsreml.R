@@ -89,8 +89,9 @@ STModAsreml <- function(TD,
     ## Increase max number of iterations for asreml.
     maxIter <- 200
     ## Create empty base lists.
-    mr <- mf <- spatial <- setNames(vector(mode = "list",
-                                           length = length(traits)), traits)
+    mr <- mf <- spatial <- sumTab <- setNames(vector(mode = "list",
+                                                     length = length(traits)),
+                                              traits)
     for (trait in traits) {
       if ("random" %in% what) {
         ## Fit model with genotype random.
@@ -190,7 +191,7 @@ STModAsreml <- function(TD,
     return(list(mRand = if ("random" %in% what) mr else NULL,
                 mFix = if ("fixed" %in% what) mf else NULL, TD = TD[trial],
                 traits = traits, design = design, spatial = spatial,
-                engine = "asreml", predicted = "genotype"))
+                engine = "asreml", predicted = "genotype", sumTab = sumTab))
   } else {# trySpatial
     regular <- min(repTab) == 1 && max(repTab) == 1
     return(bestSpatMod(TD = TD[trial], traits = traits, what = what,

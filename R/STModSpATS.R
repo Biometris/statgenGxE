@@ -117,7 +117,8 @@ STModSpATS <- function(TD,
   }
   spatial <- setNames(rep("2 dimensional P-splines", times = length(traits)),
                       traits)
+  sumTab <- setNames(vector(mode = "list", length = length(traits)), traits)
   return(list(mRand = mr, mFix = mf, TD = TD[trial], traits = traits,
               design = design, spatial = spatial, engine = "SpATS",
-              predicted = "genotype"))
+              predicted = "genotype", sumTab = sumTab))
 }
