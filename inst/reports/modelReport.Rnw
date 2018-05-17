@@ -136,7 +136,8 @@ if (engine == "asreml" && !is.null(x[[trial]]$sumTab[[trait]])) {
   sumTab$col <- round(sumTab$col, 2)
   sumTab$units <- round(sumTab$units, 1)
   sumTab$residual <- round(sumTab$residual, 1)
-  sumTab[chMod, ] <- paste0("BOLD", sumTab[chMod, ])
+  sumTab[chMod, ][!is.na(sumTab[chMod, ])] <-
+    paste0("BOLD", sumTab[chMod, ][!is.na(sumTab[chMod, ])])
   print(xtable::xtable(x = sumTab,
                        caption = paste("Overview of spatial models tried",
                                        "- selected model shown in bold"),

@@ -316,11 +316,13 @@ bestSpatMod <- function(TD,
       modSum[i, "converge"] <- mrTrait$converge
       ## If current model is better than best so far based on chosen criterion
       ## define best model as current model.
-      if (criterion == "AIC") {
-        criterionCur  <- -2 * mrTrait$loglik + 2 * length(mrTrait$gammas)
-      } else {
-        criterionCur  <- -2 * mrTrait$loglik +
-          log(length(mrTrait$fitted.values)) * length(mrTrait$gammas)
+      if (mrTrait$converge) {
+        if (criterion == "AIC") {
+          criterionCur <- -2 * mrTrait$loglik + 2 * length(mrTrait$gammas)
+        } else {
+          criterionCur <- -2 * mrTrait$loglik +
+            log(length(mrTrait$fitted.values)) * length(mrTrait$gammas)
+        }
       }
       if (criterionCur < criterionBest) {
         bestModTr <- mrTrait
