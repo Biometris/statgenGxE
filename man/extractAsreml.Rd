@@ -5,7 +5,7 @@
 \title{Extract statistics from model fitted using asreml}
 \usage{
 extractAsreml(SSA, traits = SSA$traits, what = "all", keep = NULL,
-  useRepId)
+  useRepId, restore = FALSE)
 }
 \description{
 Extract statistics from model fitted using asreml

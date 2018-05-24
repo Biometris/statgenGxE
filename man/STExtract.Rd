@@ -5,7 +5,7 @@
 \title{Extract statistics from Fitted Models}
 \usage{
 STExtract(SSA, trials = names(SSA), traits = NULL, what = "all",
-  keep = NULL)
+  keep = NULL, restoreColNames = FALSE)
 }
 \arguments{
 \item{SSA}{An object of class SSA.}
@@ -30,6 +30,9 @@ computing fitted values, residuals, standardized residuals and rMeans.
 Columns can also be kept when computing (se)BLUEs and (se)BLUPs but only if
 the column to keep contains unique values for the modeled variables, i.e. a
 column repId with several different values per genotype cannot be kept.}
+
+\item{restoreColNames}{Should the original column names be restored in the
+output of the extracted data.}
 }
 \value{
 A list with per trial for which statistics have been extracted either

@@ -54,6 +54,8 @@
 #' Columns can also be kept when computing (se)BLUEs and (se)BLUPs but only if
 #' the column to keep contains unique values for the modeled variables, i.e. a
 #' column repId with several different values per genotype cannot be kept.
+#' @param restoreColNames Should the original column names be restored in the
+#' output of the extracted data.
 #'
 #' @return A list with per trial for which statistics have been extracted either
 #' a list of those statistics or if only one statistic is extracted
@@ -79,7 +81,8 @@ STExtract <- function(SSA,
                       trials = names(SSA),
                       traits = NULL,
                       what = "all",
-                      keep = NULL) {
+                      keep = NULL,
+                      restoreColNames = FALSE) {
   ## Checks.
   if (!inherits(SSA, "SSA")) {
     stop("SSA has to be an object of class SSA.\n")
@@ -99,6 +102,7 @@ STExtract <- function(SSA,
     if (is.null(traits)) {
       traits <- SSATr$traits
     }
+    ## Trial specific checks.
     if (!all(traits %in% colnames(SSATr$TD[[trial]]))) {
       stop(paste0("All traits should be columns in ", trial, ".\n"))
     }
@@ -107,11 +111,12 @@ STExtract <- function(SSA,
     }
     engine <- SSATr$engine
     ## Set useRepId to TRUE when it is used as fixed effect in the model.
-    useRepId <- (SSATr$design %in% c("res.ibd", "res.rowcol", "rcbd"))
+    useRepId <- SSATr$design %in% c("res.ibd", "res.rowcol", "rcbd")
     ## Extract statistics from fitted model.
     result <- do.call(what = paste0("extract", tools::toTitleCase(engine)),
                       args = list(SSA = SSATr, traits = traits, what = what,
-                                  useRepId = useRepId, keep = keep))
+                                  useRepId = useRepId, keep = keep,
+                                  restore = restoreColNames))
     attr(x = result, which = "traits") <- traits
     attr(x = result, which = "design") <- SSATr$design
     attr(x = result, which = "engine") <- engine
@@ -127,10 +132,12 @@ extractSpATS <- function(SSA,
                          traits = SSA$traits,
                          what = "all",
                          keep = NULL,
-                         useRepId) {
+                         useRepId,
+                         restore = FALSE) {
   mf <- SSA$mFix
   mr <- SSA$mRand
   TD <- SSA$TD[[1]]
+  renCols <- attr(TD, "renamedCols")
   predicted <- SSA$predicted
   useCheckId <- length(grep(pattern = "checkId",
                             x = deparse(mr[[1]]$model$fixed))) > 0
@@ -168,7 +175,8 @@ extractSpATS <- function(SSA,
     })
     BLUEs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
                     x = predVals, init = baseDataPred)
-    result[["BLUEs"]] <- BLUEs
+    result[["BLUEs"]] <- restoreColNames(renDat = BLUEs, renamedCols = renCols,
+                                         restore = restore)
   }
   if ("seBLUEs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
@@ -179,7 +187,9 @@ extractSpATS <- function(SSA,
     })
     seBLUEs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
                       x = predErrs, init = baseDataPred)
-    result[["seBLUEs"]] <- seBLUEs
+    result[["seBLUEs"]] <- restoreColNames(renDat = seBLUEs,
+                                           renamedCols = renCols,
+                                           restore = restore)
   }
   ## Compute BLUPs and se of BLUPs from mixed model.
   if ("BLUPs" %in% what) {
@@ -192,7 +202,8 @@ extractSpATS <- function(SSA,
     })
     BLUPs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
                     x = predVals, init = baseDataPred)
-    result[["BLUPs"]] <- BLUPs
+    result[["BLUPs"]] <- restoreColNames(renDat = BLUPs, renamedCols = renCols,
+                                         restore = restore)
   }
   if ("seBLUPs" %in% what) {
     whichPred <- c(predicted, if (useCheckId) "checkId")
@@ -204,7 +215,9 @@ extractSpATS <- function(SSA,
     })
     seBLUPs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
                       x = predErrs, init = baseDataPred)
-    result[["seBLUPs"]] <- seBLUPs
+    result[["seBLUPs"]] <- restoreColNames(renDat = seBLUPs,
+                                           renamedCols = renCols,
+                                           restore = restore)
   }
   ## Compute generalized heritability.
   if ("heritability" %in% what) {
@@ -231,7 +244,8 @@ extractSpATS <- function(SSA,
       fitVals[naTr[[trait]]] <- NA
       fitVals
     }))
-    result[["fitted"]] <- fitVal
+    result[["fitted"]] <- restoreColNames(renDat = fitVal, renamedCols = renCols,
+                                          restore = restore)
   }
   ## Extract residuals.
   if ("resid" %in% what) {
@@ -240,7 +254,8 @@ extractSpATS <- function(SSA,
       resVals[naTr[[trait]]] <- NA
       resVals
     }))
-    result[["resid"]] <- resVal
+    result[["resid"]] <- restoreColNames(renDat = resVal, renamedCols = renCols,
+                                         restore = restore)
   }
   ## Extract rMeans.
   if ("rMeans" %in% what) {
@@ -249,7 +264,8 @@ extractSpATS <- function(SSA,
       fitVals[naTr[[trait]]] <- NA
       fitVals
     }))
-    result[["rMeans"]] <- rMeans
+    result[["rMeans"]] <- restoreColNames(renDat = rMeans, renamedCols = renCols,
+                                          restore = restore)
   }
   ## Extract random effects.
   if ("ranEf" %in% what) {
@@ -262,7 +278,8 @@ extractSpATS <- function(SSA,
     })
     ranEf <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
                     x = ranEffs, init = baseDataPred)
-    result[["ranEf"]] <- ranEf
+    result[["ranEf"]] <- restoreColNames(renDat = ranEf, renamedCols = renCols,
+                                         restore = restore)
   }
   ## Extract residual degrees of freedom.
   if ("rDf" %in% what) {
@@ -289,14 +306,16 @@ extractLme4 <- function(SSA,
                         traits = SSA$traits,
                         what = "all",
                         keep = NULL,
-                        useRepId) {
+                        useRepId,
+                        restore = FALSE) {
   mf <- SSA$mFix
   mr <- SSA$mRand
   TD <- SSA$TD[[1]]
+  renCols <- attr(TD, "renamedCols")
   predicted = SSA$predicted
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability",
-               "varGen", "varErr", "fitted", "resid", "stdRes", "rMeans", "ranEf",
-               "wald", "CV", "rDf")
+               "varGen", "varErr", "fitted", "resid", "stdRes", "rMeans",
+               "ranEf", "wald", "CV", "rDf")
   whatMod <- c("F", "F", "R", "R", "F", "R", "R", "R", "F", "F", "F", "R", "R",
                "F", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
@@ -331,7 +350,8 @@ extractLme4 <- function(SSA,
     })
     BLUEs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
                     x = predVals, init = baseDataPred)
-    result[["BLUEs"]] <- BLUEs
+    result[["BLUEs"]] <- restoreColNames(renDat = BLUEs, renamedCols = renCols,
+                                         restore = restore)
   }
   if ("seBLUEs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
@@ -340,7 +360,9 @@ extractLme4 <- function(SSA,
     })
     seBLUEs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
                       x = predErrs, init = baseDataPred)
-    result[["seBLUEs"]] <- seBLUEs
+    result[["seBLUEs"]] <- restoreColNames(renDat = seBLUEs,
+                                           renamedCols = renCols,
+                                           restore = restore)
   }
   ## Compute BLUPs and se of BLUPs from mixed model.
   if ("BLUPs" %in% what) {
@@ -360,7 +382,8 @@ extractLme4 <- function(SSA,
     })
     BLUPs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
                     x = predVals, init = baseDataPred)
-    result[["BLUPs"]] <- BLUPs
+    result[["BLUPs"]] <- restoreColNames(renDat = BLUPs, renamedCols = renCols,
+                                         restore = restore)
   }
   if ("seBLUPs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
@@ -372,7 +395,9 @@ extractLme4 <- function(SSA,
     })
     seBLUPs <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
                       x = predErrs, init = baseDataPred)
-    result[["seBLUPs"]] <- seBLUPs
+    result[["seBLUPs"]] <- restoreColNames(renDat = seBLUPs,
+                                           renamedCols = renCols,
+                                           restore = restore)
   }
   ## Compute unit errors.
   if ("ue" %in% what) {
@@ -392,7 +417,8 @@ extractLme4 <- function(SSA,
     })
     ue <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
                  x = unitErrs, init = baseDataPred)
-    result[["ue"]] <- ue
+    result[["ue"]] <- restoreColNames(renDat = ue, renamedCols = renCols,
+                                      restore = restore)
   }
   ## Extract variances.
   if (any(c("varGen", "varErr", "heritability") %in% what)) {
@@ -420,12 +446,14 @@ extractLme4 <- function(SSA,
   ## Extract fitted values.
   if ("fitted" %in% what) {
     fitVal <- cbind(baseData, sapply(X = mf, FUN = fitted))
-    result[["fitted"]] <- fitVal
+    result[["fitted"]] <- restoreColNames(renDat = fitVal, renamedCols = renCols,
+                                          restore = restore)
   }
   ## Extract residuals.
   if ("resid" %in% what) {
     resVal <- cbind(baseData, sapply(X = mf, FUN = residuals))
-    result[["resid"]] <- resVal
+    result[["resid"]] <- restoreColNames(renDat = resVal, renamedCols = renCols,
+                                         restore = restore)
   }
   ## Extract standardized residuals.
   if ("stdRes" %in% what) {
@@ -437,7 +465,8 @@ extractLme4 <- function(SSA,
                         stdRes <- residuals(mf0, scaled = TRUE)
                       }
                     }))
-    result[["stdRes"]] <- stdRes
+    result[["stdRes"]] <- restoreColNames(renDat = stdRes, renamedCols = renCols,
+                                          restore = restore)
   }
   ## Compute rMeans.
   ## Use napredict to fill in NAs in data with NAs.
@@ -447,7 +476,8 @@ extractLme4 <- function(SSA,
                       napredict(attr(model.frame(mr0), "na.action"),
                                 x = lme4::getME(mr0, "mu"))
                     }))
-    result[["rMeans"]] <- rMeans
+    result[["rMeans"]] <- restoreColNames(renDat = rMeans, renamedCols = renCols,
+                                          restore = restore)
   }
   ## Extract random effects.
   if ("ranEf" %in% what) {
@@ -459,7 +489,8 @@ extractLme4 <- function(SSA,
     })
     ranEf <- Reduce(f = function(x, y) merge(x, y, all = TRUE),
                     x = ranEffs, init = baseDataPred)
-    result[["ranEf"]] <- ranEf
+    result[["ranEf"]] <- restoreColNames(renDat = ranEf, renamedCols = renCols,
+                                         restore = restore)
   }
   ## Compute wald test.
   if ("wald" %in% what) {
@@ -487,17 +518,19 @@ extractAsreml <- function(SSA,
                           traits = SSA$traits,
                           what = "all",
                           keep = NULL,
-                          useRepId) {
+                          useRepId,
+                          restore = FALSE) {
   if (!requireNamespace("asreml", quietly = TRUE)) {
     stop("asreml cannot be successfully loaded.\n")
   }
   mf <- SSA$mFix
   mr <- SSA$mRand
   TD <- SSA$TD[[1]]
+  renCols <- attr(TD, "renamedCols")
   predicted <- SSA$predicted
-  whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability", "varGen",
-               "varErr", "fitted", "resid", "stdRes", "rMeans", "ranEf",
-               "wald", "CV", "rDf", "sed", "lsd")
+  whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability",
+               "varGen", "varErr", "fitted", "resid", "stdRes", "rMeans",
+               "ranEf", "wald", "CV", "rDf", "sed", "lsd")
   whatMod <- c("F", "F", "R", "R", "F", "R", "R", "R", "F", "F", "F", "R", "R",
                "F", "F", "F", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
@@ -514,8 +547,7 @@ extractAsreml <- function(SSA,
   baseData <- base$baseData
   baseDataPred <- base$baseDataPred
   ## Create empty result list.
-  result <- setNames(vector(mode = "list", length = length(what)),
-                     what)
+  result <- setNames(vector(mode = "list", length = length(what)), what)
   ## Extract BLUEs and se of BLUEs from fixed model.
   if ("BLUEs" %in% what) {
     predVals <- lapply(X = traits, FUN = function(trait) {
@@ -523,7 +555,8 @@ extractAsreml <- function(SSA,
                c(predicted, trait))
     })
     BLUEs <- Reduce(f = merge, x = predVals, init = baseDataPred)
-    result[["BLUEs"]] <- BLUEs
+    result[["BLUEs"]] <- restoreColNames(renDat = BLUEs, renamedCols = renCols,
+                                         restore = restore)
   }
   if ("seBLUEs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
@@ -531,7 +564,9 @@ extractAsreml <- function(SSA,
                c(predicted, trait))
     })
     seBLUEs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
-    result[["seBLUEs"]] <- seBLUEs
+    result[["seBLUEs"]] <- restoreColNames(renDat = seBLUEs,
+                                           renamedCols = renCols,
+                                           restore = restore)
   }
   ## Extract BLUPs and se of BLUPs from fixed model.
   if ("BLUPs" %in% what) {
@@ -540,7 +575,8 @@ extractAsreml <- function(SSA,
                c(predicted, trait))
     })
     BLUPs <- Reduce(f = merge, x = predVals, init = baseDataPred)
-    result[["BLUPs"]] <- BLUPs
+    result[["BLUPs"]] <- restoreColNames(renDat = BLUPs, renamedCols = renCols,
+                                         restore = restore)
   }
   if ("seBLUPs" %in% what) {
     predErrs <- lapply(X = traits, FUN = function(trait) {
@@ -548,7 +584,8 @@ extractAsreml <- function(SSA,
                c(predicted, trait))
     })
     seBLUPs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
-    result[["seBLUPs"]] <- seBLUPs
+    result[["seBLUPs"]] <- restoreColNames(renDat = seBLUPs, renamedCols = renCols,
+                                           restore = restore)
   }
   ## Compute unit errors.
   if ("ue" %in% what) {
@@ -568,7 +605,8 @@ extractAsreml <- function(SSA,
       }
       return(ue)
     }))
-    result[["ue"]] <- ue
+    result[["ue"]] <- restoreColNames(renDat = ue, renamedCols = renCols,
+                                      restore = restore)
   }
   ## Extract variances
   varGen <- sapply(X = mr, FUN = function(mr0) {
@@ -596,23 +634,27 @@ extractAsreml <- function(SSA,
   ## Extract fitted values.
   if ("fitted" %in% what) {
     fitVal <- cbind(baseData, sapply(X = mf, FUN = fitted))
-    result[["fitted"]] <- fitVal
+    result[["fitted"]] <- restoreColNames(renDat = fitVal, renamedCols = renCols,
+                                          restore = restore)
   }
   ## Extract residuals.
   if ("resid" %in% what) {
     resVal <- cbind(baseData, sapply(X = mf, FUN = residuals,
                                      type = "response"))
-    result[["resid"]] <- resVal
+    result[["resid"]] <- restoreColNames(renDat = resVal, renamedCols = renCols,
+                                         restore = restore)
   }
   ## Extract standardized residuals.
   if ("stdRes" %in% what) {
     stdRes <- cbind(baseData, sapply(X = mf, FUN = residuals, type = "stdCond"))
-    result[["stdRes"]] <- stdRes
+    result[["stdRes"]] <- restoreColNames(renDat = stdRes, renamedCols = renCols,
+                                          restore = restore)
   }
   ## Extract rMeans.
   if ("rMeans" %in% what) {
     rMeans <- cbind(baseData, sapply(X = mr, FUN = fitted))
-    result[["rMeans"]] <- rMeans
+    result[["rMeans"]] <- restoreColNames(renDat = rMeans, renamedCols = renCols,
+                                          restore = restore)
   }
   ## Extract random effects.
   if ("ranEf" %in% what) {
@@ -627,7 +669,8 @@ extractAsreml <- function(SSA,
       return(ranEff)
     })
     ranEf <- Reduce(f = merge, x = ranEffs, init = baseDataPred)
-    result[["ranEf"]] <- ranEf
+    result[["ranEf"]] <- restoreColNames(renDat = ranEf, renamedCols = renCols,
+                                         restore = restore)
   }
   ## Compute wald test.
   if ("wald" %in% what) {
@@ -703,6 +746,16 @@ createBaseData <- function(TD, predicted, keep, useRepId, bdPred) {
   return(list(baseData = baseData, baseDataPred = baseDataPred))
 }
 
-
-
-
+#' Helper function for adding back original colnames
+#'
+#' @keywords internal
+restoreColNames <- function(renDat,
+                            renamedCols,
+                            restore = FALSE) {
+  if (restore && !is.null(renamedCols)) {
+    renCols <- colnames(renDat)
+    colnames(renDat) <- ifelse(renCols %in% renamedCols$new,
+                               renamedCols$orig, renCols)
+  }
+  return(renDat)
+}
