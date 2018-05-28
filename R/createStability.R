@@ -74,6 +74,7 @@ summary.stability <- function(object, ...) {
 #' @export
 plot.stability <- function(x,
                            ...) {
+  dotArgs <- list(...)
   nPlots <- sum(c(!is.null(x$superiority), !is.null(x$static), !is.null(x$wricke)))
   ## Prepare panels.
   if (nPlots > 1) {
@@ -81,27 +82,39 @@ plot.stability <- function(x,
                   oma = c(.5, .5, 2, .3))
     on.exit(par(oldPar))
   }
+  ## Add and overwrite args with custom args from ...
+  fixedArgs <- c("x", "y", "xlab", "ylab", "main")
   ## Create superiority plot.
   if (!is.null(x$superiority)) {
-    plot(x = x$superiority$mean, y = x$superiority$superiority,
-         xlab = "Mean", ylab = "Cultivar superiority", ...)
+    plotArgs <- list(x = x$superiority$mean, y = x$superiority$superiority,
+                     xlab = "Mean", ylab = "Cultivar superiority")
+    plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
+    do.call(plot, args = plotArgs)
   }
   ## Create static plot.
   if (!is.null(x$static)) {
-    plot(x = x$static$mean, y = x$static$static,
-         xlab = "Mean", ylab = "Static stability", ...)
+    plotArgs <- list(x = x$static$mean, y = x$static$static,
+                     xlab = "Mean", ylab = "Static stability")
+    plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
+    do.call(plot, args = plotArgs)
   }
   ## Create Wricke plot.
   if (!is.null(x$wricke)) {
-    plot(x = x$wricke$mean, y = x$wricke$wricke,
-         xlab = "Mean", ylab = "Wricke's ecovalence", ...)
+    plotArgs <- list(x = x$wricke$mean, y = x$wricke$wricke,
+                     xlab = "Mean", ylab = "Wricke's ecovalence")
+    plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
+    do.call(plot, args = plotArgs)
   }
   ## Add title.
-  if (nPlots == 1) {
-    title(paste('Stability coefficients for', x$trait))
+  if (!is.null(dotArgs$main)) {
+    main <- dotArgs$main
   } else {
-    mtext(paste('Stability coefficients for', x$trait), side = 3,
-          outer = TRUE, cex = 1.3, font = 2)
+    main <- paste("Stability coefficients for", x$trait)
+  }
+  if (nPlots == 1) {
+    title(main)
+  } else {
+    mtext(main, side = 3, outer = TRUE, cex = 1.3, font = 2)
   }
 }
 
