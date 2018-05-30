@@ -134,8 +134,8 @@ if (engine == "asreml" && !is.null(x[[trial]]$sumTab[[trait]])) {
   sumTab$BIC <- round(sumTab$BIC)
   sumTab$row <- round(sumTab$row, 2)
   sumTab$col <- round(sumTab$col, 2)
-  sumTab$units <- round(sumTab$units, 1)
-  sumTab$residual <- round(sumTab$residual, 1)
+  sumTab$error <- round(sumTab$error, 1)
+  sumTab$`correlated error` <- round(sumTab$`correlated error`, 1)
   sumTab[chMod, ][!is.na(sumTab[chMod, ])] <-
     paste0("BOLD", sumTab[chMod, ][!is.na(sumTab[chMod, ])])
   print(xtable::xtable(x = sumTab,
