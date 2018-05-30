@@ -61,29 +61,30 @@ models.}
 \item{checkId}{An optional character string indicating the column in
 \code{data} that contains the check IDs.}
 
-\item{trLocation}{An optional character string indicating the location of
-the trial. This will be used for constructing default names for plots and
-such. If no location is provided the trialname will be used as default name.}
+\item{trLocation}{An optional character vector indicating the locations of
+the trials. This will be used for constructing default names for plots and
+such. If no locations are provided the trialname will be used as default
+name.}
 
-\item{trDate}{An optional date indicating the date of the trial.}
+\item{trDate}{An optional date vector indicating the dates of the trials.}
 
-\item{trDesign}{An optional character string indicating the design of the
-trial. Either "ibd" (incomplete-block design), "res.ibd"
-(resolvable incomplete-block design), "rcbd" (randomized complete block
-design), "rowcol" (row-column design) or "res.rowcol" (resolvable
+\item{trDesign}{An optional character vector indicating the designs of the
+trials. Either "none" (no (known) design), "ibd" (incomplete-block design),
+"res.ibd" (resolvable incomplete-block design), "rcbd" (randomized complete
+block design), "rowcol" (row-column design) or "res.rowcol" (resolvable
 row-column design).}
 
-\item{trLat}{An optional numerical value indicating the latitude of the
-trial on a scale of -90 to 90.}
+\item{trLat}{An optional numerical vector indicating the latitudes of the
+trials on a scale of -90 to 90.}
 
-\item{trLong}{An optional numerical value indicating the longitude of the
-trial on a scale of -180 to 180.}
+\item{trLong}{An optional numerical vector indicating the longitudes of the
+trials on a scale of -180 to 180.}
 
-\item{trPlWidth}{An optional positive numerical value indicating the
-width of the plot.}
+\item{trPlWidth}{An optional positive numerical vector indicating the
+widths of the plots.}
 
-\item{trPlLength}{An optional positive numerical value indicating the
-length of the plot.}
+\item{trPlLength}{An optional positive numerical vector indicating the
+lengths of the plots.}
 
 \item{TD}{An object of class TD which should be modified.}
 
@@ -99,23 +100,25 @@ for trial the list will contain one item named after the input data.
 }
 \description{
 \code{createTD}\cr
-Function for creating objects of S3 class TD (Trial Data). The input data is
-checked and columns are renamed to default column names for ease of further
-computations. The columns for genotype, trial, megaEnv, year, repId,
-subBlock, rowId, colId and checkId are converted to factor columns, whereas
-rowCoord and colCoord are converted to numerical columns. One
-single column can be mapped to multiple defaults, e.g. one column with x
-coordinates can be mapped to both colId and colCoord.\cr
-Columns other than the default columns, e.g. traits or other covariates
-will be included in the output unchanged.\cr
-The input data is split by trial. So for an input data frame with three
-different trials in the column assigned to \code{trial} the output will be
-generated as a list with three items. In this case metadata describing the
-trials will be identical.\cr
-To generate a TD object with different metadata for each trial start by
-creating a TD object for one trial and then add new trials to it using the
-addTD function. Alternatively create a TD object with all data and then use
-\code{\link{setMeta}} to add metadata for all trials at once.\cr\cr
+Function for creating objects of S3 class TD (Trial Data). The function
+performs the following steps:
+\itemize{
+\item{Check input data}
+\item{Rename columns to default column names - default column names:
+genotype, trial, megaEnv, year, repId, subBlock, rowId, rowCoord, colId,
+colCoord, checkId}
+\item{Convert column types to default column types - rowCoord and colCoord
+are converted to numeric columns, all other renamed columns to factor
+columns. Columns other than the default columns, e.g. traits or other
+covariates will be included in the output unchanged.}
+\item{Split input data by trial - each trial in the input data will become
+a list item in the output}
+\item{Add meta data - the trial meta data are added as attributes to the
+different output items. The function parameters starting with tr provide
+the meta data. Their values will be recycled if needed, so by setting a
+single trDesign all trials will get the same design. The meta data can be
+changed later on using \code{getMeta} and \code{setMeta}}
+} \cr\cr
 \code{addTD}\cr
 Function for adding extra trial data to an existing object of class TD. The
 data for the new trials will be added after the data for existing trials. It
@@ -129,7 +132,8 @@ class TD.\cr\cr
 \code{\link{summary.TD}} and \code{\link{plot.TD}} methods are available.
 }
 \seealso{
-\code{\link{summary.TD}}, \code{\link{plot.TD}}
+\code{\link{summary.TD}}, \code{\link{plot.TD}},
+\code{\link{getMeta}}, \code{\link{setMeta}}
 }
 \author{
 Bart-Jan van Rossum

@@ -1,23 +1,25 @@
 #' S3 class TD
 #'
 #' \code{createTD}\cr
-#' Function for creating objects of S3 class TD (Trial Data). The input data is
-#' checked and columns are renamed to default column names for ease of further
-#' computations. The columns for genotype, trial, megaEnv, year, repId,
-#' subBlock, rowId, colId and checkId are converted to factor columns, whereas
-#' rowCoord and colCoord are converted to numerical columns. One
-#' single column can be mapped to multiple defaults, e.g. one column with x
-#' coordinates can be mapped to both colId and colCoord.\cr
-#' Columns other than the default columns, e.g. traits or other covariates
-#' will be included in the output unchanged.\cr
-#' The input data is split by trial. So for an input data frame with three
-#' different trials in the column assigned to \code{trial} the output will be
-#' generated as a list with three items. In this case metadata describing the
-#' trials will be identical.\cr
-#' To generate a TD object with different metadata for each trial start by
-#' creating a TD object for one trial and then add new trials to it using the
-#' addTD function. Alternatively create a TD object with all data and then use
-#' \code{\link{setMeta}} to add metadata for all trials at once.\cr\cr
+#' Function for creating objects of S3 class TD (Trial Data). The function
+#' performs the following steps:
+#' \itemize{
+#' \item{Check input data}
+#' \item{Rename columns to default column names - default column names:
+#' genotype, trial, megaEnv, year, repId, subBlock, rowId, rowCoord, colId,
+#' colCoord, checkId}
+#' \item{Convert column types to default column types - rowCoord and colCoord
+#' are converted to numeric columns, all other renamed columns to factor
+#' columns. Columns other than the default columns, e.g. traits or other
+#' covariates will be included in the output unchanged.}
+#' \item{Split input data by trial - each trial in the input data will become
+#' a list item in the output}
+#' \item{Add meta data - the trial meta data are added as attributes to the
+#' different output items. The function parameters starting with tr provide
+#' the meta data. Their values will be recycled if needed, so by setting a
+#' single trDesign all trials will get the same design. The meta data can be
+#' changed later on using \code{getMeta} and \code{setMeta}}
+#' } \cr\cr
 #' \code{addTD}\cr
 #' Function for adding extra trial data to an existing object of class TD. The
 #' data for the new trials will be added after the data for existing trials. It
@@ -57,23 +59,24 @@
 #' models.
 #' @param checkId An optional character string indicating the column in
 #' \code{data} that contains the check IDs.
-#' @param trLocation An optional character string indicating the location of
-#' the trial. This will be used for constructing default names for plots and
-#' such. If no location is provided the trialname will be used as default name.
-#' @param trDate An optional date indicating the date of the trial.
-#' @param trDesign An optional character string indicating the design of the
-#' trial. Either "ibd" (incomplete-block design), "res.ibd"
-#' (resolvable incomplete-block design), "rcbd" (randomized complete block
-#' design), "rowcol" (row-column design) or "res.rowcol" (resolvable
+#' @param trLocation An optional character vector indicating the locations of
+#' the trials. This will be used for constructing default names for plots and
+#' such. If no locations are provided the trialname will be used as default
+#' name.
+#' @param trDate An optional date vector indicating the dates of the trials.
+#' @param trDesign An optional character vector indicating the designs of the
+#' trials. Either "none" (no (known) design), "ibd" (incomplete-block design),
+#' "res.ibd" (resolvable incomplete-block design), "rcbd" (randomized complete
+#' block design), "rowcol" (row-column design) or "res.rowcol" (resolvable
 #' row-column design).
-#' @param trLat An optional numerical value indicating the latitude of the
-#' trial on a scale of -90 to 90.
-#' @param trLong An optional numerical value indicating the longitude of the
-#' trial on a scale of -180 to 180.
-#' @param trPlWidth An optional positive numerical value indicating the
-#' width of the plot.
-#' @param trPlLength An optional positive numerical value indicating the
-#' length of the plot.
+#' @param trLat An optional numerical vector indicating the latitudes of the
+#' trials on a scale of -90 to 90.
+#' @param trLong An optional numerical vector indicating the longitudes of the
+#' trials on a scale of -180 to 180.
+#' @param trPlWidth An optional positive numerical vector indicating the
+#' widths of the plots.
+#' @param trPlLength An optional positive numerical vector indicating the
+#' lengths of the plots.
 #'
 #' @return An object of class TD, a list of data.frames with renamed columns
 #' and an attribute \code{renamedCols} containing info on which columns have
@@ -84,7 +87,8 @@
 #'
 #' @author Bart-Jan van Rossum
 #'
-#' @seealso \code{\link{summary.TD}}, \code{\link{plot.TD}}
+#' @seealso \code{\link{summary.TD}}, \code{\link{plot.TD}},
+#' \code{\link{getMeta}}, \code{\link{setMeta}}
 #'
 #' @name TD
 NULL
@@ -173,7 +177,7 @@ createTD <- function(data,
         as.numeric(data[, which(cols == numCol)])
     }
   }
-  if ("trial" %in% colnames(data)) {
+  if (hasName(data, "trial")) {
     listData <- split(x = data, f = droplevels(data$trial))
   } else {
     listData <- setNames(list(data), dataName)
@@ -181,21 +185,32 @@ createTD <- function(data,
   ## Define meta data to set from input variables.
   meta <- c("trLocation", "trDate", "trDesign", "trLat", "trLong",
             "trPlWidth", "trPlLength")
+  ## Expand input values for meta variables to number of trials.
+  metaVals <- sapply(X = meta, FUN = function(m) {
+    if (!is.null(get(m))) {
+      metaVal <- rep(x = get(m), length.out = length(listData))
+      if (is.null(names(metaVal)) || !all(hasName(listData, names(metaVal)))) {
+        names(metaVal) <- names(listData)
+      }
+      return(metaVal)
+    } else {
+      NULL
+    }
+  }, simplify = FALSE)
   ## Set meta for all trials in data.
-  for (i in seq_along(listData)) {
+  for (tr in names(listData)) {
     for (m in meta) {
       ## Set meta data. Set to NULL if not in input so meta variable is
       ## left out meta data. This to avoid a list of NULL.
-      attr(x = listData[[i]], which = m) <-
-        if (!is.null(get(m))) get(m) else NULL
+      attr(x = listData[[tr]], which = m) <- unname(metaVals[[m]][tr])
     }
     ## Location should always be filled since it is used in plot titles as
     ## well. Use trial name as default value.
     if (is.null(trLocation)) {
-      attr(x = listData[[i]], which = "trLocation") <- names(listData)[i]
+      attr(x = listData[[tr]], which = "trLocation") <- tr
     }
     ## Add a list of columns that have been renamed as attribute to TD.
-    attr(x = listData[[i]], which = "renamedCols") <-
+    attr(x = listData[[tr]], which = "renamedCols") <-
       if (nrow(renamed) > 0) renamed else NULL
   }
   TD <- structure(listData,
@@ -647,38 +662,35 @@ checkTDMeta <- function(trLocation = NULL,
                         trPlWidth = NULL,
                         trPlLength = NULL) {
   if (!is.null(trDesign)) {
-    trDesign <- match.arg(trDesign, choices = c("ibd", "res.ibd", "rcbd",
-                                                "rowcol", "res.rowcol"))
+    trDesign <- match.arg(trDesign, choices = c("none", "ibd", "res.ibd",
+                                                "rcbd", "rowcol", "res.rowcol"),
+                          several.ok = TRUE)
   }
-  if (!is.null(trLat) && (!is.numeric(trLat) || length(trLat) > 1 ||
-                          abs(trLat) > 90)) {
-    stop("trLat should be a single numerical value between -90 and 90.\n",
+  if (!is.null(trLat) && (!is.numeric(trLat) || any(abs(trLat) > 90))) {
+    stop("trLat should be a numerical vector between -90 and 90.\n",
          call. = FALSE)
   }
-  if (!is.null(trLong) && (!is.numeric(trLong) || length(trLong) > 1 ||
-                           abs(trLong) > 180)) {
-    stop("trLat should be a single numerical value between -180 and 180.\n",
+  if (!is.null(trLong) && (!is.numeric(trLong) || any(abs(trLong) > 180))) {
+    stop("trLat should be a numerical vector between -180 and 180.\n",
          call. = FALSE)
   }
   if (!is.null(trLat) && !is.null(trLong)) {
+    locLen <- max(length(trLat), length(trLong))
     ## Check that coordinates point to a proper location so plotting can be done.
-    loc <- maps::map.where(x = trLong, y = trLat)
-    if (length(loc) > 0 && is.na(loc)) {
-      warning("Values for trLat and trLong don't match a known land location.\n",
+    loc <- maps::map.where(x = rep(x = trLong, length.out = locLen),
+                           y = rep(x = trLat, length.out = locLen))
+    if (length(loc) > 0 && anyNA(loc)) {
+      warning(paste("Values for trLat and trLong should all match a known",
+                    "land location.\n"),
               call. = FALSE)
     }
   }
-  if (!is.null(trPlWidth) && (!is.numeric(trPlWidth) ||
-                                length(trPlWidth) > 1 || trPlWidth < 0)) {
-    stop("trPlWidth should be a single positive numerical value.\n",
+  if (!is.null(trPlWidth) && (!is.numeric(trPlWidth) || any(trPlWidth < 0))) {
+    stop("trPlWidth should be a positive numerical vector.\n",
          call. = FALSE)
   }
-  if (!is.null(trPlLength) && (!is.numeric(trPlLength) ||
-                                 length(trPlLength) > 1 || trPlLength < 0)) {
-    stop("trPlLength should be a single positive numerical value.\n",
+  if (!is.null(trPlLength) && (!is.numeric(trPlLength) || any(trPlLength < 0))) {
+    stop("should be a positive numerical vector.\n",
          call. = FALSE)
   }
 }
-
-
-
