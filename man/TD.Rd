@@ -8,16 +8,16 @@
 \title{S3 class TD}
 \usage{
 createTD(data, genotype = NULL, trial = NULL, megaEnv = NULL,
-  year = NULL, repId = NULL, subBlock = NULL, rowId = NULL,
-  colId = NULL, rowCoord = NULL, colCoord = NULL, checkId = NULL,
-  trLocation = NULL, trDate = NULL, trDesign = NULL, trLat = NULL,
-  trLong = NULL, trPlWidth = NULL, trPlLength = NULL)
+  year = NULL, repId = NULL, subBlock = NULL, plot = NULL,
+  rowId = NULL, colId = NULL, rowCoord = NULL, colCoord = NULL,
+  checkId = NULL, trLocation = NULL, trDate = NULL, trDesign = NULL,
+  trLat = NULL, trLong = NULL, trPlWidth = NULL, trPlLength = NULL)
 
 addTD(TD, data, genotype = NULL, trial = NULL, megaEnv = NULL,
-  year = NULL, repId = NULL, subBlock = NULL, rowId = NULL,
-  colId = NULL, rowCoord = NULL, colCoord = NULL, checkId = NULL,
-  trLocation = NULL, trDate = NULL, trDesign = NULL, trLat = NULL,
-  trLong = NULL, trPlWidth = NULL, trPlLength = NULL)
+  year = NULL, repId = NULL, subBlock = NULL, plot = NULL,
+  rowId = NULL, colId = NULL, rowCoord = NULL, colCoord = NULL,
+  checkId = NULL, trLocation = NULL, trDate = NULL, trDesign = NULL,
+  trLat = NULL, trLong = NULL, trPlWidth = NULL, trPlLength = NULL)
 
 dropTD(TD, trials)
 }
@@ -43,6 +43,10 @@ that contains years.}
 
 \item{subBlock}{An optional character string indicating the column in
 \code{data} that contains sub blocks.}
+
+\item{plot}{An optional character string indicating the column in
+\code{data} that contains plots. This column will be combined with trial
+to a single output factor.}
 
 \item{rowId}{An optional character string indicating the column in
 \code{data} that contains field rows.}

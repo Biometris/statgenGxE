@@ -47,6 +47,9 @@
 #' \code{data} that contains replicates.
 #' @param subBlock An optional character string indicating the column in
 #' \code{data} that contains sub blocks.
+#' @param plot An optional character string indicating the column in
+#' \code{data} that contains plots. This column will be combined with trial
+#' to a single output factor.
 #' @param rowId An optional character string indicating the column in
 #' \code{data} that contains field rows.
 #' @param colId An optional character string indicating the column in
@@ -90,6 +93,8 @@
 #' @seealso \code{\link{summary.TD}}, \code{\link{plot.TD}},
 #' \code{\link{getMeta}}, \code{\link{setMeta}}
 #'
+#' @importFrom utils hasName
+#'
 #' @name TD
 NULL
 
@@ -102,6 +107,7 @@ createTD <- function(data,
                      year = NULL,
                      repId = NULL,
                      subBlock = NULL,
+                     plot = NULL,
                      rowId = NULL,
                      colId = NULL,
                      rowCoord = NULL,
@@ -124,18 +130,18 @@ createTD <- function(data,
     stop("data has to be a data.frame.\n")
   }
   cols <- colnames(data)
-  for (param in c(genotype, trial, megaEnv, year, repId, subBlock, rowId, colId,
-                  rowCoord, colCoord, checkId)) {
+  for (param in c(genotype, trial, megaEnv, year, repId, subBlock, plot,
+                  rowId, colId, rowCoord, colCoord, checkId)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
-                            !param %in% cols)) {
+                            !hasName(data, param))) {
       stop(paste(deparse(param), "has to be NULL or a column in data.\n"))
     }
   }
   checkTDMeta(trDesign = trDesign, trLat = trLat, trLong = trLong,
               trPlWidth = trPlWidth, trPlLength = trPlLength)
   ## Create list of reserved column names for renaming columns.
-  renameCols <- c("genotype", "trial", "megaEnv", "year", "repId", "subBlock",
-                  "rowId", "colId", "rowCoord", "colCoord",
+  renameCols <- c("genotype", "trial", "megaEnv", "year", "repId", "plot",
+                  "subBlock", "rowId", "colId", "rowCoord", "colCoord",
                   "checkId")
   ## First rename duplicate colums and add duplicated columns to data
   renameFrom <- as.character(sapply(X = renameCols, FUN = function(x) {
@@ -150,7 +156,7 @@ createTD <- function(data,
   for (dupCol in dupCols) {
     ## Copy original column as extra column in data for each duplicate.
     tempName <- paste0(".temp", dupCol)
-    data[tempName] <- data[, which(colnames(data) == renameFrom[dupCol])]
+    data[tempName] <- data[, colnames(data) == renameFrom[dupCol]]
     ## Add new replacementname to cols and renameFrom.
     cols[length(cols) + 1] <- tempName
     renameFrom[dupCol] <- tempName
@@ -162,19 +168,23 @@ createTD <- function(data,
   colnames(data) <- cols
   ## Convert columns to factor if neccessary.
   factorCols <-  c("genotype", "trial", "megaEnv", "year", "repId", "subBlock",
-                   "rowId", "colId", "checkId")
+                   "plot", "rowId", "colId", "checkId")
   for (factorCol in factorCols) {
-    if (factorCol %in% cols && !is.factor(data[, which(cols == factorCol)])) {
-      data[, which(cols == factorCol)] <-
-        as.factor(data[, which(cols == factorCol)])
+    if (hasName(data, factorCol)) {
+      data[, cols == factorCol] <- as.factor(data[, cols == factorCol])
     }
+  }
+  ## Combine plot and trial into a single factor if both are available.
+  ## If trial is not available plot itself was converted to factor in the
+  ## previous step.
+  if (all(hasName(data, c("trial", "plot")))) {
+    data$plot <- interaction(data$trial, data$plot, sep = "_")
   }
   ## Convert columns to numeric if neccessary.
   numCols <- c("rowCoord", "colCoord")
   for (numCol in numCols) {
-    if (numCol %in% cols && !is.numeric(data[, which(cols == numCol)])) {
-      data[, which(cols == numCol)] <-
-        as.numeric(data[, which(cols == numCol)])
+    if (hasName(data, numCol) && !is.numeric(data[, cols == numCol])) {
+      data[, cols == numCol] <- as.numeric(data[, cols == numCol])
     }
   }
   if (hasName(data, "trial")) {
@@ -232,6 +242,7 @@ addTD <- function(TD,
                   year = NULL,
                   repId = NULL,
                   subBlock = NULL,
+                  plot = NULL,
                   rowId = NULL,
                   colId = NULL,
                   rowCoord = NULL,
@@ -246,8 +257,8 @@ addTD <- function(TD,
                   trPlLength = NULL) {
   TDNw <- createTD(data = data, genotype = genotype, trial = trial,
                    megaEnv = megaEnv, year = year, repId = repId,
-                   subBlock = subBlock, rowId = rowId, colId = colId,
-                   rowCoord = rowCoord,
+                   subBlock = subBlock, plot = plot, rowId = rowId,
+                   colId = colId, rowCoord = rowCoord,
                    colCoord = colCoord, checkId = checkId,
                    trLocation = trLocation, trDate = trDate,
                    trDesign = trDesign, trLat = trLat, trLong = trLong,
