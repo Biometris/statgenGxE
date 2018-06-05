@@ -43,7 +43,7 @@ chkLastIter <- function(model) {
     lastIt <- mon[-(1:3), c(ncol(mon) - 2, ncol(mon) - 1)]
     ## Compute change of parameters in last iteration.
     change <- ifelse(lastIt[, 1] == 0, 0, abs((lastIt[, 2] - lastIt[, 1]) /
-                                         lastIt[, 1]) * 100)
+                                                lastIt[, 1]) * 100)
     ## Suppress waning if the change was less than 5% or the param value less
     ## than 0.1.
     if (all(change <= 5) || all(lastIt[change > 5, 1] < 0.1)) {
@@ -319,11 +319,11 @@ qtlPosToName <- function(chrPos, cross) {
   chr <- sapply(X = chrPos, function(cp) {
     unlist(strsplit(cp, "@"))[1]
   })
-  pos <- sapply(X = chrPos, function(cp) {
+  pos <- as.numeric(sapply(X = chrPos, function(cp) {
     regmatches(x = unlist(strsplit(cp, "@"))[2],
                gregexpr("[[:digit:]]+\\.*[[:digit:]]",
                         unlist(strsplit(cp, "@"))[2]))[[1]]
-  })
+  }))
   posExt <- sapply(X = chrPos, function(cp) {
     sub(pattern = "\\d*(\\.\\d)", replacement = "",
         x = unlist(strsplit(cp, "@"))[2])

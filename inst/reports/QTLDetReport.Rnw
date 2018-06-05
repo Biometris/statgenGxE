@@ -90,13 +90,18 @@ print(xtable::xtable(x = modSum, label = "model",
 %-------------------------------------------------------------------------------
 <<label=summary, echo=FALSE, results="asis">>=
 summaryTab <- x$peaks
-print(xtable::xtable(x = summaryTab, caption = "List of candidate QTLs (peaks)",
-                     label = "summary",
-                     align = c("l", "r", "r", "r", "r"),
-                     digits = c(0, 0, 0, 0, 2)),
-      latex.environments = "flushleft",
-      include.rownames = TRUE, include.colnames = TRUE,
-      caption.placement = "top")
+if (nrow(summaryTab) > 0) {
+  print(xtable::xtable(x = summaryTab,
+                       caption = "List of candidate QTLs (peaks)",
+                       label = "summary",
+                       align = c("l", "r", "r", "r", "r"),
+                       digits = c(0, 0, 0, 0, 2)),
+        latex.environments = "flushleft",
+        include.rownames = TRUE, include.colnames = TRUE,
+        caption.placement = "top")
+} else {
+  cat("No peaks detected")
+}
 @
 \newpage
 %-------------------------------------------------------------------------------

@@ -157,6 +157,7 @@ print(xtable::xtable(x = effectTab, label = "effects",
                      digits = c(0, 2, 2)),
       latex.environments = "flushleft",
       include.rownames = TRUE, include.colnames = TRUE)
+plot(x)
 @
 %-------------------------------------------------------------------------------
 % End Document
