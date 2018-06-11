@@ -99,7 +99,7 @@ report(QTLDet, outfile = "./testReports/reportQTLDectection.pdf")
 ## Perform a simple interval mapping for detecting QTLs.
 ## Choose custom step, threshold and window sizes.
 QTLDet2 <- QTLDetect(cross = F2, trait = "trait", type = "SIM", step = 15,
-                    thr = 2.5, window = 50)
+                    thrType = "fixed", thrFixed = 2.5, window = 50)
 summary(QTLDet2)
 
 }
