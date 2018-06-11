@@ -407,7 +407,7 @@ fieldPlot <- function(x,
        lwd.ticks = 1)
   axis(side = 2, at = if (length(y) < 5) {y} else {pretty(y)}, lwd = 0,
        lwd.ticks = 1, las = 2, tck = -0.01, line = 0.15)
-  fields::image.plot(col = colors, zlim = zlim, legend.only = TRUE)
+  fields::image.plot(col = colors, zlim = zlim, legend.only = TRUE, add = TRUE)
 }
 
 #' Report method for class SSA

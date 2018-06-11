@@ -127,7 +127,8 @@ plot.AMMI <- function(x,
     lam <- x$importance[1, 1]
     lam <- lam ^ scale
     ## Set arguments for biplot1
-    bp1Args <- list(x = 1, type = 'n', main = paste0("AMMI1 biplot for ", x$trait),
+    bp1Args <- list(x = 1, type = 'n', main = paste0("AMMI1 biplot for ",
+                                                     x$trait),
                     xlab = "Main Effects",
                     ylab = paste0("PC1 (", percPC1, "%)"),
                     xlim = range(c(x$envMean, x$genoMean)),
@@ -138,11 +139,11 @@ plot.AMMI <- function(x,
     ## Setup plot frame.
     do.call(plot, args = bp1Args)
     ## Add genotypes to empty plot.
-    text(x = x$genoMean, y = scores[, 1] / lam, labels = names(x$genoMean),
+    text(x = x$genoMean, y = scores[, 1] / lam, labels = "o",
          adj = c(0.5, 0.5), col = col[1])
     ## Add environments to empty plot
     text(x = x$envMean, y = loadings[, 1] * lam, labels = names(x$envMean),
-         adj = c(0.5, 0.5), col = col[2])
+         adj = c(0.5, 0.5), col = col[2], xpd = TRUE)
     abline(h = 0, v = x$overallMean, lty = 5)
   } else if (plotType == "AMMI2") {
     if (scale == 1) {

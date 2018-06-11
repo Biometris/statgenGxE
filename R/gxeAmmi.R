@@ -153,7 +153,7 @@ gxeAmmi <- function(TD,
   genoMean <- tapply(X = TDTot[[trait]], INDEX = TDTot$genotype, FUN = mean)
   genoMean <- setNames(as.numeric(genoMean), names(genoMean))
   overallMean <- mean(TDTot[[trait]])
-  return(createAMMI(envScores = pca$rotation, genoScores = pca$x,
+  return(createAMMI(envScores = loadings, genoScores = scores,
                     importance = importance, anova = anv, fitted = fitted,
                     trait = trait, envMean = envMean, genoMean = genoMean,
                     overallMean = overallMean))

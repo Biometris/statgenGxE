@@ -109,7 +109,7 @@ QTLMapQC <- function(cross,
   ## Extract number of individuals
   nInd <- qtl::nind(cross)
   if (missMrk > 0) {
-    ## Calculate pct missing per marker and remover markers with pct above missMrk.
+    ## Calculate pct missing per marker and remove markers with pct above missMrk.
     pctMiss <- qtl::nmissing(cross, what = "mar") / nInd
     dropMrk <- names(pctMiss[pctMiss > missMrk])
     cross <- qtl::drop.markers(cross, markers = dropMrk)
@@ -121,15 +121,16 @@ QTLMapQC <- function(cross,
   }
   nMrk <- sum(qtl::nmar(cross))
   if (missInd > 0) {
-    ## Calculate pct missing per individual and remover individuals with pct above missInd.
+    ## Calculate pct missing per individual and remover individuals with pct
+    ## above missInd.
     pctMiss <- qtl::nmissing(cross, what = "ind") / nMrk
     dropInd <- which(pctMiss > missInd)
     if (length(dropInd) > 0) {
       cross <- cross[, -dropInd]
     }
   }
-  ## Compute the segregation distortion per marker and remove those showing evidence
-  ## of distortion.
+  ## Compute the segregation distortion per marker and remove those showing
+  ## evidence of distortion.
   if (segDistortion > 0) {
     segDist <- qtl::geno.table(cross)
     dropSegDist <- rownames(segDist[segDist$P.value < segDistortion, ])

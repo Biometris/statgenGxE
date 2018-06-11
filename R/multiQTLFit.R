@@ -70,9 +70,9 @@ multiQTLFit <- function(QTLDet,
   ## Construct model formula.
   qtlForm <- paste("y ~ ", paste(qtl$altname, collapse = "+"))
   ## Fit full model with all markers.
-  qtlFit <- qtl::fitqtl(QTLDet$cross, qtl = qtl, formula = qtlForm,
-                        method = "hk", get.ests = TRUE, dropone = TRUE,
-                        ...)
+  qtlFit <- qtl::fitqtl(QTLDet$cross, pheno.col = QTLDet$trait, qtl = qtl,
+                        formula = qtlForm, method = "hk", get.ests = TRUE,
+                        dropone = TRUE, ...)
   if (selection == "backward") {
     ## While there are markers with Pvalue remove the one with the highest value
     ## and refit the model without this marker.
@@ -83,8 +83,8 @@ multiQTLFit <- function(QTLDet,
       ## Rebuild the fitting formula for the remaining markers.
       qtlForm <- paste("y ~ ", paste(qtl$altname, collapse = "+"))
       ## Refit the model.
-      qtlFit <- qtl::fitqtl(QTLDet$cross, qtl = qtl, formula = qtlForm,
-                            method = "hk", get.ests = TRUE,
+      qtlFit <- qtl::fitqtl(QTLDet$cross, pheno.col = QTLDet$trait, qtl = qtl,
+                            formula = qtlForm, method = "hk", get.ests = TRUE,
                             dropone = TRUE, ...)
     }
   }
