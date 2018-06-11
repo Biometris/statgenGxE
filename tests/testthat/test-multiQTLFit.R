@@ -1,6 +1,7 @@
 context("multiQTLFit")
 
-QTLDetF2 <- QTLDetect(testF2, trait = "phenotype", thr = 1.5, window = 2)
+QTLDetF2 <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed",
+                      thrFixed = 1.5, window = 2)
 mqf <- multiQTLFit(QTLDetF2)
 test_that("multiQTLFit returns proper output format", {
   expect_is(mqf, "multiQTL")

@@ -19,19 +19,22 @@ test_that("QTLDetect gives correct scores for different types", {
                  1.84895395868088, 1.83759097042948, 0.394673215857738,
                  0.0811785321388383, 1.22278473130343, 2.42361178806114,
                  0.143653670016825))
-  expect_equal(QTLDetF2$peaks$altName, "Q1@9.8")
-  expect_equal(rownames(QTLDetF2$peaks), "D1M318")
+  expect_equal(QTLDetF2$peaks$altName, c("Q1@9.8", "QX@14.2"))
+  expect_equal(rownames(QTLDetF2$peaks), c("D1M318", "DXM66"))
   QTLDetF2S <- QTLDetect(testF2, trait = "phenotype", type = "SIM")
-  expect_equal(nrow(QTLDetF2S$peaks), 0)
+  expect_equal(QTLDetF2S$peaks$altName, "Q1@9.8")
+  expect_equal(rownames(QTLDetF2S$peaks), "D1M318")
   ## CIM sometimes seems to give random warnings.
   #QTLDetF2C <- QTLDetect(testF2, trait = "phenotype", type = "CIM")
   #expect_equal(nrow(QTLDetF2C$peaks), 0)
 })
 
 test_that("option thr functions properly", {
-  QTLDetThr <- QTLDetect(testF2, trait = "phenotype", thr = 2)
+  QTLDetThr <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed",
+                         thrFixed = 2)
   expect_equal(rownames(QTLDetThr$peaks), c("D1M318", "DXM66"))
-  QTLDetSThr <- QTLDetect(testF2, trait = "phenotype", type = "SIM", thr = 2)
+  QTLDetSThr <- QTLDetect(testF2, trait = "phenotype", type = "SIM",
+                          thrType = "fixed", thrFixed = 2)
   expect_equal(rownames(QTLDetSThr$peaks), c("D1M318", "D2M241"))
   ## CIM sometimes seems to give random warnings.
   #QTLDetCThr <- QTLDetect(testF2, trait = "phenotype", type = "CIM", thr = 2.5)
@@ -39,10 +42,11 @@ test_that("option thr functions properly", {
 })
 
 test_that("option window functions properly", {
-  QTLDetWin <- QTLDetect(testF2, trait = "phenotype", thr = 2, window = 2)
+  QTLDetWin <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed",
+                         thrFixed = 2, window = 2)
   expect_equal(rownames(QTLDetWin$peaks), c("D1M318", "D1M212", "DXM66"))
-  QTLDetSWin <- QTLDetect(testF2, trait = "phenotype", type = "SIM", thr = 2,
-                          window = 2)
+  QTLDetSWin <- QTLDetect(testF2, trait = "phenotype", type = "SIM",
+                          thrType = "fixed", thrFixed = 2, window = 2)
   expect_equal(rownames(QTLDetSWin$peaks),
                c("c1.loc5", "D1M318", "c1.loc15", "c1.loc20", "c1.loc25",
                  "c1.loc30", "D2M241", "c2.loc25"))

@@ -4,8 +4,9 @@
 \alias{QTLDetect}
 \title{QTL detection}
 \usage{
-QTLDetect(cross, trait, type = c("MR", "SIM", "CIM"), step = 5, thr = 3,
-  window = 30, ...)
+QTLDetect(cross, trait, type = c("MR", "SIM", "CIM"), step = 5,
+  thrType = c("liji", "bonferroni", "fixed"), thrAlpha = 0.05,
+  thrDist = 4, thrFixed = 3, window = 30, ...)
 }
 \arguments{
 \item{cross}{An object of class cross created by the qtl package.}
@@ -20,8 +21,18 @@ or "CIM" (Composite Interval Mapping)}
 between positions at which the genotype probabilities are calculated. If
 \code{step = 0} probabilities are only calculated at the marker locations.}
 
-\item{thr}{A numerical value indicating a lower threshold for the lodscore
-of the peaks.}
+\item{thrType}{A character string indicating the algorithm to calculate the
+lower threshold for the lodscore of the peaks. See details.}
+
+\item{thrAlpha}{A numerical value between 0 and 1 used as enumerator in
+calculting the modified Bonferroni correction.}
+
+\item{thrDist}{A positive numerical value indicating the assumed fixed
+distance on the genome for independent tests (in Centimorgan). Only used
+when \code{thrType = "Bonferroni"}}
+
+\item{thrFixed}{A numerical value indicating a lower threshold for the
+lodscore of the peaks. Only used when \code{thrType = "fixed"}}
 
 \item{window}{A numerical value indicating the window (in cM) used when
 selecting peaks.}
@@ -51,6 +62,17 @@ by an iterative process using the \code{thr}(eshold) and \code{window}
 provided. All resulting peaks will have a LOD score above \code{thr}
 and the distance between pairs of peaks will always be at least
 the value given as \code{window}.
+}
+\details{
+The option \code{thrType} specifies the method for calculating the number of
+tests to be used as the denominator in a modified Bonferroni correction. The
+enumeration is given by \code{thrAlpha}.
+\code{liji} uses the effective number of independent tests, as described by
+Li & Ji (2005). \code{"bonferroni"} assumes one independent test at every
+fixed distance on the genome, defined by the \code{thrDist} (default 4
+centiMorgans). The threshold is expressed as the P-value on a -log10 scale.
+By setting {thrType = "fixed"} all the above is ignored and a fixed value is
+used as threshold instead. This value can be supplied in \code{thrFixed}
 }
 \note{
 Composite Interval Mapping is not implemented for 4 way crosses.
@@ -84,6 +106,13 @@ summary(QTLDet2)
 \references{
 Broman et al. (2003) R/qtl: QTL mapping in experimental crosses.
 Bioinformatics 19:889-890
+
+Cheverud, J.M. (2001). A simple correction for multiple
+comparisons in interval mapping genome scans. Heredity, 87, 52-58.
+
+Li, J, & Ji, L. (2005). Adjusting multiple testing in multilocus
+analyses using the eigenvalues of a correlation matrix. Heredity, 95,
+221-227.
 }
 \seealso{
 \code{\link[qtl]{scanone}}, \code{\link[qtl]{cim}}
