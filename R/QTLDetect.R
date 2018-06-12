@@ -153,15 +153,19 @@ QTLDetect <- function(cross,
                        ...)
   }
   if (thrType == "liji") {
+    ## Compute correction values following the algorithm by Li and Ji.
     corVal <- sapply(X = cross$geno, FUN = function(chr) {
+      ## Compute correaltions between markers on chromosome.
       mrkCor <- cor(chr$data, use = "complete.obs")
+      ## Compute eigenvalues of the correlations and restrict these to 2.
       mrkEig <- eigen(mrkCor, only.values = TRUE)$values
       mrkEig[mrkEig >= 1] <- mrkEig[mrkEig > 1] - floor(mrkEig[mrkEig > 1]) + 1
       sum(mrkEig)
     })
+    ## Compute modified Bonferroni threshold.
     thr <- -log10(thrAlpha / sum(corVal))
   } else if (thrType == "bonferroni") {
-    thr <- -log10(thrAlpha / qtl::totmar(cross))
+    ## Compute modified bonferroni threshold using distance.
     thr <- -log10(thrAlpha / ceiling(sum(qtl::chrlen(cross)) / thrDist))
   } else if (thrType == "fixed") {
     thr <- thrFixed

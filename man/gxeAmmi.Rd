@@ -5,7 +5,7 @@
 \title{AMMI analysis}
 \usage{
 gxeAmmi(TD, trials = names(TD), trait, nPC = 2, center = TRUE,
-  scale = FALSE)
+  scale = FALSE, GGE = FALSE)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
@@ -21,6 +21,9 @@ as multiplicative term of genotype-by-trial interaction.}
 \item{center}{Should the variables be shifted to be zero centered?}
 
 \item{scale}{Should the variables be scaled to have unit variance?}
+
+\item{GGE}{Should a GGE analysis be performed instead of a regular AMMI
+analysis. When doing so genotype will be excluded from the model.}
 }
 \value{
 An object of class \code{\link{AMMI}}, a list containing:

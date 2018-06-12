@@ -12,6 +12,8 @@
 #' as multiplicative term of genotype-by-trial interaction.
 #' @param center Should the variables be shifted to be zero centered?
 #' @param scale Should the variables be scaled to have unit variance?
+#' @param GGE Should a GGE analysis be performed instead of a regular AMMI
+#' analysis. When doing so genotype will be excluded from the model.
 #'
 #' @return An object of class \code{\link{AMMI}}, a list containing:
 #' \item{envScores}{A matrix with environmental scores.}
@@ -50,7 +52,8 @@ gxeAmmi <- function(TD,
                     trait,
                     nPC = 2,
                     center = TRUE,
-                    scale = FALSE) {
+                    scale = FALSE,
+                    GGE = FALSE) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -98,7 +101,8 @@ gxeAmmi <- function(TD,
     TDTot[yIndex[is.na(y0)], trait] <- y1[is.na(y0)]
   }
   ## Fit linear model.
-  model <- lm(as.formula(paste(trait, "~ genotype + trial")), data = TDTot)
+  modForm <- formula(paste(trait, "~", if (!GGE) "genotype +", "trial"))
+  model <- lm(modForm, data = TDTot)
   ## Calculate residuals & fitted values of the linear model.
   resids <- tapply(X = resid(model), INDEX = TDTot[, c("genotype", "trial")],
                    FUN = identity)
