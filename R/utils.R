@@ -345,19 +345,35 @@ qtlPosToName <- function(chrPos, cross) {
 #' Function for plotting a correlation (or covariance) matrix.
 #
 #' @keywords internal
-plotCorMat <- function(corMat, main = "") {
-  meltedCorMat <- reshape2::melt(corMat)
-  ggplot2::ggplot(data = meltedCorMat, ggplot2::aes_string("Var1", "Var2",
-                                                           fill = "value")) +
+plotCorMat <- function(varMat, main = "") {
+  ## Melt variance and correlation matrices to get proper shape for ggplot.
+  meltedCorMat <- reshape2::melt(cov2cor(varMat))
+  meltedvarMat <- reshape2::melt(varMat)
+  ## Select bottom triangle for correlations and top for variances.
+  meltedCorMatLow <- meltedCorMat[as.numeric(meltedCorMat$Var1) >
+                                    as.numeric(meltedCorMat$Var2), ]
+  meltedvarMatUp <- meltedvarMat[as.numeric(meltedvarMat$Var1) <=
+                                   as.numeric(meltedvarMat$Var2), ]
+  ## Round values for nicer display
+  meltedvarMatUp$value <- round(meltedvarMatUp$value, 0)
+  ggplot2::ggplot(data = meltedCorMatLow,
+                  ggplot2::aes_string("Var1", "Var2", fill = "value")) +
     ggplot2::geom_tile(color = "white") +
+    ## Create a gradient scale.
     ggplot2::scale_fill_gradient2(low = "blue", high = "red", mid = "white",
-                                  na.value = "grey", midpoint = 0,
-                                  limit = c(-1, 1), space = "Lab") +
+                                  na.value = "grey", limit = c(-1, 1)) +
+    ggplot2::geom_text(data = meltedvarMatUp,
+                       ggplot2::aes_string(label = "value", size = "value")) +
     ggplot2::theme_minimal() +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1,
                                                        size = 10, hjust = 1)) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
+    ## Remove grid behind text output.
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
+                   panel.grid.minor = ggplot2::element_blank()) +
     ggplot2::ggtitle(main) + ggplot2::xlab("") + ggplot2::ylab("") +
+    ggplot2::labs(fill = "correlation", size = "variance") +
+    ## Fix coordinates to get a square sized plot.
     ggplot2::coord_fixed()
 }
 

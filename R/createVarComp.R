@@ -70,10 +70,10 @@ summary.varComp <- function(object, ...) {
 plot.varComp <- function(x, ...) {
   dotArgs <- list(...)
   ## Set arguments for plot
-  plotArgs <- list(corMat = cov2cor(x$vcov),
-                   main = paste("Heatmap for correlations for model:", x$choice))
+  plotArgs <- list(varMat = x$vcov,
+                   main = paste("Heatmap for model:", x$choice))
   ## Add and overwrite args with custom args from ...
-  fixedArgs <- c("corMat")
+  fixedArgs <- c("varMat")
   plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
   do.call(plotCorMat, args = plotArgs)
 }

@@ -4,7 +4,7 @@
 \alias{plotCorMat}
 \title{Function for plotting a correlation (or covariance) matrix.}
 \usage{
-plotCorMat(corMat, main = "")
+plotCorMat(varMat, main = "")
 }
 \description{
 Function for plotting a correlation (or covariance) matrix.
