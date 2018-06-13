@@ -127,8 +127,8 @@ plot.AMMI <- function(x,
     lam <- x$importance[1, 1]
     lam <- lam ^ scale
     ## Set arguments for biplot1
-    bp1Args <- list(x = 1, type = 'n', main = paste0("AMMI1 biplot for ",
-                                                     x$trait),
+    bp1Args <- list(x = 1, type = 'n',
+                    main = paste0("AMMI1 biplot for ", x$trait),
                     xlab = "Main Effects",
                     ylab = paste0("PC1 (", percPC1, "%)"),
                     xlim = range(c(x$envMean, x$genoMean)),
@@ -169,7 +169,7 @@ plot.AMMI <- function(x,
                     ylab = paste0("PC2 (", percPC2, "%)"),
                     xpd = TRUE)
     ## Add and overwrite args with custom args from ...
-    fixedArgs <- c("x", "type", "xlim", "ylim")
+    fixedArgs <- c("x", "y", "type", "xlim", "ylim")
     bp2Args <- modifyList(bp2Args, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(biplot, args = bp2Args)
   }

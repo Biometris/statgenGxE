@@ -355,7 +355,7 @@ plotCorMat <- function(varMat, main = "") {
   meltedvarMatUp <- meltedvarMat[as.numeric(meltedvarMat$Var1) <=
                                    as.numeric(meltedvarMat$Var2), ]
   ## Round values for nicer display
-  meltedvarMatUp$value <- round(meltedvarMatUp$value, 0)
+  meltedvarMatUp$value <- round(meltedvarMatUp$value)
   ggplot2::ggplot(data = meltedCorMatLow,
                   ggplot2::aes_string("Var1", "Var2", fill = "value")) +
     ggplot2::geom_tile(color = "white") +
