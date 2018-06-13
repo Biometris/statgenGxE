@@ -9,8 +9,7 @@
 #'
 #' @param method A character string indicating the criterion to determine
 #' the best genotype per environment, either \code{"max"} or \code{"min"}.
-#' @param sumTab Should a summary table be added as an attribute to
-#' the output and be printed?
+#' @param sumTab Should a summary table be printed?
 #'
 #' @return The input object of class \code{\link{TD}} with an added extra
 #' column megaEnv.
@@ -71,14 +70,16 @@ gxeMegaEnv <- function(TD,
   ## Reapply saved levels to ensure input and output TDTot are identical.
   levels(TDTot$trial) <- envLevels
   TDTot <- createTD(TDTot)
+  ## Create summary table.
+  summTab <- data.frame("Mega factor" = megaFactor, Trial = colnames(fitted),
+                        "Winning genotype" = winGeno,
+                        "AMMI estimates" = fitted[matrix(c(winPos,
+                                                           1:ncol(fitted)),
+                                                         ncol = 2)],
+                        check.names = FALSE)
+  summTab <- summTab[order(megaFactor), ]
+  attr(TDTot, "sumTab") <- summTab
   if (sumTab) {
-    ## Create summary table.
-    summTab <- data.frame(megaFactor, envNames = colnames(fitted), winGeno,
-                          "AMMI estimates" = fitted[matrix(c(winPos, 1:ncol(fitted)),
-                                                           ncol = 2)],
-                          check.names = FALSE)
-    summTab <- summTab[order(megaFactor), ]
-    attr(TDTot, "sumTab") <- summTab
     print(summTab, row.names = FALSE, digits = 5)
   }
   return(TDTot)

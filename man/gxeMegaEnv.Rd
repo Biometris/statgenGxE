@@ -18,8 +18,7 @@ not supplied all trials are used in the analysis.}
 \item{method}{A character string indicating the criterion to determine
 the best genotype per environment, either \code{"max"} or \code{"min"}.}
 
-\item{sumTab}{Should a summary table be added as an attribute to
-the output and be printed?}
+\item{sumTab}{Should a summary table be printed?}
 }
 \value{
 The input object of class \code{\link{TD}} with an added extra
