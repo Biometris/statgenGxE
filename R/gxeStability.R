@@ -80,7 +80,9 @@ gxeStability <- function(TD,
   bestMethod <- match.arg(bestMethod)
   sorted <- match.arg(sorted)
   ## Remove genotypes that contain only NAs
-  allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {all(is.na(x$yield))})
+  allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {
+    all(is.na(x[trait]))
+  })
   TDTot <- TDTot[!TDTot$genotype %in% names(allNA[allNA]), ]
   if (any(is.na(TDTot[[trait]]))) {
     y0 <- tapply(TDTot[[trait]], TDTot[, c("genotype","trial")], mean)

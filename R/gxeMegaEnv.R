@@ -48,7 +48,9 @@ gxeMegaEnv <- function(TD,
   }
   method <- match.arg(method)
   ## Remove genotypes that contain only NAs
-  allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {all(is.na(x$yield))})
+  allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {
+    all(is.na(x[trait]))
+  })
   TDTot <- TDTot[!TDTot$genotype %in% names(allNA[allNA]), ]
   ## Save and then drop factor levels.
   envLevels <- levels(TDTot$trial)

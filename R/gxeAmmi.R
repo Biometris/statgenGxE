@@ -70,7 +70,9 @@ gxeAmmi <- function(TD,
     stop("TD should contain a column trial to be able to run an AMMI analysis.\n")
   }
   ## Remove genotypes that contain only NAs
-  allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {all(is.na(x$yield))})
+  allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {
+    all(is.na(x[trait]))
+  })
   TDTot <- TDTot[!TDTot$genotype %in% names(allNA[allNA]), ]
   ## Drop levels to make sure prcomp doesn't crash.
   TDTot$genotype <- droplevels(TDTot$genotype)
