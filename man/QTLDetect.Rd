@@ -25,11 +25,11 @@ between positions at which the genotype probabilities are calculated. If
 lower threshold for the lodscore of the peaks. See details.}
 
 \item{thrAlpha}{A numerical value between 0 and 1 used as enumerator in
-calculting the modified Bonferroni correction.}
+calculating the modified Bonferroni correction.}
 
 \item{thrDist}{A positive numerical value indicating the assumed fixed
-distance on the genome for independent tests (in Centimorgan). Only used
-when \code{thrType = "Bonferroni"}}
+distance on the genome for independent tests (in cM). Only used
+when \code{thrType = "bonferroni"}}
 
 \item{thrFixed}{A numerical value indicating a lower threshold for the
 lodscore of the peaks. Only used when \code{thrType = "fixed"}}
@@ -68,7 +68,7 @@ The option \code{thrType} specifies the method for calculating the number of
 tests to be used as the denominator in a modified Bonferroni correction. The
 enumeration is given by \code{thrAlpha}.
 \code{liji} uses the effective number of independent tests, as described by
-Li & Ji (2005). \code{"bonferroni"} assumes one independent test at every
+Li & Ji (2005). \code{bonferroni} assumes one independent test at every
 fixed distance on the genome, defined by the \code{thrDist} (default 4
 centiMorgans). The threshold is expressed as the P-value on a -log10 scale.
 By setting {thrType = "fixed"} all the above is ignored and a fixed value is

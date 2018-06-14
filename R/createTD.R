@@ -19,7 +19,7 @@
 #' the meta data. Their values will be recycled if needed, so by setting a
 #' single trDesign all trials will get the same design. The meta data can be
 #' changed later on using \code{getMeta} and \code{setMeta}}
-#' } \cr\cr
+#' }
 #' \code{addTD}\cr
 #' Function for adding extra trial data to an existing object of class TD. The
 #' data for the new trials will be added after the data for existing trials. It
