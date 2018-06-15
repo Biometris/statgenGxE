@@ -1,7 +1,7 @@
 before_script:
   - apt-get update -qq
   - apt-get install -y libglu1-mesa-dev
-  - apt-get install -y --no-install-recommends qpdf 
+  - apt-get install -y --no-install-recommends qpdf
   - export _R_CHECK_FORCE_SUGGESTS_="false"
 
 r-base:
@@ -12,3 +12,4 @@ r-base:
     - R CMD build . --no-build-vignettes --no-manual
     - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
     - R CMD check "${PKG_FILE_NAME}" --as-cran --no-manual
+    - Rscript -e 'covr::package_coverage()'
