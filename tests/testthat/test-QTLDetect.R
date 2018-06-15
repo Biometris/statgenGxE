@@ -29,7 +29,34 @@ test_that("QTLDetect gives correct scores for different types", {
   #expect_equal(nrow(QTLDetF2C$peaks), 0)
 })
 
-test_that("option thr functions properly", {
+test_that("option thrType functions properly", {
+  QTLDetThrL <- QTLDetect(testF2, trait = "phenotype", thrType = "liji")
+  QTLDetThrB <- QTLDetect(testF2, trait = "phenotype", thrType = "bonferroni")
+  QTLDetThrF <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed")
+  expect_equal(QTLDetThrL$info$thrType, "liji")
+  expect_equal(QTLDetThrL$info$thr, 2.30102999566398)
+  expect_equal(QTLDetThrB$info$thrType, "bonferroni")
+  expect_equal(QTLDetThrB$info$thr, 3.07188200730613)
+  expect_equal(QTLDetThrF$info$thrType, "fixed")
+  expect_equal(QTLDetThrF$info$thr, 3)
+})
+
+test_that("option thrAlpha functions properly", {
+  QTLDetThrL <- QTLDetect(testF2, trait = "phenotype", thrType = "liji",
+                           thrAlpha = 0.2)
+  QTLDetThrB <- QTLDetect(testF2, trait = "phenotype", thrType = "bonferroni",
+                          thrAlpha = 0.2)
+  expect_equal(QTLDetThrL$info$thr, 1.69897000433602)
+  expect_equal(QTLDetThrB$info$thr, 2.46982201597816)
+})
+
+test_that("option thrDist functions properly", {
+  QTLDetThrB <- QTLDetect(testF2, trait = "phenotype", thrType = "bonferroni",
+                          thrDist = 8)
+  expect_equal(QTLDetThrB$info$thr, 2.77815125038364)
+})
+
+test_that("option thrFixed functions properly", {
   QTLDetThr <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed",
                          thrFixed = 2)
   expect_equal(rownames(QTLDetThr$peaks), c("D1M318", "DXM66"))
