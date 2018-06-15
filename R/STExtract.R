@@ -721,7 +721,11 @@ extractAsreml <- function(SSA,
 #' Helper function for creating baseData
 #'
 #' @keywords internal
-createBaseData <- function(TD, predicted, keep, useRepId, bdPred) {
+createBaseData <- function(TD,
+                           predicted,
+                           keep = NULL,
+                           useRepId = FALSE,
+                           bdPred = FALSE) {
   ## Create baseData consisting of predicted variable, possibly repId and
   ## selected keep columns.
   baseData <- TD[, colnames(TD) %in% c(predicted, ifelse(useRepId, "repId", ""),

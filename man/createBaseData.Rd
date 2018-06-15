@@ -4,7 +4,8 @@
 \alias{createBaseData}
 \title{Helper function for creating baseData}
 \usage{
-createBaseData(TD, predicted, keep, useRepId, bdPred)
+createBaseData(TD, predicted, keep = NULL, useRepId = FALSE,
+  bdPred = FALSE)
 }
 \description{
 Helper function for creating baseData
