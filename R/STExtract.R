@@ -754,8 +754,20 @@ restoreColNames <- function(renDat,
                             restore = FALSE) {
   if (restore && !is.null(renamedCols)) {
     renCols <- colnames(renDat)
-    colnames(renDat) <- ifelse(renCols %in% renamedCols$new,
-                               renamedCols$orig, renCols)
+    ## Get original columnnames from renamedCols data.frame.
+    origCols <- sapply(X = renCols, FUN = function(renCol) {
+      if (renCol %in% renamedCols$new) {
+        renamedCols$orig[renCol == renamedCols$new]
+      } else {
+        ## If no renaming took place keep current name.
+        renCol
+      }
+    })
+    colnames(renDat) <- origCols
+    ## Columns might be duplicated now because one column was renamed to multiple
+    ## new columns. Remove those duplicated columns.
+    ## Set column to NULL to prevent attributes from being dropped.
+    renDat[duplicated(colnames(renDat))] <- NULL
   }
   return(renDat)
 }
