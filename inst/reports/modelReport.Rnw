@@ -174,24 +174,6 @@ if (engine == "SpATS") {
 }
 @
 <<label=SpATSsummary, echo=FALSE, results="asis">>=
-renameFrom <- c("genotype", "repId", "rowId", "colId", "subBlock",
-                "repId:rowId", "repId:colId", "repId:subBlock",
-                "colCoord", "rowCoord", "rowCoordcolCoord",
-                "f(colCoord)", "f(rowCoord)",
-                "f(colCoord):rowCoord",
-                "colCoord:f(rowCoord)",
-                "f(colCoord):f(rowCoord)", "Nobs", "R", "variance",
-                "pow", "units")
-renameTo <- c("Genotype", "Replicate", "Row", "Col", "Block",
-              "Row(replicate)", "Col(replicate)", "Block(replicate)",
-              "Linear trend along cols", "Linear trend along rows",
-              "Linear trend along rows and cols",
-              "Smooth trend along cols", "Smooth trend along rows",
-              "Linear trend in rows changing smoothly along cols",
-              "Linear trend in cols changing smoothly along rows",
-              "Smooth-by-smooth interaction trend over rows and cols",
-              "Number of observations", "Residual", "Residual", "Power",
-              "Units")
 if (engine == "SpATS") {
   ## Print table of effective dimensions
   effDims <- SpATSSum$p.table.dim
@@ -204,88 +186,21 @@ if (engine == "SpATS") {
                        align = c("l", "r", "r", "r", "r", "r")),
         latex.environments = "flushleft", caption.placement = "top",
         include.rownames = TRUE)
-  ## Print generalized heritability
-  if (modelType == "random") {
-    cat(paste("The generalized heritability is",
-              round(STExtract(x, trials = trial,
-                              what = "heritability")[[1]], 2)))
-  }
-  ## Print table of variance components.
-  varComp <- SpATSSum$p.table.vc
-  rownames(varComp)[is.na(rownames(varComp))] <- ""
-  for (i in 1:length(renameFrom)) {
-    rownames(varComp)[which(rownames(varComp) == renameFrom[i])] <- renameTo[i]
-  }
-  varComp <- data.frame(Variance = as.numeric(varComp[, 1]),
-                        row.names = rownames(varComp))
-  print(xtable::xtable(x = varComp, label = "varComps",
-                       caption =  "Variance components",
-                       align = c("l", "r")),
-        latex.environments = "flushleft", caption.placement = "top",
-        include.rownames = TRUE)
-} else if (engine == "lme4") {
-  if (inherits(model, "lm")) {
-    ## In this case there is only residual variance since there are no
-    ## random effects.
-    varComp <- data.frame(name = "Residual", Variance = summary(model)$sigma ^ 2)
-  } else {
-    varComp <- as.data.frame(lme4::VarCorr(model))[, c("grp", "vcov")]
-    for (i in 1:length(renameFrom)) {
-      varComp$grp[varComp$grp == renameFrom[i]] <- renameTo[i]
-    }
-    if (nrow(varComp) > 1) {
-      varComp <- tibble::add_row(.data = varComp,
-                                 .before = which(varComp$grp == "Residual"))
-    }
-  }
-  colnames(varComp) <- c("", "Variance")
-  print(xtable::xtable(x = varComp, label = "varComps",
-                       caption =  "Variance components",
-                       align = c("l", "l", "c")),
-        latex.environments = "flushleft", caption.placement = "top",
-        include.rownames = FALSE)
-  ## Print generalized heritability
-  if (modelType == "random") {
-    cat(paste("The generalized heritability is",
-              round(STExtract(x, trials = trial,
-                              what = "heritability")[[1]], 2)))
-  }
-} else if (engine == "asreml") {
-  varComp <- summary(model)$varcomp[, c("component", "std.error")]
-  varComp <- varComp[!grepl(pattern = ".cor", x = rownames(varComp)), ,
-                     drop = FALSE]
-  rownames(varComp) <- sapply(X = strsplit(x = rownames(varComp), split = "[!.]+"),
-                              FUN = function(split) {
-                                if (split[[1]] == "R") {
-                                  return(split[[2]])
-                                } else {
-                                  return(split[[1]])
-                                }
-                              })
-  for (i in 1:length(renameFrom)) {
-    rownames(varComp)[which(rownames(varComp) == renameFrom[i])] <- renameTo[i]
-  }
-  if ("Genotype" %in% rownames(varComp)) {
-    varComp <- rbind(varComp["Genotype", , drop = FALSE],
-                     varComp[rownames(varComp) != "Genotype", , drop = FALSE])
-  }
-  varComp <- tibble::rownames_to_column(varComp)
-  if (nrow(varComp) > 1) {
-    varComp <- tibble::add_row(.data = varComp,
-                               .before = which(varComp$rowname == "Residual"))
-  }
-  colnames(varComp) <- c("", "Variance", "SE")
-  print(xtable::xtable(x = varComp, label = "varComps",
-                       caption =  "Variance components",
-                       align = c("l", "l", "r", "r")),
-        latex.environments = "flushleft", caption.placement = "top",
-        include.rownames = FALSE)
-  ## Print generalized heritability
-  if (modelType == "random") {
-    cat(paste("The generalized heritability is",
-              round(STExtract(x, trials = trial,
-                              what = "heritability")[[1]], 2)))
-  }
+}
+## Print variance components
+varComp <- STExtract(x, trials = trial,
+                      what = paste0("varComp", ifelse(modelType == "fixed",
+                                                      "F", "R")))[[1]][[1]]
+print(xtable::xtable(x = varComp, label = "varComps",
+                     caption =  "Variance components",
+                     align = c("l", rep(x = "r", times = ncol(varComp)))),
+      latex.environments = "flushleft", caption.placement = "top",
+      include.rownames = TRUE)
+## Print generalized heritability
+if (modelType == "random") {
+  cat(paste("The generalized heritability is",
+            round(STExtract(x, trials = trial,
+                            what = "heritability")[[1]], 2)))
 }
 @
 \clearpage

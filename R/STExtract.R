@@ -13,6 +13,10 @@
 #' \item{R - seBLUPs}{Standard errors of the BLUPs.}
 #' \item{F - ue}{Unit errors - only for \code{lme4} and \code{asreml}.}
 #' \item{R - heritability}{Heritability.}
+#' \item{F - varCompF}{Variance components for model with genotype as fixed
+#' component.}
+#' \item{R - varCompR}{Variance components for model with genotype as random
+#' component.}
 #' \item{R - varGen}{Genetic variance component.}
 #' \item{R - varErr}{Residual variance component - only for \code{lme4}
 #' and \code{asreml}.}
@@ -141,9 +145,11 @@ extractSpATS <- function(SSA,
   predicted <- SSA$predicted
   useCheckId <- length(grep(pattern = "checkId",
                             x = deparse(mr[[1]]$model$fixed))) > 0
-  whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "heritability", "varGen",
-               "varSpat", "fitted", "resid", "rMeans", "ranEf", "rDf", "effDim")
-  whatMod <- c("F", "F", "R", "R", "R", "R", "R", "F", "F", "R", "R", "F", "F")
+  whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "heritability",
+               "varCompF", "varCompR", "varGen", "varSpat", "fitted", "resid",
+               "rMeans", "ranEf", "rDf", "effDim")
+  whatMod <- c("F", "F", "R", "R", "R", "F", "R", "R", "R", "F", "F", "R", "R",
+               "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
   whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ranEf")
   if (what[[1]] == "all") {
@@ -224,6 +230,16 @@ extractSpATS <- function(SSA,
     result[["heritability"]] <- sapply(X = mr, FUN = function(mr0) {
       unname(SpATS::getHeritability(mr0))
     })
+  }
+  ## Extract variance components for genotype fixed.
+  if ("varCompF" %in% what) {
+    result[["varCompF"]] <- lapply(X = mf, FUN = extractVarComp,
+                                   engine = "SpATS")
+  }
+  ## Extract variance components for genotype random.
+  if ("varCompR" %in% what) {
+    result[["varCompR"]] <- lapply(X = mr, FUN = extractVarComp,
+                                   engine = "SpATS")
   }
   ## Extract genetic variance.
   if ("varGen" %in% what) {
@@ -314,10 +330,10 @@ extractLme4 <- function(SSA,
   renCols <- attr(TD, "renamedCols")
   predicted = SSA$predicted
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability",
-               "varGen", "varErr", "fitted", "resid", "stdRes", "rMeans",
-               "ranEf", "wald", "CV", "rDf")
-  whatMod <- c("F", "F", "R", "R", "F", "R", "R", "R", "F", "F", "F", "R", "R",
-               "F", "F", "F")
+               "varCompF", "varCompR", "varGen", "varErr", "fitted", "resid",
+               "stdRes", "rMeans", "ranEf", "wald", "CV", "rDf")
+  whatMod <- c("F", "F", "R", "R", "F", "R", "F", "R", "R", "R", "F", "F", "F",
+               "R", "R", "F", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
   whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "ranEf")
   if (what[[1]] == "all") {
@@ -420,6 +436,16 @@ extractLme4 <- function(SSA,
     result[["ue"]] <- restoreColNames(renDat = ue, renamedCols = renCols,
                                       restore = restore)
   }
+  ## Extract variance components for genotype fixed.
+  if ("varCompF" %in% what) {
+    result[["varCompF"]] <- lapply(X = mf, FUN = extractVarComp,
+                                   engine = "lme4")
+  }
+  ## Extract variance components for genotype random.
+  if ("varCompR" %in% what) {
+    result[["varCompR"]] <- lapply(X = mr, FUN = extractVarComp,
+                                   engine = "lme4")
+  }
   ## Extract variances.
   if (any(c("varGen", "varErr", "heritability") %in% what)) {
     varCor <- lapply(X = mr, FUN = lme4::VarCorr)
@@ -437,7 +463,7 @@ extractLme4 <- function(SSA,
       ## Estimatie heritability on a line mean basis.
       if (useRepId) {
         result[["heritability"]] <- varGen /
-          (varGen + (varErr / dplyr::n_distinct(TD$repId)))
+          (varGen + (varErr / length(unique(TD$repId))))
       } else {
         result[["heritability"]] <- varGen / (varGen + varErr)
       }
@@ -529,10 +555,10 @@ extractAsreml <- function(SSA,
   renCols <- attr(TD, "renamedCols")
   predicted <- SSA$predicted
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability",
-               "varGen", "varErr", "fitted", "resid", "stdRes", "rMeans",
-               "ranEf", "wald", "CV", "rDf", "sed", "lsd")
-  whatMod <- c("F", "F", "R", "R", "F", "R", "R", "R", "F", "F", "F", "R", "R",
-               "F", "F", "F", "F", "F")
+               "varCompF", "varCompR", "varGen", "varErr", "fitted", "resid",
+               "stdRes", "rMeans", "ranEf", "wald", "CV", "rDf", "sed", "lsd")
+  whatMod <- c("F", "F", "R", "R", "F", "R", "F", "R", "R", "R", "F", "F", "F",
+               "R", "R", "F", "F", "F", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
   whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "ranEf")
   if (what[[1]] == "all") {
@@ -607,6 +633,16 @@ extractAsreml <- function(SSA,
     }))
     result[["ue"]] <- restoreColNames(renDat = ue, renamedCols = renCols,
                                       restore = restore)
+  }
+  ## Extract variance components for genotype fixed.
+  if ("varCompF" %in% what) {
+    result[["varCompF"]] <- lapply(X = mf, FUN = extractVarComp,
+                                   engine = "asreml")
+  }
+  ## Extract variance components for genotype random.
+  if ("varCompR" %in% what) {
+    result[["varCompR"]] <- lapply(X = mr, FUN = extractVarComp,
+                                   engine = "asreml")
   }
   ## Extract variances
   varGen <- sapply(X = mr, FUN = function(mr0) {

@@ -54,6 +54,10 @@ Possible options for \code{what} are:
 \item{R - seBLUPs}{Standard errors of the BLUPs.}
 \item{F - ue}{Unit errors - only for \code{lme4} and \code{asreml}.}
 \item{R - heritability}{Heritability.}
+\item{F - varCompF}{Variance components for model with genotype as fixed
+component.}
+\item{R - varCompR}{Variance components for model with genotype as random
+component.}
 \item{R - varGen}{Genetic variance component.}
 \item{R - varErr}{Residual variance component - only for \code{lme4}
 and \code{asreml}.}

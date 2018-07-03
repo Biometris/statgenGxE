@@ -10,7 +10,7 @@ modelLm <- STRunModel(testTD, design = "rcbd", traits = "t1")
 test_that("the output of extract is of the proper type", {
   expect_is(STExtract(modelLm, what = "BLUEs"), "list")
   expect_is(STExtract(modelLm), "list")
-  expect_length(STExtract(modelLm)[[1]], 16)
+  expect_length(STExtract(modelLm)[[1]], 18)
   expect_is(STExtract(modelLm, what = c("BLUEs", "BLUPs")), "list")
   expect_length(STExtract(modelLm, what = c("BLUEs", "BLUPs"))[[1]], 2)
 })
