@@ -7,6 +7,6 @@
 escapeLatex(x, newlines = FALSE, spaces = FALSE)
 }
 \description{
-Taken from knitr. Copied since it is an internal knitr function.
+Taken from knitr package. Copied since it is an internal knitr function.
 }
 \keyword{internal}

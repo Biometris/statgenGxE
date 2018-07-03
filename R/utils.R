@@ -314,6 +314,9 @@ createReport <- function(x,
   }
 }
 
+#' Function for extracting the name of a qtl combining a cross object and
+#' the position of the qtl on the chromosome.
+#'
 #' @keywords internal
 qtlPosToName <- function(chrPos, cross) {
   chr <- sapply(X = chrPos, function(cp) {
@@ -379,7 +382,7 @@ plotCorMat <- function(varMat, main = "") {
 
 #' Function for escaping special LaTeX characters
 #'
-#' Taken from knitr. Copied since it is an internal knitr function.
+#' Taken from knitr package. Copied since it is an internal knitr function.
 #
 #' @keywords internal
 escapeLatex = function(x, newlines = FALSE, spaces = FALSE) {
@@ -392,4 +395,96 @@ escapeLatex = function(x, newlines = FALSE, spaces = FALSE) {
   if (spaces) x = gsub('  ', '\\\\ \\\\ ', x)
   x
 }
+
+# Vectors for renaming columns in varcomp and effdim tables.
+renameFrom <- c("genotype", "repId", "rowId", "colId", "subBlock",
+                "repId:rowId", "repId:colId", "repId:subBlock",
+                "colCoord", "rowCoord", "rowCoordcolCoord",
+                "f(colCoord)", "f(rowCoord)",
+                "f(colCoord):rowCoord",
+                "colCoord:f(rowCoord)",
+                "f(colCoord):f(rowCoord)", "Nobs", "R", "variance",
+                "pow", "units")
+renameTo <- c("Genotype", "Replicate", "Row", "Col", "Block",
+              "Row(replicate)", "Col(replicate)", "Block(replicate)",
+              "Linear trend along cols", "Linear trend along rows",
+              "Linear trend along rows and cols",
+              "Smooth trend along cols", "Smooth trend along rows",
+              "Linear trend in rows changing smoothly along cols",
+              "Linear trend in cols changing smoothly along rows",
+              "Smooth-by-smooth interaction trend over rows and cols",
+              "Number of observations", "Residual", "Residual", "Power",
+              "Units")
+
+#' Function for extracting the table with variance components from a model in
+#' a nicely printable format.
+#'
+#' @keywords internal
+extractVarComp <- function(model,
+                           engine) {
+  if (engine == "SpATS") {
+    ## Use invisible(capture.output(.. to prevent output to console.
+    invisible(utils::capture.output(sumSpat <- summary(model)))
+    varComp <- sumSpat$p.table.vc
+    ## p.table.vc in SpATS object is a matrix. When converting to a data.frame
+    ## NA rownames have to be set to "" first to prevent errors.
+    rownames(varComp)[is.na(rownames(varComp))] <- ""
+    ## Matrix output is a character matrix. Convert variance to numeric for
+    ## consistency with other engines.
+    varComp <- data.frame(Variance = as.numeric(varComp[, "Variance"]),
+                          row.names = rownames(varComp))
+  } else if (engine == "lme4") {
+    if (inherits(model, "lm")) {
+      ## In this case there is only residual variance since there are no
+      ## random effects.
+      varComp <- data.frame(Variance = summary(model)$sigma ^ 2,
+                            row.names = "Residual")
+    } else {
+      varComp <- as.data.frame(lme4::VarCorr(model))
+      varComp <- data.frame(Variance = varComp$vcov, row.names = varComp$grp)
+    }
+  } else if (engine == "asreml") {
+    ## asreml provides the SE of the variance components as standard output.
+    ## This is included in varComp.
+    varComp <- summary(model)$varcomp[c("component", "std.error")]
+    ## Remove correlations from output. These are present for spatials models.
+    varComp <- varComp[!grepl(pattern = ".cor", x = rownames(varComp)), ,
+                       drop = FALSE]
+    ## To extract user readable names similar to the other engines from
+    ## asreml output split the rownames on "." and "!" Depending on the first
+    ## part of the split use the appropriate part as row name.
+    rownames(varComp) <- sapply(X = strsplit(x = rownames(varComp),
+                                             split = "[!.]+"),
+                                FUN = function(split) {
+                                  if (split[[1]] == "R") {
+                                    return(split[[2]])
+                                  } else {
+                                    return(split[[1]])
+                                  }
+                                })
+    colnames(varComp) <- c("Variance", "SE")
+  }
+  ## Rename rows for more user readable output.
+  for (j in seq_along(renameFrom)) {
+    rownames(varComp)[rownames(varComp) == renameFrom[j]] <- renameTo[j]
+  }
+  ## Always put genotype as first row.
+  if ("Genotype" %in% rownames(varComp)) {
+    varComp <- rbind(varComp["Genotype", , drop = FALSE],
+                     varComp[rownames(varComp) != "Genotype", , drop = FALSE])
+  }
+  ## Add an empty row before residuals if it is not already there.
+  ## Only done if there is more than 1 row.
+  resRow <- which(rownames(varComp) == "Residual")
+  if (nrow(varComp) > 1 && rownames(varComp)[resRow - 1] != "") {
+    ## It is not possible to directly assign an empty row name. Use tempRow for
+    ## this and then rename in the next step.
+    varComp <- rbind(varComp[1:(resRow - 1), , drop = FALSE],
+                     tempRow = rep(NA, times = ncol(varComp)),
+                     varComp[resRow:nrow(varComp), , drop = FALSE])
+    rownames(varComp)[resRow] <- ""
+  }
+  return(varComp)
+}
+
 
