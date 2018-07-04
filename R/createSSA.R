@@ -106,20 +106,22 @@ summary.SSA <- function(object,
   stats <- summary.TD(object = TD, traits = trait)
   ## get predicted means (BLUEs + BLUPs).
   extr <- STExtract(object, trials = trial)[[trial]]
-  ## Merge BLUEs, BLUPs + SE.
+  ## Merge results using a loop to avoid warnings over suffixes caused by
+  ## merge when using using Reduce.
   joinList <- Filter(f = Negate(f = is.null),
-                     x = list(extr$BLUEs, extr$seBLUEs,
-                              extr$BLUPs, extr$seBLUPs))
-  meanTab <- Reduce(f = function(x, y) {
-    dplyr::full_join(x, y, all = TRUE, by = "genotype")
-  }, x = joinList) %>%
-    ## Move genotype to rowname for proper printing with printCoefMat
-    tibble::remove_rownames() %>%
-    tibble::column_to_rownames(var = "genotype") %>%
-    ## Set colnames. Because of duplicate colname SE no selection on columns can
-    ## be done anymore after this.
-    setNames(c(if (!is.null(extr$BLUEs)) c("BLUEs", "SE"),
-               if (!is.null(extr$BLUPs)) c("BLUPs", "SE")))
+                     x = extr[c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs")])
+  meanTab <- joinList[[1]]
+  for (i in 2:length(joinList)) {
+    meanTab <- merge(meanTab, joinList[[i]], all = TRUE, by = "genotype",
+                     suffixes = c(i, i + 1))
+  }
+  ## Move genotype to rowname for proper printing with printCoefMat.
+  rownames(meanTab) <- meanTab$genotype
+  meanTab <- meanTab[colnames(meanTab) != "genotype"]
+  ## Set colnames. Because of duplicate colname SE no selection on columns can
+  ## be done anymore after this.
+  colnames(meanTab) <- c(if (!is.null(extr$BLUEs)) c("BLUEs", "SE"),
+                         if (!is.null(extr$BLUPs)) c("BLUPs", "SE"))
   if (!is.na(sortBy)) {
     ## Sort by sortBy with options from input params.
     oList <- order(meanTab[[sortBy]], na.last = naLast, decreasing = decreasing)
@@ -476,7 +478,7 @@ report.SSA <- function(x,
   what <- match.arg(what)
   if (is.null(x[[trial]]$mFix)) {
     what <- "random"
-    }
+  }
   if (is.null(x[[trial]]$mRand)) {
     what <- "fixed"
   }

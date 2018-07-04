@@ -74,13 +74,8 @@ outlierSSA <- function(SSA,
                                  nrow = nrow(SSA[[trial]]$TD[[trial]]),
                                  ncol = length(traits),
                                  dimnames = list(NULL, traits)))
-  outTrait <- vector(mode = "list", length = length(traits)) %>%
-    setNames(traits)
+  outTrait <- setNames(vector(mode = "list", length = length(traits)), traits)
   for (trait in traits) {
-    ## Set commonFactors to trait when empty so joining is always possible.
-    if (is.null(commonFactors)) {
-      commonFactors <- trait
-    }
     ## Compute limit value for residuals.
     if (is.null(rLimit)) {
       rLimit <- min(max(2, qnorm(p = 1 - 0.5 / rDf[trait])), 4)
@@ -89,23 +84,29 @@ outlierSSA <- function(SSA,
     outVals <- stdRes[abs(stdRes[[trait]]) > rLimit, trait]
     if (length(outVals > 0)) {
       ## Fill indicator column for current trait.
-      indicator[[trait]] <- stdRes[[trait]] %in% outVals
+      indicator[[trait]] <- abs(stdRes[[trait]]) > rLimit
       ## Rename column for easier joining.
-      stdRes <- dplyr::rename(stdRes, "res" = !!trait)
+      colnames(stdRes)[colnames(stdRes) == trait] <- "res"
       ## Create data.frame with outliers for current trait.
-      outTrait[[trait]] <- dplyr::inner_join(SSA[[trial]]$TD[[trial]],
-                                             stdRes,
-                                             by = setdiff(colnames(stdRes),
-                                                          "res")) %>%
-        dplyr::semi_join(.[.[["res"]] %in% outVals, commonFactors,
-                           drop = FALSE], by = commonFactors) %>%
-        ## Add column for similar and column trait with the current trait.
-        dplyr::mutate(similar = !.[["res"]] %in% outVals, trait = trait) %>%
-        ## Rename column trait to "value"
-        dplyr::rename("value" = !!trait) %>%
-        ## Change order of columns so always display trait, value and res first.
-        dplyr::select(!!rlang::sym("trait"), !!rlang::sym("value"),
-                      !!rlang::sym("res"), dplyr::everything())
+      outTr <- merge(x = SSA[[trial]]$TD[[trial]],
+                     y = stdRes, by = setdiff(colnames(stdRes), "res"))
+      if (!is.null(commonFactors)) {
+        ## If commonFactors are given merge to data.
+        outTr <- unique(merge(x = outTr,
+                              y = outTr[abs(outTr$res) > rLimit,
+                                        commonFactors, drop = FALSE],
+                              by = commonFactors))
+      } else {
+        outTr <- outTr[abs(outTr$res) > rLimit, ]
+      }
+      outTr$similar <- !outTr$res %in% outVals
+      outTr$trait <- trait
+      ## Rename column trait to value.
+      colnames(outTr)[colnames(outTr) == trait] <- "value"
+      ## Change order of columns to always display trait, value and res first.
+      outTr <- cbind(outTr[, c("trait", "value", "res")],
+                     outTr[!colnames(outTr) %in% c("trait", "value", "res")])
+      outTrait[[trait]] <- outTr
     }
   }
   ## Create one single outlier matrix.

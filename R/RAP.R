@@ -4,8 +4,7 @@
 #'
 #' @docType package
 #' @name RAP
-#' @importFrom dplyr %>%
-#' @importFrom rlang !!
+#' @importFrom magrittr %>%
 #' @importFrom desplot desplot
 #' @importFrom xtable xtable
 NULL

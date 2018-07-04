@@ -185,10 +185,12 @@ QTLDetect <- function(cross,
     }
   }
   peaksTot <- peaksTot[order(peaksTot$chr, peaksTot$pos), ]
-  peaksTot <- tibble::add_column(.data = peaksTot,
-                                 altName = paste0("Q", peaksTot$chr, "@",
-                                                  peaksTot$pos),
-                                 .before = 1)
+  if (nrow(peaksTot) > 0) {
+    ## Add alternative name to peaks.
+    ## stringsAsFactors is needed to assure altName is not converted to factor.
+    peaksTot <- cbind(altName = paste0("Q", peaksTot$chr, "@", peaksTot$pos),
+                      peaksTot, stringsAsFactors = FALSE)
+  }
   attr(scores, "marker.covar") <- rownames(peaksTot)
   attr(scores, "marker.covar.pos") <- peaksTot[, c("chr", "pos")]
   info = list(step = step, thrType = thrType, thrAlpha = thrAlpha, thr = thr,

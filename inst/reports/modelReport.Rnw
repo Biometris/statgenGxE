@@ -224,12 +224,12 @@ plot(x, trial = trial, what = modelType, plotType = "base")
 \Sexpr{paste(ifelse(descending, "highest", "lowest"), predName)}}
 %-------------------------------------------------------------------------------
 <<label=best10perc, echo=FALSE, results="hide">>=
+pred <- STExtract(x, what = predName)[[trial]]
 predSE <- STExtract(x, what = paste0("se", predName))[[trial]]
-predTot <- STExtract(x, what = predName)[[trial]] %>%
-  dplyr::inner_join(predSE , by = "genotype") %>%
-  dplyr::arrange_(paste0(ifelse(descending, "desc(", ""),
-                        trait,".x", ifelse(descending, ")", ""))) %>%
-  setNames(c("genotype", trait, "SE"))
+predTot <- merge(x = pred, y = predSE, by = "genotype")
+predTot <- predTot[order(predTot[[paste0(trait,".x")]],
+                         decreasing = descending), ]
+colnames(predTot) <- c("genotype", trait, "SE")
 best <- predTot[1:ceiling(nrow(predTot) / 10), ]
 @
 \begin{multicols*}{2}
