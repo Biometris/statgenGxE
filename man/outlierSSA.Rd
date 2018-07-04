@@ -4,7 +4,8 @@
 \alias{outlierSSA}
 \title{Identifying outliers in objects of class SSA}
 \usage{
-outlierSSA(SSA, trial = NULL, traits, rLimit = NULL, commonFactors = NULL)
+outlierSSA(SSA, trial = NULL, traits, rLimit = NULL, commonFactors = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{SSA}{An object of class \code{\link{SSA}}.}
@@ -24,10 +25,17 @@ exceeding \code{rLimit} will be marked as outliers.}
 in \code{TD} used for selecting observations that are similar to the
 outliers. If \code{commonFactors = NULL} only outliers are reported and
 no similar observations.}
+
+\item{verbose}{Should the outliers be printed to the console?}
 }
 \value{
-A data.frame containing logical values indicating if the
-observation is an outlier.
+A list with two components:
+\itemize{
+\item{indicator - a data.frame containing logical values indicating if the
+observation is an outlier.}
+\item{outliers - a data.frame containing the outliers and observations
+similar to the outliers as defined by \code{commonFactors}}
+}
 }
 \description{
 Function to identify observations with standardized residuals exceeding

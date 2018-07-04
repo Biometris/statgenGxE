@@ -22,9 +22,15 @@
 #' in \code{TD} used for selecting observations that are similar to the
 #' outliers. If \code{commonFactors = NULL} only outliers are reported and
 #' no similar observations.
+#' @param verbose Should the outliers be printed to the console?
 #'
-#' @return A data.frame containing logical values indicating if the
-#' observation is an outlier.
+#' @return A list with two components:
+#' \itemize{
+#' \item{indicator - a data.frame containing logical values indicating if the
+#' observation is an outlier.}
+#' \item{outliers - a data.frame containing the outliers and observations
+#' similar to the outliers as defined by \code{commonFactors}}
+#' }
 #'
 #' @examples
 #' ## Fit a model using lme4.
@@ -38,7 +44,8 @@ outlierSSA <- function(SSA,
                        trial = NULL,
                        traits,
                        rLimit = NULL,
-                       commonFactors = NULL) {
+                       commonFactors = NULL,
+                       verbose = TRUE) {
   ## Checks.
   if (missing(SSA) || !inherits(SSA, "SSA")) {
     stop("SSA should be a valid object of class SSA.\n")
@@ -80,7 +87,11 @@ outlierSSA <- function(SSA,
     if (is.null(rLimit)) {
       rLimit <- min(max(2, qnorm(p = 1 - 0.5 / rDf[trait])), 4)
     }
+    datTr <- SSA[[trial]]$TD[[trial]]
+    datTr <- datTr[!colnames(datTr) %in% setdiff(traits, trait)]
     ## Compute outliers.
+    ## Set missing values to 0 to prevent problems when comparing to rLimit.
+    stdRes[is.na(stdRes[[trait]]), trait] <- 0
     outVals <- stdRes[abs(stdRes[[trait]]) > rLimit, trait]
     if (length(outVals > 0)) {
       ## Fill indicator column for current trait.
@@ -88,8 +99,7 @@ outlierSSA <- function(SSA,
       ## Rename column for easier joining.
       colnames(stdRes)[colnames(stdRes) == trait] <- "res"
       ## Create data.frame with outliers for current trait.
-      outTr <- merge(x = SSA[[trial]]$TD[[trial]],
-                     y = stdRes, by = setdiff(colnames(stdRes), "res"))
+      outTr <- cbind(datTr, stdRes["res"])
       if (!is.null(commonFactors)) {
         ## If commonFactors are given merge to data.
         outTr <- unique(merge(x = outTr,
@@ -99,7 +109,7 @@ outlierSSA <- function(SSA,
       } else {
         outTr <- outTr[abs(outTr$res) > rLimit, ]
       }
-      outTr$similar <- !outTr$res %in% outVals
+      outTr$similar <- abs(outTr$res) <= rLimit
       outTr$trait <- trait
       ## Rename column trait to value.
       colnames(outTr)[colnames(outTr) == trait] <- "value"
@@ -109,15 +119,17 @@ outlierSSA <- function(SSA,
       outTrait[[trait]] <- outTr
     }
   }
-  ## Create one single outlier matrix.
+  ## Create one single outlier data.frame.
   pMat <- Reduce(f = rbind, x = outTrait)
-  if (!is.null(pMat)) {
-    cat(paste("Large standardized residuals\n\n"))
-    print(format(pMat, quote = FALSE))
-  } else {
-    cat(paste("No large standardized residuals.\n"))
+  if (verbose) {
+    if (!is.null(pMat)) {
+      cat(paste("Large standardized residuals\n\n"))
+      print(format(pMat, quote = FALSE))
+    } else {
+      cat("No large standardized residuals.\n")
+    }
   }
-  invisible(indicator)
+  return(list(indicator = indicator, outliers = pMat))
 }
 
 
