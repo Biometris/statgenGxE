@@ -48,8 +48,6 @@ createSSA <- function(models) {
 #' \code{trial = NULL} and only one trial is modelled this trial is summarized.
 #' @param trait A character string indicating the trait to summarize. If
 #' \code{trait = NULL} and only one trait is modelled this trait is summarized.
-#' @param digits An integer indicating the number of significant digits for
-#' printing.
 #' @param nBest An integer indicating the number of the best genotypes (sorted
 #' by either BLUEs or BLUPs) to print. If \code{NA} all genotypes will be
 #' printed.
@@ -57,7 +55,7 @@ createSSA <- function(models) {
 #' Either \code{"BLUEs"}, \code{"BLUPs"} or \code{NA} (i.e. no sorting).
 #' @param naLast Should missing values in the data be put last when sorting?
 #' @param decreasing Should the sort order be decreasing?
-#' @param ... Further arguments passed to \code{\link[stats]{printCoefmat}}.
+#' @param ... Further arguments - not used.
 #'
 #' @examples
 #' ## Run a single trait analysis using SpATS.
@@ -69,7 +67,6 @@ createSSA <- function(models) {
 summary.SSA <- function(object,
                         trial = NULL,
                         trait = NULL,
-                        digits = max(getOption("digits") - 2, 3),
                         nBest = 20,
                         sortBy = NULL,
                         naLast = TRUE,
@@ -122,6 +119,9 @@ summary.SSA <- function(object,
   ## be done anymore after this.
   colnames(meanTab) <- c(if (!is.null(extr$BLUEs)) c("BLUEs", "SE"),
                          if (!is.null(extr$BLUPs)) c("BLUPs", "SE"))
+  meansTxt <- paste(c(if (!is.null(extr$BLUEs)) "BLUEs",
+                      if (!is.null(extr$BLUPs)) "BLUPs"), collapse = " & ")
+  attr(x = meanTab, which = "title") <- meansTxt
   if (!is.na(sortBy)) {
     ## Sort by sortBy with options from input params.
     oList <- order(meanTab[[sortBy]], na.last = naLast, decreasing = decreasing)
@@ -132,41 +132,66 @@ summary.SSA <- function(object,
     nBest <- min(nrow(meanTab), nBest)
     ## Extract the n best genotypes.
     meanTab <- meanTab[1:nBest, ]
+    attr(x = meanTab, which = "nBest") <- nBest
   }
+  ## Extract selected spatial model when applicable.
   if (object[[trial]]$engine == "asreml" &&
       is.character(object[[trial]]$spatial[[trait]])) {
-    cat("Selected spatial model: ", object[[trial]]$spatial[[trait]], "\n\n")
+    selSpatMod <- object[[trial]]$spatial[[trait]]
+  } else {
+    selSpatMod <- NULL
   }
-  cat("Summary statistics:", "\n===================\n")
+  return(structure(list(selSpatMod = selSpatMod, stats = stats,
+                        meanTab = meanTab, heritability = extr$heritability,
+                        sed = data.frame("s.e.d" = extr$sed),
+                        lsd = data.frame("l.s.d." = extr$lsd)),
+                   class = c("summary.SSA")))
+}
+
+#' Printing summazed objects of class SSA
+#'
+#' \code{print} method for object of class summary.SSA created by summarizing
+#' objects of class SSA.
+#'
+#' @param x An object of class \code{summary.SSA}
+#' @param digits An integer indicating the number of significant digits for
+#' printing.
+#' @param ... Further arguments passed to \code{\link[stats]{printCoefmat}}.
+#'
+#' @export
+print.summary.SSA <- function(x,
+                              digits = max(getOption("digits") - 2, 3),
+                              ...) {
+  if (!is.null(x$selSpatMod)) {
+    cat("Selected spatial model: ", x$selSpatMod, "\n\n")
+  }
+  cat("Summary statistics",
+      "\n==================\n")
   ## Print stats using printCoefMat for a nicer layout.
-  printCoefmat(stats, digits = digits, ...)
-  if (!is.null(object[[trial]]$mRand)) {
-    cat("\nEstimated heritability", "\n======================\n")
-    cat("\nHeritability:", extr$heritability, "\n")
+  printCoefmat(x$stats, digits = digits, ...)
+  if (!is.null(x$heritability)) {
+    cat("\nEstimated heritability",
+        "\n======================\n")
+    cat("\nHeritability:", x$heritability, "\n")
   }
-  meansTxt <- paste(c(if (!is.null(extr$BLUEs)) "BLUEs",
-                      if (!is.null(extr$BLUPs)) "BLUPs"), collapse = " & ")
-  cat(paste0("\nPredicted means (", meansTxt, ")"),
+  cat(paste0("\nPredicted means (", attr(x = x$meanTab, which = "title"), ")"),
       "\n===============================\n")
-  if (!is.na(nBest)) {
-    cat("Best", nBest,"genotypes\n")
+  if (!is.null(attr(x = x$meanTab, which = "nBest"))) {
+    cat("Best", attr(x = x$meanTab, which = "nBest"), "genotypes\n")
   } else {
     cat("\n")
   }
-  ## Print meanTab using printCoefMat for a nicer layout.
-  printCoefmat(meanTab, digits = digits, ...)
-  if (object[[trial]]$engine == "asreml" && !is.null(extr$sed) &&
-      !is.null(extr$lsd)) {
+  printCoefmat(x$meanTab, digits = digits, ...)
+  if (nrow(x$lsd) > 0) {
     cat("\nStandard Error of Difference (genotype modelled as fixed effect)",
         "\n================================================================\n")
-    sed <- data.frame("s.e.d" = extr$sed)
-    printCoefmat(sed, digits = digits, ...)
+    printCoefmat(x$sed, digits = digits, ...)
+  }
+  if (nrow(x$lsd) > 0) {
     cat("\nLeast Significant Difference (genotype modelled as fixed effect)",
         "\n================================================================\n")
-    lsd  <- data.frame("l.s.d." = extr$lsd)
-    printCoefmat(lsd, digits = digits, ...)
+    printCoefmat(x$lsd, digits = digits, ...)
   }
-  invisible(meanTab)
 }
 
 #' Plot function for class SSA

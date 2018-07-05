@@ -365,7 +365,7 @@ summary.TD <- function(object,
     stop("At least one statistic should be chosen.\n")
   }
   whichWhat <- which(allWhat %in% what)
-  ## Create a data.frame to store the values".
+  ## Create a matrix to store the values".
   stats <- matrix(nrow = length(what), ncol = length(traits),
                   dimnames = list(what, traits))
   for (i in 1:length(traits)) {
