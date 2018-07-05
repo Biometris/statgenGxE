@@ -116,10 +116,9 @@ multMissing <- function(Y,
         ## Estimate missing values.
         for (i in missVariateInd) {
           ## Estimate current column using all other columns.
-          formula <- as.formula(paste(cNames[i], "~", paste(cNames[-i],
-                                                            collapse = "+")))
-          model <- lm(formula = formula, data = Y,
-                      weights = W[, i])
+          formula <- formula(paste(cNames[i], "~", paste(cNames[-i],
+                                                         collapse = "+")))
+          model <- lm(formula = formula, data = Y, weights = W[, i])
           ## Replace original missing values with fitted values.
           fVals <- fitted(model)
           Y[missInd[missInd[, 2] == i, 1], i] <-
@@ -128,8 +127,8 @@ multMissing <- function(Y,
         ## Update values for iterative process.
         maxDiff <- max(abs(colMeans(Y) - estPrev))
         if (iter == maxIter && maxDiff > tol) {
-          warning(paste("No convergence achieved after", iter," iterations.
-                        Tolerance at last iteration", signif(maxDiff, 4),
+          warning(paste0("No convergence achieved after ", iter," iterations.
+                        Tolerance at last iteration ", signif(maxDiff, 4),
                         ".\n"))
         }
         iter <- iter + 1
