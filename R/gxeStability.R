@@ -12,6 +12,9 @@
 #' @param bestMethod A character string specifying the criterion to define
 #' the best genotype. Either \code{"max"} or \code{"min"}.
 #' @param sorted A character string specifying the sorting order of the results.
+#' @param useMegaEnv Should the calculations be based on megaEnvironments
+#' instead of environments? Only possible if \code{TD} contains a column
+#' megaEnv.
 #'
 #' @return An object of class \code{\link{stability}}, a list containing:
 #' \item{superiority}{A data.frame containing values for the
@@ -57,7 +60,8 @@ gxeStability <- function(TD,
                          trait,
                          method = c("superiority", "static", "wricke"),
                          bestMethod = c("max", "min"),
-                         sorted = c("descending", "ascending", "none")) {
+                         sorted = c("descending", "ascending", "none"),
+                         useMegaEnv = FALSE) {
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
@@ -70,7 +74,8 @@ gxeStability <- function(TD,
     stop("trait has to be a column in TD.\n")
   }
   if (!"trial" %in% colnames(TDTot)) {
-    stop("TD should contain a column trial to be able to calculate stabilities.\n")
+    stop(paste("TD should contain a column trial to be able",
+               "to calculate stabilities.\n"))
   }
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
       !trait %in% colnames(TDTot)) {
@@ -79,17 +84,21 @@ gxeStability <- function(TD,
   method <- match.arg(method, several.ok = TRUE)
   bestMethod <- match.arg(bestMethod)
   sorted <- match.arg(sorted)
+  if (useMegaEnv && !hasName(x = TDTot, name = "megaEnv")) {
+    stop("megaEnv has to be a column in TD.\n")
+  }
+  trCol <- ifelse(useMegaEnv, "megaEnv", "trial")
   ## Remove genotypes that contain only NAs
   allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {
     all(is.na(x[trait]))
   })
   TDTot <- TDTot[!TDTot$genotype %in% names(allNA[allNA]), ]
   if (any(is.na(TDTot[[trait]]))) {
-    y0 <- tapply(TDTot[[trait]], TDTot[, c("genotype","trial")], mean)
-    yIndex <- tapply(X = 1:nrow(TDTot), INDEX = TDTot[, c("genotype","trial")],
+    y0 <- tapply(TDTot[[trait]], TDTot[, c("genotype", trCol)], mean)
+    yIndex <- tapply(X = 1:nrow(TDTot), INDEX = TDTot[, c("genotype", trCol)],
                      FUN = identity)
     ## imputate missing values.
-    y1 <- multMissing(y0, maxIter = 10)
+    y1 <- multMissing(y0)
     replaceVal <- y1[is.na(y0)]
     yIndexReplace <- yIndex[is.na(y0)]
     if (is.list(yIndexReplace)) {
@@ -105,50 +114,46 @@ gxeStability <- function(TD,
   }
   lab <- levels(TDTot$genotype)
   nGeno <- length(lab)
-  trials <- levels(TDTot$trial)
-  nTr <- length(trials)
-  ## Compute the centered trait mean per eniroment.
-  Ej <- tapply(TDTot[[trait]], TDTot[, "trial"], mean)
-  ## Compute the max or min trait mean among all genotypes per trial.
-  if (bestMethod == "max") {
-    Mj <- tapply(TDTot[[trait]], TDTot[, "trial"], max, na.rm = TRUE)
-  } else {
-    Mj <- tapply(TDTot[[trait]], TDTot[, "trial"], min, na.rm = TRUE)
+  if (useMegaEnv) {
+    trials <- levels(TDTot[[trCol]])
   }
+  nTr <- length(trials)
+  ## Compute the centered trait mean per enviroment.
+  Ej <- tapply(X = TDTot[[trait]], INDEX = TDTot[[trCol]], FUN = mean,
+               na.rm = TRUE)
+  ## Compute the max or min trait mean among all genotypes per trial.
+  Mj <- tapply(X = TDTot[[trait]], INDEX = TDTot[[trCol]],
+               FUN = getFunction(bestMethod), na.rm = TRUE)
   ## Compute the genotype trait mean per trial.
-  Ei <- as.vector(tapply(TDTot[[trait]], TDTot[, "genotype"], mean,
-                         na.rm = TRUE))
+  Ei <- as.numeric(tapply(X = TDTot[[trait]], INDEX = TDTot[["genotype"]],
+                          FUN = mean, na.rm = TRUE))
   ## Compute the grand mean.
   E <- mean(TDTot[, trait], na.rm = TRUE)
   ## Create empty vectors for storing output
-  W <- S <- LB <- rep(NA, nGeno)
-  for (i in 1:nGeno) {
+  LB <- S <- W <- rep(NA, nGeno)
+  for (i in seq_along(lab)) {
     ## Observed genotype field response in the trial j
     ## (averaged across experiment replicates)
     Rij <- sapply(X = trials, FUN = function(x) {
-      mean(TDTot[which(TDTot$genotype == lab[i] & TDTot$trial == x), trait],
+      mean(TDTot[TDTot$genotype == lab[i] & TDTot[[trCol]] == x, trait],
            na.rm = TRUE)
     })
     pos <- (1:nTr)[!is.na(Rij)]
-    ## Superiority measure (Lin & Binns 1988).
-    if ("superiority" %in% method) {
-      if (length(pos) > 0) {
+    if (length(pos) > 0) {
+      ## Superiority measure (Lin & Binns 1988).
+      if ("superiority" %in% method) {
         LB[i] <- sum(sapply(X = pos, FUN = function(j) {
           (Rij[j] - Mj[j]) ^ 2
         }) / (2 * nTr))
       }
-    }
-    ## Static measure (Shukla's (1972a) stability variance).
-    if ("static" %in% method) {
-      if (length(pos) > 0) {
+      ## Static measure (Shukla's (1972a) stability variance).
+      if ("static" %in% method) {
         S[i] <- sum(sapply(X = pos, FUN = function(j) {
           (Rij[j] - Ei[i]) ^ 2
         }) / (nTr - 1))
       }
-    }
-    ## Wricke's (1962) ecovalence.
-    if ("wricke" %in% method) {
-      if (length(pos) > 0) {
+      ## Wricke's (1962) ecovalence.
+      if ("wricke" %in% method) {
         W[i] <- sum(sapply(X = pos, FUN = function(j) {
           (Rij[j] - Ei[i] - Ej[j] + E) ^ 2
         }))

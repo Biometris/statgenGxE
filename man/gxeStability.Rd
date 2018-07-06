@@ -6,7 +6,7 @@
 \usage{
 gxeStability(TD, trials = names(TD), trait, method = c("superiority",
   "static", "wricke"), bestMethod = c("max", "min"),
-  sorted = c("descending", "ascending", "none"))
+  sorted = c("descending", "ascending", "none"), useMegaEnv = FALSE)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
@@ -24,6 +24,10 @@ calculated. Options are superiority (cultivar-superiority measure), static
 the best genotype. Either \code{"max"} or \code{"min"}.}
 
 \item{sorted}{A character string specifying the sorting order of the results.}
+
+\item{useMegaEnv}{Should the calculations be based on megaEnvironments
+instead of environments? Only possible if \code{TD} contains a column
+megaEnv.}
 }
 \value{
 An object of class \code{\link{stability}}, a list containing:
