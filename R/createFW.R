@@ -122,7 +122,7 @@ plot.FW <- function(x,
     plotArgs <- list(x = scatterData, upper.panel = NULL,
                      main = paste0("Finlay & Wilkinson analysis for ", x$trait))
     ## Add and overwrite args with custom args from ...
-    fixedArgs <- c("x")
+    fixedArgs <- c("x", "title")
     plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     do.call(ifelse(!all(is.na(x$estimates$mse)), pairs, plot), args = plotArgs)
   } else if ("line" %in% plotType) {
@@ -133,21 +133,26 @@ plot.FW <- function(x,
     } else {
       orderEnv <- order(envEffs, decreasing = (sorted == "descending"))
     }
-    ## Set arguments for plot.
-    plotArgs <- list(x = envEffs[orderEnv],
-                     y = fVal[orderEnv, ], type = "l",
-                     main = paste0("Finlay & Wilkinson analysis for ", x$trait),
-                     ylab = x$trait, xlab = "Environment",
-                     xlim = range(envEffs, na.rm = TRUE),
-                     ylim = range(x$fittedGeno, na.rm = TRUE),
-                     xaxt = "n", col = 1:ncol(fVal))
+    lineDat <- reshape2::melt(fVal)
+    ## Set arguments for plot aesthetics.
+    aesArgs <- list(x = rep(envEffs, nlevels(lineDat$genotype)),
+                    y = "value", color = "genotype")
+    fixedArgs <- c("x", "y", "color", "title")
     ## Add and overwrite args with custom args from ...
-    fixedArgs <- c("x", "y", "xlim", "ylim", "xaxt")
-    plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-    do.call(matplot, args = plotArgs)
-    ## Add trials as ticks on axis.
-    axis(side = 1, at = envEffs, labels = levels(x$envEffs$trial),
-         las = 2, cex.axis = .75)
+    aesArgs <- modifyList(aesArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
+    ## Create plot.
+    ggplot2::ggplot(data = lineDat,
+                    do.call(ggplot2::aes_string, args = aesArgs)) +
+      ggplot2::geom_point() + ggplot2::geom_line(size = 0.5, alpha = 0.7) +
+      ggplot2::scale_x_continuous(breaks = envEffs,
+                                  labels = levels(lineDat$trial)) +
+      ggplot2::theme(legend.position = "none",
+                     plot.title = ggplot2::element_text(hjust = 0.5),
+                     axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) +
+      ggplot2::ggtitle(ifelse(!is.null(dotArgs$title), dotArgs$title,
+                              paste0("Finlay & Wilkinson analysis for ",
+                                     x$trait))) +
+      ggplot2::labs(x = "Environment", y = x$trait)
   } else if ("trellis" %in% plotType) {
     trellisData <- data.frame(genotype = TDTot$genotype,
                               trait = TDTot[[x$trait]],
@@ -166,9 +171,9 @@ plot.FW <- function(x,
     }
     ## Set arguments for plot.
     plotArgs <- list(x = trait + fitted ~ xEff | genotype, data = trellisData,
-      panel = panelFunc, as.table = TRUE, subscripts = TRUE,
-      xlab = "Environment", ylab = x$trait,
-      main = paste0("Finlay & Wilkinson analysis for ", x$trait))
+                     panel = panelFunc, as.table = TRUE, subscripts = TRUE,
+                     xlab = "Environment", ylab = x$trait,
+                     main = paste0("Finlay & Wilkinson analysis for ", x$trait))
     ## Add and overwrite args with custom args from ...
     fixedArgs <- c("x", "data", "panel")
     plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
