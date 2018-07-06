@@ -40,6 +40,27 @@ test_that("attribute renamed is properly filled in createTD", {
                           stringsAsFactors = FALSE))
 })
 
+test_that("getMeta functions properly", {
+  TD1 <- createTD(data = testData)
+  meta1 <- getMeta(TD1)
+  ## No trial defined, so only 1 row in meta
+  expect_equal(nrow(meta1), 1)
+  expect_equal(rownames(meta1), "testData")
+  TD2 <- createTD(data = testData, trial = "field")
+  meta2 <- getMeta(TD2)
+  expect_equal(nrow(meta2), 3)
+  expect_equal(rownames(meta2), c("E1", "E2", "E3"))
+  expect_equal(meta2$trLocation, c("E1", "E2", "E3"))
+})
+
+test_that("setMeta functions properly", {
+  TD1 <- createTD(data = testData, trial = "field")
+  meta1 <- getMeta(TD1)
+  meta1$trDesign <- c("res.rowcol", "rowcol", "res.ibd")
+  TD2 <- setMeta(TD = TD1, meta = meta1)
+  expect_equal(attr(x = TD2$E1, which = "trDesign"), "res.rowcol")
+})
+
 test_that("attribute design is properly filled in create TD", {
   expect_null(attr(createTD(data = testData)[[1]], "design"))
   expect_equal(attr(createTD(data = testData, trDesign = "rcbd")[[1]],
