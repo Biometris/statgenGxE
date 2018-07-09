@@ -31,7 +31,8 @@ Imports: desplot(>= 1.3),
     qtl(>= 1.42-8),
     reshape2(>= 1.4.3),
     SpATS(>= 1.0-7),
-    xtable(>= 1.8.2)
+    xtable(>= 1.8.2),
+    gridExtra
 Suggests: asreml(== 3.0),
     rmarkdown(>= 1.9),
     testthat(>= 2.0.0)

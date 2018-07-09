@@ -114,17 +114,52 @@ plot.FW <- function(x,
   dotArgs <- list(...)
   envEffs <- x$envEffs$effect
   TDTot <- Reduce(f = rbind, x = x$TD)
+  plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
+                      paste0("Finlay & Wilkinson analysis for ",
+                             x$trait))
   if ("scatter" %in% plotType) {
-    selCols = c(1, if (!all(is.na(x$estimates$mse))) 2, 3)
-    scatterData <- setNames(x$estimates[, c("genMean", "mse", "sens")[selCols]],
-                            c("Mean", "m.s.deviation", "Sensitivity")[selCols])
+    selCols = c(1:2, if (!all(is.na(x$estimates$mse))) 3, 4)
+    scatterDat <- setNames(x$estimates[, c("genotype", "genMean",
+                                           "mse", "sens")[selCols]],
+                           c("genotype", "Mean", "m.s.deviation",
+                             "Sensitivity")[selCols])
+    ## Create plot of mean x mse. No x axis because of position in grid.
+    p1 <- ggplot2::ggplot(data = scatterDat,
+                          ggplot2::aes_string(x = "Mean", y = "m.s.deviation")) +
+      ggplot2::geom_point() +
+      ggplot2::theme(axis.title.x = ggplot2::element_blank(),
+                     axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank())
+    ## Create plot of mean x sensitivity.
+    p2 <- ggplot2::ggplot(data = scatterDat,
+                          ggplot2::aes_string(x = "Mean", y = "Sensitivity")) +
+      ggplot2::geom_point()
+    ## Create plot of mse x sensitivity. No y axis because of position in grid.
+    p3 <- ggplot2::ggplot(data = scatterDat,
+                          ggplot2::aes_string(x = "m.s.deviation",
+                                              y = "Sensitivity")) +
+      ggplot2::geom_point() +
+      ggplot2::theme(axis.title.y = ggplot2::element_blank(),
+                     axis.text.y = ggplot2::element_blank(),
+                     axis.ticks.y = ggplot2::element_blank())
+    ## Create empty plot for top right grid position.
+    pEmpty <- ggplot2::ggplot() +
+      ggplot2::theme(panel.background = ggplot2::element_blank())
+    ## Convert to Grobs to make alignment of axis possible.
+    p1 <- ggplot2::ggplotGrob(p1)
+    p2 <- ggplot2::ggplotGrob(p2)
+    p3 <- ggplot2::ggplotGrob(p3)
+    pEmpty <- ggplot2::ggplotGrob(pEmpty)
+    ## Create grid by first binding rows to assure axis alignment and then
+    ## by columns.
+    c1 <- gridExtra::gtable_rbind(p1, p2)
+    c2 <- gridExtra::gtable_rbind(pEmpty, p3)
+    tot <- gridExtra::gtable_cbind(c1, c2)
+    ## grid.arrange automatically plots the results.
+    tot <- gridExtra::grid.arrange(tot, top = plotTitle)
+    ## Silently return plotData for use in app.
+    invisible(scatterDat)
     ## Set arguments for plot.
-    plotArgs <- list(x = scatterData, upper.panel = NULL,
-                     main = paste0("Finlay & Wilkinson analysis for ", x$trait))
-    ## Add and overwrite args with custom args from ...
-    fixedArgs <- c("x", "title")
-    plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-    do.call(ifelse(!all(is.na(x$estimates$mse)), pairs, plot), args = plotArgs)
   } else if ("line" %in% plotType) {
     fVal <- tapply(X = x$fittedGeno, INDEX = TDTot[, c("trial", "genotype")],
                    FUN = mean, na.rm = TRUE)
@@ -149,10 +184,10 @@ plot.FW <- function(x,
       ggplot2::theme(legend.position = "none",
                      plot.title = ggplot2::element_text(hjust = 0.5),
                      axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) +
-      ggplot2::ggtitle(ifelse(!is.null(dotArgs$title), dotArgs$title,
-                              paste0("Finlay & Wilkinson analysis for ",
-                                     x$trait))) +
+      ggplot2::ggtitle(plotTitle) +
       ggplot2::labs(x = "Environment", y = x$trait)
+    ## Silently return plotData for use in app.
+    invisible(lineDat)
   } else if ("trellis" %in% plotType) {
     trellisData <- data.frame(genotype = TDTot$genotype,
                               trait = TDTot[[x$trait]],
