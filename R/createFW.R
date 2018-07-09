@@ -112,7 +112,7 @@ plot.FW <- function(x,
   plotType <- match.arg(plotType, several.ok = TRUE)
   sorted <- match.arg(sorted)
   dotArgs <- list(...)
-  envEffs <- x$envEffs$effect
+  envEffs <- x$envEffs[c("trial", "effect")]
   TDTot <- Reduce(f = rbind, x = x$TD)
   plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
                       paste0("Finlay & Wilkinson analysis for ",
@@ -164,22 +164,22 @@ plot.FW <- function(x,
     fVal <- tapply(X = x$fittedGeno, INDEX = TDTot[, c("trial", "genotype")],
                    FUN = mean, na.rm = TRUE)
     if (sorted == "none") {
-      orderEnv <- 1:length(envEffs)
+      orderEnv <- 1:nrow(envEffs)
     } else {
-      orderEnv <- order(envEffs, decreasing = (sorted == "descending"))
+      orderEnv <- order(envEffs$effect, decreasing = (sorted == "descending"))
     }
     lineDat <- reshape2::melt(fVal)
+    lineDat <- merge(x = lineDat, y = envEffs)
     ## Set arguments for plot aesthetics.
-    aesArgs <- list(x = rep(envEffs, nlevels(lineDat$genotype)),
-                    y = "value", color = "genotype")
+    aesArgs <- list(x = "effect", y = "value", color = "genotype")
     fixedArgs <- c("x", "y", "color", "title")
     ## Add and overwrite args with custom args from ...
     aesArgs <- modifyList(aesArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     ## Create plot.
     ggplot2::ggplot(data = lineDat,
-                    do.call(ggplot2::aes_string, args = aesArgs)) +
+                                do.call(ggplot2::aes_string, args = aesArgs)) +
       ggplot2::geom_point() + ggplot2::geom_line(size = 0.5, alpha = 0.7) +
-      ggplot2::scale_x_continuous(breaks = envEffs,
+      ggplot2::scale_x_continuous(breaks = envEffs$effect, minor_breaks = NULL,
                                   labels = levels(lineDat$trial)) +
       ggplot2::theme(legend.position = "none",
                      plot.title = ggplot2::element_text(hjust = 0.5),
@@ -192,7 +192,7 @@ plot.FW <- function(x,
     trellisData <- data.frame(genotype = TDTot$genotype,
                               trait = TDTot[[x$trait]],
                               fitted = x$fittedGen,
-                              xEff = rep(envEffs, x$nGeno))
+                              xEff = rep(envEffs$effect, x$nGeno))
     if (x$nGeno > 64) {
       ## Select first 64 genotypes for plotting.
       first64 <- TDTot$genotype %in% levels(x$estimates$genotype)[1:64]

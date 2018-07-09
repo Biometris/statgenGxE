@@ -310,58 +310,37 @@ plot.SSA <- function(x,
   plotData$pred[is.na(plotData$fitted)] <- NA
   plotData$residuals <- plotData$response - plotData$fitted
   if (plotType == "base") {
-    ## Setup frame for plots.
-    trellisObj <- setNames(vector(mode = "list", length = 4),
-                           c("histogram", "qq", "residFitted",
-                             "absResidFitted"))
     ## Plot histogram of residuals.
-    trellisObj[["histogram"]] <- lattice::histogram(x = ~plotData$residuals,
-                                                    xlab = "Residuals", ...)
+    histPlot <- ggplot2::ggplot(data = plotData) +
+      ggplot2::geom_histogram(ggplot2::aes(x = residuals,
+                                           y = (..count..)/sum(..count..)),
+                              fill = "cyan", col = "black", bins = 10,
+                              boundary = 0) +
+      ggplot2::scale_y_continuous(labels = function(x) {paste0(100 * x, "%")}) +
+      ggplot2::labs(y = "Percent of Total", x = "Residuals")
     ## Plot Q-Q plot of residuals.
-    trellisObj[["qq"]] <- lattice::qqmath(~plotData$residuals,
-                                          xlab = "Normal quantiles",
-                                          ylab = "Residuals", ...)
-    ## Plot residuals vs fitted values
-    trellisObj[["residFitted"]] <-
-      lattice::xyplot(plotData$residuals ~ plotData$fitted,
-                      panel = function(x, y, ...) {
-                        lattice::panel.xyplot(x, y, ...,
-                                              type = c("p", "g"))
-                        lattice::panel.abline(h = 0)
-                        lattice::panel.loess(x, y,
-                                             col.line = "red", ...)
-                      }, ylab = "Residuals",
-                      xlab = "Fitted values", ...)
-    ## Plot absolute residuals vs fitted values
-    trellisObj[["absResidFitted"]] <-
-      lattice::xyplot(abs(plotData$residuals) ~ plotData$fitted,
-                      panel = function(x, y, ...) {
-                        lattice::panel.xyplot(x, y, ...,
-                                              type = c("p", "g"))
-                        lattice::panel.loess(x, y,
-                                             col.line = "red", ...)
-                      }, ylab = "|Residuals|",
-                      xlab = "Fitted values", ...)
-    ## Save trellis options to reset when exiting function
-    trellPar <- lattice::trellis.par.get()
-    on.exit(lattice::trellis.par.set(trellPar))
-    ## Change options for current plot.
-    changeOpt <- list(add.text = list(cex = 0.75),
-                      par.xlab.text = list(cex = 0.75),
-                      par.ylab.text = list(cex = 0.75),
-                      par.zlab.text = list(cex = 0.75),
-                      axis.text = list(cex = 0.75),
-                      plot.symbol = list(cex = 0.6))
-    lattice::trellis.par.set(changeOpt)
-    ## Fill frame with plots.
-    print(trellisObj[["histogram"]], position = c(0, 0.5, 0.5, 1), more = TRUE)
-    print(trellisObj[["qq"]], position = c(0.5, 0.5, 1, 1), more = TRUE)
-    suppressWarnings(print(trellisObj[["residFitted"]],
-                           position = c(0, 0, 0.5, 0.5),
-                           more = TRUE))
-    suppressWarnings(print(trellisObj[["absResidFitted"]],
-                           position = c(0.5, 0, 1, 0.5)))
-    invisible(trellisObj)
+    qqPlot <- ggplot2::ggplot(data = plotData,
+                              ggplot2::aes_string(sample = "residuals")) +
+      ggplot2::stat_qq(col = "blue") +
+      ggplot2::labs(y = "Residuals", x = "Normal quantiles")
+    ## Plot residuals vs fitted values.
+    resFitPlot <- ggplot2::ggplot(data = plotData,
+                                  ggplot2::aes_string(x = "fitted",
+                                                      y = "residuals")) +
+      ggplot2::geom_point(col = "blue", shape = 1) +
+      ggplot2::geom_smooth(method = "loess", col = "red") +
+      ggplot2::geom_abline(slope = 0, intercept = 0) +
+      ggplot2::labs(y = "Residuals", x = "Fitted values")
+    ## Plot absolute value of residuals vs fitted values.
+    absResFitPlot <- ggplot2::ggplot(data = plotData,
+                                     ggplot2::aes_string(x = "fitted",
+                                                         y = "abs(residuals)")) +
+      ggplot2::geom_point(col = "blue", shape = 1) +
+      ggplot2::geom_smooth(method = "loess", col = "red") +
+      ggplot2::labs(y = "|Residuals|", x = "Fitted values")
+    ## Arrange plot in 2x2 matrix.
+    gridExtra::grid.arrange(histPlot, qqPlot, resFitPlot, absResFitPlot,
+                            ncol = 2)
   } else if (plotType == "spatial") {
     if (x[[trial]]$engine == "SpATS") {
       plot(model, main = "")
