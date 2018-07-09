@@ -216,8 +216,7 @@ print.summary.SSA <- function(x,
 #' information.
 #'
 #' @param x An object of class SSA.
-#' @param ... Further graphical parameters (see \code{\link[lattice]{xyplot}}
-#' for details).
+#' @param ... Further graphical parameters.
 #' @param trial A character string indicating the trial to plot. If
 #' \code{trial = NULL} and only one trial is modelled this trial is plotted.
 #' @param trait A character string indicating the trait to plot. If

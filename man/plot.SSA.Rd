@@ -10,8 +10,7 @@
 \arguments{
 \item{x}{An object of class SSA.}
 
-\item{...}{Further graphical parameters (see \code{\link[lattice]{xyplot}}
-for details).}
+\item{...}{Further graphical parameters.}
 
 \item{trial}{A character string indicating the trial to plot. If
 \code{trial = NULL} and only one trial is modelled this trial is plotted.}

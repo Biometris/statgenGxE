@@ -198,21 +198,16 @@ plot.FW <- function(x,
       first64 <- TDTot$genotype %in% levels(x$estimates$genotype)[1:64]
       trellisData <- trellisData[first64, ]
     }
-    ## Define panelfunction for xy plot.
-    panelFunc <- function(x, y, subscripts) {
-      lattice::panel.xyplot(x, y)
-      lattice::panel.lines(trellisData$xEff[subscripts],
-                           trellisData$fitted[subscripts])
-    }
-    ## Set arguments for plot.
-    plotArgs <- list(x = trait + fitted ~ xEff | genotype, data = trellisData,
-                     panel = panelFunc, as.table = TRUE, subscripts = TRUE,
-                     xlab = "Environment", ylab = x$trait,
-                     main = paste0("Finlay & Wilkinson analysis for ", x$trait))
-    ## Add and overwrite args with custom args from ...
-    fixedArgs <- c("x", "data", "panel")
-    plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-    do.call(lattice::xyplot, args = plotArgs)
+    ggplot2::ggplot(data = trellisData,
+                    ggplot2::aes_string(x = "xEff", y = "trait + fitted")) +
+      ggplot2::geom_point() +
+      ggplot2::geom_path() +
+      ggplot2::facet_wrap(facets = "genotype") +
+      ggplot2::labs(x = "Environment", y = x$trait) +
+      ggplot2::ggtitle(plotTitle) +
+      ggplot2::theme(legend.position = "none",
+                     panel.spacing = ggplot2::unit(.2, "cm"),
+                     axis.text = ggplot2::element_text(size = 6))
   }
 }
 
