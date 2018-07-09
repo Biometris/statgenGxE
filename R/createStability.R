@@ -75,47 +75,61 @@ summary.stability <- function(object, ...) {
 plot.stability <- function(x,
                            ...) {
   dotArgs <- list(...)
-  nPlots <- sum(c(!is.null(x$superiority), !is.null(x$static), !is.null(x$wricke)))
-  ## Prepare panels.
-  if (nPlots > 1) {
-    oldPar <- par(mfrow = c(nPlots - 1, 2), mar = c(4, 4, 2, 2),
-                  oma = c(.5, .5, 2, .3))
-    on.exit(par(oldPar))
-  }
   ## Add and overwrite args with custom args from ...
   fixedArgs <- c("x", "y", "xlab", "ylab", "main")
-  ## Create superiority plot.
+  plots <- vector(mode = "list")
   if (!is.null(x$superiority)) {
-    plotArgs <- list(x = x$superiority$mean, y = x$superiority$superiority,
-                     xlab = "Mean", ylab = "Cultivar superiority")
-    plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-    do.call(plot, args = plotArgs)
+    ## Create superiority plot.
+    plots$superiority <- ggplot2::ggplot(data = x$superiority,
+                                         ggplot2::aes_string(x = "mean",
+                                                             y = "superiority")) +
+      ggplot2::geom_point(col = "blue", shape = 1) +
+      ggplot2::labs(x = "Mean", y = "Cultivar superiority")
   }
-  ## Create static plot.
   if (!is.null(x$static)) {
-    plotArgs <- list(x = x$static$mean, y = x$static$static,
-                     xlab = "Mean", ylab = "Static stability")
-    plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-    do.call(plot, args = plotArgs)
+    ## Create static plot.
+    plots$static <- ggplot2::ggplot(data = x$static,
+                                    ggplot2::aes_string(x = "mean",
+                                                        y = "static")) +
+      ggplot2::geom_point(col = "blue", shape = 1) +
+      ggplot2::labs(x = "Mean", y = "Static stability")
   }
-  ## Create Wricke plot.
   if (!is.null(x$wricke)) {
-    plotArgs <- list(x = x$wricke$mean, y = x$wricke$wricke,
-                     xlab = "Mean", ylab = "Wricke's ecovalence")
-    plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-    do.call(plot, args = plotArgs)
+    ## Create Wricke plot.
+    plots$wricke <- ggplot2::ggplot(data = x$wricke,
+                                    ggplot2::aes_string(x = "mean",
+                                                        y = "wricke")) +
+      ggplot2::geom_point(col = "blue", shape = 1) +
+      ggplot2::labs(x = "Mean", y = "Wricke's ecovalence")
   }
-  ## Add title.
-  if (!is.null(dotArgs$main)) {
-    main <- dotArgs$main
+  if (length(plots) == 3) {
+    ## Create empty plot for bottom right grid position.
+    plots$empty <- ggplot2::ggplot() +
+      ggplot2::theme(panel.background = ggplot2::element_blank())
+  }
+  ## Convert plots to grob for outlining of axes.
+  plots <- lapply(X = plots, FUN = ggplot2::ggplotGrob)
+  if (length(plots) > 1) {
+    ## At least to plots -> 1 row.
+    tot <- gridExtra::gtable_cbind(plots[[1]], plots[[2]])
   } else {
-    main <- paste("Stability coefficients for", x$trait)
+    ## Only 1 plot to be made.
+    tot <- plots[[1]]
   }
-  if (nPlots == 1) {
-    title(main)
+  if (length(plots) > 2) {
+    ## 3 Plots, so empty plot has been created to make 4 plots.
+    ## First create second row then add to first row.
+    r2 <- gridExtra::gtable_cbind(plots[[3]], plots[[4]])
+    tot <- gridExtra::gtable_rbind(tot, r2)
+  }
+  ## Construct title.
+  if (!is.null(dotArgs$title)) {
+    title <- dotArgs$title
   } else {
-    mtext(main, side = 3, outer = TRUE, cex = 1.3, font = 2)
+    title <- paste("Stability coefficients for", x$trait)
   }
+  ## grid.arrange automatically plots the results.
+  tot <- gridExtra::grid.arrange(tot, top = title)
 }
 
 #' Report method for class stability
