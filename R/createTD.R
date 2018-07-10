@@ -532,17 +532,69 @@ plot.TD <- function(x,
       } else {
         aspect <- ylen / xlen
       }
-      ## Desplot uses lattice for plotting which doesn't plot within a loop.
-      ## This is solved by using print.
-      plotVar <- ifelse("subBlock" %in% colnames(trDat), "subBlock", "trial")
-      plotArgs <- list(form = formula(paste(plotVar, "~ colCoord + rowCoord")),
-                       out1 = if ("repId" %in% colnames(trDat)) "repId" else NULL,
-                       data = trDat, ticks = TRUE, main = trLoc,
-                       aspect = aspect)
-      ## Add and overwrite args with custom args from ...
-      fixedArgs <- c("form", "data")
-      plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-      print(do.call(desplot::desplot, args = plotArgs))
+      ## Create data for lines between replicates.
+      if ("repId" %in% colnames(trDat)) {
+        ## Create matrix containing replicates.
+        M <- matrix(data = trDat[order(trDat$rowCoord, trDat$colCoord), "repId"],
+                    nrow = max(trDat$colCoord) - min(trDat$colCoord) + 1,
+                    ncol = max(trDat$rowCoord) - min(trDat$rowCoord) + 1)
+        ## Create empty base matrix for plot content.
+        B <- matrix(nrow = nrow(M) + 1, ncol = ncol(M) + 1)
+        ## Fill with border values.
+        for (i in 1:(nrow(M) - 1)) {
+          for (j in 1:(ncol(M) - 1)) {
+            ## Get border value. Always the lowest neighbouring replicate value.
+            borderVal <- min(c(M[i, j], M[i, j + 1],  M[i + 1, j]))
+            if (M[i, j] != M[i, j + 1] || M[i, j] != M[i + 1, j]) {
+              ## Set current cell to border value. +1 needed to account for
+              ## values on plot edge later on.
+              B[i + 1, j + 1] <- borderVal
+              if (i == 1) {
+                ## Add starting point on left side of plot.
+                B[i, j + 1] <- borderVal
+              }
+              if (i == (nrow(M) - 1)) {
+                ## Add end point on right side of plot.
+                B[i + 2, j + 1] <- borderVal
+              }
+              if (j == 1) {
+                ## Add starting point on bottom side of plot.
+                B[i + 1, j] <- borderVal
+              }
+              if (j == (ncol(M) - 1)) {
+                ## Add end point on top side of plot.
+                B[i + 1, j + 2] <- borderVal
+              }
+            }
+          }
+        }
+        ## Melt data to a format useable by ggplot.
+        borderDat <- reshape2::melt(B)
+      }
+      ## Create base plot.
+      outPlot <- ggplot2::ggplot(data = trDat,
+                                 ggplot2::aes_string(x = "colCoord",
+                                                     y = "rowCoord")) +
+        ggplot2::geom_tile(ggplot2::aes_string(fill = "subBlock"),
+                           color = "grey50") +
+        ggplot2::coord_fixed(ratio = aspect,
+                             xlim = range(trDat$colCoord),
+                             ylim = range(trDat$rowCoord)) +
+        ggplot2::theme(panel.background = ggplot2::element_blank()) +
+        ggplot2::ggtitle(trLoc)
+      if ("repId" %in% colnames(trDat)) {
+        ## Add lines for replicates.
+        outPlot <- outPlot +
+          ggplot2::geom_path(ggplot2::aes_string(x = "Var1 - 0.5",
+                                                 y = "Var2 - 0.5",
+                                                 group = "value",
+                                                 color = "'replicates'"),
+                             data = borderDat[!is.na(borderDat$value), ],
+                             size = 1) +
+          ggplot2::labs(color = "") +
+          ggplot2::scale_color_manual(values = c("replicates" = "black"))
+      }
+      plot(outPlot)
     }
   } else if (plotType == "map") {
     ## Create a data.frame for plotting trials.
