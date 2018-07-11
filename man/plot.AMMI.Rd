@@ -5,7 +5,7 @@
 \title{Plot function for class AMMI}
 \usage{
 \method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2"), scale = 1,
-  col = c("orange3", "navyblue"))
+  col = c("black", "red"))
 }
 \arguments{
 \item{x}{An object of class AMMI}
@@ -24,7 +24,8 @@ where \code{lambda} are the singular values computed by
 \code{0 <= scale <= 1}, and a warning will be issued if the specified
 scale is outside this range.}
 
-\item{col}{A character vector with plot colors for genotype and environment.}
+\item{col}{A vector with plot colors for genotype and environment. This can
+either be named colors or color numbers.}
 }
 \value{
 A biplot depending on \code{plotType}.

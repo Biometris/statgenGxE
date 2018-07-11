@@ -86,7 +86,8 @@ summary.AMMI <- function(object, ...) {
 #' \code{\link[stats]{princomp}} in \code{\link{gxeAmmi}}. Normally
 #' \code{0 <= scale <= 1}, and a warning will be issued if the specified
 #' scale is outside this range.
-#' @param col A character vector with plot colors for genotype and environment.
+#' @param col A vector with plot colors for genotype and environment. This can
+#' either be named colors or color numbers.
 #'
 #' @return A biplot depending on \code{plotType}.
 #'
@@ -105,7 +106,7 @@ plot.AMMI <- function(x,
                       ...,
                       plotType = c("AMMI1", "AMMI2"),
                       scale = 1,
-                      col = c("orange3", "navyblue")) {
+                      col = c("black", "red")) {
   ## Checks.
   if (!is.numeric(scale) || length(scale) > 1) {
     stop("scale should be a single numerical value.\n")
@@ -126,25 +127,35 @@ plot.AMMI <- function(x,
     ## Calculate lambda scale
     lam <- x$importance[1, 1]
     lam <- lam ^ scale
-    ## Set arguments for biplot1
-    bp1Args <- list(x = 1, type = 'n',
-                    main = paste0("AMMI1 biplot for ", x$trait),
-                    xlab = "Main Effects",
-                    ylab = paste0("PC1 (", percPC1, "%)"),
-                    xlim = range(c(x$envMean, x$genoMean)),
-                    ylim = range(c(loadings[, 1] * lam, scores[, 1] / lam)))
-    ## Add and overwrite args with custom args from ...
-    fixedArgs <- c("x", "type", "xlim", "ylim")
-    bp1Args <- modifyList(bp1Args, dotArgs[!names(dotArgs) %in% fixedArgs])
-    ## Setup plot frame.
-    do.call(plot, args = bp1Args)
-    ## Add genotypes to empty plot.
-    text(x = x$genoMean, y = scores[, 1] / lam, labels = "o",
-         adj = c(0.5, 0.5), col = col[1])
-    ## Add environments to empty plot
-    text(x = x$envMean, y = loadings[, 1] * lam, labels = names(x$envMean),
-         adj = c(0.5, 0.5), col = col[2], xpd = TRUE)
-    abline(h = 0, v = x$overallMean, lty = 5)
+    ## Put overallMean in variable since using x$ in plot produces an error.
+    ovMean <- x$overallMean
+    ## Create dataframes for genotypes and environments.
+    genoDat <- data.frame(x = x$genoMean, y = scores[, 1] / lam)
+    envDat <- data.frame(x = x$envMean, y = loadings[, 1] * lam)
+    p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "x", y = "y")) +
+      ## Plot genotypes as points.
+      ggplot2::geom_point(color = col[1]) +
+      ## Needed for a square plot output.
+      ggplot2::coord_equal() +
+      ## Plot environments as texts.
+      ggplot2::geom_text(data = envDat,
+                         ggplot2::aes_string(x = "x", y = "y",
+                                             label = "rownames(envDat)"),
+                         size = 5, vjust = 1, color = col[2]) +
+      ## Add reference axes.
+      ggplot2::geom_vline(ggplot2::aes(xintercept = ovMean),
+                          linetype = "dashed", show.legend = FALSE) +
+      ggplot2::geom_hline(ggplot2::aes(yintercept = 0), linetype = "dashed",
+                          show.legend = FALSE) +
+      ## Add labeling.
+      ggplot2::labs(x = "Main Effects", y = paste0("PC1 (", percPC1, "%)")) +
+      ggplot2::ggtitle(paste0("AMMI1 biplot for ", x$trait)) +
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+    ## Turn off panel clipping.
+    gt <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(p))
+    gt$layout$clip[gt$layout$name == "panel"] <- "off"
+    ## Plot results.
+    gridExtra::grid.arrange(gt)
   } else if (plotType == "AMMI2") {
     if (scale == 1) {
       info <- "environment scaling"
@@ -159,19 +170,50 @@ plot.AMMI <- function(x,
     lam <- as.numeric(x$importance[1, 1:2])
     lam <- lam * sqrt(nrow(scores))
     lam <- lam ^ scale
-    ## Set arguments for biplot2.
-    bp2Args <- list(x = t(t(scores[, 1:2]) / lam),
-                    y = t(t(loadings[, 1:2]) * lam), col = col,
-                    cex = c(par("cex") / 2, par("cex")),
-                    xlabs = rep("o", nrow(scores)),
-                    main = paste0("AMMI2 biplot for ", x$trait, " (", info, ")"),
-                    xlab = paste0("PC1 (", percPC1, "%)"),
-                    ylab = paste0("PC2 (", percPC2, "%)"),
-                    xpd = TRUE)
-    ## Add and overwrite args with custom args from ...
-    fixedArgs <- c("x", "y", "type", "xlim", "ylim")
-    bp2Args <- modifyList(bp2Args, dotArgs[!names(dotArgs) %in% fixedArgs])
-    do.call(biplot, args = bp2Args)
+    ## Create dataframes for genotypes and environments.
+    genoDat <- as.data.frame(t(t(scores[, 1:2]) / lam))
+    envDat <- as.data.frame(t(t(loadings[, 1:2]) * lam))
+    ## Compute multiplication factor for rescaling environmental data.
+    mult <- min(
+      (max(genoDat[["PC1"]]) - min(genoDat[["PC1"]])) /
+        (max(envDat[["PC1"]]) - min(envDat[["PC1"]])),
+      (max(genoDat[["PC2"]]) - min(genoDat[["PC2"]])) /
+        (max(envDat[["PC2"]]) - min(envDat[["PC2"]]))
+    )
+    ## Rescale data. 0.6 is more or less random but seems to work well in
+    ## practice.
+    envDat <- envDat * mult * 0.6
+    p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "PC1", y = "PC2")) +
+      ## Plot genotypes as points.
+      ggplot2::geom_point(color = col[1]) +
+      ## Needed for a square plot output.
+      ggplot2::coord_equal() +
+      ## Plot environments as texts.
+      ggplot2::geom_text(data = envDat,
+                         ggplot2::aes_string(x = "PC1", y = "PC2",
+                                             label = "rownames(envDat)"),
+                         size = 5, vjust = "outward", hjust = "outward",
+                         color = col[2]) +
+      ## Add arrows from origin to environments.
+      ## Adding alpha = for transparency causes the arrows not being plotting
+      ## after turning off clipping which is needed since labels may fall off
+      ## the plot otherwise.
+      ggplot2::geom_segment(data = envDat,
+                            ggplot2::aes_string(x = 0, y = 0, xend = "PC1",
+                                                yend = "PC2"),
+                            arrow = ggplot2::arrow(length =
+                                                     ggplot2::unit(0.2, "cm")),
+                            color = col[2]) +
+      ## Add labeling.
+      ggplot2::labs(x = paste0("PC1 (", percPC1, "%)"),
+                    y = paste0("PC2 (", percPC2, "%)")) +
+      ggplot2::ggtitle(paste0("AMMI2 biplot for ", x$trait, " (", info, ")")) +
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+    ## Turn off panel clipping.
+    gt <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(p))
+    gt$layout$clip[gt$layout$name == "panel"] <- "off"
+    ## Plot results.
+    gridExtra::grid.arrange(gt)
   }
 }
 
