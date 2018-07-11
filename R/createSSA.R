@@ -299,18 +299,19 @@ plot.SSA <- function(x,
   ## Extract raw data and compute residuals.
   response <- x[[trial]]$TD[[trial]][, c("genotype", trait,
                                          if (plotType == "spatial") spatCols)]
-  plotData <- merge(response,
-                    fitted, by = c("genotype",
-                                   if (plotType == "spatial") spatCols))
-  plotData <- merge(plotData, pred, by = "genotype")
-  plotData$response <- plotData[[paste0(trait, ".x")]]
-  plotData$fitted <- plotData[[paste0(trait, ".y")]]
-  plotData$pred <- plotData[[trait]]
-  plotData$pred[is.na(plotData$fitted)] <- NA
-  plotData$residuals <- plotData$response - plotData$fitted
+  plotDat <- merge(response,
+                   fitted, by = c("genotype",
+                                  if (plotType == "spatial") spatCols))
+  plotDat <- merge(plotDat, pred, by = "genotype")
+  plotDat$response <- plotDat[[paste0(trait, ".x")]]
+  plotDat$fitted <- plotDat[[paste0(trait, ".y")]]
+  plotDat$pred <- plotDat[[trait]]
+  plotDat$pred[is.na(plotDat$fitted)] <- NA
+  plotDat$residuals <- plotDat$response - plotDat$fitted
+  plotDat <- ggplot2::remove_missing(plotDat, na.rm = TRUE)
   if (plotType == "base") {
     ## Plot histogram of residuals.
-    histPlot <- ggplot2::ggplot(data = plotData) +
+    histPlot <- ggplot2::ggplot(data = plotDat) +
       ggplot2::geom_histogram(ggplot2::aes(x = residuals,
                                            y = (..count..)/sum(..count..)),
                               fill = "cyan", col = "black", bins = 10,
@@ -318,12 +319,12 @@ plot.SSA <- function(x,
       ggplot2::scale_y_continuous(labels = function(x) {paste0(100 * x, "%")}) +
       ggplot2::labs(y = "Percent of Total", x = "Residuals")
     ## Plot Q-Q plot of residuals.
-    qqPlot <- ggplot2::ggplot(data = plotData,
+    qqPlot <- ggplot2::ggplot(data = plotDat,
                               ggplot2::aes_string(sample = "residuals")) +
       ggplot2::stat_qq(col = "blue") +
       ggplot2::labs(y = "Residuals", x = "Normal quantiles")
     ## Plot residuals vs fitted values.
-    resFitPlot <- ggplot2::ggplot(data = plotData,
+    resFitPlot <- ggplot2::ggplot(data = plotDat,
                                   ggplot2::aes_string(x = "fitted",
                                                       y = "residuals")) +
       ggplot2::geom_point(col = "blue", shape = 1) +
@@ -331,7 +332,7 @@ plot.SSA <- function(x,
       ggplot2::geom_abline(slope = 0, intercept = 0) +
       ggplot2::labs(y = "Residuals", x = "Fitted values")
     ## Plot absolute value of residuals vs fitted values.
-    absResFitPlot <- ggplot2::ggplot(data = plotData,
+    absResFitPlot <- ggplot2::ggplot(data = plotDat,
                                      ggplot2::aes_string(x = "fitted",
                                                          y = "abs(residuals)")) +
       ggplot2::geom_point(col = "blue", shape = 1) +
@@ -344,75 +345,73 @@ plot.SSA <- function(x,
     if (x[[trial]]$engine == "SpATS") {
       plot(model, main = "")
     } else {
-      plotData <- plotData[order(plotData$colCoord, plotData$rowCoord), ]
+      plotDat <- plotDat[order(plotDat$colCoord, plotDat$rowCoord), ]
       ## Code taken from plot.SpATS and simplified.
       ## Set colors and legends.
       colors = topo.colors(100)
-      mainLegends <- c("Raw data", "Fitted data", "Residuals",
-                       ifelse(what == "fixed", "Genotypic BLUEs",
-                              "Genotypic BLUPs"), "Histogram")
-      ## Extract spatial coordinates from data.
-      colCoord <- x[[trial]]$TD[[trial]][, "colCoord"]
-      rowCoord <- x[[trial]]$TD[[trial]][, "rowCoord"]
-      ## Order plotcols and rows and fill gaps if needed.
-      plotCols <- seq(from = min(colCoord), to = max(colCoord),
-                      by = min(diff(sort(unique(colCoord)))))
-      plotRows <- seq(from = min(rowCoord), to = max(rowCoord),
-                      by = min(diff(sort(unique(rowCoord)))))
+      legends <- c("Raw data", "Fitted data", "Residuals",
+                   "Fitted Spatial Trend",
+                   ifelse(what == "fixed", "Genotypic BLUEs",
+                          "Genotypic BLUPs"), "Histogram")
       ## Compute range of values in response + fitted data so same scale
       ## can be used over plots.
-      zlim <- range(c(plotData$response, plotData$fitted), na.rm = TRUE)
-      ## Save plot options to reset when exiting function.
-      op <- par(mfrow = c(2, 3), oma = c(2, 1, 3, 2),
-                mar = c(2.7, 4, 2.5, 2.7), mgp = c(1.7, 0.5, 0))
-      on.exit(par(op))
-      coord <- list(plotData$colCoord, plotData$rowCoord)
-      ## Spatial plot of raw data.
-      fieldPlot(x = plotCols, y = plotRows,
-                z = tapply(X = plotData$response, INDEX = coord, FUN = I),
-                main = mainLegends[1], colors = colors, zlim = zlim, ...)
-      ## Spatial plot of fitted values.
-      fieldPlot(x = plotCols, y = plotRows,
-                z = tapply(X = plotData$fitted, INDEX = coord, FUN = I),
-                main = mainLegends[2], colors = colors, zlim = zlim, ...)
-      ## Spatial plot of residuals.
-      fieldPlot(x = plotCols, y = plotRows,
-                z = tapply(X = plotData$residuals, INDEX = coord, FUN = I),
-                main = mainLegends[3], colors = colors, ...)
-      ## Spatial plot of BLUEs or BLUPs.
-      fieldPlot(x = plotCols, y = plotRows,
-                z = tapply(X = plotData$pred, INDEX = coord, FUN = I),
-                main = mainLegends[4], colors = colors, ...)
-      ## Histogram of BLUEs or BLUPs.
-      hist(plotData$pred, main = mainLegends[5], xlab = mainLegends[4], ...)
+      zlim <- range(c(plotDat$response, plotDat$fitted), na.rm = TRUE)
+      p1 <- fieldPlot(plotDat = plotDat, fillVar = "response",
+                              title = legends[1], colors = colors, zlim = zlim)
+      p2 <- fieldPlot(plotDat = plotDat, fillVar = "fitted",
+                              title = legends[2], colors = colors, zlim = zlim)
+      p3 <- fieldPlot(plotDat = plotDat, fillVar = "residuals",
+                              title = legends[3], colors = colors,
+                      zlim = range(plotDat$residuals))
+      p5 <- fieldPlot(plotDat = plotDat, fillVar = "pred",
+                              title = legends[5], colors = colors,
+                      zlim = range(plotDat$pred))
+      p6 <- ggplot2::ggplot(data = plotDat) +
+        ggplot2::geom_histogram(ggplot2::aes(x = residuals),
+                                fill = "white", col = "black", bins = 10,
+                                boundary = 0) +
+        ## Remove empty space between ticks and actual plot.
+        ggplot2::scale_x_continuous(expand = c(0, 0)) +
+        ggplot2::scale_y_continuous(expand = c(0, 0)) +
+        ## No background. Center and resize title. Resize axis labels.
+        ggplot2::theme(panel.background = ggplot2::element_blank(),
+                       plot.title = ggplot2::element_text(hjust = 0.5,
+                                                          size = 10),
+                       axis.title = ggplot2::element_text(size = 9)) +
+        ggplot2::labs(y = "Frequency", x = legends[5]) +
+        ggplot2::ggtitle(legends[6])
+      gridExtra::grid.arrange(p1, p2, p3, p5, p6, ncol = 3)
     }
   }
 }
 
 ## Helper function for creating field plots with proper axes.
-fieldPlot <- function(x,
-                      y,
-                      z,
-                      main,
+fieldPlot <- function(plotDat,
+                      fillVar,
+                      title,
                       colors,
-                      zlim = range(z, na.rm = TRUE),
+                      zlim = NA,
                       ...) {
-  ## Adding custom axes to a fields::image.plot doesn't work.
-  ## Without custom axes rows and columns will be shown as e.g. 1.5.
-  ## To avoid this first a normal image plot is drawn, then the axes are added
-  ## and finally the legend is added using fields::image.plot
-  if (zlim[1] == zlim[2]) {
-    ## image.plot crashes when upper and lower limit are equal.
-    zlim <- zlim + c(-1e-8, 1e-8)
-  }
-  image(x, y, z, main = main, col = colors, bty = "n",
-        xlab = "colCoord", ylab = "rowCoord",
-        zlim = zlim, axes = FALSE, ...)
-  axis(side = 1, at = if (length(x) < 5) {x} else {pretty(x)}, lwd = 0,
-       lwd.ticks = 1)
-  axis(side = 2, at = if (length(y) < 5) {y} else {pretty(y)}, lwd = 0,
-       lwd.ticks = 1, las = 2, tck = -0.01, line = 0.15)
-  fields::image.plot(col = colors, zlim = zlim, legend.only = TRUE, add = TRUE)
+  p <- ggplot2::ggplot(data = plotDat,
+                       ggplot2::aes_string(x = "colCoord", y = "rowCoord",
+                                           fill = fillVar)) +
+    ggplot2::geom_raster() +
+    ## Remove empty space between ticks and actual plot.
+    ggplot2::scale_x_continuous(expand = c(0, 0)) +
+    ggplot2::scale_y_continuous(expand = c(0, 0)) +
+    ## Adjust plot colors.
+    ggplot2::scale_fill_gradientn(limits = zlim, colors = colors) +
+    ## No background. Center and resize title. Resize axis labels.
+    ## Remove legend title and resize legend entries.
+    ggplot2::theme(panel.background = ggplot2::element_blank(),
+                   plot.title = ggplot2::element_text(hjust = 0.5, size = 10),
+                   axis.title = ggplot2::element_text(size = 9),
+                   legend.title = ggplot2::element_blank(),
+                   legend.text =
+                     ggplot2::element_text(size = 8,
+                                           margin = ggplot2::margin(l = 5))) +
+    ggplot2::ggtitle(title)
+  return(p)
 }
 
 #' Report method for class SSA

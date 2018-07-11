@@ -19,7 +19,6 @@ LazyData: true
 RoxygenNote: 6.0.1
 Depends: R (>= 3.3)
 Imports: emmeans(>= 1.1.2),
-    fields(>= 9.6),
     ggplot2(>= 2.2.1),
     knitr(>= 1.20),
     lme4(>= 1.1-15),
@@ -30,7 +29,7 @@ Imports: emmeans(>= 1.1.2),
     reshape2(>= 1.4.3),
     SpATS(>= 1.0-7),
     xtable(>= 1.8.2),
-    gridExtra
+    gridExtra(>= 2.3)
 Suggests: asreml(== 3.0),
     rmarkdown(>= 1.9),
     testthat(>= 2.0.0)
