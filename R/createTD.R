@@ -606,15 +606,26 @@ plot.TD <- function(x,
       stop(paste("At leaste one trial should have latitute and longitude",
                  "for plotting on map.\n"))
     } else {
-      locs[c("capital", "pop")] <- rep(c(0, 10000), each = nrow(locs))
       ## Use lattitude and longitude to extract trial regions.
       regions <- unique(maps::map.where(x = locs$long, y = locs$lat))
-      maps::map(regions = regions)
-      maps::map.scale(relwidth = .15, ratio = FALSE, cex = .5)
-      maps::map.cities(x = locs, col = seq_along(locs))
-      plotArgs <- list(main = "Trial locations")
-      plotArgs <- modifyList(plotArgs, dotArgs)
-      do.call(title, args = plotArgs)
+      ## Convert to format useable by ggplot geom_polygon.
+      mapDat <- ggplot2::map_data("world", region = regions)
+      p <- ggplot2::ggplot(mapDat, ggplot2::aes_string(x = "long", y = "lat")) +
+        ggplot2::geom_polygon(ggplot2::aes_string(group = "group"),
+                              fill = "white", color = "black") +
+        ## Add a proper map projection.
+        ggplot2::coord_map() +
+        ## Add trial locations.
+        ggplot2::geom_point(data = locs) +
+        ggplot2::geom_text(ggplot2::aes_string(label = "name"), data = locs,
+                           color = "red", size = 3, hjust = "outward",
+                           vjust = "outward") +
+        ggplot2::ggtitle("Trial locations")
+      ## Turn off panel clipping.
+      gt <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(p))
+      gt$layout$clip[gt$layout$name == "panel"] <- "off"
+      ## Plot results.
+      gridExtra::grid.arrange(gt)
     }
   }
 }
