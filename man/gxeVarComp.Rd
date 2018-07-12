@@ -5,7 +5,7 @@
 \title{Selects the best variance-covariance model for a set of trials}
 \usage{
 gxeVarComp(TD, trials = names(TD), trait, engine = c("lme4", "asreml"),
-  criterion = c("BIC", "AIC"), ...)
+  criterion = c("BIC", "AIC"), useWt = FALSE, ...)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}

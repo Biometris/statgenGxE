@@ -52,6 +52,7 @@ gxeVarComp <- function(TD,
                        trait,
                        engine = c("lme4", "asreml"),
                        criterion = c("BIC", "AIC"),
+                       useWt = FALSE,
                        ...) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
@@ -72,11 +73,10 @@ gxeVarComp <- function(TD,
   ## designs to converge.
   maxIter <- 200
   ## Add combinations of trial and genotype currently not in TD to TD.
-  TDTot <- reshape2::melt(data = reshape2::dcast(data = TDTot,
-                                                 formula = trial ~ genotype,
-                                                 value.var = trait),
-                          id.vars = "trial", variable.name = "genotype",
-                          value.name = trait)
+  ## No missing combinations are allowed when fitting asreml models.
+  TD0 <- expand.grid(genotype = levels(TDTot$genotype),
+                     trial = levels(TDTot$trial))
+  TDTot <- merge(TD0, TDTot, all.x = TRUE)
   if (engine == "asreml") {
     choices <- c("identity", "cs", "diagonal", "hcs", "outside",
                  "fa", "fa2", "unstructured")
@@ -150,8 +150,8 @@ gxeVarComp <- function(TD,
                                      random = ~ genotype:corh(trial),
                                      start.values = TRUE, data = TDTot, ...)
           sink()
-          tmpValues <- qvInitial(TD = TDTot, trait = trait, vcmodel = "outside",
-                                 fixed = fixedForm, ...)
+          tmpValues <- qvInitial(TD = TDTot, trait = trait, useWt = useWt,
+                                 vcmodel = "outside", fixed = fixedForm, ...)
           tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(tmpValues$vg,
                                    scale(tmpValues$diag, center = FALSE), 1)
@@ -172,8 +172,8 @@ gxeVarComp <- function(TD,
                                      start.values = TRUE, data = TDTot, ...)
           sink()
           tmpTable <- initVals$gammas.table
-          tmpValues <- qvInitial(TD = TDTot, trait = trait, vcmodel = "fa",
-                                 fixed = fixedForm, ...)
+          tmpValues <- qvInitial(TD = TDTot, trait = trait, useWt = useWt,
+                                 vcmodel = "fa", fixed = fixedForm, ...)
           if (is.null(tmpValues)) {
             sink(file = tmp)
             mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
@@ -201,8 +201,8 @@ gxeVarComp <- function(TD,
                                      start.values = TRUE, data = TDTot, ...)
           sink()
           tmpTable <- initVals$gammas.table
-          tmpValues <- qvInitial(TD = TDTot, trait = trait, vcmodel = "fa2",
-                                 fixed = fixedForm, ...)
+          tmpValues <- qvInitial(TD = TDTot, trait = trait, useWt = useWt,
+                                 vcmodel = "fa2", fixed = fixedForm, ...)
           if (is.null(tmpValues)) {
             sink(file = tmp)
             mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
@@ -235,7 +235,7 @@ gxeVarComp <- function(TD,
                                      random = ~ genotype:us(trial),
                                      start.values = TRUE, data = TDTot, ...)
           sink()
-          tmpValues <- qvInitial(TD = TDTot, trait = trait,
+          tmpValues <- qvInitial(TD = TDTot, trait = trait, useWt = useWt,
                                  vcmodel = "unstructured", fixed = fixedForm,
                                  ...)
           tmpValues <- tmpValues$evCov[upper.tri(tmpValues$evCov, diag = TRUE)]
@@ -321,16 +321,16 @@ gxeVarComp <- function(TD,
 #' @keywords internal
 qvInitial <- function(TD,
                       trait,
-                      unitError = NA,
+                      useWt = FALSE,
                       vcmodel = c("identity", "cs", "diagonal", "hcs",
                                   "outside", "fa", "fa2", "unstructured"),
                       fixed = NULL,
-                      unitFactor = NA, ...) {
+                      ...) {
   ## First, form estimate of unstructured matrix
   ## Create tempfile for asreml output.
   tmp <- tempfile()
   ## Remove the rows with NA.
-  X <- na.omit(TD[, c(trait, "genotype", "trial")])
+  X <- na.omit(TD[, colnames(TD) %in% c(trait, "genotype", "trial", "wt")])
   X <- droplevels(X)
   nEnv <- nlevels(X$trial)
   nGeno <- nlevels(X$genotype)
@@ -348,27 +348,23 @@ qvInitial <- function(TD,
   ## Get number of effects contributing to each sum of squares.
   nobsEnv <- rowSums(table(X[, c("trial", "genotype")]))
   Rnobs <- matrix(data = nobsEnv, nrow = nEnv, ncol = nEnv, byrow = TRUE)
-  Cnobs <- t(Rnobs)
-  Nobs <- Rnobs * (Rnobs - Cnobs < 0) + Cnobs * (Cnobs - Rnobs <= 0)
-  if (!is.na(unitError)) {
-    ## This case is trickier, becuase of partitioning between two random terms,
+  Nobs <- ifelse(Rnobs < t(Rnobs), Rnobs, t(Rnobs))
+  if (useWt) {
+    ## This case is trickier, because of partitioning between two random terms,
     ## but use of the diag structure is better than nothing!
-    weights <- 1 / unitError
-    X["weights"] <- weights
     sink(file = tmp)
     initValues <- asreml::asreml(fixed = fixedForm,
                                  random = ~ genotype:idh(trial),
-                                 weights = weights, start.values = TRUE,
+                                 weights = wt, start.values = TRUE,
                                  data = X, ...)
     sink()
     tmpTable <- initValues$gammas.table
     tmpTable[, "Constraint"] <- as.character(tmpTable[,"Constraint"])
     tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
     tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
-    sink(file = tmpTable)
-    mr <- asreml::asreml(fixed = fixedForm,
-                         random = ~ genotype:idh(trial), weights = weights,
-                         R.param = tmpTable, data = X, ...)
+    sink(file = tmp)
+    mr <- asreml::asreml(fixed = fixedForm, random = ~ genotype:idh(trial),
+                         weights = wt, R.param = tmpTable, data = X, ...)
     sink()
     RMat <- matrix(data = coefficients(mr)$random, nrow = nGeno,
                    ncol = nEnv, byrow = TRUE)
@@ -397,13 +393,13 @@ qvInitial <- function(TD,
   } else if (vcmodel == "cs") {
     vg <- mean(offDiag, na.rm = TRUE)
     vge <- mean(diagEv)
-    vge <- (vge > vg) * (vge - vg) + (vge <= vg) * 0.1 * vge
+    vge <- ifelse(vge > vg , vge - vg, 0.1 * vge)
     vcInitial <- list(vg = vg, vge = vge)
   } else if (vcmodel == "diagonal") {
     vcInitial <- list(diag = diagEv)
   } else if (vcmodel == "hcs") {
     vg <- mean(offDiag, na.rm = TRUE) / 2
-    diag <- (diagEv > vg) * (diagEv - vg) + (diagEv <= vg) * 0.1 * diagEv
+    diag <- ifelse(diagEv > vg, diagEv - vg, 0.1 * diagEv)
     vcInitial <- list(vg = vg, diag = diag)
   } else if (vcmodel == "outside") {
     vg <- mean(offCorr, na.rm = TRUE)
