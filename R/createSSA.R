@@ -393,9 +393,13 @@ plot.SSA <- function(x,
                     title = legends[3], colors = colors,
                     zlim = range(plotDat$residuals))
     if (x[[trial]]$engine == "SpATS") {
+      ## Get tickmarks from first plot to be used as ticks.
+      ## Spatial plot tends to use different tickmarks by default.
+      xTicks <- ggplot2::ggplot_build(p1)$layout$panel_params[[1]]$x.major_source
       p4 <- fieldPlot(plotDat = plotDatSpat, fillVar = "value",
                       title = legends[4], colors = colors,
-                      zlim = range(plotDatSpat$value))
+                      zlim = range(plotDatSpat$value),
+                      xTicks = xTicks)
     }
     p5 <- fieldPlot(plotDat = plotDat, fillVar = "pred",
                     title = legends[5], colors = colors,
@@ -430,13 +434,14 @@ fieldPlot <- function(plotDat,
                       title,
                       colors,
                       zlim = NA,
+                      xTicks = ggplot2::waiver(),
                       ...) {
   p <- ggplot2::ggplot(data = plotDat,
                        ggplot2::aes_string(x = "colCoord", y = "rowCoord",
                                            fill = fillVar)) +
     ggplot2::geom_raster() +
     ## Remove empty space between ticks and actual plot.
-    ggplot2::scale_x_continuous(expand = c(0, 0), labels = round) +
+    ggplot2::scale_x_continuous(expand = c(0, 0), breaks = xTicks) +
     ggplot2::scale_y_continuous(expand = c(0, 0)) +
     ## Adjust plot colors.
     ggplot2::scale_fill_gradientn(limits = zlim, colors = colors) +
