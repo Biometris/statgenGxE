@@ -308,8 +308,8 @@ plot.SSA <- function(x,
   plotDat$pred <- plotDat[[trait]]
   plotDat$pred[is.na(plotDat$fitted)] <- NA
   plotDat$residuals <- plotDat$response - plotDat$fitted
-  plotDat <- ggplot2::remove_missing(plotDat, na.rm = TRUE)
   if (plotType == "base") {
+    plotDat <- ggplot2::remove_missing(plotDat, na.rm = TRUE)
     ## Plot histogram of residuals.
     histPlot <- ggplot2::ggplot(data = plotDat) +
       ggplot2::geom_histogram(ggplot2::aes(x = residuals,
@@ -343,49 +343,88 @@ plot.SSA <- function(x,
                             ncol = 2)
   } else if (plotType == "spatial") {
     if (x[[trial]]$engine == "SpATS") {
-      plot(model, main = "")
-    } else {
+      ## Execute this part first since it needs plotData without missings
+      ## removed.
+      ## Code mimickes code from SpATS packages but is adapted to create a
+      ## data.frame useable by ggplot.
       plotDat <- plotDat[order(plotDat$colCoord, plotDat$rowCoord), ]
-      ## Code taken from plot.SpATS and simplified.
-      ## Set colors and legends.
-      colors = topo.colors(100)
-      legends <- c("Raw data", "Fitted data", "Residuals",
-                   "Fitted Spatial Trend",
-                   ifelse(what == "fixed", "Genotypic BLUEs",
-                          "Genotypic BLUPs"), "Histogram")
-      ## Compute range of values in response + fitted data so same scale
-      ## can be used over plots.
-      zlim <- range(c(plotDat$response, plotDat$fitted), na.rm = TRUE)
-      p1 <- fieldPlot(plotDat = plotDat, fillVar = "response",
-                              title = legends[1], colors = colors, zlim = zlim)
-      p2 <- fieldPlot(plotDat = plotDat, fillVar = "fitted",
-                              title = legends[2], colors = colors, zlim = zlim)
-      p3 <- fieldPlot(plotDat = plotDat, fillVar = "residuals",
-                              title = legends[3], colors = colors,
-                      zlim = range(plotDat$residuals))
-      p5 <- fieldPlot(plotDat = plotDat, fillVar = "pred",
-                              title = legends[5], colors = colors,
-                      zlim = range(plotDat$pred))
-      p6 <- ggplot2::ggplot(data = plotDat) +
-        ggplot2::geom_histogram(ggplot2::aes(x = residuals),
-                                fill = "white", col = "black", bins = 10,
-                                boundary = 0) +
-        ## Remove empty space between ticks and actual plot.
-        ggplot2::scale_x_continuous(expand = c(0, 0)) +
-        ggplot2::scale_y_continuous(expand = c(0, 0)) +
-        ## No background. Center and resize title. Resize axis labels.
-        ggplot2::theme(panel.background = ggplot2::element_blank(),
-                       plot.title = ggplot2::element_text(hjust = 0.5,
-                                                          size = 10),
-                       axis.title = ggplot2::element_text(size = 9)) +
-        ggplot2::labs(y = "Frequency", x = legends[5]) +
-        ggplot2::ggtitle(legends[6])
-      gridExtra::grid.arrange(p1, p2, p3, p5, p6, ncol = 3)
+      nCol <- length(unique(plotDat$colCoord))
+      nRow <- length(unique(plotDat$rowCoord))
+      p1 <- 100 %/% nCol + 1
+      p2 <- 100 %/% nRow + 1
+      ## Get spatial trend from SpATS object.
+      spatTr <- SpATS::obtain.spatialtrend(model,
+                                           grid = c(nCol * p1, nRow * p2))
+      ## spatial trend contains values for all data points, so NA in original
+      ## data need to be removed. The kronecker multiplication is needed to
+      ## convert the normal row col pattern to the smaller grid extending the
+      ## missing values.
+      spatTrDat <- kronecker(matrix(data = ifelse(is.na(plotDat$response),
+                                                  NA, 1),
+                                    ncol = nCol, nrow = nRow),
+                             matrix(data = 1, ncol = p1, nrow = p2)) *
+        spatTr$fit
+      ## Melt to get the data in ggplot shape. Rows and columns in the
+      ## spatial trend coming from SpATS are swapped so therefore use t()
+      plotDatSpat <- reshape2::melt(t(spatTrDat),
+                                    varnames = c("colCoord", "rowCoord"))
+      ## Add true values for columns and rows for plotting.
+      plotDatSpat$colCoord <- spatTr$col.p
+      plotDatSpat$rowCoord <- rep(x = spatTr$row.p, each = p1 * nCol)
+      ## Remove missings from data.
+      plotDatSpat <- ggplot2::remove_missing(plotDatSpat, na.rm = TRUE)
+    }
+    plotDat <- ggplot2::remove_missing(plotDat, na.rm = TRUE)
+    ## Code taken from plot.SpATS and simplified.
+    ## Set colors and legends.
+    colors = topo.colors(100)
+    legends <- c("Raw data", "Fitted data", "Residuals",
+                 "Fitted Spatial Trend",
+                 ifelse(what == "fixed", "Genotypic BLUEs",
+                        "Genotypic BLUPs"), "Histogram")
+    ## Compute range of values in response + fitted data so same scale
+    ## can be used over plots.
+    zlim <- range(c(plotDat$response, plotDat$fitted), na.rm = TRUE)
+    p1 <- fieldPlot(plotDat = plotDat, fillVar = "response",
+                    title = legends[1], colors = colors, zlim = zlim)
+    p2 <- fieldPlot(plotDat = plotDat, fillVar = "fitted",
+                    title = legends[2], colors = colors, zlim = zlim)
+    p3 <- fieldPlot(plotDat = plotDat, fillVar = "residuals",
+                    title = legends[3], colors = colors,
+                    zlim = range(plotDat$residuals))
+    if (x[[trial]]$engine == "SpATS") {
+      p4 <- fieldPlot(plotDat = plotDatSpat, fillVar = "value",
+                      title = legends[4], colors = colors,
+                      zlim = range(plotDatSpat$value))
+    }
+    p5 <- fieldPlot(plotDat = plotDat, fillVar = "pred",
+                    title = legends[5], colors = colors,
+                    zlim = range(plotDat$pred))
+    p6 <- ggplot2::ggplot(data = plotDat) +
+      ggplot2::geom_histogram(ggplot2::aes(x = residuals),
+                              fill = "white", col = "black", bins = 10,
+                              boundary = 0) +
+      ## Remove empty space between ticks and actual plot.
+      ggplot2::scale_x_continuous(expand = c(0, 0)) +
+      ggplot2::scale_y_continuous(expand = c(0, 0)) +
+      ## No background. Center and resize title. Resize axis labels.
+      ggplot2::theme(panel.background = ggplot2::element_blank(),
+                     plot.title = ggplot2::element_text(hjust = 0.5,
+                                                        size = 10),
+                     axis.title = ggplot2::element_text(size = 9)) +
+      ggplot2::labs(y = "Frequency", x = legends[5]) +
+      ggplot2::ggtitle(legends[6])
+    if (x[[trial]]$engine == "SpATS") {
+      gridExtra::grid.arrange(p1, p2, p3, p4, p5, p6, ncol = 3,
+                              top = paste("Trait:", trait))
+    } else {
+      gridExtra::grid.arrange(p1, p2, p3, p5, p6, ncol = 3,
+                              top = paste("Trait:", trait))
     }
   }
 }
 
-## Helper function for creating field plots with proper axes.
+## Helper function for creating field plots.
 fieldPlot <- function(plotDat,
                       fillVar,
                       title,
@@ -397,7 +436,7 @@ fieldPlot <- function(plotDat,
                                            fill = fillVar)) +
     ggplot2::geom_raster() +
     ## Remove empty space between ticks and actual plot.
-    ggplot2::scale_x_continuous(expand = c(0, 0)) +
+    ggplot2::scale_x_continuous(expand = c(0, 0), labels = round) +
     ggplot2::scale_y_continuous(expand = c(0, 0)) +
     ## Adjust plot colors.
     ggplot2::scale_fill_gradientn(limits = zlim, colors = colors) +
