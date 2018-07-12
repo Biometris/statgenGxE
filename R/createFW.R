@@ -187,7 +187,6 @@ plot.FW <- function(x,
       ggplot2::ggtitle(plotTitle) +
       ggplot2::labs(x = "Environment", y = x$trait)
     ## Silently return plotData for use in app.
-    invisible(lineDat)
   } else if ("trellis" %in% plotType) {
     trellisData <- data.frame(genotype = TDTot$genotype,
                               trait = TDTot[[x$trait]],

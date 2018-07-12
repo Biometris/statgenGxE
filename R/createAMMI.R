@@ -132,11 +132,11 @@ plot.AMMI <- function(x,
     ## Create dataframes for genotypes and environments.
     genoDat <- data.frame(x = x$genoMean, y = scores[, 1] / lam)
     envDat <- data.frame(x = x$envMean, y = loadings[, 1] * lam)
-    p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "x", y = "y")) +
+    ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "x", y = "y")) +
       ## Plot genotypes as points.
       ggplot2::geom_point(color = col[1]) +
       ## Needed for a square plot output.
-      ggplot2::coord_equal() +
+      ggplot2::coord_equal(clip = "off") +
       ## Plot environments as texts.
       ggplot2::geom_text(data = envDat,
                          ggplot2::aes_string(x = "x", y = "y",
@@ -151,11 +151,6 @@ plot.AMMI <- function(x,
       ggplot2::labs(x = "Main Effects", y = paste0("PC1 (", percPC1, "%)")) +
       ggplot2::ggtitle(paste0("AMMI1 biplot for ", x$trait)) +
       ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
-    ## Turn off panel clipping.
-    gt <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(p))
-    gt$layout$clip[gt$layout$name == "panel"] <- "off"
-    ## Plot results.
-    gridExtra::grid.arrange(gt)
   } else if (plotType == "AMMI2") {
     if (scale == 1) {
       info <- "environment scaling"
@@ -183,11 +178,11 @@ plot.AMMI <- function(x,
     ## Rescale data. 0.6 is more or less random but seems to work well in
     ## practice.
     envDat <- envDat * mult * 0.6
-    p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "PC1", y = "PC2")) +
+    ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "PC1", y = "PC2")) +
       ## Plot genotypes as points.
       ggplot2::geom_point(color = col[1]) +
       ## Needed for a square plot output.
-      ggplot2::coord_equal() +
+      ggplot2::coord_equal(clip = "off") +
       ## Plot environments as texts.
       ggplot2::geom_text(data = envDat,
                          ggplot2::aes_string(x = "PC1", y = "PC2",
@@ -209,11 +204,6 @@ plot.AMMI <- function(x,
                     y = paste0("PC2 (", percPC2, "%)")) +
       ggplot2::ggtitle(paste0("AMMI2 biplot for ", x$trait, " (", info, ")")) +
       ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
-    ## Turn off panel clipping.
-    gt <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(p))
-    gt$layout$clip[gt$layout$name == "panel"] <- "off"
-    ## Plot results.
-    gridExtra::grid.arrange(gt)
   }
 }
 

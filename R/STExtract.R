@@ -460,7 +460,7 @@ extractLme4 <- function(SSA,
       result[["varErr"]] <- varErr
     }
     if ("heritability" %in% what) {
-      ## Estimatie heritability on a line mean basis.
+      ## Estimate heritability on a line mean basis.
       if (useRepId) {
         result[["heritability"]] <- varGen /
           (varGen + (varErr / length(unique(TD$repId))))

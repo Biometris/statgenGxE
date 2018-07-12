@@ -382,29 +382,28 @@ plot.SSA <- function(x,
                  "Fitted Spatial Trend",
                  ifelse(what == "fixed", "Genotypic BLUEs",
                         "Genotypic BLUPs"), "Histogram")
+    ## Create empty list for storing plots
+    plots <- vector(mode = "list")
     ## Compute range of values in response + fitted data so same scale
     ## can be used over plots.
     zlim <- range(c(plotDat$response, plotDat$fitted), na.rm = TRUE)
-    p1 <- fieldPlot(plotDat = plotDat, fillVar = "response",
-                    title = legends[1], colors = colors, zlim = zlim)
-    p2 <- fieldPlot(plotDat = plotDat, fillVar = "fitted",
-                    title = legends[2], colors = colors, zlim = zlim)
-    p3 <- fieldPlot(plotDat = plotDat, fillVar = "residuals",
-                    title = legends[3], colors = colors,
-                    zlim = range(plotDat$residuals))
+    plots[[1]] <- fieldPlot(plotDat = plotDat, fillVar = "response",
+                            title = legends[1], colors = colors, zlim = zlim)
+    plots[[2]] <- fieldPlot(plotDat = plotDat, fillVar = "fitted",
+                            title = legends[2], colors = colors, zlim = zlim)
+    plots[[3]] <- fieldPlot(plotDat = plotDat, fillVar = "residuals",
+                            title = legends[3], colors = colors)
     if (x[[trial]]$engine == "SpATS") {
       ## Get tickmarks from first plot to be used as ticks.
       ## Spatial plot tends to use different tickmarks by default.
-      xTicks <- ggplot2::ggplot_build(p1)$layout$panel_params[[1]]$x.major_source
-      p4 <- fieldPlot(plotDat = plotDatSpat, fillVar = "value",
-                      title = legends[4], colors = colors,
-                      zlim = range(plotDatSpat$value),
-                      xTicks = xTicks)
+      xTicks <- ggplot2::ggplot_build(plots[[1]])$layout$panel_params[[1]]$x.major_source
+      plots[[4]] <- fieldPlot(plotDat = plotDatSpat, fillVar = "value",
+                              title = legends[4], colors = colors,
+                              xTicks = xTicks)
     }
-    p5 <- fieldPlot(plotDat = plotDat, fillVar = "pred",
-                    title = legends[5], colors = colors,
-                    zlim = range(plotDat$pred))
-    p6 <- ggplot2::ggplot(data = plotDat) +
+    plots[[5]] <- fieldPlot(plotDat = plotDat, fillVar = "pred",
+                            title = legends[5], colors = colors)
+    plots[[6]] <- ggplot2::ggplot(data = plotDat) +
       ggplot2::geom_histogram(ggplot2::aes(x = residuals),
                               fill = "white", col = "black", bins = 10,
                               boundary = 0) +
@@ -418,13 +417,10 @@ plot.SSA <- function(x,
                      axis.title = ggplot2::element_text(size = 9)) +
       ggplot2::labs(y = "Frequency", x = legends[5]) +
       ggplot2::ggtitle(legends[6])
-    if (x[[trial]]$engine == "SpATS") {
-      gridExtra::grid.arrange(p1, p2, p3, p4, p5, p6, ncol = 3,
-                              top = paste("Trait:", trait))
-    } else {
-      gridExtra::grid.arrange(p1, p2, p3, p5, p6, ncol = 3,
-                              top = paste("Trait:", trait))
-    }
+    ## do.call is needed since grid.arrange doesn't accept lists as input.
+    do.call(gridExtra::grid.arrange,
+            args = c(Filter(f = Negate(f = is.null), x = plots),
+                     list(ncol = 3, top = paste("Trait:", trait))))
   }
 }
 
@@ -433,7 +429,7 @@ fieldPlot <- function(plotDat,
                       fillVar,
                       title,
                       colors,
-                      zlim = NA,
+                      zlim = range(plotDat[fillVar]),
                       xTicks = ggplot2::waiver(),
                       ...) {
   p <- ggplot2::ggplot(data = plotDat,
