@@ -12,6 +12,8 @@
 #' Either "lme4" or "asreml".
 #' @param criterion A string specifying a goodness-of-fit criterion. Either
 #' "AIC" or "BIC".
+#' @param useWt Should weighting be used when modelling? Requires a column
+#' \code{wt} in \code{TD}.
 #' @param ... Further arguments to be passed to \code{asreml}.
 #'
 #' @note If \code{engine = "lme4"}, only the compound symmetry model can be
@@ -64,8 +66,11 @@ gxeVarComp <- function(TD,
   TDTot <- Reduce(f = rbind, x = TD[trials])
   TDTot$trial <- droplevels(TDTot$trial)
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TDTot)) {
+      !hasName(x = TDTot, name = trait)) {
     stop("trait has to be a column in TD.\n")
+  }
+  if (useWt && !hasName(x = TDTot, name = "wt")) {
+    stop("wt has to be a column in TD when using weighting.")
   }
   engine <- match.arg(engine)
   criterion <- match.arg(criterion)
@@ -155,14 +160,26 @@ gxeVarComp <- function(TD,
           tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(tmpValues$vg,
                                    scale(tmpValues$diag, center = FALSE), 1)
-          tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
+          tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
           sink(file = tmp)
-          mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
-                                           random = ~ genotype:corh(trial),
-                                           G.param = tmpTable,
-                                           R.param = tmpTable, data = TDTot,
-                                           maxiter = maxIter, workspace = 160e6,
-                                           ...))
+          if (useWt) {
+            mr <- tryCatchExt(
+              asreml::asreml(fixed = fixedForm,
+                             random = ~ genotype:corh(trial),
+                             G.param = tmpTable,
+                             R.param = tmpTable, data = TDTot,
+                             maxiter = maxIter, workspace = 160e6,
+                             weigths = "wt",
+                             ...))
+          } else {
+            mr <- tryCatchExt(
+              asreml::asreml(fixed = fixedForm,
+                             random = ~ genotype:corh(trial),
+                             G.param = tmpTable,
+                             R.param = tmpTable, data = TDTot,
+                             maxiter = maxIter, workspace = 160e6,
+                             ...))
+          }
           sink()
           nPar <- nTr + 1
         } else if (choice == "fa" && nTr > 4) {
@@ -174,25 +191,33 @@ gxeVarComp <- function(TD,
           tmpTable <- initVals$gammas.table
           tmpValues <- qvInitial(TD = TDTot, trait = trait, useWt = useWt,
                                  vcmodel = "fa", fixed = fixedForm, ...)
-          if (is.null(tmpValues)) {
-            sink(file = tmp)
-            mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
-                                             random = ~ genotype:fa(trial, 1),
-                                             data = TDTot, maxiter = maxIter,
-                                             workspace = 160e6, ...))
-            sink()
-          } else {
+          if (!is.null(tmpValues)) {
             tmpTable[, "Value"] <- c(scale(tmpValues$psi, center = FALSE),
                                      tmpValues$gamma, 1)
-            sink(file = tmp)
-            mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
-                                             random = ~ genotype:fa(trial, 1),
-                                             R.param = tmpTable,
-                                             G.param = tmpTable, data = TDTot,
-                                             maxiter = maxIter,
-                                             workspace = 160e6, ...))
-            sink()
           }
+          tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
+          sink(file = tmp)
+          if (useWt) {
+            mr <- tryCatchExt(
+              asreml::asreml(fixed = fixedForm,
+                             random = ~ genotype:fa(trial, 1),
+                             R.param = tmpTable,
+                             G.param = tmpTable, data = TDTot,
+                             maxiter = maxIter,
+                             workspace = 160e6,
+                             weigths = "wt",
+                             ...))
+
+          } else {
+            mr <- tryCatchExt(
+              asreml::asreml(fixed = fixedForm,
+                             random = ~ genotype:fa(trial, 1),
+                             R.param = tmpTable,
+                             G.param = tmpTable, data = TDTot,
+                             maxiter = maxIter,
+                             workspace = 160e6, ...))
+          }
+          sink()
           nPar <- nTr * 2
         } else if (choice == "fa2" && nTr > 4) {
           sink(file = tmp)
@@ -203,14 +228,7 @@ gxeVarComp <- function(TD,
           tmpTable <- initVals$gammas.table
           tmpValues <- qvInitial(TD = TDTot, trait = trait, useWt = useWt,
                                  vcmodel = "fa2", fixed = fixedForm, ...)
-          if (is.null(tmpValues)) {
-            sink(file = tmp)
-            mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
-                                             random = ~ genotype:fa(trial, 2),
-                                             data = TDTot, maxiter = maxIter,
-                                             workspace = 160e6, ...))
-            sink()
-          } else {
+          if (!is.null(tmpValues)) {
             ## Keep loadings of factor 2 away from 0.
             tmpValues$gamma[2, tmpValues$gamma[2, ] < 1e-3] <- 1e-3
             ## Make sure that first entry is 0.
@@ -218,15 +236,30 @@ gxeVarComp <- function(TD,
             tmpTable[, "Value"] <- c(scale(tmpValues$psi, center = FALSE),
                                      tmpValues$gamma[1, ],
                                      tmpValues$gamma[2, ], 1)
-            sink(file = tmp)
-            mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
-                                             random = ~ genotype:fa(trial, 2),
-                                             R.param = tmpTable,
-                                             G.param = tmpTable, data = TDTot,
-                                             maxiter = maxIter,
-                                             workspace = 160e6, ...))
-            sink()
           }
+          tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
+          sink(file = tmp)
+          if (useWt) {
+            mr <- tryCatchExt(
+              asreml::asreml(fixed = fixedForm,
+                             random = ~ genotype:fa(trial, 2),
+                             R.param = tmpTable,
+                             G.param = tmpTable, data = TDTot,
+                             maxiter = maxIter,
+                             workspace = 160e6,
+                             weigths = "wt",
+                             ...))
+
+          } else {
+            mr <- tryCatchExt(
+              asreml::asreml(fixed = fixedForm,
+                             random = ~ genotype:fa(trial, 2),
+                             R.param = tmpTable,
+                             G.param = tmpTable, data = TDTot,
+                             maxiter = maxIter,
+                             workspace = 160e6, ...))
+          }
+          sink()
           nPar <- nTr * 3 - 1
         } else if (choice == "unstructured") {
           ## Check model.
@@ -242,21 +275,32 @@ gxeVarComp <- function(TD,
           tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(scale(tmpValues, center = FALSE),
                                    10 ^ min(floor(log10(min(abs(tmpValues)))), 0))
-          tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
           ## All off diagonal elements are unconstrained, diagonal elements
           ## should be positive
           tmpTable[-c((1:nTr) * ((1:nTr) + 1) / 2), "Constraint"] <- "U"
           ## Fix residual variance.
           tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
           sink(file = tmp)
-          mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
-                                           random = ~ genotype:us(trial),
-                                           G.param = tmpTable,
-                                           R.param = tmpTable, data = TDTot,
-                                           maxiter = maxIter, workspace = 160e6,
-                                           ...))
+          if (useWt) {
+            mr <- tryCatchExt(
+              asreml::asreml(fixed = fixedForm,
+                             random = ~ genotype:us(trial),
+                             G.param = tmpTable,
+                             R.param = tmpTable, data = TDTot,
+                             maxiter = maxIter, workspace = 160e6,
+                             weigths = "wt",
+                             ...))
+          } else {
+            mr <- tryCatchExt(
+              asreml::asreml(fixed = fixedForm,
+                             random = ~ genotype:us(trial),
+                             G.param = tmpTable,
+                             R.param = tmpTable, data = TDTot,
+                             maxiter = maxIter, workspace = 160e6,
+                             ...))
+          }
           sink()
-          nPar <- nTr * (nTr - 1) / 2 + nTr
+          nPar <- nTr * (nTr + 1) / 2
         }
         if (!is.null(mr$warning)) {
           ## Check if param 1% increase is significant. Remove warning if not.
@@ -355,7 +399,7 @@ qvInitial <- function(TD,
     sink(file = tmp)
     initValues <- asreml::asreml(fixed = fixedForm,
                                  random = ~ genotype:idh(trial),
-                                 weights = wt, start.values = TRUE,
+                                 weights = "wt", start.values = TRUE,
                                  data = X, ...)
     sink()
     tmpTable <- initValues$gammas.table
@@ -364,7 +408,7 @@ qvInitial <- function(TD,
     tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
     sink(file = tmp)
     mr <- asreml::asreml(fixed = fixedForm, random = ~ genotype:idh(trial),
-                         weights = wt, R.param = tmpTable, data = X, ...)
+                         weights = "wt", R.param = tmpTable, data = X, ...)
     sink()
     RMat <- matrix(data = coefficients(mr)$random, nrow = nGeno,
                    ncol = nEnv, byrow = TRUE)

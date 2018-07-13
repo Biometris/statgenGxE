@@ -4,9 +4,9 @@
 \alias{qvInitial}
 \title{Helper function for computing initial values.}
 \usage{
-qvInitial(TD, trait, unitError = NA, vcmodel = c("identity", "cs",
+qvInitial(TD, trait, useWt = FALSE, vcmodel = c("identity", "cs",
   "diagonal", "hcs", "outside", "fa", "fa2", "unstructured"), fixed = NULL,
-  unitFactor = NA, ...)
+  ...)
 }
 \description{
 Replicates '_qvInitial' procedure (S. J. Welham 15/05/09) in GenStat

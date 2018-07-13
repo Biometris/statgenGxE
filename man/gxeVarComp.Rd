@@ -21,6 +21,9 @@ Either "lme4" or "asreml".}
 \item{criterion}{A string specifying a goodness-of-fit criterion. Either
 "AIC" or "BIC".}
 
+\item{useWt}{Should weighting be used when modelling? Requires a column
+\code{wt} in \code{TD}.}
+
 \item{...}{Further arguments to be passed to \code{asreml}.}
 }
 \value{
