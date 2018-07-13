@@ -226,6 +226,10 @@ print.summary.SSA <- function(x,
 #' If \code{x} contains only one model this model is chosen automatically.
 #' @param plotType A Character string indicating whether \code{base} plots or
 #' \code{spatial} plots should be made.
+#' @param output Should the plot be output to the current device? If
+#' \code{FALSE} only a list of ggplot objects is invisibly returned.
+#'
+#' @return A list containing ggplot object for the selected plots.
 #'
 #' @seealso \code{\link{SSA}}
 #'
@@ -243,7 +247,8 @@ plot.SSA <- function(x,
                      trial = NULL,
                      trait = NULL,
                      what = NULL,
-                     plotType = c("base", "spatial")) {
+                     plotType = c("base", "spatial"),
+                     output = TRUE) {
   ## Checks.
   if (is.null(trial) && length(x) > 1) {
     stop("No trial provided but multiple trials found in SSA object.\n")
@@ -299,6 +304,8 @@ plot.SSA <- function(x,
   ## Extract raw data and compute residuals.
   response <- x[[trial]]$TD[[trial]][, c("genotype", trait,
                                          if (plotType == "spatial") spatCols)]
+  ## Create plot data by merging extracted data together and renaming some
+  ## columns.
   plotDat <- merge(response,
                    fitted, by = c("genotype",
                                   if (plotType == "spatial") spatCols))
@@ -308,10 +315,12 @@ plot.SSA <- function(x,
   plotDat$pred <- plotDat[[trait]]
   plotDat$pred[is.na(plotDat$fitted)] <- NA
   plotDat$residuals <- plotDat$response - plotDat$fitted
+  ## Create empty list for storing plots
+  plots <- vector(mode = "list")
   if (plotType == "base") {
     plotDat <- ggplot2::remove_missing(plotDat, na.rm = TRUE)
     ## Plot histogram of residuals.
-    histPlot <- ggplot2::ggplot(data = plotDat) +
+    plots$p1 <- ggplot2::ggplot(data = plotDat) +
       ggplot2::geom_histogram(ggplot2::aes(x = residuals,
                                            y = (..count..)/sum(..count..)),
                               fill = "cyan", col = "black", bins = 10,
@@ -319,28 +328,29 @@ plot.SSA <- function(x,
       ggplot2::scale_y_continuous(labels = function(x) {paste0(100 * x, "%")}) +
       ggplot2::labs(y = "Percent of Total", x = "Residuals")
     ## Plot Q-Q plot of residuals.
-    qqPlot <- ggplot2::ggplot(data = plotDat,
-                              ggplot2::aes_string(sample = "residuals")) +
+    plots$p2 <- ggplot2::ggplot(data = plotDat,
+                                ggplot2::aes_string(sample = "residuals")) +
       ggplot2::stat_qq(col = "blue") +
       ggplot2::labs(y = "Residuals", x = "Normal quantiles")
     ## Plot residuals vs fitted values.
-    resFitPlot <- ggplot2::ggplot(data = plotDat,
-                                  ggplot2::aes_string(x = "fitted",
-                                                      y = "residuals")) +
+    plots$p3 <- ggplot2::ggplot(data = plotDat,
+                                ggplot2::aes_string(x = "fitted",
+                                                    y = "residuals")) +
       ggplot2::geom_point(col = "blue", shape = 1) +
       ggplot2::geom_smooth(method = "loess", col = "red") +
       ggplot2::geom_abline(slope = 0, intercept = 0) +
       ggplot2::labs(y = "Residuals", x = "Fitted values")
     ## Plot absolute value of residuals vs fitted values.
-    absResFitPlot <- ggplot2::ggplot(data = plotDat,
-                                     ggplot2::aes_string(x = "fitted",
-                                                         y = "abs(residuals)")) +
+    plots$p4 <- ggplot2::ggplot(data = plotDat,
+                                ggplot2::aes_string(x = "fitted",
+                                                    y = "abs(residuals)")) +
       ggplot2::geom_point(col = "blue", shape = 1) +
       ggplot2::geom_smooth(method = "loess", col = "red") +
       ggplot2::labs(y = "|Residuals|", x = "Fitted values")
-    ## Arrange plot in 2x2 matrix.
-    gridExtra::grid.arrange(histPlot, qqPlot, resFitPlot, absResFitPlot,
-                            ncol = 2)
+    if (output) {
+      ## do.call is needed since grid.arrange doesn't accept lists as input.
+      do.call(gridExtra::grid.arrange, args = c(plots, list(ncol = 2)))
+    }
   } else if (plotType == "spatial") {
     if (x[[trial]]$engine == "SpATS") {
       ## Execute this part first since it needs plotData without missings
@@ -382,28 +392,27 @@ plot.SSA <- function(x,
                  "Fitted Spatial Trend",
                  ifelse(what == "fixed", "Genotypic BLUEs",
                         "Genotypic BLUPs"), "Histogram")
-    ## Create empty list for storing plots
-    plots <- vector(mode = "list")
     ## Compute range of values in response + fitted data so same scale
     ## can be used over plots.
     zlim <- range(c(plotDat$response, plotDat$fitted), na.rm = TRUE)
-    plots[[1]] <- fieldPlot(plotDat = plotDat, fillVar = "response",
-                            title = legends[1], colors = colors, zlim = zlim)
-    plots[[2]] <- fieldPlot(plotDat = plotDat, fillVar = "fitted",
-                            title = legends[2], colors = colors, zlim = zlim)
-    plots[[3]] <- fieldPlot(plotDat = plotDat, fillVar = "residuals",
-                            title = legends[3], colors = colors)
+    plots$p1 <- fieldPlot(plotDat = plotDat, fillVar = "response",
+                          title = legends[1], colors = colors, zlim = zlim)
+    plots$p2 <- fieldPlot(plotDat = plotDat, fillVar = "fitted",
+                          title = legends[2], colors = colors, zlim = zlim)
+    plots$p3 <- fieldPlot(plotDat = plotDat, fillVar = "residuals",
+                          title = legends[3], colors = colors)
     if (x[[trial]]$engine == "SpATS") {
       ## Get tickmarks from first plot to be used as ticks.
       ## Spatial plot tends to use different tickmarks by default.
-      xTicks <- ggplot2::ggplot_build(plots[[1]])$layout$panel_params[[1]]$x.major_source
-      plots[[4]] <- fieldPlot(plotDat = plotDatSpat, fillVar = "value",
-                              title = legends[4], colors = colors,
-                              xTicks = xTicks)
+      xTicks <-
+        ggplot2::ggplot_build(plots[[1]])$layout$panel_params[[1]]$x.major_source
+      plots$p4 <- fieldPlot(plotDat = plotDatSpat, fillVar = "value",
+                            title = legends[4], colors = colors,
+                            xTicks = xTicks)
     }
-    plots[[5]] <- fieldPlot(plotDat = plotDat, fillVar = "pred",
-                            title = legends[5], colors = colors)
-    plots[[6]] <- ggplot2::ggplot(data = plotDat) +
+    plots$p5 <- fieldPlot(plotDat = plotDat, fillVar = "pred",
+                          title = legends[5], colors = colors)
+    plots$p6 <- ggplot2::ggplot(data = plotDat) +
       ggplot2::geom_histogram(ggplot2::aes(x = residuals),
                               fill = "white", col = "black", bins = 10,
                               boundary = 0) +
@@ -417,11 +426,14 @@ plot.SSA <- function(x,
                      axis.title = ggplot2::element_text(size = 9)) +
       ggplot2::labs(y = "Frequency", x = legends[5]) +
       ggplot2::ggtitle(legends[6])
-    ## do.call is needed since grid.arrange doesn't accept lists as input.
-    do.call(gridExtra::grid.arrange,
-            args = c(Filter(f = Negate(f = is.null), x = plots),
-                     list(ncol = 3, top = paste("Trait:", trait))))
+    if (output) {
+      ## do.call is needed since grid.arrange doesn't accept lists as input.
+      do.call(gridExtra::grid.arrange,
+              args = c(Filter(f = Negate(f = is.null), x = plots),
+                       list(ncol = 3, top = paste("Trait:", trait))))
+    }
   }
+  invisible(plots)
 }
 
 ## Helper function for creating field plots.

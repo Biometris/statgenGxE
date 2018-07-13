@@ -5,7 +5,7 @@
 \title{Plot function for class SSA}
 \usage{
 \method{plot}{SSA}(x, ..., trial = NULL, trait = NULL, what = NULL,
-  plotType = c("base", "spatial"))
+  plotType = c("base", "spatial"), output = TRUE)
 }
 \arguments{
 \item{x}{An object of class SSA.}
@@ -24,6 +24,12 @@ If \code{x} contains only one model this model is chosen automatically.}
 
 \item{plotType}{A Character string indicating whether \code{base} plots or
 \code{spatial} plots should be made.}
+
+\item{output}{Should the plot be output to the current device? If
+\code{FALSE} only a list of ggplot objects is invisibly returned.}
+}
+\value{
+A list containing ggplot object for the selected plots.
 }
 \description{
 This function draws either four base plots:
