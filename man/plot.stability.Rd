@@ -4,12 +4,15 @@
 \alias{plot.stability}
 \title{Plot function for class stability}
 \usage{
-\method{plot}{stability}(x, ...)
+\method{plot}{stability}(x, ..., output = TRUE)
 }
 \arguments{
 \item{x}{An object of class stability.}
 
 \item{...}{Further arguments to be passed on to underlying plot functions.}
+
+\item{output}{Should the plot be output to the current device? If
+\code{FALSE} only a list of ggplot objects is invisibly returned.}
 }
 \value{
 Plots of stability measures against means.

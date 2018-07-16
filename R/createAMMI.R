@@ -88,6 +88,8 @@ summary.AMMI <- function(object, ...) {
 #' scale is outside this range.
 #' @param col A vector with plot colors for genotype and environment. This can
 #' either be named colors or color numbers.
+#' @param output Should the plot be output to the current device? If
+#' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
 #' @return A biplot depending on \code{plotType}.
 #'
@@ -106,7 +108,8 @@ plot.AMMI <- function(x,
                       ...,
                       plotType = c("AMMI1", "AMMI2"),
                       scale = 1,
-                      col = c("black", "red")) {
+                      col = c("black", "red"),
+                      output = TRUE) {
   ## Checks.
   if (!is.numeric(scale) || length(scale) > 1) {
     stop("scale should be a single numerical value.\n")
@@ -132,7 +135,7 @@ plot.AMMI <- function(x,
     ## Create dataframes for genotypes and environments.
     genoDat <- data.frame(x = x$genoMean, y = scores[, 1] / lam)
     envDat <- data.frame(x = x$envMean, y = loadings[, 1] * lam)
-    ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "x", y = "y")) +
+    p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "x", y = "y")) +
       ## Plot genotypes as points.
       ggplot2::geom_point(color = col[1]) +
       ## Needed for a square plot output.
@@ -178,7 +181,7 @@ plot.AMMI <- function(x,
     ## Rescale data. 0.6 is more or less random but seems to work well in
     ## practice.
     envDat <- envDat * mult * 0.6
-    ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "PC1", y = "PC2")) +
+    p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "PC1", y = "PC2")) +
       ## Plot genotypes as points.
       ggplot2::geom_point(color = col[1]) +
       ## Needed for a square plot output.
@@ -205,6 +208,10 @@ plot.AMMI <- function(x,
       ggplot2::ggtitle(paste0("AMMI2 biplot for ", x$trait, " (", info, ")")) +
       ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
   }
+  if (output) {
+    plot(p)
+  }
+  invisible(p)
 }
 
 #' Report method for class AMMI

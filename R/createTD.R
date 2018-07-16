@@ -494,12 +494,15 @@ print.summary.TD <- function(x, ...) {
 #' information. Alternatively, for \code{plotType = "map"} a plot will be made
 #' depicting the trials on a country map. This is only possible if lattitude
 #' and longitude of the trials are available.
+#' @param output Should the plot be output to the current device? If
+#' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
 #' @export
 plot.TD <- function(x,
                     ...,
                     trials = names(x),
-                    plotType = c("layout", "map")) {
+                    plotType = c("layout", "map"),
+                    output = TRUE) {
   ## Maps seems to change graphics parameters without resetting. Do so here.
   #op <- par(no.readonly = TRUE)
   #on.exit(par(op))
@@ -594,7 +597,10 @@ plot.TD <- function(x,
           ggplot2::labs(color = "") +
           ggplot2::scale_color_manual(values = c("replicates" = "black"))
       }
-      plot(outPlot)
+      if (output) {
+        plot(outPlot)
+      }
+      invisible(outPlot)
     }
   } else if (plotType == "map") {
     ## Create a data.frame for plotting trials.
@@ -624,8 +630,11 @@ plot.TD <- function(x,
       ## Turn off panel clipping.
       gt <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(p))
       gt$layout$clip[gt$layout$name == "panel"] <- "off"
-      ## Plot results.
-      gridExtra::grid.arrange(gt)
+      if (output) {
+        ## Plot results.
+        gridExtra::grid.arrange(gt)
+      }
+      invisible(gt)
     }
   }
 }

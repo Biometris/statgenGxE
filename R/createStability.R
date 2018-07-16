@@ -61,6 +61,8 @@ summary.stability <- function(object, ...) {
 #'
 #' @param x An object of class stability.
 #' @param ... Further arguments to be passed on to underlying plot functions.
+#' @param output Should the plot be output to the current device? If
+#' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
 #' @return Plots of stability measures against means.
 #'
@@ -73,53 +75,54 @@ summary.stability <- function(object, ...) {
 #' @import graphics grDevices
 #' @export
 plot.stability <- function(x,
-                           ...) {
+                           ...,
+                           output = TRUE) {
   dotArgs <- list(...)
   ## Add and overwrite args with custom args from ...
   fixedArgs <- c("x", "y", "xlab", "ylab", "main")
   plots <- vector(mode = "list")
   if (!is.null(x$superiority)) {
     ## Create superiority plot.
-    plots$superiority <- ggplot2::ggplot(data = x$superiority,
-                                         ggplot2::aes_string(x = "mean",
-                                                             y = "superiority")) +
+    plots$p1 <- ggplot2::ggplot(data = x$superiority,
+                                ggplot2::aes_string(x = "mean",
+                                                    y = "superiority")) +
       ggplot2::geom_point(col = "blue", shape = 1) +
       ggplot2::labs(x = "Mean", y = "Cultivar superiority")
   }
   if (!is.null(x$static)) {
     ## Create static plot.
-    plots$static <- ggplot2::ggplot(data = x$static,
-                                    ggplot2::aes_string(x = "mean",
-                                                        y = "static")) +
+    plots$p2 <- ggplot2::ggplot(data = x$static,
+                                ggplot2::aes_string(x = "mean",
+                                                    y = "static")) +
       ggplot2::geom_point(col = "blue", shape = 1) +
       ggplot2::labs(x = "Mean", y = "Static stability")
   }
   if (!is.null(x$wricke)) {
     ## Create Wricke plot.
-    plots$wricke <- ggplot2::ggplot(data = x$wricke,
-                                    ggplot2::aes_string(x = "mean",
-                                                        y = "wricke")) +
+    plots$p3 <- ggplot2::ggplot(data = x$wricke,
+                                ggplot2::aes_string(x = "mean",
+                                                    y = "wricke")) +
       ggplot2::geom_point(col = "blue", shape = 1) +
       ggplot2::labs(x = "Mean", y = "Wricke's ecovalence")
   }
   if (length(plots) == 3) {
     ## Create empty plot for bottom right grid position.
-    plots$empty <- ggplot2::ggplot() +
+    plots$p4 <- ggplot2::ggplot() +
       ggplot2::theme(panel.background = ggplot2::element_blank())
   }
   ## Convert plots to grob for outlining of axes.
-  plots <- lapply(X = plots, FUN = ggplot2::ggplotGrob)
-  if (length(plots) > 1) {
+  plotsGr <- lapply(X = plots, FUN = ggplot2::ggplotGrob)
+  if (length(plotsGr) > 1) {
     ## At least to plots -> 1 row.
-    tot <- gridExtra::gtable_cbind(plots[[1]], plots[[2]])
+    tot <- gridExtra::gtable_cbind(plotsGr[[1]], plotsGr[[2]])
   } else {
     ## Only 1 plot to be made.
-    tot <- plots[[1]]
+    tot <- plotsGr[[1]]
   }
-  if (length(plots) > 2) {
+  if (length(plotsGr) > 2) {
     ## 3 Plots, so empty plot has been created to make 4 plots.
     ## First create second row then add to first row.
-    r2 <- gridExtra::gtable_cbind(plots[[3]], plots[[4]])
+    r2 <- gridExtra::gtable_cbind(plotsGr[[3]], plotsGr[[4]])
     tot <- gridExtra::gtable_rbind(tot, r2)
   }
   ## Construct title.
@@ -128,8 +131,11 @@ plot.stability <- function(x,
   } else {
     title <- paste("Stability coefficients for", x$trait)
   }
-  ## grid.arrange automatically plots the results.
-  tot <- gridExtra::grid.arrange(tot, top = title)
+  if (output) {
+    ## grid.arrange automatically plots the results.
+    tot <- gridExtra::grid.arrange(tot, top = title)
+  }
+  invisible(plots)
 }
 
 #' Report method for class stability

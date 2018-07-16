@@ -89,7 +89,9 @@ summary.FW <- function(object, ...) {
 #' respectively.
 #' @param sorted A character string specifying whether the results should be
 #' sorted in an increasing (or decreasing) order of sensitivities.
-
+#' @param output Should the plot be output to the current device? If
+#' \code{FALSE} only a list of ggplot objects is invisibly returned.
+#'
 #' @return A plot depending on \code{plotType}.
 #'
 #' @examples
@@ -108,7 +110,8 @@ summary.FW <- function(object, ...) {
 plot.FW <- function(x,
                     ...,
                     plotType = c("scatter", "line", "trellis"),
-                    sorted = c("ascending", "descending", "none")) {
+                    sorted = c("ascending", "descending", "none"),
+                    output = TRUE) {
   plotType <- match.arg(plotType, several.ok = TRUE)
   sorted <- match.arg(sorted)
   dotArgs <- list(...)
@@ -156,9 +159,10 @@ plot.FW <- function(x,
     c2 <- gridExtra::gtable_rbind(pEmpty, p3)
     tot <- gridExtra::gtable_cbind(c1, c2)
     ## grid.arrange automatically plots the results.
-    tot <- gridExtra::grid.arrange(tot, top = plotTitle)
-    ## Silently return plotData for use in app.
-    invisible(scatterDat)
+    if (output) {
+      tot <- gridExtra::grid.arrange(tot, top = plotTitle)
+    }
+    invisible(list(p1 = p1, p2 = p2, p3 = p3))
     ## Set arguments for plot.
   } else if ("line" %in% plotType) {
     fVal <- tapply(X = x$fittedGeno, INDEX = TDTot[, c("trial", "genotype")],
@@ -176,8 +180,8 @@ plot.FW <- function(x,
     ## Add and overwrite args with custom args from ...
     aesArgs <- modifyList(aesArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
     ## Create plot.
-    ggplot2::ggplot(data = lineDat,
-                                do.call(ggplot2::aes_string, args = aesArgs)) +
+    p <- ggplot2::ggplot(data = lineDat,
+                         do.call(ggplot2::aes_string, args = aesArgs)) +
       ggplot2::geom_point() + ggplot2::geom_line(size = 0.5, alpha = 0.7) +
       ggplot2::scale_x_continuous(breaks = envEffs$effect, minor_breaks = NULL,
                                   labels = levels(lineDat$trial)) +
@@ -186,7 +190,10 @@ plot.FW <- function(x,
                      axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) +
       ggplot2::ggtitle(plotTitle) +
       ggplot2::labs(x = "Environment", y = x$trait)
-    ## Silently return plotData for use in app.
+    if (output) {
+      plot(p)
+    }
+    invisible(p)
   } else if ("trellis" %in% plotType) {
     trellisData <- data.frame(genotype = TDTot$genotype,
                               trait = TDTot[[x$trait]],
@@ -197,8 +204,8 @@ plot.FW <- function(x,
       first64 <- TDTot$genotype %in% levels(x$estimates$genotype)[1:64]
       trellisData <- trellisData[first64, ]
     }
-    ggplot2::ggplot(data = trellisData,
-                    ggplot2::aes_string(x = "xEff", y = "trait + fitted")) +
+    p <- ggplot2::ggplot(data = trellisData,
+                         ggplot2::aes_string(x = "xEff", y = "trait + fitted")) +
       ggplot2::geom_point() +
       ggplot2::geom_path() +
       ggplot2::facet_wrap(facets = "genotype") +
@@ -207,6 +214,10 @@ plot.FW <- function(x,
       ggplot2::theme(legend.position = "none",
                      panel.spacing = ggplot2::unit(.2, "cm"),
                      axis.text = ggplot2::element_text(size = 6))
+    if (output) {
+      plot(p)
+    }
+    invisible(p)
   }
 }
 

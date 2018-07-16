@@ -4,7 +4,8 @@
 \alias{plot.TD}
 \title{Plot function for class TD}
 \usage{
-\method{plot}{TD}(x, ..., trials = names(x), plotType = c("layout", "map"))
+\method{plot}{TD}(x, ..., trials = names(x), plotType = c("layout", "map"),
+  output = TRUE)
 }
 \arguments{
 \item{x}{An object of class TD.}
@@ -21,6 +22,9 @@ in the TD object. This is only possible if the data contains row and column
 information. Alternatively, for \code{plotType = "map"} a plot will be made
 depicting the trials on a country map. This is only possible if lattitude
 and longitude of the trials are available.}
+
+\item{output}{Should the plot be output to the current device? If
+\code{FALSE} only a list of ggplot objects is invisibly returned.}
 }
 \description{
 Plotting function for objects of class TD. Plots either the layout of the

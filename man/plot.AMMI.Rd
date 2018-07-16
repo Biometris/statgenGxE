@@ -5,7 +5,7 @@
 \title{Plot function for class AMMI}
 \usage{
 \method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2"), scale = 1,
-  col = c("black", "red"))
+  col = c("black", "red"), output = TRUE)
 }
 \arguments{
 \item{x}{An object of class AMMI}
@@ -26,6 +26,9 @@ scale is outside this range.}
 
 \item{col}{A vector with plot colors for genotype and environment. This can
 either be named colors or color numbers.}
+
+\item{output}{Should the plot be output to the current device? If
+\code{FALSE} only a list of ggplot objects is invisibly returned.}
 }
 \value{
 A biplot depending on \code{plotType}.

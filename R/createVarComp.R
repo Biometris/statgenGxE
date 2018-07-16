@@ -55,6 +55,8 @@ summary.varComp <- function(object, ...) {
 #'
 #' @param x An object of class varComp
 #' @param ... Not used
+#' @param output Should the plot be output to the current device? If
+#' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
 #' @examples
 #' \dontrun{
@@ -67,7 +69,9 @@ summary.varComp <- function(object, ...) {
 #' @import stats
 #' @importFrom utils modifyList
 #' @export
-plot.varComp <- function(x, ...) {
+plot.varComp <- function(x,
+                         ...,
+                         output = TRUE) {
   dotArgs <- list(...)
   ## Set arguments for plot
   plotArgs <- list(varMat = x$vcov,
@@ -75,7 +79,11 @@ plot.varComp <- function(x, ...) {
   ## Add and overwrite args with custom args from ...
   fixedArgs <- c("varMat")
   plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-  do.call(plotCorMat, args = plotArgs)
+  p <- do.call(plotCorMat, args = plotArgs)
+  if (output) {
+    plot(p)
+  }
+  invisible(p)
 }
 
 #' Report method for class varComp
