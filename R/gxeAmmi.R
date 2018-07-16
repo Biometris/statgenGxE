@@ -14,6 +14,8 @@
 #' @param scale Should the variables be scaled to have unit variance?
 #' @param GGE Should a GGE analysis be performed instead of a regular AMMI
 #' analysis. When doing so genotype will be excluded from the model.
+#' @param useWt Should weighting be used when modelling? Requires a column
+#' \code{wt} in \code{TD}.
 #'
 #' @return An object of class \code{\link{AMMI}}, a list containing:
 #' \item{envScores}{A matrix with environmental scores.}
@@ -53,7 +55,8 @@ gxeAmmi <- function(TD,
                     nPC = 2,
                     center = TRUE,
                     scale = FALSE,
-                    GGE = FALSE) {
+                    GGE = FALSE,
+                    useWt = FALSE) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -63,11 +66,14 @@ gxeAmmi <- function(TD,
   }
   TDTot <- Reduce(f = rbind, x = TD[trials])
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TDTot)) {
+      !hasName(x = TDTot, name = trait)) {
     stop("trait has to be a column in TD.\n")
   }
   if (!"trial" %in% colnames(TDTot)) {
     stop("TD should contain a column trial to be able to run an AMMI analysis.\n")
+  }
+  if (useWt && !hasName(x = TDTot, name = "wt")) {
+    stop("wt has to be a column in TD when using weighting.")
   }
   ## Remove genotypes that contain only NAs
   allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {
@@ -105,9 +111,13 @@ gxeAmmi <- function(TD,
     ## Insert imputed values back into original data.
     TDTot[yIndex[is.na(y0)], trait] <- y1[is.na(y0)]
   }
+  ## Set wt to 1 if no weighting is used.
+  if (!useWt) {
+    TDTot$wt <- 1
+  }
   ## Fit linear model.
   modForm <- formula(paste(trait, "~", if (!GGE) "genotype +", "trial"))
-  model <- lm(modForm, data = TDTot)
+  model <- lm(modForm, data = TDTot, weights = TDTot$wt)
   ## Calculate residuals & fitted values of the linear model.
   resids <- tapply(X = resid(model), INDEX = TDTot[, c("genotype", "trial")],
                    FUN = identity)

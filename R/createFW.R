@@ -126,6 +126,7 @@ plot.FW <- function(x,
                                            "mse", "sens")[selCols]],
                            c("genotype", "Mean", "m.s.deviation",
                              "Sensitivity")[selCols])
+    scatterDat <- ggplot2::remove_missing(scatterDat, na.rm = TRUE)
     ## Create plot of mean x mse. No x axis because of position in grid.
     p1 <- ggplot2::ggplot(data = scatterDat,
                           ggplot2::aes_string(x = "Mean", y = "m.s.deviation")) +
@@ -174,6 +175,7 @@ plot.FW <- function(x,
     }
     lineDat <- reshape2::melt(fVal)
     lineDat <- merge(x = lineDat, y = envEffs)
+    lineDat <- ggplot2::remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
     aesArgs <- list(x = "effect", y = "value", color = "genotype")
     fixedArgs <- c("x", "y", "color", "title")
@@ -195,16 +197,17 @@ plot.FW <- function(x,
     }
     invisible(p)
   } else if ("trellis" %in% plotType) {
-    trellisData <- data.frame(genotype = TDTot$genotype,
-                              trait = TDTot[[x$trait]],
-                              fitted = x$fittedGen,
-                              xEff = rep(envEffs$effect, x$nGeno))
+    trellisDat <- data.frame(genotype = TDTot$genotype,
+                             trait = TDTot[[x$trait]],
+                             fitted = x$fittedGen,
+                             xEff = rep(envEffs$effect, x$nGeno))
     if (x$nGeno > 64) {
       ## Select first 64 genotypes for plotting.
       first64 <- TDTot$genotype %in% levels(x$estimates$genotype)[1:64]
-      trellisData <- trellisData[first64, ]
+      trellisDat <- trellisDat[first64, ]
     }
-    p <- ggplot2::ggplot(data = trellisData,
+    trellisDat <- ggplot2::remove_missing(trellisDat, na.rm = TRUE)
+    p <- ggplot2::ggplot(data = trellisDat,
                          ggplot2::aes_string(x = "xEff", y = "trait + fitted")) +
       ggplot2::geom_point() +
       ggplot2::geom_path() +

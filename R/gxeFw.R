@@ -53,7 +53,8 @@ gxeFw <- function(TD,
                   trait,
                   maxIter = 15,
                   tol = 0.001,
-                  sorted = c("ascending", "descending", "none")) {
+                  sorted = c("ascending", "descending", "none"),
+                  useWt = FALSE) {
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
@@ -62,16 +63,15 @@ gxeFw <- function(TD,
   }
   TDTot <- Reduce(f = rbind, x = TD[trials])
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TDTot)) {
+      !hasName(x = TDTot, name = trait)) {
     stop("trait has to be a column in TD.\n")
   }
   if (!"trial" %in% colnames(TDTot)) {
     stop("TD should contain a column trial to be able to run a Finlay
          Wilkinson analysis.\n")
   }
-  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TDTot)) {
-    stop("trait has to be a column in TD.\n")
+  if (useWt && !hasName(x = TDTot, name = "wt")) {
+    stop("wt has to be a column in TD when using weighting.")
   }
   if (is.null(maxIter) || !is.numeric(maxIter) || length(maxIter) > 1 ||
       maxIter != round(maxIter) || maxIter < 1) {
@@ -80,13 +80,25 @@ gxeFw <- function(TD,
   if (is.null(tol) || !is.numeric(tol) || length(tol) > 1 || tol < 0) {
     stop("tol should be a numerical value > 10^-6.\n")
   }
+  ## Remove genotypes that contain only NAs
+  allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {
+    all(is.na(x[trait]))
+  })
+  TDTot <- TDTot[!TDTot$genotype %in% names(allNA[allNA]), ]
+  ## Drop levels to make sure prcomp doesn't crash.
+  TDTot$genotype <- droplevels(TDTot$genotype)
+  TDTot$trial <- droplevels(TDTot$trial)
+  ## Set wt to 1 if no weighting is used.
+  if (!useWt) {
+    TDTot$wt <- 1
+  }
   sorted <- match.arg(sorted)
   nGeno <- nlevels(TDTot$genotype)
   ## Setup empty vectors for storing rDev and rDF
   rDev <- rDf <- rep(NA, 5)
   ## Estimate trial effects with the sensitivity beta = 1.
   model0 <- lm(as.formula(paste(trait, "~-1 + trial + genotype")),
-               data = TDTot, na.action = na.exclude)
+               data = TDTot, weights = TDTot$wt, na.action = na.exclude)
   aov0 <- anova(model0)
   rDev[2] <- aov0["Residuals", "Sum Sq"]
   rDf[2] <- aov0["Residuals", "Df"]
@@ -106,7 +118,7 @@ gxeFw <- function(TD,
     beta0 <- TDTot$beta
     ## Fit model with current genotype sensitivity relevant to each unit.
     model1 <- lm(as.formula(paste(trait, "~-1 + genotype + genotype:envEffs")),
-                 data = TDTot, na.action = na.exclude)
+                 data = TDTot, weights = TDTot$wt, na.action = na.exclude)
     coeffsModel1 <- coefficients(model1)
     ## Update beta.
     TDTot$beta <- coeffsModel1[match(paste0("genotype", TDTot$genotype,
@@ -114,7 +126,7 @@ gxeFw <- function(TD,
     TDTot$beta <- TDTot$beta / mean(TDTot$beta, na.rm = TRUE)
     ## Fit model with current trial means relevant to each unit.
     model2 <- lm(as.formula(paste(trait, "~ -genotype + trial:beta")),
-                 data = TDTot, na.action = na.exclude)
+                 data = TDTot, weights = TDTot$wt, na.action = na.exclude)
     coeffsModel2 <- coefficients(model2)
     ## Update envEffs.
     TDTot$envEffs <- coeffsModel2[match(paste0("trial", TDTot$trial, ":beta"),
@@ -137,13 +149,13 @@ gxeFw <- function(TD,
   rDf[4] <- aov1["Residuals", "Df"]
   ## Extract total deviance.
   modelA <- lm(as.formula(paste(trait, "~ genotype")), data = TDTot,
-               na.action = na.exclude)
+               weights = TDTot$wt, na.action = na.exclude)
   aovA <- anova(modelA)
   rDev[5] <- sum(aovA[["Sum Sq"]])
   rDf[5] <- sum(aovA[["Df"]])
   ## Fit varieties only for first entry in aov.
   modelB <- lm(as.formula(paste(trait, "~-1 + genotype")), data = TDTot,
-               na.action = na.exclude)
+               weights = TDTot$wt, na.action = na.exclude)
   aovB <- anova(modelB)
   rDev[1] <- aovB["Residuals", "Sum Sq"]
   rDf[1] <- aovB["Residuals", "Df"]

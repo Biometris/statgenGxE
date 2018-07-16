@@ -12,8 +12,6 @@
 #' Either "lme4" or "asreml".
 #' @param criterion A string specifying a goodness-of-fit criterion. Either
 #' "AIC" or "BIC".
-#' @param useWt Should weighting be used when modelling? Requires a column
-#' \code{wt} in \code{TD}.
 #' @param ... Further arguments to be passed to \code{asreml}.
 #'
 #' @note If \code{engine = "lme4"}, only the compound symmetry model can be

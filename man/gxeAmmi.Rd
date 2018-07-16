@@ -5,7 +5,7 @@
 \title{AMMI analysis}
 \usage{
 gxeAmmi(TD, trials = names(TD), trait, nPC = 2, center = TRUE,
-  scale = FALSE, GGE = FALSE)
+  scale = FALSE, GGE = FALSE, useWt = FALSE)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
@@ -24,6 +24,9 @@ as multiplicative term of genotype-by-trial interaction.}
 
 \item{GGE}{Should a GGE analysis be performed instead of a regular AMMI
 analysis. When doing so genotype will be excluded from the model.}
+
+\item{useWt}{Should weighting be used when modelling? Requires a column
+\code{wt} in \code{TD}.}
 }
 \value{
 An object of class \code{\link{AMMI}}, a list containing:
