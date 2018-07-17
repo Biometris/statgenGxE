@@ -338,7 +338,7 @@ plot.SSA <- function(x,
                                                     y = "residuals")) +
       ggplot2::geom_point(col = "blue", shape = 1) +
       ggplot2::geom_smooth(method = "loess", col = "red") +
-      ggplot2::geom_abline(slope = 0, intercept = 0) +
+      ggplot2::geom_hline(yintercept = 0) +
       ggplot2::labs(y = "Residuals", x = "Fitted values")
     ## Plot absolute value of residuals vs fitted values.
     plots$p4 <- ggplot2::ggplot(data = plotDat,

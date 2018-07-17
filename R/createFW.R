@@ -150,14 +150,14 @@ plot.FW <- function(x,
     pEmpty <- ggplot2::ggplot() +
       ggplot2::theme(panel.background = ggplot2::element_blank())
     ## Convert to Grobs to make alignment of axis possible.
-    p1 <- ggplot2::ggplotGrob(p1)
-    p2 <- ggplot2::ggplotGrob(p2)
-    p3 <- ggplot2::ggplotGrob(p3)
+    p1Gr <- ggplot2::ggplotGrob(p1)
+    p2Gr <- ggplot2::ggplotGrob(p2)
+    p3Gr <- ggplot2::ggplotGrob(p3)
     pEmpty <- ggplot2::ggplotGrob(pEmpty)
     ## Create grid by first binding rows to assure axis alignment and then
     ## by columns.
-    c1 <- gridExtra::gtable_rbind(p1, p2)
-    c2 <- gridExtra::gtable_rbind(pEmpty, p3)
+    c1 <- gridExtra::gtable_rbind(p1Gr, p2Gr)
+    c2 <- gridExtra::gtable_rbind(pEmpty, p3Gr)
     tot <- gridExtra::gtable_cbind(c1, c2)
     ## grid.arrange automatically plots the results.
     if (output) {
