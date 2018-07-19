@@ -273,6 +273,7 @@ plot.SSA <- function(x,
     what <- match.arg(arg = what, choices = c("fixed", "random"))
   }
   plotType <- match.arg(arg = plotType)
+  dotArgs <- list(...)
   ## Check whether data contains row/col information.
   spatCols <- c("colCoord", "rowCoord")
   if (plotType == "spatial" && !all(spatCols %in%
@@ -317,6 +318,9 @@ plot.SSA <- function(x,
   plotDat$residuals <- plotDat$response - plotDat$fitted
   ## Create empty list for storing plots
   plots <- vector(mode = "list")
+  ## Create main plot title.
+  plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
+                      paste("Trial:", trial, "Trait:", trait))
   if (plotType == "base") {
     plotDat <- ggplot2::remove_missing(plotDat, na.rm = TRUE)
     ## Plot histogram of residuals.
@@ -349,7 +353,8 @@ plot.SSA <- function(x,
       ggplot2::labs(y = "|Residuals|", x = "Fitted values")
     if (output) {
       ## do.call is needed since grid.arrange doesn't accept lists as input.
-      do.call(gridExtra::grid.arrange, args = c(plots, list(ncol = 2)))
+      do.call(gridExtra::grid.arrange,
+              args = c(plots, list(ncol = 2, top = plotTitle)))
     }
   } else if (plotType == "spatial") {
     if (x[[trial]]$engine == "SpATS") {
@@ -430,7 +435,7 @@ plot.SSA <- function(x,
       ## do.call is needed since grid.arrange doesn't accept lists as input.
       do.call(gridExtra::grid.arrange,
               args = c(Filter(f = Negate(f = is.null), x = plots),
-                       list(ncol = 3, top = paste("Trait:", trait))))
+                       list(ncol = 3, top = plotTitle)))
     }
   }
   invisible(plots)
@@ -493,11 +498,11 @@ fieldPlot <- function(plotDat,
 #' ## Create a pdf report summarizing the results for the model with genotype
 #' ## as fixed factor.
 #' report(myModel1, outfile = "./testReports/reportModelLme4.pdf",
-#'       what = "fixed")
+#'        what = "fixed")
 #' ## Create a pdf report summarizing the results for the model with genotype
 #' ## as random factor. Order the results in ascending order.
 #' report(myModel1, outfile = "./testReports/reportModelLme4.pdf",
-#'       what = "random", descending = FALSE)
+#'        what = "random", descending = FALSE)
 #' }
 #'
 #' @export
@@ -540,7 +545,7 @@ report.SSA <- function(x,
       !is.null(x[[trial]]$mRand)) {
     warning("Model contains both a fitted model with fixed genotype and random
             genotype. Reporting can be done for only one. By default the model with
-            genotype fixed is reported. Use option what for changing this.\n",
+            genotype fixed is reported. Use option 'what' for changing this.\n",
             call. = FALSE)
   }
   if (what == "fixed") {

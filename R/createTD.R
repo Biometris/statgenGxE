@@ -607,7 +607,7 @@ plot.TD <- function(x,
                      c("name", "lat", "long"))
     locs <- locs[!is.na(locs$lat) & !is.na(locs$long), ]
     if (nrow(locs) == 0) {
-      stop(paste("At leaste one trial should have latitute and longitude",
+      stop(paste("At least one trial should have latitute and longitude",
                  "for plotting on map.\n"))
     } else {
       ## Use lattitude and longitude to extract trial regions.
