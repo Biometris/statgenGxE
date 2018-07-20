@@ -19,8 +19,8 @@ TD object. If \code{NULL} all traits are exported.}
 
 \item{keep}{Columns from the TD object used as input for the SSA model to
 be copied to the output. see \code{\link{STExtract}} for possible columns to
-copy. If \code{NULL} the only column to be copied will be \code{trial} if it
-is available.}
+copy. If if it is available in TD the column \code{trial} will always be
+copied.}
 
 \item{addWt}{Should a column wt be added to the output? If \code{TRUE}
 weight is calculated as 1/SE BLUEs. If multiple traits are included in the

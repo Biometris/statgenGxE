@@ -636,7 +636,7 @@ SSAtoCross <- function(SSA,
     stop("genoFile is not a valid filename.\n")
   }
   ## Extract predictions from the model.
-  pred <- STExtract(SSA, traits = traits, what = what)[[trial]]
+  pred <- STExtract(SSA, traits = traits, what = what)[[trial]][[what]]
   ## Rename first column to match first column in genoFile.
   colnames(pred)[1] <- colnames(utils::read.csv(genoFile, nrow = 1))[1]
   ## Write predictions to temporary file.
