@@ -6,36 +6,35 @@ testTD <- createTD(data = testData[testData$field == "E1", ],
                    rowCoord = "Y", colCoord = "X")
 
 modelLm <- STRunModel(testTD, design = "rcbd", traits = "t1")
-
 test_that("option keep functions properly", {
   expect_equal(colnames(STExtract(modelLm, what = "BLUEs",
-                                  keep = "field")[[1]]),
+                                  keep = "field")[[1]][["BLUEs"]]),
                c("genotype", "field", "t1"))
   expect_equal(colnames(STExtract(modelLm, what = "fitted",
-                                  keep = "repId")[[1]]),
+                                  keep = "repId")[[1]][["fitted"]]),
                c("genotype", "repId", "t1"))
   ## Columns that have duplicate values should be dropped with a warning.
   expect_warning(ext <- STExtract(modelLm, what = "BLUEs", keep = "checkId"),
                  "Duplicate values for")
-  expect_equal(colnames(ext[[1]]), c("genotype", "t1"))
+  expect_equal(colnames(ext[[1]][["BLUEs"]]), c("genotype", "t1"))
   expect_warning(ext2 <- STExtract(modelLm, what = "BLUEs",
                                    keep = c("field", "checkId")),
                  "Duplicate values for")
-  expect_equal(colnames(ext2[[1]]), c("genotype", "field", "t1"))
+  expect_equal(colnames(ext2[[1]][["BLUEs"]]), c("genotype", "field", "t1"))
 })
 
 test_that("option restoreColNames functions properly", {
   ## Restoring original colnames should work with and without keeping columns.
   expect_equal(colnames(STExtract(modelLm, what = "BLUEs",
-                                  restoreColNames = TRUE)[[1]]),
+                                  restoreColNames = TRUE)[[1]][["BLUEs"]]),
                c("seed", "t1"))
   expect_equal(colnames(STExtract(modelLm, what = "BLUEs", keep = "field",
-                                  restoreColNames = TRUE)[[1]]),
+                                  restoreColNames = TRUE)[[1]][["BLUEs"]]),
                c("seed", "field", "t1"))
   ## Duplicate mappings are a potential problem.
   expect_equal(colnames(STExtract(modelLm, what = "fitted",
                                   keep = c("rowCoord", "rowId"),
-                                  restoreColNames = TRUE)[[1]]),
+                                  restoreColNames = TRUE)[[1]][["fitted"]]),
                c("seed", "rep", "Y", "t1"))
 })
 

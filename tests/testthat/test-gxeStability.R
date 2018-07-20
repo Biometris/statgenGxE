@@ -134,8 +134,7 @@ test_that("option sort none functions properly", {
 
 ## Compute mega environments for testData to test option useMegaEnv.
 modelSp <- STRunModel(testTD, design = "rowcol", traits = "t2")
-BLUEsList <- STExtract(modelSp, what = "BLUEs", keep = "trial")
-BLUEs <- createTD(Reduce(f = rbind, x = BLUEsList))
+BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 tmp <- capture_output(geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t2"))
 
 geStabME <- gxeStability(TD = geMegaEnv, trait = "t2", useMegaEnv = TRUE)

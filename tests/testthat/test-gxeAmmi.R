@@ -5,8 +5,7 @@ testTD <- createTD(data = testData, genotype = "seed",
                    subBlock = "block", rowId = "Y", colId = "X",
                    rowCoord = "Y", colCoord = "X")
 modelSp <- STRunModel(testTD, design = "rowcol", traits = c("t1", "t2"))
-BLUEsList <- STExtract(modelSp, what = "BLUEs", keep = "trial")
-BLUEs <- createTD(Reduce(f = rbind, x = BLUEsList))
+BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
 geAmmi <- gxeAmmi(BLUEs, trait = "t1")
 test_that("output is of the right class", {

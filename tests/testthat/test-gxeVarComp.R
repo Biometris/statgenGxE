@@ -6,8 +6,7 @@ testTD <- createTD(data = testData, genotype = "seed",
                    rowCoord = "Y", colCoord = "X")
 modelSp <- STRunModel(testTD, design = "rowcol",
                       traits = c("t1", "t2", "t3", "t4"))
-BLUEsList <- STExtract(modelSp, what = "BLUEs", keep = "trial")
-BLUEs <- createTD(Reduce(f = rbind, x = BLUEsList))
+BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
 geVCLm <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "lme4")
 test_that("output is of the right class for lme4", {

@@ -49,3 +49,23 @@ test_that("option nBest functions properly", {
   expect_equal(dim(sumSp$meanTab), c(5, 4))
 })
 
+test_that("function SSAtoTD functions properly", {
+  TDSp <- SSAtoTD(SSA = modelSp)
+  expect_is(TDSp, "TD")
+  expect_equal(colnames(TDSp$E1),
+               c("genotype", "trial", "BLUEs_t1", "seBLUEs_t1", "BLUPs_t1",
+                                    "seBLUPs_t1"))
+  TDSp2 <- SSAtoTD(SSA = modelSp, what = "BLUEs")
+  expect_equal(colnames(TDSp2$E1),
+               c("genotype", "trial", "t1"))
+  expect_warning(TDSp3 <- SSAtoTD(SSA = modelSp, what = "BLUEs", addWt = TRUE),
+                 "Weights can only be added together with seBLUEs")
+  expect_equal(colnames(TDSp3$E1),
+               c("genotype", "trial", "BLUEs_t1", "seBLUEs_t1", "wt_t1"))
+  expect_warning(TDSp4 <- SSAtoTD(SSA = modelSp, keep = "family"),
+                 "Duplicate values for")
+  expect_equal(colnames(TDSp4$E1),
+               c("genotype", "trial", "BLUEs_t1", "seBLUEs_t1", "BLUPs_t1",
+                 "seBLUPs_t1"))
+})
+

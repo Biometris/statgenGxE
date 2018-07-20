@@ -309,9 +309,6 @@ extractSpATS <- function(SSA,
       mr0$eff.dim
     })
   }
-  if (length(result) == 1) {
-    result <- result[[1]]
-  }
   return(result)
 }
 
@@ -531,9 +528,6 @@ extractLme4 <- function(SSA,
   if ("rDf" %in% what) {
     result[["rDf"]] <- sapply(X = mf, FUN = df.residual)
   }
-  if (length(result) == 1) {
-    result <- result[[1]]
-  }
   return(result)
 }
 
@@ -747,9 +741,6 @@ extractAsreml <- function(SSA,
     result[["lsd"]] <- lapply(X = mf, FUN = function(mf0) {
       qt(p = .975, df = mf0$nedf) * mf0$predictions$avsed
     })
-  }
-  if (length(result) == 1) {
-    result <- result[[1]]
   }
   return(result)
 }

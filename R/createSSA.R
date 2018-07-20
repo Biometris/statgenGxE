@@ -297,11 +297,12 @@ plot.SSA <- function(x,
   fitted <- STExtract(x, trials = trial, traits = trait,
                       what = ifelse(what == "fixed", "fitted", "rMeans"),
                       keep = if (plotType == "spatial") spatCols else
-                        NULL)[[trial]]
+                        NULL)[[trial]][[ifelse(what == "fixed",
+                                               "fitted", "rMeans")]]
   pred <- STExtract(x, trials = trial,
-                    what = ifelse(what == "fixed",
-                                  "BLUEs", "BLUPs"))[[trial]][c("genotype",
-                                                                trait)]
+                    what = ifelse(what == "fixed", "BLUEs", "BLUPs"))[[trial]][[ifelse(what == "fixed",
+                                                                                       "BLUEs", "BLUPs")]][c("genotype",
+                                                                                                             trait)]
   ## Extract raw data and compute residuals.
   response <- x[[trial]]$TD[[trial]][, c("genotype", trait,
                                          if (plotType == "spatial") spatCols)]
@@ -595,11 +596,11 @@ report.SSA <- function(x,
 #' @examples
 #' ## Run model using SpATS.
 #' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
-#'                      what = "fixed")
+#'                       what = "fixed")
 #' ## Create cross object with BLUEs from myModel using genotypic information
 #' ## from markers.csv in the package.
 #' cross <- SSAtoCross(myModel, genoFile = system.file("extdata", "markers.csv",
-#'                                                    package = "RAP"))
+#'                                                     package = "RAP"))
 #'
 #' @export
 SSAtoCross <- function(SSA,
@@ -627,6 +628,9 @@ SSAtoCross <- function(SSA,
                            !all(traits %in% colnames(SSA[[trial]]$TD)))) {
     stop("Trait has to be a character vector defining columns in TD.\n")
   }
+  if (is.null(traits)) {
+    traits <- SSA[[trial]]$traits
+  }
   what <- match.arg(what)
   if (!is.character(genoFile) || length(genoFile) > 1 || !file.exists(genoFile)) {
     stop("genoFile is not a valid filename.\n")
@@ -647,6 +651,126 @@ SSAtoCross <- function(SSA,
   unlink(tmp)
   return(cross)
 }
+
+#' Convert SSA to TD
+#'
+#' Convert an SSA object to a TD object.\cr
+#' To be able to use the output of a single site analysis in Genotype by
+#' Environment (GxE) analysis the output first needs to be converted bakc to
+#' an TD object. This function does exactly that. It extracts BLUEs, BLUPs and
+#' their standard errors from the SSA object and creates a new TD object using
+#' these. Also a column wt may also be added. Weights are then calculated as
+#' 1/SE BLUEs.
+#'
+#' Trial information for the trials in the SSA object will be copied from the
+#' original TD object on which the modeling was done.
+#'
+#' @param SSA An object of class \code{\link{SSA}}.
+#' @param what A character string containing the statistics to be included as
+#' traits in the TD object. Multiple statistics can be included in which case
+#' they will appear as \code{statistic_trait} in the output
+#' @param traits A character string containing the traits to be included in the
+#' TD object. If \code{NULL} all traits are exported.
+#' @param keep Columns from the TD object used as input for the SSA model to
+#' be copied to the output. see \code{\link{STExtract}} for possible columns to
+#' copy. If if it is available in TD the column \code{trial} will always be
+#' copied.
+#' @param addWt Should a column wt be added to the output? If \code{TRUE}
+#' weight is calculated as 1/SE BLUEs. If multiple traits are included in the
+#' output multiple weight columns will be added, 1 for each trait. These will
+#' be named \code{wt_trait}.
+#'
+#' @examples
+#' ## Run model using SpATS.
+#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+#'                       what = "fixed")
+#' ## Create TD object from the fitted model.
+#' myTD <- SSAtoTD(myModel)
+#'
+#' @export
+SSAtoTD <- function(SSA,
+                    what = c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs"),
+                    traits = NULL,
+                    keep = NULL,
+                    addWt = FALSE) {
+  ## Checks
+  if (!inherits(SSA, "SSA")) {
+    stop("SSA is not a valid object of class SSA.\n")
+  }
+  if (!is.null(traits) && (!is.character(traits) ||
+                           !all(traits %in% colnames(SSA[[1]]$TD)))) {
+    stop("Trait has to be a character vector defining columns in TD.\n")
+  }
+  what <- match.arg(what, several.ok = TRUE)
+  if (any(c("BLUEs", "seBLUEs") %in% what) && is.null(SSA[[1]]$mFix)) {
+    warning(paste("BLUEs and seBLUEs can only extracted if a model with",
+                  "genotype fixed is fitted\nRemoving them from what"),
+            call. = FALSE)
+    what <- what[!what %in% c("BLUEs", "seBLUEs")]
+  }
+  if (any(c("BLUPs", "seBLUPs") %in% what) && is.null(SSA[[1]]$mRand)) {
+    warning(paste("BLUPs and seBLUPs can only extracted if a model with",
+                  "genotype random is fitted\nRemoving them from what"),
+            call. = FALSE)
+    what <- what[!what %in% c("BLUPs", "seBLUPs")]
+  }
+  if (is.null(what)) {
+    stop("No statistics left to extract.")
+  }
+  if (addWt && is.null(SSA[[1]]$mFix)) {
+    warning(paste("Weights can only be added if a model with genotype fixed is",
+                  "fitted.\naddWt set to FALSE"),
+            call. = FALSE)
+    addWt <- FALSE
+  }
+  if (addWt && !"seBLUEs" %in% what) {
+    warning(paste("Weights can only be added together with seBLUEs.\n",
+                  "seBLUEs added to what"), call. = FALSE)
+    what <- c(what, "seBLUEs")
+  }
+  if (is.null(traits)) {
+    traits <- SSA[[1]]$traits
+  }
+  if (!"trial" %in% keep && hasName(x = SSA[[1]]$TD[[1]], name = "trial")) {
+    keep <- c(keep, "trial")
+  }
+  ## Extract predictions from the model.
+  pred <- STExtract(SSA, traits = traits,
+                    what = what,
+                    keep = keep)
+  ## Create a list of dataframes with all statistics per trial
+  predTrTot <- lapply(X = pred, FUN = function(trial) {
+    if (length(what) + addWt > 1) {
+      ## Rename columns if more than one column per trait will appear in the
+      ## output. Add the name of the statistic as prefix to the traits.
+      for (ext in names(trial)) {
+        colNames <- colnames(trial[[ext]])
+        colnames(trial[[ext]])[colNames %in% traits] <-
+          paste0(ext, "_", colNames[colNames %in% traits])
+      }
+    }
+    ## Merge all statistics togethter. Because of the renaming above the is
+    ## never a problem with duplicate column and merging is done on all other
+    ## columns than the traits.
+    predTr <- Reduce(f = merge, x = trial)
+    if (addWt && "seBLUEs" %in% what) {
+      ## Add a wt column.
+      for (trait in traits) {
+        predTr[[paste0("wt_", trait)]] <- 1 / predTr[[paste0("seBLUEs_", trait)]]
+      }
+    }
+    return(predTr)
+  })
+  ## Rbind all data together and create a new TD data set.
+  predTot <- Reduce(f = rbind, x = predTrTot)
+  predTD <- createTD(data = predTot)
+  ## Copy meta data from the original TD to the new TD.
+  predTD <- setMeta(TD = predTD, meta = getMeta(SSA[[1]]$TD))
+  return(predTD)
+}
+
+
+
 
 
 

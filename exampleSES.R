@@ -2,14 +2,15 @@
 rm(list = ls())
 ## Load cleaned data for analysis.
 load("D:/R packages/SESvdH/data/2016/cleandata.RData")
-rm(list = setdiff(ls(), c("dfARC601", "traitnames")))
+rm(list = setdiff(ls(), c("dfARC601", "dfBAU601", "traitnames")))
 ## Load results for comparison
 load("D:/R packages/SESvdH/data/2016/BLUEs_per_field.RData")
 load("D:/R packages/SESvdH/data/2016/RCcorrected_per_field.RData")
 load("D:/R packages/SESvdH/results/2016/heritabilities.RData")
 
 ## Create TD object.
-TDARC601 <- createTD(data = dfARC601, genotype = "Seedname",
+TDARC601 <- createTD(data = rbind(dfARC601, dfBAU601),
+                     genotype = "Seedname", trial = "FieldId",
                      rowId = "Yf", colId = "Xf", rowCoord = "Y",
                      colCoord = "X", trDesign = "rowcol")
 

@@ -5,8 +5,7 @@ testTD <- createTD(data = testData, genotype = "seed",
                    subBlock = "block", rowId = "Y", colId = "X",
                    rowCoord = "Y", colCoord = "X")
 modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
-BLUEsList <- STExtract(modelSp, what = "BLUEs", keep = "trial")
-BLUEs <- createTD(Reduce(f = rbind, x = BLUEsList))
+BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
 tmp <- capture_output(geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1"))
 geMegaEnvTot <- Reduce(f = rbind, x = geMegaEnv)

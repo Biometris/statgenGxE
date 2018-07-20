@@ -166,7 +166,7 @@ A second type of plot displays the trial locations on a map. This plot is
 made based on trLat and trLong in the meta data. If not available the 
 corresponding location is not plotted.
 ```{r mapPlot}
-plot(wheatTD, plotType = "map")
+#plot(wheatTD, plotType = "map")
 ```
 
 ----
