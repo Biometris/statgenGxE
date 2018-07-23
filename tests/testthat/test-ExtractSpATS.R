@@ -68,14 +68,14 @@ test_that("heritability is computed correctly", {
   expect_is(extSp$heritability, "numeric")
   expect_length(extSp$heritability, 1)
   expect_equal(names(extSp$heritability), "t1")
-  expect_equal(unname(extSp$heritability), 0.46)
+  expect_equivalent(extSp$heritability, 0.46)
 })
 
 test_that("varGen is computed correctly", {
   expect_is(extSp$varGen, "numeric")
   expect_length(extSp$varGen, 1)
   expect_equal(names(extSp$varGen), "t1")
-  expect_equal(unname(extSp$varGen), 156.002441460485)
+  expect_equivalent(extSp$varGen, 156.002441460485)
 })
 
 test_that("varSpat is computed correctly", {
@@ -155,7 +155,7 @@ test_that("rDf is computed correctly", {
   expect_is(extSp$rDf, "numeric")
   expect_length(extSp$rDf, 1)
   expect_equal(names(extSp$rDf), "t1")
-  expect_equal(unname(extSp$rDf), 14)
+  expect_equivalent(extSp$rDf, 14)
 })
 
 test_that("effective dimensions are computed correctly", {

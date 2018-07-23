@@ -65,21 +65,21 @@ test_that("heritability is computed correctly", {
   expect_is(extLm$heritability, "numeric")
   expect_length(extLm$heritability, 1)
   expect_equal(names(extLm$heritability), "t1")
-  expect_equal(unname(extLm$heritability), 0.219516387233952)
+  expect_equivalent(extLm$heritability, 0.219516387233952)
 })
 
 test_that("varGen is computed correctly", {
   expect_is(extLm$varGen, "numeric")
   expect_length(extLm$varGen, 1)
   expect_equal(names(extLm$varGen), "t1")
-  expect_equal(unname(extLm$varGen), 60.3932293973456)
+  expect_equivalent(extLm$varGen, 60.3932293973456)
 })
 
 test_that("varErr is computed correctly", {
   expect_is(extLm$varErr, "numeric")
   expect_length(extLm$varErr, 1)
   expect_equal(names(extLm$varErr), "t1")
-  expect_equal(unname(extLm$varErr), 429.452456471173)
+  expect_equivalent(extLm$varErr, 429.452456471173)
 })
 
 test_that("fitted values are computed correctly", {
@@ -122,15 +122,15 @@ test_that("standardized residuals are computed correctly", {
   expect_equal(colnames(extLm$stdRes), c("genotype", "repId", "t1"))
   expect_equal(extLm$stdRes$t1,
                c(0.4719905598143, 0.732265372951495, 1.23853951954428,
-                                  -0.663703491881794, -0.0550366208325776, -0.467005553643564,
-                                  0.949536935080114, 2.33680290125858, -0.604066241084128,
-                                  -1.80993799637666, -1.33819181492009, -0.311495630593602,
-                                  -0.0971031250780877, -0.00161133402673469, -0.380983480211527,
-                                  -0.4719905598143, -0.732265372951495, -1.23853951954428,
-                                  0.663703491881794, 0.0550366208325777, 0.467005553643564,
-                                  -0.949536935080114, -2.33680290125858, 0.604066241084128,
-                                  1.80993799637666, 1.33819181492009, 0.311495630593602,
-                                  0.0971031250780872, 0.00161133402673419, 0.380983480211527))
+                 -0.663703491881794, -0.0550366208325776, -0.467005553643564,
+                 0.949536935080114, 2.33680290125858, -0.604066241084128,
+                 -1.80993799637666, -1.33819181492009, -0.311495630593602,
+                 -0.0971031250780877, -0.00161133402673469, -0.380983480211527,
+                 -0.4719905598143, -0.732265372951495, -1.23853951954428,
+                 0.663703491881794, 0.0550366208325777, 0.467005553643564,
+                 -0.949536935080114, -2.33680290125858, 0.604066241084128,
+                 1.80993799637666, 1.33819181492009, 0.311495630593602,
+                 0.0971031250780872, 0.00161133402673419, 0.380983480211527))
 })
 
 test_that("rMeans are computed correctly", {
@@ -165,22 +165,22 @@ test_that("random effects are computed correctly", {
 test_that("Waldtest is computed correctly", {
   expect_is(extLm$wald$t1, "data.frame")
   expect_length(extLm$wald$t1, 4)
-  expect_equal(unname(unlist(extLm$wald$t1)),
-               c(15, 14, 29.278, 5.50452147204485e-08))
+  expect_equivalent(unlist(extLm$wald$t1),
+                    c(15, 14, 29.278, 5.50452147204485e-08))
 })
 
 test_that("CV is computed correctly", {
   expect_is(extLm$CV, "numeric")
   expect_length(extLm$CV, 1)
   expect_equal(names(extLm$CV), "t1")
-  expect_equal(unname(extLm$CV), 26.6870486341882)
+  expect_equivalent(extLm$CV, 26.6870486341882)
 })
 
 test_that("rDf is computed correctly", {
   expect_is(extLm$rDf, "integer")
   expect_length(extLm$rDf, 1)
   expect_equal(names(extLm$rDf), "t1")
-  expect_equal(unname(extLm$rDf), 14)
+  expect_equivalent(extLm$rDf, 14)
 })
 
 test_that("correct attributes are added", {

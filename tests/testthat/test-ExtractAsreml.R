@@ -67,21 +67,21 @@ if (requireNamespace("asreml", quietly = TRUE)) {
     expect_is(extAs$heritability, "numeric")
     expect_length(extAs$heritability, 1)
     expect_equal(names(extAs$heritability), "t1")
-    expect_equal(unname(extAs$heritability), 0.345185100576464)
+    expect_equivalent(extAs$heritability, 0.345185100576464)
   })
 
   test_that("varGen is computed correctly", {
     expect_is(extAs$varGen, "numeric")
     expect_length(extAs$varGen, 1)
     expect_equal(names(extAs$varGen), "t1")
-    expect_equal(unname(extAs$varGen), 99.2921060589769)
+    expect_equivalent(extAs$varGen, 99.2921060589769)
   })
 
   test_that("varErr is computed correctly", {
     expect_is(extAs$varErr, "numeric")
     expect_length(extAs$varErr, 1)
     expect_equal(names(extAs$varErr), "t1")
-    expect_equal(unname(extAs$varErr), 320.569255027489)
+    expect_equivalent(extAs$varErr, 320.569255027489)
   })
 
   test_that("fitted values are computed correctly", {
@@ -167,36 +167,36 @@ if (requireNamespace("asreml", quietly = TRUE)) {
   test_that("Waldtest is computed correctly", {
     expect_is(extAs$wald$t1$Ftest, "numeric")
     expect_length(extAs$wald$t1$Ftest, 4)
-    expect_equal(unname(unlist(extAs$wald$t1$Ftest)),
-                 c(1.46, 14, 14, 0.244132249447016))
+    expect_equivalent(unlist(extAs$wald$t1$Ftest),
+                      c(1.46, 14, 14, 0.244132249447016))
   })
 
   test_that("CV is computed correctly", {
     expect_is(extAs$CV, "numeric")
     expect_length(extAs$CV, 1)
     expect_equal(names(extAs$CV), "t1")
-    expect_equal(unname(extAs$CV), 23.4580700451519)
+    expect_equivalent(extAs$CV, 23.4580700451519)
   })
 
   test_that("rDf is computed correctly", {
     expect_is(extAs$rDf, "integer")
     expect_length(extAs$rDf, 1)
     expect_equal(names(extAs$rDf), "t1")
-    expect_equal(unname(extAs$rDf), 14)
+    expect_equivalent(extAs$rDf, 14)
   })
 
   test_that("sed is computed correctly", {
     expect_is(extAs$sed$t1, "numeric")
     expect_length(extAs$sed$t1, 3)
-    expect_equal(unname(extAs$sed$t1),
-                 c(18.215842753241, 20.2671887094224, 20.6090797021193))
+    expect_equivalent(extAs$sed$t1,
+                      c(18.215842753241, 20.2671887094224, 20.6090797021193))
   })
 
   test_that("lsd is computed correctly", {
     expect_is(extAs$lsd$t1, "numeric")
     expect_length(extAs$lsd$t1, 3)
-    expect_equal(unname(extAs$lsd$t1),
-                 c(39.0690970463554, 43.4687965454872, 44.2020797953426))
+    expect_equivalent(extAs$lsd$t1,
+                      c(39.0690970463554, 43.4687965454872, 44.2020797953426))
   })
 
   test_that("correct attributes are added", {
