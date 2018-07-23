@@ -36,14 +36,9 @@ wheatTD <- createTD(data = studyTableTot, genotype = "germplasmName",
 SSA <- STRunModel(TD = wheatTD, traits = "GY_Calc_tha", engine = "asreml")
 ## Create a report for the single site analysis.
 report(SSA, outfile = "./testReports/SSASite01.pdf", trial = "Site01")
-## Run Single Site Analysis for all trials and extract BLUPs for gxe analysis.
-BLUPList <- lapply(names(wheatTD), function(site) {
-  SSAEnv <- STRunModel(wheatTD, trial = site, traits = "GY_Calc_tha",
-                       what = "random", engine = "asreml")
-  STExtract(SSAEnv, what = "BLUPs", keep = "trial")[[1]]
-})
-## Create new TD object from BLUPs
-wheatTDBlup <- createTD(data = Reduce("rbind", BLUPList))
+## Create new TD objects from BLUPs and BLUEs
+wheatTDBlup <- SSAtoTD(SSA, what = "BLUPs")
+wheatTDBlue <- SSAtoTD(SSA, what = c("BLUEs", "seBLUEs"), addWt = TRUE)
 
 ###GxE analysis
 ## Run AMMI analysis
@@ -65,4 +60,7 @@ report(stab, outfile = "./testReports/stabWheat.pdf")
 varComp <- gxeVarComp(TD = wheatTDBlup, trait = "GY_Calc_tha",
                       engine = "asreml")
 summary(varComp)
+varComp2 <- gxeVarComp(TD = wheatTDBlue, trait = "BLUEs_GY_Calc_tha",
+                       engine = "asreml", useWt = TRUE)
+summary(varComp2)
 report(varComp, outfile = "./testReports/varCompWheat.pdf")

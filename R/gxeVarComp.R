@@ -158,7 +158,6 @@ gxeVarComp <- function(TD,
           tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(tmpValues$vg,
                                    scale(tmpValues$diag, center = FALSE), 1)
-          tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
           sink(file = tmp)
           if (useWt) {
             mr <- tryCatchExt(
@@ -168,6 +167,7 @@ gxeVarComp <- function(TD,
                              R.param = tmpTable, data = TDTot,
                              maxiter = maxIter, workspace = 160e6,
                              weigths = "wt",
+                            # family = asreml::asreml.gaussian(dispersion = 1),
                              ...))
           } else {
             mr <- tryCatchExt(
@@ -193,7 +193,6 @@ gxeVarComp <- function(TD,
             tmpTable[, "Value"] <- c(scale(tmpValues$psi, center = FALSE),
                                      tmpValues$gamma, 1)
           }
-          tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
           sink(file = tmp)
           if (useWt) {
             mr <- tryCatchExt(
@@ -204,6 +203,7 @@ gxeVarComp <- function(TD,
                              maxiter = maxIter,
                              workspace = 160e6,
                              weigths = "wt",
+                             #family = asreml::asreml.gaussian(dispersion = 1),
                              ...))
 
           } else {
@@ -235,7 +235,6 @@ gxeVarComp <- function(TD,
                                      tmpValues$gamma[1, ],
                                      tmpValues$gamma[2, ], 1)
           }
-          tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
           sink(file = tmp)
           if (useWt) {
             mr <- tryCatchExt(
@@ -246,6 +245,7 @@ gxeVarComp <- function(TD,
                              maxiter = maxIter,
                              workspace = 160e6,
                              weigths = "wt",
+                            # family = asreml::asreml.gaussian(dispersion = 1),
                              ...))
 
           } else {
@@ -287,6 +287,7 @@ gxeVarComp <- function(TD,
                              R.param = tmpTable, data = TDTot,
                              maxiter = maxIter, workspace = 160e6,
                              weigths = "wt",
+                             family = asreml::asreml.gaussian(dispersion = 1),
                              ...))
           } else {
             mr <- tryCatchExt(
