@@ -293,6 +293,7 @@ plot.SSA <- function(x,
   if (is.null(model)) {
     stop(paste("No model with genotype", what, "in SSA object.\n"))
   }
+  predicted <- x[[trial]]$predicted
   ## Extract fitted and predicted values from model.
   fitted <- STExtract(x, trials = trial, traits = trait,
                       what = ifelse(what == "fixed", "fitted", "rMeans"),
@@ -301,17 +302,17 @@ plot.SSA <- function(x,
                                                "fitted", "rMeans")]]
   pred <- STExtract(x, trials = trial,
                     what = ifelse(what == "fixed", "BLUEs", "BLUPs"))[[trial]][[ifelse(what == "fixed",
-                                                                                       "BLUEs", "BLUPs")]][c("genotype",
+                                                                                       "BLUEs", "BLUPs")]][c(predicted,
                                                                                                              trait)]
   ## Extract raw data and compute residuals.
-  response <- x[[trial]]$TD[[trial]][, c("genotype", trait,
+  response <- x[[trial]]$TD[[trial]][, c(predicted, trait,
                                          if (plotType == "spatial") spatCols)]
   ## Create plot data by merging extracted data together and renaming some
   ## columns.
   plotDat <- merge(response,
-                   fitted, by = c("genotype",
+                   fitted, by = c(predicted,
                                   if (plotType == "spatial") spatCols))
-  plotDat <- merge(plotDat, pred, by = "genotype")
+  plotDat <- merge(plotDat, pred, by = predicted)
   plotDat$response <- plotDat[[paste0(trait, ".x")]]
   plotDat$fitted <- plotDat[[paste0(trait, ".y")]]
   plotDat$pred <- plotDat[[trait]]
@@ -755,8 +756,10 @@ SSAtoTD <- function(SSA,
     predTr <- Reduce(f = merge, x = trial)
     if (addWt && "seBLUEs" %in% what) {
       ## Add a wt column.
+      nTr <- length(traits)
       for (trait in traits) {
-        predTr[[paste0("wt_", trait)]] <- 1 / predTr[[paste0("seBLUEs_", trait)]]
+        wtName <- ifelse(nTr == 1, "wt", paste0("wt_", trait))
+        predTr[[wtName]] <- 1 / predTr[[paste0("seBLUEs_", trait)]]
       }
     }
     return(predTr)
