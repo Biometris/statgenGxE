@@ -51,7 +51,8 @@ print.QTLDet <- function(x, ...) {
 }
 
 #' @export
-summary.QTLDet <- function(object, ...) {
+summary.QTLDet <- function(object,
+                           ...) {
   print(object, ...)
 }
 
@@ -61,15 +62,39 @@ summary.QTLDet <- function(object, ...) {
 #'
 #' @param x An object of class QTLDet
 #' @param ... Not used
+#' @param output Should the plot be output to the current device? If
+#' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
 #' @import graphics grDevices
 #' @export
 plot.QTLDet <- function(x,
-                        ...) {
-  plot(x$scores, ylab = "LOD", ...)
+                        ...,
+                        output = TRUE) {
+  p <- ggplot2::ggplot(data = x$scores,
+                       ggplot2::aes_string(x = "pos", y = "lod")) +
+    ggplot2::geom_line() +
+    ## Add grid for plotting per chromosome. Scales and space free for x to
+    ## get proper width for all chromosomes.
+    ggplot2::facet_grid(rows = formula("~chr"), scales = "free_x",
+                        space = "free_x") +
+    ## Set continuous scales to start axes at (0,0).
+    ggplot2::scale_y_continuous(limits = c(0, NA), expand = c(0, 0)) +
+    ggplot2::scale_x_continuous(limits = c(0, NA), expand = c(0, 0)) +
+    ## Add cartesian coordinate system to get access to clip off option
+    ## Needed for adding peaks.
+    ggplot2::coord_cartesian(clip = 'off') +
+    ggplot2::labs(x = "Chromosome", y = "LOD")
   if (x$type == "CIM") {
-    qtl::add.cim.covar(x$scores)
+    if (nrow(x$peaks) > 0) {
+      ## Add peaks as red dots on x-axis.
+      p <- p + ggplot2::geom_point(data = x$peaks,
+                                   ggplot2::aes_string(y = 0), color = "red")
+    }
   }
+  if (output) {
+    plot(p)
+  }
+  invisible(p)
 }
 
 #' Report method for class QTLDet

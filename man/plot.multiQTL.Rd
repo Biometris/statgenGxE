@@ -5,14 +5,17 @@
 \title{Plot function for class multiQTL}
 \usage{
 \method{plot}{multiQTL}(x, ...,
-  main = "QTL estimates and confidence intervals")
+  title = "QTL estimates and confidence intervals", output = TRUE)
 }
 \arguments{
 \item{x}{An object of class multiQTL}
 
 \item{...}{Further graphical parameters. Currently not used.}
 
-\item{main}{A character string used as overall title for the plot.}
+\item{title}{A character string used as overall title for the plot.}
+
+\item{output}{Should the plot be output to the current device? If
+\code{FALSE} only a list of ggplot objects is invisibly returned.}
 }
 \description{
 Plotting function for objects of class multiQTL. Plots the estimates of the

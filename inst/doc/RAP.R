@@ -38,7 +38,7 @@ getMeta(TD = wheatTD)
 ## ----TDsum---------------------------------------------------------------
 summary(wheatTD, trial = "SR_FI_11", traits = "GY")
 
-## ----layoutPlot----------------------------------------------------------
+## ----layoutPlot,fig.height=7---------------------------------------------
 plot(wheatTD, trials = "SR_FI_11")
 
 ## ----mapPlot-------------------------------------------------------------
@@ -96,10 +96,10 @@ predWheat <- STExtract(SSA = modWheatSp, what = c("BLUEs", "BLUPs"))
 
 ## ----extBLUEsKeep--------------------------------------------------------
 BLUEsWheat2 <- STExtract(SSA = modWheatSp, what = "BLUEs", keep = "trial")
-head(BLUEsWheat2[[1]])
+head(BLUEsWheat2[[1]]$BLUEs)
 
 ## ----extFit--------------------------------------------------------------
 fitVals <- STExtract(SSA = modWheatSp, what = "fitted", 
                      keep = c("trial", "repId"))
-head(fitVals[[1]])
+head(fitVals[[1]]$fitted)
 

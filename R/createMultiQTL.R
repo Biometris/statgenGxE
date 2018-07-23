@@ -51,7 +51,9 @@ summary.multiQTL <- function(object, ...) {
 #'
 #' @param x An object of class multiQTL
 #' @param ... Further graphical parameters. Currently not used.
-#' @param main A character string used as overall title for the plot.
+#' @param title A character string used as overall title for the plot.
+#' @param output Should the plot be output to the current device? If
+#' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
 #' @examples
 #' ## Read the data
@@ -71,14 +73,15 @@ summary.multiQTL <- function(object, ...) {
 #' @export
 plot.multiQTL <- function(x,
                           ...,
-                          main = "QTL estimates and confidence intervals") {
+                          title = "QTL estimates and confidence intervals",
+                          output = TRUE) {
   ## Create plotData by extracting estimates and SE from summary.
   ## Remove intercept.
   summ <- summary(x$qtl)
   plotData <- as.data.frame(summ[["ests"]][-1, 1:2, drop = FALSE])
   ## Define as factor to prevent ggplot from plotting QTLs alphabetically.
   plotData$qtl <- factor(rownames(plotData), levels = rownames(plotData))
-  ggplot2::ggplot(plotData, ggplot2::aes_string(x = "qtl", y = "est")) +
+  p <- ggplot2::ggplot(plotData, ggplot2::aes_string(x = "qtl", y = "est")) +
     ggplot2::geom_point(size = 2) +
     ggplot2::geom_errorbar(ggplot2::aes_string(ymin = "est - SE",
                                                ymax = "est + SE"),
@@ -86,9 +89,13 @@ plot.multiQTL <- function(x,
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90,
                                                       vjust = 0.3, hjust = 1),
                    plot.title = ggplot2::element_text(hjust = 0.5)) +
-    ggplot2::ggtitle(main) +
+    ggplot2::ggtitle(title) +
     ggplot2::ylab("estimates") +
     ggplot2::geom_hline(yintercept = 0)
+  if (output) {
+    plot(p)
+  }
+  invisible(p)
 }
 
 #' Report method for class multiQTL

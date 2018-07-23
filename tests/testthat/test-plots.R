@@ -25,24 +25,41 @@ test_that("FW plot gives correct output types", {
 })
 
 test_that("SSA plot gives correct output types", {
- SSA <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
- p1 <- plot(SSA, output = FALSE)
- p2 <- plot(SSA, plotType = "spatial", output = FALSE)
- expect_is(p1, "list")
- expect_length(p1, 4)
- lapply(X = p1, FUN = expect_is, "ggplot")
- expect_is(p2, "list")
- expect_length(p2, 6)
- lapply(X = p2, FUN = expect_is, "ggplot")
+  SSA <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+  p1 <- plot(SSA, output = FALSE)
+  p2 <- plot(SSA, plotType = "spatial", output = FALSE)
+  expect_is(p1, "list")
+  expect_length(p1, 4)
+  lapply(X = p1, FUN = expect_is, "ggplot")
+  expect_is(p2, "list")
+  expect_length(p2, 6)
+  lapply(X = p2, FUN = expect_is, "ggplot")
 })
 
 test_that("stability plot gives correct output types", {
- geStab <- gxeStability(TD = TDMaize, trait = "yld")
- p1 <- plot(geStab, output = FALSE)
- expect_is(p1, "list")
- expect_length(p1, 4)
- lapply(X = p1, FUN = expect_is, "ggplot")
- geStab2 <- gxeStability(TD = TDMaize, trait = "yld", method = "superiority")
- p2 <- plot(geStab2, output = FALSE)
- expect_length(p2, 1)
+  geStab <- gxeStability(TD = TDMaize, trait = "yld")
+  p1 <- plot(geStab, output = FALSE)
+  expect_is(p1, "list")
+  expect_length(p1, 4)
+  lapply(X = p1, FUN = expect_is, "ggplot")
+  geStab2 <- gxeStability(TD = TDMaize, trait = "yld", method = "superiority")
+  p2 <- plot(geStab2, output = FALSE)
+  expect_length(p2, 1)
 })
+
+test_that("QTLDet plot gives correct output types", {
+  QTLDetF2 <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed",
+                        thrFixed = 1.5, window = 2)
+  p <- plot(QTLDetF2, output = FALSE)
+  expect_is(p, "ggplot")
+})
+
+test_that("multiQTL plot gives correct output types", {
+  QTLDetF2 <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed",
+                        thrFixed = 1.5, window = 2)
+  mqf <- multiQTLFit(QTLDetF2)
+  p <- plot(mqf, output = FALSE)
+  expect_is(p, "ggplot")
+})
+
+

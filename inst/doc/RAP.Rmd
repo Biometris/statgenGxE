@@ -158,7 +158,7 @@ The default plot creates plots for the layout of all trials in the `TD` object.
 This can be restricted to selected trials using the `trials` parameter. The 
 width and length of the plot are derived from the trPlWidth and trPlLength in 
 the meta data if these are available.  
-```{r layoutPlot}
+```{r layoutPlot,fig.height=7}
 plot(wheatTD, trials = "SR_FI_11")
 ```
 
@@ -415,7 +415,7 @@ output, useful for easily combining several `data.frames` with BLUEs and using
 them for a GxE analysis use the following command
 ```{r extBLUEsKeep}
 BLUEsWheat2 <- STExtract(SSA = modWheatSp, what = "BLUEs", keep = "trial")
-head(BLUEsWheat2[[1]])
+head(BLUEsWheat2[[1]]$BLUEs)
 ```
 Not every column from the original `TD` object can be included in the extracted 
 data in this way. Only columns for which the values are uniform per genotype can 
@@ -427,7 +427,7 @@ for each observation in the original data a fitted value is returned.
 ```{r extFit}
 fitVals <- STExtract(SSA = modWheatSp, what = "fitted", 
                      keep = c("trial", "repId"))
-head(fitVals[[1]])
+head(fitVals[[1]]$fitted)
 ```
 
 ----

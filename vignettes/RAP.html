@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bart-Jan van Rossum" />
 
-<meta name="date" content="2018-07-19" />
+<meta name="date" content="2018-07-23" />
 
 <title>Modeling field trials using RAP</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Modeling field trials using RAP</h1>
 <h4 class="author"><em>Bart-Jan van Rossum</em></h4>
-<h4 class="date"><em>2018-07-19</em></h4>
+<h4 class="date"><em>2018-07-23</em></h4>
 
 
 
@@ -441,7 +441,7 @@ predWheat &lt;-<span class="st"> </span><span class="kw">STExtract</span>(<span 
 <h2><span class="header-section-number">4.2</span> Adding extra variables</h2>
 <p>The <code>data.frame</code> BLUEs in either of the <code>lists</code> consists of only 2 columns, genotype and GY. If the model would have been fitted for multiple traits all these traits would become columns in the <code>data.frame</code>. It might be useful to add extra columns from the data used to fit the model to the output. This can be achieved using the paramater <code>keep</code> in <code>STExtract</code>. To include the trial in the output, useful for easily combining several <code>data.frames</code> with BLUEs and using them for a GxE analysis use the following command</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">BLUEsWheat2 &lt;-<span class="st"> </span><span class="kw">STExtract</span>(<span class="dt">SSA =</span> modWheatSp, <span class="dt">what =</span> <span class="st">&quot;BLUEs&quot;</span>, <span class="dt">keep =</span> <span class="st">&quot;trial&quot;</span>)
-<span class="kw">head</span>(BLUEsWheat2[[<span class="dv">1</span>]])
+<span class="kw">head</span>(BLUEsWheat2[[<span class="dv">1</span>]]<span class="op">$</span>BLUEs)
 <span class="co">#&gt;   genotype    trial       GY</span>
 <span class="co">#&gt; 1     G001 SR_FI_11 8828.678</span>
 <span class="co">#&gt; 2     G002 SR_FI_11 8592.090</span>
@@ -453,7 +453,7 @@ predWheat &lt;-<span class="st"> </span><span class="kw">STExtract</span>(<span 
 It is however possible to include <code>repId</code> when extracting fitted values since for each observation in the original data a fitted value is returned.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fitVals &lt;-<span class="st"> </span><span class="kw">STExtract</span>(<span class="dt">SSA =</span> modWheatSp, <span class="dt">what =</span> <span class="st">&quot;fitted&quot;</span>, 
                      <span class="dt">keep =</span> <span class="kw">c</span>(<span class="st">&quot;trial&quot;</span>, <span class="st">&quot;repId&quot;</span>))
-<span class="kw">head</span>(fitVals[[<span class="dv">1</span>]])
+<span class="kw">head</span>(fitVals[[<span class="dv">1</span>]]<span class="op">$</span>fitted)
 <span class="co">#&gt;   repId genotype    trial       GY</span>
 <span class="co">#&gt; 1     1     G275 SR_FI_11 8234.353</span>
 <span class="co">#&gt; 2     1     G325 SR_FI_11 7660.984</span>
