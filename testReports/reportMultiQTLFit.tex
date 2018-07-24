@@ -110,12 +110,12 @@
 %-------------------------------------------------------------------------------
 \section{General information}
 %-------------------------------------------------------------------------------
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Mon Feb 19 10:34:22 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:33:45 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{ll}
-  Analysis done on & 18-02-19 10:27:48 \\ 
+  Analysis done on & 18-07-24 09:33:42 \\ 
   Pipeline version & 0.0.0.9000 \\ 
   \end{tabular}
 \label{general}
@@ -126,8 +126,8 @@
 %-------------------------------------------------------------------------------
 \section{Model}
 %-------------------------------------------------------------------------------
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Mon Feb 19 10:34:22 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:33:45 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{List of fitted candidate QTLs} 
@@ -136,17 +136,16 @@
   \hline
  & altName & chr & lod \\ 
   \hline
-M\_0121 & Q1@120 & 1 & 9.66 \\ 
-  M\_0213 & Q2@71 & 2 & 8.87 \\ 
-  M\_0438 & Q3@140 & 3 & 4.46 \\ 
-  M\_0569 & Q4@100 & 4 & 5.58 \\ 
-  c7.loc85 & Q7@85 & 7 & 4.10 \\ 
+M\_0121 & Q1@120 & 1 & 5.24 \\ 
+  c2.loc80 & Q2@80 & 2 & 5.11 \\ 
+  c2.loc110 & Q2@110 & 2 & 3.49 \\ 
+  M\_0569 & Q4@100 & 4 & 3.49 \\ 
    \hline
 \end{tabular}
 \end{flushleft}
 \end{table}
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Mon Feb 19 10:34:22 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:33:45 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Model} 
@@ -155,7 +154,7 @@ M\_0121 & Q1@120 & 1 & 9.66 \\
   Selection & backward \\ 
   Threshold & 0.05 \\ 
   Window & 30 \\ 
-  Final model & trait \texttildelow\ Q1@120 + Q2@71 + Q3@140 + Q4@100 + Q7@85 \\ 
+  Final model & trait \texttildelow\ Q1@120 + Q2@80 + Q4@100 \\ 
   \end{tabular}
 \end{flushleft}
 \end{table}
@@ -164,8 +163,8 @@ M\_0121 & Q1@120 & 1 & 9.66 \\
 %-------------------------------------------------------------------------------
 \section{Summary}
 %-------------------------------------------------------------------------------
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Mon Feb 19 10:34:22 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:33:45 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Full model result} 
@@ -174,8 +173,8 @@ M\_0121 & Q1@120 & 1 & 9.66 \\
   \hline
  & df & SS & MS & LOD & \%var & Pvalue(Chi2) & Pvalue(F) \\ 
   \hline
-Model & 10 & 19500 & 1950 & 23.92 & 52.02 & 0.00e+00 & 0.00e+00 \\ 
-  Error & 139 & 17984 & 129 &  &  &  &  \\ 
+Model & 6 & 14317 & 2386 & 15.67 & 38.19 & 1.46e-13 & 4.65e-13 \\ 
+  Error & 143 & 23168 & 162 &  &  &  &  \\ 
   Total & 149 & 37484 &  &  &  &  &  \\ 
    \hline
 \end{tabular}
@@ -183,55 +182,48 @@ Model & 10 & 19500 & 1950 & 23.92 & 52.02 & 0.00e+00 & 0.00e+00 \\
 \end{table}
 
 %-------------------------------------------------------------------------------
-\section{Anova}
-%-------------------------------------------------------------------------------
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Mon Feb 19 10:34:22 2018
+\section{Anova}% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:33:45 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{lrrrrrrrl}
   \hline
  & df & Type III SS & LOD & \%var & F value & Pvalue(Chi2) & Pvalue(F) &  \\ 
   \hline
-M\_0121 & 2 & 6509 & 10.06 & 17.36 & 25.15 & 8.68e-11 & 4.75e-10 & *** \\ 
-  M\_0213 & 2 & 5587 & 8.81 & 14.90 & 21.59 & 1.54e-09 & 6.83e-09 & *** \\ 
-  M\_0438 & 2 & 2724 & 4.59 & 7.27 & 10.53 & 2.54e-05 & 5.53e-05 & *** \\ 
-  M\_0569 & 2 & 4365 & 7.08 & 11.65 & 16.87 & 8.35e-08 & 2.76e-07 & *** \\ 
-  c7.loc85 & 2 & 2150 & 3.68 & 5.74 & 8.31 & 2.09e-04 & 3.90e-04 & *** \\ 
+M\_0121 & 2 & 6087 & 7.60 & 16.24 & 18.78 & 2.52e-08 & 5.71e-08 & *** \\ 
+  c2.loc80 & 2 & 4517 & 5.80 & 12.05 & 13.94 & 1.58e-06 & 2.95e-06 & *** \\ 
+  M\_0569 & 2 & 3189 & 4.20 & 8.51 & 9.84 & 6.31e-05 & 9.90e-05 & *** \\ 
    \hline  \multicolumn{8}{c}{Significance codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1} \\ \hline
 \end{tabular}
 \label{anova}
 \end{flushleft}
 \end{table}
-
 \clearpage
 %-------------------------------------------------------------------------------
 \section{Effects}
 %-------------------------------------------------------------------------------
-% latex table generated in R 3.4.3 by xtable 1.8-2 package
-% Mon Feb 19 10:34:22 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:33:45 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{lrr}
   \hline
  & estimate & SE \\ 
   \hline
-Intercept & 95.60 & 0.97 \\ 
-  M\_0121a & 9.73 & 1.40 \\ 
-  M\_0121d & -4.20 & 1.94 \\ 
-  M\_0213a & -6.95 & 1.35 \\ 
-  M\_0213d & -6.39 & 1.92 \\ 
-  M\_0438a & -6.51 & 1.42 \\ 
-  M\_0438d & -0.29 & 1.89 \\ 
-  M\_0569a & 8.27 & 1.42 \\ 
-  M\_0569d & 1.13 & 1.89 \\ 
-  c7.loc85a & 5.63 & 1.53 \\ 
-  c7.loc85d & 5.08 & 2.45 \\ 
+Intercept & 96.35 & 1.07 \\ 
+  M\_0121a & 9.44 & 1.55 \\ 
+  M\_0121d & -2.89 & 2.15 \\ 
+  c2.loc80a & -6.91 & 1.62 \\ 
+  c2.loc80d & -6.20 & 2.53 \\ 
+  M\_0569a & 6.88 & 1.58 \\ 
+  M\_0569d & -0.57 & 2.11 \\ 
    \hline
 \end{tabular}
 \label{effects}
 \end{flushleft}
 \end{table}
+
+\includegraphics[width=\maxwidth]{./figures/072418093345-effects-1} 
 
 %-------------------------------------------------------------------------------
 % End Document

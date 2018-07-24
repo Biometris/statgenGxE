@@ -77,10 +77,13 @@
 % For multiple columns.
 \usepackage{multicol}
 
+% Load required packages
+
+
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Single trial analysis for }%
+\title{Single trial analysis for yield}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
@@ -97,13 +100,10 @@
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
-% Load required packages
-
 
 
 % Article title, Authors and Affiliations
 \maketitle
-%\newpage
 
 % Start single line spacing
 \singlespacing
@@ -111,12 +111,12 @@
 %-------------------------------------------------------------------------------
 \section{General information}
 %-------------------------------------------------------------------------------
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:45:12 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:27:11 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{ll}
-  Analysis done on & 18-03-26 14:33:20 \\ 
+  Analysis done on & 18-07-24 09:16:06 \\ 
   Pipeline version & 0.0.0.9000 \\ 
   Mixed model engine & lme4 \\ 
   \end{tabular}
@@ -129,14 +129,14 @@
 \section{Description of the fitted model}
 %-------------------------------------------------------------------------------
 
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:45:12 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:27:11 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{ll}
   Trait & yield \\ 
   Experimental design features & block (R) \\ 
-  Spatial model & FALSE \\ 
+  Spatial model & none \\ 
   Genotype & fixed \\ 
   \end{tabular}
 \label{modelDescription}
@@ -148,8 +148,8 @@
 \section{Summary of the results}
 %-------------------------------------------------------------------------------
 
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:45:12 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:27:11 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Size of the data set and eight number descriptives} 
@@ -172,13 +172,13 @@ Number of observations & 338.00 \\
 \end{table}
 
 
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:45:12 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:27:11 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Variance components} 
 \label{varComps}
-\begin{tabular}{lc}
+\begin{tabular}{lr}
   \hline
  & Variance \\ 
   \hline
@@ -196,11 +196,11 @@ Block & 20.01 \\
 \section{Diagnostic plots}
 %-------------------------------------------------------------------------------
 
-\includegraphics[width=0.9\linewidth]{./figures/032618144511-spatialPlots-1} 
+\includegraphics[width=0.9\linewidth]{./figures/072418092710-spatialPlots-1} 
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-\includegraphics[width=0.9\linewidth]{./figures/032618144511-basePlots-1} 
+\includegraphics[width=0.9\linewidth]{./figures/072418092710-basePlots-1} 
 
 \end{knitrout}
 \newpage
@@ -211,8 +211,8 @@ highest BLUEs}
 %-------------------------------------------------------------------------------
 
 \begin{multicols*}{2}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:45:15 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:27:15 2018
 \begin{tabular}{lcc}
   \hline
 genotype & yield & SE \\ 
@@ -240,7 +240,7 @@ SB023 & 302.84 & 30.19 \\
 \columnbreak
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-\includegraphics[width=0.9\linewidth]{./figures/032618144511-predPlot-1} 
+\includegraphics[width=0.9\linewidth]{./figures/072418092710-predPlot-1} 
 
 \end{knitrout}
 \end{multicols*}

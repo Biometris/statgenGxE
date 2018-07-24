@@ -105,14 +105,14 @@
 %-------------------------------------------------------------------------------
 \section{General information}
 %-------------------------------------------------------------------------------
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:26:58 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:35:09 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{ll}
-  Analysis done on & 18-03-26 14:26:23 \\ 
+  Analysis done on & 18-07-24 09:35:07 \\ 
   Pipeline version & 0.0.0.9000 \\ 
-  Mixed model engine & asreml \\ 
+  Mixed model engine & lme4 \\ 
   \end{tabular}
 \label{general}
 \end{flushleft}
@@ -122,8 +122,8 @@
 %-------------------------------------------------------------------------------
 \section{Summary}
 %-------------------------------------------------------------------------------
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:26:58 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:35:09 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Fitted models ordered by BIC} 
@@ -132,14 +132,7 @@
   \hline
  & AIC & BIC & Deviance & NParameters \\ 
   \hline
-fa & 17471 & 17555 & 17439 & 16 \\ 
-  outside & 17523 & 17571 & 17505 & 9 \\ 
-  fa2 & 17455 & 17577 & 17409 & 23 \\ 
-  unstructured & 17456 & 17647 & 17384 & 36 \\ 
-  hcs & 17692 & 17740 & 17674 & 9 \\ 
-  cs & 17918 & 17928 & 17914 & 2 \\ 
-  diagonal & 17906 & 17949 & 17890 & 8 \\ 
-  identity & 18287 & 18292 & 18285 & 1 \\ 
+cs & 21005 & 21016 & 21001 & 2 \\ 
    \hline
 \end{tabular}
 \end{flushleft}
@@ -149,28 +142,23 @@ fa & 17471 & 17555 & 17439 & 16 \\
 %-------------------------------------------------------------------------------
 \section{Covariance matrix}
 %-------------------------------------------------------------------------------
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:26:58 2018
-\begin{table}[ht]
-\begin{flushleft}
-\caption{Covariance matrix for the best model} 
+\begin{table}[ht]\begin{flushleft}\caption{Covariance matrix for the best model}% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:35:09 2018
 \begin{tabular}{rrrrrrrrr}
   \hline
  & HN96b & IS92a & IS94a & LN96a & LN96b & NS92a & SS92a & SS94a \\ 
   \hline
-HN96b & 106.81 & 38.67 & 41.05 & 10.14 & 6.89 & 43.59 & 29.72 & 38.41 \\ 
-  IS92a & 38.67 & 101.30 & 59.52 & 14.71 & 9.98 & 63.20 & 43.10 & 55.69 \\ 
-  IS94a & 41.05 & 59.52 & 103.60 & 15.61 & 10.60 & 67.10 & 45.75 & 59.12 \\ 
-  LN96a & 10.14 & 14.71 & 15.61 & 20.63 & 2.62 & 16.58 & 11.31 & 14.61 \\ 
-  LN96b & 6.89 & 9.98 & 10.60 & 2.62 & 18.53 & 11.25 & 7.67 & 9.92 \\ 
-  NS92a & 43.59 & 63.20 & 67.10 & 16.58 & 11.25 & 185.11 & 48.58 & 62.78 \\ 
-  SS92a & 29.72 & 43.10 & 45.75 & 11.31 & 7.67 & 48.58 & 81.36 & 42.81 \\ 
-  SS94a & 38.41 & 55.69 & 59.12 & 14.61 & 9.92 & 62.78 & 42.81 & 107.51 \\ 
+HN96b & 90.61 & 31.62 & 31.62 & 31.62 & 31.62 & 31.62 & 31.62 & 31.62 \\ 
+  IS92a & 31.62 & 90.61 & 31.62 & 31.62 & 31.62 & 31.62 & 31.62 & 31.62 \\ 
+  IS94a & 31.62 & 31.62 & 90.61 & 31.62 & 31.62 & 31.62 & 31.62 & 31.62 \\ 
+  LN96a & 31.62 & 31.62 & 31.62 & 90.61 & 31.62 & 31.62 & 31.62 & 31.62 \\ 
+  LN96b & 31.62 & 31.62 & 31.62 & 31.62 & 90.61 & 31.62 & 31.62 & 31.62 \\ 
+  NS92a & 31.62 & 31.62 & 31.62 & 31.62 & 31.62 & 90.61 & 31.62 & 31.62 \\ 
+  SS92a & 31.62 & 31.62 & 31.62 & 31.62 & 31.62 & 31.62 & 90.61 & 31.62 \\ 
+  SS94a & 31.62 & 31.62 & 31.62 & 31.62 & 31.62 & 31.62 & 31.62 & 90.61 \\ 
    \hline
 \end{tabular}
-\end{flushleft}
-\end{table}
-
+\end{flushleft}\end{table}
 
 %-------------------------------------------------------------------------------
 \section{Heatmap}
@@ -179,7 +167,7 @@ Heatmap for the fitted correlation between environments from the best model
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
 
-\includegraphics[width=10cm,height=10cm]{./figures/032618142658-heatmap-1} \hfill{}
+\includegraphics[width=10cm,height=10cm]{./figures/072418093509-heatmap-1} \hfill{}
 
 
 

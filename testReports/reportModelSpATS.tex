@@ -77,10 +77,13 @@
 % For multiple columns.
 \usepackage{multicol}
 
+% Load required packages
+
+
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Single trial analysis for }%
+\title{Single trial analysis for yield}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
@@ -97,13 +100,10 @@
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
-% Load required packages
-
 
 
 % Article title, Authors and Affiliations
 \maketitle
-%\newpage
 
 % Start single line spacing
 \singlespacing
@@ -111,12 +111,12 @@
 %-------------------------------------------------------------------------------
 \section{General information}
 %-------------------------------------------------------------------------------
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:45:19 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:27:21 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{ll}
-  Analysis done on & 18-03-26 14:41:25 \\ 
+  Analysis done on & 18-07-24 09:16:40 \\ 
   Pipeline version & 0.0.0.9000 \\ 
   Mixed model engine & SpATS \\ 
   \end{tabular}
@@ -129,8 +129,8 @@
 \section{Description of the fitted model}
 %-------------------------------------------------------------------------------
 
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:45:19 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:27:21 2018
 \begin{table}[ht]
 \begin{flushleft}
 \begin{tabular}{ll}
@@ -148,8 +148,8 @@
 \section{Summary of the results}
 %-------------------------------------------------------------------------------
 
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:45:19 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:27:21 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Size of the data set and eight number descriptives} 
@@ -172,8 +172,8 @@ Number of observations & 338.00 \\
 \end{table}
 
 \newpage
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:45:19 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:27:21 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Effective dimensions} 
@@ -203,8 +203,8 @@ Genotype & 168.0 & 168 & 168 & 1.00 & F \\
 \end{tabular}
 \end{flushleft}
 \end{table}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:45:19 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:27:21 2018
 \begin{table}[ht]
 \begin{flushleft}
 \caption{Variance components} 
@@ -219,9 +219,9 @@ Row(replicate) & 34.27 \\
   Smooth trend along rows & 78.89 \\ 
   Linear trend in rows changing smoothly along cols & 0.00 \\ 
   Linear trend in cols changing smoothly along rows & 0.59 \\ 
-  Smooth-by-smooth interaction trend over rows and cols & 1732.00 \\ 
+  Smooth-by-smooth interaction trend over rows and cols & 1731.91 \\ 
    &  \\ 
-  Residual & 213.80 \\ 
+  Residual & 213.84 \\ 
    \hline
 \end{tabular}
 \end{flushleft}
@@ -233,11 +233,11 @@ Row(replicate) & 34.27 \\
 \section{Diagnostic plots}
 %-------------------------------------------------------------------------------
 
-\includegraphics[width=0.9\linewidth]{./figures/032618144518-spatialPlots-1} 
+\includegraphics[width=0.9\linewidth]{./figures/072418092720-spatialPlots-1} 
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-\includegraphics[width=0.9\linewidth]{./figures/032618144518-basePlots-1} 
+\includegraphics[width=0.9\linewidth]{./figures/072418092720-basePlots-1} 
 
 \end{knitrout}
 \newpage
@@ -248,8 +248,8 @@ highest BLUEs}
 %-------------------------------------------------------------------------------
 
 \begin{multicols*}{2}
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Mar 26 14:45:20 2018
+% latex table generated in R 3.5.1 by xtable 1.8-2 package
+% Tue Jul 24 09:27:23 2018
 \begin{tabular}{lcc}
   \hline
 genotype & yield & SE \\ 
@@ -277,7 +277,7 @@ SB023 & 288.69 & 11.81 \\
 \columnbreak
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-\includegraphics[width=0.9\linewidth]{./figures/032618144518-predPlot-1} 
+\includegraphics[width=0.9\linewidth]{./figures/072418092720-predPlot-1} 
 
 \end{knitrout}
 \end{multicols*}
