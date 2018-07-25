@@ -135,11 +135,15 @@ plot.AMMI <- function(x,
     ## Create dataframes for genotypes and environments.
     genoDat <- data.frame(x = x$genoMean, y = scores[, 1] / lam)
     envDat <- data.frame(x = x$envMean, y = loadings[, 1] * lam)
+    plotRatio <- (max(c(x$genoMean, x$envMean)) - min(c(x$genoMean, x$envMean))) /
+      (max(c(scores[, 1] / lam, loadings[, 1] * lam)) -
+         min(c(scores[, 1] / lam, loadings[, 1] * lam)))
     p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "x", y = "y")) +
       ## Plot genotypes as points.
       ggplot2::geom_point(color = col[1]) +
       ## Needed for a square plot output.
-      ggplot2::coord_equal(clip = "off") +
+      #ggplot2::coord_equal(clip = "off") +
+      ggplot2::coord_fixed(ratio = plotRatio, clip = "off") +
       ## Plot environments as texts.
       ggplot2::geom_text(data = envDat,
                          ggplot2::aes_string(x = "x", y = "y",
@@ -181,11 +185,15 @@ plot.AMMI <- function(x,
     ## Rescale data. 0.6 is more or less random but seems to work well in
     ## practice.
     envDat <- envDat * mult * 0.6
+    plotRatio <- (max(c(envDat[["PC1"]], genoDat[["PC1"]])) -
+                    min(c(envDat[["PC1"]], genoDat[["PC1"]]))) /
+      (max(c(envDat[["PC2"]], genoDat[["PC2"]])) -
+         min(c(envDat[["PC2"]], genoDat[["PC2"]])))
     p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "PC1", y = "PC2")) +
       ## Plot genotypes as points.
       ggplot2::geom_point(color = col[1]) +
       ## Needed for a square plot output.
-      ggplot2::coord_equal(clip = "off") +
+      ggplot2::coord_fixed(clip = "off", ratio = plotRatio) +
       ## Plot environments as texts.
       ggplot2::geom_text(data = envDat,
                          ggplot2::aes_string(x = "PC1", y = "PC2",
