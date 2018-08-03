@@ -81,7 +81,7 @@ multMissing <- function(Y,
   } else {
     Y <- tryCatchExt(apply(X = Y, MARGIN = 2, FUN = as.numeric))
     if (length(Y$warning != 0)) {
-      warning("Warning when converting data to numeric values. Invalid values
+      warning("Warning when converting data to numerical values. Invalid values
               were converted to NA. Make sure to check output.\n",
               call. = FALSE)
     }

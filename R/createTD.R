@@ -573,7 +573,7 @@ plot.TD <- function(x,
         borderDat <- reshape2::melt(B)
       }
       ## Create base plot.
-      outPlot <- ggplot2::ggplot(data = trDat,
+      p <- ggplot2::ggplot(data = trDat,
                                  ggplot2::aes_string(x = "colCoord",
                                                      y = "rowCoord")) +
         ggplot2::geom_tile(ggplot2::aes_string(fill = "subBlock"),
@@ -585,7 +585,7 @@ plot.TD <- function(x,
         ggplot2::ggtitle(trLoc)
       if ("repId" %in% colnames(trDat)) {
         ## Add lines for replicates.
-        outPlot <- outPlot +
+        p <- p +
           ggplot2::geom_path(ggplot2::aes_string(x = "Var1 - 0.5",
                                                  y = "Var2 - 0.5",
                                                  group = "value",
@@ -595,10 +595,9 @@ plot.TD <- function(x,
           ggplot2::labs(color = "") +
           ggplot2::scale_color_manual(values = c("replicates" = "black"))
       }
-      if (output) {
-        plot(outPlot)
+      if (p) {
+        plot(p)
       }
-      invisible(outPlot)
     }
   } else if (plotType == "map") {
     ## Create a data.frame for plotting trials.
@@ -618,23 +617,19 @@ plot.TD <- function(x,
         ggplot2::geom_polygon(ggplot2::aes_string(group = "group"),
                               fill = "white", color = "black") +
         ## Add a proper map projection.
-        ggplot2::coord_map() +
+        ggplot2::coord_map(clip = "off") +
         ## Add trial locations.
         ggplot2::geom_point(data = locs) +
         ggplot2::geom_text(ggplot2::aes_string(label = "name"), data = locs,
                            color = "red", size = 3, hjust = "outward",
                            vjust = "outward") +
         ggplot2::ggtitle("Trial locations")
-      ## Turn off panel clipping.
-      gt <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(p))
-      gt$layout$clip[gt$layout$name == "panel"] <- "off"
       if (output) {
-        ## Plot results.
-        gridExtra::grid.arrange(gt)
+        plot(p)
       }
-      invisible(gt)
     }
   }
+  invisible(p)
 }
 
 #' Extract metadata from TD objects

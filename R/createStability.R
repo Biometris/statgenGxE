@@ -164,6 +164,3 @@ report.stability <- function(x,
   createReport(x = x, reportName = "stabilityReport.Rnw",
                outfile = outfile, ...)
 }
-
-
-

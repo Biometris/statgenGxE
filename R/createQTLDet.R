@@ -80,9 +80,9 @@ plot.QTLDet <- function(x,
     ## Set continuous scales to start axes at (0,0).
     ggplot2::scale_y_continuous(limits = c(0, NA), expand = c(0, 0)) +
     ggplot2::scale_x_continuous(limits = c(0, NA), expand = c(0, 0)) +
-    ## Add cartesian coordinate system to get access to clip off option
+    ## Add cartesian coordinate system to get access to clip off option.
     ## Needed for adding peaks.
-    ggplot2::coord_cartesian(clip = 'off') +
+    ggplot2::coord_cartesian(clip = "off") +
     ggplot2::labs(x = "Chromosome", y = "LOD")
   if (x$type == "CIM") {
     if (nrow(x$peaks) > 0) {

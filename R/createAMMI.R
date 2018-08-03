@@ -142,7 +142,6 @@ plot.AMMI <- function(x,
       ## Plot genotypes as points.
       ggplot2::geom_point(color = col[1]) +
       ## Needed for a square plot output.
-      #ggplot2::coord_equal(clip = "off") +
       ggplot2::coord_fixed(ratio = plotRatio, clip = "off") +
       ## Plot environments as texts.
       ggplot2::geom_text(data = envDat,
