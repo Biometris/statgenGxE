@@ -10,6 +10,9 @@
 #' @param trait A character string specifying the trait to be analyzed.
 #' @param nPC An integer specifying the number of principal components used
 #' as multiplicative term of genotype-by-trial interaction.
+#' @param byYear Should the analysis be done by year? If \code{TRUE} the data
+#' is split by the variable year, analysis is performed and the results are
+#' merged together and returned.
 #' @param center Should the variables be shifted to be zero centered?
 #' @param scale Should the variables be scaled to have unit variance?
 #' @param GGE Should a GGE analysis be performed instead of a regular AMMI
@@ -53,6 +56,7 @@ gxeAmmi <- function(TD,
                     trials = names(TD),
                     trait,
                     nPC = 2,
+                    byYear = FALSE,
                     center = TRUE,
                     scale = FALSE,
                     GGE = FALSE,
@@ -75,109 +79,124 @@ gxeAmmi <- function(TD,
   if (useWt && !hasName(x = TDTot, name = "wt")) {
     stop("wt has to be a column in TD when using weighting.")
   }
-  ## Remove genotypes that contain only NAs
-  allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {
-    all(is.na(x[trait]))
-  })
-  TDTot <- TDTot[!TDTot$genotype %in% names(allNA[allNA]), ]
-  ## Drop levels to make sure prcomp doesn't crash.
-  TDTot$genotype <- droplevels(TDTot$genotype)
-  TDTot$trial <- droplevels(TDTot$trial)
-  ## Count number of genotypes, environments and traits.
-  nGeno <- nlevels(TDTot$genotype)
-  nEnv <- nlevels(TDTot$trial)
-  nTrait <- nrow(TDTot)
-  ## At least 3 trials needed.
-  if (nEnv < 3) {
-    stop("TD should contain at least 3 trials to run the AMMI model.\n")
+  TDTot$year. <- if (byYear) {
+    TDTot$year
+  } else {
+    0
   }
-  ## check if the supplied data contains the genotype by environment means.
-  if (nTrait > nGeno * nEnv) {
-    stop("TD should contain 1 value per trial per genotype.\n")
+  years <- unique(TDTot$year.)
+  fitTot <- data.frame(genotype = unique(TDTot$genotype))
+  for (year in years) {
+    TDYear <- TDTot[TDTot$year. == year, ]
+    ## Remove genotypes that contain only NAs
+    allNA <- by(TDYear, TDYear$genotype, FUN = function(x) {
+      all(is.na(x[trait]))
+    })
+    TDYear <- TDYear[!TDYear$genotype %in% names(allNA[allNA]), ]
+    ## Drop levels to make sure prcomp doesn't crash.
+    TDYear$genotype <- droplevels(TDYear$genotype)
+    TDYear$trial <- droplevels(TDYear$trial)
+    ## Count number of genotypes, environments and traits.
+    nGeno <- nlevels(TDYear$genotype)
+    nEnv <- nlevels(TDYear$trial)
+    nTrait <- nrow(TDYear)
+    ## At least 3 trials needed.
+    if (nEnv < 3) {
+      stop("TD should contain at least 3 trials to run the AMMI model.\n")
+    }
+    ## check if the supplied data contains the genotype by environment means.
+    if (nTrait > nGeno * nEnv) {
+      stop("TD should contain 1 value per trial per genotype.\n")
+    }
+    if (!is.numeric(nPC) || length(nPC) > 1 || round(nPC) != nPC || nPC < 0 ||
+        nPC > min(nEnv, nGeno)) {
+      stop("nPC should be an integer smaller than the number of trials.\n")
+    }
+    ## Add combinations of trial and genotype currently not in TD to TD.
+    TDYear <- reshape2::melt(data = reshape2::dcast(data = TDYear,
+                                                   formula = trial ~ genotype,
+                                                   value.var = trait),
+                            id.vars = "trial", variable.name = "genotype",
+                            value.name = trait)
+    ## Impute missing values
+    if (any(is.na(TDYear[[trait]]))) {
+      ## Transform data to genotype x trial matrix.
+      y0 <- tapply(X = TDYear[[trait]],
+                   INDEX = TDYear[, c("genotype", "trial")], FUN = identity)
+      ## Actual imputation.
+      y1 <- multMissing(y0, maxIter = 50)
+      ## Insert imputed values back into original data.
+      TDYear[is.na(TDYear[[trait]]), trait] <- y1[is.na(y0)]
+    }
+    ## Set wt to 1 if no weighting is used.
+    if (!useWt) {
+      TDYear$wt <- 1
+    }
+    ## Fit linear model.
+    modForm <- formula(paste(trait, "~", if (!GGE) "genotype +", "trial"))
+    model <- lm(modForm, data = TDYear, weights = TDYear$wt)
+    ## Calculate residuals & fitted values of the linear model.
+    resids <- tapply(X = resid(model), INDEX = TDYear[, c("genotype", "trial")],
+                     FUN = identity)
+    fittedVals <- tapply(X = fitted(model),
+                         INDEX = TDYear[, c("genotype", "trial")],
+                         FUN = identity)
+    # Compute principal components.
+    pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
+                  scale. = scale, rank. = nPC)
+    loadings <- pca$rotation
+    scores <- pca$x
+    ## Compute AMMI-estimates per genotype per trial.
+    mTerms <- matrix(data = 0, nrow = nGeno, ncol = nEnv)
+    for (i in 1:nPC) {
+      mTerms <- mTerms + outer(scores[, i], loadings[, i])
+    }
+    fitted <- fittedVals + mTerms
+    ## Extract ANOVA table for linear model.
+    anv <- anova(model)
+    rownames(anv)[rownames(anv) == "Residuals"] <- "Interactions"
+    ## Create empty base table for extending anova table.
+    addTbl <- matrix(data = NA, nrow = nPC + 1, ncol = 5,
+                     dimnames = list(c(paste0("PC", 1:nPC), "Residuals"),
+                                     colnames(anv)))
+    ## Compute degrees of freedom and add to table.
+    dfPC <- nGeno + nEnv - 3 - (2 * (1:nPC - 1))
+    dfResid <- anv["Interactions", "Df"] - sum(dfPC)
+    addTbl[, "Df"] <- c(dfPC, dfResid)
+    ## Compute sum of squares for PC and residuals and add to table.
+    PCAVar <- pca$sdev ^ 2
+    propVar <- PCAVar / sum(PCAVar)
+    ssPC <- anv["Interactions", "Sum Sq"] * propVar[1:nPC]
+    ssResid <- anv["Interactions", "Sum Sq"] - sum(ssPC)
+    addTbl[, "Sum Sq"] <- c(ssPC, ssResid)
+    ## Compute mean squares for PC scores and residuals and add to table.
+    addTbl[, "Mean Sq"] <- addTbl[, "Sum Sq"] / addTbl[, "Df"]
+    ## Convert infinite values to NA.
+    addTbl[, "Mean Sq"][is.infinite(addTbl[, "Mean Sq"])] <- NA
+    ## Add the F-values for PC scores.
+    addTbl[1:nPC, "F value"] <- addTbl[1:nPC, "Mean Sq"] /
+      addTbl["Residuals", "Mean Sq"]
+    ## Add the p-values for PC scores.
+    addTbl[1:nPC, "Pr(>F)"] <- 1 - pf(q = addTbl[1:nPC, "F value"],
+                                      df1 = dfPC, df2 = dfResid)
+    ## Create complete ANOVA table.
+    anv <- rbind(anv, addTbl)
+    ## Extract importance from pca object.
+    importance <- as.data.frame(summary(pca)$importance)
+    colnames(importance) <- paste0("PC", 1:ncol(importance))
+    ## Compute means.
+    envMean <- tapply(X = TDYear[[trait]], INDEX = TDYear$trial, FUN = mean)
+    envMean <- setNames(as.numeric(envMean), names(envMean))
+    genoMean <- tapply(X = TDYear[[trait]], INDEX = TDYear$genotype, FUN = mean)
+    genoMean <- setNames(as.numeric(genoMean), names(genoMean))
+    overallMean <- mean(TDYear[[trait]])
+    fitTot <- merge(fitTot, fitted, by.x = "genotype", by.y = "row.names",
+                    all.x = TRUE)
   }
-  if (!is.numeric(nPC) || length(nPC) > 1 || round(nPC) != nPC || nPC < 0 ||
-      nPC > min(nEnv, nGeno)) {
-    stop("nPC should be an integer smaller than the number of trials.\n")
-  }
-  ## Add combinations of trial and genotype currently not in TD to TD.
-  TDTot <- reshape2::melt(data = reshape2::dcast(data = TDTot,
-                                                 formula = trial ~ genotype,
-                                                 value.var = trait),
-                          id.vars = "trial", variable.name = "genotype",
-                          value.name = trait)
-  ## Impute missing values
-  if (any(is.na(TDTot[[trait]]))) {
-    ## Transform data to genotype x trial matrix.
-    y0 <- tapply(X = TDTot[[trait]], INDEX = TDTot[, c("genotype", "trial")],
-                 FUN = identity)
-    ## Actual imputation.
-    y1 <- multMissing(y0, maxIter = 50)
-    ## Insert imputed values back into original data.
-    TDTot[is.na(TDTot[[trait]]), trait] <- y1[is.na(y0)]
-  }
-  ## Set wt to 1 if no weighting is used.
-  if (!useWt) {
-    TDTot$wt <- 1
-  }
-  ## Fit linear model.
-  modForm <- formula(paste(trait, "~", if (!GGE) "genotype +", "trial"))
-  model <- lm(modForm, data = TDTot, weights = TDTot$wt)
-  ## Calculate residuals & fitted values of the linear model.
-  resids <- tapply(X = resid(model), INDEX = TDTot[, c("genotype", "trial")],
-                   FUN = identity)
-  fittedVals <- tapply(X = fitted(model),
-                       INDEX = TDTot[, c("genotype", "trial")], FUN = identity)
-  # Compute principal components.
-  pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
-                scale. = scale, rank. = nPC)
-  loadings <- pca$rotation
-  scores <- pca$x
-  ## Compute AMMI-estimates per genotype per trial.
-  mTerms <- matrix(data = 0, nrow = nGeno, ncol = nEnv)
-  for (i in 1:nPC) {
-    mTerms <- mTerms + outer(scores[, i], loadings[, i])
-  }
-  fitted <- fittedVals + mTerms
-  ## Extract ANOVA table for linear model.
-  anv <- anova(model)
-  rownames(anv)[rownames(anv) == "Residuals"] <- "Interactions"
-  ## Create empty base table for extending anova table.
-  addTbl <- matrix(data = NA, nrow = nPC + 1, ncol = 5,
-                   dimnames = list(c(paste0("PC", 1:nPC), "Residuals"),
-                                   colnames(anv)))
-  ## Compute degrees of freedom and add to table.
-  dfPC <- nGeno + nEnv - 3 - (2 * (1:nPC - 1))
-  dfResid <- anv["Interactions", "Df"] - sum(dfPC)
-  addTbl[, "Df"] <- c(dfPC, dfResid)
-  ## Compute sum of squares for PC and residuals and add to table.
-  PCAVar <- pca$sdev ^ 2
-  propVar <- PCAVar / sum(PCAVar)
-  ssPC <- anv["Interactions", "Sum Sq"] * propVar[1:nPC]
-  ssResid <- anv["Interactions", "Sum Sq"] - sum(ssPC)
-  addTbl[, "Sum Sq"] <- c(ssPC, ssResid)
-  ## Compute mean squares for PC scores and residuals and add to table.
-  addTbl[, "Mean Sq"] <- addTbl[, "Sum Sq"] / addTbl[, "Df"]
-  ## Convert infinite values to NA.
-  addTbl[, "Mean Sq"][is.infinite(addTbl[, "Mean Sq"])] <- NA
-  ## Add the F-values for PC scores.
-  addTbl[1:nPC, "F value"] <- addTbl[1:nPC, "Mean Sq"] /
-    addTbl["Residuals", "Mean Sq"]
-  ## Add the p-values for PC scores.
-  addTbl[1:nPC, "Pr(>F)"] <- 1 - pf(q = addTbl[1:nPC, "F value"],
-                                    df1 = dfPC, df2 = dfResid)
-  ## Create complete ANOVA table.
-  anv <- rbind(anv, addTbl)
-  ## Extract importance from pca object.
-  importance <- as.data.frame(summary(pca)$importance)
-  colnames(importance) <- paste0("PC", 1:ncol(importance))
-  ## Compute means.
-  envMean <- tapply(X = TDTot[[trait]], INDEX = TDTot$trial, FUN = mean)
-  envMean <- setNames(as.numeric(envMean), names(envMean))
-  genoMean <- tapply(X = TDTot[[trait]], INDEX = TDTot$genotype, FUN = mean)
-  genoMean <- setNames(as.numeric(genoMean), names(genoMean))
-  overallMean <- mean(TDTot[[trait]])
+  rownames(fitTot) <- fitTot$genotype
+  fitTot <- as.matrix(fitTot[-1])
   return(createAMMI(envScores = loadings, genoScores = scores,
-                    importance = importance, anova = anv, fitted = fitted,
+                    importance = importance, anova = anv, fitted = fitTot,
                     trait = trait, envMean = envMean, genoMean = genoMean,
                     overallMean = overallMean))
 }

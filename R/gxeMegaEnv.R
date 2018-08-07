@@ -60,16 +60,18 @@ gxeMegaEnv <- function(TD,
   ## Save and then drop factor levels.
   envLevels <- levels(TDTot$trial)
   TDTot$trial <- droplevels(TDTot$trial)
+  rmYear <- FALSE
   if (!hasName(x = TDTot, name = "year")) {
     TDTot$year <- 0
     rmYear <- TRUE
   }
+  if (!hasName(x = TDTot, name = "loc")) {
+    TDTot$loc <- TDTot$trial
+  }
   ## Perform AMMI analysis.
-  AMMI <- gxeAmmi(TD = TD, trait = trait, nPC = 2)
-  ## TEMPORARY LINES
-  TDTot$loc <- TDTot$trial
-  ####
-  ammiRaw <- reshape2::melt(AMMI$fitted, value.name = "ammiPred")
+  AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = 2, byYear = TRUE)
+  ammiRaw <- reshape2::melt(AMMI$fitted, varnames = c("genotype", "trial"),
+                            value.name = "ammiPred")
   ammiRaw <- merge(ammiRaw, TDTot[c("genotype", "trial", "loc", "year")])
   ## Compute quantile for determining best genotypes per year per location.
   quant <- tapply(X = ammiRaw$ammiPred, INDEX = list(ammiRaw$year, ammiRaw$loc),
@@ -114,7 +116,7 @@ gxeMegaEnv <- function(TD,
   distMat <- as.dist(sqrt(1 - corMat ^ 2))
   ## Cluster locations.
   tree <- hclust(distMat, method = "ward.D")
-  clustRes <- clustGr <- data.frame()
+  clustRes <- clustGrRes <- data.frame()
   CRDRMin <- Inf
   ## Create tempfile for diverting asreml output
   tmp <- tempfile()
@@ -147,7 +149,7 @@ gxeMegaEnv <- function(TD,
     CRDR <- rho * sqrt(H2Tr / H2Reg)
     if (CRDR < CRDRMin) {
       ## If CRDR is smaller than the previous minimum readjust values.
-      clustGr <- clustGr
+      clustGrRes <- clustGr
       clustRes <- modDat
       CRDRMin <- CRDR
     }
@@ -161,10 +163,10 @@ gxeMegaEnv <- function(TD,
   ## Create TD Output.
   TDOut <- createTD(clustRes)
   ## Attach cluster groups as attribute.
-  clustGr <- clustGr[order(clustGr$megaEnv), , drop = FALSE]
-  attr(TDOut, "sumTab") <- clustGr
+  clustGrRes <- clustGrRes[order(clustGrRes$megaEnv), , drop = FALSE]
+  attr(TDOut, "sumTab") <- clustGrRes
   if (sumTab) {
-    printCoefmat(clustGr)
+    printCoefmat(clustGrRes)
   }
   return(TDOut)
 }
@@ -198,6 +200,8 @@ combLocs <- function(l1,
                      r0,
                      Xi,
                      SXi) {
+  l1 <- as.character(l1)
+  l2 <- as.character(l2)
   ## Compute number of observations for combination of l1 and l2 per year.
   nl1l2 <- table(ammi[!is.na(ammi[, l1]) & !is.na(ammi[, l2]), ]$year)
   ## Extract correlations for l1 and l2 per year for list of correlations.
@@ -206,7 +210,7 @@ combLocs <- function(l1,
   inclObs <- !is.na(rl1l2)
   ## Compute combined correlation.
   combCor(Xi = Xi[, l1][inclObs], Yi = Xi[, l2][inclObs],
-          SXi = SXi[, l1][inclObs], SYi = SXi[, l2][inclObs], ni = nl1l2,
-          ri = rl1l2[inclObs])
+          SXi = SXi[, l1][inclObs], SYi = SXi[, l2][inclObs],
+          ni = nl1l2[inclObs], ri = rl1l2[inclObs])
 }
 
