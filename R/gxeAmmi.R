@@ -92,24 +92,28 @@ gxeAmmi <- function(TD,
     stop("TD should contain at least 3 trials to run the AMMI model.\n")
   }
   ## check if the supplied data contains the genotype by environment means.
-  if (nTrait != nGeno * nEnv) {
+  if (nTrait > nGeno * nEnv) {
     stop("TD should contain 1 value per trial per genotype.\n")
   }
   if (!is.numeric(nPC) || length(nPC) > 1 || round(nPC) != nPC || nPC < 0 ||
       nPC > min(nEnv, nGeno)) {
     stop("nPC should be an integer smaller than the number of trials.\n")
   }
+  ## Add combinations of trial and genotype currently not in TD to TD.
+  TDTot <- reshape2::melt(data = reshape2::dcast(data = TDTot,
+                                                 formula = trial ~ genotype,
+                                                 value.var = trait),
+                          id.vars = "trial", variable.name = "genotype",
+                          value.name = trait)
   ## Impute missing values
   if (any(is.na(TDTot[[trait]]))) {
     ## Transform data to genotype x trial matrix.
     y0 <- tapply(X = TDTot[[trait]], INDEX = TDTot[, c("genotype", "trial")],
                  FUN = identity)
-    yIndex <- tapply(X = 1:nTrait, INDEX = TDTot[, c("genotype", "trial")],
-                     FUN = identity)
     ## Actual imputation.
-    y1 <- multMissing(y0, maxIter = 10)
+    y1 <- multMissing(y0, maxIter = 50)
     ## Insert imputed values back into original data.
-    TDTot[yIndex[is.na(y0)], trait] <- y1[is.na(y0)]
+    TDTot[is.na(TDTot[[trait]]), trait] <- y1[is.na(y0)]
   }
   ## Set wt to 1 if no weighting is used.
   if (!useWt) {
@@ -121,11 +125,11 @@ gxeAmmi <- function(TD,
   ## Calculate residuals & fitted values of the linear model.
   resids <- tapply(X = resid(model), INDEX = TDTot[, c("genotype", "trial")],
                    FUN = identity)
-  fittedVals <- tapply(X = fitted(model), INDEX = TDTot[, c("genotype", "trial")],
-                       FUN = identity)
+  fittedVals <- tapply(X = fitted(model),
+                       INDEX = TDTot[, c("genotype", "trial")], FUN = identity)
   # Compute principal components.
-  pca <- prcomp(x = resids, retx = TRUE, center = center, scale. = scale,
-                rank. = nPC)
+  pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
+                scale. = scale, rank. = nPC)
   loadings <- pca$rotation
   scores <- pca$x
   ## Compute AMMI-estimates per genotype per trial.

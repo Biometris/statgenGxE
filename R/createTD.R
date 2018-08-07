@@ -6,7 +6,7 @@
 #' \itemize{
 #' \item{Check input data}
 #' \item{Rename columns to default column names - default column names:
-#' genotype, trial, megaEnv, year, repId, subBlock, rowId, rowCoord, colId,
+#' genotype, trial, loc, year, repId, subBlock, rowId, rowCoord, colId,
 #' colCoord, checkId}
 #' \item{Convert column types to default column types - rowCoord and colCoord
 #' are converted to numeric columns, all other renamed columns to factor
@@ -38,9 +38,8 @@
 #' \code{data} that contains genotypes.
 #' @param trial An optional character string indicating the column in
 #' \code{data} that contains trials.
-#' @param megaEnv An optional character string indicating the column in
-#' \code{data} that contains mega-environments as constructed by
-#' \code{\link{gxeMegaEnv}}.
+#' @param loc An optional character string indicating the column in
+#' \code{data} that contains trial locations.
 #' @param year An optional character string indicating the column in \code{data}
 #' that contains years.
 #' @param repId An optional character string indicating the column in
@@ -103,7 +102,7 @@ NULL
 createTD <- function(data,
                      genotype = NULL,
                      trial = NULL,
-                     megaEnv = NULL,
+                     loc = NULL,
                      year = NULL,
                      repId = NULL,
                      subBlock = NULL,
@@ -130,7 +129,7 @@ createTD <- function(data,
     stop("data has to be a data.frame.\n")
   }
   cols <- colnames(data)
-  for (param in c(genotype, trial, megaEnv, year, repId, subBlock, plot,
+  for (param in c(genotype, trial, loc, year, repId, subBlock, plot,
                   rowId, colId, rowCoord, colCoord, checkId)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
                             !hasName(data, param))) {
@@ -140,7 +139,7 @@ createTD <- function(data,
   checkTDMeta(trDesign = trDesign, trLat = trLat, trLong = trLong,
               trPlWidth = trPlWidth, trPlLength = trPlLength)
   ## Create list of reserved column names for renaming columns.
-  renameCols <- c("genotype", "trial", "megaEnv", "year", "repId", "plot",
+  renameCols <- c("genotype", "trial", "loc", "year", "repId", "plot",
                   "subBlock", "rowId", "colId", "rowCoord", "colCoord",
                   "checkId")
   ## First rename duplicate colums and add duplicated columns to data
@@ -167,7 +166,7 @@ createTD <- function(data,
   }
   colnames(data) <- cols
   ## Convert columns to factor if neccessary.
-  factorCols <-  c("genotype", "trial", "megaEnv", "year", "repId", "subBlock",
+  factorCols <-  c("genotype", "trial", "loc", "year", "repId", "subBlock",
                    "plot", "rowId", "colId", "checkId")
   for (factorCol in factorCols) {
     if (hasName(data, factorCol)) {
@@ -238,7 +237,7 @@ addTD <- function(TD,
                   data,
                   genotype = NULL,
                   trial = NULL,
-                  megaEnv = NULL,
+                  loc = NULL,
                   year = NULL,
                   repId = NULL,
                   subBlock = NULL,
@@ -256,7 +255,7 @@ addTD <- function(TD,
                   trPlWidth = NULL,
                   trPlLength = NULL) {
   TDNw <- createTD(data = data, genotype = genotype, trial = trial,
-                   megaEnv = megaEnv, year = year, repId = repId,
+                   loc = loc, year = year, repId = repId,
                    subBlock = subBlock, plot = plot, rowId = rowId,
                    colId = colId, rowCoord = rowCoord,
                    colCoord = colCoord, checkId = checkId,
