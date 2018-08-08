@@ -110,10 +110,10 @@ gxeAmmi <- function(TD,
     if (nTrait > nGeno * nEnv) {
       stop("TD should contain 1 value per trial per genotype.\n")
     }
-    if (!is.numeric(nPC) || length(nPC) > 1 || round(nPC) != nPC || nPC < 0 ||
-        nPC > min(nEnv, nGeno)) {
-      stop("nPC should be an integer smaller than the number of trials.\n")
-    }
+    # if (!is.numeric(nPC) || length(nPC) > 1 || round(nPC) != nPC || nPC < 0 ||
+    #     nPC > min(nEnv, nGeno)) {
+    #   stop("nPC should be an integer smaller than the number of trials.\n")
+    # }
     ## Add combinations of trial and genotype currently not in TD to TD.
     TDYear <- reshape2::melt(data = reshape2::dcast(data = TDYear,
                                                     formula = trial ~ genotype,
@@ -139,51 +139,46 @@ gxeAmmi <- function(TD,
     model <- lm(modForm, data = TDYear, weights = TDYear$wt)
     ## Calculate residuals & fitted values of the linear model.
     resids <- tapply(X = resid(model), INDEX = TDYear[, c("genotype", "trial")],
-                     FUN = identity)
+                     FUN = I)
     fittedVals <- tapply(X = fitted(model),
-                         INDEX = TDYear[, c("genotype", "trial")],
-                         FUN = identity)
-    # Compute principal components.
-    pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
-                  scale. = scale, rank. = nPC)
+                         INDEX = TDYear[, c("genotype", "trial")], FUN = I)
+    ## Extract ANOVA table for linear model.
+    aov <- anova(model)
+    rownames(aov)[rownames(aov) == "Residuals"] <- "Interactions"
+    ## Compute principal components.
+    if (!is.na(nPC)) {
+      pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
+                    scale. = scale, rank. = nPC)
+      nPCYear <- nPC
+    } else {
+      pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
+                    scale. = scale, rank. = 1)
+      for (i in 2:(nEnv - 2)) {
+        pcaOrig <- pca
+        pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
+                      scale. = scale, rank. = i)
+        pcaAov <- pcaToAov(pca = pca, aov = aov)
+        if (pcaAov[i, "Pr(>F)"] > 0.1) {
+          pca <- pcaOrig
+          break
+        }
+      }
+      nPCYear <- ncol(pca$rotation)
+    }
+    ## Compute anova part for pca components.
+    pcaAov <- pcaToAov(pca = pca, aov = aov)
+    ## Create complete ANOVA table.
+    aov <- rbind(aov, pcaAov)
+    ## Extract loadings and scoress from pca.
     loadings <- pca$rotation
     scores <- pca$x
     ## Compute AMMI-estimates per genotype per trial.
     mTerms <- matrix(data = 0, nrow = nGeno, ncol = nEnv)
-    for (i in 1:nPC) {
+    for (i in 1:nPCYear) {
       mTerms <- mTerms + outer(scores[, i], loadings[, i])
     }
     fitted <- fittedVals + mTerms
-    ## Extract ANOVA table for linear model.
-    aov <- anova(model)
-    rownames(aov)[rownames(aov) == "Residuals"] <- "Interactions"
-    ## Create empty base table for extending anova table.
-    addTbl <- matrix(data = NA, nrow = nPC + 1, ncol = 5,
-                     dimnames = list(c(paste0("PC", 1:nPC), "Residuals"),
-                                     colnames(aov)))
-    ## Compute degrees of freedom and add to table.
-    dfPC <- nGeno + nEnv - 3 - (2 * (1:nPC - 1))
-    dfResid <- aov["Interactions", "Df"] - sum(dfPC)
-    addTbl[, "Df"] <- c(dfPC, dfResid)
-    ## Compute sum of squares for PC and residuals and add to table.
-    PCAVar <- pca$sdev ^ 2
-    propVar <- PCAVar / sum(PCAVar)
-    ssPC <- aov["Interactions", "Sum Sq"] * propVar[1:nPC]
-    ssResid <- aov["Interactions", "Sum Sq"] - sum(ssPC)
-    addTbl[, "Sum Sq"] <- c(ssPC, ssResid)
-    ## Compute mean squares for PC scores and residuals and add to table.
-    addTbl[, "Mean Sq"] <- addTbl[, "Sum Sq"] / addTbl[, "Df"]
-    ## Convert infinite values to NA.
-    addTbl[, "Mean Sq"][is.infinite(addTbl[, "Mean Sq"])] <- NA
-    ## Add the F-values for PC scores.
-    addTbl[1:nPC, "F value"] <- addTbl[1:nPC, "Mean Sq"] /
-      addTbl["Residuals", "Mean Sq"]
-    ## Add the p-values for PC scores.
-    addTbl[1:nPC, "Pr(>F)"] <- 1 - pf(q = addTbl[1:nPC, "F value"],
-                                      df1 = dfPC, df2 = dfResid)
-    ## Create complete ANOVA table.
-    aov <- rbind(aov, addTbl)
-    ## Extract importance from pca object.
+    ## Extract importance from pca.
     importance <- as.data.frame(summary(pca)$importance)
     colnames(importance) <- paste0("PC", 1:ncol(importance))
     ## Compute means.
@@ -218,3 +213,37 @@ gxeAmmi <- function(TD,
                     trait = trait, envMean = envMeanTot, genoMean = genoMeanTot,
                     overallMean = ovMeanTot))
 }
+
+#' @keywords internal
+pcaToAov <- function(pca,
+                     aov) {
+  nPC <- ncol(pca$rotation)
+  nEnv <- nrow(pca$rotation)
+  nGeno <- nrow(pca$x)
+  pcaAov <- matrix(data = NA, nrow = nPC + 1, ncol = 5,
+                   dimnames = list(c(paste0("PC", 1:nPC), "Residuals"),
+                                   colnames(aov)))
+  ## Compute degrees of freedom and add to table.
+  dfPC <- nGeno + nEnv - 3 - (2 * (1:nPC - 1))
+  dfResid <- aov["Interactions", "Df"] - sum(dfPC)
+  pcaAov[, "Df"] <- c(dfPC, dfResid)
+  ## Compute sum of squares for PC and residuals and add to table.
+  PCAVar <- pca$sdev ^ 2
+  propVar <- PCAVar / sum(PCAVar)
+  ssPC <- aov["Interactions", "Sum Sq"] * propVar[1:nPC]
+  ssResid <- aov["Interactions", "Sum Sq"] - sum(ssPC)
+  pcaAov[, "Sum Sq"] <- c(ssPC, ssResid)
+  ## Compute mean squares for PC scores and residuals and add to table.
+  pcaAov[, "Mean Sq"] <- pcaAov[, "Sum Sq"] / pcaAov[, "Df"]
+  ## Convert infinite values to NA.
+  pcaAov[, "Mean Sq"][is.infinite(pcaAov[, "Mean Sq"])] <- NA
+  ## Add the F-values for PC scores.
+  pcaAov[1:nPC, "F value"] <- pcaAov[1:nPC, "Mean Sq"] /
+    pcaAov["Residuals", "Mean Sq"]
+  ## Add the p-values for PC scores.
+  pcaAov[1:nPC, "Pr(>F)"] <- 1 - pf(q = pcaAov[1:nPC, "F value"],
+                                    df1 = dfPC, df2 = dfResid)
+  return(pcaAov)
+}
+
+

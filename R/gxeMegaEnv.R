@@ -69,7 +69,7 @@ gxeMegaEnv <- function(TD,
     TDTot$loc <- TDTot$trial
   }
   ## Perform AMMI analysis.
-  AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = 2, byYear = TRUE)
+  AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = NA, byYear = TRUE)
   ammiRaw <- reshape2::melt(AMMI$fitted, varnames = c("genotype", "trial"),
                             value.name = "ammiPred")
   ammiRaw <- merge(ammiRaw, TDTot[c("genotype", "trial", "loc", "year")])
@@ -139,20 +139,24 @@ gxeMegaEnv <- function(TD,
     vcReg <- summary(modReg)$varcomp$component
     ## Compute number of locations.
     nL <- length(unique(modDat$loc))
+    nY <- length(unique(modDat$year))
     ## Compute H2 over locations.
-    H2Tr <- vcReg[1] / (vcReg[1] + vcReg[2] / k + vcReg[3] / (k * nL))
+    H2Loc <- vcReg[1] / (vcReg[1] + vcReg[2] / k + vcReg[3] / nY +
+                           vcReg[4] / nY + vcReg[5] / (k * nL))
     ## Compute H2 over regions.
-    H2Reg <- (vcReg[1] + vcReg[2]) / (vcReg[1] + vcReg[2] + vcReg[3] / (k * nL))
+    H2Reg <- (vcReg[1] + vcReg[2]) / (vcReg[1] + vcReg[2] + vcReg[3] / nY +
+                                        vcReg[4] / nY + vcReg[5] / nL)
     ## Compute genetic correlation.
     rho <- vcReg[1] / sqrt(vcReg[1] * (vcReg[1] + vcReg[2]))
     ## Compute ratio CD/CR.
-    CRDR <- rho * sqrt(H2Tr / H2Reg)
+    CRDR <- rho * sqrt(H2Loc / H2Reg)
     if (CRDR < CRDRMin) {
       ## If CRDR is smaller than the previous minimum readjust values.
       clustGrRes <- clustGr
       clustRes <- modDat
       CRDRMin <- CRDR
     }
+    print(CRDR)
   }
   ## Throw away tempfile.
   unlink(tmp)
@@ -165,6 +169,7 @@ gxeMegaEnv <- function(TD,
   ## Attach cluster groups as attribute.
   clustGrRes <- clustGrRes[order(clustGrRes$megaEnv), , drop = FALSE]
   attr(TDOut, "sumTab") <- clustGrRes
+  attr(TDOut, "CRDR") <- CRDRMin
   if (sumTab) {
     printCoefmat(clustGrRes)
   }
