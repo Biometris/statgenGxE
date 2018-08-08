@@ -4,8 +4,8 @@
 \alias{gxeMegaEnv}
 \title{Form mega-environments based on winning genotypes from an AMMI model}
 \usage{
-gxeMegaEnv(TD, trials = names(TD), trait, method = c("max", "min"),
-  sumTab = TRUE)
+gxeMegaEnv(TD, trials = names(TD), trait, useWinGeno = TRUE,
+  method = c("max", "min"), cutOff = 0.8, sumTab = TRUE)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
@@ -15,8 +15,15 @@ not supplied all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 
+\item{useWinGeno}{Should only the best genotype per trail be used for
+determining mega environments? If \code{FALSE} clustering of trials is used.}
+
 \item{method}{A character string indicating the criterion to determine
 the best genotype per environment, either \code{"max"} or \code{"min"}.}
+
+\item{cutOff}{A numerical value indicating the proportion of best genotypes
+per locationh used in the calculation. I.e. a value of 0.8 indicates that
+the best 80\% genotypes will be used.}
 
 \item{sumTab}{Should a summary table be printed?}
 }

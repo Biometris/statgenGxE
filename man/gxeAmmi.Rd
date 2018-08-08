@@ -4,8 +4,8 @@
 \alias{gxeAmmi}
 \title{AMMI analysis}
 \usage{
-gxeAmmi(TD, trials = names(TD), trait, nPC = 2, center = TRUE,
-  scale = FALSE, GGE = FALSE, useWt = FALSE)
+gxeAmmi(TD, trials = names(TD), trait, nPC = 2, byYear = FALSE,
+  center = TRUE, scale = FALSE, GGE = FALSE, useWt = FALSE)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
@@ -17,6 +17,10 @@ not supplied all trials are used in the analysis.}
 
 \item{nPC}{An integer specifying the number of principal components used
 as multiplicative term of genotype-by-trial interaction.}
+
+\item{byYear}{Should the analysis be done by year? If \code{TRUE} the data
+is split by the variable year, analysis is performed and the results are
+merged together and returned.}
 
 \item{center}{Should the variables be shifted to be zero centered?}
 

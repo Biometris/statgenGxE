@@ -110,10 +110,10 @@ gxeAmmi <- function(TD,
     if (nTrait > nGeno * nEnv) {
       stop("TD should contain 1 value per trial per genotype.\n")
     }
-    # if (!is.numeric(nPC) || length(nPC) > 1 || round(nPC) != nPC || nPC < 0 ||
-    #     nPC > min(nEnv, nGeno)) {
-    #   stop("nPC should be an integer smaller than the number of trials.\n")
-    # }
+    if (!is.null(nPC) && (!is.numeric(nPC) || length(nPC) > 1 ||
+        round(nPC) != nPC || nPC < 0 || nPC > min(nEnv, nGeno))) {
+     stop("nPC should be an integer smaller than the number of trials.\n")
+    }
     ## Add combinations of trial and genotype currently not in TD to TD.
     TDYear <- reshape2::melt(data = reshape2::dcast(data = TDYear,
                                                     formula = trial ~ genotype,
@@ -146,7 +146,7 @@ gxeAmmi <- function(TD,
     aov <- anova(model)
     rownames(aov)[rownames(aov) == "Residuals"] <- "Interactions"
     ## Compute principal components.
-    if (!is.na(nPC)) {
+    if (!is.null(nPC)) {
       pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
                     scale. = scale, rank. = nPC)
       nPCYear <- nPC

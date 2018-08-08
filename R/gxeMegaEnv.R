@@ -7,6 +7,8 @@
 #'
 #' @inheritParams gxeAmmi
 #'
+#' @param useWinGeno Should only the best genotype per trail be used for
+#' determining mega environments? If \code{FALSE} clustering of trials is used.
 #' @param method A character string indicating the criterion to determine
 #' the best genotype per environment, either \code{"max"} or \code{"min"}.
 #' @param cutOff A numerical value indicating the proportion of best genotypes
@@ -29,6 +31,7 @@
 gxeMegaEnv <- function(TD,
                        trials = names(TD),
                        trait,
+                       useWinGeno = TRUE,
                        method = c("max", "min"),
                        cutOff = 0.8,
                        sumTab = TRUE) {
@@ -57,121 +60,156 @@ gxeMegaEnv <- function(TD,
     all(is.na(x[trait]))
   })
   TDTot <- TDTot[!TDTot$genotype %in% names(allNA[allNA]), ]
-  ## Save and then drop factor levels.
-  envLevels <- levels(TDTot$trial)
-  TDTot$trial <- droplevels(TDTot$trial)
   rmYear <- FALSE
   if (!hasName(x = TDTot, name = "year")) {
     TDTot$year <- 0
     rmYear <- TRUE
   }
-  if (!hasName(x = TDTot, name = "loc")) {
-    TDTot$loc <- TDTot$trial
-  }
-  ## Perform AMMI analysis.
-  AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = NA, byYear = TRUE)
-  ammiRaw <- reshape2::melt(AMMI$fitted, varnames = c("genotype", "trial"),
-                            value.name = "ammiPred")
-  ammiRaw <- merge(ammiRaw, TDTot[c("genotype", "trial", "loc", "year")])
-  ## Compute quantile for determining best genotypes per year per location.
-  quant <- tapply(X = ammiRaw$ammiPred, INDEX = list(ammiRaw$year, ammiRaw$loc),
-                  FUN = quantile,
-                  probs = ifelse(method == "max", cutOff, 1 - cutOff),
-                  na.rm = TRUE, type = 1)
-  ## Merge quantile to data.
-  ammiQnt <- merge(ammiRaw, reshape2::melt(quant), by.x = c("year", "loc"),
-                   by.y = c("Var1", "Var2"))
-  ## Replace values by 0 when lower than quantile value and 1 otherwise.
-  ## Reverse the equation if low values are better for current trait.
-  ammiQnt$ammiPred <- if (method == "max") {
-    as.numeric(ammiQnt$ammiPred > ammiQnt$value)
-  } else {
-    as.numeric(ammiQnt$ammiPred < ammiQnt$value)
-  }
-  ## Reshape data to get locations as header.
-  ammiLoc <- reshape2::dcast(ammiQnt, genotype + year ~ loc,
-                             value.var = "ammiPred", drop = FALSE)
-  ## Compute means and standard deviations.
-  ## For sd division by n should be used so this cannot be done by sd().
-  Xi = tapply(ammiQnt$ammiPred, list(ammiQnt$year, ammiQnt$loc), FUN = mean)
-  SXi = tapply(ammiQnt$ammiPred, list(ammiQnt$year, ammiQnt$loc),
-               FUN = function(x) {
-                 sqrt(sum((x - mean(x)) ^ 2) / length(x))
-               })
-  ## Compute correlations between locations per year.
-  r0 <- by(data = ammiLoc[, c(3:ncol(ammiLoc))], INDICES = ammiLoc$year,
-           FUN = cor, use = "pairwise.complete.obs")
-  ## Form combinations of locations.
-  locs <- unique(ammiQnt$loc)
-  combs <- combn(locs, m = 2)
-  ## Compute correlations across years per genotype.
-  combs <- rbind(combs, mapply(FUN = combLocs, combs[1, ], combs[2, ],
-                        MoreArgs = list(ammi = ammiLoc, r0 = r0, Xi = Xi,
-                                        SXi = SXi)))
-  ## Put computed correlations in lower half of correlation matrix.
-  corMat <- matrix(nrow = length(locs), ncol = length(locs),
-                   dimnames = list(locs, locs))
-  corMat[lower.tri(corMat)] <- combs[3, ]
-  ## Compute distances.
-  distMat <- as.dist(sqrt(1 - corMat ^ 2))
-  ## Cluster locations.
-  tree <- hclust(distMat, method = "ward.D")
-  clustRes <- clustGrRes <- data.frame()
-  CRDRMin <- Inf
-  ## Create tempfile for diverting asreml output
-  tmp <- tempfile()
-  ## Loop over number of clusters to determine best number of clusters
-  ## by minimizing ratio CR/DR.
-  for (k in 2:ceiling(length(locs) / 2)) {
-    ## Extract cluster groups for k clusters.
-    clustGr <- data.frame(megaEnv = cutree(tree, k = k))
-    ## Merge cluster groups to data.
-    modDat <- merge(TDTot, clustGr, by.x = "loc", by.y = "row.names")
-    ## Model with regions, one varcomp.
-    sink(file = tmp)
-    ## Fit model with regions.
-    modReg <- asreml::asreml(
-      fixed = formula(paste(trait, "~ 1 + year * loc")),
-      random = ~ genotype + genotype:megaEnv + genotype:loc + genotype:year +
-        genotype:megaEnv:year, data = modDat, maxiter = 200)
-    sink()
-    ## Extract variance components.
-    vcReg <- summary(modReg)$varcomp$component
-    ## Compute number of locations.
-    nL <- length(unique(modDat$loc))
-    nY <- length(unique(modDat$year))
-    ## Compute H2 over locations.
-    H2Loc <- vcReg[1] / (vcReg[1] + vcReg[2] / k + vcReg[3] / nY +
-                           vcReg[4] / nY + vcReg[5] / (k * nL))
-    ## Compute H2 over regions.
-    H2Reg <- (vcReg[1] + vcReg[2]) / (vcReg[1] + vcReg[2] + vcReg[3] / nY +
-                                        vcReg[4] / nY + vcReg[5] / nL)
-    ## Compute genetic correlation.
-    rho <- vcReg[1] / sqrt(vcReg[1] * (vcReg[1] + vcReg[2]))
-    ## Compute ratio CD/CR.
-    CRDR <- rho * sqrt(H2Loc / H2Reg)
-    if (CRDR < CRDRMin) {
-      ## If CRDR is smaller than the previous minimum readjust values.
-      clustGrRes <- clustGr
-      clustRes <- modDat
-      CRDRMin <- CRDR
+  ## Save and then drop factor levels.
+  envLevels <- levels(TDTot$trial)
+  TDTot$trial <- droplevels(TDTot$trial)
+  if (useWinGeno) {
+    ## Perform AMMI analysis.
+    AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = 2, byYear = TRUE)
+    fitted <- AMMI$fitted
+    ## Extract position of best genotype per trial.
+    winPos <- apply(X = fitted, MARGIN = 2,
+                    FUN = getFunction(paste0("which.", method)))
+    ## Extract best genotype per trial.
+    winGeno <- rownames(fitted)[winPos]
+    ## Create factor based on best genotypes.
+    megaFactor <- factor(winGeno, labels = "")
+    ## Merge factor levels to original data.
+    TDTot$megaEnv <- TDTot$trial
+    levels(TDTot$megaEnv) <- as.character(megaFactor)
+    ## Reapply saved levels to ensure input and output TDTot are identical.
+    levels(TDTot$trial) <- envLevels
+    ## If year was added, remove if before creating output.
+    if (isTRUE(rmYear)) {
+      TDTot <- TDTot[-which(colnames(TDTot) == "year")]
     }
-    print(CRDR)
-  }
-  ## Throw away tempfile.
-  unlink(tmp)
-  ## If year was added, remove if before creating output.
-  if (isTRUE(rmYear)) {
-    clustRes <- clustRes[-which(colnames(clustRes) == "year")]
-  }
-  ## Create TD Output.
-  TDOut <- createTD(clustRes)
-  ## Attach cluster groups as attribute.
-  clustGrRes <- clustGrRes[order(clustGrRes$megaEnv), , drop = FALSE]
-  attr(TDOut, "sumTab") <- clustGrRes
-  attr(TDOut, "CRDR") <- CRDRMin
-  if (sumTab) {
-    printCoefmat(clustGrRes)
+    TDOut <- createTD(TDTot)
+    ## Create summary table.
+    summTab <- data.frame("Mega factor" = megaFactor, Trial = colnames(fitted),
+                          "Winning genotype" = winGeno,
+                          "AMMI estimates" =
+                            fitted[matrix(c(winPos, 1:ncol(fitted)), ncol = 2)],
+                          check.names = FALSE)
+    summTab <- summTab[order(megaFactor), ]
+    attr(TDOut, "sumTab") <- summTab
+    if (sumTab) {
+      printCoefmat(summTab)
+    }
+  } else {
+    if (!hasName(x = TDTot, name = "loc")) {
+      TDTot$loc <- TDTot$trial
+    }
+    ## Perform AMMI analysis.
+    AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = NULL,
+                    byYear = TRUE)
+    ammiRaw <- reshape2::melt(AMMI$fitted, varnames = c("genotype", "trial"),
+                              value.name = "ammiPred")
+    ammiRaw <- merge(ammiRaw, TDTot[c("genotype", "trial", "loc", "year")])
+    ## Compute quantile for determining best genotypes per year per location.
+    quant <- tapply(X = ammiRaw$ammiPred, INDEX = list(ammiRaw$year, ammiRaw$loc),
+                    FUN = quantile,
+                    probs = ifelse(method == "max", cutOff, 1 - cutOff),
+                    na.rm = TRUE, type = 1)
+    ## Merge quantile to data.
+    ammiQnt <- merge(ammiRaw, reshape2::melt(quant), by.x = c("year", "loc"),
+                     by.y = c("Var1", "Var2"))
+    ## Replace values by 0 when lower than quantile value and 1 otherwise.
+    ## Reverse the equation if low values are better for current trait.
+    ammiQnt$ammiPred <- if (method == "max") {
+      as.numeric(ammiQnt$ammiPred > ammiQnt$value)
+    } else {
+      as.numeric(ammiQnt$ammiPred < ammiQnt$value)
+    }
+    ## Reshape data to get locations as header.
+    ammiLoc <- reshape2::dcast(ammiQnt, genotype + year ~ loc,
+                               value.var = "ammiPred", drop = FALSE)
+    ## Compute means and standard deviations.
+    ## For sd division by n should be used so this cannot be done by sd().
+    Xi = tapply(ammiQnt$ammiPred, list(ammiQnt$year, ammiQnt$loc), FUN = mean)
+    SXi = tapply(ammiQnt$ammiPred, list(ammiQnt$year, ammiQnt$loc),
+                 FUN = function(x) {
+                   sqrt(sum((x - mean(x)) ^ 2) / length(x))
+                 })
+    ## Compute correlations between locations per year.
+    r0 <- by(data = ammiLoc[, c(3:ncol(ammiLoc))], INDICES = ammiLoc$year,
+             FUN = cor, use = "pairwise.complete.obs")
+    ## Form combinations of locations.
+    locs <- unique(ammiQnt$loc)
+    combs <- combn(locs, m = 2)
+    ## Compute correlations across years per genotype.
+    combs <- rbind(combs, mapply(FUN = combLocs, combs[1, ], combs[2, ],
+                                 MoreArgs = list(ammi = ammiLoc, r0 = r0,
+                                                 Xi = Xi, SXi = SXi)))
+    ## Put computed correlations in lower half of correlation matrix.
+    corMat <- matrix(nrow = length(locs), ncol = length(locs),
+                     dimnames = list(locs, locs))
+    corMat[lower.tri(corMat)] <- combs[3, ]
+    ## Compute distances.
+    distMat <- as.dist(sqrt(1 - corMat ^ 2))
+    ## Cluster locations.
+    tree <- hclust(distMat, method = "ward.D")
+    clustRes <- clustGrRes <- data.frame()
+    CRDRMin <- Inf
+    ## Create tempfile for diverting asreml output
+    tmp <- tempfile()
+    ## Loop over number of clusters to determine best number of clusters
+    ## by minimizing ratio CR/DR.
+    for (k in 2:ceiling(length(locs) / 2)) {
+      ## Extract cluster groups for k clusters.
+      clustGr <- data.frame(megaEnv = cutree(tree, k = k))
+      ## Merge cluster groups to data.
+      modDat <- merge(TDTot, clustGr, by.x = "loc", by.y = "row.names")
+      ## Model with regions, one varcomp.
+      sink(file = tmp)
+      ## Fit model with regions.
+      modReg <- asreml::asreml(
+        fixed = formula(paste(trait, "~ 1 + year * loc")),
+        random = ~ genotype + genotype:megaEnv + genotype:loc + genotype:year +
+          genotype:megaEnv:year, data = modDat, maxiter = 200)
+      sink()
+      ## Extract variance components.
+      vcReg <- summary(modReg)$varcomp$component
+      ## Compute number of locations.
+      nL <- length(unique(modDat$loc))
+      nY <- length(unique(modDat$year))
+      ## Compute H2 over locations.
+      H2Loc <- vcReg[1] / (vcReg[1] + vcReg[2] / k + vcReg[3] / nY +
+                             vcReg[4] / nY + vcReg[5] / (k * nL))
+      ## Compute H2 over regions.
+      H2Reg <- (vcReg[1] + vcReg[2]) / (vcReg[1] + vcReg[2] + vcReg[3] / nY +
+                                          vcReg[4] / nY + vcReg[5] / nL)
+      ## Compute genetic correlation.
+      rho <- vcReg[1] / sqrt(vcReg[1] * (vcReg[1] + vcReg[2]))
+      ## Compute ratio CD/CR.
+      CRDR <- rho * sqrt(H2Loc / H2Reg)
+      if (CRDR < CRDRMin) {
+        ## If CRDR is smaller than the previous minimum readjust values.
+        clustGrRes <- clustGr
+        clustRes <- modDat
+        CRDRMin <- CRDR
+      }
+      print(CRDR)
+    }
+    ## Throw away tempfile.
+    unlink(tmp)
+    ## If year was added, remove if before creating output.
+    if (isTRUE(rmYear)) {
+      clustRes <- clustRes[-which(colnames(clustRes) == "year")]
+    }
+    ## Create TD Output.
+    TDOut <- createTD(clustRes)
+    ## Attach cluster groups as attribute.
+    clustGrRes <- clustGrRes[order(clustGrRes$megaEnv), , drop = FALSE]
+    attr(TDOut, "sumTab") <- clustGrRes
+    attr(TDOut, "CRDR") <- CRDRMin
+    if (sumTab) {
+      printCoefmat(clustGrRes)
+    }
   }
   return(TDOut)
 }
