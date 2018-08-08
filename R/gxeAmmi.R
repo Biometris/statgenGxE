@@ -80,12 +80,14 @@ gxeAmmi <- function(TD,
     stop("wt has to be a column in TD when using weighting.")
   }
   TDTot$year. <- if (byYear) {
-    TDTot$year
+    as.character(TDTot$year)
   } else {
-    0
+    "0"
   }
   years <- unique(TDTot$year.)
   fitTot <- data.frame(genotype = unique(TDTot$genotype))
+  loadTot <- scoreTot <- impTot <- aovTot <- envMeanTot <- genoMeanTot <-
+    ovMeanTot <- setNames(vector(mode = "list", length = length(years)), years)
   for (year in years) {
     TDYear <- TDTot[TDTot$year. == year, ]
     ## Remove genotypes that contain only NAs
@@ -114,10 +116,10 @@ gxeAmmi <- function(TD,
     }
     ## Add combinations of trial and genotype currently not in TD to TD.
     TDYear <- reshape2::melt(data = reshape2::dcast(data = TDYear,
-                                                   formula = trial ~ genotype,
-                                                   value.var = trait),
-                            id.vars = "trial", variable.name = "genotype",
-                            value.name = trait)
+                                                    formula = trial ~ genotype,
+                                                    value.var = trait),
+                             id.vars = "trial", variable.name = "genotype",
+                             value.name = trait)
     ## Impute missing values
     if (any(is.na(TDYear[[trait]]))) {
       ## Transform data to genotype x trial matrix.
@@ -153,21 +155,21 @@ gxeAmmi <- function(TD,
     }
     fitted <- fittedVals + mTerms
     ## Extract ANOVA table for linear model.
-    anv <- anova(model)
-    rownames(anv)[rownames(anv) == "Residuals"] <- "Interactions"
+    aov <- anova(model)
+    rownames(aov)[rownames(aov) == "Residuals"] <- "Interactions"
     ## Create empty base table for extending anova table.
     addTbl <- matrix(data = NA, nrow = nPC + 1, ncol = 5,
                      dimnames = list(c(paste0("PC", 1:nPC), "Residuals"),
-                                     colnames(anv)))
+                                     colnames(aov)))
     ## Compute degrees of freedom and add to table.
     dfPC <- nGeno + nEnv - 3 - (2 * (1:nPC - 1))
-    dfResid <- anv["Interactions", "Df"] - sum(dfPC)
+    dfResid <- aov["Interactions", "Df"] - sum(dfPC)
     addTbl[, "Df"] <- c(dfPC, dfResid)
     ## Compute sum of squares for PC and residuals and add to table.
     PCAVar <- pca$sdev ^ 2
     propVar <- PCAVar / sum(PCAVar)
-    ssPC <- anv["Interactions", "Sum Sq"] * propVar[1:nPC]
-    ssResid <- anv["Interactions", "Sum Sq"] - sum(ssPC)
+    ssPC <- aov["Interactions", "Sum Sq"] * propVar[1:nPC]
+    ssResid <- aov["Interactions", "Sum Sq"] - sum(ssPC)
     addTbl[, "Sum Sq"] <- c(ssPC, ssResid)
     ## Compute mean squares for PC scores and residuals and add to table.
     addTbl[, "Mean Sq"] <- addTbl[, "Sum Sq"] / addTbl[, "Df"]
@@ -180,7 +182,7 @@ gxeAmmi <- function(TD,
     addTbl[1:nPC, "Pr(>F)"] <- 1 - pf(q = addTbl[1:nPC, "F value"],
                                       df1 = dfPC, df2 = dfResid)
     ## Create complete ANOVA table.
-    anv <- rbind(anv, addTbl)
+    aov <- rbind(aov, addTbl)
     ## Extract importance from pca object.
     importance <- as.data.frame(summary(pca)$importance)
     colnames(importance) <- paste0("PC", 1:ncol(importance))
@@ -192,11 +194,27 @@ gxeAmmi <- function(TD,
     overallMean <- mean(TDYear[[trait]])
     fitTot <- merge(fitTot, fitted, by.x = "genotype", by.y = "row.names",
                     all.x = TRUE)
+    loadTot[[year]] <- loadings
+    scoreTot[[year]] <- scores
+    impTot[[year]] <- importance
+    aovTot[[year]] <- aov
+    envMeanTot[[year]] <- envMean
+    genoMeanTot[[year]] <- genoMean
+    ovMeanTot[[year]] <- overallMean
   }
   rownames(fitTot) <- fitTot$genotype
   fitTot <- as.matrix(fitTot[-1])
-  return(createAMMI(envScores = loadings, genoScores = scores,
-                    importance = importance, anova = anv, fitted = fitTot,
-                    trait = trait, envMean = envMean, genoMean = genoMean,
-                    overallMean = overallMean))
+  if (!byYear) {
+    loadTot <- loadTot[[1]]
+    scoreTot <- scoreTot[[1]]
+    impTot <- impTot[[1]]
+    aovTot <- aovTot[[1]]
+    envMeanTot <- envMeanTot[[1]]
+    genoMeanTot <- genoMeanTot[[1]]
+    ovMeanTot <- ovMeanTot[[1]]
+  }
+  return(createAMMI(envScores = loadTot, genoScores = scoreTot,
+                    importance = impTot, anova = aovTot, fitted = fitTot,
+                    trait = trait, envMean = envMeanTot, genoMean = genoMeanTot,
+                    overallMean = ovMeanTot))
 }
