@@ -26,6 +26,12 @@
 #' ## value per environment.
 #' TDmegaEnv2 <- gxeMegaEnv(TD = TDmegaEnv, trait = "yld", method = "min")
 #'
+#' @references Atlin, G. N., R. J. Baker, K. B. McRae, and X. Lu. 2000.
+#' Selection Response in Subdivided Target Regions. Crop Sci. 40:7-13.
+#' https://doi:10.2135/cropsci2000.4017
+#' @references Charter, R.A. & Alexander, R.A. Bull. Psychon. Soc. (1993)
+#' 31: 123. https://doi.org/10.3758/BF03334158
+#'
 #' @importFrom methods getFunction
 #' @export
 gxeMegaEnv <- function(TD,
