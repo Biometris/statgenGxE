@@ -170,7 +170,7 @@ gxeMegaEnv <- function(TD,
       modReg <- asreml::asreml(
         fixed = formula(paste(trait, "~ 1 + year * loc")),
         random = ~ genotype + genotype:megaEnv + genotype:loc + genotype:year +
-          genotype:megaEnv:year, data = modDat, maxiter = 200)
+          genotype:megaEnv:year, data = modDat, maxiter = 50)
       sink()
       ## Extract variance components.
       vcReg <- summary(modReg)$varcomp$component
@@ -193,7 +193,6 @@ gxeMegaEnv <- function(TD,
         clustRes <- modDat
         CRDRMin <- CRDR
       }
-      print(CRDR)
     }
     ## Throw away tempfile.
     unlink(tmp)
@@ -236,7 +235,6 @@ combCor <- function(Xi,
 
 #' Helper function for computing the combined correlation for 2 locations.
 #' @keywords internal
-#'
 combLocs <- function(l1,
                      l2,
                      ammi,

@@ -7,7 +7,7 @@ testTD <- createTD(data = testData, genotype = "seed",
 modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
-tmp <- capture_output(geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1"))
+geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1", sumTab = FALSE)
 geMegaEnvTot <- Reduce(f = rbind, x = geMegaEnv)
 test_that("mega-environments are computed correctly", {
   expect_is(geMegaEnv, "TD")
@@ -24,8 +24,8 @@ test_that("summary is computed correctly", {
                c(137.826424971715, 109.450972152511, 127.386419996042))
 })
 
-tmp <- capture_output(geMegaEnvMin <- gxeMegaEnv(TD = BLUEs, trait = "t1",
-                                                 method = "min"))
+geMegaEnvMin <- gxeMegaEnv(TD = BLUEs, trait = "t1", method = "min",
+                           sumTab = FALSE)
 geMegaEnvMinTot <- Reduce(f = rbind, x = geMegaEnvMin)
 test_that("option method functions properly", {
   expect_equal(as.numeric(geMegaEnvMinTot$megaEnv), rep(x = c(1, 2, 3),
