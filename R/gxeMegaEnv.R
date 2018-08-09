@@ -110,6 +110,37 @@ gxeMegaEnv <- function(TD,
     if (!hasName(x = TDTot, name = "loc")) {
       TDTot$loc <- TDTot$trial
     }
+    ## Remove locations that appear only in one year.
+    locYear <- table(TDTot$loc, TDTot$year)
+    rmLocs <- rownames(locYear)[rowSums(locYear > 0) == 1]
+    TDTot <- droplevels(TDTot[!TDTot$loc %in% rmLocs, ])
+    ## One by one remove locations that don't appear within a year with at
+    ## least one other location.
+    ## This needs to be done in steps since otherwise in many case all
+    ## locations will be removed.
+    continue <- TRUE
+    while (continue) {
+      locs <- as.character(unique(TDTot$loc))
+      locYear <- table(TDTot$loc, TDTot$year)
+      ## Create a data.frame with the number of observations per combination
+      ## of locations.
+      locCom <- cbind(t(combn(x = rownames(locYear), m = 2)),
+                      combn(x = rownames(locYear), m = 2, FUN = function(x) {
+                        sum(pmin(locYear[x[[1]], ], locYear[x[[2]], ]))
+                      }))
+      ## While there is any 0 in this table continue the removal of locations.
+      if (any(locCom[, 3] == 0)) {
+        ## Create a table with number of zeros per locations.
+        locZeros <- sapply(locs, function(loc) {
+          length(locCom[(locCom[, 1] == loc | locCom[, 2] == loc) &
+                          locCom[, 3] == 0])
+        })
+        ## Remove the location with most zeros from the data.
+        TDTot <- droplevels(TDTot[TDTot$loc != names(which.max(locZeros)), ])
+      } else {
+        continue <- FALSE
+      }
+    }
     ## Perform AMMI analysis.
     AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = NULL,
                     byYear = TRUE)
@@ -145,7 +176,6 @@ gxeMegaEnv <- function(TD,
     r0 <- by(data = ammiLoc[, c(3:ncol(ammiLoc))], INDICES = ammiLoc$year,
              FUN = cor, use = "pairwise.complete.obs")
     ## Form combinations of locations.
-    locs <- unique(ammiQnt$loc)
     combs <- combn(locs, m = 2)
     ## Compute correlations across years per genotype.
     combs <- rbind(combs, mapply(FUN = combLocs, combs[1, ], combs[2, ],
@@ -154,7 +184,7 @@ gxeMegaEnv <- function(TD,
     ## Put computed correlations in lower half of correlation matrix.
     corMat <- matrix(nrow = length(locs), ncol = length(locs),
                      dimnames = list(locs, locs))
-    corMat[lower.tri(corMat)] <- combs[3, ]
+    corMat[lower.tri(corMat)] <- as.numeric(combs[3, ])
     ## Compute distances.
     distMat <- as.dist(sqrt(1 - corMat ^ 2))
     ## Cluster locations.
@@ -185,7 +215,7 @@ gxeMegaEnv <- function(TD,
       nY <- length(unique(modDat$year))
       ## Compute H2 over locations.
       H2Loc <- vcReg[1] / (vcReg[1] + vcReg[2] / k + vcReg[3] / nY +
-                             vcReg[4] / nY + vcReg[5] / (k * nL))
+                             vcReg[4] / (k * nY) + vcReg[5] / (k * nL))
       ## Compute H2 over regions.
       H2Reg <- (vcReg[1] + vcReg[2]) / (vcReg[1] + vcReg[2] + vcReg[3] / nY +
                                           vcReg[4] / nY + vcReg[5] / nL)

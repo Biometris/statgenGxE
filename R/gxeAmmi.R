@@ -158,7 +158,7 @@ gxeAmmi <- function(TD,
         pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
                       scale. = scale, rank. = i)
         pcaAov <- pcaToAov(pca = pca, aov = aov)
-        if (pcaAov[i, "Pr(>F)"] > 0.1) {
+        if (is.nan(pcaAov[i, "Pr(>F)"]) || pcaAov[i, "Pr(>F)"] > 0.001) {
           pca <- pcaOrig
           break
         }
