@@ -68,5 +68,40 @@ test_that("gxeTable functions correctly", {
                     c(9.77290639163707, 6.58334962888759))
 })
 
+test_that("combCor helper function funcions correctly", {
+  set.seed(1234)
+  Xi <- runif(n = 5)
+  Yi <- runif(n = 5)
+  SXi <- runif(n = 5, max = 0.5)
+  SYi <- runif(n = 5, max = 0.5)
+  ni <- runif(n = 5, min = 10, max = 20)
+  ri <- runif(n = 5)
+  r <- combCor(Xi = Xi, Yi = Yi, SXi = SXi, SYi = SYi, ri = ri, ni = ni)
+  expect_is(r, "numeric")
+  expect_length(r, 1)
+  expect_equal(r, 0.146437103999452)
+})
 
-
+test_that("combLocs helper function functions correctly", {
+  set.seed(1234)
+  Xi <- matrix(runif(n = 9, max = 0.5), nrow = 3,
+               dimnames = list(1:3, c("l1", "l2", "l3")))
+  SXi <- matrix(runif(n = 9), nrow = 3,
+                dimnames = list(1:3, c("l1", "l2", "l3")))
+  ammi <- data.frame(genotype = rep(x = paste0("G", 1:10), times = 3),
+                     year = rep(1:3, each = 10),
+                     l1 = sample(0:1, size = 30, replace = TRUE),
+                     l2 = sample(0:1, size = 30, replace = TRUE),
+                     l3 = c(sample(0:1, size = 20, replace = TRUE),
+                            rep(x = NA, 10)))
+  r0 <- by(data = ammi[, c(3:ncol(ammi))], INDICES = ammi$year,
+           FUN = cor, use = "pairwise.complete.obs")
+  r12 <- combLocs(l1 = "l1", l2 = "l2", ammi = ammi, r0 = r0, Xi = Xi,
+                  SXi = SXi)
+  expect_is(r12, "numeric")
+  expect_length(r12, 1)
+  expect_equal(r12, 0.0671135566187331)
+  r13 <- combLocs(l1 = "l1", l2 = "l3", ammi = ammi, r0 = r0, Xi = Xi,
+                  SXi = SXi)
+  expect_equal(r13, -0.0187937478121317)
+})

@@ -178,6 +178,10 @@ gxeMegaEnv <- function(TD,
     ## Form combinations of locations.
     combs <- combn(locs, m = 2)
     ## Compute correlations across years per genotype.
+    ## If numbers of observations are similar per location x year this
+    ## has very similar results to just applying cor with pairwise.complete.obs
+    ## on the complete data set. However when the numbers start differing so
+    ## do the reults.
     combs <- rbind(combs, mapply(FUN = combLocs, combs[1, ], combs[2, ],
                                  MoreArgs = list(ammi = ammiLoc, r0 = r0,
                                                  Xi = Xi, SXi = SXi)))
