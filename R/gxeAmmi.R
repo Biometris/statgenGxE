@@ -1,15 +1,22 @@
 #' AMMI analysis
 #'
-#' This function fits a model which involves the Additive Main effects (i.e.
-#' genotype and trial) along with the Multiplicative Interaction effects
-#' of principal component analysis (PCA).
+#' The Additive Main Effects and Multiplicative Interaction (AMMI) model fits
+#' a model which involves the Additive Main effects (i.e. genotype and trial)
+#' along with the Multiplicative Interaction effects. Then a principal component
+#' analysis is done on the residuals (multiplicative interaction). This results
+#' in an interaction characterized by Interaction Principal Components (IPCA)
+#' enabling simultaneous plotting of genotypes and trials.
+#'
+#'
 #'
 #' @param TD An object of class \code{\link{TD}}.
 #' @param trials A character string specifying the trials to be analyzed. If
 #' not supplied all trials are used in the analysis.
 #' @param trait A character string specifying the trait to be analyzed.
 #' @param nPC An integer specifying the number of principal components used
-#' as multiplicative term of genotype-by-trial interaction.
+#' as multiplicative term of genotype-by-trial interaction. If \code{NA} the
+#' number of principal components is determined by the algorithm using
+#' forward selection. See details.
 #' @param byYear Should the analysis be done by year? If \code{TRUE} the data
 #' is split by the variable year, analysis is performed and the results are
 #' merged together and returned.
@@ -31,6 +38,8 @@
 #' \item{envMean}{A numerical vector containing the environmental means.}
 #' \item{genoMean}{A numerical vector containing the genotypic means.}
 #' \item{overallMean}{A numerical value containing the overall mean.}
+#' If \code{byYear} = \code{TRUE} all returned items in the AMMI object except
+#' \code{fitted} will consist of a list of results by year.
 #'
 #' @seealso \code{\link{AMMI}}, \code{\link{plot.AMMI}},
 #' \code{\link{report.AMMI}}
@@ -84,6 +93,7 @@ gxeAmmi <- function(TD,
   } else {
     "0"
   }
+  ## Extract years and define empty objects for output.
   years <- unique(TDTot$year.)
   fitTot <- data.frame(genotype = unique(TDTot$genotype))
   loadTot <- scoreTot <- impTot <- aovTot <- envMeanTot <- genoMeanTot <-
@@ -147,10 +157,13 @@ gxeAmmi <- function(TD,
     rownames(aov)[rownames(aov) == "Residuals"] <- "Interactions"
     ## Compute principal components.
     if (!is.null(nPC)) {
+      ## nPC is given. Use this in principal components analysis.
       pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
                     scale. = scale, rank. = nPC)
       nPCYear <- nPC
     } else {
+      ## nPC is not supplied. Do principal component analyses as long as
+      ## when adding an extra component this new component is signifacant.
       pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
                     scale. = scale, rank. = 1)
       for (i in 2:(nEnv - 2)) {
@@ -158,6 +171,9 @@ gxeAmmi <- function(TD,
         pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
                       scale. = scale, rank. = i)
         pcaAov <- pcaToAov(pca = pca, aov = aov)
+        ## When there are no degrees of freedom left for the residual variance
+        ## P3(>F) will be nan. In this case revert to the previous number of
+        ## components as well.
         if (is.nan(pcaAov[i, "Pr(>F)"]) || pcaAov[i, "Pr(>F)"] > 0.001) {
           pca <- pcaOrig
           break
