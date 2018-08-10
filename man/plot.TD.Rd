@@ -4,8 +4,8 @@
 \alias{plot.TD}
 \title{Plot function for class TD}
 \usage{
-\method{plot}{TD}(x, ..., trials = names(x), plotType = c("layout", "map"),
-  output = TRUE)
+\method{plot}{TD}(x, ..., trials = names(x), plotType = c("layout",
+  "map"), output = TRUE)
 }
 \arguments{
 \item{x}{An object of class TD.}

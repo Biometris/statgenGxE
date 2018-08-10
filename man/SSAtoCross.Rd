@@ -4,8 +4,8 @@
 \alias{SSAtoCross}
 \title{Convert SSA to Cross}
 \usage{
-SSAtoCross(SSA, trial = NULL, traits = NULL, what = c("BLUEs", "BLUPs"),
-  genoFile, genotypes = c("A", "H", "B", "D", "C"), ...)
+SSAtoCross(SSA, trial = NULL, traits = NULL, what = c("BLUEs",
+  "BLUPs"), genoFile, genotypes = c("A", "H", "B", "D", "C"), ...)
 }
 \arguments{
 \item{SSA}{An object of class \code{\link{SSA}}.}

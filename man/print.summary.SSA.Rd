@@ -4,7 +4,8 @@
 \alias{print.summary.SSA}
 \title{Printing summazed objects of class SSA}
 \usage{
-\method{print}{summary.SSA}(x, digits = max(getOption("digits") - 2, 3), ...)
+\method{print}{summary.SSA}(x, digits = max(getOption("digits") - 2, 3),
+  ...)
 }
 \arguments{
 \item{x}{An object of class \code{summary.SSA}}

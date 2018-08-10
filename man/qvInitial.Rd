@@ -5,8 +5,8 @@
 \title{Helper function for computing initial values.}
 \usage{
 qvInitial(TD, trait, useWt = FALSE, vcmodel = c("identity", "cs",
-  "diagonal", "hcs", "outside", "fa", "fa2", "unstructured"), fixed = NULL,
-  ...)
+  "diagonal", "hcs", "outside", "fa", "fa2", "unstructured"),
+  fixed = NULL, ...)
 }
 \description{
 Replicates '_qvInitial' procedure (S. J. Welham 15/05/09) in GenStat

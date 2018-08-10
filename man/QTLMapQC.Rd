@@ -4,9 +4,9 @@
 \alias{QTLMapQC}
 \title{Quality Control and Cleaning of a cross object}
 \usage{
-QTLMapQC(cross, missMrk = 0.05, missInd = 0.05, removeDuplicates = TRUE,
-  segDistortion = 0.001, recombination = 3, reestimateMap = FALSE,
-  crossover = 0.2)
+QTLMapQC(cross, missMrk = 0.05, missInd = 0.05,
+  removeDuplicates = TRUE, segDistortion = 0.001, recombination = 3,
+  reestimateMap = FALSE, crossover = 0.2)
 }
 \arguments{
 \item{cross}{An object of class cross created by the qtl package.}

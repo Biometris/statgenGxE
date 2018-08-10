@@ -5,8 +5,8 @@
 \alias{createFW}
 \title{S3 class FW}
 \usage{
-createFW(estimates, anova, envEffs, trait, nGeno, nEnv, TD, fittedGeno, tol,
-  iter)
+createFW(estimates, anova, envEffs, trait, nGeno, nEnv, TD, fittedGeno,
+  tol, iter)
 }
 \arguments{
 \item{estimates}{A data.frame containing the estimated values.}

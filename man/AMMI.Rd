@@ -5,8 +5,8 @@
 \alias{createAMMI}
 \title{S3 class AMMI}
 \usage{
-createAMMI(envScores, genoScores, importance, anova, fitted, trait, envMean,
-  genoMean, overallMean)
+createAMMI(envScores, genoScores, importance, anova, fitted, trait,
+  envMean, genoMean, overallMean)
 }
 \arguments{
 \item{envScores}{A matrix containing environmental scores.}

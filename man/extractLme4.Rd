@@ -4,8 +4,8 @@
 \alias{extractLme4}
 \title{Extract statistics from model fitted using lme4}
 \usage{
-extractLme4(SSA, traits = SSA$traits, what = "all", keep = NULL, useRepId,
-  restore = FALSE)
+extractLme4(SSA, traits = SSA$traits, what = "all", keep = NULL,
+  useRepId, restore = FALSE)
 }
 \description{
 Extract statistics from model fitted using lme4

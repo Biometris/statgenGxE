@@ -5,7 +5,8 @@
 \alias{createstability}
 \title{S3 class stability}
 \usage{
-createstability(superiority = NULL, static = NULL, wricke = NULL, trait)
+createstability(superiority = NULL, static = NULL, wricke = NULL,
+  trait)
 }
 \arguments{
 \item{superiority}{A data.frame containing values for the

@@ -6,8 +6,8 @@
 \usage{
 STRunModel(TD, trials = names(TD), design = NULL, traits,
   what = c("fixed", "random"), covariates = NULL, useCheckId = FALSE,
-  trySpatial = FALSE, engine = NA, control = NULL, progress = FALSE,
-  ...)
+  trySpatial = FALSE, engine = NA, control = NULL,
+  progress = FALSE, ...)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
