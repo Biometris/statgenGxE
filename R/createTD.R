@@ -540,34 +540,44 @@ plot.TD <- function(x,
         xMin <- min(trDat$colCoord)
         xMax <- max(trDat$colCoord)
         ## Create matrix containing replicates.
+        ## First create an empty matrix containing all row/column values
+        ## between min and max to assure complete missing rows/columns
+        ## are added.
         M <- matrix(nrow = yMax - yMin + 1, ncol = xMax - xMin + 1,
-                    dimnames = list(min(trDat$rowCoord):max(trDat$rowCoord),
-                                    min(trDat$colCoord):max(trDat$colCoord)))
+                    dimnames = list(yMin:yMax, xMin:xMax))
         for (i in 1:nrow(trDat)) {
           M[as.character(trDat[i, "rowCoord"]),
             as.character(trDat[i, "colCoord"])] <- trDat[i, "repId"]
         }
+        ## Create an imputed version of M for plotting borders around NA values.
         MImp <- M
         MImp[is.na(MImp)] <- nlevels(trDat$repId) + 1
         has.breaks <- function(x) {
           ncol(x) == 2 & nrow(x) > 0
         }
-        hw <- do.call(rbind.data.frame,
-                      Filter(f = has.breaks, x = Map(function(i, x) {
-                        cbind(y = i, x = which(diff(c(0, x, 0)) != 0))
-                      }, 1:nrow(MImp), split(MImp, 1:nrow(MImp)))))
-        hw <- hw[!(hw$x == 1 & is.na(M[hw$y, 1])) &
-                   !(hw$x == ncol(M) + 1 & is.na(M[hw$y, ncol(M)])), ]
-        hw$y <- hw$y + yMin - 1
-        hw$x <- hw$x + xMin - 1
-        vw <- do.call(rbind.data.frame,
+        ## Create a data.frame with positions where the value of rep in the
+        ## data changes in vertical direction.
+        vertW <- do.call(rbind.data.frame,
+                         Filter(f = has.breaks, x = Map(function(i, x) {
+                           cbind(y = i, x = which(diff(c(0, x, 0)) != 0))
+                         }, 1:nrow(MImp), split(MImp, 1:nrow(MImp)))))
+        ## Remove vertical walls that are on the outside bordering an NA value
+        ## to prevent drawing of unneeded lines.
+        vertW <- vertW[!(vertW$x == 1 & is.na(M[vertW$y, 1])) &
+                         !(vertW$x == ncol(M) + 1 &
+                             is.na(M[vertW$y, ncol(M)])), ]
+        ## Add min row value for plotting in the correct position.
+        vertW$y <- vertW$y + yMin - 1
+        vertW$x <- vertW$x + xMin - 1
+        ## For horizontal walls follow the same procedure as above.
+        horW <- do.call(rbind.data.frame,
                       Filter(f = has.breaks, x = Map(function(i, y) {
                         cbind(x = i, y = which(diff(c(0, y, 0)) != 0))
                       }, 1:ncol(MImp), as.data.frame(MImp))))
-        vw <- vw[!(vw$y == 1 & is.na(M[1, vw$x])) &
-                   !(vw$y == nrow(M) + 1 & is.na(M[nrow(M), vw$x])), ]
-        vw$y <- vw$y + yMin - 1
-        vw$x <- vw$x + xMin - 1
+        horW <- horW[!(horW$y == 1 & is.na(M[1, horW$x])) &
+                   !(horW$y == nrow(M) + 1 & is.na(M[nrow(M), horW$x])), ]
+        horW$y <- horW$y + yMin - 1
+        horW$x <- horW$x + xMin - 1
       }
       ## Create base plot.
       p <- ggplot2::ggplot(data = trDat, ggplot2::aes_string(x = "colCoord",
@@ -578,28 +588,35 @@ plot.TD <- function(x,
                              clip = "off") +
         ggplot2::theme(panel.background = ggplot2::element_blank(),
                        plot.title = ggplot2::element_text(hjust = 0.5)) +
+        ## Move ticks to edge of the plot.
         ggplot2::scale_x_continuous(expand = c(0, 0)) +
         ggplot2::scale_y_continuous(expand = c(0, 0)) +
         ggplot2::ggtitle(trLoc)
       if (hasName(x = trDat, name = "subBlock")) {
+        ## If subblocks are available color tiles by subblock.
         p <- p + ggplot2::geom_tile(
           ggplot2::aes_string(fill = "subBlock"), color = "grey50")
       } else {
+        ## No subblocks so just a single fill color.
         p <- p + ggplot2::geom_tile(color = "grey50", fill = "pink")
       }
 
       if ("repId" %in% colnames(trDat)) {
         ## Add lines for replicates.
         p <- p +
+          ## Add verical lines as segment.
+          ## adding/subtracting 0.5 assures plotting at the borders of
+          ## the tiles.
           ggplot2::geom_segment(
             ggplot2::aes_string(x = "x - 0.5", xend = "x - 0.5",
                                 y = "y - 0.5", yend = "y + 0.5",
-                                linetype = "'replicates'"), data = hw,
+                                linetype = "'replicates'"), data = vertW,
             size = 1) +
           ggplot2::geom_segment(
             ggplot2::aes_string(x = "x - 0.5", xend = "x + 0.5",
-                                y = "y - 0.5", yend = "y - 0.5"), data = vw,
+                                y = "y - 0.5", yend = "y - 0.5"), data = horW,
             size = 1) +
+          ## Just needed for adding a legend entry for replicates.
           ggplot2::scale_linetype_manual("replicates",
                                          values = c("replicates" = "solid"),
                                          name = ggplot2::element_blank())
