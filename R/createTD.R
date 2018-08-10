@@ -528,74 +528,83 @@ plot.TD <- function(x,
       ## Compute aspect for proper depiction of field size. If no information
       ## is available plots are assumed to be square.
       if (is.null(ylen) || is.null(xlen)) {
-        aspect <- length(unique(trDat$rowCoord)) /
-          length(unique(trDat$colCoord))
+        aspect <- length(unique(trDat$colCoord)) /
+          length(unique(trDat$rowCoord))
       } else {
         aspect <- ylen / xlen
       }
       ## Create data for lines between replicates.
       if ("repId" %in% colnames(trDat)) {
+        yMin <- min(trDat$rowCoord)
+        yMax <- max(trDat$rowCoord)
+        xMin <- min(trDat$colCoord)
+        xMax <- max(trDat$colCoord)
         ## Create matrix containing replicates.
-        M <- matrix(data = trDat[order(trDat$rowCoord, trDat$colCoord), "repId"],
-                    nrow = max(trDat$colCoord) - min(trDat$colCoord) + 1,
-                    ncol = max(trDat$rowCoord) - min(trDat$rowCoord) + 1)
-        ## Create empty base matrix for plot content.
-        B <- matrix(nrow = nrow(M) + 1, ncol = ncol(M) + 1)
-        ## Fill with border values.
-        for (i in 1:(nrow(M) - 1)) {
-          for (j in 1:(ncol(M) - 1)) {
-            ## Get border value. Always the lowest neighbouring replicate value.
-            borderVal <- min(c(M[i, j], M[i, j + 1],  M[i + 1, j]))
-            if (M[i, j] != M[i, j + 1] || M[i, j] != M[i + 1, j]) {
-              ## Set current cell to border value. +1 needed to account for
-              ## values on plot edge later on.
-              B[i + 1, j + 1] <- borderVal
-              if (i == 1) {
-                ## Add starting point on left side of plot.
-                B[i, j + 1] <- borderVal
-              }
-              if (i == (nrow(M) - 1)) {
-                ## Add end point on right side of plot.
-                B[i + 2, j + 1] <- borderVal
-              }
-              if (j == 1) {
-                ## Add starting point on bottom side of plot.
-                B[i + 1, j] <- borderVal
-              }
-              if (j == (ncol(M) - 1)) {
-                ## Add end point on top side of plot.
-                B[i + 1, j + 2] <- borderVal
-              }
-            }
-          }
+        M <- matrix(nrow = yMax - yMin + 1, ncol = xMax - xMin + 1,
+                    dimnames = list(min(trDat$rowCoord):max(trDat$rowCoord),
+                                    min(trDat$colCoord):max(trDat$colCoord)))
+        for (i in 1:nrow(trDat)) {
+          M[as.character(trDat[i, "rowCoord"]),
+            as.character(trDat[i, "colCoord"])] <- trDat[i, "repId"]
         }
-        ## Melt data to a format useable by ggplot.
-        borderDat <- reshape2::melt(B)
+        MImp <- M
+        MImp[is.na(MImp)] <- nlevels(trDat$repId) + 1
+        has.breaks <- function(x) {
+          ncol(x) == 2 & nrow(x) > 0
+        }
+        hw <- do.call(rbind.data.frame,
+                      Filter(f = has.breaks, x = Map(function(i, x) {
+                        cbind(y = i, x = which(diff(c(0, x, 0)) != 0))
+                      }, 1:nrow(MImp), split(MImp, 1:nrow(MImp)))))
+        hw <- hw[!(hw$x == 1 & is.na(M[hw$y, 1])) &
+                   !(hw$x == ncol(M) + 1 & is.na(M[hw$y, ncol(M)])), ]
+        hw$y <- hw$y + yMin - 1
+        hw$x <- hw$x + xMin - 1
+        vw <- do.call(rbind.data.frame,
+                      Filter(f = has.breaks, x = Map(function(i, y) {
+                        cbind(x = i, y = which(diff(c(0, y, 0)) != 0))
+                      }, 1:ncol(MImp), as.data.frame(MImp))))
+        vw <- vw[!(vw$y == 1 & is.na(M[1, vw$x])) &
+                   !(vw$y == nrow(M) + 1 & is.na(M[nrow(M), vw$x])), ]
+        vw$y <- vw$y + yMin - 1
+        vw$x <- vw$x + xMin - 1
       }
       ## Create base plot.
-      p <- ggplot2::ggplot(data = trDat,
-                                 ggplot2::aes_string(x = "colCoord",
-                                                     y = "rowCoord")) +
-        ggplot2::geom_tile(ggplot2::aes_string(fill = "subBlock"),
-                           color = "grey50") +
+      p <- ggplot2::ggplot(data = trDat, ggplot2::aes_string(x = "colCoord",
+                                                             y = "rowCoord")) +
         ggplot2::coord_fixed(ratio = aspect,
-                             xlim = range(trDat$colCoord),
-                             ylim = range(trDat$rowCoord)) +
-        ggplot2::theme(panel.background = ggplot2::element_blank()) +
+                             xlim = range(trDat$colCoord) + c(-0.5, 0.5),
+                             ylim = range(trDat$rowCoord) + c(-0.5, 0.5),
+                             clip = "off") +
+        ggplot2::theme(panel.background = ggplot2::element_blank(),
+                       plot.title = ggplot2::element_text(hjust = 0.5)) +
+        ggplot2::scale_x_continuous(expand = c(0, 0)) +
+        ggplot2::scale_y_continuous(expand = c(0, 0)) +
         ggplot2::ggtitle(trLoc)
+      if (hasName(x = trDat, name = "subBlock")) {
+        p <- p + ggplot2::geom_tile(
+          ggplot2::aes_string(fill = "subBlock"), color = "grey50")
+      } else {
+        p <- p + ggplot2::geom_tile(color = "grey50", fill = "pink")
+      }
+
       if ("repId" %in% colnames(trDat)) {
         ## Add lines for replicates.
         p <- p +
-          ggplot2::geom_path(ggplot2::aes_string(x = "Var1 - 0.5",
-                                                 y = "Var2 - 0.5",
-                                                 group = "value",
-                                                 color = "'replicates'"),
-                             data = borderDat[!is.na(borderDat$value), ],
-                             size = 1) +
-          ggplot2::labs(color = "") +
-          ggplot2::scale_color_manual(values = c("replicates" = "black"))
+          ggplot2::geom_segment(
+            ggplot2::aes_string(x = "x - 0.5", xend = "x - 0.5",
+                                y = "y - 0.5", yend = "y + 0.5",
+                                linetype = "'replicates'"), data = hw,
+            size = 1) +
+          ggplot2::geom_segment(
+            ggplot2::aes_string(x = "x - 0.5", xend = "x + 0.5",
+                                y = "y - 0.5", yend = "y - 0.5"), data = vw,
+            size = 1) +
+          ggplot2::scale_linetype_manual("replicates",
+                                         values = c("replicates" = "solid"),
+                                         name = ggplot2::element_blank())
       }
-      if (p) {
+      if (output) {
         plot(p)
       }
     }

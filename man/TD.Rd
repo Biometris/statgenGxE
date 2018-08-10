@@ -10,14 +10,16 @@
 createTD(data, genotype = NULL, trial = NULL, megaEnv = NULL,
   year = NULL, repId = NULL, subBlock = NULL, plot = NULL,
   rowId = NULL, colId = NULL, rowCoord = NULL, colCoord = NULL,
-  checkId = NULL, trLocation = NULL, trDate = NULL, trDesign = NULL,
-  trLat = NULL, trLong = NULL, trPlWidth = NULL, trPlLength = NULL)
+  checkId = NULL, trLocation = NULL, trDate = NULL,
+  trDesign = NULL, trLat = NULL, trLong = NULL, trPlWidth = NULL,
+  trPlLength = NULL)
 
 addTD(TD, data, genotype = NULL, trial = NULL, megaEnv = NULL,
   year = NULL, repId = NULL, subBlock = NULL, plot = NULL,
   rowId = NULL, colId = NULL, rowCoord = NULL, colCoord = NULL,
-  checkId = NULL, trLocation = NULL, trDate = NULL, trDesign = NULL,
-  trLat = NULL, trLong = NULL, trPlWidth = NULL, trPlLength = NULL)
+  checkId = NULL, trLocation = NULL, trDate = NULL,
+  trDesign = NULL, trLat = NULL, trLong = NULL, trPlWidth = NULL,
+  trPlLength = NULL)
 
 dropTD(TD, trials)
 }
