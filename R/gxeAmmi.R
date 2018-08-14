@@ -7,8 +7,6 @@
 #' in an interaction characterized by Interaction Principal Components (IPCA)
 #' enabling simultaneous plotting of genotypes and trials.
 #'
-#'
-#'
 #' @param TD An object of class \code{\link{TD}}.
 #' @param trials A character string specifying the trials to be analyzed. If
 #' not supplied all trials are used in the analysis.
@@ -94,7 +92,7 @@ gxeAmmi <- function(TD,
     "0"
   }
   ## Extract years and define empty objects for output.
-  years <- unique(TDTot$year.)
+  years <- sort(unique(TDTot$year.))
   fitTot <- data.frame(genotype = unique(TDTot$genotype))
   loadTot <- scoreTot <- impTot <- aovTot <- envMeanTot <- genoMeanTot <-
     ovMeanTot <- setNames(vector(mode = "list", length = length(years)), years)
@@ -135,6 +133,11 @@ gxeAmmi <- function(TD,
       ## Transform data to genotype x trial matrix.
       y0 <- tapply(X = TDYear[[trait]],
                    INDEX = TDYear[, c("genotype", "trial")], FUN = identity)
+      if (sum(is.na(y0)) / length(y0) > 0.3) {
+        stop(ifelse(byYear, paste0("More than 30% missing values for ", year,
+                                  ".\n"),
+                    "More than 30% missing values.\n"))
+      }
       ## Actual imputation.
       y1 <- multMissing(y0, maxIter = 50)
       ## Insert imputed values back into original data.
@@ -212,7 +215,7 @@ gxeAmmi <- function(TD,
     envMeanTot[[year]] <- envMean
     genoMeanTot[[year]] <- genoMean
     ovMeanTot[[year]] <- overallMean
-  }
+  } # End loop over years.
   rownames(fitTot) <- fitTot$genotype
   fitTot <- as.matrix(fitTot[-1])
   if (!byYear) {
@@ -227,7 +230,7 @@ gxeAmmi <- function(TD,
   return(createAMMI(envScores = loadTot, genoScores = scoreTot,
                     importance = impTot, anova = aovTot, fitted = fitTot,
                     trait = trait, envMean = envMeanTot, genoMean = genoMeanTot,
-                    overallMean = ovMeanTot))
+                    overallMean = ovMeanTot, byYear = byYear))
 }
 
 #' @keywords internal

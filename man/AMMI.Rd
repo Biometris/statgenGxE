@@ -6,7 +6,11 @@
 \title{S3 class AMMI}
 \usage{
 createAMMI(envScores, genoScores, importance, anova, fitted, trait,
+<<<<<<< HEAD
   envMean, genoMean, overallMean)
+=======
+  envMean, genoMean, overallMean, byYear)
+>>>>>>> Modified summary.ammi to display results per year when needed (#4)
 }
 \arguments{
 \item{envScores}{A matrix containing environmental scores.}
@@ -27,6 +31,8 @@ components.}
 \item{genoMean}{A numerical vector containing the genotypic means.}
 
 \item{overallMean}{A numerical value containing the overall mean.}
+
+\item{byYear}{Has the analysis been performed by year?}
 }
 \description{
 Function for creating objects of S3 class AMMI.\cr

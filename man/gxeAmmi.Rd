@@ -16,7 +16,9 @@ not supplied all trials are used in the analysis.}
 \item{trait}{A character string specifying the trait to be analyzed.}
 
 \item{nPC}{An integer specifying the number of principal components used
-as multiplicative term of genotype-by-trial interaction.}
+as multiplicative term of genotype-by-trial interaction. If \code{NA} the
+number of principal components is determined by the algorithm using
+forward selection. See details.}
 
 \item{byYear}{Should the analysis be done by year? If \code{TRUE} the data
 is split by the variable year, analysis is performed and the results are
@@ -44,11 +46,16 @@ components.}
 \item{envMean}{A numerical vector containing the environmental means.}
 \item{genoMean}{A numerical vector containing the genotypic means.}
 \item{overallMean}{A numerical value containing the overall mean.}
+If \code{byYear} = \code{TRUE} all returned items in the AMMI object except
+\code{fitted} will consist of a list of results by year.
 }
 \description{
-This function fits a model which involves the Additive Main effects (i.e.
-genotype and trial) along with the Multiplicative Interaction effects
-of principal component analysis (PCA).
+The Additive Main Effects and Multiplicative Interaction (AMMI) model fits
+a model which involves the Additive Main effects (i.e. genotype and trial)
+along with the Multiplicative Interaction effects. Then a principal component
+analysis is done on the residuals (multiplicative interaction). This results
+in an interaction characterized by Interaction Principal Components (IPCA)
+enabling simultaneous plotting of genotypes and trials.
 }
 \examples{
 ## Run AMMI analysis on TDMaize.

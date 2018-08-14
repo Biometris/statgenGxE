@@ -14,6 +14,7 @@
 #' @param envMean A numerical vector containing the environmental means.
 #' @param genoMean A numerical vector containing the genotypic means.
 #' @param overallMean A numerical value containing the overall mean.
+#' @param byYear Has the analysis been performed by year?
 #'
 #' @author Bart-Jan van Rossum
 #'
@@ -32,7 +33,8 @@ createAMMI <- function(envScores,
                        trait,
                        envMean,
                        genoMean,
-                       overallMean) {
+                       overallMean,
+                       byYear) {
   AMMI <- structure(list(envScores = envScores,
                          genoScores = genoScores,
                          importance = importance,
@@ -41,9 +43,10 @@ createAMMI <- function(envScores,
                          trait = trait,
                          envMean = envMean,
                          genoMean = genoMean,
-                         overallMean = overallMean),
-                    class = "AMMI")
-  attr(AMMI, which = "timestamp") <- Sys.time()
+                         overallMean = overallMean,
+                         byYear = byYear),
+                    class = "AMMI",
+                    timestamp = Sys.time())
   return(AMMI)
 }
 
@@ -51,16 +54,49 @@ createAMMI <- function(envScores,
 print.AMMI <- function(x, ...) {
   cat("Principal components",
       "\n====================\n")
-  print(x$importance[, 1:ncol(x$envScores), drop = FALSE])
+  if (x$byYear) {
+    years <- names(x$importance)
+    for (year in years) {
+      cat(paste(year, "\n"))
+      print(x$importance[[year]][, 1:ncol(x$envScores[[year]]), drop = FALSE])
+      cat("\n")
+    }
+  } else {
+    print(x$importance[, 1:ncol(x$envScores), drop = FALSE])
+  }
   cat("\nAnova",
       "\n=====\n")
-  printCoefmat(x$anova, na.print = "")
+  if (x$byYear) {
+    for (year in years) {
+      cat(paste(year, "\n"))
+      printCoefmat(x$anova[[year]], na.print = "")
+      cat("\n")
+    }
+  } else {
+    printCoefmat(x$anova, na.print = "")
+  }
   cat("\nEnvironment scores",
       "\n==================\n")
-  print(x$envScores, ...)
+  if (x$byYear) {
+    for (year in years) {
+      cat(paste(year, "\n"))
+      print(x$envScores[[year]], ...)
+      cat("\n")
+    }
+  } else {
+    print(x$envScores, ...)
+  }
   cat("\nGenotypic scores",
       "\n================\n")
-  print(x$genoScores, ..., max.print = 50)
+  if (x$byYear) {
+    for (year in years) {
+      cat(paste(year, "\n"))
+      print(x$genoScores[[year]], ...)
+      cat("\n")
+    }
+  } else {
+    print(x$genoScores, ...)
+  }
 }
 
 #' @export
