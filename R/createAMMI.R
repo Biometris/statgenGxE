@@ -158,104 +158,158 @@ plot.AMMI <- function(x,
   }
   plotType <- match.arg(plotType)
   dotArgs <- list(...)
-  loadings <- x$envScores
-  scores <- x$genoScores
-  percPC1 <- round(x$importance[2, 1] * 100, 1)
-  percPC2 <- round(x$importance[2, 2] * 100, 1)
   if (plotType == "AMMI1") {
-    ## Calculate lambda scale
-    lam <- x$importance[1, 1]
-    lam <- lam ^ scale
-    ## Put overallMean in variable since using x$ in plot produces an error.
-    ovMean <- x$overallMean
-    ## Create dataframes for genotypes and environments.
-    genoDat <- data.frame(x = x$genoMean, y = scores[, 1] / lam)
-    envDat <- data.frame(x = x$envMean, y = loadings[, 1] * lam)
-    plotRatio <- (max(c(x$genoMean, x$envMean)) - min(c(x$genoMean, x$envMean))) /
-      (max(c(scores[, 1] / lam, loadings[, 1] * lam)) -
-         min(c(scores[, 1] / lam, loadings[, 1] * lam)))
-    p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "x", y = "y")) +
-      ## Plot genotypes as points.
-      ggplot2::geom_point(color = col[1]) +
-      ## Needed for a square plot output.
-      ggplot2::coord_fixed(ratio = plotRatio, clip = "off") +
-      ## Plot environments as texts.
-      ggplot2::geom_text(data = envDat,
-                         ggplot2::aes_string(x = "x", y = "y",
-                                             label = "rownames(envDat)"),
-                         size = 5, vjust = 1, color = col[2]) +
-      ## Add reference axes.
-      ggplot2::geom_vline(ggplot2::aes(xintercept = ovMean),
-                          linetype = "dashed", show.legend = FALSE) +
-      ggplot2::geom_hline(ggplot2::aes(yintercept = 0), linetype = "dashed",
-                          show.legend = FALSE) +
-      ## Add labeling.
-      ggplot2::labs(x = "Main Effects", y = paste0("PC1 (", percPC1, "%)")) +
-      ggplot2::ggtitle(paste0("AMMI1 biplot for ", x$trait)) +
-      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
-  } else if (plotType == "AMMI2") {
-    if (scale == 1) {
-      info <- "environment scaling"
-    } else if (scale == 0) {
-      info <- "genotype scaling"
-    } else if (scale == 0.5) {
-      info <- "symmetric scaling"
+    if (x$byYear) {
+      p <- lapply(X = names(x$envScores), FUN = function(year) {
+        plotAMMI1(loadings = x$envScores[[year]], scores = x$genoScores[[year]],
+                  importance = x$importance[[year]],
+                  overallMean = x$overallMean[[year]],
+                  genoMean = x$genoMean[[year]], envMean = x$envMean[[year]],
+                  trait = x$trait, year = year, scale = scale, col = col)
+      })
     } else {
-      info <- paste0(round(x$importance[3, 2] * 100, 1), "%")
+      p <- plotAMMI1(loadings = x$envScores, scores = x$genoScores,
+                     importance = x$importance, overallMean = x$overallMean,
+                     genoMean = x$genoMean, envMean = x$envMean,
+                     trait = x$trait, scale = scale, col = col)
     }
-    ## Calculate lambda scale.
-    lam <- as.numeric(x$importance[1, 1:2])
-    lam <- lam * sqrt(nrow(scores))
-    lam <- lam ^ scale
-    ## Create dataframes for genotypes and environments.
-    genoDat <- as.data.frame(t(t(scores[, 1:2]) / lam))
-    envDat <- as.data.frame(t(t(loadings[, 1:2]) * lam))
-    ## Compute multiplication factor for rescaling environmental data.
-    mult <- min(
-      (max(genoDat[["PC1"]]) - min(genoDat[["PC1"]])) /
-        (max(envDat[["PC1"]]) - min(envDat[["PC1"]])),
-      (max(genoDat[["PC2"]]) - min(genoDat[["PC2"]])) /
-        (max(envDat[["PC2"]]) - min(envDat[["PC2"]]))
-    )
-    ## Rescale data. 0.6 is more or less random but seems to work well in
-    ## practice.
-    envDat <- envDat * mult * 0.6
-    plotRatio <- (max(c(envDat[["PC1"]], genoDat[["PC1"]])) -
-                    min(c(envDat[["PC1"]], genoDat[["PC1"]]))) /
-      (max(c(envDat[["PC2"]], genoDat[["PC2"]])) -
-         min(c(envDat[["PC2"]], genoDat[["PC2"]])))
-    p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "PC1", y = "PC2")) +
-      ## Plot genotypes as points.
-      ggplot2::geom_point(color = col[1]) +
-      ## Needed for a square plot output.
-      ggplot2::coord_fixed(clip = "off", ratio = plotRatio) +
-      ## Plot environments as texts.
-      ggplot2::geom_text(data = envDat,
-                         ggplot2::aes_string(x = "PC1", y = "PC2",
-                                             label = "rownames(envDat)"),
-                         size = 5, vjust = "outward", hjust = "outward",
-                         color = col[2]) +
-      ## Add arrows from origin to environments.
-      ## Adding alpha = for transparency causes the arrows not being plotting
-      ## after turning off clipping which is needed since labels may fall off
-      ## the plot otherwise.
-      ggplot2::geom_segment(data = envDat,
-                            ggplot2::aes_string(x = 0, y = 0, xend = "PC1",
-                                                yend = "PC2"),
-                            arrow = ggplot2::arrow(length =
-                                                     ggplot2::unit(0.2, "cm")),
-                            color = col[2]) +
-      ## Add labeling.
-      ggplot2::labs(x = paste0("PC1 (", percPC1, "%)"),
-                    y = paste0("PC2 (", percPC2, "%)")) +
-      ggplot2::ggtitle(paste0("AMMI2 biplot for ", x$trait, " (", info, ")")) +
-      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+  } else if (plotType == "AMMI2") {
+    if (x$byYear) {
+      p <- lapply(X = names(x$envScores), FUN = function(year) {
+        plotAMMI2(loadings = x$envScores[[year]], scores = x$genoScores[[year]],
+                  importance = x$importance[[year]], trait = x$trait,
+                  year = year, scale = scale, col = col)
+      })
+    } else {
+      p <- plotAMMI2(loadings = x$envScores, scores = x$genoScores,
+                     importance = x$importance, trait = x$trait, scale = scale,
+                     col = col)
+    }
   }
   if (output) {
-    plot(p)
+    if (x$byYear) {
+      lapply(X = p, FUN = plot)
+    } else {
+      plot(p)
+    }
   }
   invisible(p)
 }
+
+#' Helper function for creating AMMI1 plot
+#' @keywords internal
+plotAMMI1 <- function(loadings,
+                      scores,
+                      importance,
+                      overallMean,
+                      genoMean,
+                      envMean,
+                      trait,
+                      year = "",
+                      scale,
+                      col) {
+  percPC1 <- round(importance[2, 1] * 100, 1)
+  ## Calculate lambda scale
+  lam <- importance[1, 1]
+  lam <- lam ^ scale
+  ## Put overallMean in variable since using x$ in plot produces an error.
+  ovMean <- overallMean
+  ## Create dataframes for genotypes and environments.
+  genoDat <- data.frame(x = genoMean, y = scores[, 1] / lam)
+  envDat <- data.frame(x = envMean, y = loadings[, 1] * lam)
+  plotRatio <- (max(c(genoMean, envMean)) - min(c(genoMean, envMean))) /
+    (max(c(scores[, 1] / lam, loadings[, 1] * lam)) -
+       min(c(scores[, 1] / lam, loadings[, 1] * lam)))
+  p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "x", y = "y")) +
+    ## Plot genotypes as points.
+    ggplot2::geom_point(color = col[1]) +
+    ## Needed for a square plot output.
+    ggplot2::coord_fixed(ratio = plotRatio, clip = "off") +
+    ## Plot environments as texts.
+    ggplot2::geom_text(data = envDat,
+                       ggplot2::aes_string(x = "x", y = "y",
+                                           label = "rownames(envDat)"),
+                       size = 3, vjust = 1, color = col[2]) +
+    ## Add reference axes.
+    ggplot2::geom_vline(ggplot2::aes(xintercept = ovMean),
+                        linetype = "dashed", show.legend = FALSE) +
+    ggplot2::geom_hline(ggplot2::aes(yintercept = 0), linetype = "dashed",
+                        show.legend = FALSE) +
+    ## Add labeling.
+    ggplot2::labs(x = "Main Effects", y = paste0("PC1 (", percPC1, "%)")) +
+    ggplot2::ggtitle(paste0("AMMI1 biplot for ", trait, " ", year)) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+}
+
+plotAMMI2 <- function(loadings,
+                      scores,
+                      importance,
+                      trait,
+                      year = "",
+                      scale,
+                      col) {
+  percPC1 <- round(importance[2, 1] * 100, 1)
+  percPC2 <- round(importance[2, 2] * 100, 1)
+  if (scale == 1) {
+    info <- "environment scaling"
+  } else if (scale == 0) {
+    info <- "genotype scaling"
+  } else if (scale == 0.5) {
+    info <- "symmetric scaling"
+  } else {
+    info <- paste0(round(importance[3, 2] * 100, 1), "%")
+  }
+  ## Calculate lambda scale.
+  lam <- as.numeric(importance[1, 1:2])
+  lam <- lam * sqrt(nrow(scores))
+  lam <- lam ^ scale
+  ## Create dataframes for genotypes and environments.
+  genoDat <- as.data.frame(t(t(scores[, 1:2]) / lam))
+  envDat <- as.data.frame(t(t(loadings[, 1:2]) * lam))
+  ## Compute multiplication factor for rescaling environmental data.
+  mult <- min(
+    (max(genoDat[["PC1"]]) - min(genoDat[["PC1"]])) /
+      (max(envDat[["PC1"]]) - min(envDat[["PC1"]])),
+    (max(genoDat[["PC2"]]) - min(genoDat[["PC2"]])) /
+      (max(envDat[["PC2"]]) - min(envDat[["PC2"]]))
+  )
+  ## Rescale data. 0.6 is more or less random but seems to work well in
+  ## practice.
+  envDat <- envDat * mult * 0.6
+  plotRatio <- (max(c(envDat[["PC1"]], genoDat[["PC1"]])) -
+                  min(c(envDat[["PC1"]], genoDat[["PC1"]]))) /
+    (max(c(envDat[["PC2"]], genoDat[["PC2"]])) -
+       min(c(envDat[["PC2"]], genoDat[["PC2"]])))
+  p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "PC1", y = "PC2")) +
+    ## Plot genotypes as points.
+    ggplot2::geom_point(color = col[1]) +
+    ## Needed for a square plot output.
+    ggplot2::coord_fixed(clip = "off", ratio = plotRatio) +
+    ## Plot environments as texts.
+    ggplot2::geom_text(data = envDat,
+                       ggplot2::aes_string(x = "PC1", y = "PC2",
+                                           label = "rownames(envDat)"),
+                       size = 3, vjust = "outward", hjust = "outward",
+                       color = col[2]) +
+    ## Add arrows from origin to environments.
+    ## Adding alpha = for transparency causes the arrows not being plotted
+    ## after turning off clipping which is needed since labels may fall off
+    ## the plot otherwise.
+    ggplot2::geom_segment(data = envDat,
+                          ggplot2::aes_string(x = 0, y = 0, xend = "PC1",
+                                              yend = "PC2"),
+                          arrow = ggplot2::arrow(length =
+                                                   ggplot2::unit(0.2, "cm")),
+                          color = col[2]) +
+    ## Add labeling.
+    ggplot2::labs(x = paste0("PC1 (", percPC1, "%)"),
+                  y = paste0("PC2 (", percPC2, "%)")) +
+    ggplot2::ggtitle(paste0("AMMI2 biplot for ", trait, " (", info, ") ",
+                            year)) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+}
+
+
 
 #' Report method for class AMMI
 #'
