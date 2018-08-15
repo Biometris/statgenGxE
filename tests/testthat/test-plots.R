@@ -7,6 +7,12 @@ context("Plots")
 test_that("AMMI plot gives correct output types", {
   geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
   p1 <- plot(geAmmi, output = FALSE)
+  expect_error(plot(geAmmi, plotType = "AMMI2", secAxis = "3"),
+               "string starting with PC")
+  expect_error(plot(geAmmi, plotType = "AMMI2", secAxis = "PC1"),
+               "Invalid value provided for secAxis")
+  expect_error(plot(geAmmi, plotType = "AMMI2", secAxis = "PC3"),
+               "run with option nPC = 2")
   p2 <- plot(geAmmi, plotType = "AMMI2", output = FALSE)
   expect_is(p1, "ggplot")
   expect_is(p2, "ggplot")
