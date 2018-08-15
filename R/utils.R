@@ -206,9 +206,9 @@ seKurtosis <- function(n) {
 #' @param ... Further arguments to be passed on to specific report functions.
 #'
 #' @seealso \code{\link{report.SSA}}, \code{\link{report.varComp}},
-#' \code{\link{report.AMMI}}, \code{\link{report.FW},
-#' \code{\link{report.stability}}}, \code{\link{report.cross}},
-#' \code{\link{report.QTLDet}, \code{\link{report.multiQTL}}}
+#' \code{\link{report.AMMI}}, \code{\link{report.FW}},
+#' \code{\link{report.stability}}, \code{\link{report.cross}},
+#' \code{\link{report.QTLDet}}, \code{\link{report.multiQTL}}
 #'
 #' @export
 report <- function(x,

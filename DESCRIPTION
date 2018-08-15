@@ -12,7 +12,7 @@ Description: The R Analytical Pipeline (RAP), commissioned by the Generation
     field trials and genotype by environment analysis. Some functions have
     been created to be used in conjunction with the R package 'asreml' for 
     the 'ASReml' software, which can be obtained upon purchase from 'VSN' 
-    international (http://www.vsni.co.uk/software/asreml).
+    international (<http://www.vsni.co.uk/software/asreml>).
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

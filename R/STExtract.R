@@ -82,6 +82,7 @@
 #' ## the output.
 #' BLUEs2 <- STExtract(myModel, what = "BLUEs", keep = "trial")
 #'
+#' @importFrom utils capture.output
 #' @export
 STExtract <- function(SSA,
                       trials = names(SSA),
