@@ -92,23 +92,25 @@ if (x$byYear) {
 <<label=importance, echo=FALSE, results="asis">>=
 if (x$byYear) {
   for (year in years) {
-    importance <- x$importance[[year]][, 1:ncol(x$envScores[[year]])]
+    nPC <- ncol(x$envScores[[year]])
+    importance <- x$importance[[year]][, 1:nPC]
     print(xtable::xtable(x = importance, caption = year,
                          label = paste0("importance", year),
                          align = c("l", rep("c", ncol(importance)))),
           caption.placement = "top",
           latex.environments = "flushleft",
           include.rownames = TRUE, include.colnames = TRUE,
-          scalebox = 0.7)
+          scalebox = ifelse(nPC > 10, 0.8 - 0.05 * (nPC - 12), 1))
   }
   cat("\\clearpage")
 } else {
-  importance <- x$importance[, 1:ncol(x$envScores)]
+  nPC <- ncol(x$envScores)
+  importance <- x$importance[, 1:nPC]
   print(xtable::xtable(x = importance, label = "importance",
                        align = c("l", rep("c", ncol(importance)))),
         latex.environments = "flushleft",
         include.rownames = TRUE, include.colnames = TRUE,
-        scalebox = 0.7)
+        scalebox = ifelse(nPC > 10, 0.8 - 0.05 * (nPC - 12), 1))
 }
 @
 
