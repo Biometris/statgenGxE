@@ -161,20 +161,6 @@ plot.AMMI <- function(x,
   if (length(col) != 2) {
     stop("col should contain exactly two colors.\n")
   }
-  if (!is.character(secAxis) || length(secAxis) > 1 ||
-      substring(text = secAxis, first = 1, last = 2) != "PC") {
-    stop("secAxis should be a single character string starting with PC.\n")
-  }
-  nPC <- suppressWarnings(as.numeric(substring(text = secAxis, first = 3)))
-  if (is.na(nPC) || nPC == 1) {
-    stop(paste("Invalid value provided for secAxis. Make sure the value is of",
-               "the form secAxis = 'PCn' where n is the principal component",
-               "to plot on the secondary axis. n Cannot be 1.\n"))
-  }
-  if (nPC > ncol(x$envScores)) {
-    stop(paste0("gxeAmmi was run with option nPC = ", ncol(x$envScores), ". ",
-                "Plotting of PC", nPC, " is not possible.\n"))
-  }
   plotType <- match.arg(plotType)
   dotArgs <- list(...)
   if (plotType == "AMMI1") {
@@ -195,19 +181,40 @@ plot.AMMI <- function(x,
                      trait = x$trait, scale = scale, col = col)
     }
   } else if (plotType == "AMMI2") {
+    if (!is.character(secAxis) || length(secAxis) > 1 ||
+        substring(text = secAxis, first = 1, last = 2) != "PC") {
+      stop("secAxis should be a single character string starting with PC.\n")
+    }
+    nPC <- suppressWarnings(as.numeric(substring(text = secAxis, first = 3)))
+    if (is.na(nPC) || nPC == 1) {
+      stop(paste("Invalid value provided for secAxis. Make sure the value is",
+                 "of the form secAxis = 'PCn' where n is the principal",
+                 "component to plot on the secondary axis. n Cannot be 1.\n"))
+    }
     if (x$byYear) {
+      nPCs <- sapply(X = x$envScores, FUN = ncol)
+      maxPC <- max(nPCs)
+      if (nPC > maxPC) {
+        stop(paste0("Highest number of principal components is ", maxPC,
+                    ". Plotting of PC", nPC, " is not possible.\n"))
+      }
       ## Create a list of AMMI2 plots.
-      p <- lapply(X = names(x$envScores), FUN = function(year) {
-        plotAMMI2(loadings = x$envScores[[year]], scores = x$genoScores[[year]],
+      p <- lapply(X = names(x$envScores)[nPCs >= nPC], FUN = function(year) {
+        plotAMMI2(loadings = x$envScores[[year]],
+                  scores = x$genoScores[[year]],
                   importance = x$importance[[year]], trait = x$trait,
                   year = year, secAxis = secAxis, scale = scale, col = col)
       })
     } else {
+      if (nPC > ncol(x$envScores)) {
+        stop(paste0("AMMI was run with ", ncol(x$envScores), " principal ",
+                    "components. Plotting of PC", nPC, " is not possible.\n"))
+      }
       ## Create a single AMMI2 plot.
       p <- plotAMMI2(loadings = x$envScores, scores = x$genoScores,
                      importance = x$importance, trait = x$trait,
                      secAxis = secAxis, scale = scale, col = col)
-      }
+    }
   }
   if (output) {
     if (x$byYear) {

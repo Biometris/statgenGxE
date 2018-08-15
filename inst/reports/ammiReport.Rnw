@@ -93,12 +93,13 @@ if (x$byYear) {
 if (x$byYear) {
   for (year in years) {
     importance <- x$importance[[year]][, 1:ncol(x$envScores[[year]])]
-    print(xtable::xtable(x = importance, capion = year,
+    print(xtable::xtable(x = importance, caption = year,
                          label = paste0("importance", year),
                          align = c("l", rep("c", ncol(importance)))),
           caption.placement = "top",
           latex.environments = "flushleft",
-          include.rownames = TRUE, include.colnames = TRUE)
+          include.rownames = TRUE, include.colnames = TRUE,
+          scalebox = 0.7)
   }
   cat("\\clearpage")
 } else {
@@ -106,7 +107,8 @@ if (x$byYear) {
   print(xtable::xtable(x = importance, label = "importance",
                        align = c("l", rep("c", ncol(importance)))),
         latex.environments = "flushleft",
-        include.rownames = TRUE, include.colnames = TRUE)
+        include.rownames = TRUE, include.colnames = TRUE,
+        scalebox = 0.7)
 }
 @
 
@@ -129,8 +131,16 @@ if (x$byYear) {
 %-------------------------------------------------------------------------------
 \section{Biplots}
 %-------------------------------------------------------------------------------
-<<label=biplot, echo=FALSE, fig.width=9, fig.height=6.5, out.width="0.9\\maxwidth", background="white">>=
-plot(x, plotType = "AMMI2")
+<<label=biplot, echo=FALSE, fig.width=9, fig.height=6.3, out.width="0.9\\maxwidth", background="white">>=
+if (x$byYear) {
+  nPCs <- max(sapply(X = x$envScores, FUN = ncol))
+  PCs <- paste0("PC", 2:nPCs)
+} else {
+  PCs <- paste0("PC", 2:ncol(x$envScores))
+}
+for (PC in PCs) {
+  plot(x, plotType = "AMMI2", secAxis = PC)
+}
 @
 
 %-------------------------------------------------------------------------------

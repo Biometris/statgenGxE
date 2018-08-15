@@ -12,7 +12,7 @@ test_that("AMMI plot gives correct output types", {
   expect_error(plot(geAmmi, plotType = "AMMI2", secAxis = "PC1"),
                "Invalid value provided for secAxis")
   expect_error(plot(geAmmi, plotType = "AMMI2", secAxis = "PC3"),
-               "run with option nPC = 2")
+               "run with 2 principal components")
   p2 <- plot(geAmmi, plotType = "AMMI2", output = FALSE)
   expect_is(p1, "ggplot")
   expect_is(p2, "ggplot")
