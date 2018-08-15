@@ -10,7 +10,7 @@ modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
 test_that("the output of extract is of the proper type", {
   expect_is(STExtract(modelSp, what = "BLUEs"), "list")
   expect_is(STExtract(modelSp), "list")
-  expect_length(STExtract(modelSp)[[1]], 15)
+  expect_length(STExtract(modelSp)[[1]], 16)
   expect_is(STExtract(modelSp, what = c("BLUEs", "BLUPs")), "list")
   expect_length(STExtract(modelSp, what = c("BLUEs", "BLUPs"))[[1]], 2)
 })
@@ -168,6 +168,14 @@ test_that("effective dimensions are computed correctly", {
                  0.27481928961094, 0.442528809466912,
                  9.93658502142113e-13, 1.9717150379426e-07,
                  1.31287578850783e-05))
+})
+
+test_that("ratios of effective dimensions are computed correctly", {
+  expect_is(extSp$ratEffDim, "matrix")
+  expect_identical(dim(extSp$ratEffDim), c(12L, 1L))
+  expect_equal(colnames(extSp$ratEffDim), "t1")
+  expect_equal(as.numeric(extSp$ratEffDim),
+               c(1, 0.46, 0.01, 0.13, 1, 1, 1, 0.09, 0.07, 0, 0, 0))
 })
 
 test_that("correct attributes are added", {

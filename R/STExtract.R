@@ -35,6 +35,8 @@
 #' \code{asreml}.}
 #' \item{F - rDf}{Residual degrees of freedom.}
 #' \item{R - effDim}{Effective dimensions - only for \code{SpATS}.}
+#' \item{R - ratEffDim}{Ratio's of the effective dimensions -
+#' only for \code{SpATS}.}
 #' \item{F - sed}{Standard error of difference - only for \code{asreml}.}
 #' \item{F - lsd}{Least significant difference - only for \code{asreml}.}
 #' \item{all}{All available statistics.}
@@ -147,9 +149,9 @@ extractSpATS <- function(SSA,
                             x = deparse(mr[[1]]$model$fixed))) > 0
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "heritability",
                "varCompF", "varCompR", "varGen", "varSpat", "fitted", "resid",
-               "rMeans", "ranEf", "rDf", "effDim")
+               "rMeans", "ranEf", "rDf", "effDim", "ratEffDim")
   whatMod <- c("F", "F", "R", "R", "R", "F", "R", "R", "R", "F", "F", "R", "R",
-               "F", "F")
+               "F", "R", "R")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
   whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ranEf")
   if (what[[1]] == "all") {
@@ -307,6 +309,14 @@ extractSpATS <- function(SSA,
   if ("effDim" %in% what) {
     result[["effDim"]] <- sapply(X = mr, FUN = function(mr0) {
       mr0$eff.dim
+    })
+  }
+  ## Extract ratio's of effective dimensions.
+  if ("ratEffDim" %in% what) {
+    result[["ratEffDim"]] <- sapply(X = mr, FUN = function(mr0) {
+      capture.output(ratTot <- summary(mr0)$p.table.dim[, "Ratio"])
+      setNames(as.numeric(ratTot[1:(length(ratTot) - 4)]),
+               names(ratTot[1:(length(ratTot) - 4)]))
     })
   }
   return(result)

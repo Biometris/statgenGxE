@@ -76,6 +76,8 @@ component.}
 \code{asreml}.}
 \item{F - rDf}{Residual degrees of freedom.}
 \item{R - effDim}{Effective dimensions - only for \code{SpATS}.}
+\item{R - ratEffDim}{Ratio's of the effective dimensions -
+only for \code{SpATS}.}
 \item{F - sed}{Standard error of difference - only for \code{asreml}.}
 \item{F - lsd}{Least significant difference - only for \code{asreml}.}
 \item{all}{All available statistics.}
