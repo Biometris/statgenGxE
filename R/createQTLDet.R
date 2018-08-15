@@ -62,6 +62,10 @@ summary.QTLDet <- function(object,
 #'
 #' @param x An object of class QTLDet
 #' @param ... Not used
+#' @param yLim A numerical value for the upper limit of the y-axis. If
+#' \code{NA} the limit is determined based on the data.
+#' @param title A character value for the title of the plot. If not supplied
+#' the trait used in the qTL Detection is used as plot title.
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
@@ -69,7 +73,15 @@ summary.QTLDet <- function(object,
 #' @export
 plot.QTLDet <- function(x,
                         ...,
+                        yLim = NA,
+                        title = x$trait,
                         output = TRUE) {
+  if (!is.na(yLim) && (!is.numeric(yLim) || length(yLim) > 1 || yLim < 0)) {
+    stop("yLim should be NA or a single positive numerical value.\n")
+  }
+  if (!is.character(title) || length(title) > 1) {
+    stop("title should be a single character string.\n")
+  }
   p <- ggplot2::ggplot(data = x$scores,
                        ggplot2::aes_string(x = "pos", y = "lod")) +
     ggplot2::geom_line() +
@@ -78,12 +90,15 @@ plot.QTLDet <- function(x,
     ggplot2::facet_grid(rows = formula("~chr"), scales = "free_x",
                         space = "free_x") +
     ## Set continuous scales to start axes at (0,0).
-    ggplot2::scale_y_continuous(limits = c(0, NA), expand = c(0, 0)) +
+    ggplot2::scale_y_continuous(limits = c(0, yLim), expand = c(0, 0)) +
     ggplot2::scale_x_continuous(limits = c(0, NA), expand = c(0, 0)) +
     ## Add cartesian coordinate system to get access to clip off option.
     ## Needed for adding peaks.
     ggplot2::coord_cartesian(clip = "off") +
-    ggplot2::labs(x = "Chromosome", y = "LOD")
+    ## Set axis en plot titles.
+    ggplot2::labs(x = "Chromosome", y = "LOD") +
+    ggplot2::ggtitle(label = title) +
+    ggplot2::theme(plot.title =  ggplot2::element_text(hjust = 0.5))
   if (x$type == "CIM") {
     if (nrow(x$peaks) > 0) {
       ## Add peaks as red dots on x-axis.
