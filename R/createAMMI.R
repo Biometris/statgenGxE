@@ -241,6 +241,8 @@ plotAMMI1 <- function(loadings,
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 }
 
+#' Helper function for creating AMMI2 plot
+#' @keywords internal
 plotAMMI2 <- function(loadings,
                       scores,
                       importance,

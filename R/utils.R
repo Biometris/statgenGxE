@@ -481,4 +481,28 @@ extractVarComp <- function(model,
   return(varComp)
 }
 
-
+#' Helper function for printing anova table in reports.
+#' @keywords internal
+printAnova <- function(aovTab,
+                       title = NULL) {
+  ## Add significance stars
+  aovTab[, ncol(aovTab) + 1] <-
+    symnum(x = aovTab[, ncol(aovTab)], corr = FALSE, na = FALSE,
+           cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+           symbols = c("***", "**", "*", ".", " "))
+  colnames(aovTab)[ncol(aovTab)] <- ""
+  legendText <- paste("Significance codes:",
+                      attr(x = aovTab[, ncol(aovTab)], which = "legend"),
+                      "} \\\\")
+  print(xtable::xtable(x = aovTab, caption = title,
+                       label = paste0("anova", title),
+                       align = c("l", "r", "r", "r", "r", "r", "l"),
+                       digits = c(0, 0, 0, 0, 2, -2, 0),
+                       display = c("s", "f", "f", "f", "f", "e", "s")),
+        caption.placement = "top",
+        latex.environments = "flushleft",
+        include.rownames = TRUE, include.colnames = TRUE,
+        add.to.row = list(pos = list(nrow(aovTab)),
+                          command = paste0("\\hline  \\multicolumn{",
+                                           ncol(aovTab), "}{c}{", legendText)))
+}
