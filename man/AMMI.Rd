@@ -6,11 +6,7 @@
 \title{S3 class AMMI}
 \usage{
 createAMMI(envScores, genoScores, importance, anova, fitted, trait,
-<<<<<<< HEAD
-  envMean, genoMean, overallMean)
-=======
   envMean, genoMean, overallMean, byYear)
->>>>>>> Modified summary.ammi to display results per year when needed (#4)
 }
 \arguments{
 \item{envScores}{A matrix containing environmental scores.}

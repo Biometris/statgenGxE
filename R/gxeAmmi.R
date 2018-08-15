@@ -157,8 +157,9 @@ gxeAmmi <- function(TD,
                          INDEX = TDYear[, c("genotype", "trial")], FUN = I)
     ## Extract ANOVA table for linear model.
     aov <- anova(model)
-    rownames(aov)[rownames(aov) %in% c("genotype", "trial","Residuals")] <-
-      c("Genotype", "Environment", "Interactions")
+    rownames(aov)[rownames(aov) == "genotype"] <- "Genotype"
+    rownames(aov)[rownames(aov) == "trial"] <- "Environment"
+    rownames(aov)[rownames(aov) == "Residuals"] <- "Interactions"
     ## Compute principal components.
     if (!is.null(nPC)) {
       ## nPC is given. Use this in principal components analysis.

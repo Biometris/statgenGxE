@@ -33,6 +33,7 @@
 #' 31: 123. https://doi.org/10.3758/BF03334158
 #'
 #' @importFrom methods getFunction
+#' @importFrom utils combn
 #' @export
 gxeMegaEnv <- function(TD,
                        trials = names(TD),

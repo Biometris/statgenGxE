@@ -7,14 +7,14 @@
 \alias{dropTD}
 \title{S3 class TD}
 \usage{
-createTD(data, genotype = NULL, trial = NULL, megaEnv = NULL,
+createTD(data, genotype = NULL, trial = NULL, loc = NULL,
   year = NULL, repId = NULL, subBlock = NULL, plot = NULL,
   rowId = NULL, colId = NULL, rowCoord = NULL, colCoord = NULL,
   checkId = NULL, trLocation = NULL, trDate = NULL,
   trDesign = NULL, trLat = NULL, trLong = NULL, trPlWidth = NULL,
   trPlLength = NULL)
 
-addTD(TD, data, genotype = NULL, trial = NULL, megaEnv = NULL,
+addTD(TD, data, genotype = NULL, trial = NULL, loc = NULL,
   year = NULL, repId = NULL, subBlock = NULL, plot = NULL,
   rowId = NULL, colId = NULL, rowCoord = NULL, colCoord = NULL,
   checkId = NULL, trLocation = NULL, trDate = NULL,
@@ -33,9 +33,8 @@ genotype.}
 \item{trial}{An optional character string indicating the column in
 \code{data} that contains trials.}
 
-\item{megaEnv}{An optional character string indicating the column in
-\code{data} that contains mega-environments as constructed by
-\code{\link{gxeMegaEnv}}.}
+\item{loc}{An optional character string indicating the column in
+\code{data} that contains trial locations.}
 
 \item{year}{An optional character string indicating the column in \code{data}
 that contains years.}
@@ -111,7 +110,7 @@ performs the following steps:
 \itemize{
 \item{Check input data}
 \item{Rename columns to default column names - default column names:
-genotype, trial, megaEnv, year, repId, subBlock, rowId, rowCoord, colId,
+genotype, trial, loc, year, repId, subBlock, rowId, rowCoord, colId,
 colCoord, checkId}
 \item{Convert column types to default column types - rowCoord and colCoord
 are converted to numeric columns, all other renamed columns to factor
