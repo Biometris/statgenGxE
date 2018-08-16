@@ -5,7 +5,30 @@
 #' along with the Multiplicative Interaction effects. Then a principal component
 #' analysis is done on the residuals (multiplicative interaction). This results
 #' in an interaction characterized by Interaction Principal Components (IPCA)
-#' enabling simultaneous plotting of genotypes and trials.
+#' enabling simultaneous plotting of genotypes and trials.\cr\cr
+#' The parameter \code{nPC} is used to indicate the number of principal
+#' components that is used in the principal component analysis (PCA). By setting
+#' this parameter to \code{NA} the algorithm determines the best number of
+#' principal components itself (see Details).\cr\cr
+#' When setting the parameter \code{GGE} to \code{TRUE} instead of a regular
+#' AMMI analysis a GGE analysis is performed. In this case instead of fitting
+#' a model with genotype and trial as main effects only trial is used a a main
+#' effect.\cr\cr
+#' By specifying the parameter \code{asYear = true} a separate analysis will be
+#' done for every year in the data. Combining the option with \code{nPC = NA}
+#' may result in different numbers of principal components per year. The AMMI
+#' estimates will still be returned as a single data.frame, but the other
+#' results will be either lists or arrays.
+#'
+#' First a linear model \eqn{trait ~ genotype + trial} is fitted with both
+#' genotype and trial fixed components in the model.\cr
+#' The residuals from the fitted model are then used in a PCA. If \code{nPC} is
+#' not \code{NA} a single PCA is done using \code{\link[stats]{prcomp}} with
+#' maximum rank \code{nPC}.\cr
+#' In case \code{nPC = NA} the PCA is first done with maximum rank 1. Then using
+#' forward selection one by one the maximum rank is increased as long as the
+#' added component is significant in the analysis.\cr
+#' AMMI estimates are then computed using the results of the PCA.\cr
 #'
 #' @param TD An object of class \code{\link{TD}}.
 #' @param trials A character string specifying the trials to be analyzed. If
@@ -177,7 +200,7 @@ gxeAmmi <- function(TD,
                       scale. = scale, rank. = i)
         pcaAov <- pcaToAov(pca = pca, aov = aov)
         ## When there are no degrees of freedom left for the residual variance
-        ## P3(>F) will be nan. In this case revert to the previous number of
+        ## Pr(>F) will be nan. In this case revert to the previous number of
         ## components as well.
         if (is.nan(pcaAov[i, "Pr(>F)"]) || pcaAov[i, "Pr(>F)"] > 0.001) {
           pca <- pcaOrig

@@ -1,9 +1,19 @@
 #' Form mega-environments based on winning genotypes from an AMMI model
 #'
 #' This function fits an AMMI model and then using the fitted values produces
-#' a new factor based on the winning genotype in each environment. This factor
-#' is added as a column megaEnv to the input data. If a column megaEnv already
-#' exists the existing data is overwritten with a warning.
+#' a new factor clustering trials . This factor is added as a column megaEnv to
+#' the input data. If a column megaEnv already exists this column is
+#' overwritten with a warning.\cr\cr
+#' The fitted values from the AMMI model can be used in two ways to determine
+#' the mega environments. If \code{useWinGeno = TRUE} then for every trial the
+#' genotype with the highest fitted value is extracted and trials with the same
+#' genotype are put together in the same mega environment.\cr
+#' If \code{useWinGeno = FALSE} instead of only using the best genotype for
+#' determining the mega environments a proportion of the best genotypes is used
+#' (indicated by \code{cutOff}). Trials are then clustered and the best number
+#' of clusters is determined by minimizing the ratio of repeatabilities of the
+#' line means of the trials and the mega environments. The number of clusters
+#' minimizing this ratio determines the minal number of mega environments.#'
 #'
 #' @inheritParams gxeAmmi
 #'
@@ -275,6 +285,7 @@ combCor <- function(Xi,
 }
 
 #' Helper function for computing the combined correlation for 2 locations.
+#'
 #' @keywords internal
 combLocs <- function(l1,
                      l2,

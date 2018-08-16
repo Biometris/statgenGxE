@@ -108,7 +108,13 @@ summary.AMMI <- function(object, ...) {
 #'
 #' Two types of biplot can be made. A biplot of genotype and environment
 #' means vs PC1 (AMMI1) or a biplot of genotypes and environment interaction
-#' with PC1 and PC2 (AMMI2).
+#' with PC1 and PC2 (AMMI2).\cr\cr
+#' If the AMMI analysis was done by year a separate plot will be made for
+#' every year in the data. If for some of the years it is not possible to
+#' make the plot because the number of principal components for those year is
+#' lower than the number specified as secondary axis those years will be
+#' skipped when plotting. If this would be the case for all years the function
+#' returns an error.
 #'
 #' @param x An object of class AMMI
 #' @param ... Further graphical parameters passed on to actual plot function.

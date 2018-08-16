@@ -6,8 +6,8 @@
 #' \itemize{
 #' \item{Check input data}
 #' \item{Rename columns to default column names - default column names:
-#' genotype, trial, loc, year, repId, subBlock, rowId, rowCoord, colId,
-#' colCoord, checkId}
+#' genotype, trial, loc, year, repId, subBlock, rowCoord, colCoord, rowId,
+#' colId, checkId}
 #' \item{Convert column types to default column types - rowCoord and colCoord
 #' are converted to numeric columns, all other renamed columns to factor
 #' columns. Columns other than the default columns, e.g. traits or other
@@ -49,16 +49,16 @@
 #' @param plot An optional character string indicating the column in
 #' \code{data} that contains plots. This column will be combined with trial
 #' to a single output factor.
-#' @param rowId An optional character string indicating the column in
-#' \code{data} that contains field rows.
-#' @param colId An optional character string indicating the column in
-#' \code{data} that contains field columns.
 #' @param rowCoord An optional character string indicating the column in
-#' \code{data} that contains the rowId coordinates used for fitting spatial
-#' models.
+#' \code{data} that contains the row coordinates.
 #' @param colCoord An optional character string indicating the column in
-#' \code{data} that contains the column coordinates used for fitting spatial
-#' models.
+#' \code{data} that contains the column coordinates.
+#' @param rowId An optional character string indicating the column in
+#' \code{data} that contains field rows. If not supplied this is assumed to
+#' be the same as rowCoord.
+#' @param colId An optional character string indicating the column in
+#' \code{data} that contains field columns. If not supplied this is assumed to
+#' be the same as colCoord.
 #' @param checkId An optional character string indicating the column in
 #' \code{data} that contains the check IDs.
 #' @param trLocation An optional character vector indicating the locations of
@@ -107,10 +107,10 @@ createTD <- function(data,
                      repId = NULL,
                      subBlock = NULL,
                      plot = NULL,
-                     rowId = NULL,
-                     colId = NULL,
                      rowCoord = NULL,
                      colCoord = NULL,
+                     rowId = rowCoord,
+                     colId = colCoord,
                      checkId = NULL,
                      trLocation = NULL,
                      trDate = NULL,
@@ -256,10 +256,9 @@ addTD <- function(TD,
                   trPlLength = NULL) {
   TDNw <- createTD(data = data, genotype = genotype, trial = trial,
                    loc = loc, year = year, repId = repId,
-                   subBlock = subBlock, plot = plot, rowId = rowId,
-                   colId = colId, rowCoord = rowCoord,
-                   colCoord = colCoord, checkId = checkId,
-                   trLocation = trLocation, trDate = trDate,
+                   subBlock = subBlock, plot = plot, rowCoord = rowCoord,
+                   colCoord = colCoord, rowId = rowId, colId = colId,
+                   checkId = checkId, trLocation = trLocation, trDate = trDate,
                    trDesign = trDesign, trLat = trLat, trLong = trLong,
                    trPlWidth = trPlWidth, trPlLength = trPlLength)
   dupTrials <- names(TDNw)[names(TDNw) %in% names(TD)]
