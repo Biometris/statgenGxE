@@ -360,13 +360,17 @@ plot.SSA <- function(x,
     }
   } else if (plotType == "spatial") {
     if (x[[trial]]$engine == "SpATS") {
+      yMin <- min(plotDat$rowCoord)
+      yMax <- max(plotDat$rowCoord)
+      xMin <- min(plotDat$colCoord)
+      xMax <- max(plotDat$colCoord)
       ## Execute this part first since it needs plotData without missings
       ## removed.
-      ## Code mimickes code from SpATS packages but is adapted to create a
+      ## Code mimickes code from SpATS package but is adapted to create a
       ## data.frame useable by ggplot.
       plotDat <- plotDat[order(plotDat$colCoord, plotDat$rowCoord), ]
-      nCol <- length(unique(plotDat$colCoord))
-      nRow <- length(unique(plotDat$rowCoord))
+      nCol <- xMax - xMin + 1
+      nRow <- yMax - yMin + 1
       p1 <- 100 %/% nCol + 1
       p2 <- 100 %/% nRow + 1
       ## Get spatial trend from SpATS object.
@@ -376,10 +380,16 @@ plot.SSA <- function(x,
       ## data need to be removed. The kronecker multiplication is needed to
       ## convert the normal row col pattern to the smaller grid extending the
       ## missing values.
-      spatTrDat <- kronecker(matrix(data = ifelse(is.na(plotDat$response),
-                                                  NA, 1),
-                                    ncol = nCol, nrow = nRow),
-                             matrix(data = 1, ncol = p1, nrow = p2)) *
+      ## First a matrix M is created containing information for all
+      ## columns/rows in the field even if they are completely empty.
+      M <- matrix(nrow = nRow, ncol = nCol,
+                  dimnames = list(yMin:yMax, xMin:xMax))
+      for (i in 1:nrow(plotDat)) {
+        M[as.character(plotDat[i, "rowCoord"]),
+          as.character(plotDat[i, "colCoord"])] <-
+          ifelse(is.na(plotDat[i, "response"]), NA, 1)
+      }
+      spatTrDat <- kronecker(M, matrix(data = 1, ncol = p1, nrow = p2)) *
         spatTr$fit
       ## Melt to get the data in ggplot shape. Rows and columns in the
       ## spatial trend coming from SpATS are swapped so therefore use t()
