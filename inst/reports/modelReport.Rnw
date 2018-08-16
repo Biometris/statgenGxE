@@ -211,7 +211,7 @@ if (modelType == "random") {
 %-------------------------------------------------------------------------------
 <<label=spatialPlots, echo=FALSE, results="asis", out.width="90%">>=
 if (all(c("colId", "rowId") %in% colnames(x[[trial]]$TD[[trial]]))) {
-  plot(x, trial = trial, what = modelType, plotType = "spatial")
+  plot(x, trial = trial, what = modelType, plotType = "spatial", outCols = 2)
 }
 @
 <<label=basePlots, echo=FALSE, out.width="90%">>=
