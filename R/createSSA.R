@@ -226,6 +226,10 @@ print.summary.SSA <- function(x,
 #' If \code{x} contains only one model this model is chosen automatically.
 #' @param plotType A Character string indicating whether \code{base} plots or
 #' \code{spatial} plots should be made.
+#' @param outCols An integer indicating the number of columns to use for
+#' displaying the plots. Usually the default of 2 for base plots and 3 for
+#' spatial plots will be fine, but decreasing the numbers may help for nicer
+#' printing.
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
@@ -248,6 +252,7 @@ plot.SSA <- function(x,
                      trait = NULL,
                      what = NULL,
                      plotType = c("base", "spatial"),
+                     outCols = ifelse(plotType == "base", 2, 3),
                      output = TRUE) {
   ## Checks.
   if (is.null(trial) && length(x) > 1) {
@@ -273,6 +278,10 @@ plot.SSA <- function(x,
     what <- match.arg(arg = what, choices = c("fixed", "random"))
   }
   plotType <- match.arg(arg = plotType)
+  if (is.null(outCols) || !is.numeric(outCols) || length(outCols) > 1 ||
+      outCols < 1) {
+    stop("outCols should be a single numerical value greater than 1.\n")
+  }
   dotArgs <- list(...)
   ## Check whether data contains row/col information.
   spatCols <- c("colCoord", "rowCoord")
@@ -356,7 +365,7 @@ plot.SSA <- function(x,
     if (output) {
       ## do.call is needed since grid.arrange doesn't accept lists as input.
       do.call(gridExtra::grid.arrange,
-              args = c(plots, list(ncol = 2, top = plotTitle)))
+              args = c(plots, list(ncol = outCols, top = plotTitle)))
     }
   } else if (plotType == "spatial") {
     if (x[[trial]]$engine == "SpATS") {
@@ -447,7 +456,7 @@ plot.SSA <- function(x,
       ## do.call is needed since grid.arrange doesn't accept lists as input.
       do.call(gridExtra::grid.arrange,
               args = c(Filter(f = Negate(f = is.null), x = plots),
-                       list(ncol = 3, top = plotTitle)))
+                       list(ncol = outCols, top = plotTitle)))
     }
   }
   invisible(plots)

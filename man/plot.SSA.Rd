@@ -5,7 +5,8 @@
 \title{Plot function for class SSA}
 \usage{
 \method{plot}{SSA}(x, ..., trial = NULL, trait = NULL, what = NULL,
-  plotType = c("base", "spatial"), output = TRUE)
+  plotType = c("base", "spatial"), outCols = ifelse(plotType == "base",
+  2, 3), output = TRUE)
 }
 \arguments{
 \item{x}{An object of class SSA.}
@@ -24,6 +25,11 @@ If \code{x} contains only one model this model is chosen automatically.}
 
 \item{plotType}{A Character string indicating whether \code{base} plots or
 \code{spatial} plots should be made.}
+
+\item{outCols}{An integer indicating the number of columns to use for
+displaying the plots. Usually the default of 2 for base plots and 3 for
+spatial plots will be fine, but decreasing the numbers may help for nicer
+printing.}
 
 \item{output}{Should the plot be output to the current device? If
 \code{FALSE} only a list of ggplot objects is invisibly returned.}
