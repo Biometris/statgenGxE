@@ -9,10 +9,10 @@
 \usage{
 createTD(data, genotype = NULL, trial = NULL, loc = NULL,
   year = NULL, repId = NULL, subBlock = NULL, plot = NULL,
-  rowId = NULL, colId = NULL, rowCoord = NULL, colCoord = NULL,
-  checkId = NULL, trLocation = NULL, trDate = NULL,
-  trDesign = NULL, trLat = NULL, trLong = NULL, trPlWidth = NULL,
-  trPlLength = NULL)
+  rowCoord = NULL, colCoord = NULL, rowId = rowCoord,
+  colId = colCoord, checkId = NULL, trLocation = NULL,
+  trDate = NULL, trDesign = NULL, trLat = NULL, trLong = NULL,
+  trPlWidth = NULL, trPlLength = NULL)
 
 addTD(TD, data, genotype = NULL, trial = NULL, loc = NULL,
   year = NULL, repId = NULL, subBlock = NULL, plot = NULL,
@@ -49,19 +49,19 @@ that contains years.}
 \code{data} that contains plots. This column will be combined with trial
 to a single output factor.}
 
-\item{rowId}{An optional character string indicating the column in
-\code{data} that contains field rows.}
-
-\item{colId}{An optional character string indicating the column in
-\code{data} that contains field columns.}
-
 \item{rowCoord}{An optional character string indicating the column in
-\code{data} that contains the rowId coordinates used for fitting spatial
-models.}
+\code{data} that contains the row coordinates.}
 
 \item{colCoord}{An optional character string indicating the column in
-\code{data} that contains the column coordinates used for fitting spatial
-models.}
+\code{data} that contains the column coordinates.}
+
+\item{rowId}{An optional character string indicating the column in
+\code{data} that contains field rows. If not supplied this is assumed to
+be the same as rowCoord.}
+
+\item{colId}{An optional character string indicating the column in
+\code{data} that contains field columns. If not supplied this is assumed to
+be the same as colCoord.}
 
 \item{checkId}{An optional character string indicating the column in
 \code{data} that contains the check IDs.}
@@ -110,8 +110,8 @@ performs the following steps:
 \itemize{
 \item{Check input data}
 \item{Rename columns to default column names - default column names:
-genotype, trial, loc, year, repId, subBlock, rowId, rowCoord, colId,
-colCoord, checkId}
+genotype, trial, loc, year, repId, subBlock, rowCoord, colCoord, rowId,
+colId, checkId}
 \item{Convert column types to default column types - rowCoord and colCoord
 are converted to numeric columns, all other renamed columns to factor
 columns. Columns other than the default columns, e.g. traits or other

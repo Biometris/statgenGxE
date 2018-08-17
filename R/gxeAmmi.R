@@ -67,6 +67,8 @@
 #'
 #' @references Gauch H.G. (1992) Statistical Analysis of Regional Yield Trials:
 #' AMMI Analysis of Factorial Designs. Elsevier, Amsterdam.
+#' @references Yan, W., Kang, M. (2002). GGE Biplot Analysis. Boca Raton: CRC
+#' Press.
 #'
 #' @examples
 #' ## Run AMMI analysis on TDMaize.

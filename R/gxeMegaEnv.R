@@ -1,28 +1,38 @@
-#' Form mega-environments based on winning genotypes from an AMMI model
+#' Form mega environments based on fitted values from an AMMI model
 #'
 #' This function fits an AMMI model and then using the fitted values produces
 #' a new factor clustering trials . This factor is added as a column megaEnv to
 #' the input data. If a column megaEnv already exists this column is
 #' overwritten with a warning.\cr\cr
-#' The fitted values from the AMMI model can be used in two ways to determine
-#' the mega environments. If \code{useWinGeno = TRUE} then for every trial the
-#' genotype with the highest fitted value is extracted and trials with the same
-#' genotype are put together in the same mega environment.\cr
-#' If \code{useWinGeno = FALSE} instead of only using the best genotype for
-#' determining the mega environments a proportion of the best genotypes is used
-#' (indicated by \code{cutOff}). Trials are then clustered and the best number
-#' of clusters is determined by minimizing the ratio of repeatabilities of the
-#' line means of the trials and the mega environments. The number of clusters
-#' minimizing this ratio determines the minal number of mega environments.#'
+#' Mega environments can be created by two methods. The first method
+#' (\code{useWinGeno = TRUE}) groups
+#' environments based on their best performing genotype; i.e. environments that
+#' share the same best genotype belong to the same mega environment, regardless
+#' whether environments correspond to years or locations.\cr\cr
+#' In the second method (\code{useWinGeno = FALSE}),
+#' genotypes that are above a certain quantile are used to classify locations
+#' into mega environments that are consistent across years. In this method,
+#' genotypes are scored according to whether they are above the \code{cutOff}
+#' threshold for the genotypic ranking within each location (1 if a genotype is
+#' above the cutOff and 0 if below). This genotype by location matrix with 1's
+#' and 0's is used to calculate the correlation between locations. Then,
+#' correlations across years are combined using the method by Charter and
+#' Alexander (1993). The combined correlations are used to calculate Euclidean
+#' distances for hierarchical clustering. The number of mega environments
+#' obtained with the hierarchical clustering procedure is chosen to maximize
+#' the correlated response to selection within mega environments, as proposed
+#' in Atlin et al (2000).
 #'
 #' @inheritParams gxeAmmi
 #'
-#' @param useWinGeno Should only the best genotype per trail be used for
-#' determining mega environments? If \code{FALSE} clustering of trials is used.
+#' @param useWinGeno Should only the best genotype per trial be used for
+#' determining mega environments? If \code{FALSE} hierarchical clustering is
+#' applied to classify locations into mega environments that are consistent
+#' across years.
 #' @param method A character string indicating the criterion to determine
 #' the best genotype per environment, either \code{"max"} or \code{"min"}.
 #' @param cutOff A numerical value indicating the proportion of best genotypes
-#' per locationh used in the calculation. I.e. a value of 0.8 indicates that
+#' per location used in the calculation. I.e. a value of 0.8 indicates that
 #' the best 80\% genotypes will be used.
 #' @param sumTab Should a summary table be printed?
 #'

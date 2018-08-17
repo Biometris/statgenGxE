@@ -97,6 +97,9 @@ report(geAmmi, outfile = "./testReports/reportAmmi.pdf")
 \references{
 Gauch H.G. (1992) Statistical Analysis of Regional Yield Trials:
 AMMI Analysis of Factorial Designs. Elsevier, Amsterdam.
+
+Yan, W., Kang, M. (2002). GGE Biplot Analysis. Boca Raton: CRC
+Press.
 }
 \seealso{
 \code{\link{AMMI}}, \code{\link{plot.AMMI}},
