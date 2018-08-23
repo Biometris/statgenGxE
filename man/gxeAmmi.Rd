@@ -16,7 +16,7 @@ not supplied all trials are used in the analysis.}
 \item{trait}{A character string specifying the trait to be analyzed.}
 
 \item{nPC}{An integer specifying the number of principal components used
-as multiplicative term of genotype-by-trial interaction. If \code{NA} the
+as multiplicative term of genotype-by-trial interaction. If \code{NULL} the
 number of principal components is determined by the algorithm using
 forward selection. See details.}
 

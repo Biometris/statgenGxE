@@ -137,7 +137,7 @@ gxeMegaEnv <- function(TD,
     TDTot <- droplevels(TDTot[!TDTot$loc %in% rmLocs, ])
     ## One by one remove locations that don't appear within a year with at
     ## least one other location.
-    ## This needs to be done in steps since otherwise in many case all
+    ## This needs to be done in steps since otherwise in many cases all
     ## locations will be removed.
     continue <- TRUE
     while (continue) {
@@ -222,7 +222,7 @@ gxeMegaEnv <- function(TD,
     ## by minimizing ratio CR/DR.
     for (k in 2:ceiling(length(locs) / 2)) {
       ## Extract cluster groups for k clusters.
-      clustGr <- data.frame(megaEnv = cutree(tree, k = k))
+      clustGr <- data.frame(megaEnv = factor(cutree(tree, k = k)))
       ## Merge cluster groups to data.
       modDat <- merge(TDTot, clustGr, by.x = "loc", by.y = "row.names")
       ## Model with regions, one varcomp.
@@ -265,6 +265,8 @@ gxeMegaEnv <- function(TD,
     TDOut <- createTD(clustRes)
     ## Attach cluster groups as attribute.
     clustGrRes <- clustGrRes[order(clustGrRes$megaEnv), , drop = FALSE]
+    clustGrRes <- data.frame("Mega factor" = clustGrRes$megaEnv,
+                             Trial = rownames(clustGrRes))
     attr(TDOut, "sumTab") <- clustGrRes
     attr(TDOut, "CRDR") <- CRDRMin
     if (sumTab) {
