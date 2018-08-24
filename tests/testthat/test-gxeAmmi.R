@@ -104,7 +104,7 @@ test_that("options nPC functions properly", {
   expect_equal(geAmmi1$importance, geAmmi$importance)
   ## Third PC is very close to zero.
   expect_error(gxeAmmi(BLUEs, trait = "t1", nPC = 3),
-               "should be larger than")
+               "should be smaller than")
 })
 
 test_that("option center functions properly", {

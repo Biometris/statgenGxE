@@ -165,7 +165,7 @@ gxeAmmi <- function(TD,
                        ".\nYear ", year, " skipped.\n"), call. =  FALSE)
         next
       } else {
-        stop("nPC should be larger than the number of trials.\n")
+        stop("nPC should be smaller than the number of trials.\n")
       }
     }
     ## Add combinations of trial and genotype currently not in TD to TD.
@@ -174,7 +174,7 @@ gxeAmmi <- function(TD,
                                                     value.var = trait),
                              id.vars = "trial", variable.name = "genotype",
                              value.name = trait)
-    ## Impute missing values
+    ## Impute missing values.
     if (any(is.na(TDYear[[trait]]))) {
       ## Transform data to genotype x trial matrix.
       y0 <- tapply(X = TDYear[[trait]],
@@ -220,18 +220,20 @@ gxeAmmi <- function(TD,
       ## nPC is not supplied. Do principal component analyses as long as
       ## when adding an extra component this new component is signifacant.
       pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
-                    scale. = scale, rank. = 1)
-      for (i in 2:(nEnv - 2)) {
-        pcaOrig <- pca
-        pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
-                      scale. = scale, rank. = i)
-        pcaAov <- pcaToAov(pca = pca, aov = aov)
-        ## When there are no degrees of freedom left for the residual variance
-        ## Pr(>F) will be nan. In this case revert to the previous number of
-        ## components as well.
-        if (is.nan(pcaAov[i, "Pr(>F)"]) || pcaAov[i, "Pr(>F)"] > 0.001) {
-          pca <- pcaOrig
-          break
+                    scale. = scale, rank. = 2)
+      if (nEnv > 4) {
+        for (i in 3:max(3, (nEnv - 2))) {
+          pcaOrig <- pca
+          pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
+                        scale. = scale, rank. = i)
+          pcaAov <- pcaToAov(pca = pca, aov = aov)
+          ## When there are no degrees of freedom left for the residual variance
+          ## Pr(>F) will be nan. In this case revert to the previous number of
+          ## components as well.
+          if (is.nan(pcaAov[i, "Pr(>F)"]) || pcaAov[i, "Pr(>F)"] > 0.001) {
+            pca <- pcaOrig
+            break
+          }
         }
       }
       nPCYear <- ncol(pca$rotation)
