@@ -103,7 +103,8 @@ test_that("options nPC functions properly", {
   expect_equal(geAmmi1$genoScores, geAmmi$genoScores[, 1, drop = FALSE])
   expect_equal(geAmmi1$importance, geAmmi$importance)
   ## Third PC is very close to zero.
-  expect_warning(geAmmi1 <- gxeAmmi(BLUEs, trait = "t1", nPC = 3))
+  expect_error(gxeAmmi(BLUEs, trait = "t1", nPC = 3),
+               "should be larger than")
 })
 
 test_that("option center functions properly", {

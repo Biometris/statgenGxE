@@ -111,6 +111,10 @@ gxeAmmi <- function(TD,
   if (useWt && !hasName(x = TDTot, name = "wt")) {
     stop("wt has to be a column in TD when using weighting.")
   }
+  if (!is.null(nPC) && (!is.numeric(nPC) || length(nPC) > 1 ||
+                        round(nPC) != nPC || nPC < 0)) {
+    stop("nPC should be NULL or a single integer.\n")
+  }
   TDTot$year. <- if (byYear) {
     as.character(TDTot$year)
   } else {
@@ -137,15 +141,32 @@ gxeAmmi <- function(TD,
     nTrait <- nrow(TDYear)
     ## At least 3 trials needed.
     if (nEnv < 3) {
-      stop("TD should contain at least 3 trials to run the AMMI model.\n")
+      if (byYear) {
+        warning(paste0("There are less than 3 trials for ", year, ".\n",
+                       "Year ", year, " skipped.\n"), call. =  FALSE)
+        next
+      } else {
+        stop("TD should contain at least 3 trials to run the AMMI model.\n")
+      }
     }
     ## check if the supplied data contains the genotype by environment means.
     if (nTrait > nGeno * nEnv) {
-      stop("TD should contain 1 value per trial per genotype.\n")
+      if (byYear) {
+        warning(paste0("More than 1 value per trial per genotype for ", year,
+                       ".\nYear ", year, " skipped.\n"), call. =  FALSE)
+        next
+      } else {
+        stop("TD should contain 1 value per trial per genotype.\n")
+      }
     }
-    if (!is.null(nPC) && (!is.numeric(nPC) || length(nPC) > 1 ||
-        round(nPC) != nPC || nPC < 0 || nPC > min(nEnv, nGeno))) {
-     stop("nPC should be an integer smaller than the number of trials.\n")
+    if (!is.null(nPC) && nPC >= min(nEnv, nGeno)) {
+      if (byYear) {
+        warning(paste0("nPC is larger than the number of trials for ", year,
+                       ".\nYear ", year, " skipped.\n"), call. =  FALSE)
+        next
+      } else {
+        stop("nPC should be larger than the number of trials.\n")
+      }
     }
     ## Add combinations of trial and genotype currently not in TD to TD.
     TDYear <- reshape2::melt(data = reshape2::dcast(data = TDYear,
@@ -159,9 +180,13 @@ gxeAmmi <- function(TD,
       y0 <- tapply(X = TDYear[[trait]],
                    INDEX = TDYear[, c("genotype", "trial")], FUN = identity)
       if (sum(is.na(y0)) / length(y0) > 0.3) {
-        stop(ifelse(byYear, paste0("More than 30% missing values for ", year,
-                                  ".\n"),
-                    "More than 30% missing values.\n"))
+        if (byYear) {
+          warning(paste0("More than 30% missing values for ", year,
+                         ".\nYear ", year, "skipped.\n"), call. =  FALSE)
+          next
+        } else {
+          stop("More than 30% missing values.\n")
+        }
       }
       ## Actual imputation.
       y1 <- multMissing(y0, maxIter = 50)
@@ -253,6 +278,17 @@ gxeAmmi <- function(TD,
     envMeanTot <- envMeanTot[[1]]
     genoMeanTot <- genoMeanTot[[1]]
     ovMeanTot <- ovMeanTot[[1]]
+  } else {
+    loadTot <- Filter(f = Negate(f = is.null), x = loadTot)
+    scoreTot <- Filter(f = Negate(f = is.null), x = scoreTot)
+    impTot <- Filter(f = Negate(f = is.null), x = impTot)
+    aovTot <- Filter(f = Negate(f = is.null), x = aovTot)
+    envMeanTot <- Filter(f = Negate(f = is.null), x = envMeanTot)
+    genoMeanTot <- Filter(f = Negate(f = is.null), x = genoMeanTot)
+    ovMeanTot <- Filter(f = Negate(f = is.null), x = ovMeanTot)
+    if (length(loadTot) == 0) {
+      stop("All years were skipped.\n")
+    }
   }
   return(createAMMI(envScores = loadTot, genoScores = scoreTot,
                     importance = impTot, anova = aovTot, fitted = fitTot,
