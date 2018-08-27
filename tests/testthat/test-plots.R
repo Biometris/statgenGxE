@@ -7,10 +7,16 @@ context("Plots")
 test_that("AMMI plot gives correct output types", {
   geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
   p1 <- plot(geAmmi, output = FALSE)
+  expect_error(plot(geAmmi, plotType = "AMMI2", primAxis = "3"),
+               "string starting with PC")
+  expect_error(plot(geAmmi, plotType = "AMMI2", primAxis = "PC2"),
+               "primAxis should differ from secAxis")
+  expect_error(plot(geAmmi, plotType = "AMMI2", primAxis = "PC3"),
+               "run with 2 principal components")
   expect_error(plot(geAmmi, plotType = "AMMI2", secAxis = "3"),
                "string starting with PC")
   expect_error(plot(geAmmi, plotType = "AMMI2", secAxis = "PC1"),
-               "Invalid value provided for secAxis")
+               "primAxis should differ from secAxis")
   expect_error(plot(geAmmi, plotType = "AMMI2", secAxis = "PC3"),
                "run with 2 principal components")
   p2 <- plot(geAmmi, plotType = "AMMI2", output = FALSE)

@@ -5,7 +5,7 @@
 \title{Helper function for creating AMMI2 plot}
 \usage{
 plotAMMI2(loadings, scores, importance, trait, year = "",
-  secAxis = "PC2", scale, col)
+  primAxis = "PC1", secAxis = "PC2", scale, col)
 }
 \description{
 Helper function for creating AMMI2 plot

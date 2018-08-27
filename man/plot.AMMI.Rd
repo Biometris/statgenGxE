@@ -5,7 +5,8 @@
 \title{Plot function for class AMMI}
 \usage{
 \method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2"), scale = 1,
-  col = c("black", "red"), secAxis = "PC2", output = TRUE)
+  col = c("black", "red"), primAxis = "PC1", secAxis = "PC2",
+  output = TRUE)
 }
 \arguments{
 \item{x}{An object of class AMMI}
@@ -27,10 +28,14 @@ scale is outside this range.}
 \item{col}{A vector with plot colors for genotype and environment. This can
 either be named colors or color numbers.}
 
+\item{primAxis}{A character string indicating the principal component to be
+plotted on the primary axis of the AMMI2 plot. Has to be given as
+\code{"PCn"} where n is the number of the principal component.}
+
 \item{secAxis}{A character string indicating the principal component to be
 plotted on the secondary axis of the AMMI2 plot. Has to be given as
-\code{"PCn"} where n is the number of the principal component. n Has to be
-greater than 1.}
+\code{"PCn"} where n is the number of the principal component. n Has to
+differ from \code{primAxis}.}
 
 \item{output}{Should the plot be output to the current device? If
 \code{FALSE} only a list of ggplot objects is invisibly returned.}

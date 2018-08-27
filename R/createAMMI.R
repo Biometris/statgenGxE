@@ -130,10 +130,13 @@ summary.AMMI <- function(object, ...) {
 #' scale is outside this range.
 #' @param col A vector with plot colors for genotype and environment. This can
 #' either be named colors or color numbers.
+#' @param primAxis A character string indicating the principal component to be
+#' plotted on the primary axis of the AMMI2 plot. Has to be given as
+#' \code{"PCn"} where n is the number of the principal component.
 #' @param secAxis A character string indicating the principal component to be
 #' plotted on the secondary axis of the AMMI2 plot. Has to be given as
-#' \code{"PCn"} where n is the number of the principal component. n Has to be
-#' greater than 1.
+#' \code{"PCn"} where n is the number of the principal component. n Has to
+#' differ from \code{primAxis}.
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
@@ -155,6 +158,7 @@ plot.AMMI <- function(x,
                       plotType = c("AMMI1", "AMMI2"),
                       scale = 1,
                       col = c("black", "red"),
+                      primAxis = "PC1",
                       secAxis = "PC2",
                       output = TRUE) {
   ## Checks.
@@ -187,39 +191,63 @@ plot.AMMI <- function(x,
                      trait = x$trait, scale = scale, col = col)
     }
   } else if (plotType == "AMMI2") {
+    if (!is.character(primAxis) || length(primAxis) > 1 ||
+        substring(text = primAxis, first = 1, last = 2) != "PC") {
+      stop("primAxis should be a single character string starting with PC.\n")
+    }
+    nPC1 <- suppressWarnings(as.numeric(substring(text = primAxis, first = 3)))
+    if (is.na(nPC1)) {
+      stop(paste("Invalid value provided for primAxis Make sure the value is",
+                 "of the form primAxis = 'PCn' where n is the principal",
+                 "component to plot on the secondary axis.\n"))
+    }
     if (!is.character(secAxis) || length(secAxis) > 1 ||
         substring(text = secAxis, first = 1, last = 2) != "PC") {
       stop("secAxis should be a single character string starting with PC.\n")
     }
-    nPC <- suppressWarnings(as.numeric(substring(text = secAxis, first = 3)))
-    if (is.na(nPC) || nPC == 1) {
+    nPC2 <- suppressWarnings(as.numeric(substring(text = secAxis, first = 3)))
+    if (is.na(nPC2)) {
       stop(paste("Invalid value provided for secAxis. Make sure the value is",
                  "of the form secAxis = 'PCn' where n is the principal",
-                 "component to plot on the secondary axis. n Cannot be 1.\n"))
+                 "component to plot on the secondary axis.\n"))
+    }
+    if (nPC1 == nPC2) {
+      stop("primAxis should differ from secAxis.\n")
     }
     if (x$byYear) {
       nPCs <- sapply(X = x$envScores, FUN = ncol)
       maxPC <- max(nPCs)
-      if (nPC > maxPC) {
+      if (nPC1 > maxPC) {
         stop(paste0("Highest number of principal components is ", maxPC,
-                    ". Plotting of PC", nPC, " is not possible.\n"))
+                    ". Plotting of PC", nPC1, " is not possible.\n"))
+      }
+      if (nPC2 > maxPC) {
+        stop(paste0("Highest number of principal components is ", maxPC,
+                    ". Plotting of PC", nPC2, " is not possible.\n"))
       }
       ## Create a list of AMMI2 plots.
-      p <- lapply(X = names(x$envScores)[nPCs >= nPC], FUN = function(year) {
-        plotAMMI2(loadings = x$envScores[[year]],
-                  scores = x$genoScores[[year]],
-                  importance = x$importance[[year]], trait = x$trait,
-                  year = year, secAxis = secAxis, scale = scale, col = col)
-      })
+      p <- lapply(X = names(x$envScores)[nPCs >= max(nPC1, nPC2)],
+                  FUN = function(year) {
+                    plotAMMI2(loadings = x$envScores[[year]],
+                              scores = x$genoScores[[year]],
+                              importance = x$importance[[year]],
+                              trait = x$trait, year = year, primAxis = primAxis,
+                              secAxis = secAxis, scale = scale, col = col)
+                  })
     } else {
-      if (nPC > ncol(x$envScores)) {
+      if (nPC1 > ncol(x$envScores)) {
         stop(paste0("AMMI was run with ", ncol(x$envScores), " principal ",
-                    "components. Plotting of PC", nPC, " is not possible.\n"))
+                    "components. Plotting of PC", nPC1, " is not possible.\n"))
+      }
+      if (nPC2 > ncol(x$envScores)) {
+        stop(paste0("AMMI was run with ", ncol(x$envScores), " principal ",
+                    "components. Plotting of PC", nPC2, " is not possible.\n"))
       }
       ## Create a single AMMI2 plot.
       p <- plotAMMI2(loadings = x$envScores, scores = x$genoScores,
                      importance = x$importance, trait = x$trait,
-                     secAxis = secAxis, scale = scale, col = col)
+                     primAxis = primAxis, secAxis = secAxis, scale = scale,
+                     col = col)
     }
   }
   if (output) {
@@ -284,10 +312,11 @@ plotAMMI2 <- function(loadings,
                       importance,
                       trait,
                       year = "",
+                      primAxis = "PC1",
                       secAxis = "PC2",
                       scale,
                       col) {
-  percPC1 <- round(importance[2, "PC1"] * 100, 1)
+  percPC1 <- round(importance[2, primAxis] * 100, 1)
   percPC2 <- round(importance[2, secAxis] * 100, 1)
   if (scale == 1) {
     info <- "environment scaling"
@@ -299,34 +328,34 @@ plotAMMI2 <- function(loadings,
     info <- paste0(round(importance[3, secAxis] * 100, 1), "%")
   }
   ## Calculate lambda scale.
-  lam <- as.numeric(importance[1, c("PC1", secAxis)])
+  lam <- as.numeric(importance[1, c(primAxis, secAxis)])
   lam <- lam * sqrt(nrow(scores))
   lam <- lam ^ scale
   ## Create dataframes for genotypes and environments.
-  genoDat <- as.data.frame(t(t(scores[, c("PC1", secAxis)]) / lam))
-  envDat <- as.data.frame(t(t(loadings[, c("PC1", secAxis)]) * lam))
+  genoDat <- as.data.frame(t(t(scores[, c(primAxis, secAxis)]) / lam))
+  envDat <- as.data.frame(t(t(loadings[, c(primAxis, secAxis)]) * lam))
   ## Compute multiplication factor for rescaling environmental data.
   mult <- min(
-    (max(genoDat[["PC1"]]) - min(genoDat[["PC1"]])) /
-      (max(envDat[["PC1"]]) - min(envDat[["PC1"]])),
+    (max(genoDat[[primAxis]]) - min(genoDat[[primAxis]])) /
+      (max(envDat[[primAxis]]) - min(envDat[[primAxis]])),
     (max(genoDat[[secAxis]]) - min(genoDat[[secAxis]])) /
       (max(envDat[[secAxis]]) - min(envDat[[secAxis]]))
   )
   ## Rescale data. 0.6 is more or less random but seems to work well in
   ## practice.
   envDat <- envDat * mult * 0.6
-  plotRatio <- (max(c(envDat[["PC1"]], genoDat[["PC1"]])) -
-                  min(c(envDat[["PC1"]], genoDat[["PC1"]]))) /
+  plotRatio <- (max(c(envDat[[primAxis]], genoDat[[primAxis]])) -
+                  min(c(envDat[[primAxis]], genoDat[[primAxis]]))) /
     (max(c(envDat[[secAxis]], genoDat[[secAxis]])) -
        min(c(envDat[[secAxis]], genoDat[[secAxis]])))
-  p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "PC1", y = secAxis)) +
+  p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = primAxis, y = secAxis)) +
     ## Plot genotypes as points.
     ggplot2::geom_point(color = col[1]) +
     ## Needed for a square plot output.
     ggplot2::coord_fixed(clip = "off", ratio = plotRatio) +
     ## Plot environments as texts.
     ggplot2::geom_text(data = envDat,
-                       ggplot2::aes_string(x = "PC1", y = secAxis,
+                       ggplot2::aes_string(x = primAxis, y = secAxis,
                                            label = "rownames(envDat)"),
                        size = 3, vjust = "outward", hjust = "outward",
                        color = col[2]) +
@@ -335,20 +364,18 @@ plotAMMI2 <- function(loadings,
     ## after turning off clipping which is needed since labels may fall off
     ## the plot otherwise.
     ggplot2::geom_segment(data = envDat,
-                          ggplot2::aes_string(x = 0, y = 0, xend = "PC1",
+                          ggplot2::aes_string(x = 0, y = 0, xend = primAxis,
                                               yend = secAxis),
                           arrow = ggplot2::arrow(length =
                                                    ggplot2::unit(0.2, "cm")),
                           color = col[2]) +
     ## Add labeling.
-    ggplot2::labs(x = paste0("PC1 (", percPC1, "%)"),
+    ggplot2::labs(x = paste0(primAxis, " (", percPC1, "%)"),
                   y = paste0(secAxis, " (", percPC2, "%)")) +
     ggplot2::ggtitle(paste0("AMMI2 biplot for ", trait, " (", info, ") ",
                             year)) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 }
-
-
 
 #' Report method for class AMMI
 #'
