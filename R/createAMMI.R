@@ -176,13 +176,13 @@ plot.AMMI <- function(x,
   if (plotType == "AMMI1") {
     if (x$byYear) {
       ## Create a list of AMMI1 plots.
-      p <- lapply(X = names(x$envScores), FUN = function(year) {
+      p <- sapply(X = names(x$envScores), FUN = function(year) {
         plotAMMI1(loadings = x$envScores[[year]], scores = x$genoScores[[year]],
                   importance = x$importance[[year]],
                   overallMean = x$overallMean[[year]],
                   genoMean = x$genoMean[[year]], envMean = x$envMean[[year]],
                   trait = x$trait, year = year, scale = scale, col = col)
-      })
+      }, simplify = FALSE)
     } else {
       ## Create a single AMMI1 plot.
       p <- plotAMMI1(loadings = x$envScores, scores = x$genoScores,
@@ -225,15 +225,16 @@ plot.AMMI <- function(x,
         stop(paste0("Highest number of principal components is ", maxPC,
                     ". Plotting of PC", nPC2, " is not possible.\n"))
       }
-      ## Create a list of AMMI2 plots.
-      p <- lapply(X = names(x$envScores)[nPCs >= max(nPC1, nPC2)],
+      p <- sapply(X = names(x$envScores)[nPCs >= max(nPC1, nPC2)],
                   FUN = function(year) {
                     plotAMMI2(loadings = x$envScores[[year]],
                               scores = x$genoScores[[year]],
                               importance = x$importance[[year]],
                               trait = x$trait, year = year, primAxis = primAxis,
                               secAxis = secAxis, scale = scale, col = col)
-                  })
+                  }, simplify = FALSE)
+
+
     } else {
       if (nPC1 > ncol(x$envScores)) {
         stop(paste0("AMMI was run with ", ncol(x$envScores), " principal ",
@@ -348,7 +349,8 @@ plotAMMI2 <- function(loadings,
                   min(c(envDat[[primAxis]], genoDat[[primAxis]]))) /
     (max(c(envDat[[secAxis]], genoDat[[secAxis]])) -
        min(c(envDat[[secAxis]], genoDat[[secAxis]])))
-  p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = primAxis, y = secAxis)) +
+  p <- ggplot2::ggplot(genoDat,
+                       ggplot2::aes_string(x = primAxis, y = secAxis)) +
     ## Plot genotypes as points.
     ggplot2::geom_point(color = col[1]) +
     ## Needed for a square plot output.
