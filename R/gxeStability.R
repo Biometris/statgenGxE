@@ -95,22 +95,13 @@ gxeStability <- function(TD,
   TDTot <- TDTot[!TDTot$genotype %in% names(allNA[allNA]), ]
   if (any(is.na(TDTot[[trait]]))) {
     y0 <- tapply(TDTot[[trait]], TDTot[, c("genotype", trCol)], mean)
+    ## Actual imputation.
+    y1 <- multMissing(y0, maxIter = 50)
+    ## Insert imputed values back into original data.
     yIndex <- tapply(X = 1:nrow(TDTot), INDEX = TDTot[, c("genotype", trCol)],
-                     FUN = identity)
+                     FUN = length)
     ## imputate missing values.
-    y1 <- multMissing(y0)
-    replaceVal <- y1[is.na(y0)]
-    yIndexReplace <- yIndex[is.na(y0)]
-    if (is.list(yIndexReplace)) {
-      for (i in 1:length(yIndexReplace)) {
-        for (j in 1:length(TDTot[yIndexReplace[[i]], trait])) {
-          if (is.na(TDTot[yIndexReplace[[i]][j], trait]))
-            TDTot[yIndexReplace[[i]][j], trait] <- replaceVal[i]
-        }
-      }
-    } else {
-      TDTot[yIndexReplace, trait] <- replaceVal
-    }
+    TDTot[is.na(TDTot[[trait]]), trait] <- y1[is.na(y0) & !is.na(yIndex)]
   }
   lab <- levels(TDTot$genotype)
   nGeno <- length(lab)

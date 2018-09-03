@@ -125,7 +125,7 @@ gxeMegaEnv <- function(TD,
     summTab <- summTab[order(megaFactor), ]
     attr(TDOut, "sumTab") <- summTab
     if (sumTab) {
-      printCoefmat(summTab)
+      print(summTab, row.names = FALSE)
     }
   } else {
     if (!hasName(x = TDTot, name = "loc")) {
@@ -185,6 +185,7 @@ gxeMegaEnv <- function(TD,
     }
     ## Reshape data to get locations as header.
     ammiLoc <- reshape2::dcast(ammiQnt, genotype + year ~ loc,
+                               fun.aggregate = length,
                                value.var = "ammiPred", drop = FALSE)
     ## Compute means and standard deviations.
     ## For sd division by n should be used so this cannot be done by sd().
@@ -270,7 +271,7 @@ gxeMegaEnv <- function(TD,
     attr(TDOut, "sumTab") <- clustGrRes
     attr(TDOut, "CRDR") <- CRDRMin
     if (sumTab) {
-      printCoefmat(clustGrRes)
+      print(clustGrRes, row.names = FALSE)
     }
   }
   return(TDOut)

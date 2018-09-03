@@ -726,15 +726,15 @@ SSAtoTD <- function(SSA,
     warning(paste("BLUEs and seBLUEs can only extracted if a model with",
                   "genotype fixed is fitted\nRemoving them from what"),
             call. = FALSE)
-    what <- what[!what %in% c("BLUEs", "seBLUEs")]
+    what <- setdiff(what, c("BLUEs", "seBLUEs"))
   }
   if (any(c("BLUPs", "seBLUPs") %in% what) && is.null(SSA[[1]]$mRand)) {
     warning(paste("BLUPs and seBLUPs can only extracted if a model with",
                   "genotype random is fitted\nRemoving them from what"),
             call. = FALSE)
-    what <- what[!what %in% c("BLUPs", "seBLUPs")]
+    what <- setdiff(what , c("BLUPs", "seBLUPs"))
   }
-  if (is.null(what)) {
+  if (length(what) == 0) {
     stop("No statistics left to extract.")
   }
   if (addWt && is.null(SSA[[1]]$mFix)) {
