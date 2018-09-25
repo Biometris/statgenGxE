@@ -94,14 +94,8 @@ could be done in one go.
 data("wheatChl")
 wheatTD <- createTD(data = wheatChl[wheatChl$trial != "C_SWS_12", ], 
                     genotype = "trt_id", repId = "rep", subBlock = "bl", 
-                    rowId = "row", colId = "col", rowCoord = "row", 
-                    colCoord = "col")
+                    rowCoord = "row", colCoord = "col")
 ```
-Note that both "row" and "col" are used twice as input columns. This is done 
-since whenever a spatial model is fitted both a factor column containing the 
-spatial information and a numeric column containing this information are needed. `rowId` and `colId` are converted to a factor and `rowCoord` and `colCoord` 
-remain numerical columns as they were in the input.  
-
 The `TD` object just created is a `list` with 4 items, 1 for each trial 
 (combination of location, drought regime and year) in the original `data.frame`. 
 
@@ -131,8 +125,7 @@ meta data for this trial as well using the appropriate parameters in `addTD`.
 ```{r addTD, R.options=list(width=90)}
 wheatTD <- addTD(TD = wheatTD, data = wheatChl[wheatChl$trial == "C_SWS_12", ], 
                  genotype = "trt_id", repId = "rep", subBlock = "bl", 
-                 rowId = "row", colId = "col", rowCoord = "row", 
-                 colCoord = "col", trLocation = "Cauquenes", 
+                 rowCoord = "row", colCoord = "col", trLocation = "Cauquenes", 
                  trDate = as.Date("070912", "%d%m%y"), trLat = -35.58,
                  trLong = -72.17, trPlWidth = 2, trPlLength = 1)
 ## Inspect the meta data after the extra trial was added.
@@ -141,7 +134,7 @@ getMeta(TD = wheatTD)
 
 ## Summarising a `TD` object
 
-Use the `summary` function to get an idea of the content of the data in the `TD` object. Multiple traits may be summarised at once but for clarity a summary is
+Use the `summary` function to get an idea of the content of the data in the `TD` object. Multiple traits may be summarised at once but for clarity here a summary is
 only made for GY.
 ```{r TDsum}
 summary(wheatTD, trial = "SR_FI_11", traits = "GY")
@@ -250,7 +243,7 @@ modWheatSp3 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
 ```
 
 Alternatively, spatial models can be fitted using asreml as modeling engine 
-and setting the parameter `trySpatial = TRUE` . In this case 6 models are fitted 
+and setting the parameter `trySpatial = TRUE` . In this case 7 models are fitted 
 and the best model, based on a goodness-of-fit criterion, either AIC or BIC, is 
 chosen. For a full specification of the models fitted see `help(STRunModel)`. 
 The criterion to be used can be specified using the `control` parameter in `STRunModel`.  
@@ -263,10 +256,17 @@ if (requireNamespace("asreml")) {
                            engine = "asreml", control = list(criterion = "BIC"))
 }
 ```
-The chosen model is stored in the output:
+The fitted models and the best model are stored in the output:
 ```{r spatCh}
 if (requireNamespace("asreml")) {
-  modWheatAs$SR_FI_11$spatial
+  ## Best model
+  modWheatAs$SR_FI_11$spatial$GY
+}  
+```
+```{r spatCh2}
+if (requireNamespace("asreml")) {
+  ## Overview of fitted models
+  print(modWheatAs$SR_FI_11$sumTab$GY, digits = 2)
 }
 ```
 
@@ -373,6 +373,8 @@ R | BLUPs | Best Lineair Unbiased Predictors |
 R | seBLUPs | standard errors of the BLUPs |
 F | ue | unit errors - only for `lme4` and `asreml` |
 R | heritability | broad sense heritability |
+F | varCompF | variance components for the model with genotype as fixed component |
+R | varCompR | variance components for the model with genotype as random component |
 R | varGen | genetic variance component |
 R | varErr | residual variance component - only for `lme4` and `asreml` |
 R | varSpat | spatial variance components - only for `SpATS` |
@@ -385,6 +387,7 @@ F | wald | results of the wald test - only for `lme4` and `asreml` |
 F | CV | Coefficient of Variation - only for `lme4` and `asreml` |
 F | rDf | residual degrees of freedom |
 R | effDim | effective dimensions - only for `SpATS` |
+R | ratEffDim | ratios of the effective dimensions - only for `SpATS` |
 F | sed | standard error of difference - only for `asreml` |
 F | lsd | least significant difference - only for `asreml` |
 
@@ -400,9 +403,7 @@ predWheat <- STExtract(SSA = modWheatSp, what = c("BLUEs", "BLUPs"))
 ```
 Both `BLUEsWheat` and `predWheat` are a `list` with 1 item, the trial used for
 modeling. In general there will be an item in the `list` for every trial for 
-which results were extracted. However where the item in `BLUEsWheat` is a 
-`data.frame` containing the BLUEs `predWheat` itself is again a `list` with 2 
-items, the `data.frames` containing BLUEs and BLUPs respectively. 
+which results were extracted. These items are a `list` themselves with an item for every statistic that has been extracted, so 1 item for `BLUEsWheat`, a `data.frame` containing the BLUEs and 2 for `predWheat`, the `data.frames` containing BLUEs and BLUPs respectively. 
 
 ## Adding extra variables
 
@@ -429,6 +430,24 @@ fitVals <- STExtract(SSA = modWheatSp, what = "fitted",
                      keep = c("trial", "repId"))
 head(fitVals[[1]]$fitted)
 ```
+
+## Prepare data for GxE analysis
+
+To use the BLUEs or BLUPs from the fitted model in a GxE analysis they have to be converted again into an `TD` object. For the the function `SSAtoTD` can be used. It
+creates a `TD` object from a fitted model outputting one or more of the following:
+BLUEs, standard error of BLUEs, BLUPs, standard error of BLUPs. Optionally a column `wt` with weights (1 / standard error of BLUEs) can be added as well. In the same way as described in the previous section extra columns can be added to the output using the parameter `keep`. 
+```{r SSAtoTD}
+## Fit a model for all trials with genotype as fixed factor.
+modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design = "res.rowcol")
+## Create a TD object containing BLUEs and standard errors of BLUEs.
+TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
+## Add weights to the output.
+TDGxE2 <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"), addWt = TRUE)
+summary(TDGxE2, trial = "SR_FI_11", traits =  c("BLUEs_GY", "seBLUEs_GY"))
+```
+
+See the vignette "GxE analysis using RAP"" for an overview of how to use the input just 
+created for performing GxE analysis.
 
 ----
 

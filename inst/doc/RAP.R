@@ -10,8 +10,7 @@ library(RAP)
 data("wheatChl")
 wheatTD <- createTD(data = wheatChl[wheatChl$trial != "C_SWS_12", ], 
                     genotype = "trt_id", repId = "rep", subBlock = "bl", 
-                    rowId = "row", colId = "col", rowCoord = "row", 
-                    colCoord = "col")
+                    rowCoord = "row", colCoord = "col")
 
 ## ----getMeta-------------------------------------------------------------
 (wheatMeta <- getMeta(TD = wheatTD))
@@ -28,8 +27,7 @@ wheatTD <- setMeta(TD = wheatTD, meta = wheatMeta)
 ## ----addTD, R.options=list(width=90)----------------------------------------------------
 wheatTD <- addTD(TD = wheatTD, data = wheatChl[wheatChl$trial == "C_SWS_12", ], 
                  genotype = "trt_id", repId = "rep", subBlock = "bl", 
-                 rowId = "row", colId = "col", rowCoord = "row", 
-                 colCoord = "col", trLocation = "Cauquenes", 
+                 rowCoord = "row", colCoord = "col", trLocation = "Cauquenes", 
                  trDate = as.Date("070912", "%d%m%y"), trLat = -35.58,
                  trLong = -72.17, trPlWidth = 2, trPlLength = 1)
 ## Inspect the meta data after the extra trial was added.
@@ -38,11 +36,11 @@ getMeta(TD = wheatTD)
 ## ----TDsum---------------------------------------------------------------
 summary(wheatTD, trial = "SR_FI_11", traits = "GY")
 
-## ----layoutPlot,fig.height=7---------------------------------------------
+## ----layoutPlot----------------------------------------------------------
 plot(wheatTD, trials = "SR_FI_11")
 
 ## ----mapPlot-------------------------------------------------------------
-plot(wheatTD, plotType = "map")
+#plot(wheatTD, plotType = "map")
 
 ## ----fitSp, message=FALSE------------------------------------------------
 modWheatSp <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
@@ -67,7 +65,14 @@ if (requireNamespace("asreml")) {
 
 ## ----spatCh--------------------------------------------------------------
 if (requireNamespace("asreml")) {
-  modWheatAs$SR_FI_11$spatial
+  ## Best model
+  modWheatAs$SR_FI_11$spatial$GY
+}  
+
+## ----spatCh2-------------------------------------------------------------
+if (requireNamespace("asreml")) {
+  ## Overview of fitted models
+  print(modWheatAs$SR_FI_11$sumTab$GY, digits = 2)
 }
 
 ## ----fitSum, message=FALSE-----------------------------------------------
@@ -102,4 +107,13 @@ head(BLUEsWheat2[[1]]$BLUEs)
 fitVals <- STExtract(SSA = modWheatSp, what = "fitted", 
                      keep = c("trial", "repId"))
 head(fitVals[[1]]$fitted)
+
+## ----SSAtoTD-------------------------------------------------------------
+## Fit a model for all trials with genotype as fixed factor.
+modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design = "res.rowcol")
+## Create a TD object containing BLUEs and standard errors of BLUEs.
+TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
+## Add weights to the output.
+TDGxE2 <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"), addWt = TRUE)
+summary(TDGxE2, trial = "SR_FI_11", traits =  c("BLUEs_GY", "seBLUEs_GY"))
 
