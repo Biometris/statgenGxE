@@ -70,7 +70,7 @@ predictAsreml <- function(model,
                           vcov = TRUE,
                           TD,
                           ...) {
-  wrnMsg <- "Insufficient workspace - (reset workspace or pworkspace arguments)"
+  wrnMsg <- "reset workspace or pworkspace arguments"
   ## Create tempfile to suppress asreml output messages.
   tmp <- tempfile()
   sink(tmp)
