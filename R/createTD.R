@@ -587,8 +587,10 @@ plot.TD <- function(x,
         ggplot2::theme(panel.background = ggplot2::element_blank(),
                        plot.title = ggplot2::element_text(hjust = 0.5)) +
         ## Move ticks to edge of the plot.
-        ggplot2::scale_x_continuous(expand = c(0, 0)) +
-        ggplot2::scale_y_continuous(expand = c(0, 0)) +
+        ggplot2::scale_x_continuous(breaks = scales::pretty_breaks(),
+                                    expand = c(0, 0)) +
+        ggplot2::scale_y_continuous(breaks = scales::pretty_breaks(),
+                                    expand = c(0, 0)) +
         ggplot2::ggtitle(trLoc)
       if (hasName(x = trDat, name = "subBlock")) {
         ## If subblocks are available color tiles by subblock.
@@ -598,7 +600,6 @@ plot.TD <- function(x,
         ## No subblocks so just a single fill color.
         p <- p + ggplot2::geom_tile(color = "grey50", fill = "pink")
       }
-
       if ("repId" %in% colnames(trDat)) {
         ## Add lines for replicates.
         p <- p +

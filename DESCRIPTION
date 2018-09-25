@@ -29,7 +29,8 @@ Imports: emmeans(>= 1.1.2),
     reshape2(>= 1.4.3),
     SpATS(>= 1.0-7),
     xtable(>= 1.8.2),
-    gridExtra(>= 2.3)
+    gridExtra(>= 2.3),
+    scales
 Suggests: asreml(== 3.0),
     rmarkdown(>= 1.9),
     testthat(>= 2.0.0)
