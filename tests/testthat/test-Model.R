@@ -237,3 +237,23 @@ test_that("option trySpatial produces expected output structure", {
   expect_identical(modelAsTs[["E1"]]$spatial$t1, "none")
 })
 
+test_that("option nSeg in control produces correct output", {
+  ## Test using equivalence because of timestamp.
+  modelSp <- STRunModel(testTD, trials = "E1", design = "rowcol", traits = "t1",
+                        control = list(nSeg = 1))
+  modelSp1 <- STRunModel(testTD, trials = "E1", design = "rowcol",
+                         traits = "t1", control = list(nSeg = c(1, 1)))
+  expect_equivalent(modelSp, modelSp1)
+  expect_error(STRunModel(testTD, trials = "E1", design = "rowcol",
+                          traits = "t1", control = list(nSeg = list(c(1, 1)))),
+               "should be a named item in list of nSeg")
+  modelSp2 <- STRunModel(testTD, trials = "E1", design = "rowcol",
+                         traits = "t1",
+                         control = list(nSeg = list(E1 = c(1, 1))))
+  expect_equivalent(modelSp, modelSp2)
+  modelSp3 <- STRunModel(testTD, trials = "E1", design = "rowcol",
+                         traits = "t1",
+                         control = list(nSeg = list(E3 = c(1, 1),
+                                                    E1 = c(1, 1))))
+  expect_equivalent(modelSp, modelSp3)
+})

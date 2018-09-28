@@ -83,10 +83,11 @@
 #' @param control An optional list with control parameters to be passed to the
 #' actual fitting funcions. Currently \code{nSeg} and \code{nestDiv} are valid
 #' parameters when fitting a model using SpATS. They pass a value to nseg and
-#' nest.div in \code{\link[SpATS]{PSANOVA}} respectively. \code{criterion} is a
-#' valid parameter when fitting a spatial model using asreml. Use this to pass
-#' a goodness-of-fit criterion for comparing different spatial models. See also
-#' in details. Other parameters are ignored.
+#' nest.div in \code{\link[SpATS]{PSANOVA}} respectively. For \code{nSeg} also a
+#' named list can be supplied containing values for nSeg per environment.\cr
+#' \code{criterion} is a valid parameter when fitting a spatial model using
+#' asreml. Use this to pass a goodness-of-fit criterion for comparing different
+#' spatial models. See also in details. Other parameters are ignored.
 #' @param progress Should the progress of the modeling be printed. If
 #' \code{TRUE} for every trial a line is output indicating the traits fitted
 #' for the particular trial.
@@ -274,5 +275,14 @@ modelChecks <- function(TD,
   if (!is.null(control) && !is.list(control)) {
     stop("control has to be NULL or a list.\n")
   }
-  return(list(design = design, what = what, engine = engine))
+  if (!is.null(control$nSeg)) {
+    if (is.list(control$nSeg)) {
+      if (!trial %in% names(control$nSeg)) {
+        stop(paste(trial, "should be a named item in list of nSeg in control"))
+      } else {
+        control$nSeg <- control$nSeg[[trial]]
+      }
+    }
+  }
+  return(list(design = design, what = what, engine = engine, control = control))
 }

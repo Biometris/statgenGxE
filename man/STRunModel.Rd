@@ -43,10 +43,11 @@ default, for other models lme4.}
 \item{control}{An optional list with control parameters to be passed to the
 actual fitting funcions. Currently \code{nSeg} and \code{nestDiv} are valid
 parameters when fitting a model using SpATS. They pass a value to nseg and
-nest.div in \code{\link[SpATS]{PSANOVA}} respectively. \code{criterion} is a
-valid parameter when fitting a spatial model using asreml. Use this to pass
-a goodness-of-fit criterion for comparing different spatial models. See also
-in details. Other parameters are ignored.}
+nest.div in \code{\link[SpATS]{PSANOVA}} respectively. For \code{nSeg} also a
+named list can be supplied containing values for nSeg per environment.\cr
+\code{criterion} is a valid parameter when fitting a spatial model using
+asreml. Use this to pass a goodness-of-fit criterion for comparing different
+spatial models. See also in details. Other parameters are ignored.}
 
 \item{progress}{Should the progress of the modeling be printed. If
 \code{TRUE} for every trial a line is output indicating the traits fitted
