@@ -446,8 +446,7 @@ TDGxE2 <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"), addWt = TRU
 summary(TDGxE2, trial = "SR_FI_11", traits =  c("BLUEs_GY", "seBLUEs_GY"))
 ```
 
-See the vignette "GxE analysis using RAP"" for an overview of how to use the input just 
-created for performing GxE analysis.
+See the vignette [Genotype by Environment analysis using RAP](RAPGxE.html) for an overview of how to use the input just created for performing GxE analysis.
 
 ----
 
