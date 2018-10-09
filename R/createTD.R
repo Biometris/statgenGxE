@@ -150,7 +150,7 @@ createTD <- function(data,
   renamed <- data.frame(orig = renameFrom[renameFrom != "NULL"],
                         new = renameCols[renameFrom != "NULL"],
                         stringsAsFactors = FALSE)
-  ## Get duplicate columns
+  ## Get duplicate columns.
   dupCols <- which(duplicated(renameFrom) & renameFrom != "NULL")
   for (dupCol in dupCols) {
     ## Copy original column as extra column in data for each duplicate.
@@ -170,7 +170,7 @@ createTD <- function(data,
                    "plot", "rowId", "colId", "checkId")
   for (factorCol in factorCols) {
     if (hasName(data, factorCol)) {
-      data[, cols == factorCol] <- as.factor(data[, cols == factorCol])
+      data[cols == factorCol] <- as.factor(data[, cols == factorCol])
     }
   }
   ## Combine plot and trial into a single factor if both are available.
@@ -182,8 +182,8 @@ createTD <- function(data,
   ## Convert columns to numeric if neccessary.
   numCols <- c("rowCoord", "colCoord")
   for (numCol in numCols) {
-    if (hasName(data, numCol) && !is.numeric(data[, cols == numCol])) {
-      data[, cols == numCol] <- as.numeric(data[, cols == numCol])
+    if (hasName(data, numCol) && !is.numeric(data[cols == numCol])) {
+      data[cols == numCol] <- as.numeric(data[, cols == numCol])
     }
   }
   if (hasName(data, "trial")) {
