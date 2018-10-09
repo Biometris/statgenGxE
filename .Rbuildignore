@@ -1,7 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 R/redundant
-exampleSes.R
 exampleBrapi.R
 testReports
 ^data-raw$
