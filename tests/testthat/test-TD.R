@@ -75,5 +75,3 @@ test_that("summary.TD produces correct output", {
   expect_equal(mean(testData$t1), sumTD["Mean", "t1"])
   expect_equal(max(testData$t4, na.rm = TRUE), sumTD["Max", "t4"])
 })
-
-

@@ -349,7 +349,7 @@ summary.TD <- function(object,
                "skew", "seSkew", "kurt", "seKurt")
   ## Checks.
   if (!is.character(trial) || length(trial) > 1 || !trial %in% names(object)) {
-    stop(paste0(trial, " should be a single character string in ",
+    stop(paste0("trial should be a single character string in ",
                 deparse(substitute(object)), ".\n"))
   }
   trDat <- object[[trial]]

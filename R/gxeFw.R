@@ -125,7 +125,7 @@ gxeFw <- function(TD,
                                             ":envEffs"), names(coeffsModel1))]
     TDTot$beta <- TDTot$beta / mean(TDTot$beta, na.rm = TRUE)
     ## Fit model with current trial means relevant to each unit.
-    model2 <- lm(as.formula(paste(trait, "~ -genotype + trial:beta")),
+    model2 <- lm(as.formula(paste(trait, "~-1 + trial:beta")),
                  data = TDTot, weights = TDTot$wt, na.action = na.exclude)
     coeffsModel2 <- coefficients(model2)
     ## Update envEffs.
