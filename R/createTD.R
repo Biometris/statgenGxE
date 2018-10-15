@@ -482,24 +482,26 @@ print.summary.TD <- function(x, ...) {
 #' will be indicated on this map.
 #'
 #' @param x An object of class TD.
-#' @param ... Further graphical parameters. Fully functional when
-#' \code{plotType = "layout"}. For \code{plotType = "layout"} only parameters
-#' effecting the plot title will be passed.
-#' @param trials A character vector indicating the trials to be plotted.
+#' @param ... Not currently used.
 #' @param plotType A character string indicating which plot should be made.
 #' This can be "layout" for a plot of the field layout for the diffent trials
 #' in the TD object. This is only possible if the data contains row and column
 #' information. Alternatively, for \code{plotType = "map"} a plot will be made
 #' depicting the trials on a country map. This is only possible if lattitude
 #' and longitude of the trials are available.
+#' @param trials A character vector indicating the trials to be plotted when
+#' plotting field layouts. Only used if \code{plotType = "layout"}
+#' @param traits A character vector indicating the traits to be plotted in
+#' a boxplot. Only used if \code{plotType = "box"}
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
 #' @export
 plot.TD <- function(x,
                     ...,
+                    plotType = c("layout", "map", "box"),
                     trials = names(x),
-                    plotType = c("layout", "map"),
+                    traits = NULL,
                     output = TRUE) {
   ## Maps seems to change graphics parameters without resetting. Do so here.
   if (!is.character(trials) || !all(trials %in% names(x))) {
@@ -508,16 +510,17 @@ plot.TD <- function(x,
   plotType <- match.arg(plotType)
   dotArgs <- list(...)
   if (plotType == "layout") {
+    p <- setNames(vector(mode = "list", length = length(trials)), trials)
     for (trial in trials) {
       trDat <- x[[trial]]
       if (!"rowCoord" %in% colnames(trDat)) {
         warning(paste0("rowCoord should be a column in ", trial, ".\n",
-                       "Plot skipped."), call. = FALSE)
+                       "Plot skipped.\n"), call. = FALSE)
         break
       }
       if (!"colCoord" %in% colnames(trDat)) {
         warning(paste0("colCoord should be a column in ", trial, ".\n",
-                       "Plot skipped."), call. = FALSE)
+                       "Plot skipped.\n"), call. = FALSE)
         break
       }
       trLoc <- attr(trDat, "trLocation")
@@ -569,17 +572,18 @@ plot.TD <- function(x,
         vertW$x <- vertW$x + xMin - 1
         ## For horizontal walls follow the same procedure as above.
         horW <- do.call(rbind.data.frame,
-                      Filter(f = has.breaks, x = Map(function(i, y) {
-                        cbind(x = i, y = which(diff(c(0, y, 0)) != 0))
-                      }, 1:ncol(MImp), as.data.frame(MImp))))
+                        Filter(f = has.breaks, x = Map(function(i, y) {
+                          cbind(x = i, y = which(diff(c(0, y, 0)) != 0))
+                        }, 1:ncol(MImp), as.data.frame(MImp))))
         horW <- horW[!(horW$y == 1 & is.na(M[1, horW$x])) &
-                   !(horW$y == nrow(M) + 1 & is.na(M[nrow(M), horW$x])), ]
+                       !(horW$y == nrow(M) + 1 & is.na(M[nrow(M), horW$x])), ]
         horW$y <- horW$y + yMin - 1
         horW$x <- horW$x + xMin - 1
       }
       ## Create base plot.
-      p <- ggplot2::ggplot(data = trDat, ggplot2::aes_string(x = "colCoord",
-                                                             y = "rowCoord")) +
+      pTr <- ggplot2::ggplot(data = trDat,
+                             ggplot2::aes_string(x = "colCoord",
+                                                 y = "rowCoord")) +
         ggplot2::coord_fixed(ratio = aspect,
                              xlim = range(trDat$colCoord) + c(-0.5, 0.5),
                              ylim = range(trDat$rowCoord) + c(-0.5, 0.5),
@@ -594,15 +598,15 @@ plot.TD <- function(x,
         ggplot2::ggtitle(trLoc)
       if (hasName(x = trDat, name = "subBlock")) {
         ## If subblocks are available color tiles by subblock.
-        p <- p + ggplot2::geom_tile(
+        pTr <- pTr + ggplot2::geom_tile(
           ggplot2::aes_string(fill = "subBlock"), color = "grey50")
       } else {
         ## No subblocks so just a single fill color.
-        p <- p + ggplot2::geom_tile(color = "grey50", fill = "pink")
+        pTr <- pTr + ggplot2::geom_tile(color = "grey50", fill = "pink")
       }
       if ("repId" %in% colnames(trDat)) {
         ## Add lines for replicates.
-        p <- p +
+        pTr <- pTr +
           ## Add verical lines as segment.
           ## adding/subtracting 0.5 assures plotting at the borders of
           ## the tiles.
@@ -620,8 +624,9 @@ plot.TD <- function(x,
                                          values = c("replicates" = "solid"),
                                          name = ggplot2::element_blank())
       }
+      p[[trial]] <- pTr
       if (output) {
-        plot(p)
+        plot(pTr)
       }
     }
   } else if (plotType == "map") {
@@ -651,6 +656,35 @@ plot.TD <- function(x,
         ggplot2::ggtitle("Trial locations")
       if (output) {
         plot(p)
+      }
+    }
+  } else if (plotType == "box") {
+    if (is.null(traits) || !is.character(traits)) {
+      stop("traits should be a character vector.\n")
+    }
+    p <- setNames(vector(mode = "list", length = length(traits)), traits)
+    for (trait in traits) {
+      plotDat <- Reduce(f = rbind, x = lapply(X = x, function(trial) {
+        if (!hasName(x = trial, name = trait)) {
+          NULL
+        } else {
+          trial[c("trial", trait)]
+        }
+      }))
+      if (is.null(plotDat)) {
+        warning(paste0(trait, " isn't a column in any of the trials.\n",
+                       "Plot skipped.\n"), call. = FALSE)
+        break
+      }
+      pTr <- ggplot2::ggplot(plotDat, ggplot2::aes_string(x = "trial",
+                                                          y = trait)) +
+        ggplot2::geom_boxplot() +
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90,
+                                                           vjust = 0.5,
+                                                           hjust = 1))
+      p[[trait]] <- pTr
+      if (output) {
+        plot(pTr)
       }
     }
   }

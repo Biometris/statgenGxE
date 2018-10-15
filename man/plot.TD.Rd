@@ -4,17 +4,13 @@
 \alias{plot.TD}
 \title{Plot function for class TD}
 \usage{
-\method{plot}{TD}(x, ..., trials = names(x), plotType = c("layout",
-  "map"), output = TRUE)
+\method{plot}{TD}(x, ..., plotType = c("layout", "map", "box"),
+  trials = names(x), traits = NULL, output = TRUE)
 }
 \arguments{
 \item{x}{An object of class TD.}
 
-\item{...}{Further graphical parameters. Fully functional when
-\code{plotType = "layout"}. For \code{plotType = "layout"} only parameters
-effecting the plot title will be passed.}
-
-\item{trials}{A character vector indicating the trials to be plotted.}
+\item{...}{Not currently used.}
 
 \item{plotType}{A character string indicating which plot should be made.
 This can be "layout" for a plot of the field layout for the diffent trials
@@ -22,6 +18,12 @@ in the TD object. This is only possible if the data contains row and column
 information. Alternatively, for \code{plotType = "map"} a plot will be made
 depicting the trials on a country map. This is only possible if lattitude
 and longitude of the trials are available.}
+
+\item{trials}{A character vector indicating the trials to be plotted when
+plotting field layouts. Only used if \code{plotType = "layout"}}
+
+\item{traits}{A character vector indicating the traits to be plotted in
+a boxplot. Only used if \code{plotType = "box"}}
 
 \item{output}{Should the plot be output to the current device? If
 \code{FALSE} only a list of ggplot objects is invisibly returned.}
