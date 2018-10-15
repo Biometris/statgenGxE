@@ -751,34 +751,38 @@ SSAtoTD <- function(SSA,
   if (is.null(traits)) {
     traits <- SSA[[1]]$traits
   }
+  nTr <- length(traits)
   if (!"trial" %in% keep && hasName(x = SSA[[1]]$TD[[1]], name = "trial")) {
     keep <- c(keep, "trial")
   }
-  ## Extract predictions from the model.
-  pred <- STExtract(SSA, traits = traits,
-                    what = what,
-                    keep = keep)
-  ## Create a list of dataframes with all statistics per trial
-  predTrTot <- lapply(X = pred, FUN = function(trial) {
+  ## Create a list of dataframes with all statistics per trial.
+  predTrTot <- lapply(X = names(SSA), FUN = function(trial) {
+    ## Extract predictions from the model.
+    predLst <- unlist(lapply(X = traits, FUN = function(trait) {
+      STExtract(SSA, trials = trial, traits = trait, what = what, keep = keep)
+    }), recursive = FALSE)
     if (length(what) + addWt > 1) {
       ## Rename columns if more than one column per trait will appear in the
       ## output. Add the name of the statistic as prefix to the traits.
-      for (ext in names(trial)) {
-        colNames <- colnames(trial[[ext]])
-        colnames(trial[[ext]])[colNames %in% traits] <-
-          paste0(ext, "_", colNames[colNames %in% traits])
-      }
+      predLst <- lapply(X = predLst, FUN = function(pred) {
+        for (ext in names(pred)) {
+          colNames <- colnames(pred[[ext]])
+          colnames(pred[[ext]])[colNames %in% traits] <-
+            paste0(ext, "_", colNames[colNames %in% traits])
+        }
+        return(pred)
+      })
     }
-    ## Merge all statistics togethter. Because of the renaming above the is
+    ## Merge all statistics togethter. Because of the renaming above there is
     ## never a problem with duplicate column and merging is done on all other
     ## columns than the traits.
-    predTr <- Reduce(f = merge, x = trial)
+    predTr <- Reduce(f = merge, x = unlist(predLst, recursive = FALSE))
     if (addWt && "seBLUEs" %in% what) {
       ## Add a wt column.
       nTr <- length(traits)
       for (trait in traits) {
         wtName <- ifelse(nTr == 1, "wt", paste0("wt_", trait))
-        predTr[[wtName]] <- 1 / predTr[[paste0("seBLUEs_", trait)]]
+        predTr[[wtName]] <- 1 / predTr[[paste0("seBLUEs_", trait)]] ^ 2
       }
     }
     return(predTr)
