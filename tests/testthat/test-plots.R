@@ -74,4 +74,20 @@ test_that("multiQTL plot gives correct output types", {
   expect_is(p, "ggplot")
 })
 
+test_that("TD box plot gives correct output types", {
+  expect_warning(plot(TDMaize, plotType = "box", traits = "trait"),
+                 "trait isn't a column in any of the trials")
+  p <- plot(TDMaize, plotType = "box", traits = "yld", output = FALSE)
+  expect_is(p, "list")
+  expect_length(p, 1)
+  expect_is(p[[1]], "ggplot")
+})
 
+test_that("TD correlation plot gives correct output types", {
+  expect_warning(plot(TDMaize, plotType = "cor", traits = "trait"),
+                 "trait isn't a column in any of the trials")
+  p <- plot(TDMaize, plotType = "cor", traits = "yld", output = FALSE)
+  expect_is(p, "list")
+  expect_length(p, 1)
+  expect_is(p[[1]], "ggplot")
+})
