@@ -499,7 +499,7 @@ print.summary.TD <- function(x, ...) {
 #' @export
 plot.TD <- function(x,
                     ...,
-                    plotType = c("layout", "map", "box"),
+                    plotType = c("layout", "map", "box", "cor"),
                     trials = names(x),
                     traits = NULL,
                     output = TRUE) {
@@ -682,6 +682,57 @@ plot.TD <- function(x,
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90,
                                                            vjust = 0.5,
                                                            hjust = 1))
+      p[[trait]] <- pTr
+      if (output) {
+        plot(pTr)
+      }
+    }
+  } else if (plotType == "cor") {
+    if (is.null(traits) || !is.character(traits)) {
+      stop("traits should be a character vector.\n")
+    }
+    p <- setNames(vector(mode = "list", length = length(traits)), traits)
+    for (trait in traits) {
+      plotDat <- Reduce(f = rbind, x = lapply(X = x, function(trial) {
+        if (!hasName(x = trial, name = trait)) {
+          NULL
+        } else {
+          trial[c("genotype", "trial", trait)]
+        }
+      }))
+      if (is.null(plotDat)) {
+        warning(paste0(trait, " isn't a column in any of the trials.\n",
+                       "Plot skipped.\n"), call. = FALSE)
+        break
+      }
+      plotTab <- tapply(plotDat[[trait]],
+                        INDEX = list(plotDat$genotype, plotDat$trial),
+                        FUN = mean)
+      corMat <- cor(plotTab, use = "pairwise.complete.obs")
+      meltedCorMat <- reshape2::melt(corMat)
+      meltedCorMat <- meltedCorMat[as.numeric(meltedCorMat$Var1) >
+                                     as.numeric(meltedCorMat$Var2), ]
+      pTr <- ggplot2::ggplot(data = meltedCorMat,
+                             ggplot2::aes_string("Var1", "Var2",
+                                                 fill = "value")) +
+        ggplot2::geom_raster() +
+        ## Create a gradient scale.
+        ggplot2::scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                                      na.value = "grey", limit = c(-1, 1)) +
+        ggplot2::scale_y_discrete(position = "right") +
+        ggplot2::theme_minimal() +
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45,
+                                                           vjust = 1, size = 6,
+                                                           hjust = 1)) +
+        ggplot2::theme(axis.text.y = ggplot2::element_text(size = 6)) +
+        ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
+        ## Remove grid behind text output.
+        ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
+                       panel.grid.minor = ggplot2::element_blank()) +
+        ggplot2::labs(x = "", y = "", fill = "") +
+        ggplot2::ggtitle(paste("Correlations of environments for", trait)) +
+        ## Fix coordinates to get a square sized plot.
+        ggplot2::coord_fixed()
       p[[trait]] <- pTr
       if (output) {
         plot(pTr)

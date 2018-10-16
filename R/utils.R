@@ -353,7 +353,8 @@ qtlPosToName <- function(chrPos, cross) {
 #' Function for plotting a correlation (or covariance) matrix.
 #
 #' @keywords internal
-plotCorMat <- function(varMat, main = "") {
+plotCorMat <- function(varMat,
+                       main = "") {
   ## Melt variance and correlation matrices to get proper shape for ggplot.
   meltedCorMat <- reshape2::melt(cov2cor(varMat))
   meltedvarMat <- reshape2::melt(varMat)

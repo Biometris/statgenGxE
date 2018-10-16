@@ -4,7 +4,7 @@
 \alias{plot.TD}
 \title{Plot function for class TD}
 \usage{
-\method{plot}{TD}(x, ..., plotType = c("layout", "map", "box"),
+\method{plot}{TD}(x, ..., plotType = c("layout", "map", "box", "cor"),
   trials = names(x), traits = NULL, output = TRUE)
 }
 \arguments{
