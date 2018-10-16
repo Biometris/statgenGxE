@@ -60,7 +60,7 @@ test_that("anova table is correct", {
 test_that("environmental effects are correct", {
   expect_equal(as.numeric(as.matrix(geFw$envEffs[, 2:5])),
                c(-0.108308308503234, -4.18529835840507, 4.29360666690831,
-                 1.37908319436677, 1.37908319436677, 1.37908319436677,
+                 4.68853685469476, 4.68853685469476, 4.68853685469476,
                  78.8599510406325, 74.7836723680752, 83.2625593719151, 2, 3, 1))
 })
 
@@ -75,10 +75,10 @@ test_that("option sorted sorts estimates correctly", {
                                 sorted = "none")$estimates$genotype), 1:15)
 })
 
-geFw3 <- gxeFw(testTD, trait = "t3", maxIter = 30)
+geFw3 <- gxeFw(testTD, trait = "t4", maxIter = 30)
 test_that("NA in trait causes no problems", {
   expect_is(geFw3, "FW")
   expect_identical(dim(geFw3$estimates), c(15L, 6L))
-  expect_identical(is.na(c(geFw3$TD[["E1"]]$t3, geFw3$TD[["E2"]]$t3,
-                   geFw3$TD[["E3"]]$t3)), is.na(geFw3$fittedGeno))
+  expect_identical(is.na(c(geFw3$TD[["E1"]]$t4, geFw3$TD[["E2"]]$t4,
+                   geFw3$TD[["E3"]]$t4)), is.na(geFw3$fittedGeno))
 })
