@@ -12,27 +12,59 @@
 
 \item{...}{Not currently used.}
 
-\item{plotType}{A character string indicating which plot should be made.
-This can be "layout" for a plot of the field layout for the diffent trials
-in the TD object. This is only possible if the data contains row and column
-information. Alternatively, for \code{plotType = "map"} a plot will be made
-depicting the trials on a country map. This is only possible if lattitude
-and longitude of the trials are available.}
+\item{plotType}{A single character string indicating which plot should be
+made. See the sections below for a detailed explanation of the plots.}
 
 \item{trials}{A character vector indicating the trials to be plotted when
-plotting field layouts. Only used if \code{plotType = "layout"}}
+plotting field layouts. Only used if \code{plotType} = "layout".}
 
 \item{traits}{A character vector indicating the traits to be plotted in
-a boxplot. Only used if \code{plotType = "box"}}
+a boxplot. Only used if \code{plotType} = "box" or "cor".}
 
 \item{output}{Should the plot be output to the current device? If
-\code{FALSE} only a list of ggplot objects is invisibly returned.}
+\code{FALSE} only a list of ggplot objects is invisibly returnfed.}
 }
 \description{
 Plotting function for objects of class TD. Plots either the layout of the
-different trials within the TD object or locates the trials on a map.
-Mapping the trials is done based on lattitude and longitude that can be
-added when creating an object of class TD. The countries in which the trials
-are located will be plotted on a single map and the location of the trials
-will be indicated on this map.
+different trials within the TD object or locates the trials on a map. Also a
+boxplot can be made for selected traits per trial and a plot of correlations
+between trials. A detailed description of the different plots is given in the
+sections below.
 }
+\section{Layout Plot}{
+
+A layout plot plots the layout of the selected trials (all available trials
+by default). This plot can only be made for trials that contain both
+row (\code{rowCoord}) and column(\code{colCoord}) information. If either one
+of those is missing the trial is skipped with a warning. If blocks
+(\code{subBlock}) are available for a trial these are indicated in different
+colors per block, otherwise all plots are colored in grey. If replicates
+(\code{repId}) are available a black line is plotted between diffent
+replicates. Missing plots are indicated in white. This can either be single
+plots in a trial or complete missing columns or rows.
+}
+
+\section{Map Plot}{
+
+A map is plotted with the locations of the trials in the TD object.
+Mapping the trials is done based on lattitude and longitude that can be
+added when creating an object of class TD. Trials without latitude and/or
+longitude available are skipped with a warning message. The countries in
+which the trials are located will be plotted on a single map and the
+location of the trials will be indicated on this map. The actual plot is
+made using ggplot, but for getting the data for the borders of the countries
+the maps package is needed.
+}
+
+\section{Box Plot}{
+
+Per selected trait a boxplot is created grouped per trial.
+}
+
+\section{Correlation Plot}{
+
+Per selected trait a plot is drawn of correlations between the trials in the
+TD object. If genotypes are replicated within trials genotypic means are
+taken before computing correlations.
+}
+

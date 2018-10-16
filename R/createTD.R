@@ -475,26 +475,50 @@ print.summary.TD <- function(x, ...) {
 #' Plot function for class TD
 #'
 #' Plotting function for objects of class TD. Plots either the layout of the
-#' different trials within the TD object or locates the trials on a map.
+#' different trials within the TD object or locates the trials on a map. Also a
+#' boxplot can be made for selected traits per trial and a plot of correlations
+#' between trials. A detailed description of the different plots is given in the
+#' sections below.
+#'
+#' @section Layout Plot:
+#' A layout plot plots the layout of the selected trials (all available trials
+#' by default). This plot can only be made for trials that contain both
+#' row (\code{rowCoord}) and column(\code{colCoord}) information. If either one
+#' of those is missing the trial is skipped with a warning. If blocks
+#' (\code{subBlock}) are available for a trial these are indicated in different
+#' colors per block, otherwise all plots are colored in grey. If replicates
+#' (\code{repId}) are available a black line is plotted between diffent
+#' replicates. Missing plots are indicated in white. This can either be single
+#' plots in a trial or complete missing columns or rows.
+#'
+#' @section Map Plot:
+#' A map is plotted with the locations of the trials in the TD object.
 #' Mapping the trials is done based on lattitude and longitude that can be
-#' added when creating an object of class TD. The countries in which the trials
-#' are located will be plotted on a single map and the location of the trials
-#' will be indicated on this map.
+#' added when creating an object of class TD. Trials without latitude and/or
+#' longitude available are skipped with a warning message. The countries in
+#' which the trials are located will be plotted on a single map and the
+#' location of the trials will be indicated on this map. The actual plot is
+#' made using ggplot, but for getting the data for the borders of the countries
+#' the maps package is needed.
+#'
+#' @section Box Plot:
+#' Per selected trait a boxplot is created grouped per trial.
+#'
+#' @section Correlation Plot:
+#' Per selected trait a plot is drawn of correlations between the trials in the
+#' TD object. If genotypes are replicated within trials genotypic means are
+#' taken before computing correlations.
 #'
 #' @param x An object of class TD.
 #' @param ... Not currently used.
-#' @param plotType A character string indicating which plot should be made.
-#' This can be "layout" for a plot of the field layout for the diffent trials
-#' in the TD object. This is only possible if the data contains row and column
-#' information. Alternatively, for \code{plotType = "map"} a plot will be made
-#' depicting the trials on a country map. This is only possible if lattitude
-#' and longitude of the trials are available.
+#' @param plotType A single character string indicating which plot should be
+#' made. See the sections below for a detailed explanation of the plots.
 #' @param trials A character vector indicating the trials to be plotted when
-#' plotting field layouts. Only used if \code{plotType = "layout"}
+#' plotting field layouts. Only used if \code{plotType} = "layout".
 #' @param traits A character vector indicating the traits to be plotted in
-#' a boxplot. Only used if \code{plotType = "box"}
+#' a boxplot. Only used if \code{plotType} = "box" or "cor".
 #' @param output Should the plot be output to the current device? If
-#' \code{FALSE} only a list of ggplot objects is invisibly returned.
+#' \code{FALSE} only a list of ggplot objects is invisibly returnfed.
 #'
 #' @export
 plot.TD <- function(x,
@@ -664,6 +688,9 @@ plot.TD <- function(x,
     }
     p <- setNames(vector(mode = "list", length = length(traits)), traits)
     for (trait in traits) {
+      ## Create a single data.frame from x with only columns trial and trait.
+      ## trail where trait is not measured/available are removed by setting
+      ## them to NULL.
       plotDat <- Reduce(f = rbind, x = lapply(X = x, function(trial) {
         if (!hasName(x = trial, name = trait)) {
           NULL
@@ -676,8 +703,9 @@ plot.TD <- function(x,
                        "Plot skipped.\n"), call. = FALSE)
         break
       }
-      pTr <- ggplot2::ggplot(plotDat, ggplot2::aes_string(x = "trial",
-                                                          y = trait)) +
+      ## Create boxplot.
+      pTr <- ggplot2::ggplot(plotDat,
+                             ggplot2::aes_string(x = "trial", y = trait)) +
         ggplot2::geom_boxplot() +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90,
                                                            vjust = 0.5,
@@ -693,6 +721,9 @@ plot.TD <- function(x,
     }
     p <- setNames(vector(mode = "list", length = length(traits)), traits)
     for (trait in traits) {
+      ## Create a single data.frame from x with only columns trial and trait.
+      ## trail where trait is not measured/available are removed by setting
+      ## them to NULL.
       plotDat <- Reduce(f = rbind, x = lapply(X = x, function(trial) {
         if (!hasName(x = trial, name = trait)) {
           NULL
@@ -705,13 +736,21 @@ plot.TD <- function(x,
                        "Plot skipped.\n"), call. = FALSE)
         break
       }
+      ## Create table with values trait per genotype per trial.
+      ## If TD already contains BLUEs/BLUPs taking means doesn't do anything
+      ## but it is needed for raw data where there can be replicates.
       plotTab <- tapply(plotDat[[trait]],
                         INDEX = list(plotDat$genotype, plotDat$trial),
                         FUN = mean)
+      ## Create a correlation matrix.
       corMat <- cor(plotTab, use = "pairwise.complete.obs")
+      ## Melt to get the proper format for ggplot.
       meltedCorMat <- reshape2::melt(corMat)
+      ## Remove top left of the plot. Only plotting a bottom right triangle.
+      ## Diagonal is removed as well.
       meltedCorMat <- meltedCorMat[as.numeric(meltedCorMat$Var1) >
                                      as.numeric(meltedCorMat$Var2), ]
+      ## Create plot.
       pTr <- ggplot2::ggplot(data = meltedCorMat,
                              ggplot2::aes_string("Var1", "Var2",
                                                  fill = "value")) +
@@ -719,16 +758,19 @@ plot.TD <- function(x,
         ## Create a gradient scale.
         ggplot2::scale_fill_gradient2(low = "blue", high = "red", mid = "white",
                                       na.value = "grey", limit = c(-1, 1)) +
+        ## Move y-axis to the right for easier reading.
         ggplot2::scale_y_discrete(position = "right") +
         ggplot2::theme_minimal() +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45,
                                                            vjust = 1, size = 6,
                                                            hjust = 1)) +
         ggplot2::theme(axis.text.y = ggplot2::element_text(size = 6)) +
+        ## Center title.
         ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
-        ## Remove grid behind text output.
+        ## Remove grid behind empty bit of triangle.
         ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
                        panel.grid.minor = ggplot2::element_blank()) +
+        ## No axis and legend titles.
         ggplot2::labs(x = "", y = "", fill = "") +
         ggplot2::ggtitle(paste("Correlations of environments for", trait)) +
         ## Fix coordinates to get a square sized plot.
