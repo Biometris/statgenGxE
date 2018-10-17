@@ -284,4 +284,10 @@ test_that("Trial with missing data is handled properly when fitting models", {
                                        engine = "asreml"),
                  "Error in asreml")
   expect_SSA(modelAs)
+  expect_warning(modelAs2 <- STRunModel(testTD2, trials = "E1",
+                                        design = "rowcol",
+                                        traits = c("t1", "t2", "t3"),
+                                        engine = "asreml", trySpatial = TRUE),
+                 "Error in asreml")
+  expect_SSA(modelAs2)
 })
