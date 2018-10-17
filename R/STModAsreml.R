@@ -96,43 +96,51 @@ STModAsreml <- function(TD,
       if ("random" %in% what) {
         ## Fit model with genotype random.
         sink(file = tmp)
-        mrTrait <- tryCatchExt(asreml::asreml(fixed = formula(paste(trait, fixedForm)),
-                                              random = formula(paste("~", randomForm,
-                                                                     if (length(randomForm) != 0) "+",
-                                                                     "genotype")),
-                                              rcov = ~ units, aom = TRUE,
-                                              data = TDTr, maxiter = maxIter,
-                                              ...))
+        mrTrait <- tryCatchExt(
+          asreml::asreml(fixed = formula(paste(trait, fixedForm)),
+                         random = formula(paste("~", randomForm,
+                                                if (length(randomForm) != 0) "+",
+                                                "genotype")), rcov = ~ units,
+                         aom = TRUE, data = TDTr, maxiter = maxIter, ...))
         sink()
         if (!is.null(mrTrait$warning)) {
           mrTrait <- chkLastIter(mrTrait)
+          mrTrait <- wrnToErr(mrTrait)
         }
         if (length(mrTrait$warning) != 0) {
-          warning(mrTrait$warning, call. = FALSE)
+          warning(paste0("Warning in asreml for genotype random, trait ", trait,
+                         " in trial ", trial, ":\n", mrTrait$warning, "\n"),
+                  call. = FALSE)
         }
         if (is.null(mrTrait$error)) {
           mrTrait <- mrTrait$value
         } else {
-          stop(mrTrait$error)
+          warning(paste0("Error in asreml for genotype random, trait ", trait,
+                         " in trial ", trial, ":\n", mrTrait$error, "\n"),
+                  call. = FALSE)
+          mrTrait <- NULL
         }
-        if ("fixed" %in% what) {
-          ## Constrain variance of the variance components to be fixed as
-          ## the values in mr.
-          GParamTmp <- mrTrait$G.param
-          for (randEf in randEff) {
-            ## When there are no replicates the structure is [[randEf]][[randEf]]
-            ## otherwise it is [[repId:randEf]][[repId]]
-            GParamTmp[[paste0(ifelse(repIdFix, "repId:", ""),
-                              randEf)]][[ifelse(repIdFix, "repId", randEf)]]$con <- "F"
+        if (!is.null(mrTrait)) {
+          if ("fixed" %in% what) {
+            ## Constrain variance of the variance components to be fixed as
+            ## the values in mr.
+            GParamTmp <- mrTrait$G.param
+            for (randEf in randEff) {
+              ## When there are no replicates the structure is
+              ## [[randEf]][[randEf]] otherwise it is [[repId:randEf]][[repId]]
+              GParamTmp[[paste0(ifelse(repIdFix, "repId:", ""),
+                                randEf)]][[ifelse(repIdFix,
+                                                  "repId", randEf)]]$con <- "F"
+            }
           }
+          ## evaluate call terms in mr and mfTrait so predict can be run.
+          mrTrait$call$fixed <- eval(mrTrait$call$fixed)
+          mrTrait$call$random <- eval(mrTrait$call$random)
+          mrTrait$call$rcov <- eval(mrTrait$call$rcov)
+          ## Run predict.
+          mrTrait <- predictAsreml(mrTrait, TD = TDTr)
+          mrTrait$call$data <- substitute(TDTr)
         }
-        ## evaluate call terms in mr and mfTrait so predict can be run.
-        mrTrait$call$fixed <- eval(mrTrait$call$fixed)
-        mrTrait$call$random <- eval(mrTrait$call$random)
-        mrTrait$call$rcov <- eval(mrTrait$call$rcov)
-        ## Run predict.
-        mrTrait <- predictAsreml(mrTrait, TD = TDTr)
-        mrTrait$call$data <- substitute(TDTr)
         mr[[trait]] <- mrTrait
       } # End random.
       if ("fixed" %in% what) {
@@ -141,47 +149,55 @@ STModAsreml <- function(TD,
           GParamTmp <- NULL
         }
         sink(file = tmp)
+        ## There is no way to specify random as NULL or NA so therefore split
+        ## cases on whether there is or there is not a random term.
         if (length(randomForm) != 0) {
-          mfTrait <- tryCatchExt(asreml::asreml(fixed = formula(paste(trait, fixedForm,
-                                                                      "+ genotype")),
-                                                random = formula(paste("~",
-                                                                       randomForm)),
-                                                rcov = ~ units,
-                                                G.param = GParamTmp, aom = TRUE,
-                                                data = TDTr, maxiter = maxIter,
-                                                ...))
+          mfTrait <- tryCatchExt(
+            asreml::asreml(fixed = formula(paste(trait, fixedForm,
+                                                 "+ genotype")),
+                           random = formula(paste("~", randomForm)),
+                           rcov = ~ units, G.param = GParamTmp, aom = TRUE,
+                           data = TDTr, maxiter = maxIter, ...))
         } else {
-          mfTrait <- tryCatchExt(asreml::asreml(fixed = formula(paste(
-            trait, fixedForm, "+ genotype")),
-            rcov = ~ units,
-            G.param = GParamTmp, aom = TRUE,
-            data = TDTr, maxiter = maxIter,
+          mfTrait <- tryCatchExt(
+            asreml::asreml(fixed = formula(paste(trait, fixedForm,
+                                                 "+ genotype")), rcov = ~ units,
+                           G.param = GParamTmp, aom = TRUE, data = TDTr,
+                           maxiter = maxIter,
             ...))
         }
+        sink()
         if (!is.null(mfTrait$warning)) {
           mfTrait <- chkLastIter(mfTrait)
+          mfTrait <- wrnToErr(mfTrait)
         }
         if (length(mfTrait$warning) != 0) {
-          warning(mfTrait$warning, call. = FALSE)
+          warning(paste0("Warning in asreml for genotype fixed, trait ", trait,
+                         " in trial ", trial, ":\n", mfTrait$warning, "\n"),
+                  call. = FALSE)
         }
         if (is.null(mfTrait$error)) {
           mfTrait <- mfTrait$value
         } else {
-          stop(mfTrait$error)
+          warning(paste0("Error in asreml for genotype fixed, trait ", trait,
+                         " in trial ", trial, ":\n", mfTrait$error, "\n"),
+                  call. = FALSE)
+          mfTrait <- NULL
         }
-        sink()
-        mfTrait$call$fixed <- eval(mfTrait$call$fixed)
-        mfTrait$call$random <- eval(mfTrait$call$random)
-        mfTrait$call$rcov <- eval(mfTrait$call$rcov)
-        ## Construct assocForm for use in associate in predict.
-        if (useCheckId) {
-          assocForm <- formula("~ checkId:genotype")
-        } else {
-          assocForm <- formula("~ NULL")
+        if (!is.null(mfTrait)) {
+          mfTrait$call$fixed <- eval(mfTrait$call$fixed)
+          mfTrait$call$random <- eval(mfTrait$call$random)
+          mfTrait$call$rcov <- eval(mfTrait$call$rcov)
+          ## Construct assocForm for use in associate in predict.
+          if (useCheckId) {
+            assocForm <- formula("~ checkId:genotype")
+          } else {
+            assocForm <- formula("~ NULL")
+          }
+          ## Run predict.
+          mfTrait <- predictAsreml(mfTrait, TD = TDTr, associate = assocForm)
+          mfTrait$call$data <- substitute(TDTr)
         }
-        ## Run predict.
-        mfTrait <- predictAsreml(mfTrait, TD = TDTr, associate = assocForm)
-        mfTrait$call$data <- substitute(TDTr)
         mf[[trait]] <- mfTrait
       } # End fixed.
       spatial[trait] <- FALSE
