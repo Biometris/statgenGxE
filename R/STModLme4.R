@@ -53,7 +53,8 @@ STModLme4 <- function(TD,
   if (length(randEff) != 0) {
     randomForm <- paste0("(1 | ", if (useRepIdFix) "repId:",
                          paste(randEff,
-                               collapse = paste(") + (1 | ", if (useRepIdFix) "repId:")),
+                               collapse = paste(") + (1 | ",
+                                                if (useRepIdFix) "repId:")),
                          ")")
   } else {
     randomForm <- character()
@@ -61,26 +62,58 @@ STModLme4 <- function(TD,
   if ("random" %in% what) {
     mr <- sapply(X = traits, FUN = function(trait) {
       ## Fit model with genotype random.
-      lme4::lmer(as.formula(paste(trait, fixedForm,
-                                  "+ (1 | genotype) ",
-                                  if (length(randomForm) != 0) paste("+", randomForm))),
-                 data = TDTr, na.action = na.exclude, ...)
+      modTrR <- tryCatchExt(
+        lme4::lmer(as.formula(paste(trait, fixedForm, "+ (1 | genotype) ",
+                                    if (length(randomForm) != 0)
+                                      paste("+", randomForm))), data = TDTr,
+                   na.action = na.exclude, ...)
+      )
+      if (length(modTrR$warning) != 0) {
+        warning(paste0("Warning in lmer for genotype random, trait ", trait,
+                       " in trial ", trial, ":\n", modTrR$warning, "\n"),
+                call. = FALSE)
+      }
+      if (is.null(modTrR$error)) {
+        return(modTrR$value)
+      } else {
+        warning(paste0("Error in lmer for genotype random, trait ", trait,
+                       " in trial ", trial, ":\n", modTrR$error, "\n"),
+                call. = FALSE)
+        return(NULL)
+      }
     }, simplify = FALSE)
   } else {
     mr <- NULL
   }
   if ("fixed" %in% what) {
     ## Fit model with genotype fixed.
-    ## lme4 cannot handle models without random effect so in that case lm is called.
+    ## lme4 cannot handle models without random effect so in that case lm
+    ## is called.
     mf <- sapply(X = traits, FUN = function(trait) {
       if (length(randomForm) != 0) {
-        lme4::lmer(as.formula(paste(trait, fixedForm,
-                                    "+ genotype + ", randomForm)),
-                   data = TDTr, na.action = na.exclude, ...)
-      } else  {
-        lm(as.formula(paste(trait, fixedForm, "+ genotype")),
-           data = TDTr, na.action = na.exclude, ...)
-      }}, simplify = FALSE)
+        modTrF <- tryCatchExt(
+          lme4::lmer(as.formula(paste(trait, fixedForm, "+ genotype + ",
+                                      randomForm)), data = TDTr,
+                     na.action = na.exclude, ...))
+      } else {
+        modTrF <- tryCatchExt(
+          lm(as.formula(paste(trait, fixedForm, "+ genotype")), data = TDTr,
+             na.action = na.exclude, ...))
+      }
+      if (length(modTrF$warning) != 0) {
+        warning(paste0("Warning in lmer for genotype fixed, trait ", trait,
+                       " in trial ", trial, ":\n", modTrF$warning, "\n"),
+                call. = FALSE)
+      }
+      if (is.null(modTrF$error)) {
+        return(modTrF$value)
+      } else {
+        warning(paste0("Error in lmer for genotype fixed, trait ", trait,
+                       " in trial ", trial, ":\n", modTrF$error, "\n"),
+                call. = FALSE)
+        return(NULL)
+      }
+    }, simplify = FALSE)
   } else {
     mf <- NULL
   }

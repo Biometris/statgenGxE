@@ -257,3 +257,25 @@ test_that("option nSeg in control produces correct output", {
                                                     E1 = c(1, 1))))
   expect_equivalent(modelSp, modelSp3)
 })
+
+testData2 <- testData
+## Set all observations to NA for 1 trial in 1 field to create data
+## that causes the model engines to crash.
+## STTunModel should be able to handle this and still produce output for
+## the other models.
+testData2[testData2$field == "E1", "t2"] <- NA
+testTD2 <- createTD(data = testData2, trial = "field",
+                    genotype = "seed", rowCoord = "Y", colCoord = "X")
+test_that("Trial with missing data is handled properly when fitting models", {
+  expect_warning(modelSp <- STRunModel(testTD2, trials = "E1",
+                                       design = "rowcol",
+                                       traits = c("t1", "t2", "t3")),
+                 "Error in SpATS")
+  expect_SSA(modelSp)
+  expect_warning(modelLm <- STRunModel(testTD2, trials = "E1",
+                                       design = "rowcol",
+                                       traits = c("t1", "t2", "t3"),
+                                       engine = "lme4"),
+                 "Error in lmer")
+  expect_SSA(modelLm)
+})
