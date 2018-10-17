@@ -90,13 +90,28 @@ STModSpATS <- function(TD,
   if ("random" %in% what) {
     mr <- sapply(X = traits, FUN = function(trait) {
       ## Fit model with genotype random.
-      SpATS::SpATS(response = trait, genotype = "genotype",
-                   genotype.as.random = TRUE,
-                   spatial = ~ SpATS::PSANOVA(colCoord, rowCoord,
-                                              nseg = nSeg, nest.div = nestDiv),
-                   fixed = fixedForm,
-                   random = randomForm,
-                   data = TDTr, control = list(monitoring = 0), ...)
+      modTrR <- tryCatchExt(
+        SpATS::SpATS(response = trait, genotype = "genotype",
+                     genotype.as.random = TRUE,
+                     spatial = ~ SpATS::PSANOVA(colCoord, rowCoord,
+                                                nseg = nSeg,
+                                                nest.div = nestDiv),
+                     fixed = fixedForm, random = randomForm, data = TDTr,
+                     control = list(monitoring = 0), ...)
+      )
+      if (length(modTrR$warning) != 0) {
+        warning(paste0("Warning in SpATS for genotype random, trait ", trait,
+                       " in trial ", trial, ":\n", modTrR$warning, "\n"),
+                call. = FALSE)
+      }
+      if (is.null(modTrR$error)) {
+        return(modTrR$value)
+      } else {
+        warning(paste0("Error in SpATS for genotype random, trait ", trait,
+                       " in trial ", trial, ":\n", modTrR$error, "\n"),
+                call. = FALSE)
+        return(NULL)
+      }
     }, simplify = FALSE)
   } else {
     mr <- NULL
@@ -104,13 +119,28 @@ STModSpATS <- function(TD,
   if ("fixed" %in% what) {
     mf <- sapply(X = traits, FUN = function(trait) {
       ## Fit model with genotype fixed.
-      SpATS::SpATS(response = trait, genotype = "genotype",
-                   genotype.as.random = FALSE,
-                   spatial = ~ SpATS::PSANOVA(colCoord, rowCoord,
-                                              nseg = nSeg, nest.div = nestDiv),
-                   fixed = fixedForm,
-                   random = randomForm,
-                   data = TDTr, control = list(monitoring = 0), ...)
+      modTrF <- tryCatchExt(
+        SpATS::SpATS(response = trait, genotype = "genotype",
+                     genotype.as.random = FALSE,
+                     spatial = ~ SpATS::PSANOVA(colCoord, rowCoord,
+                                                nseg = nSeg,
+                                                nest.div = nestDiv),
+                     fixed = fixedForm, random = randomForm, data = TDTr,
+                     control = list(monitoring = 0), ...)
+      )
+      if (length(modTrF$warning) != 0) {
+        warning(paste0("Warning in SpATS for genotype fixed, trait ", trait,
+                       " in trial ", trial, ":\n", modTrF$warning, "\n"),
+                call. = FALSE)
+      }
+      if (is.null(modTrF$error)) {
+        return(modTrF$value)
+      } else {
+        warning(paste0("Error in SpATS for genotype fixed, trait ", trait,
+                       " in trial ", trial, ":\n", modTrF$error, "\n"),
+                call. = FALSE)
+        return(NULL)
+      }
     }, simplify = FALSE)
   } else {
     mf <- NULL

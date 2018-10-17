@@ -141,8 +141,8 @@ extractSpATS <- function(SSA,
                          keep = NULL,
                          useRepId,
                          restore = FALSE) {
-  mf <- SSA$mFix
-  mr <- SSA$mRand
+  mf <- SSA$mFix[names(SSA$mFix) %in% traits]
+  mr <- SSA$mRand[names(SSA$mRand) %in% traits]
   TD <- SSA$TD[[1]]
   renCols <- attr(TD, "renamedCols")
   predicted <- SSA$predicted
@@ -332,8 +332,8 @@ extractLme4 <- function(SSA,
                         keep = NULL,
                         useRepId,
                         restore = FALSE) {
-  mf <- SSA$mFix
-  mr <- SSA$mRand
+  mf <- SSA$mFix[names(SSA$mFix) %in% traits]
+  mr <- SSA$mRand[names(SSA$mRand) %in% traits]
   TD <- SSA$TD[[1]]
   renCols <- attr(TD, "renamedCols")
   predicted = SSA$predicted
@@ -554,8 +554,8 @@ extractAsreml <- function(SSA,
   if (!requireNamespace("asreml", quietly = TRUE)) {
     stop("asreml cannot be successfully loaded.\n")
   }
-  mf <- SSA$mFix
-  mr <- SSA$mRand
+  mf <- SSA$mFix[names(SSA$mFix) %in% traits]
+  mr <- SSA$mRand[names(SSA$mRand) %in% traits]
   TD <- SSA$TD[[1]]
   renCols <- attr(TD, "renamedCols")
   predicted <- SSA$predicted

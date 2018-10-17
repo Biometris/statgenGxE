@@ -87,7 +87,7 @@ summary.SSA <- function(object,
     stop("No trait provided but multiple traits found.\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-                          !trait %in% colnames(object[[trial]]$TD))) {
+                          !trait %in% colnames(object[[trial]]$TD[[trial]]))) {
     stop("Trait has to be a single character string defining a column in TD.\n")
   }
   if (is.null(sortBy)) {
@@ -102,7 +102,7 @@ summary.SSA <- function(object,
   }
   stats <- summary.TD(object = TD, traits = trait)
   ## get predicted means (BLUEs + BLUPs).
-  extr <- STExtract(object, trials = trial)[[trial]]
+  extr <- STExtract(object, trials = trial, traits = trait)[[trial]]
   ## Merge results using a loop to avoid warnings over suffixes caused by
   ## merge when using using Reduce.
   joinList <- Filter(f = Negate(f = is.null),
