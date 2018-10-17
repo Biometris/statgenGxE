@@ -107,7 +107,9 @@ STExtract <- function(SSA,
   sapply(X = trials, FUN = function(trial) {
     SSATr <- SSA[[trial]]
     if (is.null(traits)) {
-      traits <- SSATr$traits
+      traitsTr <- SSATr$traits
+    } else {
+      traitsTr <- traits
     }
     ## Trial specific checks.
     if (!all(traits %in% colnames(SSATr$TD[[trial]]))) {
@@ -116,15 +118,20 @@ STExtract <- function(SSA,
     if (!all(keep %in% colnames(SSATr$TD[[trial]]))) {
       stop(paste0("All keep should be columns in ", trial, ".\n"))
     }
+    traitsTr <- traitsTr[sapply(X = traitsTr, FUN = function(trait) {
+      !is.null(SSATr$mRand[[trait]]) || !is.null(SSATr$mRand[[trait]])})]
+    if (length(traitsTr) == 0) {
+      return(NULL)
+    }
     engine <- SSATr$engine
     ## Set useRepId to TRUE when it is used as fixed effect in the model.
     useRepId <- SSATr$design %in% c("res.ibd", "res.rowcol", "rcbd")
     ## Extract statistics from fitted model.
     result <- do.call(what = paste0("extract", tools::toTitleCase(engine)),
-                      args = list(SSA = SSATr, traits = traits, what = what,
+                      args = list(SSA = SSATr, traits = traitsTr, what = what,
                                   useRepId = useRepId, keep = keep,
                                   restore = restoreColNames))
-    attr(x = result, which = "traits") <- traits
+    attr(x = result, which = "traits") <- traitsTr
     attr(x = result, which = "design") <- SSATr$design
     attr(x = result, which = "engine") <- engine
     return(result)

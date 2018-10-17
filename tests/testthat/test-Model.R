@@ -278,6 +278,7 @@ test_that("Trial with missing data is handled properly when fitting models", {
                                        engine = "lme4"),
                  "Error in lmer")
   expect_SSA(modelLm)
+  testthat::skip_on_cran()
   expect_warning(modelAs <- STRunModel(testTD2, trials = "E1",
                                        design = "rowcol",
                                        traits = c("t1", "t2", "t3"),

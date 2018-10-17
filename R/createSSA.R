@@ -100,6 +100,10 @@ summary.SSA <- function(object,
   if (is.null(trait)) {
     trait <- object[[trial]]$traits
   }
+  if (is.null(trait) || (is.null(object[[trial]]$mFix[[trait]]) &&
+                         is.null(object[[trial]]$mRand[[trait]]))) {
+    stop(paste0("No fitted model found for ", trait, " in ", trial, ".\n"))
+  }
   stats <- summary.TD(object = TD, traits = trait)
   ## get predicted means (BLUEs + BLUPs).
   extr <- STExtract(object, trials = trial, traits = trait)[[trial]]
@@ -309,18 +313,16 @@ plot.SSA <- function(x,
                       keep = if (plotType == "spatial") spatCols else
                         NULL)[[trial]][[ifelse(what == "fixed",
                                                "fitted", "rMeans")]]
-  pred <- STExtract(x, trials = trial,
-                    what = ifelse(what == "fixed", "BLUEs", "BLUPs"))[[trial]][[ifelse(what == "fixed",
-                                                                                       "BLUEs", "BLUPs")]][c(predicted,
-                                                                                                             trait)]
+  predType <- ifelse(what == "fixed", "BLUEs", "BLUPs")
+  pred <- STExtract(x, trials = trial, traits = trait,
+                    what = predType)[[trial]][[predType]][c(predicted, trait)]
   ## Extract raw data and compute residuals.
   response <- x[[trial]]$TD[[trial]][, c(predicted, trait,
                                          if (plotType == "spatial") spatCols)]
   ## Create plot data by merging extracted data together and renaming some
   ## columns.
-  plotDat <- merge(response,
-                   fitted, by = c(predicted,
-                                  if (plotType == "spatial") spatCols))
+  plotDat <- merge(response, fitted,
+                   by = c(predicted, if (plotType == "spatial") spatCols))
   plotDat <- merge(plotDat, pred, by = predicted)
   plotDat$response <- plotDat[[paste0(trait, ".x")]]
   plotDat$fitted <- plotDat[[paste0(trait, ".y")]]
@@ -770,26 +772,29 @@ SSAtoTD <- function(SSA,
           colnames(pred[[ext]])[colNames %in% traits] <-
             paste0(ext, "_", colNames[colNames %in% traits])
         }
-        return(pred)
       })
     }
     ## Merge all statistics togethter. Because of the renaming above there is
     ## never a problem with duplicate column and merging is done on all other
     ## columns than the traits.
     predTr <- Reduce(f = merge, x = unlist(predLst, recursive = FALSE))
+    traitsTr <- traits[!sapply(X = predLst, FUN = is.null)]
     if (addWt && "seBLUEs" %in% what) {
       ## Add a wt column.
-      nTr <- length(traits)
-      for (trait in traits) {
-        wtName <- ifelse(nTr == 1, "wt", paste0("wt_", trait))
+      nTr <- length(traitsTr)
+      for (trait in traitsTr) {
+        ## Naming is based on all traits since different trials may have
+        ## different numbers of traits but we want to keep the naming pattern
+        ## consistent.
+        wtName <- ifelse(length(traits) == 1, "wt", paste0("wt_", trait))
         predTr[[wtName]] <- 1 / predTr[[paste0("seBLUEs_", trait)]] ^ 2
       }
     }
     return(predTr)
   })
-  ## Rbind all data together and create a new TD data set.
-  predTot <- Reduce(f = rbind, x = predTrTot)
-  predTD <- createTD(data = predTot)
+  ## Add data.frame one-by-one to create a full TD data set.
+  predTD <- Reduce(f = addTD, x = predTrTot[-1],
+                   init = createTD(data = predTrTot[[1]]))
   ## Copy meta data from the original TD to the new TD.
   predTD <- setMeta(TD = predTD, meta = getMeta(SSA[[1]]$TD))
   return(predTD)

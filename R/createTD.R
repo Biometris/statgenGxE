@@ -706,7 +706,7 @@ plot.TD <- function(x,
       ## Create boxplot.
       pTr <- ggplot2::ggplot(plotDat,
                              ggplot2::aes_string(x = "trial", y = trait)) +
-        ggplot2::geom_boxplot() +
+        ggplot2::geom_boxplot(na.rm = TRUE) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90,
                                                            vjust = 0.5,
                                                            hjust = 1))
