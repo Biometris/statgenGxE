@@ -119,7 +119,7 @@ STExtract <- function(SSA,
       stop(paste0("All keep should be columns in ", trial, ".\n"))
     }
     traitsTr <- traitsTr[sapply(X = traitsTr, FUN = function(trait) {
-      !is.null(SSATr$mRand[[trait]]) || !is.null(SSATr$mRand[[trait]])})]
+      !is.null(SSATr$mRand[[trait]]) || !is.null(SSATr$mFix[[trait]])})]
     if (length(traitsTr) == 0) {
       return(NULL)
     }
@@ -286,7 +286,7 @@ extractSpATS <- function(SSA,
   ## Extract standardized residuals.
   if ("stdRes" %in% what) {
     stdRes <- cbind(baseData, sapply(X = mf, FUN = function(mf0) {
-      residuals(mf0) / sigma(mf0)
+      residuals(mf0) / sd(residuals(mf0), na.rm = TRUE)
     }))
     result[["stdRes"]] <- restoreColNames(renDat = stdRes, renamedCols = renCols,
                                           restore = restore)
