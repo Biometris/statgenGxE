@@ -772,6 +772,7 @@ SSAtoTD <- function(SSA,
           colnames(pred[[ext]])[colNames %in% traits] <-
             paste0(ext, "_", colNames[colNames %in% traits])
         }
+        return(pred)
       })
     }
     ## Merge all statistics togethter. Because of the renaming above there is
@@ -799,9 +800,3 @@ SSAtoTD <- function(SSA,
   predTD <- setMeta(TD = predTD, meta = getMeta(SSA[[1]]$TD))
   return(predTD)
 }
-
-
-
-
-
-

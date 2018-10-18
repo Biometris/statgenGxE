@@ -157,9 +157,9 @@ extractSpATS <- function(SSA,
                             x = deparse(mr[[1]]$model$fixed))) > 0
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "heritability",
                "varCompF", "varCompR", "varGen", "varSpat", "fitted", "resid",
-               "rMeans", "ranEf", "rDf", "effDim", "ratEffDim")
-  whatMod <- c("F", "F", "R", "R", "R", "F", "R", "R", "R", "F", "F", "R", "R",
-               "F", "R", "R")
+               "stdRes", "rMeans", "ranEf", "rDf", "effDim", "ratEffDim")
+  whatMod <- c("F", "F", "R", "R", "R", "F", "R", "R", "R", "F", "F", "F", "R",
+               "R", "F", "R", "R")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
   whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ranEf")
   if (what[[1]] == "all") {
@@ -282,6 +282,14 @@ extractSpATS <- function(SSA,
     }))
     result[["resid"]] <- restoreColNames(renDat = resVal, renamedCols = renCols,
                                          restore = restore)
+  }
+  ## Extract standardized residuals.
+  if ("stdRes" %in% what) {
+    stdRes <- cbind(baseData, sapply(X = mf, FUN = function(mf0) {
+      residuals(mf0) / sigma(mf0)
+    }))
+    result[["stdRes"]] <- restoreColNames(renDat = stdRes, renamedCols = renCols,
+                                          restore = restore)
   }
   ## Extract rMeans.
   if ("rMeans" %in% what) {
