@@ -200,7 +200,7 @@ plot.FW <- function(x,
     trellisDat <- data.frame(genotype = TDTot$genotype,
                              trait = TDTot[[x$trait]],
                              fitted = x$fittedGen,
-                             xEff = rep(envEffs$effect, x$nGeno))
+                             xEff = rep(x = envEffs$effect, each = x$nGeno))
     if (x$nGeno > 64) {
       ## Select first 64 genotypes for plotting.
       first64 <- TDTot$genotype %in% levels(x$estimates$genotype)[1:64]
@@ -215,6 +215,7 @@ plot.FW <- function(x,
       ggplot2::labs(x = "Environment", y = x$trait) +
       ggplot2::ggtitle(plotTitle) +
       ggplot2::theme(legend.position = "none",
+                     plot.title = ggplot2::element_text(hjust = 0.5),
                      panel.spacing = ggplot2::unit(.2, "cm"),
                      axis.text = ggplot2::element_text(size = 6))
     if (output) {
