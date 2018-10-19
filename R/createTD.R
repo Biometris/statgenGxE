@@ -544,6 +544,9 @@ plot.TD <- function(x,
   if (plotType == "layout") {
     showGeno <- isTRUE(dotArgs$showGeno)
     highlight <- dotArgs$highlight
+    if (!is.null(highlight) && !is.character(highlight)) {
+      stop("highlight should be a character vector.\n")
+    }
     p <- setNames(vector(mode = "list", length = length(trials)), trials)
     for (trial in trials) {
       trDat <- x[[trial]]
@@ -556,6 +559,10 @@ plot.TD <- function(x,
         warning(paste0("colCoord should be a column in ", trial, ".\n",
                        "Plot skipped.\n"), call. = FALSE)
         break
+      }
+      if (length(highlight) > 0) {
+        trDat$highlight. <- ifelse(trDat$genotype %in% highlight,
+                                   as.character(trDat$genotype), NA)
       }
       trLoc <- attr(trDat, "trLocation")
       ylen <- attr(trDat, "trPlLength")
@@ -630,15 +637,25 @@ plot.TD <- function(x,
         ggplot2::scale_y_continuous(breaks = scales::pretty_breaks(),
                                     expand = c(0, 0)) +
         ggplot2::ggtitle(trLoc)
-      if (hasName(x = trDat, name = "subBlock")) {
+      if (hasName(x = trDat, name = "subBlock") &&
+          sum(!is.na(trDat$highlight.)) == 0) {
         ## If subblocks are available color tiles by subblock.
         pTr <- pTr + ggplot2::geom_tile(
           ggplot2::aes_string(fill = "subBlock"), color = "grey50")
+      } else if (sum(!is.na(trDat$highlight.)) > 0) {
+        ## Genotypes to be highlighted get a color.
+        ## Everything else the NA color.
+        pTr <- pTr + ggplot2::geom_tile(
+          ggplot2::aes_string(fill = "highlight."), color = "grey50") +
+          ggplot2::labs(fill = "Highlighted") +
+          ## Remove NA from scale.
+          ggplot2::scale_fill_discrete(na.translate = FALSE)
       } else {
-        ## No subblocks so just a single fill color.
+        ## No subblocks and no hightlights so just a single fill color.
         pTr <- pTr + ggplot2::geom_tile(color = "grey50", fill = "pink")
       }
       if (showGeno) {
+        ## Add names of genotypes to the center of the tiles.
         pTr <- pTr + ggplot2::geom_text(ggplot2::aes_string(label = "genotype"),
                                         size = 2, check_overlap = TRUE)
       }
