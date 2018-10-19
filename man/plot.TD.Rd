@@ -10,7 +10,8 @@
 \arguments{
 \item{x}{An object of class TD.}
 
-\item{...}{Not currently used.}
+\item{...}{Extra plot options. Described per plotType in their respective
+section.}
 
 \item{plotType}{A single character string indicating which plot should be
 made. See the sections below for a detailed explanation of the plots.}
@@ -41,7 +42,14 @@ of those is missing the trial is skipped with a warning. If blocks
 colors per block, otherwise all plots are colored in grey. If replicates
 (\code{repId}) are available a black line is plotted between diffent
 replicates. Missing plots are indicated in white. This can either be single
-plots in a trial or complete missing columns or rows.
+plots in a trial or complete missing columns or rows.\cr
+Extra parameter options:
+\itemize{
+\item{showGeno} {Should individual genotypes be indicated in the plot?
+Defaults to \code{FALSE}}
+\item{highlight} {A character vector of genotypes to be highlighted in the
+plot.}
+}
 }
 
 \section{Map Plot}{

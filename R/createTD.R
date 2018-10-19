@@ -489,7 +489,14 @@ print.summary.TD <- function(x, ...) {
 #' colors per block, otherwise all plots are colored in grey. If replicates
 #' (\code{repId}) are available a black line is plotted between diffent
 #' replicates. Missing plots are indicated in white. This can either be single
-#' plots in a trial or complete missing columns or rows.
+#' plots in a trial or complete missing columns or rows.\cr
+#' Extra parameter options:
+#' \itemize{
+#' \item{showGeno} {Should individual genotypes be indicated in the plot?
+#' Defaults to \code{FALSE}}
+#' \item{highlight} {A character vector of genotypes to be highlighted in the
+#' plot.}
+#' }
 #'
 #' @section Map Plot:
 #' A map is plotted with the locations of the trials in the TD object.
@@ -510,7 +517,8 @@ print.summary.TD <- function(x, ...) {
 #' taken before computing correlations.
 #'
 #' @param x An object of class TD.
-#' @param ... Not currently used.
+#' @param ... Extra plot options. Described per plotType in their respective
+#' section.
 #' @param plotType A single character string indicating which plot should be
 #' made. See the sections below for a detailed explanation of the plots.
 #' @param trials A character vector indicating the trials to be plotted when
@@ -534,6 +542,8 @@ plot.TD <- function(x,
   plotType <- match.arg(plotType)
   dotArgs <- list(...)
   if (plotType == "layout") {
+    showGeno <- isTRUE(dotArgs$showGeno)
+    highlight <- dotArgs$highlight
     p <- setNames(vector(mode = "list", length = length(trials)), trials)
     for (trial in trials) {
       trDat <- x[[trial]]
@@ -627,6 +637,10 @@ plot.TD <- function(x,
       } else {
         ## No subblocks so just a single fill color.
         pTr <- pTr + ggplot2::geom_tile(color = "grey50", fill = "pink")
+      }
+      if (showGeno) {
+        pTr <- pTr + ggplot2::geom_text(ggplot2::aes_string(label = "genotype"),
+                                        size = 2, check_overlap = TRUE)
       }
       if ("repId" %in% colnames(trDat)) {
         ## Add lines for replicates.
