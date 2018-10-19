@@ -693,25 +693,29 @@ plot.TD <- function(x,
     if (nrow(locs) == 0) {
       stop(paste("At least one trial should have latitute and longitude",
                  "for plotting on map.\n"))
-    } else {
-      ## Use lattitude and longitude to extract trial regions.
-      regions <- unique(maps::map.where(x = locs$long, y = locs$lat))
-      ## Convert to format useable by ggplot geom_polygon.
-      mapDat <- ggplot2::map_data("world", region = regions)
-      p <- ggplot2::ggplot(mapDat, ggplot2::aes_string(x = "long", y = "lat")) +
-        ggplot2::geom_polygon(ggplot2::aes_string(group = "group"),
-                              fill = "white", color = "black") +
-        ## Add a proper map projection.
-        ggplot2::coord_map(clip = "off") +
-        ## Add trial locations.
-        ggplot2::geom_point(data = locs) +
-        ggplot2::geom_text(ggplot2::aes_string(label = "name"), data = locs,
-                           color = "red", size = 3, hjust = "outward",
-                           vjust = "outward") +
-        ggplot2::ggtitle("Trial locations")
-      if (output) {
-        plot(p)
-      }
+    }
+    longR <- range(locs$long)
+    latR <- range(locs$lat)
+    ## Create data useable by ggplot geom_polygon.
+    mapDat <- ggplot2::map_data("world", xlim = longR, ylim = latR)
+    p <- ggplot2::ggplot(mapDat, ggplot2::aes_string(x = "long", y = "lat")) +
+      ggplot2::geom_polygon(ggplot2::aes_string(group = "group"),
+                            fill = "white", color = "black") +
+      ## Add a proper map projection.
+      ggplot2::coord_map(clip = "on", xlim = longR + c(-0.1, 0.1) * diff(longR),
+                         ylim = latR + c(-0.1, 0.1) * diff(latR)) +
+      ## Add trial locations.
+      ggplot2::geom_point(data = locs) +
+      ggplot2::geom_text(ggplot2::aes_string(label = "name"), data = locs,
+                         color = "red", size = 3, nudge_x = 0.2, nudge_y = 0.2,
+                         check_overlap = TRUE) +
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
+                     panel.grid.major = ggplot2::element_blank(),
+                     panel.grid.minor = ggplot2::element_blank(),
+                     panel.background = ggplot2::element_rect(fill = "steelblue2")) +
+      ggplot2::ggtitle("Trial locations")
+    if (output) {
+      plot(p)
     }
   } else if (plotType == "box") {
     if (is.null(traits) || !is.character(traits)) {
