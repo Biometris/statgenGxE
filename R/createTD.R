@@ -707,8 +707,8 @@ plot.TD <- function(x,
       ## Add trial locations.
       ggplot2::geom_point(data = locs) +
       ggplot2::geom_text(ggplot2::aes_string(label = "name"), data = locs,
-                         color = "red", size = 3, nudge_x = 0.2, nudge_y = 0.2,
-                         check_overlap = TRUE) +
+                         color = "red", size = 3, nudge_x = 0.01 * diff(longR),
+                         nudge_y = 0.04 * diff(latR), check_overlap = TRUE) +
       ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
                      panel.grid.major = ggplot2::element_blank(),
                      panel.grid.minor = ggplot2::element_blank(),
