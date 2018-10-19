@@ -221,10 +221,10 @@ print.summary.SSA <- function(x,
 #'
 #' @param x An object of class SSA.
 #' @param ... Further graphical parameters.
-#' @param trial A character string indicating the trial to plot. If
-#' \code{trial = NULL} and only one trial is modelled this trial is plotted.
-#' @param trait A character string indicating the trait to plot. If
-#' \code{trait = NULL} and only one trait is modelled this trait is plotted.
+#' @param trials A character vector indicating the trials to plot. If
+#' \code{trials = NULL} all trials are plotted.
+#' @param traits A character vector indicating the traits to plot. If
+#' \code{traits = NULL} all traits are plotted.
 #' @param what A character string indicating whether the fitted model with
 #' genotype as fixed or genotype as random factor should be plotted.
 #' If \code{x} contains only one model this model is chosen automatically.
@@ -252,34 +252,19 @@ print.summary.SSA <- function(x,
 #' @export
 plot.SSA <- function(x,
                      ...,
-                     trial = NULL,
-                     trait = NULL,
+                     trials = NULL,
+                     traits = NULL,
                      what = NULL,
                      plotType = c("base", "spatial"),
                      outCols = ifelse(plotType == "base", 2, 3),
                      output = TRUE) {
   ## Checks.
-  if (is.null(trial) && length(x) > 1) {
-    stop("No trial provided but multiple trials found in SSA object.\n")
+  if (!is.null(trials) && (!is.character(trials) ||
+                           !all(hasName(x = x, name = trials)))) {
+    stop("trials has to be a character vector defining a trial in SSA.\n")
   }
-  if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
-                          !trial %in% names(x))) {
-    stop("Trial has to be a single character string defining a trial in SSA.\n")
-  }
-  if (is.null(trial)) {
-    trial <- names(x)
-  }
-  if (is.null(trait) && length(x[[trial]]$traits) > 1) {
-    stop("No trait provided but multiple traits found.\n")
-  }
-  if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-                          !trait %in% colnames(x[[trial]]$TD[[trial]]))) {
-    stop("Trait has to be a single character string defining a column in TD.\n")
-  }
-  if (is.null(what)) {
-    what <- ifelse(is.null(x[[trial]]$mFix), "random", "fixed")
-  } else {
-    what <- match.arg(arg = what, choices = c("fixed", "random"))
+  if (!is.null(traits) && !is.character(traits)) {
+    stop("traits has to be a character vector.\n")
   }
   plotType <- match.arg(arg = plotType)
   if (is.null(outCols) || !is.numeric(outCols) || length(outCols) > 1 ||
@@ -289,179 +274,208 @@ plot.SSA <- function(x,
   dotArgs <- list(...)
   ## Check whether data contains row/col information.
   spatCols <- c("colCoord", "rowCoord")
-  if (plotType == "spatial" && !all(spatCols %in%
-                                    colnames(x[[trial]]$TD[[trial]]))) {
-    stop(paste("Data in", substitute(x), "contains no spatial information.\n"))
+  if (is.null(trials)) {
+    trials <- names(x)
   }
-  ## If no trait is given as input extract it from the SSA object.
-  if (is.null(trait)) {
-    trait <- x[[trial]]$traits
-  }
-  ## Extract the model to plot from the SSA object.
-  if (what == "fixed") {
-    model <- x[[trial]]$mFix[[trait]]
-  } else if (what == "random") {
-    model <- x[[trial]]$mRand[[trait]]
-  }
-  if (is.null(model)) {
-    stop(paste("No model with genotype", what, "in SSA object.\n"))
-  }
-  predicted <- x[[trial]]$predicted
-  ## Extract fitted and predicted values from model.
-  fitted <- STExtract(x, trials = trial, traits = trait,
-                      what = ifelse(what == "fixed", "fitted", "rMeans"),
-                      keep = if (plotType == "spatial") spatCols else
-                        NULL)[[trial]][[ifelse(what == "fixed",
-                                               "fitted", "rMeans")]]
-  predType <- ifelse(what == "fixed", "BLUEs", "BLUPs")
-  pred <- STExtract(x, trials = trial, traits = trait,
-                    what = predType)[[trial]][[predType]][c(predicted, trait)]
-  ## Extract raw data and compute residuals.
-  response <- x[[trial]]$TD[[trial]][, c(predicted, trait,
-                                         if (plotType == "spatial") spatCols)]
-  ## Create plot data by merging extracted data together and renaming some
-  ## columns.
-  plotDat <- merge(response, fitted,
-                   by = c(predicted, if (plotType == "spatial") spatCols))
-  plotDat <- merge(plotDat, pred, by = predicted)
-  plotDat$response <- plotDat[[paste0(trait, ".x")]]
-  plotDat$fitted <- plotDat[[paste0(trait, ".y")]]
-  plotDat$pred <- plotDat[[trait]]
-  plotDat$pred[is.na(plotDat$fitted)] <- NA
-  plotDat$residuals <- plotDat$response - plotDat$fitted
-  ## Create empty list for storing plots
-  plots <- vector(mode = "list")
-  ## Create main plot title.
-  plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
-                      paste("Trial:", trial, "Trait:", trait))
-  if (plotType == "base") {
-    plotDat <- ggplot2::remove_missing(plotDat, na.rm = TRUE)
-    ## Plot histogram of residuals.
-    plots$p1 <- ggplot2::ggplot(data = plotDat) +
-      ggplot2::geom_histogram(ggplot2::aes(x = residuals,
-                                           y = (..count..)/sum(..count..)),
-                              fill = "cyan", col = "black", bins = 10,
-                              boundary = 0) +
-      ggplot2::scale_y_continuous(labels = function(x) {paste0(100 * x, "%")}) +
-      ggplot2::labs(y = "Percent of Total", x = "Residuals")
-    ## Plot Q-Q plot of residuals.
-    plots$p2 <- ggplot2::ggplot(data = plotDat,
-                                ggplot2::aes_string(sample = "residuals")) +
-      ggplot2::stat_qq(col = "blue") +
-      ggplot2::labs(y = "Residuals", x = "Normal quantiles")
-    ## Plot residuals vs fitted values.
-    plots$p3 <- ggplot2::ggplot(data = plotDat,
-                                ggplot2::aes_string(x = "fitted",
-                                                    y = "residuals")) +
-      ggplot2::geom_point(col = "blue", shape = 1) +
-      ggplot2::geom_smooth(method = "loess", col = "red") +
-      ggplot2::geom_hline(yintercept = 0) +
-      ggplot2::labs(y = "Residuals", x = "Fitted values")
-    ## Plot absolute value of residuals vs fitted values.
-    plots$p4 <- ggplot2::ggplot(data = plotDat,
-                                ggplot2::aes_string(x = "fitted",
-                                                    y = "abs(residuals)")) +
-      ggplot2::geom_point(col = "blue", shape = 1) +
-      ggplot2::geom_smooth(method = "loess", col = "red") +
-      ggplot2::labs(y = "|Residuals|", x = "Fitted values")
-    if (output) {
-      ## do.call is needed since grid.arrange doesn't accept lists as input.
-      do.call(gridExtra::grid.arrange,
-              args = c(plots, list(ncol = outCols, top = plotTitle)))
-    }
-  } else if (plotType == "spatial") {
-    if (x[[trial]]$engine == "SpATS") {
-      yMin <- min(plotDat$rowCoord)
-      yMax <- max(plotDat$rowCoord)
-      xMin <- min(plotDat$colCoord)
-      xMax <- max(plotDat$colCoord)
-      ## Execute this part first since it needs plotData without missings
-      ## removed.
-      ## Code mimickes code from SpATS package but is adapted to create a
-      ## data.frame useable by ggplot.
-      plotDat <- plotDat[order(plotDat$colCoord, plotDat$rowCoord), ]
-      nCol <- xMax - xMin + 1
-      nRow <- yMax - yMin + 1
-      p1 <- 100 %/% nCol + 1
-      p2 <- 100 %/% nRow + 1
-      ## Get spatial trend from SpATS object.
-      spatTr <- SpATS::obtain.spatialtrend(model,
-                                           grid = c(nCol * p1, nRow * p2))
-      ## spatial trend contains values for all data points, so NA in original
-      ## data need to be removed. The kronecker multiplication is needed to
-      ## convert the normal row col pattern to the smaller grid extending the
-      ## missing values.
-      ## First a matrix M is created containing information for all
-      ## columns/rows in the field even if they are completely empty.
-      M <- matrix(nrow = nRow, ncol = nCol,
-                  dimnames = list(yMin:yMax, xMin:xMax))
-      for (i in 1:nrow(plotDat)) {
-        M[as.character(plotDat[i, "rowCoord"]),
-          as.character(plotDat[i, "colCoord"])] <-
-          ifelse(is.na(plotDat[i, "response"]), NA, 1)
+  p <- setNames(vector(mode = "list", length = length(trials)), trials)
+  for (trial in trials) {
+    if (!is.null(traits)) {
+      traitsTr <- traits[hasName(x = colnames(x[[trial]]$TD[[trial]]),
+                               name = traits)]
+      if (length(traitsTr) == 0) {
+        warning(paste0("traits not available for trial ", trial, ".\n",
+                       "Plots for trial ", trial, " skipped.\n"))
+        break
       }
-      spatTrDat <- kronecker(M, matrix(data = 1, ncol = p1, nrow = p2)) *
-        spatTr$fit
-      ## Melt to get the data in ggplot shape. Rows and columns in the
-      ## spatial trend coming from SpATS are swapped so therefore use t()
-      plotDatSpat <- reshape2::melt(t(spatTrDat),
-                                    varnames = c("colCoord", "rowCoord"))
-      ## Add true values for columns and rows for plotting.
-      plotDatSpat$colCoord <- spatTr$col.p
-      plotDatSpat$rowCoord <- rep(x = spatTr$row.p, each = p1 * nCol)
-      ## Remove missings from data.
-      plotDatSpat <- ggplot2::remove_missing(plotDatSpat, na.rm = TRUE)
+    } else {
+      ## If no trait is given as input extract it from the SSA object.
+      traitsTr <- x[[trial]]$traits
     }
-    plotDat <- ggplot2::remove_missing(plotDat, na.rm = TRUE)
-    ## Code taken from plot.SpATS and simplified.
-    ## Set colors and legends.
-    colors = topo.colors(100)
-    legends <- c("Raw data", "Fitted data", "Residuals",
-                 "Fitted Spatial Trend",
-                 ifelse(what == "fixed", "Genotypic BLUEs",
-                        "Genotypic BLUPs"), "Histogram")
-    ## Compute range of values in response + fitted data so same scale
-    ## can be used over plots.
-    zlim <- range(c(plotDat$response, plotDat$fitted), na.rm = TRUE)
-    plots$p1 <- fieldPlot(plotDat = plotDat, fillVar = "response",
-                          title = legends[1], colors = colors, zlim = zlim)
-    plots$p2 <- fieldPlot(plotDat = plotDat, fillVar = "fitted",
-                          title = legends[2], colors = colors, zlim = zlim)
-    plots$p3 <- fieldPlot(plotDat = plotDat, fillVar = "residuals",
-                          title = legends[3], colors = colors)
-    if (x[[trial]]$engine == "SpATS") {
-      ## Get tickmarks from first plot to be used as ticks.
-      ## Spatial plot tends to use different tickmarks by default.
-      xTicks <-
-        ggplot2::ggplot_build(plots[[1]])$layout$panel_params[[1]]$x.major_source
-      plots$p4 <- fieldPlot(plotDat = plotDatSpat, fillVar = "value",
-                            title = legends[4], colors = colors,
-                            xTicks = xTicks)
+    if (is.null(what)) {
+      what <- ifelse(is.null(x[[trial]]$mFix), "random", "fixed")
+    } else {
+      what <- match.arg(arg = what, choices = c("fixed", "random"))
     }
-    plots$p5 <- fieldPlot(plotDat = plotDat, fillVar = "pred",
-                          title = legends[5], colors = colors)
-    plots$p6 <- ggplot2::ggplot(data = plotDat) +
-      ggplot2::geom_histogram(ggplot2::aes(x = residuals),
-                              fill = "white", col = "black", bins = 10,
-                              boundary = 0) +
-      ## Remove empty space between ticks and actual plot.
-      ggplot2::scale_x_continuous(expand = c(0, 0)) +
-      ggplot2::scale_y_continuous(expand = c(0, 0)) +
-      ## No background. Center and resize title. Resize axis labels.
-      ggplot2::theme(panel.background = ggplot2::element_blank(),
-                     plot.title = ggplot2::element_text(hjust = 0.5,
-                                                        size = 10),
-                     axis.title = ggplot2::element_text(size = 9)) +
-      ggplot2::labs(y = "Frequency", x = legends[5]) +
-      ggplot2::ggtitle(legends[6])
-    if (output) {
-      ## do.call is needed since grid.arrange doesn't accept lists as input.
-      do.call(gridExtra::grid.arrange,
-              args = c(Filter(f = Negate(f = is.null), x = plots),
-                       list(ncol = outCols, top = plotTitle)))
+    if (plotType == "spatial" && !all(spatCols %in%
+                                      colnames(x[[trial]]$TD[[trial]]))) {
+      warning(paste("Data for trial ", trial, " contains no spatial ",
+                    " information.\n Plots for trial ", trial, " skipped.\n"))
+      break
     }
-  }
-  invisible(plots)
+    pTr <- setNames(vector(mode = "list", length = length(traits)), traits)
+    for (trait in traitsTr) {
+      ## Extract the model to plot from the SSA object.
+      if (what == "fixed") {
+        model <- x[[trial]]$mFix[[trait]]
+      } else if (what == "random") {
+        model <- x[[trial]]$mRand[[trait]]
+      }
+      if (is.null(model)) {
+        warning(paste0("No model with genotype ", what, "for trial ", trial,
+                       " and trait ", trait, ".\n", "Plots for trial ",
+                       trial, " and trait ", trait, " skipped.\n"))
+      }
+      predicted <- x[[trial]]$predicted
+      ## Extract fitted and predicted values from model.
+      fitted <- STExtract(x, trials = trial, traits = trait,
+                          what = ifelse(what == "fixed", "fitted", "rMeans"),
+                          keep = if (plotType == "spatial") spatCols else
+                            NULL)[[trial]][[ifelse(what == "fixed",
+                                                   "fitted", "rMeans")]]
+      predType <- ifelse(what == "fixed", "BLUEs", "BLUPs")
+      pred <- STExtract(x, trials = trial, traits = trait,
+                        what = predType)[[trial]][[predType]][c(predicted, trait)]
+      ## Extract raw data and compute residuals.
+      response <- x[[trial]]$TD[[trial]][, c(predicted, trait,
+                                             if (plotType == "spatial") spatCols)]
+      ## Create plot data by merging extracted data together and renaming some
+      ## columns.
+      plotDat <- merge(response, fitted,
+                       by = c(predicted, if (plotType == "spatial") spatCols))
+      plotDat <- merge(plotDat, pred, by = predicted)
+      plotDat$response <- plotDat[[paste0(trait, ".x")]]
+      plotDat$fitted <- plotDat[[paste0(trait, ".y")]]
+      plotDat$pred <- plotDat[[trait]]
+      plotDat$pred[is.na(plotDat$fitted)] <- NA
+      plotDat$residuals <- plotDat$response - plotDat$fitted
+      ## Create empty list for storing plots
+      plots <- vector(mode = "list")
+      ## Create main plot title.
+      plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
+                          paste("Trial:", trial, "Trait:", trait))
+      if (plotType == "base") {
+        plotDat <- ggplot2::remove_missing(plotDat, na.rm = TRUE)
+        ## Plot histogram of residuals.
+        plots$p1 <- ggplot2::ggplot(data = plotDat) +
+          ggplot2::geom_histogram(ggplot2::aes(x = residuals,
+                                               y = (..count..)/sum(..count..)),
+                                  fill = "cyan", col = "black", bins = 10,
+                                  boundary = 0) +
+          ggplot2::scale_y_continuous(labels = function(x) {paste0(100 * x, "%")}) +
+          ggplot2::labs(y = "Percent of Total", x = "Residuals")
+        ## Plot Q-Q plot of residuals.
+        plots$p2 <- ggplot2::ggplot(data = plotDat,
+                                    ggplot2::aes_string(sample = "residuals")) +
+          ggplot2::stat_qq(col = "blue") +
+          ggplot2::labs(y = "Residuals", x = "Normal quantiles")
+        ## Plot residuals vs fitted values.
+        plots$p3 <- ggplot2::ggplot(data = plotDat,
+                                    ggplot2::aes_string(x = "fitted",
+                                                        y = "residuals")) +
+          ggplot2::geom_point(col = "blue", shape = 1) +
+          ggplot2::geom_smooth(method = "loess", col = "red") +
+          ggplot2::geom_hline(yintercept = 0) +
+          ggplot2::labs(y = "Residuals", x = "Fitted values")
+        ## Plot absolute value of residuals vs fitted values.
+        plots$p4 <- ggplot2::ggplot(data = plotDat,
+                                    ggplot2::aes_string(x = "fitted",
+                                                        y = "abs(residuals)")) +
+          ggplot2::geom_point(col = "blue", shape = 1) +
+          ggplot2::geom_smooth(method = "loess", col = "red") +
+          ggplot2::labs(y = "|Residuals|", x = "Fitted values")
+        if (output) {
+          ## do.call is needed since grid.arrange doesn't accept lists as input.
+          do.call(gridExtra::grid.arrange,
+                  args = c(plots, list(ncol = outCols, top = plotTitle)))
+        }
+        pTr[[trait]] <- plots
+      } else if (plotType == "spatial") {
+        if (x[[trial]]$engine == "SpATS") {
+          yMin <- min(plotDat$rowCoord)
+          yMax <- max(plotDat$rowCoord)
+          xMin <- min(plotDat$colCoord)
+          xMax <- max(plotDat$colCoord)
+          ## Execute this part first since it needs plotData without missings
+          ## removed.
+          ## Code mimickes code from SpATS package but is adapted to create a
+          ## data.frame useable by ggplot.
+          plotDat <- plotDat[order(plotDat$colCoord, plotDat$rowCoord), ]
+          nCol <- xMax - xMin + 1
+          nRow <- yMax - yMin + 1
+          p1 <- 100 %/% nCol + 1
+          p2 <- 100 %/% nRow + 1
+          ## Get spatial trend from SpATS object.
+          spatTr <- SpATS::obtain.spatialtrend(model,
+                                               grid = c(nCol * p1, nRow * p2))
+          ## spatial trend contains values for all data points, so NA in original
+          ## data need to be removed. The kronecker multiplication is needed to
+          ## convert the normal row col pattern to the smaller grid extending the
+          ## missing values.
+          ## First a matrix M is created containing information for all
+          ## columns/rows in the field even if they are completely empty.
+          M <- matrix(nrow = nRow, ncol = nCol,
+                      dimnames = list(yMin:yMax, xMin:xMax))
+          for (i in 1:nrow(plotDat)) {
+            M[as.character(plotDat[i, "rowCoord"]),
+              as.character(plotDat[i, "colCoord"])] <-
+              ifelse(is.na(plotDat[i, "response"]), NA, 1)
+          }
+          spatTrDat <- kronecker(M, matrix(data = 1, ncol = p1, nrow = p2)) *
+            spatTr$fit
+          ## Melt to get the data in ggplot shape. Rows and columns in the
+          ## spatial trend coming from SpATS are swapped so therefore use t()
+          plotDatSpat <- reshape2::melt(t(spatTrDat),
+                                        varnames = c("colCoord", "rowCoord"))
+          ## Add true values for columns and rows for plotting.
+          plotDatSpat$colCoord <- spatTr$col.p
+          plotDatSpat$rowCoord <- rep(x = spatTr$row.p, each = p1 * nCol)
+          ## Remove missings from data.
+          plotDatSpat <- ggplot2::remove_missing(plotDatSpat, na.rm = TRUE)
+        }
+        plotDat <- ggplot2::remove_missing(plotDat, na.rm = TRUE)
+        ## Code taken from plot.SpATS and simplified.
+        ## Set colors and legends.
+        colors = topo.colors(100)
+        legends <- c("Raw data", "Fitted data", "Residuals",
+                     "Fitted Spatial Trend",
+                     ifelse(what == "fixed", "Genotypic BLUEs",
+                            "Genotypic BLUPs"), "Histogram")
+        ## Compute range of values in response + fitted data so same scale
+        ## can be used over plots.
+        zlim <- range(c(plotDat$response, plotDat$fitted), na.rm = TRUE)
+        plots$p1 <- fieldPlot(plotDat = plotDat, fillVar = "response",
+                              title = legends[1], colors = colors, zlim = zlim)
+        plots$p2 <- fieldPlot(plotDat = plotDat, fillVar = "fitted",
+                              title = legends[2], colors = colors, zlim = zlim)
+        plots$p3 <- fieldPlot(plotDat = plotDat, fillVar = "residuals",
+                              title = legends[3], colors = colors)
+        if (x[[trial]]$engine == "SpATS") {
+          ## Get tickmarks from first plot to be used as ticks.
+          ## Spatial plot tends to use different tickmarks by default.
+          xTicks <-
+            ggplot2::ggplot_build(plots[[1]])$layout$panel_params[[1]]$x.major_source
+          plots$p4 <- fieldPlot(plotDat = plotDatSpat, fillVar = "value",
+                                title = legends[4], colors = colors,
+                                xTicks = xTicks)
+        }
+        plots$p5 <- fieldPlot(plotDat = plotDat, fillVar = "pred",
+                              title = legends[5], colors = colors)
+        plots$p6 <- ggplot2::ggplot(data = plotDat) +
+          ggplot2::geom_histogram(ggplot2::aes(x = residuals),
+                                  fill = "white", col = "black", bins = 10,
+                                  boundary = 0) +
+          ## Remove empty space between ticks and actual plot.
+          ggplot2::scale_x_continuous(expand = c(0, 0)) +
+          ggplot2::scale_y_continuous(expand = c(0, 0)) +
+          ## No background. Center and resize title. Resize axis labels.
+          ggplot2::theme(panel.background = ggplot2::element_blank(),
+                         plot.title = ggplot2::element_text(hjust = 0.5,
+                                                            size = 10),
+                         axis.title = ggplot2::element_text(size = 9)) +
+          ggplot2::labs(y = "Frequency", x = legends[5]) +
+          ggplot2::ggtitle(legends[6])
+        if (output) {
+          ## do.call is needed since grid.arrange doesn't accept lists as input.
+          do.call(gridExtra::grid.arrange,
+                  args = c(Filter(f = Negate(f = is.null), x = plots),
+                           list(ncol = outCols, top = plotTitle)))
+        }
+        pTr[[trait]] <- plots
+      }# end spatial.
+    }# end for traits.
+    p[[trial]] <- pTr
+  }# end for trials.
+  invisible(p)
 }
 
 ## Helper function for creating field plots.

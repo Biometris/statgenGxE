@@ -4,7 +4,7 @@
 \alias{plot.SSA}
 \title{Plot function for class SSA}
 \usage{
-\method{plot}{SSA}(x, ..., trial = NULL, trait = NULL, what = NULL,
+\method{plot}{SSA}(x, ..., trials = NULL, traits = NULL, what = NULL,
   plotType = c("base", "spatial"), outCols = ifelse(plotType == "base",
   2, 3), output = TRUE)
 }
@@ -13,11 +13,11 @@
 
 \item{...}{Further graphical parameters.}
 
-\item{trial}{A character string indicating the trial to plot. If
-\code{trial = NULL} and only one trial is modelled this trial is plotted.}
+\item{trials}{A character vector indicating the trials to plot. If
+\code{trials = NULL} all trials are plotted.}
 
-\item{trait}{A character string indicating the trait to plot. If
-\code{trait = NULL} and only one trait is modelled this trait is plotted.}
+\item{traits}{A character vector indicating the traits to plot. If
+\code{traits = NULL} all traits are plotted.}
 
 \item{what}{A character string indicating whether the fitted model with
 genotype as fixed or genotype as random factor should be plotted.
