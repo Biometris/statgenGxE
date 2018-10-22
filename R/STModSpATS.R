@@ -100,6 +100,9 @@ STModSpATS <- function(TD,
                      control = list(monitoring = 0), ...)
       )
       if (length(modTrR$warning) != 0) {
+        modTrR <- wrnToErr(modTrR)
+      }
+      if (length(modTrR$warning) != 0) {
         warning(paste0("Warning in SpATS for genotype random, trait ", trait,
                        " in trial ", trial, ":\n", modTrR$warning, "\n"),
                 call. = FALSE)
@@ -128,6 +131,9 @@ STModSpATS <- function(TD,
                      fixed = fixedForm, random = randomForm, data = TDTr,
                      control = list(monitoring = 0), ...)
       )
+      if (length(modTrF$warning) != 0) {
+        modTrF <- wrnToErr(modTrF)
+      }
       if (length(modTrF$warning) != 0) {
         warning(paste0("Warning in SpATS for genotype fixed, trait ", trait,
                        " in trial ", trial, ":\n", modTrF$warning, "\n"),

@@ -807,10 +807,14 @@ SSAtoTD <- function(SSA,
     }
     return(predTr)
   })
+  ## Remove NULL data.frames from predTrTot.
+  predTrTot <- Filter(f = Negate(f = is.null), x = predTrTot)
+  if (length(predTrTot) == 0) {
+    ## Only NULL data.frames.
+    stop("No valid data available.\n")
+  }
   ## Add data.frame one-by-one to create a full TD data set.
   predTD <- Reduce(f = addTD, x = predTrTot[-1],
                    init = createTD(data = predTrTot[[1]]))
-  ## Copy meta data from the original TD to the new TD.
-  predTD <- setMeta(TD = predTD, meta = getMeta(SSA[[1]]$TD))
   return(predTD)
 }

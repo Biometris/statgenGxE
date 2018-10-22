@@ -57,13 +57,15 @@ chkLastIter <- function(model) {
 #' Helper function for converting certain asreml warnings to errors.
 #' @keywords internal
 wrnToErr <- function(model) {
-  wrnToErr <- paste("Abnormal termination")
-  if (any(grepl(pattern = wrnToErr, x = model$warning))) {
-    ## Remove from warnings and add to errors
-    model$error <- c(model$error, model$warning[grepl(pattern = wrnToErr,
-                                                      x = model$warning)])
-    model$warning <- model$warning[!grepl(pattern = wrnToErr,
-                                          x = model$warning)]
+  wrns <- c("Abnormal termination", "returning -Inf")
+  for (wrn in wrns) {
+    if (any(grepl(pattern = wrn, x = model$warning))) {
+      ## Remove from warnings and add to errors
+      model$error <- c(model$error, model$warning[grepl(pattern = wrn,
+                                                        x = model$warning)])
+      model$warning <- model$warning[!grepl(pattern = wrn,
+                                            x = model$warning)]
+    }
   }
   return(model)
 }
