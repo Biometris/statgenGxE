@@ -732,7 +732,7 @@ plot.TD <- function(x,
     if (!is.null(groupBy) && (!is.character(groupBy) || length(groupBy) > 1)) {
       stop("groupBy should be a single character string.\n")
     }
-    if (!all(sapply(X = x, FUN = function(trial) {
+    if (!is.null(groupBy) && !all(sapply(X = x, FUN = function(trial) {
       hasName(x = trial, name = groupBy)
     }))) {
       stop("groupBy should be a column in TD.\n")
@@ -741,7 +741,7 @@ plot.TD <- function(x,
     if (!is.null(colorBy) && (!is.character(colorBy) || length(colorBy) > 1)) {
       stop("colorBy should be a single character string.\n")
     }
-    if (!all(sapply(X = x, FUN = function(trial) {
+    if (!is.null(colorBy) && !all(sapply(X = x, FUN = function(trial) {
       hasName(x = trial, name = colorBy)
     }))) {
       stop("colorBy should be a column in TD.\n")
@@ -750,7 +750,7 @@ plot.TD <- function(x,
     if (!is.null(orderBy) && !is.character(orderBy)) {
       stop("orderBy should be a character vector.\n")
     }
-    if (!all(sapply(X = x, FUN = function(trial) {
+    if (!is.null(orderBy) && !all(sapply(X = x, FUN = function(trial) {
       all(hasName(x = trial, name = orderBy))
     }))) {
       stop("All items in orderBy should be columns in TD.\n")
@@ -774,8 +774,6 @@ plot.TD <- function(x,
                        "Plot skipped.\n"), call. = FALSE)
         break
       }
-      # plotDat[xVar] <- reorder(plotDat[[xVar]], plotDat[[trait]], median,
-      #                         na.rm = TRUE)
       if (!is.null(orderBy)) {
         ## Reorder levels in trial so plotting is done according to orderBy.
         ## do.call needed since order doesn't accept a vector as input.
@@ -804,7 +802,7 @@ plot.TD <- function(x,
     if (!is.null(orderBy) && !is.character(orderBy)) {
       stop("orderBy should be a character vector.\n")
     }
-    if (!all(sapply(X = x, FUN = function(trial) {
+    if (!is.null(orderBy) && !all(sapply(X = x, FUN = function(trial) {
       all(hasName(x = trial, name = orderBy))
     }))) {
       stop("All items in orderBy should be columns in TD.\n")
