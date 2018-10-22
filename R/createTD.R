@@ -728,16 +728,45 @@ plot.TD <- function(x,
     if (is.null(traits) || !is.character(traits)) {
       stop("traits should be a character vector.\n")
     }
+    groupBy <- dotArgs$groupBy
+    if (!is.null(groupBy) && (!is.character(groupBy) || length(groupBy) > 1)) {
+      stop("groupBy should be a single character string.\n")
+    }
+    if (!all(sapply(X = x, FUN = function(trial) {
+      hasName(x = trial, name = groupBy)
+    }))) {
+      stop("groupBy should be a column in TD.\n")
+    }
+    colorBy <- dotArgs$colorBy
+    if (!is.null(colorBy) && (!is.character(colorBy) || length(colorBy) > 1)) {
+      stop("colorBy should be a single character string.\n")
+    }
+    if (!all(sapply(X = x, FUN = function(trial) {
+      hasName(x = trial, name = colorBy)
+    }))) {
+      stop("colorBy should be a column in TD.\n")
+    }
+    orderBy <- dotArgs$orderBy
+    if (!is.null(orderBy) && !is.character(orderBy)) {
+      stop("orderBy should be a character vector.\n")
+    }
+    if (!all(sapply(X = x, FUN = function(trial) {
+      all(hasName(x = trial, name = orderBy))
+    }))) {
+      stop("All items in orderBy should be columns in TD.\n")
+    }
     p <- setNames(vector(mode = "list", length = length(traits)), traits)
     for (trait in traits) {
       ## Create a single data.frame from x with only columns trial and trait.
       ## trail where trait is not measured/available are removed by setting
       ## them to NULL.
+      xVar <- if (is.null(groupBy)) "trial" else groupBy
       plotDat <- Reduce(f = rbind, x = lapply(X = x, function(trial) {
         if (!hasName(x = trial, name = trait)) {
           NULL
         } else {
-          trial[c("trial", trait)]
+          trial[c(trait, xVar, if (!is.null(colorBy)) colorBy,
+                if (!is.null(orderBy)) orderBy)]
         }
       }))
       if (is.null(plotDat)) {
@@ -745,9 +774,19 @@ plot.TD <- function(x,
                        "Plot skipped.\n"), call. = FALSE)
         break
       }
+      # plotDat[xVar] <- reorder(plotDat[[xVar]], plotDat[[trait]], median,
+      #                         na.rm = TRUE)
+      if (!is.null(orderBy)) {
+        ## Reorder levels in trial so plotting is done according to orderBy.
+        ## do.call needed since order doesn't accept a vector as input.
+        levNw <- unique(plotDat[[xVar]][do.call(order, lapply(orderBy,
+                                                            FUN = function(x) {
+                                                              plotDat[x]}))])
+        plotDat[xVar] <- factor(plotDat[[xVar]], levels = levNw)
+      }
       ## Create boxplot.
-      pTr <- ggplot2::ggplot(plotDat,
-                             ggplot2::aes_string(x = "trial", y = trait)) +
+      pTr <- ggplot2::ggplot(plotDat, ggplot2::aes_string(x = xVar, y = trait,
+                                                          fill = colorBy)) +
         ggplot2::geom_boxplot(na.rm = TRUE) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90,
                                                            vjust = 0.5,
