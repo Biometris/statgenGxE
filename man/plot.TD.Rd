@@ -29,8 +29,8 @@ a boxplot. Only used if \code{plotType} = "box" or "cor".}
 Plotting function for objects of class TD. Plots either the layout of the
 different trials within the TD object or locates the trials on a map. Also a
 boxplot can be made for selected traits per trial and a plot of correlations
-between trials. A detailed description of the different plots is given in the
-sections below.
+between trials. A detailed description and optional extra parameters of the
+different plots is given in the sections below.
 }
 \section{Layout Plot}{
 
@@ -67,17 +67,29 @@ the maps package is needed.
 \section{Box Plot}{
 
 Per selected trait a boxplot is created grouped per trial.
+Extra parameter options:
+\itemize{
+\item{groupBy} {A character string indicating a column in \code{TD} by which
+the boxes in the plot should be grouped. By default the boxes are grouped
+per trial.}
+\item{colorBy} {A character string indicating a column in \code{TD} by which
+the boxes are colored. Coloring will be done within the groups indicated by
+the \code{groupBy} parameter.}
+\item{orderBy} {A character vector indicating columns in \code{TD} on which
+the trials in the plot should be ordered. By default ordering is done
+alphabetically.}
+}
 }
 
 \section{Correlation Plot}{
 
 Per selected trait a plot is drawn of correlations between the trials in the
-TD object. If genotypes are replicated within trials genotypic means are
+\code{TD} object. If genotypes are replicated within trials genotypic means are
 taken before computing correlations.
 Extra parameter options:
 \itemize{
-\item{orderBy} {A character string indicating a column in TD on which the
-trials in the plot should be ordered. By default ordering is done
+\item{orderBy} {A character vector indicating columns in \code{TD} on which
+the trials in the plot should be ordered. By default ordering is done
 alphabetically.}
 }
 }
