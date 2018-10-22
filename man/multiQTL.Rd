@@ -30,3 +30,4 @@ methods are available.
 \author{
 Bart-Jan van Rossum
 }
+\keyword{internal}

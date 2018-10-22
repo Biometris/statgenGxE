@@ -18,7 +18,7 @@
 NULL
 
 #' @rdname stability
-#' @export
+#' @keywords internal
 createstability <- function(superiority = NULL,
                             static = NULL,
                             wricke = NULL,

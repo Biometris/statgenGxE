@@ -70,7 +70,7 @@ summary.QTLDet <- function(object,
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
 #' @import graphics grDevices
-#' @export
+#' @keywords internal
 plot.QTLDet <- function(x,
                         ...,
                         yLim = NA,

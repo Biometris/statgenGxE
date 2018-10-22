@@ -20,7 +20,7 @@
 NULL
 
 #' @rdname varComp
-#' @export
+#' @keywords internal
 createVarComp <- function(SSA,
                           choice,
                           summary,
@@ -40,6 +40,8 @@ createVarComp <- function(SSA,
 
 #' @export
 print.varComp <- function(x, ...) {
+  cat(paste0("Best model: ", x$choice, ", based on ", x$criterion, ".\n\n"))
+
   x$summary
 }
 

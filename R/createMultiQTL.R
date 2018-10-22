@@ -20,7 +20,7 @@
 NULL
 
 #' @rdname multiQTL
-#' @export
+#' @keywords internal
 createMultiQTL <- function(qtl,
                            QTLDet,
                            selection,

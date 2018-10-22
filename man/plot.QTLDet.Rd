@@ -24,3 +24,4 @@ the trait used in the qTL Detection is used as plot title.}
 \description{
 Function for creating a manhattan plot for objects of class QTLDet.
 }
+\keyword{internal}

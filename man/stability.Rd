@@ -29,3 +29,4 @@ Function for creating objects of S3 class stability.\cr
 \author{
 Bart-Jan van Rossum
 }
+\keyword{internal}

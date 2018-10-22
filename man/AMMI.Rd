@@ -41,3 +41,4 @@ Function for creating objects of S3 class AMMI.\cr
 \author{
 Bart-Jan van Rossum
 }
+\keyword{internal}

@@ -24,7 +24,7 @@
 NULL
 
 #' @rdname AMMI
-#' @export
+#' @keywords internal
 createAMMI <- function(envScores,
                        genoScores,
                        importance,
