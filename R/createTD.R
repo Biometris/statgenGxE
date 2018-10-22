@@ -515,6 +515,12 @@ print.summary.TD <- function(x, ...) {
 #' Per selected trait a plot is drawn of correlations between the trials in the
 #' TD object. If genotypes are replicated within trials genotypic means are
 #' taken before computing correlations.
+#' Extra parameter options:
+#' \itemize{
+#' \item{orderBy} {A character string indicating a column in TD on which the
+#' trials in the plot should be ordered. By default ordering is done
+#' alphabetically.}
+#' }
 #'
 #' @param x An object of class TD.
 #' @param ... Extra plot options. Described per plotType in their respective
@@ -712,7 +718,8 @@ plot.TD <- function(x,
       ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
                      panel.grid.major = ggplot2::element_blank(),
                      panel.grid.minor = ggplot2::element_blank(),
-                     panel.background = ggplot2::element_rect(fill = "steelblue2")) +
+                     panel.background =
+                       ggplot2::element_rect(fill = "steelblue2")) +
       ggplot2::ggtitle("Trial locations")
     if (output) {
       plot(p)
@@ -754,22 +761,39 @@ plot.TD <- function(x,
     if (is.null(traits) || !is.character(traits)) {
       stop("traits should be a character vector.\n")
     }
+    orderBy <- dotArgs$orderBy
+    if (!is.null(orderBy) && !is.character(orderBy)) {
+      stop("orderBy should be a character vector.\n")
+    }
+    if (!all(sapply(X = x, FUN = function(trial) {
+      all(hasName(x = trial, name = orderBy))
+    }))) {
+      stop("All items in orderBy should be columns in TD.\n")
+    }
     p <- setNames(vector(mode = "list", length = length(traits)), traits)
     for (trait in traits) {
       ## Create a single data.frame from x with only columns trial and trait.
-      ## trail where trait is not measured/available are removed by setting
+      ## trails where trait is not measured/available are removed by setting
       ## them to NULL.
-      plotDat <- Reduce(f = rbind, x = lapply(X = x, function(trial) {
+      plotDat <- Reduce(f = rbind, x = lapply(X = x, FUN = function(trial) {
         if (!hasName(x = trial, name = trait)) {
           NULL
         } else {
-          trial[c("genotype", "trial", trait)]
+          trial[c("genotype", "trial", trait, if (!is.null(orderBy)) orderBy)]
         }
       }))
       if (is.null(plotDat)) {
         warning(paste0(trait, " isn't a column in any of the trials.\n",
                        "Plot skipped.\n"), call. = FALSE)
         break
+      }
+      if (!is.null(orderBy)) {
+        ## Reorder levels in trial so plotting is done according to orderBy.
+        ## do.call needed since order doesn't accept a vector as input.
+        levNw <- unique(plotDat$trial[do.call(order, lapply(orderBy,
+                                                            FUN = function(x) {
+                                                              plotDat[x]}))])
+        plotDat$trial <- factor(plotDat$trial, levels = levNw)
       }
       ## Create table with values trait per genotype per trial.
       ## If TD already contains BLUEs/BLUPs taking means doesn't do anything

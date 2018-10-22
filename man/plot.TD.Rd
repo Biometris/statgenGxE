@@ -74,5 +74,11 @@ Per selected trait a boxplot is created grouped per trial.
 Per selected trait a plot is drawn of correlations between the trials in the
 TD object. If genotypes are replicated within trials genotypic means are
 taken before computing correlations.
+Extra parameter options:
+\itemize{
+\item{orderBy} {A character string indicating a column in TD on which the
+trials in the plot should be ordered. By default ordering is done
+alphabetically.}
+}
 }
 
