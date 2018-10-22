@@ -62,9 +62,9 @@ print.FW <- function(x, ...) {
   cat("\nAnova",
       "\n=====\n")
   printCoefmat(x$anova, na.print = "")
-  cat("\nEstimates",
+  cat("\nMost sensitive genotypes",
       "\n=========\n")
-  print(x$estimates, ..., row.names = FALSE)
+  print(x$estimates[1:5, ], ..., row.names = FALSE)
 }
 
 #' @export
