@@ -172,7 +172,7 @@ print.summary.SSA <- function(x,
   cat("Summary statistics",
       "\n==================\n")
   ## Print stats using printCoefMat for a nicer layout.
-  printCoefmat(x$stats, digits = digits, ...)
+  print(x$stats)
   if (!is.null(x$heritability)) {
     cat("\nEstimated heritability",
         "\n======================\n")

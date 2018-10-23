@@ -21,7 +21,7 @@
 NULL
 
 #' @rdname QTLDet
-#' @export
+#' @keywords internal
 createQTLDet <- function(scores,
                          peaks,
                          type,
@@ -70,7 +70,7 @@ summary.QTLDet <- function(object,
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
 #' @import graphics grDevices
-#' @keywords internal
+#' @export
 plot.QTLDet <- function(x,
                         ...,
                         yLim = NA,
