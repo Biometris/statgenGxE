@@ -4,8 +4,8 @@
 \alias{plotAMMI2}
 \title{Helper function for creating AMMI2 plot}
 \usage{
-plotAMMI2(loadings, scores, importance, trait, GGE, year = "",
-  primAxis = "PC1", secAxis = "PC2", scale, col)
+plotAMMI2(loadings, scores, importance, trait, dat, GGE, year = "",
+  primAxis = "PC1", secAxis = "PC2", scale, col, colorBy)
 }
 \description{
 Helper function for creating AMMI2 plot

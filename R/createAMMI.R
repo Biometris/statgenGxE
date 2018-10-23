@@ -35,6 +35,7 @@ createAMMI <- function(envScores,
                        envMean,
                        genoMean,
                        overallMean,
+                       dat,
                        GGE,
                        byYear) {
   AMMI <- structure(list(envScores = envScores,
@@ -46,6 +47,7 @@ createAMMI <- function(envScores,
                          envMean = envMean,
                          genoMean = genoMean,
                          overallMean = overallMean,
+                         dat = dat,
                          GGE = GGE,
                          byYear = byYear),
                     class = "AMMI",
@@ -160,6 +162,7 @@ plot.AMMI <- function(x,
                       ...,
                       plotType = c("AMMI1", "AMMI2"),
                       scale = 1,
+                      colorBy = NULL,
                       col = c("black", "red"),
                       primAxis = "PC1",
                       secAxis = "PC2",
@@ -175,6 +178,30 @@ plot.AMMI <- function(x,
     stop("col should contain exactly two colors.\n")
   }
   plotType <- match.arg(plotType)
+  if (!is.null(colorBy) && (!is.character(colorBy) || length(colorBy) > 1)) {
+    stop("colorBy should be a single character string.\n")
+  }
+  if (!is.null(colorBy)) {
+    if (x$byYear) {
+      for (dat in x$dat) {
+        if (!hasName(x = dat, name = colorBy)) {
+          stop("colorBy should be a column in data.\n")
+        }
+        colTab <- unique(dat[c("genotype", colorBy)])
+        if (nrow(colTab) != nlevels(dat$genotype)) {
+          stop("colorBy should have exactly one value per genotype")
+        }
+      }
+    } else {
+      if (!hasName(x = x$dat, name = colorBy)) {
+        stop("colorBy should be a column in data.\n")
+      }
+      colTab <- unique(x$dat[c("genotype", colorBy)])
+      if (nrow(colTab) != nlevels(x$dat$genotype)) {
+        stop("colorBy should have exactly one value per genotype")
+      }
+    }
+  }
   dotArgs <- list(...)
   if (plotType == "AMMI1") {
     if (x$byYear) {
@@ -184,15 +211,16 @@ plot.AMMI <- function(x,
                   importance = x$importance[[year]],
                   overallMean = x$overallMean[[year]],
                   genoMean = x$genoMean[[year]], envMean = x$envMean[[year]],
-                  trait = x$trait, GGE = x$GGE, year = year, scale = scale,
-                  col = col)
+                  trait = x$trait, dat = x$dat[[year]], GGE = x$GGE, year = year,
+                  scale = scale, col = col, colorBy = colorBy)
       }, simplify = FALSE)
     } else {
       ## Create a single AMMI1 plot.
       p <- plotAMMI1(loadings = x$envScores, scores = x$genoScores,
                      importance = x$importance, overallMean = x$overallMean,
                      genoMean = x$genoMean, envMean = x$envMean,
-                     trait = x$trait, GGE = x$GGE, scale = scale, col = col)
+                     trait = x$trait, dat = x$dat, GGE = x$GGE, scale = scale,
+                     col = col, colorBy = colorBy)
     }
   } else if (plotType == "AMMI2") {
     if (!is.character(primAxis) || length(primAxis) > 1 ||
@@ -234,9 +262,10 @@ plot.AMMI <- function(x,
                     plotAMMI2(loadings = x$envScores[[year]],
                               scores = x$genoScores[[year]],
                               importance = x$importance[[year]],
-                              trait = x$trait, GGE = x$GGE, year = year,
-                              primAxis = primAxis, secAxis = secAxis,
-                              scale = scale, col = col)
+                              trait = x$trait, dat = x$dat[[year]], GGE = x$GGE,
+                              year = year, primAxis = primAxis,
+                              secAxis = secAxis, scale = scale, col = col,
+                              colorBy = colorBy)
                   }, simplify = FALSE)
 
 
@@ -251,9 +280,9 @@ plot.AMMI <- function(x,
       }
       ## Create a single AMMI2 plot.
       p <- plotAMMI2(loadings = x$envScores, scores = x$genoScores,
-                     importance = x$importance, trait = x$trait, GGE = x$GGE,
-                     primAxis = primAxis, secAxis = secAxis, scale = scale,
-                     col = col)
+                     importance = x$importance, trait = x$trait, dat = x$dat,
+                     GGE = x$GGE, primAxis = primAxis, secAxis = secAxis,
+                     scale = scale, col = col, colorBy = colorBy)
     }
   }
   if (output) {
@@ -275,10 +304,12 @@ plotAMMI1 <- function(loadings,
                       genoMean,
                       envMean,
                       trait,
+                      dat,
                       GGE,
                       year = "",
                       scale,
-                      col) {
+                      col,
+                      colorBy) {
   percPC1 <- round(importance[2, 1] * 100, 1)
   ## Calculate lambda scale
   lam <- importance[1, 1]
@@ -287,13 +318,17 @@ plotAMMI1 <- function(loadings,
   ovMean <- overallMean
   ## Create dataframes for genotypes and environments.
   genoDat <- data.frame(x = genoMean, y = scores[, 1] / lam)
+  if (!is.null(colorBy)) {
+    genoDat <- merge(genoDat, dat[c("genotype", colorBy)],
+                     by.x = "row.names", by.y = "genotype")
+  }
   envDat <- data.frame(x = envMean, y = loadings[, 1] * lam)
   plotRatio <- (max(c(genoMean, envMean)) - min(c(genoMean, envMean))) /
     (max(c(scores[, 1] / lam, loadings[, 1] * lam)) -
        min(c(scores[, 1] / lam, loadings[, 1] * lam)))
   p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "x", y = "y")) +
     ## Plot genotypes as points.
-    ggplot2::geom_point(color = col[1]) +
+    ggplot2::geom_point(ggplot2::aes_string(color = colorBy)) +
     ## Needed for a square plot output.
     ggplot2::coord_fixed(ratio = plotRatio, clip = "off") +
     ## Plot environments as texts.
@@ -319,12 +354,14 @@ plotAMMI2 <- function(loadings,
                       scores,
                       importance,
                       trait,
+                      dat,
                       GGE,
                       year = "",
                       primAxis = "PC1",
                       secAxis = "PC2",
                       scale,
-                      col) {
+                      col,
+                      colorBy) {
   percPC1 <- round(importance[2, primAxis] * 100, 1)
   percPC2 <- round(importance[2, secAxis] * 100, 1)
   if (scale == 1) {
@@ -342,6 +379,10 @@ plotAMMI2 <- function(loadings,
   lam <- lam ^ scale
   ## Create dataframes for genotypes and environments.
   genoDat <- as.data.frame(t(t(scores[, c(primAxis, secAxis)]) / lam))
+  if (!is.null(colorBy)) {
+    genoDat <- merge(genoDat, dat[c("genotype", colorBy)],
+                     by.x = "row.names", by.y = "genotype")
+  }
   envDat <- as.data.frame(t(t(loadings[, c(primAxis, secAxis)]) * lam))
   ## Compute multiplication factor for rescaling environmental data.
   mult <- min(
@@ -360,7 +401,7 @@ plotAMMI2 <- function(loadings,
   p <- ggplot2::ggplot(genoDat,
                        ggplot2::aes_string(x = primAxis, y = secAxis)) +
     ## Plot genotypes as points.
-    ggplot2::geom_point(color = col[1]) +
+    ggplot2::geom_point(ggplot2::aes_string(color = colorBy)) +
     ## Needed for a square plot output.
     ggplot2::coord_fixed(clip = "off", ratio = plotRatio) +
     ## Plot environments as texts.

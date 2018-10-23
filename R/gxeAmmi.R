@@ -124,7 +124,8 @@ gxeAmmi <- function(TD,
   years <- sort(unique(TDTot$year.))
   fitTot <- data.frame(genotype = unique(TDTot$genotype))
   loadTot <- scoreTot <- impTot <- aovTot <- envMeanTot <- genoMeanTot <-
-    ovMeanTot <- setNames(vector(mode = "list", length = length(years)), years)
+    ovMeanTot <- datTot <- setNames(vector(mode = "list",
+                                          length = length(years)), years)
   for (year in years) {
     TDYear <- TDTot[TDTot$year. == year, ]
     ## Remove genotypes that contain only NAs
@@ -168,6 +169,7 @@ gxeAmmi <- function(TD,
         stop("nPC should be smaller than the number of trials.\n")
       }
     }
+    datTot[[year]] <- TDYear
     ## Add combinations of trial and genotype currently not in TD to TD.
     TDYear <- reshape2::melt(data = reshape2::dcast(data = TDYear,
                                                     formula = trial ~ genotype,
@@ -280,6 +282,7 @@ gxeAmmi <- function(TD,
     envMeanTot <- envMeanTot[[1]]
     genoMeanTot <- genoMeanTot[[1]]
     ovMeanTot <- ovMeanTot[[1]]
+    datTot <- datTot[[1]]
   } else {
     loadTot <- Filter(f = Negate(f = is.null), x = loadTot)
     scoreTot <- Filter(f = Negate(f = is.null), x = scoreTot)
@@ -288,6 +291,7 @@ gxeAmmi <- function(TD,
     envMeanTot <- Filter(f = Negate(f = is.null), x = envMeanTot)
     genoMeanTot <- Filter(f = Negate(f = is.null), x = genoMeanTot)
     ovMeanTot <- Filter(f = Negate(f = is.null), x = ovMeanTot)
+    datTot <- Filter(f = Negate(f = is.null), x = datTot)
     if (length(loadTot) == 0) {
       stop("All years were skipped.\n")
     }
@@ -295,7 +299,8 @@ gxeAmmi <- function(TD,
   return(createAMMI(envScores = loadTot, genoScores = scoreTot,
                     importance = impTot, anova = aovTot, fitted = fitTot,
                     trait = trait, envMean = envMeanTot, genoMean = genoMeanTot,
-                    overallMean = ovMeanTot, GGE = GGE, byYear = byYear))
+                    overallMean = ovMeanTot, dat = datTot, GGE = GGE,
+                    byYear = byYear))
 }
 
 #' @keywords internal

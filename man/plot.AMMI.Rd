@@ -5,8 +5,8 @@
 \title{Plot function for class AMMI}
 \usage{
 \method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2"), scale = 1,
-  col = c("black", "red"), primAxis = "PC1", secAxis = "PC2",
-  output = TRUE)
+  colorBy = NULL, col = c("black", "red"), primAxis = "PC1",
+  secAxis = "PC2", output = TRUE)
 }
 \arguments{
 \item{x}{An object of class AMMI}
