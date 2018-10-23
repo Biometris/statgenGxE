@@ -68,10 +68,20 @@ test_that("attribute design is properly filled in create TD", {
   expect_error(createTD(data = testData, trDesign = "abc"), "should be one of")
 })
 
-sumTD <- summary(createTD(data = testData), traits = c("t1", "t4"),
-                 what = "all")
 test_that("summary.TD produces correct output", {
-  expect_is(sumTD, "table")
-  expect_equal(mean(testData$t1), sumTD["Mean", "t1"])
-  expect_equal(max(testData$t4, na.rm = TRUE), sumTD["Max", "t4"])
+  sumTD <- summary(createTD(data = testData), traits = c("t1", "t4"),
+                   what = "all")
+  expect_is(sumTD, "array")
+  expect_equal(mean(testData$t1), sumTD["Mean", "t1", 1])
+  expect_equal(max(testData$t4, na.rm = TRUE), sumTD["Max", "t4", 1])
 })
+
+test_that("option groupBy in summary.TD produces correct output", {
+  sumTD <- summary(createTD(data = testData), traits = c("t1", "t4"),
+                   groupBy = "field")
+  expect_equal(dim(sumTD), c(3, 2, 3))
+  expect_equivalent(as.numeric(by(data = testData$t1, INDICES = testData$field,
+                                  FUN = mean)), sumTD["Mean", "t1", ])
+  expect_equivalent(sumTD["Number of observations", "t4", ], c(27, 22, 26))
+})
+

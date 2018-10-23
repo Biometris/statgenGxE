@@ -300,6 +300,8 @@ dropTD <- function(TD,
 #' @param ... Further arguments - currently not used.
 #' @param trial A character vector specifying the trials to be plotted.
 #' @param traits A character vector specifying the traits to be summarised.
+#' @param groupBy A character string specifying a column in TD by which the
+#' summary should be grouped. If \code{NULL} no grouping is done.
 #' @param what A character vector indicating which summary statistics should be
 #' computed. If \code{what = "all"} all available statistics are computed.\cr
 #' Possible options are:
@@ -341,20 +343,31 @@ summary.TD <- function(object,
                        ...,
                        trial = names(object),
                        traits,
-                       what = c("nObs", "nMiss", "mean", "median", "min",
-                                "max", "lowerQ", "upperQ", "var")) {
+                       groupBy = NULL,
+                       what = if (!is.null(groupBy)) {
+                         c("nObs", "mean", "sd")
+                       } else {
+                         c("nObs", "nMiss", "mean", "median", "min", "max",
+                           "lowerQ", "upperQ", "var")
+                       }) {
   allWhat <- c("nVals", "nObs", "nMiss", "mean", "median", "min",
                "max", "range", "lowerQ", "upperQ", "sd", "seMean",
                "var", "seVar", "CV", "sum", "sumSq", "uncorSumSq",
                "skew", "seSkew", "kurt", "seKurt")
   ## Checks.
-  if (!is.character(trial) || length(trial) > 1 || !trial %in% names(object)) {
+  if (!is.character(trial) || length(trial) > 1 ||
+      !hasName(x = object, name = trial)) {
     stop(paste0("trial should be a single character string in ",
                 deparse(substitute(object)), ".\n"))
   }
   trDat <- object[[trial]]
-  if (!is.character(traits) || !all(traits %in% colnames(trDat))) {
+  if (!is.character(traits) || !all(hasName(x = trDat, name = traits))) {
     stop("All traits should be columns in trial.\n")
+  }
+  if (!is.null(groupBy) && (!is.character(groupBy) || length(groupBy) > 1 ||
+                            !hasName(x = trDat, name = groupBy))) {
+    stop(paste("groupBy should be a single character string indicating",
+               "a column in trial"))
   }
   if (what[[1]] == "all") {
     what <- allWhat
@@ -363,110 +376,127 @@ summary.TD <- function(object,
     stop("At least one statistic should be chosen.\n")
   }
   whichWhat <- which(allWhat %in% what)
-  ## Create a matrix to store the values".
-  stats <- matrix(nrow = length(what), ncol = length(traits),
-                  dimnames = list(what, traits))
-  for (i in 1:length(traits)) {
-    if ("nVals" %in% what) {
-      stats["nVals", i] <- length(trDat[, traits[i]])
-    }
-    if ("nObs" %in% what) {
-      stats["nObs", i] <- length(na.omit(trDat[, traits[i]]))
-    }
-    if ("nMiss" %in% what) {
-      stats["nMiss", i] <- sum(is.na(trDat[, traits[i]]))
-    }
-    if ("mean" %in% what) {
-      stats["mean", i] <- mean(trDat[, traits[i]], na.rm = TRUE)
-    }
-    if ("median" %in% what) {
-      stats["median", i] <- median(trDat[, traits[i]], na.rm = TRUE)
-    }
-    if ("min" %in% what) {
-      stats["min", i] <- min(trDat[, traits[i]], na.rm = TRUE)
-    }
-    if ("max" %in% what) {
-      stats["max", i] <- max(trDat[, traits[i]], na.rm = TRUE)
-    }
-    if ("range" %in% what) {
-      stats["range", i] <- max(trDat[, traits[i]], na.rm = TRUE) -
-        min(trDat[, traits[i]], na.rm = TRUE)
-    }
-    if ("lowerQ" %in% what) {
-      stats["lowerQ", i] <- quantile(trDat[, traits[i]], prob = .25, na.rm = TRUE)
-    }
-    if ("upperQ" %in% what) {
-      stats["upperQ", i] <- quantile(trDat[,traits[i]], prob = .75, na.rm = TRUE)
-    }
-    if ("sd" %in% what) {
-      stats["sd", i] <- sd(trDat[, traits[i]], na.rm = TRUE)
-    }
-    if ("seMean" %in% what) {
-      stats["seMean", i] <- sd(trDat[, traits[i]], na.rm = TRUE) /
-        sqrt(length(na.omit(trDat[, traits[i]])))
-    }
-    if ("var" %in% what) {
-      stats["var", i] <- var(trDat[, traits[i]], na.rm = TRUE)
-    }
-    if ("seVar" %in% what) {
-      stats["seVar", i] <- seVar(trDat[, traits[i]], na.rm = TRUE)
-    }
-    if ("CV" %in% what) {
-      stats["CV", i] <- 100 * sd(trDat[, traits[i]], na.rm = TRUE) /
-        mean(trDat[, traits[i]], na.rm = TRUE)
-    }
-    if ("sum" %in% what) {
-      stats["sum", i] <- sum(trDat[, traits[i]], na.rm = TRUE)
-    }
-    if ("sumSq" %in% what) {
-      stats["sumSq", i] <- sum((na.omit(trDat[, traits[i]]) -
-                                  mean(trDat[, traits[i]], na.rm = TRUE)) ^ 2)
-    }
-    if ("uncorSumSq" %in% what) {
-      stats["uncorSumSq", i] <- sum(trDat[, traits[i]] ^ 2, na.rm = TRUE)
-    }
-    if ("skew" %in% what) {
-      stats["skew", i] <- skewness(trDat[, traits[i]], na.rm = TRUE)
-    }
-    if ("seSkew" %in% what) {
-      stats["seSkew", i] <- seSkewness(length(na.omit(trDat[, traits[i]])))
-    }
-    if ("kurt" %in% what) {
-      stats["kurt", i] <- kurtosis(trDat[, traits[i]], na.rm = TRUE)
-    }
-    if ("seKurt" %in% what) {
-      stats["seKurt", i] <- seKurtosis(length(na.omit(trDat[, traits[i]])))
+  if (!is.null(groupBy)) {
+    groups <- unique(trDat[[groupBy]])
+  } else {
+    trDat$.tot <- 1
+    groupBy <- ".tot"
+    groups <- 1
+  }
+  ## Create an array to store the values.
+  stats <- array(dim = c(length(what), length(traits), length(groups)),
+                 dimnames = list(what, traits, groups))
+  for (i in seq_along(traits)) {
+    for (j in seq_along(groups)) {
+      trDatGr <- trDat[trDat[[groupBy]] == groups[j], traits[i]]
+      if ("nVals" %in% what) {
+        stats["nVals", i, j] <- length(trDatGr)
+      }
+      if ("nObs" %in% what) {
+        stats["nObs", i, j] <- length(na.omit(trDatGr))
+      }
+      if ("nMiss" %in% what) {
+        stats["nMiss", i, j] <- sum(is.na(trDatGr))
+      }
+      if ("mean" %in% what) {
+        stats["mean", i, j] <- mean(trDatGr, na.rm = TRUE)
+      }
+      if ("median" %in% what) {
+        stats["median", i, j] <- median(trDatGr, na.rm = TRUE)
+      }
+      if ("min" %in% what) {
+        stats["min", i, j] <- min(trDatGr, na.rm = TRUE)
+      }
+      if ("max" %in% what) {
+        stats["max", i, j] <- max(trDatGr, na.rm = TRUE)
+      }
+      if ("range" %in% what) {
+        stats["range", i, j] <- diff(range(trDatGr, na.rm = TRUE))
+      }
+      if ("lowerQ" %in% what) {
+        stats["lowerQ", i, j] <- quantile(trDatGr, prob = .25, na.rm = TRUE)
+      }
+      if ("upperQ" %in% what) {
+        stats["upperQ", i, j] <- quantile(trDatGr, prob = .75, na.rm = TRUE)
+      }
+      if ("sd" %in% what) {
+        stats["sd", i, j] <- sd(trDatGr, na.rm = TRUE)
+      }
+      if ("seMean" %in% what) {
+        stats["seMean", i, j] <- sd(trDatGr, na.rm = TRUE) /
+          sqrt(length(na.omit(trDatGr)))
+      }
+      if ("var" %in% what) {
+        stats["var", i, j] <- var(trDatGr, na.rm = TRUE)
+      }
+      if ("seVar" %in% what) {
+        stats["seVar", i, j] <- seVar(trDatGr, na.rm = TRUE)
+      }
+      if ("CV" %in% what) {
+        stats["CV", i, j] <- 100 * sd(trDatGr, na.rm = TRUE) /
+          mean(trDatGr, na.rm = TRUE)
+      }
+      if ("sum" %in% what) {
+        stats["sum", i, j] <- sum(trDatGr, na.rm = TRUE)
+      }
+      if ("sumSq" %in% what) {
+        stats["sumSq", i, j] <- sum((na.omit(trDatGr) -
+                                       mean(trDatGr, na.rm = TRUE)) ^ 2)
+      }
+      if ("uncorSumSq" %in% what) {
+        stats["uncorSumSq", i, j] <- sum(trDatGr ^ 2, na.rm = TRUE)
+      }
+      if ("skew" %in% what) {
+        stats["skew", i, j] <- skewness(trDatGr, na.rm = TRUE)
+      }
+      if ("seSkew" %in% what) {
+        stats["seSkew", i, j] <- seSkewness(length(na.omit(trDatGr)))
+      }
+      if ("kurt" %in% what) {
+        stats["kurt", i, j] <- kurtosis(trDatGr, na.rm = TRUE)
+      }
+      if ("seKurt" %in% what) {
+        stats["seKurt", i, j] <- seKurtosis(length(na.omit(trDatGr)))
+      }
     }
   }
   rownames(stats) <- c("Number of values", "Number of observations",
                        "Number of missing values", "Mean", "Median", "Min",
                        "Max", "Range", "Lower quartile", "Upper quartile",
-                       "Standard deviation", "Standard error of mean", "Variance",
-                       "Standard error of variance", "Coefficient of variation",
-                       "sum of values", "sum of squares", "Uncorrected sum of squares",
+                       "Standard deviation", "Standard error of mean",
+                       "Variance", "Standard error of variance",
+                       "Coefficient of variation", "Sum of values",
+                       "Sum of squares", "Uncorrected sum of squares",
                        "Skewness", "Standard Error of Skewness", "Kurtosis",
                        "Standard Error of Kurtosis")[whichWhat]
   attr(x = stats, which = "whichWhat") <- whichWhat
   return(structure(stats,
-                   class = c("summary.TD", "table"),
-                   trial = trial))
+                   class = c("summary.TD", "array"),
+                   trial = trial,
+                   group = if (groupBy != ".tot") groupBy else NULL))
 }
 
 #' @export
 print.summary.TD <- function(x, ...) {
   whichWhat <- attr(x, "whichWhat")
+  groupBy  <- attr(x, "group")
   decimals <- c(rep(x = 0, times = 3), rep(x = 2, times = 7),
                 rep(x = 3, times = 5), rep(x = 2, times = 3),
                 rep(x = 3, times = 4))[whichWhat]
-  maxLength <- max(nchar(rownames(x)))
-  for (i in 1:ncol(x)) {
-    cat(paste("\nSummary statistics for", colnames(x)[i], "in",
-              attr(x, "trial"), "\n\n"))
-    for (j in 1:nrow(x)) {
-      cat(paste0(paste0(rep(x = " ",
-                            times = maxLength - nchar(rownames(x)[j]) + 2),
-                        collapse = ""),
-                 rownames(x)[j], "  ", round(x[j, i], decimals[j]), "\n"))
+  xPrint <- x
+  for (i in seq_along(decimals)) {
+    xPrint[i, , ] <- format(x[i, , ], digits = decimals[i], nsmall = decimals[i])
+  }
+  for (i in 1:ncol(xPrint)) {
+    trait <- colnames(xPrint)[i]
+    cat(paste("\nSummary statistics for", trait, "in", attr(x, "trial"),
+              if (!is.null(groupBy)) paste("grouped by", groupBy), "\n\n"))
+    if (dim(xPrint)[3] > 1) {
+      print(xPrint[, i, ], quote = FALSE, right = TRUE)
+    } else {
+      xPrintM <- as.matrix(xPrint[, i , 1])
+      colnames(xPrintM) <- trait
+      print(xPrintM, quote = FALSE, right = TRUE)
     }
   }
   cat("\n")
@@ -778,7 +808,7 @@ plot.TD <- function(x,
           NULL
         } else {
           trial[c(trait, xVar, if (!is.null(colorBy)) colorBy,
-                if (!is.null(orderBy)) orderBy)]
+                  if (!is.null(orderBy)) orderBy)]
         }
       }))
       if (is.null(plotDat)) {
@@ -790,8 +820,8 @@ plot.TD <- function(x,
         ## Reorder levels in trial so plotting is done according to orderBy.
         ## do.call needed since order doesn't accept a vector as input.
         levNw <- unique(plotDat[[xVar]][do.call(order, lapply(orderBy,
-                                                            FUN = function(x) {
-                                                              plotDat[x]}))])
+                                                              FUN = function(x) {
+                                                                plotDat[x]}))])
         plotDat[xVar] <- factor(plotDat[[xVar]], levels = levNw)
       }
       ## Create boxplot.

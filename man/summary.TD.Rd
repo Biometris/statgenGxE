@@ -5,8 +5,9 @@
 \title{Summarizing objects of class \code{TD}}
 \usage{
 \method{summary}{TD}(object, ..., trial = names(object), traits,
-  what = c("nObs", "nMiss", "mean", "median", "min", "max", "lowerQ",
-  "upperQ", "var"))
+  groupBy = NULL, what = if (!is.null(groupBy)) {     c("nObs", "mean",
+  "sd") } else {     c("nObs", "nMiss", "mean", "median", "min", "max",
+  "lowerQ", "upperQ", "var") })
 }
 \arguments{
 \item{object}{An object of class TD.}
@@ -16,6 +17,9 @@
 \item{trial}{A character vector specifying the trials to be plotted.}
 
 \item{traits}{A character vector specifying the traits to be summarised.}
+
+\item{groupBy}{A character string specifying a column in TD by which the
+summary should be grouped. If \code{NULL} no grouping is done.}
 
 \item{what}{A character vector indicating which summary statistics should be
 computed. If \code{what = "all"} all available statistics are computed.\cr
