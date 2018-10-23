@@ -295,7 +295,7 @@ gxeAmmi <- function(TD,
   return(createAMMI(envScores = loadTot, genoScores = scoreTot,
                     importance = impTot, anova = aovTot, fitted = fitTot,
                     trait = trait, envMean = envMeanTot, genoMean = genoMeanTot,
-                    overallMean = ovMeanTot, byYear = byYear))
+                    overallMean = ovMeanTot, GGE = GGE, byYear = byYear))
 }
 
 #' @keywords internal

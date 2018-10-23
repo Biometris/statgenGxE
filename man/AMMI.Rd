@@ -6,7 +6,7 @@
 \title{S3 class AMMI}
 \usage{
 createAMMI(envScores, genoScores, importance, anova, fitted, trait,
-  envMean, genoMean, overallMean, byYear)
+  envMean, genoMean, overallMean, GGE, byYear)
 }
 \arguments{
 \item{envScores}{A matrix containing environmental scores.}
@@ -27,6 +27,8 @@ components.}
 \item{genoMean}{A numerical vector containing the genotypic means.}
 
 \item{overallMean}{A numerical value containing the overall mean.}
+
+\item{GGE}{Has a GGE analysis been performed?}
 
 \item{byYear}{Has the analysis been performed by year?}
 }

@@ -14,6 +14,7 @@
 #' @param envMean A numerical vector containing the environmental means.
 #' @param genoMean A numerical vector containing the genotypic means.
 #' @param overallMean A numerical value containing the overall mean.
+#' @param GGE Has a GGE analysis been performed?
 #' @param byYear Has the analysis been performed by year?
 #'
 #' @author Bart-Jan van Rossum
@@ -34,6 +35,7 @@ createAMMI <- function(envScores,
                        envMean,
                        genoMean,
                        overallMean,
+                       GGE,
                        byYear) {
   AMMI <- structure(list(envScores = envScores,
                          genoScores = genoScores,
@@ -44,6 +46,7 @@ createAMMI <- function(envScores,
                          envMean = envMean,
                          genoMean = genoMean,
                          overallMean = overallMean,
+                         GGE = GGE,
                          byYear = byYear),
                     class = "AMMI",
                     timestamp = Sys.time())
@@ -181,14 +184,15 @@ plot.AMMI <- function(x,
                   importance = x$importance[[year]],
                   overallMean = x$overallMean[[year]],
                   genoMean = x$genoMean[[year]], envMean = x$envMean[[year]],
-                  trait = x$trait, year = year, scale = scale, col = col)
+                  trait = x$trait, GGE = x$GGE, year = year, scale = scale,
+                  col = col)
       }, simplify = FALSE)
     } else {
       ## Create a single AMMI1 plot.
       p <- plotAMMI1(loadings = x$envScores, scores = x$genoScores,
                      importance = x$importance, overallMean = x$overallMean,
                      genoMean = x$genoMean, envMean = x$envMean,
-                     trait = x$trait, scale = scale, col = col)
+                     trait = x$trait, GGE = x$GGE, scale = scale, col = col)
     }
   } else if (plotType == "AMMI2") {
     if (!is.character(primAxis) || length(primAxis) > 1 ||
@@ -230,8 +234,9 @@ plot.AMMI <- function(x,
                     plotAMMI2(loadings = x$envScores[[year]],
                               scores = x$genoScores[[year]],
                               importance = x$importance[[year]],
-                              trait = x$trait, year = year, primAxis = primAxis,
-                              secAxis = secAxis, scale = scale, col = col)
+                              trait = x$trait, GGE = x$GGE, year = year,
+                              primAxis = primAxis, secAxis = secAxis,
+                              scale = scale, col = col)
                   }, simplify = FALSE)
 
 
@@ -246,7 +251,7 @@ plot.AMMI <- function(x,
       }
       ## Create a single AMMI2 plot.
       p <- plotAMMI2(loadings = x$envScores, scores = x$genoScores,
-                     importance = x$importance, trait = x$trait,
+                     importance = x$importance, trait = x$trait, GGE = x$GGE,
                      primAxis = primAxis, secAxis = secAxis, scale = scale,
                      col = col)
     }
@@ -270,6 +275,7 @@ plotAMMI1 <- function(loadings,
                       genoMean,
                       envMean,
                       trait,
+                      GGE,
                       year = "",
                       scale,
                       col) {
@@ -302,7 +308,8 @@ plotAMMI1 <- function(loadings,
                         show.legend = FALSE) +
     ## Add labeling.
     ggplot2::labs(x = "Main Effects", y = paste0("PC1 (", percPC1, "%)")) +
-    ggplot2::ggtitle(paste0("AMMI1 biplot for ", trait, " ", year)) +
+    ggplot2::ggtitle(paste0(ifelse(GGE, "GGE", "AMMI1"), " biplot for ",
+                            trait, " ", year)) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 }
 
@@ -312,6 +319,7 @@ plotAMMI2 <- function(loadings,
                       scores,
                       importance,
                       trait,
+                      GGE,
                       year = "",
                       primAxis = "PC1",
                       secAxis = "PC2",
@@ -374,8 +382,8 @@ plotAMMI2 <- function(loadings,
     ## Add labeling.
     ggplot2::labs(x = paste0(primAxis, " (", percPC1, "%)"),
                   y = paste0(secAxis, " (", percPC2, "%)")) +
-    ggplot2::ggtitle(paste0("AMMI2 biplot for ", trait, " (", info, ") ",
-                            year)) +
+    ggplot2::ggtitle(paste0(ifelse(GGE, "GGE", "AMMI2"), " biplot for ", trait,
+                            " (", info, ") ", year)) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 }
 

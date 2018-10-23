@@ -4,7 +4,7 @@
 \alias{plotAMMI2}
 \title{Helper function for creating AMMI2 plot}
 \usage{
-plotAMMI2(loadings, scores, importance, trait, year = "",
+plotAMMI2(loadings, scores, importance, trait, GGE, year = "",
   primAxis = "PC1", secAxis = "PC2", scale, col)
 }
 \description{

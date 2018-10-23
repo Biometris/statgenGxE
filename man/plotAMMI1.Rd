@@ -5,7 +5,7 @@
 \title{Helper function for creating AMMI1 plot}
 \usage{
 plotAMMI1(loadings, scores, importance, overallMean, genoMean, envMean,
-  trait, year = "", scale, col)
+  trait, GGE, year = "", scale, col)
 }
 \description{
 Helper function for creating AMMI1 plot
