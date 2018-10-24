@@ -25,6 +25,10 @@ where \code{lambda} are the singular values computed by
 \code{0 <= scale <= 1}, and a warning will be issued if the specified
 scale is outside this range.}
 
+\item{colorBy}{A character string indicating a column in the \code{TD} used
+as input for the AMMI analysis by which the genotypes should be colored. If
+\code{NULL} all genotypes will be colored in black.}
+
 \item{col}{A vector with plot colors for genotype and environment. This can
 either be named colors or color numbers.}
 

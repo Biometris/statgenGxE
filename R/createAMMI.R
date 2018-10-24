@@ -133,6 +133,9 @@ summary.AMMI <- function(object, ...) {
 #' \code{\link[stats]{princomp}} in \code{\link{gxeAmmi}}. Normally
 #' \code{0 <= scale <= 1}, and a warning will be issued if the specified
 #' scale is outside this range.
+#' @param colorBy A character string indicating a column in the \code{TD} used
+#' as input for the AMMI analysis by which the genotypes should be colored. If
+#' \code{NULL} all genotypes will be colored in black.
 #' @param col A vector with plot colors for genotype and environment. This can
 #' either be named colors or color numbers.
 #' @param primAxis A character string indicating the principal component to be
