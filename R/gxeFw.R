@@ -103,9 +103,13 @@ gxeFw <- function(TD,
   rDev[2] <- aov0["Residuals", "Sum Sq"]
   rDf[2] <- aov0["Residuals", "Df"]
   coeffsModel0 <- coefficients(model0)
-  envEffs0 <- coeffsModel0[grep(pattern = "trial", x = names(coeffsModel0))] %>%
-    scale(scale = FALSE) %>% `colnames<-`("envEffs") %>%
-    `rownames<-`(substring(rownames(.), first = 6))
+  ## Select coefficients for trials
+  coeffsTr <- coeffsModel0[grep(pattern = "trial", x = names(coeffsModel0))]
+  ## Center trial effects.
+  envEffs0 <- scale(coeffsTr, scale = FALSE)
+  ## Remove 'trial' from rownames and add column name.
+  rownames(envEffs0) <- substring(rownames(envEffs0), first = 6)
+  colnames(envEffs0) <- "envEffs"
   TDTot <- merge(x = TDTot, y = envEffs0, by.x = "trial", by.y = "row.names")
   ## Set initial values for sensitivity beta.
   TDTot$beta <- 1
@@ -180,32 +184,32 @@ gxeFw <- function(TD,
   sens <- as.vector(tapply(X = TDTot$beta, INDEX = TDTot$genotype,
                            FUN = mean, na.rm = TRUE))
   ## Compute the standard errors.
-  sigmaE <- sqrt(diag(vcov(model1))[match(paste0("genotype", TDTot$genotype,
-                                                 ":envEffs"),
-                                          names(coeffsModel1))]) %>%
-    tapply(INDEX = TDTot$genotype, FUN = mean, na.rm = TRUE) %>%
-    as.vector
+  varE <- sqrt(diag(vcov(model1))[match(paste0("genotype", TDTot$genotype,
+                                               ":envEffs"),
+                                        names(coeffsModel1))])
+  sigmaE <- as.vector(tapply(X = varE, INDEX = TDTot$genotype,
+                             FUN = mean, na.rm = TRUE))
   ## Extract the mean for each genotype.
-  genMean <- coeffsModel1[match(paste0("genotype", TDTot$genotype),
-                                names(coeffsModel1))] %>%
-    tapply(INDEX = TDTot$genotype, FUN = mean, na.rm = TRUE) %>%
-    as.vector
+  coeffsGen <- coeffsModel1[match(paste0("genotype", TDTot$genotype),
+                                  names(coeffsModel1))]
+  genMean <- as.vector(tapply(X = coeffsGen, INDEX = TDTot$genotype,
+                    FUN = mean, na.rm = TRUE))
   ## Residual standard error.
-  sigma <- sqrt(diag(vcov(model1))[match(paste0("genotype", TDTot$genotype),
-                                         names(coeffsModel1))]) %>%
-    tapply(INDEX = TDTot$genotype, FUN = mean, na.rm = TRUE) %>%
-    as.vector
+  varG <- sqrt(diag(vcov(model1))[match(paste0("genotype", TDTot$genotype),
+                                         names(coeffsModel1))])
+  sigma <- as.vector(tapply(X = varG, INDEX = TDTot$genotype,
+                            FUN = mean, na.rm = TRUE))
   ## Compute mean squared error (MSE) of the trait means for each genotype.
-  mse <- residuals(model1) %>%
-    tapply(INDEX = TDTot$genotype, FUN = function(x) {
-      checkG <- length(x)
-      if (checkG > 2) {
-        sum(x ^ 2, na.rm = TRUE) / (checkG - 2)
-      } else {
-        rep(NA, checkG)
-      }
-    }) %>% as.vector
-  ## Compute sortting order for estimates.
+  mse <- as.vector(tapply(X = residuals(model1),  INDEX = TDTot$genotype,
+                          FUN = function(x) {
+                            checkG <- length(x)
+                            if (checkG > 2) {
+                              sum(x ^ 2, na.rm = TRUE) / (checkG - 2)
+                            } else {
+                              rep(NA, checkG)
+                            }
+                          }))
+  ## Compute sorting order for estimates.
   if (sorted == "none") {
     orderSens <- 1:nGeno
   } else {

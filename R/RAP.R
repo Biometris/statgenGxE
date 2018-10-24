@@ -4,6 +4,5 @@
 #'
 #' @docType package
 #' @name RAP
-#' @importFrom magrittr %>%
 #' @importFrom xtable xtable
 NULL
