@@ -44,8 +44,11 @@ createSSA <- function(models) {
 #' \code{summary} method for class \code{SSA}.
 #'
 #' @param object An object of class \code{SSA}.
-#' @param trial A character string indicating the trial to summarize. If
-#' \code{trial = NULL} and only one trial is modelled this trial is summarized.
+#' @param trials A character vector indicating the trial to summarize. If
+#' \code{trial = NULL} a summary is made of all trials in the \code{SSA} object.
+#' If a single trial is selected a full summary for this trial is created. For
+#' multiple trials a summary table with the most importantant statistics is
+#' returned.
 #' @param trait A character string indicating the trait to summarize. If
 #' \code{trait = NULL} and only one trait is modelled this trait is summarized.
 #' @param nBest An integer indicating the number of the best genotypes (sorted
@@ -65,7 +68,7 @@ createSSA <- function(models) {
 #'
 #' @export
 summary.SSA <- function(object,
-                        trial = NULL,
+                        trials = NULL,
                         trait = NULL,
                         nBest = 20,
                         sortBy = NULL,
@@ -73,83 +76,103 @@ summary.SSA <- function(object,
                         decreasing = TRUE,
                         ...) {
   ## Checks.
-  if (is.null(trial) && length(object) > 1) {
-    stop("No trial provided but multiple trials found in SSA object.\n")
-  }
-  if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
-                          !trial %in% names(object))) {
+  if (!is.null(trials) && (!is.character(trials) ||
+                           !all(hasName(x = object, name = trials)))) {
     stop("Trial has to be a single character string defining a trial in SSA.\n")
   }
-  if (is.null(trial)) {
-    trial <- names(object)
+  if (is.null(trials)) {
+    trials <- names(object)
   }
-  if (is.null(trait) && length(object[[trial]]$traits) > 1) {
+  if (is.null(trait) && length(object[[trials[1]]]$traits) > 1) {
     stop("No trait provided but multiple traits found.\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-                          !trait %in% colnames(object[[trial]]$TD[[trial]]))) {
+                          !all(sapply(X = trials, FUN = function(trial) {
+                            hasName(x = object[[trial]]$TD[[trial]],
+                                    name = trait)
+                          })))) {
     stop("Trait has to be a single character string defining a column in TD.\n")
   }
-  if (is.null(sortBy)) {
-    sortBy <- ifelse(!is.null(object[[trial]]$mFix), "BLUEs", "BLUPs")
-  } else {
-    sortBy <- match.arg(sortBy)
-  }
-  ## get summary stats for raw data
-  TD <- object[[trial]]$TD
   if (is.null(trait)) {
-    trait <- object[[trial]]$traits
+    trait <- object[[trials[1]]]$traits
   }
-  if (is.null(trait) || (is.null(object[[trial]]$mFix[[trait]]) &&
-                         is.null(object[[trial]]$mRand[[trait]]))) {
-    stop(paste0("No fitted model found for ", trait, " in ", trial, ".\n"))
-  }
-  stats <- summary.TD(object = TD, traits = trait)
-  ## get predicted means (BLUEs + BLUPs).
-  extr <- STExtract(object, trials = trial, traits = trait)[[trial]]
-  ## Merge results using a loop to avoid warnings over suffixes caused by
-  ## merge when using using Reduce.
-  joinList <- Filter(f = Negate(f = is.null),
-                     x = extr[c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs")])
-  meanTab <- joinList[[1]]
-  for (i in 2:length(joinList)) {
-    meanTab <- merge(meanTab, joinList[[i]], all = TRUE, by = "genotype",
-                     suffixes = c(i, i + 1))
-  }
-  ## Move genotype to rowname for proper printing with printCoefMat.
-  rownames(meanTab) <- meanTab$genotype
-  meanTab <- meanTab[colnames(meanTab) != "genotype"]
-  ## Set colnames. Because of duplicate colname SE no selection on columns can
-  ## be done anymore after this.
-  colnames(meanTab) <- c(if (!is.null(extr$BLUEs)) c("BLUEs", "SE"),
-                         if (!is.null(extr$BLUPs)) c("BLUPs", "SE"))
-  meansTxt <- paste(c(if (!is.null(extr$BLUEs)) "BLUEs",
-                      if (!is.null(extr$BLUPs)) "BLUPs"), collapse = " & ")
-  attr(x = meanTab, which = "title") <- meansTxt
-  if (!is.na(sortBy)) {
-    ## Sort by sortBy with options from input params.
-    oList <- order(meanTab[[sortBy]], na.last = naLast, decreasing = decreasing)
-    meanTab <- meanTab[oList, ]
-  }
-  if (!is.na(nBest)) {
-    ## Set nBest to number of rows in meanTab to prevent printing of NA rows.
-    nBest <- min(nrow(meanTab), nBest)
-    ## Extract the n best genotypes.
-    meanTab <- meanTab[1:nBest, ]
-    attr(x = meanTab, which = "nBest") <- nBest
-  }
-  ## Extract selected spatial model when applicable.
-  if (object[[trial]]$engine == "asreml" &&
-      is.character(object[[trial]]$spatial[[trait]])) {
-    selSpatMod <- object[[trial]]$spatial[[trait]]
+  ## If sortBy not provided sort by BLUEs if available BLUPs otherwise.
+  ## If sortBy is provided but only 1 of genotype fixed/ genotype random is
+  ## fitted ignore sortBy and overrule by available output.
+  if (is.null(sortBy) || is.null(object[[trials[1]]]$mFix) ||
+      is.null(object[[trials[1]]]$mRand)) {
+    sortBy <- ifelse(!is.null(object[[trials[1]]]$mFix), "BLUEs", "BLUPs")
   } else {
-    selSpatMod <- NULL
+    sortBy <- match.arg(sortBy, choices = c("BLUEs", "BLUPs"))
   }
-  return(structure(list(selSpatMod = selSpatMod, stats = stats,
-                        meanTab = meanTab, heritability = extr$heritability,
-                        sed = data.frame("s.e.d" = extr$sed),
-                        lsd = data.frame("l.s.d." = extr$lsd)),
-                   class = c("summary.SSA")))
+  ## If multiple trials supplied just create a table of BLUEs/BLUPs
+  if (length(trials) > 1) {
+    predTD <- SSAtoTD(object, what = sortBy, traits = trait)
+    ## Create summary table with default statistics.
+    ## Transpose to get trials in rows, stats in columns.
+    sumTab <- t(sapply(X = names(predTD), FUN = function(trial) {
+      summary(predTD, trial = trial, traits = "grain.yield")[, 1, 1]
+    }))
+    ## Order by mean in descending order.
+    sumTab <- sumTab[order(sumTab[, colnames(sumTab) == "Mean"],
+                           decreasing = TRUE), ]
+    return(structure(list(sumTab = sumTab, what = sortBy, trait = trait),
+                     class = c("summary.SSA")))
+  } else {
+    ## Get summary stats for raw data.
+    TD <- object[[trials]]$TD
+    if (is.null(trait) || (is.null(object[[trials]]$mFix[[trait]]) &&
+                           is.null(object[[trials]]$mRand[[trait]]))) {
+      stop(paste0("No fitted model found for ", trait, " in ", trials, ".\n"))
+    }
+    stats <- summary.TD(object = TD, traits = trait)
+    ## get predicted means (BLUEs + BLUPs).
+    extr <- STExtract(object, trials = trials, traits = trait)[[trials]]
+    ## Merge results using a loop to avoid warnings over suffixes caused by
+    ## merge when using using Reduce.
+    joinList <- Filter(f = Negate(f = is.null),
+                       x = extr[c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs")])
+    meanTab <- joinList[[1]]
+    for (i in 2:length(joinList)) {
+      meanTab <- merge(meanTab, joinList[[i]], all = TRUE, by = "genotype",
+                       suffixes = c(i, i + 1))
+    }
+    ## Move genotype to rowname for proper printing with printCoefMat.
+    rownames(meanTab) <- meanTab$genotype
+    meanTab <- meanTab[colnames(meanTab) != "genotype"]
+    ## Set colnames. Because of duplicate colname SE no selection on columns can
+    ## be done anymore after this.
+    colnames(meanTab) <- c(if (!is.null(extr$BLUEs)) c("BLUEs", "SE"),
+                           if (!is.null(extr$BLUPs)) c("BLUPs", "SE"))
+    meansTxt <- paste(c(if (!is.null(extr$BLUEs)) "BLUEs",
+                        if (!is.null(extr$BLUPs)) "BLUPs"), collapse = " & ")
+    attr(x = meanTab, which = "title") <- meansTxt
+    if (!is.na(sortBy)) {
+      ## Sort by sortBy with options from input params.
+      oList <- order(meanTab[[sortBy]], na.last = naLast,
+                     decreasing = decreasing)
+      meanTab <- meanTab[oList, ]
+    }
+    if (!is.na(nBest)) {
+      ## Set nBest to number of rows in meanTab to prevent printing of NA rows.
+      nBest <- min(nrow(meanTab), nBest)
+      ## Extract the n best genotypes.
+      meanTab <- meanTab[1:nBest, ]
+      attr(x = meanTab, which = "nBest") <- nBest
+    }
+    ## Extract selected spatial model when applicable.
+    if (object[[trials]]$engine == "asreml" &&
+        is.character(object[[trials]]$spatial[[trait]])) {
+      selSpatMod <- object[[trials]]$spatial[[trait]]
+    } else {
+      selSpatMod <- NULL
+    }
+    return(structure(list(selSpatMod = selSpatMod, stats = stats,
+                          meanTab = meanTab, heritability = extr$heritability,
+                          sed = data.frame("s.e.d" = extr$sed),
+                          lsd = data.frame("l.s.d." = extr$lsd)),
+                     class = c("summary.SSA")))
+  }
 }
 
 #' Printing summazed objects of class SSA
@@ -166,35 +189,40 @@ summary.SSA <- function(object,
 print.summary.SSA <- function(x,
                               digits = max(getOption("digits") - 2, 3),
                               ...) {
-  if (!is.null(x$selSpatMod)) {
-    cat("Selected spatial model: ", x$selSpatMod, "\n\n")
-  }
-  cat("Summary statistics",
-      "\n==================\n")
-  ## Print stats using printCoefMat for a nicer layout.
-  print(x$stats)
-  if (!is.null(x$heritability)) {
-    cat("\nEstimated heritability",
-        "\n======================\n")
-    cat("\nHeritability:", x$heritability, "\n")
-  }
-  cat(paste0("\nPredicted means (", attr(x = x$meanTab, which = "title"), ")"),
-      "\n===============================\n")
-  if (!is.null(attr(x = x$meanTab, which = "nBest"))) {
-    cat("Best", attr(x = x$meanTab, which = "nBest"), "genotypes\n")
+  if (!is.null(x$sumTab)) {
+    cat("Summary statistics for", x$what, "of", x$trait, "\n\n")
+    print(x$sumTab)
   } else {
-    cat("\n")
-  }
-  printCoefmat(x$meanTab, digits = digits, ...)
-  if (nrow(x$lsd) > 0) {
-    cat("\nStandard Error of Difference (genotype modelled as fixed effect)",
-        "\n================================================================\n")
-    printCoefmat(x$sed, digits = digits, ...)
-  }
-  if (nrow(x$lsd) > 0) {
-    cat("\nLeast Significant Difference (genotype modelled as fixed effect)",
-        "\n================================================================\n")
-    printCoefmat(x$lsd, digits = digits, ...)
+    if (!is.null(x$selSpatMod)) {
+      cat("Selected spatial model: ", x$selSpatMod, "\n\n")
+    }
+    cat("Summary statistics",
+        "\n==================\n")
+    ## Print stats using printCoefMat for a nicer layout.
+    print(x$stats)
+    if (!is.null(x$heritability)) {
+      cat("\nEstimated heritability",
+          "\n======================\n")
+      cat("\nHeritability:", x$heritability, "\n")
+    }
+    cat(paste0("\nPredicted means (", attr(x = x$meanTab, which = "title"), ")"),
+        "\n===============================\n")
+    if (!is.null(attr(x = x$meanTab, which = "nBest"))) {
+      cat("Best", attr(x = x$meanTab, which = "nBest"), "genotypes\n")
+    } else {
+      cat("\n")
+    }
+    printCoefmat(x$meanTab, digits = digits, ...)
+    if (nrow(x$sed) > 0) {
+      cat("\nStandard Error of Difference (genotype modelled as fixed effect)",
+          "\n================================================================\n")
+      printCoefmat(x$sed, digits = digits, ...)
+    }
+    if (nrow(x$lsd) > 0) {
+      cat("\nLeast Significant Difference (genotype modelled as fixed effect)",
+          "\n================================================================\n")
+      printCoefmat(x$lsd, digits = digits, ...)
+    }
   }
 }
 
@@ -281,7 +309,7 @@ plot.SSA <- function(x,
   for (trial in trials) {
     if (!is.null(traits)) {
       traitsTr <- traits[hasName(x = colnames(x[[trial]]$TD[[trial]]),
-                               name = traits)]
+                                 name = traits)]
       if (length(traitsTr) == 0) {
         warning(paste0("traits not available for trial ", trial, ".\n",
                        "Plots for trial ", trial, " skipped.\n"))
@@ -734,7 +762,7 @@ SSAtoTD <- function(SSA,
     stop("SSA is not a valid object of class SSA.\n")
   }
   if (!is.null(traits) && (!is.character(traits) ||
-                           !all(traits %in% colnames(SSA[[1]]$TD)))) {
+                           !all(traits %in% colnames(SSA[[1]]$TD[[1]])))) {
     stop("Trait has to be a character vector defining columns in TD.\n")
   }
   what <- match.arg(what, several.ok = TRUE)

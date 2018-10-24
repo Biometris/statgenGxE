@@ -153,8 +153,8 @@ gxeVarComp <- function(TD,
                                      random = ~ genotype:corh(trial),
                                      start.values = TRUE, data = TDTot, ...)
           sink()
-          tmpValues <- qvInitial(TD = TDTot, trait = trait, useWt = useWt,
-                                 vcmodel = "outside", fixed = fixedForm, ...)
+          tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
+                                vcmodel = "outside", fixed = fixedForm, ...)
           tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(tmpValues$vg,
                                    scale(tmpValues$diag, center = FALSE), 1)
@@ -167,7 +167,7 @@ gxeVarComp <- function(TD,
                              R.param = tmpTable, data = TDTot,
                              maxiter = maxIter, workspace = 160e6,
                              weigths = "wt",
-                            # family = asreml::asreml.gaussian(dispersion = 1),
+                             # family = asreml::asreml.gaussian(dispersion = 1),
                              ...))
           } else {
             mr <- tryCatchExt(
@@ -187,8 +187,8 @@ gxeVarComp <- function(TD,
                                      start.values = TRUE, data = TDTot, ...)
           sink()
           tmpTable <- initVals$gammas.table
-          tmpValues <- qvInitial(TD = TDTot, trait = trait, useWt = useWt,
-                                 vcmodel = "fa", fixed = fixedForm, ...)
+          tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
+                                vcmodel = "fa", fixed = fixedForm, ...)
           if (!is.null(tmpValues)) {
             tmpTable[, "Value"] <- c(scale(tmpValues$psi, center = FALSE),
                                      tmpValues$gamma, 1)
@@ -224,8 +224,8 @@ gxeVarComp <- function(TD,
                                      start.values = TRUE, data = TDTot, ...)
           sink()
           tmpTable <- initVals$gammas.table
-          tmpValues <- qvInitial(TD = TDTot, trait = trait, useWt = useWt,
-                                 vcmodel = "fa2", fixed = fixedForm, ...)
+          tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
+                                vcmodel = "fa2", fixed = fixedForm, ...)
           if (!is.null(tmpValues)) {
             ## Keep loadings of factor 2 away from 0.
             tmpValues$gamma[2, tmpValues$gamma[2, ] < 1e-3] <- 1e-3
@@ -245,7 +245,7 @@ gxeVarComp <- function(TD,
                              maxiter = maxIter,
                              workspace = 160e6,
                              weigths = "wt",
-                            # family = asreml::asreml.gaussian(dispersion = 1),
+                             # family = asreml::asreml.gaussian(dispersion = 1),
                              ...))
 
           } else {
@@ -266,9 +266,9 @@ gxeVarComp <- function(TD,
                                      random = ~ genotype:us(trial),
                                      start.values = TRUE, data = TDTot, ...)
           sink()
-          tmpValues <- qvInitial(TD = TDTot, trait = trait, useWt = useWt,
-                                 vcmodel = "unstructured", fixed = fixedForm,
-                                 ...)
+          tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
+                                vcmodel = "unstructured", fixed = fixedForm,
+                                ...)
           tmpValues <- tmpValues$evCov[upper.tri(tmpValues$evCov, diag = TRUE)]
           tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(scale(tmpValues, center = FALSE),
@@ -362,13 +362,13 @@ gxeVarComp <- function(TD,
 #' Replicates '_qvInitial' procedure (S. J. Welham 15/05/09) in GenStat
 #'
 #' @keywords internal
-qvInitial <- function(TD,
-                      trait,
-                      useWt = FALSE,
-                      vcmodel = c("identity", "cs", "diagonal", "hcs",
-                                  "outside", "fa", "fa2", "unstructured"),
-                      fixed = NULL,
-                      ...) {
+initVals <- function(TD,
+                     trait,
+                     useWt = FALSE,
+                     vcmodel = c("identity", "cs", "diagonal", "hcs",
+                                 "outside", "fa", "fa2", "unstructured"),
+                     fixed = NULL,
+                     ...) {
   ## First, form estimate of unstructured matrix
   ## Create tempfile for asreml output.
   tmp <- tempfile()

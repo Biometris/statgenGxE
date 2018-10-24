@@ -28,7 +28,7 @@
 NULL
 
 #' @rdname FW
-#' @export
+#' @keywords internal
 createFW <- function(estimates,
                      anova,
                      envEffs,

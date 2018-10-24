@@ -45,3 +45,4 @@ Function for creating objects of S3 class FW (Finlay-Wilkinson).\cr
 \author{
 Bart-Jan van Rossum
 }
+\keyword{internal}

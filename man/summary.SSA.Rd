@@ -4,14 +4,17 @@
 \alias{summary.SSA}
 \title{Summarizing objects of class \code{SSA}}
 \usage{
-\method{summary}{SSA}(object, trial = NULL, trait = NULL, nBest = 20,
-  sortBy = NULL, naLast = TRUE, decreasing = TRUE, ...)
+\method{summary}{SSA}(object, trials = NULL, trait = NULL,
+  nBest = 20, sortBy = NULL, naLast = TRUE, decreasing = TRUE, ...)
 }
 \arguments{
 \item{object}{An object of class \code{SSA}.}
 
-\item{trial}{A character string indicating the trial to summarize. If
-\code{trial = NULL} and only one trial is modelled this trial is summarized.}
+\item{trials}{A character vector indicating the trial to summarize. If
+\code{trial = NULL} a summary is made of all trials in the \code{SSA} object.
+If a single trial is selected a full summary for this trial is created. For
+multiple trials a summary table with the most importantant statistics is
+returned.}
 
 \item{trait}{A character string indicating the trait to summarize. If
 \code{trait = NULL} and only one trait is modelled this trait is summarized.}
