@@ -298,7 +298,7 @@ dropTD <- function(TD,
 #'
 #' @param object An object of class TD.
 #' @param ... Further arguments - currently not used.
-#' @param trial A character vector specifying the trials to be plotted.
+#' @param trial A character string specifying the trial to be summarised.
 #' @param traits A character vector specifying the traits to be summarised.
 #' @param groupBy A character string specifying a column in TD by which the
 #' summary should be grouped. If \code{NULL} no grouping is done.

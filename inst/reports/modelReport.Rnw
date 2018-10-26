@@ -153,20 +153,20 @@ if (engine == "asreml" && !is.null(x[[trial]]$sumTab[[trait]])) {
 \section{Summary of the results}
 %-------------------------------------------------------------------------------
 <<label=extrSummary, echo=FALSE, results="hide">>=
-## Create summary SpATS in separate chunck to suppress output.
+## Create summary SpATS in separate chunk to suppress output.
 if (engine == "SpATS") {
   SpATSSum <- summary(model)
 }
 @
 <<label=summary, echo=FALSE, results="asis">>=
-modSum <- as.data.frame(summary(x[[trial]]$TD, traits = trait))
-modSum <- modSum[!is.na(modSum$Freq), ]
-print(xtable::xtable(x = modSum[, c(1, 3)],
+modSum <- as.data.frame(summary(x[[trial]]$TD, traits = trait)[, 1, 1])
+modSum <- modSum[!is.na(modSum[[1]]), , drop = FALSE]
+print(xtable::xtable(x = modSum,
                      caption = "Size of the data set and eight number descriptives",
                      label = "modelSummary",
-                     align = c("l", "l", "r")),
+                     align = c("l", "r")),
       latex.environments = "flushleft", caption.placement = "top",
-      include.rownames = FALSE, include.colnames = FALSE)
+      include.rownames = TRUE, include.colnames = FALSE)
 @
 <<label=condNewpage, echo=FALSE, results="asis">>=
 if (engine == "SpATS") {

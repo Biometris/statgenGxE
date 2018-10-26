@@ -14,7 +14,7 @@
 
 \item{...}{Further arguments - currently not used.}
 
-\item{trial}{A character vector specifying the trials to be plotted.}
+\item{trial}{A character string specifying the trial to be summarised.}
 
 \item{traits}{A character vector specifying the traits to be summarised.}
 
