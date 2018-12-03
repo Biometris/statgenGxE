@@ -136,8 +136,9 @@ summary.AMMI <- function(object, ...) {
 #' @param colorBy A character string indicating a column in the \code{TD} used
 #' as input for the AMMI analysis by which the genotypes should be colored. If
 #' \code{NULL} all genotypes will be colored in black.
-#' @param col A vector with plot colors for genotype and environment. This can
-#' either be named colors or color numbers.
+#' @param colGeno A character vector with plot colors for the genotypes. A
+#' single color when \code{colorBy = NULL}, a vector of colors otherwise.
+#' @param colEnv A character string with the plot color for the environments.
 #' @param primAxis A character string indicating the principal component to be
 #' plotted on the primary axis of the AMMI2 plot. Has to be given as
 #' \code{"PCn"} where n is the number of the principal component.
@@ -166,7 +167,8 @@ plot.AMMI <- function(x,
                       plotType = c("AMMI1", "AMMI2"),
                       scale = 1,
                       colorBy = NULL,
-                      col = c("black", "red"),
+                      colGeno = "black",
+                      colEnv = "red",
                       primAxis = "PC1",
                       secAxis = "PC2",
                       output = TRUE) {
@@ -177,8 +179,8 @@ plot.AMMI <- function(x,
   if (scale < 0 || scale > 1) {
     warning("Scale is outside [0, 1].\n", call. = FALSE)
   }
-  if (length(col) != 2) {
-    stop("col should contain exactly two colors.\n")
+  if (!is.character(colEnv) || length(colEnv) > 1) {
+    stop("colEnv should be a single character string.\n")
   }
   plotType <- match.arg(plotType)
   if (!is.null(colorBy) && (!is.character(colorBy) || length(colorBy) > 1)) {
@@ -215,7 +217,8 @@ plot.AMMI <- function(x,
                   overallMean = x$overallMean[[year]],
                   genoMean = x$genoMean[[year]], envMean = x$envMean[[year]],
                   trait = x$trait, dat = x$dat[[year]], GGE = x$GGE, year = year,
-                  scale = scale, col = col, colorBy = colorBy)
+                  scale = scale, colGeno = colGeno, colEnv = colEnv,
+                  colorBy = colorBy)
       }, simplify = FALSE)
     } else {
       ## Create a single AMMI1 plot.
@@ -223,7 +226,7 @@ plot.AMMI <- function(x,
                      importance = x$importance, overallMean = x$overallMean,
                      genoMean = x$genoMean, envMean = x$envMean,
                      trait = x$trait, dat = x$dat, GGE = x$GGE, scale = scale,
-                     col = col, colorBy = colorBy)
+                     colGeno = colGeno, colEnv = colEnv, colorBy = colorBy)
     }
   } else if (plotType == "AMMI2") {
     if (!is.character(primAxis) || length(primAxis) > 1 ||
@@ -267,7 +270,8 @@ plot.AMMI <- function(x,
                               importance = x$importance[[year]],
                               trait = x$trait, dat = x$dat[[year]], GGE = x$GGE,
                               year = year, primAxis = primAxis,
-                              secAxis = secAxis, scale = scale, col = col,
+                              secAxis = secAxis, scale = scale,
+                              colGeno = colGeno, colEnv = colEnv,
                               colorBy = colorBy)
                   }, simplify = FALSE)
 
@@ -285,7 +289,8 @@ plot.AMMI <- function(x,
       p <- plotAMMI2(loadings = x$envScores, scores = x$genoScores,
                      importance = x$importance, trait = x$trait, dat = x$dat,
                      GGE = x$GGE, primAxis = primAxis, secAxis = secAxis,
-                     scale = scale, col = col, colorBy = colorBy)
+                     scale = scale, colGeno = colGeno, colEnv = colEnv,
+                     colorBy = colorBy)
     }
   }
   if (output) {
@@ -311,19 +316,22 @@ plotAMMI1 <- function(loadings,
                       GGE,
                       year = "",
                       scale,
-                      col,
+                      colGeno,
+                      colEnv,
                       colorBy) {
   percPC1 <- round(importance[2, 1] * 100, 1)
   ## Calculate lambda scale
-  lam <- importance[1, 1]
-  lam <- lam ^ scale
+  lam <- importance[1, 1] ^ scale
   ## Put overallMean in variable since using x$ in plot produces an error.
   ovMean <- overallMean
-  ## Create dataframes for genotypes and environments.
+  ## Create data.frames for genotypes and environments.
   genoDat <- data.frame(x = genoMean, y = scores[, 1] / lam)
   if (!is.null(colorBy)) {
     genoDat <- merge(genoDat, dat[c("genotype", colorBy)],
                      by.x = "row.names", by.y = "genotype")
+  } else {
+    colorBy <- ".colorBy"
+    genoDat$.colorBy <- factor(1)
   }
   envDat <- data.frame(x = envMean, y = loadings[, 1] * lam)
   plotRatio <- (max(c(genoMean, envMean)) - min(c(genoMean, envMean))) /
@@ -331,14 +339,17 @@ plotAMMI1 <- function(loadings,
        min(c(scores[, 1] / lam, loadings[, 1] * lam)))
   p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "x", y = "y")) +
     ## Plot genotypes as points.
-    ggplot2::geom_point(ggplot2::aes_string(color = colorBy)) +
+    ggplot2::geom_point(ggplot2::aes_string(color = colorBy),
+                        show.legend = colorBy != ".colorBy") +
+    ## Add color(s) to genotypes.
+    ggplot2::scale_color_manual(values = colGeno) +
     ## Needed for a square plot output.
     ggplot2::coord_fixed(ratio = plotRatio, clip = "off") +
     ## Plot environments as texts.
     ggplot2::geom_text(data = envDat,
                        ggplot2::aes_string(x = "x", y = "y",
                                            label = "rownames(envDat)"),
-                       size = 3, vjust = 1, color = col[2]) +
+                       size = 3, vjust = 1, color = colEnv) +
     ## Add reference axes.
     ggplot2::geom_vline(ggplot2::aes(xintercept = ovMean),
                         linetype = "dashed", show.legend = FALSE) +
@@ -363,7 +374,8 @@ plotAMMI2 <- function(loadings,
                       primAxis = "PC1",
                       secAxis = "PC2",
                       scale,
-                      col,
+                      colGeno,
+                      colEnv,
                       colorBy) {
   percPC1 <- round(importance[2, primAxis] * 100, 1)
   percPC2 <- round(importance[2, secAxis] * 100, 1)
@@ -385,6 +397,9 @@ plotAMMI2 <- function(loadings,
   if (!is.null(colorBy)) {
     genoDat <- merge(genoDat, dat[c("genotype", colorBy)],
                      by.x = "row.names", by.y = "genotype")
+  } else {
+    colorBy <- ".colorBy"
+    genoDat$.colorBy <- factor(1)
   }
   envDat <- as.data.frame(t(t(loadings[, c(primAxis, secAxis)]) * lam))
   ## Compute multiplication factor for rescaling environmental data.
@@ -404,7 +419,10 @@ plotAMMI2 <- function(loadings,
   p <- ggplot2::ggplot(genoDat,
                        ggplot2::aes_string(x = primAxis, y = secAxis)) +
     ## Plot genotypes as points.
-    ggplot2::geom_point(ggplot2::aes_string(color = colorBy)) +
+    ggplot2::geom_point(ggplot2::aes_string(color = colorBy),
+                        show.legend = colorBy != ".colorBy") +
+    ## Add color(s) to genotypes.
+    ggplot2::scale_color_manual(values = colGeno) +
     ## Needed for a square plot output.
     ggplot2::coord_fixed(clip = "off", ratio = plotRatio) +
     ## Plot environments as texts.
@@ -412,7 +430,7 @@ plotAMMI2 <- function(loadings,
                        ggplot2::aes_string(x = primAxis, y = secAxis,
                                            label = "rownames(envDat)"),
                        size = 3, vjust = "outward", hjust = "outward",
-                       color = col[2]) +
+                       color = colEnv) +
     ## Add arrows from origin to environments.
     ## Adding alpha = for transparency causes the arrows not being plotted
     ## after turning off clipping which is needed since labels may fall off
@@ -422,7 +440,7 @@ plotAMMI2 <- function(loadings,
                                               yend = secAxis),
                           arrow = ggplot2::arrow(length =
                                                    ggplot2::unit(0.2, "cm")),
-                          color = col[2]) +
+                          color = colEnv) +
     ## Add labeling.
     ggplot2::labs(x = paste0(primAxis, " (", percPC1, "%)"),
                   y = paste0(secAxis, " (", percPC2, "%)")) +

@@ -5,8 +5,8 @@
 \title{Plot function for class AMMI}
 \usage{
 \method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2"), scale = 1,
-  colorBy = NULL, col = c("black", "red"), primAxis = "PC1",
-  secAxis = "PC2", output = TRUE)
+  colorBy = NULL, colGeno = "black", colEnv = "red",
+  primAxis = "PC1", secAxis = "PC2", output = TRUE)
 }
 \arguments{
 \item{x}{An object of class AMMI}
@@ -29,8 +29,10 @@ scale is outside this range.}
 as input for the AMMI analysis by which the genotypes should be colored. If
 \code{NULL} all genotypes will be colored in black.}
 
-\item{col}{A vector with plot colors for genotype and environment. This can
-either be named colors or color numbers.}
+\item{colGeno}{A character vector with plot colors for the genotypes. A
+single color when \code{colorBy = NULL}, a vector of colors otherwise.}
+
+\item{colEnv}{A character string with the plot color for the environments.}
 
 \item{primAxis}{A character string indicating the principal component to be
 plotted on the primary axis of the AMMI2 plot. Has to be given as
