@@ -175,7 +175,7 @@ test_that("ratios of effective dimensions are computed correctly", {
   expect_identical(dim(extSp$ratEffDim), c(12L, 1L))
   expect_equal(colnames(extSp$ratEffDim), "t1")
   expect_equal(as.numeric(extSp$ratEffDim),
-               c(1, 0.46, 0.01, 0.13, 1, 1, 1, 0.09, 0.07, 0, 0, 0))
+               c(1, 0.46, 0.01, 0.26, 1, 1, 1, 0.09, 0.07, 0, 0, 0))
 })
 
 test_that("correct attributes are added", {
