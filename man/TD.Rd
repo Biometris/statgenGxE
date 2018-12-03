@@ -25,7 +25,8 @@ dropTD(TD, trials)
 }
 \arguments{
 \item{data}{A data.frame containing trial data with a least a column for
-genotype.}
+genotype. The data.frame should be in a wide format, i.e. all available
+phenotypic data should be in a separate column within the data.frame.}
 
 \item{genotype}{An optional character string indicating the column in
 \code{data} that contains genotypes.}
@@ -106,7 +107,7 @@ for trial the list will contain one item named after the input data.
 \description{
 \code{createTD}\cr
 Function for creating objects of S3 class TD (Trial Data). The function
-performs the following steps:
+converts a data.frame to an object of class TD in the following steps:
 \itemize{
 \item{Check input data}
 \item{Rename columns to default column names - default column names:
@@ -135,6 +136,14 @@ case.\cr\cr
 Function for removing data for selected trials from an existing object of
 class TD.\cr\cr
 \code{\link{summary.TD}} and \code{\link{plot.TD}} methods are available.
+}
+\examples{
+## Create a data.frame with two traits to be converted to TD object.
+dat <- data.frame(geno = paste0("G", 1:10), tr = "T1", yield = 1:10,
+flowering = 3:12)
+## Convert data.frame to TD object.
+TD0 <- createTD(data = dat, genotype = "geno", trial = "tr")
+
 }
 \seealso{
 \code{\link{summary.TD}}, \code{\link{plot.TD}},

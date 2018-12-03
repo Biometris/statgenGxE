@@ -2,7 +2,7 @@
 #'
 #' \code{createTD}\cr
 #' Function for creating objects of S3 class TD (Trial Data). The function
-#' performs the following steps:
+#' converts a data.frame to an object of class TD in the following steps:
 #' \itemize{
 #' \item{Check input data}
 #' \item{Rename columns to default column names - default column names:
@@ -33,7 +33,8 @@
 #' \code{\link{summary.TD}} and \code{\link{plot.TD}} methods are available.
 #'
 #' @param data A data.frame containing trial data with a least a column for
-#' genotype.
+#' genotype. The data.frame should be in a wide format, i.e. all available
+#' phenotypic data should be in a separate column within the data.frame.
 #' @param genotype An optional character string indicating the column in
 #' \code{data} that contains genotypes.
 #' @param trial An optional character string indicating the column in
@@ -86,6 +87,13 @@
 #' the list with the same name as the trial. These data.frames have attributes
 #' containing the metadata for the corresponding trial. If there is no column
 #' for trial the list will contain one item named after the input data.
+#'
+#' @examples
+#' ## Create a data.frame with two traits to be converted to TD object.
+#' dat <- data.frame(geno = paste0("G", 1:10), tr = "T1", yield = 1:10,
+#' flowering = 3:12)
+#' ## Convert data.frame to TD object.
+#' TD0 <- createTD(data = dat, genotype = "geno", trial = "tr")
 #'
 #' @author Bart-Jan van Rossum
 #'
