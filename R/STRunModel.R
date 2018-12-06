@@ -272,6 +272,16 @@ modelChecks <- function(TD,
       stop(paste0(desCol, " should be a column in ", trial, ".\n"))
     }
   }
+  ## SpATS and lme4 will crash for the designs with replicates when repId only
+  ## contains a single distinct value.
+  ## Change design to the corresponding design without replicates if this is the
+  ## case.
+  if (design %in% c("res.ibd", "res.rowcol") &&
+      length(unique(TD[[trial]][["repId"]])) == 1) {
+    design <- substring(text = design, first = 5)
+    warning(paste0(trial, " contains only one distinct value for repId\n",
+                   "Design changed to ", design, ".\n"), call. = FALSE)
+  }
   if (!is.null(control) && !is.list(control)) {
     stop("control has to be NULL or a list.\n")
   }

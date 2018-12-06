@@ -292,3 +292,17 @@ test_that("Trial with missing data is handled properly when fitting models", {
                  "Error in asreml")
   expect_SSA(modelAs2)
 })
+
+testData3 <- testData
+## Set replicates to 1 for 1 field to test that design is changed to
+## corresponding design without replicates.
+testData3[testData3$field == "E1", "rep"] <- 1
+testTD3 <- createTD(data = testData3, trial = "field",
+                    genotype = "seed", rowCoord = "Y", colCoord = "X",
+                    repId = "rep")
+test_that("Design is modified when replicates contain only 1 distinct value", {
+  expect_warning(modelSp <- STRunModel(testTD3, trials = "E1",
+                                       design = "res.rowcol", traits = c("t1")),
+                 "Design changed")
+  expect_equal(modelSp$E1$design, "rowcol")
+})
