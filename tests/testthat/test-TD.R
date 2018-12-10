@@ -85,3 +85,8 @@ test_that("option groupBy in summary.TD produces correct output", {
   expect_equivalent(sumTD["Number of observations", "t4", ], c(27, 22, 26))
 })
 
+test_that("createTD accepts tibbles as input", {
+  ## Skip on cran since I needs package tibble as extra dependency.
+  skip_on_cran()
+  expect_is(createTD(data = tibble::as.tibble(testData)), "TD")
+})

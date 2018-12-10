@@ -136,6 +136,9 @@ createTD <- function(data,
   if (missing(data) || !is.data.frame(data)) {
     stop("data has to be a data.frame.\n")
   }
+  ## Convert input to data.frame. This needs to be done to be able to handle
+  ## tibbles and possibly other data structures in the future.
+  data <- as.data.frame(data)
   cols <- colnames(data)
   for (param in c(genotype, trial, loc, year, repId, subBlock, plot,
                   rowId, colId, rowCoord, colCoord, checkId)) {
