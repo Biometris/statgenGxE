@@ -168,6 +168,21 @@ report(geFW, outfile = "./myReports/FWReport.pdf")
 
 ## Computation of mega-environments {#me}
 
+For the computation of mega environments an AMMI model is fitted and then using the fitted values the environments are clustered  
+Mega environments can be created by two methods. The first method groups environments based on their best performing genotype; i.e. environments that share the same best genotype belong to the same mega environment, regardless whether environments correspond to years or locations.  
+In the second method genotypes that are above a certain quantile are used to classify locations into mega environments that are consistent across years. In this method, genotypes are scored according to whether they are above the cutOff threshold for the genotypic ranking within each location (1 if a genotype is above the cutOff and 0 if below). This genotype by location matrix with 1's and 0's is used to calculate the correlation between locations. Then, correlations across years are combined using the method by Charter and Alexander [@Charter1993]. The combined correlations are used to calculate Euclidean distances for hierarchical clustering. The number of mega environments obtained with the hierarchical clustering procedure is chosen to maximize
+the correlated response to selection within mega environments, as proposed in Atlin et al [@Atlin2000].  
+Since the test data doesn't contain information about the year only the first method is available for this data. This is the default setting for the corresponding function.
+```{r geMegaEnv}
+geMegaEnv <- gxeMegaEnv(TD = TDGxE, trait = "BLUEs_GY")
+```
+Since all 4 environments have a different winning genotype no clustering takes places at all and the 4 mega environments created correspond one-to-one to the environments.  
+As an alternative we could look at the genotypes with the lowest value per environment and try to calculate mega environments based on that. For this the parameter method in the function can be set to "min"
+```{r geMegaEnvMin}
+geMegaEnv2 <- gxeMegaEnv(TD = TDGxE, trait = "BLUEs_GY", method = "min")
+```
+Taking this approach we find 2 mega environments, one consisting of SR_FI_12 and SR_MWS_12 and the second consisting of the other two environments.
+
 ## Computation of stability measures {#st}
 
 Different measures of stability can be calculated using the RAP package, the
@@ -191,6 +206,15 @@ For the computation of stability measures a report can be made.
 ```{r geStabRep, eval=FALSE}
 report(geStab, outfile = "./myReports/stabReport.pdf")
 ```
+
+It is possible to calculate the stability measures based on mega environments instead of regular environments. To do so the parameter useMegaEnv has to be set to TRUE.
+```{r geStabMegaEnv}
+## Compute stabilities measures based on mega environments computed in 
+## previous paragraph.
+geStabME <- gxeStability(TD = geMegaEnv2, trait = "BLUEs_GY", useMegaEnv = TRUE)
+summary(geStabME)
+```
+
 
 ----
 
