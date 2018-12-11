@@ -88,18 +88,27 @@ summary(geVC)
 ```{r geVCasreml}
 ## Use asreml for fitting the models - 8 models fitted. 
 ## Use AIC as criterion for determining the best model.
-geVC2 <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY", engine = "asreml", 
-                   criterion = "AIC")
-summary(geVC2)
+if (requireNamespace("asreml")) {
+  geVC2 <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY", engine = "asreml", 
+                      criterion = "AIC")
+  summary(geVC2)
+}
 ```
 As becomes clear from the summary the best model based on AIC is the model with an unstructured variance-covariance structure. Also note that the both factor analytic models have not been fitted. A minimum of 5 environments are needed for those models to make sense and since our test data only contains 4 environments these models are skipped during analysis.  
 
 A heat map of the correlation between the environments based on the best fitted model can be plotted. 
 
 ```{r geVCPlot}
-plot(geVC2)
+if (requireNamespace("asreml")) {
+  plot(geVC2)
+}
 ```
-The upper left of the plot displays the variance between environments. Larger values are displayed in a bigger font. In the lower right of the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue a strong negative correlation. 
+The upper left of the plot displays the variance between environments. Larger values are displayed in a bigger font. In the lower right of the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue a strong negative correlation.  
+
+A report containing the most important results of the analysis can be made as well.
+```{r geVCRep, eval=FALSE}
+report(geVC2, outfile = "./myReports/varCompReport.pdf")
+```
 
 ## AMMI Analysis {#am}
 
@@ -130,15 +139,58 @@ The results of an AMMI analysis can be displayed in a biplot. Two types of biplo
 plot(geAm, scale = 0.5, plotType = "AMMI1")
 plot(geAm, scale = 0.5, plotType = "AMMI2")
 ```
-The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axis, group and color genotypes by a variable in the data and use a different scaling factor. Run ```help(plot.AMMI)``` for more details.
+The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axis, group and color genotypes by a variable in the data and use a different scaling factor. Run ```help(plot.AMMI)``` for more details.  
+
+For the AMMI analysis a report can be made as well.
+```{r geAMMIRep, eval=FALSE}
+report(geAm, outfile = "./myReports/AMMIReport.pdf")
+```
 
 ## Finlay-Wilkinson Analysis {#fw}
 
+With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank germplasm based on phenotypic stability for each individual trait.  
 
+In the RAP package this analysis can be done using the gxeFW function.
+```{r geFW}
+geFW <- gxeFw(TD = TDGxE, trait = "BLUEs_GY")
+summary(geFW)
+```
+Several plots can be made to investigate the output of the analysis.
+```{r plotFW,fig.width=5,fig.height=5,out.width="47%",fig.show="hold"}
+plot(geFW, plotType = "scatter")
+plot(geFW, plotType = "line")
+plot(geFW, plotType = "trellis")
+```
+A report can be made as well.
+```{r geFWRep, eval=FALSE}
+report(geFW, outfile = "./myReports/FWReport.pdf")
+```
 
 ## Computation of mega-environments {#me}
 
 ## Computation of stability measures {#st}
+
+Different measures of stability can be calculated using the RAP package, the
+cultivar-superiority measure of Lin & Binns [@LIN1988], Shukla's [@Shukla1972] stability variance and Wricke's [@Wricke1962] ecovalence.
+
+The cultivar-superiority measure is the sum of the squares of the difference between genotypic mean in each environment and the mean of the best genotype, divided by twice the number of environments. Genotypes with the smallest values of the superiority tend to be more stable, and closer to the best genotype in each environment.
+
+Shukla's stability variance is defined as the variance around the germplasm’s phenotypic mean across all environments. This provides a measure of the consistency of the genotype, without accounting for performance.
+
+Wricke’s Ecovalence Stability Coefficient is the contribution of each genotype to the GxE sum of squares, in an unweighted analysis of the GxE means. A low value indicates that the genotype responds in a consistent manner to changes in environment; i.e. stable from a dynamic point of view. Like static stability, the Wricke’s Ecovalence does not account for genotype performance.
+
+```{r geStab}
+geStab <- gxeStability(TD = TDGxE, trait = "BLUEs_GY")
+summary(geStab)
+```
+Plotting the results yields a scatter plot for each stability measure.
+```{r plotStab}
+plot(geStab)
+```
+For the computation of stability measures a report can be made.
+```{r geStabRep, eval=FALSE}
+report(geStab, outfile = "./myReports/stabReport.pdf")
+```
 
 ----
 

@@ -33,7 +33,8 @@ createstability <- function(superiority = NULL,
 }
 
 #' @export
-print.stability <- function(x, ...) {
+print.stability <- function(x,
+                            ...) {
   if (!is.null(x$superiority)) {
     cat("\nCultivar-superiority measure (Top 10% genotypes)\n")
     print(x$superiority[1:(ceiling(nrow(x$superiority) / 10)), ],
@@ -50,7 +51,8 @@ print.stability <- function(x, ...) {
 }
 
 #' @export
-summary.stability <- function(object, ...) {
+summary.stability <- function(object,
+                              ...) {
   print(object, ...)
 }
 
