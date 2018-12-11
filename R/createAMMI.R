@@ -56,7 +56,9 @@ createAMMI <- function(envScores,
 }
 
 #' @export
-print.AMMI <- function(x, ...) {
+print.AMMI <- function(x,
+                       ...,
+                       printGenoScores = FALSE) {
   cat("Principal components",
       "\n====================\n")
   if (x$byYear) {
@@ -91,22 +93,26 @@ print.AMMI <- function(x, ...) {
   } else {
     print(x$envScores, ...)
   }
-  cat("\nGenotypic scores",
-      "\n================\n")
-  if (x$byYear) {
-    for (year in years) {
-      cat(paste(year, "\n"))
-      print(x$genoScores[[year]], ...)
-      cat("\n")
+  if (printGenoScores) {
+    cat("\nGenotypic scores",
+        "\n================\n")
+    if (x$byYear) {
+      for (year in years) {
+        cat(paste(year, "\n"))
+        print(x$genoScores[[year]], ...)
+        cat("\n")
+      }
+    } else {
+      print(x$genoScores, ...)
     }
-  } else {
-    print(x$genoScores, ...)
   }
 }
 
 #' @export
-summary.AMMI <- function(object, ...) {
-  print(object, ...)
+summary.AMMI <- function(object,
+                         ...,
+                         printGenoScores = FALSE) {
+  print(object, ..., printGenoScores = printGenoScores)
 }
 
 #' Plot function for class AMMI
