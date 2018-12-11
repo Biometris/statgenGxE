@@ -5,7 +5,6 @@ date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     toc: false
-    number_sections: true
 bibliography: bibliography.bib
 vignette: >
   %\VignetteIndexEntry{Genotype by Environment analysis using RAP}
@@ -22,7 +21,20 @@ fig.dim = c(7, 5)
 library(RAP)
 ```
 
-# Genotype by Environment Analysis using the RAP package
+```{r, include = FALSE}
+## Recreate data from last step in RAP vignette.
+data("wheatChl")
+wheatTD <- createTD(data = wheatChl[wheatChl$trial != "C_SWS_12", ], 
+                    genotype = "trt_id", repId = "rep", subBlock = "bl", 
+                    rowCoord = "row", colCoord = "col")
+modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design = "res.rowcol")
+## Create a TD object containing BLUEs and standard errors of BLUEs.
+TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
+## Add weights to the output.
+TDGxE2 <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"), addWt = TRUE)
+```
+
+## Genotype by Environment Analysis using the RAP package
 
 The RAP package is developed as an easy to use package for analysing data of 
 plant breeding experiments with plenty of options for plotting and reporting 
@@ -47,19 +59,86 @@ The following types of analysis can be done using RAP:
 
 ---
 
-# Data preparation
+## Data preparation
 
 Just as for the analysis of single field trials the input for GxE analysis in the RAP package is an object of class TD. For a detailed description on how to construct such an object see [Modeling field trials using RAP](RAP.html). For this vignette the TD object created in the final step of [Modeling field trials using RAP](RAP.html) will be used as analysis object.
 
-# Best variance-covariance model {#vc}
+## Best variance-covariance model {#vc}
 
-# AMMI Analysis {#am}
+The function gxeVarComp fits models with different variance-covariance structures to the GxE data and determines the best model for the data. With the default settings for the function lme4 is used for fitting the models and only a compound symmetry model is fitted. By changing the modeling engine to asreml it is possible to fit 8 different models:  
 
-# Finlay-Wilkinson Analysis {#fw}
+* identity
+* compound symmetry
+* diagonal
+* heterogeneous compound symmetry
+* outside
+* factor analytic
+* factor analytic with two factors
+* unstructured
 
-# Computation of mega-environments {#me}
+The best model for the data is selected on either Akaike Information Criterion (AIC) or the Baysian Information Criterion (BIC). What criterion to use can be determined by a parameter in the function.  
 
-# Computation of stability measures {#st}
+Using the TDGxE TD object created in the RAP vignette the function can be applied as follows:
+```{r geVClme}
+## Use lme4 for fitting the models - only compound symmetry
+geVC <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY")
+summary(geVC)
+```
+
+```{r geVCasreml}
+## Use asreml for fitting the models - 8 models fitted. 
+## Use AIC as criterion for determining the best model.
+geVC2 <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY", engine = "asreml", 
+                   criterion = "AIC")
+summary(geVC2)
+```
+As becomes clear from the summary the best model based on AIC is the model with an unstructured variance-covariance structure. Also note that the both factor analytic models have not been fitted. A minimum of 5 environments are needed for those models to make sense and since our test data only contains 4 environments these models are skipped during analysis.  
+
+A heat map of the correlation between the environments based on the best fitted model can be plotted. 
+
+```{r geVCPlot}
+plot(geVC2)
+```
+The upper left of the plot displays the variance between environments. Larger values are displayed in a bigger font. In the lower right of the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue a strong negative correlation. 
+
+## AMMI Analysis {#am}
+
+The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with the Multiplicative Interaction effects. Then a principal component analysis is done on the residuals (multiplicative interaction). This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials.  
+
+The ammi analysis can be performed with the RAP package using the function gxeAmmi. 
+```{r geAmmi}
+## Run gxeAmmi with default settings.
+geAm <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY")
+summary(geAm)
+```
+With the default settings in the principal components analysis a maximum of 2 principal components is used. This can be changed using the nPC parameter in the function. The number of principal components can never be larger than the number of environments and the number of genotypes in the data. By specifying nPC = NULL the algorithm will determine the number of principal components to use using a method of forward selection.
+```{r geAmmi2}
+## Run gxeAmmi with 3 principal components.
+geAm2 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = 3)
+summary(geAm2)
+```
+```{r geAmmi3}
+## Run gxeAmmi. Algorithm determines number of principal components.
+geAm3 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = NULL)
+summary(geAm3)
+```
+If the data contains a column year it is possible to perform the AMMI analysis per year in the data. This can be done by specifying the parameter byYear as TRUE.  
+
+The results of an AMMI analysis can be displayed in a biplot. Two types of biplot are available. "AMMI1" plots the main effects against the first principal component. "AMMI2" plots the first against the second principal component.
+```{r plotAmmi,fig.width=5,fig.height=5,out.width="47%",fig.show="hold"}
+## Create an AMMI1 and AMMI2 biplot.
+plot(geAm, scale = 0.5, plotType = "AMMI1")
+plot(geAm, scale = 0.5, plotType = "AMMI2")
+```
+The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axis, group and color genotypes by a variable in the data and use a different scaling factor. Run ```help(plot.AMMI)``` for more details.
+
+## Finlay-Wilkinson Analysis {#fw}
+
+
+
+## Computation of mega-environments {#me}
+
+## Computation of stability measures {#st}
 
 ----
 
