@@ -450,6 +450,6 @@ See the vignette [Genotype by Environment analysis using RAP](RAPGxE.html) for a
 
 ----
 
-# References
+## References
 
 

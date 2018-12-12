@@ -1,0 +1,59 @@
+---
+title: "QTL analysis using RAP"
+author: "Bart-Jan van Rossum"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: false
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{QTL analysis using RAP}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+collapse = TRUE,
+comment = "#>",
+fig.dim = c(7, 5)
+)
+library(RAP)
+```
+
+```{r, include = FALSE}
+## Recreate data from last step in RAP vignette.
+data("wheatChl")
+wheatTD <- createTD(data = wheatChl[wheatChl$trial != "C_SWS_12", ], 
+                    genotype = "trt_id", repId = "rep", subBlock = "bl", 
+                    rowCoord = "row", colCoord = "col")
+modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design = "res.rowcol")
+## Create a TD object containing BLUEs and standard errors of BLUEs.
+TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
+## Add weights to the output.
+TDGxE2 <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"), addWt = TRUE)
+```
+
+## QTL Analysis using the RAP package
+
+The RAP package is developed as an easy to use package for analysing data of 
+plant breeding experiments with plenty of options for plotting and reporting 
+the results of the analyses.  
+
+The package has 3 main components:
+
+* Modeling trial data for single trials and extracting results
+* Genotype by Environment (GxE) analysis
+* QTL analysis
+
+This vignette deals with the QTL mapping part of the package and describes in 
+detail how to perform such an analysis.
+---
+
+## Data preparation
+
+Just as for the analysis of single field trials the input for GxE analysis in the RAP package is an object of class TD. For a detailed description on how to construct such an object see [Modeling field trials using RAP](RAP.html). For this vignette the TD object created in the final step of [Modeling field trials using RAP](RAP.html) will be used as analysis object.
+
+----
+
+## References

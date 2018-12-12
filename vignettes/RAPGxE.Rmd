@@ -54,31 +54,31 @@ The following types of analysis can be done using RAP:
 * [Best variance-covariance model](#vc)
 * [AMMI Analysis](#am)
 * [Finlay-Wilkinson Analysis](#fw)
-* [Computation of mega-environments](#me)
+* [Computation of mega environments](#me)
 * [Computation of stability measures](#st)
 
 ---
 
 ## Data preparation
 
-Just as for the analysis of single field trials the input for GxE analysis in the RAP package is an object of class TD. For a detailed description on how to construct such an object see [Modeling field trials using RAP](RAP.html). For this vignette the TD object created in the final step of [Modeling field trials using RAP](RAP.html) will be used as analysis object.
+Just as for the analysis of single field trials the input for GxE analysis in the RAP package is an object of class TD. For a detailed description on how to construct such an object see the vignette [Modeling field trials using RAP](RAP.html). For this vignette the TD object created in the final step of this vignette, ```TDGxE```, will be used as analysis object.
 
 ## Best variance-covariance model {#vc}
 
-The function gxeVarComp fits models with different variance-covariance structures to the GxE data and determines the best model for the data. With the default settings for the function lme4 is used for fitting the models and only a compound symmetry model is fitted. By changing the modeling engine to asreml it is possible to fit 8 different models:  
+The function gxeVarComp fits models with different variance-covariance structures to the GxE data and determines the best model for the data. With the default settings for the function lme4 is used for fitting the models and only a compound symmetry model is fitted. When changing the modeling engine to asreml 8 different models are fitted:  
 
 * identity
 * compound symmetry
 * diagonal
 * heterogeneous compound symmetry
 * outside
-* factor analytic
+* factor analytic with one factor
 * factor analytic with two factors
 * unstructured
 
-The best model for the data is selected on either Akaike Information Criterion (AIC) or the Baysian Information Criterion (BIC). What criterion to use can be determined by a parameter in the function.  
+The best model for the data is selected based on either the Akaike Information Criterion (AIC) or the Baysian Information Criterion (BIC). Which criterion is used is determined by the parameter ```criterion``` in the function ```gxeVarComp```.  
 
-Using the TDGxE TD object created in the RAP vignette the function can be applied as follows:
+Using the ```TDGxE``` TD object created in the RAP vignette the function can be used as follows:
 ```{r geVClme}
 ## Use lme4 for fitting the models - only compound symmetry
 geVC <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY")
@@ -98,11 +98,12 @@ As becomes clear from the summary the best model based on AIC is the model with 
 
 A heat map of the correlation between the environments based on the best fitted model can be plotted. 
 
-```{r geVCPlot}
+```{r geVCPlot, out.width="75%"}
 if (requireNamespace("asreml")) {
   plot(geVC2)
 }
 ```
+  
 The upper left of the plot displays the variance between environments. Larger values are displayed in a bigger font. In the lower right of the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue a strong negative correlation.  
 
 A report containing the most important results of the analysis can be made as well.
@@ -120,7 +121,7 @@ The ammi analysis can be performed with the RAP package using the function gxeAm
 geAm <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY")
 summary(geAm)
 ```
-With the default settings in the principal components analysis a maximum of 2 principal components is used. This can be changed using the nPC parameter in the function. The number of principal components can never be larger than the number of environments and the number of genotypes in the data. By specifying nPC = NULL the algorithm will determine the number of principal components to use using a method of forward selection.
+With the default settings in the principal components analysis a maximum of 2 principal components are used. This can be changed using the ```nPC``` parameter in the function. The number of principal components can never be larger than the number of environments and the number of genotypes in the data. By specifying ```nPC = NULL``` the algorithm will determine the number of principal components to use using a method of forward selection.
 ```{r geAmmi2}
 ## Run gxeAmmi with 3 principal components.
 geAm2 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = 3)
@@ -131,7 +132,7 @@ summary(geAm2)
 geAm3 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = NULL)
 summary(geAm3)
 ```
-If the data contains a column year it is possible to perform the AMMI analysis per year in the data. This can be done by specifying the parameter byYear as TRUE.  
+If the data contains a column year it is possible to perform the AMMI analysis per year in the data. This can be done by specifying the parameter ```byYear = TRUE```.  
 
 The results of an AMMI analysis can be displayed in a biplot. Two types of biplot are available. "AMMI1" plots the main effects against the first principal component. "AMMI2" plots the first against the second principal component.
 ```{r plotAmmi,fig.width=5,fig.height=5,out.width="47%",fig.show="hold"}
@@ -161,23 +162,24 @@ plot(geFW, plotType = "scatter")
 plot(geFW, plotType = "line")
 plot(geFW, plotType = "trellis")
 ```
+  
 A report can be made as well.
 ```{r geFWRep, eval=FALSE}
 report(geFW, outfile = "./myReports/FWReport.pdf")
 ```
 
-## Computation of mega-environments {#me}
+## Computation of mega environments {#me}
 
-For the computation of mega environments an AMMI model is fitted and then using the fitted values the environments are clustered  
+For the computation of mega environments an AMMI model is fitted and then using the fitted values of this model the environments are clustered  
 Mega environments can be created by two methods. The first method groups environments based on their best performing genotype; i.e. environments that share the same best genotype belong to the same mega environment, regardless whether environments correspond to years or locations.  
-In the second method genotypes that are above a certain quantile are used to classify locations into mega environments that are consistent across years. In this method, genotypes are scored according to whether they are above the cutOff threshold for the genotypic ranking within each location (1 if a genotype is above the cutOff and 0 if below). This genotype by location matrix with 1's and 0's is used to calculate the correlation between locations. Then, correlations across years are combined using the method by Charter and Alexander [@Charter1993]. The combined correlations are used to calculate Euclidean distances for hierarchical clustering. The number of mega environments obtained with the hierarchical clustering procedure is chosen to maximize
+In the second method genotypes that are above a certain quantile are used to classify locations into mega environments that are consistent across years. In this method, genotypes are scored according to whether they are above the ```cutOff``` threshold for the genotypic ranking within each location (1 if a genotype is above the cutOff and 0 if below). This genotype by location matrix with 1's and 0's is used to calculate the correlation between locations. Then, correlations across years are combined using the method by Charter and Alexander [@Charter1993]. The combined correlations are used to calculate Euclidean distances for hierarchical clustering. The number of mega environments obtained with the hierarchical clustering procedure is chosen to maximize
 the correlated response to selection within mega environments, as proposed in Atlin et al [@Atlin2000].  
-Since the test data doesn't contain information about the year only the first method is available for this data. This is the default setting for the corresponding function.
+Since the test data doesn't contain information about the year only the first method is available for this data. This is the default setting for the gxeMegaEnv function.
 ```{r geMegaEnv}
 geMegaEnv <- gxeMegaEnv(TD = TDGxE, trait = "BLUEs_GY")
 ```
 Since all 4 environments have a different winning genotype no clustering takes places at all and the 4 mega environments created correspond one-to-one to the environments.  
-As an alternative we could look at the genotypes with the lowest value per environment and try to calculate mega environments based on that. For this the parameter method in the function can be set to "min"
+As an alternative we could look at the genotypes with the lowest value per environment and calculate mega environments based on that. For this the parameter ```method``` in the function can be set to "min"
 ```{r geMegaEnvMin}
 geMegaEnv2 <- gxeMegaEnv(TD = TDGxE, trait = "BLUEs_GY", method = "min")
 ```
@@ -190,7 +192,7 @@ cultivar-superiority measure of Lin & Binns [@LIN1988], Shukla's [@Shukla1972] s
 
 The cultivar-superiority measure is the sum of the squares of the difference between genotypic mean in each environment and the mean of the best genotype, divided by twice the number of environments. Genotypes with the smallest values of the superiority tend to be more stable, and closer to the best genotype in each environment.
 
-Shukla's stability variance is defined as the variance around the germplasm’s phenotypic mean across all environments. This provides a measure of the consistency of the genotype, without accounting for performance.
+Shukla's stability variance (static stability) is defined as the variance around the germplasm’s phenotypic mean across all environments. This provides a measure of the consistency of the genotype, without accounting for performance.
 
 Wricke’s Ecovalence Stability Coefficient is the contribution of each genotype to the GxE sum of squares, in an unweighted analysis of the GxE means. A low value indicates that the genotype responds in a consistent manner to changes in environment; i.e. stable from a dynamic point of view. Like static stability, the Wricke’s Ecovalence does not account for genotype performance.
 
@@ -207,7 +209,7 @@ For the computation of stability measures a report can be made.
 report(geStab, outfile = "./myReports/stabReport.pdf")
 ```
 
-It is possible to calculate the stability measures based on mega environments instead of regular environments. To do so the parameter useMegaEnv has to be set to TRUE.
+It is possible to calculate the stability measures based on mega environments instead of regular environments. To do so the parameter ```useMegaEnv``` has to be set to ```TRUE```.
 ```{r geStabMegaEnv}
 ## Compute stabilities measures based on mega environments computed in 
 ## previous paragraph.
@@ -218,4 +220,4 @@ summary(geStabME)
 
 ----
 
-# References
+## References
