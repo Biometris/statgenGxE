@@ -71,15 +71,6 @@ devtools::use_data(testBc, overwrite = TRUE)
 
 ## Create data for vignette.
 # Read raw data.
-wheatAus <- read.csv(system.file("extdata", "wheat_Australia_recoded.csv",
-                                 package = "RAP"), stringsAsFactors = FALSE)
-wheatAus$year <- 2000 + as.numeric(substring(text = wheatAus$Trial, first = 1,
-                                             last = 2))
-wheatAus$loc <- substring(text = wheatAus$Trial, first = 3)
-# Export to package.
-devtools::use_data(wheatAus, overwrite = TRUE)
-
-# Read raw data.
 dat2011 <- read.delim(system.file("extdata", "pheno_data2011.txt",
                                   package = "RAP"))
 dat2012 <- read.delim(system.file("extdata", "pheno_data2012.txt",

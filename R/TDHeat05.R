@@ -1,9 +1,6 @@
 #' Data used in vignette
 "wheatChl"
 
-#' Data used in vignette
-"wheatAus"
-
 #' Test data
 "TDHeat05"
 
