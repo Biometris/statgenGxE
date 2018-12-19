@@ -324,10 +324,14 @@ plot.SSA <- function(x,
     } else {
       what <- match.arg(arg = what, choices = c("fixed", "random"))
     }
-    useCheckId <-
-      length(grep(pattern = "checkId",
-                  x = deparse(x[[trial]][[ifelse(what == "fixed", "mFix",
-                                                 "mRandom")]][[1]]$model$fixed))) > 0
+    if (x[[trial]]$engine == "SpATS" &&
+        length(grep(pattern = "checkId",
+                    x = deparse(x[[trial]][[ifelse(what == "fixed", "mFix",
+                                                   "mRandom")]][[1]]$model$fixed))) > 0) {
+      useCheckId <- TRUE
+    } else {
+      useCheckId <- FALSE
+    }
     if (plotType == "spatial") {
       mergeCols <- spatCols
     } else {
