@@ -265,7 +265,7 @@ print.summary.SSA <- function(x,
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
-#' @return A list containing ggplot object for the selected plots.
+#' @return A list containing ggplot objects for the selected plots.
 #'
 #' @seealso \code{\link{SSA}}
 #'
@@ -308,7 +308,7 @@ plot.SSA <- function(x,
   p <- setNames(vector(mode = "list", length = length(trials)), trials)
   for (trial in trials) {
     if (!is.null(traits)) {
-      traitsTr <- traits[hasName(x = colnames(x[[trial]]$TD[[trial]]),
+      traitsTr <- traits[hasName(x = x[[trial]]$TD[[trial]],
                                  name = traits)]
       if (length(traitsTr) == 0) {
         warning(paste0("traits not available for trial ", trial, ".\n",
@@ -323,6 +323,18 @@ plot.SSA <- function(x,
       what <- ifelse(is.null(x[[trial]]$mFix), "random", "fixed")
     } else {
       what <- match.arg(arg = what, choices = c("fixed", "random"))
+    }
+    useCheckId <-
+      length(grep(pattern = "checkId",
+                  x = deparse(x[[trial]][[ifelse(what == "fixed", "mFix",
+                                                 "mRandom")]][[1]]$model$fixed))) > 0
+    if (plotType == "spatial") {
+      mergeCols <- spatCols
+    } else {
+      mergeCols <- NULL
+    }
+    if (useCheckId) {
+      mergeCols <- c(mergeCols, "checkId")
     }
     if (plotType == "spatial" && !all(spatCols %in%
                                       colnames(x[[trial]]$TD[[trial]]))) {
@@ -347,19 +359,16 @@ plot.SSA <- function(x,
       ## Extract fitted and predicted values from model.
       fitted <- STExtract(x, trials = trial, traits = trait,
                           what = ifelse(what == "fixed", "fitted", "rMeans"),
-                          keep = if (plotType == "spatial") spatCols else
-                            NULL)[[trial]][[ifelse(what == "fixed",
+                          keep = mergeCols)[[trial]][[ifelse(what == "fixed",
                                                    "fitted", "rMeans")]]
       predType <- ifelse(what == "fixed", "BLUEs", "BLUPs")
       pred <- STExtract(x, trials = trial, traits = trait,
                         what = predType)[[trial]][[predType]][c(predicted, trait)]
       ## Extract raw data and compute residuals.
-      response <- x[[trial]]$TD[[trial]][, c(predicted, trait,
-                                             if (plotType == "spatial") spatCols)]
+      response <- x[[trial]]$TD[[trial]][, c(predicted, trait, mergeCols)]
       ## Create plot data by merging extracted data together and renaming some
       ## columns.
-      plotDat <- merge(response, fitted,
-                       by = c(predicted, if (plotType == "spatial") spatCols))
+      plotDat <- merge(response, fitted, by = c(predicted, mergeCols))
       plotDat <- merge(plotDat, pred, by = predicted)
       plotDat$response <- plotDat[[paste0(trait, ".x")]]
       plotDat$fitted <- plotDat[[paste0(trait, ".y")]]
@@ -689,7 +698,7 @@ SSAtoCross <- function(SSA,
     trial <- names(SSA)
   }
   if (!is.null(traits) && (!is.character(traits) ||
-                           !all(traits %in% colnames(SSA[[trial]]$TD)))) {
+                           !all(traits %in% colnames(SSA[[trial]]$TD[[trial]])))) {
     stop("Trait has to be a character vector defining columns in TD.\n")
   }
   if (is.null(traits)) {
