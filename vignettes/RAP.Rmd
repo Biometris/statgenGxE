@@ -93,7 +93,7 @@ could be done in one go.
 ```{r createTD}
 data("wheatChl")
 wheatTD <- createTD(data = wheatChl[wheatChl$trial != "C_SWS_12", ], 
-                    genotype = "trt_id", repId = "rep", subBlock = "bl", 
+                    genotype = "trt", repId = "rep", subBlock = "bl", 
                     rowCoord = "row", colCoord = "col")
 ```
 The `TD` object just created is a `list` with 4 items, 1 for each trial 
@@ -124,7 +124,7 @@ be used. Since now 1 new trial is added it makes sense to immediately add the
 meta data for this trial as well using the appropriate parameters in `addTD`. 
 ```{r addTD, R.options=list(width=90)}
 wheatTD <- addTD(TD = wheatTD, data = wheatChl[wheatChl$trial == "C_SWS_12", ], 
-                 genotype = "trt_id", repId = "rep", subBlock = "bl", 
+                 genotype = "trt", repId = "rep", subBlock = "bl", 
                  rowCoord = "row", colCoord = "col", trLocation = "Cauquenes", 
                  trDate = as.Date("070912", "%d%m%y"), trLat = -35.58,
                  trLong = -72.17, trPlWidth = 2, trPlLength = 1)
