@@ -4,7 +4,7 @@
 \name{wheatChl}
 \alias{wheatChl}
 \title{Field data for a wheat experiment in Chili.}
-\format{A data frame with 4000 rows and 11 variables:
+\format{A data.frame with 4000 rows and 11 variables:
 \describe{
   \item{rep}{replicate}
   \item{bl}{block id}
