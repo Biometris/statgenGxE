@@ -25,7 +25,7 @@ library(RAP)
 ## Recreate data from last step in RAP vignette.
 data("wheatChl")
 wheatTD <- createTD(data = wheatChl, 
-                    genotype = "trt_id", repId = "rep", subBlock = "bl", 
+                    genotype = "trt", repId = "rep", subBlock = "bl", 
                     rowCoord = "row", colCoord = "col")
 modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design = "res.rowcol")
 ```
