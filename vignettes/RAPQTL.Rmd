@@ -24,14 +24,10 @@ library(RAP)
 ```{r, include = FALSE}
 ## Recreate data from last step in RAP vignette.
 data("wheatChl")
-wheatTD <- createTD(data = wheatChl[wheatChl$trial != "C_SWS_12", ], 
+wheatTD <- createTD(data = wheatChl, 
                     genotype = "trt_id", repId = "rep", subBlock = "bl", 
                     rowCoord = "row", colCoord = "col")
 modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design = "res.rowcol")
-## Create a TD object containing BLUEs and standard errors of BLUEs.
-TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
-## Add weights to the output.
-TDGxE2 <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"), addWt = TRUE)
 ```
 
 ## QTL Analysis using the RAP package
@@ -48,11 +44,22 @@ The package has 3 main components:
 
 This vignette deals with the QTL mapping part of the package and describes in 
 detail how to perform such an analysis.
+
 ---
 
 ## Data preparation
 
-Just as for the analysis of single field trials the input for GxE analysis in the RAP package is an object of class TD. For a detailed description on how to construct such an object see [Modeling field trials using RAP](RAP.html). For this vignette the TD object created in the final step of [Modeling field trials using RAP](RAP.html) will be used as analysis object.
+The functions in the RAP package for QTL analysis are essentially wrappers for functions in the qtl package [@Broman2003]. To start a QTL analysis as in the qtl package an object of class ```cross``` needs to be constructed. This can be done using the ````read.cross``` function from the qtl package (see ```help(read.cross, package = "qtl")```) on how to do this.  
+A more convenient way is to directly convert the output of a model fitted using ```STRunModel``` into an object of class cross using the function ```SSAtoCross```. For the examp
+
+```{r createCross}
+cr1 <- SSAtoCross(SSA = modWheatSpTot, trial = "C_SWS_12",  
+                  what = "BLUEs", genoFile = system.file("extdata", "markersWheatChl.csv", package = "RAP"), na.strings = c("N", "H"))
+```
+```{r qualContr}
+#QTLMapQC(cross = cr1)
+```
+
 
 ----
 

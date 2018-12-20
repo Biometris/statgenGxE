@@ -24,8 +24,7 @@ Simultaneously the same report will be created as a tex file.
 }
 \examples{
 F2 <- qtl::read.cross(format="csv",
-                      file = system.file("extdata",
-                                        "F2_maize_practical3_ex2.csv",
+                      file = system.file("extdata", "F2maize_geno.csv",
                                         package = "RAP"),
                       genotypes = c("AA", "AB", "BB"),
                       alleles = c("A", "B"), estimate.map = FALSE)

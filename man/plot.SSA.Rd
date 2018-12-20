@@ -35,7 +35,7 @@ printing.}
 \code{FALSE} only a list of ggplot objects is invisibly returned.}
 }
 \value{
-A list containing ggplot object for the selected plots.
+A list containing ggplot objects for the selected plots.
 }
 \description{
 This function draws either four base plots:
