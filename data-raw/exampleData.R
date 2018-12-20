@@ -25,7 +25,8 @@ devtools::use_data(TDMaize, overwrite = TRUE)
 
 ## Create a dataset for unit testing.
 set.seed(123)
-testData <- data.frame(seed = rep(x = paste0("G", rep(x = 1:15, times = 2)), times = 3),
+testData <- data.frame(seed = rep(x = paste0("G", rep(x = 1:15, times = 2)),
+                                  times = 3),
                        family = paste0("F", 1:90),
                        field = rep(x = paste0("E", 1:3), each = 30),
                        rep = rep(x = c(1, 2), each = 15),
@@ -41,8 +42,6 @@ testData <- data.frame(seed = rep(x = paste0("G", rep(x = 1:15, times = 2)), tim
 ## Add some random NAs to traits t3 and t4.
 testData$t3[sample.int(n = 90, size = 15)] <- NA
 testData$t4[sample.int(n = 90, size = 15)] <- NA
-## Export to package
-devtools::use_data(testData, overwrite = TRUE)
 
 ## Use data from qtl package for testing cross functions.
 ## Save locally to prevent errors from changes in data.
@@ -54,20 +53,18 @@ testF2$geno$`1`$data <- cbind(testF2$geno$`1`$data, testF2$geno$`1`$data[, 7])
 colnames(testF2$geno$`1`$data)[8] <- "D1M37"
 testF2$geno$`1`$map <- c(testF2$geno$`1`$map, 137.37)
 names(testF2$geno$`1`$map)[8] <- "D1M37"
-## Export to package
-devtools::use_data(testF2, overwrite = TRUE)
 
 data(fake.4way, package = "qtl")
 ## Restrict data.
 test4way <- fake.4way[c(1,2,"X"), 1:50]
-## Export to package
-devtools::use_data(test4way, overwrite = TRUE)
 
 data(fake.bc, package = "qtl")
 ## Restrict data.
 testBc <- fake.bc[1:3, 1:50]
-## Export to package.
-devtools::use_data(testBc, overwrite = TRUE)
+
+## Export all internal data in one go to package.
+devtools::use_data(testData, testF2, test4way, testBc,
+                   overwrite = TRUE, internal = TRUE)
 
 ## Create data for vignette.
 # Read raw data.
@@ -99,7 +96,8 @@ dat2012tot$year <- 2012
 dat2012tot[c("DH", "NKS", "TKW")] <- NA
 # Bind year data together and rename genotypes.
 wheatChl <- rbind(dat2011tot, dat2012tot)
-wheatChl$trt_id <- sprintf("G%03d", wheatChl$trt_id)
+wheatChl$trt <- sprintf("G%03d", wheatChl$trt_id)
+wheatChl <- wheatChl[!colnames(wheatChl) %in% c("parc", "trt_id")]
 # Export to package
 devtools::use_data(wheatChl, overwrite = TRUE)
 
