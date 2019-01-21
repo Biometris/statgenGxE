@@ -57,20 +57,20 @@ modWheatSp3 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
                           control = list(nSeg = c(20, 20)))
 
 ## ----fitAs, message=FALSE, results='hide'--------------------------------
-if (requireNamespace("asreml")) {
+if (requireNamespace("asreml", quietly = TRUE)) {
   modWheatAs <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
                            design = "res.rowcol", trySpatial = TRUE,
                            engine = "asreml", control = list(criterion = "BIC"))
 }
 
 ## ----spatCh--------------------------------------------------------------
-if (requireNamespace("asreml")) {
+if (requireNamespace("asreml", quietly = TRUE)) {
   ## Best model
   modWheatAs$SR_FI_11$spatial$GY
 }  
 
 ## ----spatCh2-------------------------------------------------------------
-if (requireNamespace("asreml")) {
+if (requireNamespace("asreml", quietly = TRUE)) {
   ## Overview of fitted models
   print(modWheatAs$SR_FI_11$sumTab$GY, digits = 2)
 }

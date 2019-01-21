@@ -17,21 +17,21 @@ modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design 
 TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
 
 ## ----geVClme-------------------------------------------------------------
-## Use lme4 for fitting the models - only compound symmetry
+## Use lme4 for fitting the models - only compound symmetry.
 geVC <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY")
 summary(geVC)
 
 ## ----geVCasreml----------------------------------------------------------
 ## Use asreml for fitting the models - 8 models fitted. 
 ## Use AIC as criterion for determining the best model.
-if (requireNamespace("asreml")) {
+if (requireNamespace("asreml", quietly = TRUE)) {
   geVC2 <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY", engine = "asreml", 
                       criterion = "AIC")
   summary(geVC2)
 }
 
 ## ----geVCPlot, out.width="75%"-------------------------------------------
-if (requireNamespace("asreml")) {
+if (requireNamespace("asreml", quietly = TRUE)) {
   plot(geVC2)
 }
 

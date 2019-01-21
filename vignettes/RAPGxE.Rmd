@@ -78,7 +78,7 @@ The best model for the data is selected based on either the Akaike Information C
 
 Using the ```TDGxE``` TD object created in the RAP vignette the function can be used as follows:
 ```{r geVClme}
-## Use lme4 for fitting the models - only compound symmetry
+## Use lme4 for fitting the models - only compound symmetry.
 geVC <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY")
 summary(geVC)
 ```
@@ -86,7 +86,7 @@ summary(geVC)
 ```{r geVCasreml}
 ## Use asreml for fitting the models - 8 models fitted. 
 ## Use AIC as criterion for determining the best model.
-if (requireNamespace("asreml")) {
+if (requireNamespace("asreml", quietly = TRUE)) {
   geVC2 <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY", engine = "asreml", 
                       criterion = "AIC")
   summary(geVC2)
@@ -98,7 +98,7 @@ Note that for the both factor analytic models to be fitted a minimum of 5 enviro
 A heat map of the correlation between the environments based on the best fitted model can be plotted. 
 
 ```{r geVCPlot, out.width="75%"}
-if (requireNamespace("asreml")) {
+if (requireNamespace("asreml", quietly = TRUE)) {
   plot(geVC2)
 }
 ```
