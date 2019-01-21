@@ -22,7 +22,7 @@ phenotype in the cross object. This can be either \code{BLUEs} or
 
 \item{genoFile}{A character string indicating a filename containing
 phenotypic data. The data should be in the format required by the
-qtl package. The first column  should contain the individuals, starting
+qtl package. The first column should contain the individuals, starting
 from row 4. The following columns contain markers with in the second and
 third row the chromosome and position on the chromosome and in the
 following rows the genotypes.}

@@ -142,9 +142,16 @@ summary.AMMI <- function(object,
 #' @param colorBy A character string indicating a column in the \code{TD} used
 #' as input for the AMMI analysis by which the genotypes should be colored. If
 #' \code{NULL} all genotypes will be colored in black.
+#' @param plotGeno Should genotypes be plotted?
 #' @param colGeno A character vector with plot colors for the genotypes. A
 #' single color when \code{colorBy = NULL}, a vector of colors otherwise.
+#' @param sizeGeno An numerical value indicating the text size for plotting the
+#' genotypes. Use \code{sizeGeno = 0} for plotting genotypes as points instead
+#' of using their names.
+#' @param plotEnv Should environments be plotted?
 #' @param colEnv A character string with the plot color for the environments.
+#' @param sizeEnv An integer indicating the text size for plotting the
+#' environments.
 #' @param primAxis A character string indicating the principal component to be
 #' plotted on the primary axis of the AMMI2 plot. Has to be given as
 #' \code{"PCn"} where n is the number of the principal component.
@@ -155,7 +162,8 @@ summary.AMMI <- function(object,
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
-#' @return A biplot depending on \code{plotType}.
+#' @return A biplot depending on \code{plotType}. The ggplot object for the
+#' biplot is returned invisibly.
 #'
 #' @examples
 #' ## Run AMMI analysis.
@@ -166,15 +174,19 @@ summary.AMMI <- function(object,
 #' plot(geAmmi, plotType = "AMMI2")
 #'
 #' @import graphics grDevices
-#' @importFrom utils modifyList
+#'
 #' @export
 plot.AMMI <- function(x,
                       ...,
                       plotType = c("AMMI1", "AMMI2"),
                       scale = 1,
                       colorBy = NULL,
+                      plotGeno = TRUE,
                       colGeno = "black",
+                      sizeGeno = 0,
+                      plotEnv = TRUE,
                       colEnv = "red",
+                      sizeEnv = 3,
                       primAxis = "PC1",
                       secAxis = "PC2",
                       output = TRUE) {
@@ -199,7 +211,7 @@ plot.AMMI <- function(x,
           stop("colorBy should be a column in data.\n")
         }
         colTab <- unique(dat[c("genotype", colorBy)])
-        if (nrow(colTab) != nlevels(dat$genotype)) {
+        if (nrow(colTab) != nlevels(droplevels(dat$genotype))) {
           stop("colorBy should have exactly one value per genotype")
         }
       }
@@ -223,8 +235,9 @@ plot.AMMI <- function(x,
                   overallMean = x$overallMean[[year]],
                   genoMean = x$genoMean[[year]], envMean = x$envMean[[year]],
                   trait = x$trait, dat = x$dat[[year]], GGE = x$GGE, year = year,
-                  scale = scale, colGeno = colGeno, colEnv = colEnv,
-                  colorBy = colorBy)
+                  scale = scale, plotGeno = plotGeno, colGeno = colGeno,
+                  sizeGeno = sizeGeno, plotEnv = plotEnv, colEnv = colEnv,
+                  sizeEnv = sizeEnv, colorBy = colorBy)
       }, simplify = FALSE)
     } else {
       ## Create a single AMMI1 plot.
@@ -232,7 +245,9 @@ plot.AMMI <- function(x,
                      importance = x$importance, overallMean = x$overallMean,
                      genoMean = x$genoMean, envMean = x$envMean,
                      trait = x$trait, dat = x$dat, GGE = x$GGE, scale = scale,
-                     colGeno = colGeno, colEnv = colEnv, colorBy = colorBy)
+                     plotGeno = plotGeno, colGeno = colGeno,
+                     sizeGeno = sizeGeno, plotEnv = plotEnv, colEnv = colEnv,
+                     sizeEnv = sizeEnv, colorBy = colorBy)
     }
   } else if (plotType == "AMMI2") {
     if (!is.character(primAxis) || length(primAxis) > 1 ||
@@ -277,7 +292,9 @@ plot.AMMI <- function(x,
                               trait = x$trait, dat = x$dat[[year]], GGE = x$GGE,
                               year = year, primAxis = primAxis,
                               secAxis = secAxis, scale = scale,
-                              colGeno = colGeno, colEnv = colEnv,
+                              plotGeno = plotGeno, colGeno = colGeno,
+                              sizeGeno = sizeGeno, plotEnv = plotEnv,
+                              colEnv = colEnv, sizeEnv = sizeEnv,
                               colorBy = colorBy)
                   }, simplify = FALSE)
 
@@ -295,8 +312,9 @@ plot.AMMI <- function(x,
       p <- plotAMMI2(loadings = x$envScores, scores = x$genoScores,
                      importance = x$importance, trait = x$trait, dat = x$dat,
                      GGE = x$GGE, primAxis = primAxis, secAxis = secAxis,
-                     scale = scale, colGeno = colGeno, colEnv = colEnv,
-                     colorBy = colorBy)
+                     scale = scale, plotGeno = plotGeno, colGeno = colGeno,
+                     sizeGeno = sizeGeno, plotEnv = plotEnv, colEnv = colEnv,
+                     sizeEnv = sizeEnv, colorBy = colorBy)
     }
   }
   if (output) {
@@ -322,8 +340,12 @@ plotAMMI1 <- function(loadings,
                       GGE,
                       year = "",
                       scale,
+                      plotGeno = TRUE,
                       colGeno,
+                      sizeGeno,
+                      plotEnv = TRUE,
                       colEnv,
+                      sizeEnv,
                       colorBy) {
   percPC1 <- round(importance[2, 1] * 100, 1)
   ## Calculate lambda scale
@@ -344,18 +366,8 @@ plotAMMI1 <- function(loadings,
     (max(c(scores[, 1] / lam, loadings[, 1] * lam)) -
        min(c(scores[, 1] / lam, loadings[, 1] * lam)))
   p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "x", y = "y")) +
-    ## Plot genotypes as points.
-    ggplot2::geom_point(ggplot2::aes_string(color = colorBy),
-                        show.legend = colorBy != ".colorBy") +
-    ## Add color(s) to genotypes.
-    ggplot2::scale_color_manual(values = colGeno) +
     ## Needed for a square plot output.
     ggplot2::coord_fixed(ratio = plotRatio, clip = "off") +
-    ## Plot environments as texts.
-    ggplot2::geom_text(data = envDat,
-                       ggplot2::aes_string(x = "x", y = "y",
-                                           label = "rownames(envDat)"),
-                       size = 3, vjust = 1, color = colEnv) +
     ## Add reference axes.
     ggplot2::geom_vline(ggplot2::aes(xintercept = ovMean),
                         linetype = "dashed", show.legend = FALSE) +
@@ -366,6 +378,29 @@ plotAMMI1 <- function(loadings,
     ggplot2::ggtitle(paste0(ifelse(GGE, "GGE", "AMMI1"), " biplot for ",
                             trait, " ", year)) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+  if (plotGeno) {
+    if (sizeGeno == 0) {
+      p <- p + ## Plot genotypes as points.
+        ggplot2::geom_point(ggplot2::aes_string(color = colorBy),
+                            show.legend = colorBy != ".colorBy") +
+        ## Add color(s) to genotypes.
+        ggplot2::scale_color_manual(values = colGeno)
+    } else {
+      p <- p + ## Plot genotypes as text.
+        ggplot2::geom_text(data = genoDat,
+                           ggplot2::aes_string(x = "x", y = "y",
+                                               label = "rownames(genoDat)"),
+                           size = sizeGeno, vjust = 1, color = colGeno)
+    }
+  }
+  if (plotEnv) {
+    ## Plot environments as texts.
+    p <- p + ggplot2::geom_text(data = envDat,
+                                ggplot2::aes_string(x = "x", y = "y",
+                                                    label = "rownames(envDat)"),
+                                size = sizeEnv, vjust = 1, color = colEnv)
+  }
+  return(p)
 }
 
 #' Helper function for creating AMMI2 plot
@@ -380,8 +415,12 @@ plotAMMI2 <- function(loadings,
                       primAxis = "PC1",
                       secAxis = "PC2",
                       scale,
+                      plotGeno = TRUE,
                       colGeno,
+                      sizeGeno,
+                      plotEnv = TRUE,
                       colEnv,
+                      sizeEnv,
                       colorBy) {
   percPC1 <- round(importance[2, primAxis] * 100, 1)
   percPC2 <- round(importance[2, secAxis] * 100, 1)
@@ -424,35 +463,48 @@ plotAMMI2 <- function(loadings,
        min(c(envDat[[secAxis]], genoDat[[secAxis]])))
   p <- ggplot2::ggplot(genoDat,
                        ggplot2::aes_string(x = primAxis, y = secAxis)) +
-    ## Plot genotypes as points.
-    ggplot2::geom_point(ggplot2::aes_string(color = colorBy),
-                        show.legend = colorBy != ".colorBy") +
-    ## Add color(s) to genotypes.
-    ggplot2::scale_color_manual(values = colGeno) +
     ## Needed for a square plot output.
     ggplot2::coord_fixed(clip = "off", ratio = plotRatio) +
-    ## Plot environments as texts.
-    ggplot2::geom_text(data = envDat,
-                       ggplot2::aes_string(x = primAxis, y = secAxis,
-                                           label = "rownames(envDat)"),
-                       size = 3, vjust = "outward", hjust = "outward",
-                       color = colEnv) +
-    ## Add arrows from origin to environments.
-    ## Adding alpha = for transparency causes the arrows not being plotted
-    ## after turning off clipping which is needed since labels may fall off
-    ## the plot otherwise.
-    ggplot2::geom_segment(data = envDat,
-                          ggplot2::aes_string(x = 0, y = 0, xend = primAxis,
-                                              yend = secAxis),
-                          arrow = ggplot2::arrow(length =
-                                                   ggplot2::unit(0.2, "cm")),
-                          color = colEnv) +
     ## Add labeling.
     ggplot2::labs(x = paste0(primAxis, " (", percPC1, "%)"),
                   y = paste0(secAxis, " (", percPC2, "%)")) +
     ggplot2::ggtitle(paste0(ifelse(GGE, "GGE", "AMMI2"), " biplot for ", trait,
                             " (", info, ") ", year)) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+  if (plotGeno) {
+    if (sizeGeno == 0) {
+      ## Plot genotypes as points.
+      p <- p + ggplot2::geom_point(ggplot2::aes_string(color = colorBy),
+                                   show.legend = colorBy != ".colorBy") +
+        ## Add color(s) to genotypes.
+        ggplot2::scale_color_manual(values = colGeno)
+    } else {
+      p <- p + ## Plot genotypes as text.
+        ggplot2::geom_text(data = genoDat,
+                           ggplot2::aes_string(x = "x", y = "y",
+                                               label = "rownames(genoDat)"),
+                           size = sizeGeno, vjust = 1, color = colGeno)
+    }
+  }
+  if (plotEnv) {
+    ## Plot environments as texts.
+    p <- p + ggplot2::geom_text(data = envDat,
+                                ggplot2::aes_string(x = primAxis, y = secAxis,
+                                                    label = "rownames(envDat)"),
+                                size = sizeEnv, vjust = "outward",
+                                hjust = "outward", color = colEnv) +
+      ## Add arrows from origin to environments.
+      ## Adding alpha = for transparency causes the arrows not being plotted
+      ## after turning off clipping which is needed since labels may fall off
+      ## the plot otherwise.
+      ggplot2::geom_segment(data = envDat,
+                            ggplot2::aes_string(x = 0, y = 0, xend = primAxis,
+                                                yend = secAxis),
+                            arrow = ggplot2::arrow(length =
+                                                     ggplot2::unit(0.2, "cm")),
+                            color = colEnv)
+  }
+  return(p)
 }
 
 #' Report method for class AMMI

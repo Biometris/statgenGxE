@@ -5,8 +5,9 @@
 \title{Plot function for class AMMI}
 \usage{
 \method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2"), scale = 1,
-  colorBy = NULL, colGeno = "black", colEnv = "red",
-  primAxis = "PC1", secAxis = "PC2", output = TRUE)
+  colorBy = NULL, plotGeno = TRUE, colGeno = "black", sizeGeno = 0,
+  plotEnv = TRUE, colEnv = "red", sizeEnv = 3, primAxis = "PC1",
+  secAxis = "PC2", output = TRUE)
 }
 \arguments{
 \item{x}{An object of class AMMI}
@@ -29,10 +30,21 @@ scale is outside this range.}
 as input for the AMMI analysis by which the genotypes should be colored. If
 \code{NULL} all genotypes will be colored in black.}
 
+\item{plotGeno}{Should genotypes be plotted?}
+
 \item{colGeno}{A character vector with plot colors for the genotypes. A
 single color when \code{colorBy = NULL}, a vector of colors otherwise.}
 
+\item{sizeGeno}{An numerical value indicating the text size for plotting the
+genotypes. Use \code{sizeGeno = 0} for plotting genotypes as points instead
+of using their names.}
+
+\item{plotEnv}{Should environments be plotted?}
+
 \item{colEnv}{A character string with the plot color for the environments.}
+
+\item{sizeEnv}{An integer indicating the text size for plotting the
+environments.}
 
 \item{primAxis}{A character string indicating the principal component to be
 plotted on the primary axis of the AMMI2 plot. Has to be given as
@@ -47,7 +59,8 @@ differ from \code{primAxis}.}
 \code{FALSE} only a list of ggplot objects is invisibly returned.}
 }
 \value{
-A biplot depending on \code{plotType}.
+A biplot depending on \code{plotType}. The ggplot object for the
+biplot is returned invisibly.
 }
 \description{
 Two types of biplot can be made. A biplot of genotype and environment

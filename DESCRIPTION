@@ -26,7 +26,7 @@ Imports: emmeans,
     methods,
     qtl,
     reshape2,
-    SpATS(>= 1.0-7),
+    SpATS(>= 1.0-8),
     xtable,
     gridExtra,
     scales

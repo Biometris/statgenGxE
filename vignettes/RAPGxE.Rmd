@@ -3,7 +3,7 @@ title: "Genotype by Environment analysis using RAP"
 author: "Bart-Jan van Rossum"
 date: "`r Sys.Date()`"
 output: 
-  rmarkdown::html_vignette:
+  rmarkdown::pdf_document:
     toc: false
 bibliography: bibliography.bib
 vignette: >
