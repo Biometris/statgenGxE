@@ -152,6 +152,9 @@ summary.AMMI <- function(object,
 #' @param colEnv A character string with the plot color for the environments.
 #' @param sizeEnv An integer indicating the text size for plotting the
 #' environments.
+#' @param envFactor A positive numerical value giving a factor by which to blow
+#' up the environmental scores. Providing a value between 0 and 1 will
+#' effectively blow up the genotypic scores.
 #' @param primAxis A character string indicating the principal component to be
 #' plotted on the primary axis of the AMMI2 plot. Has to be given as
 #' \code{"PCn"} where n is the number of the principal component.
@@ -187,20 +190,31 @@ plot.AMMI <- function(x,
                       plotEnv = TRUE,
                       colEnv = "red",
                       sizeEnv = 3,
+                      envFactor = 1,
                       primAxis = "PC1",
                       secAxis = "PC2",
                       output = TRUE) {
   ## Checks.
+  plotType <- match.arg(plotType)
   if (!is.numeric(scale) || length(scale) > 1) {
     stop("scale should be a single numerical value.\n")
   }
   if (scale < 0 || scale > 1) {
     warning("Scale is outside [0, 1].\n", call. = FALSE)
   }
-  if (!is.character(colEnv) || length(colEnv) > 1) {
-    stop("colEnv should be a single character string.\n")
+  if (plotGeno) {
+    if (!is.numeric(sizeGeno) || length(sizeGeno) > 1 || sizeGeno < 0) {
+      stop("plotGeno should be a single numerical value >= 0.\n")
+    }
   }
-  plotType <- match.arg(plotType)
+  if (plotEnv) {
+    if (!is.numeric(sizeEnv) || length(sizeEnv) > 1 || sizeEnv <= 0) {
+      stop("plotGeno should be a single numerical value > 0.\n")
+    }
+    if (!is.character(colEnv) || length(colEnv) > 1) {
+      stop("colEnv should be a single character string.\n")
+    }
+  }
   if (!is.null(colorBy) && (!is.character(colorBy) || length(colorBy) > 1)) {
     stop("colorBy should be a single character string.\n")
   }
@@ -220,20 +234,25 @@ plot.AMMI <- function(x,
         stop("colorBy should be a column in data.\n")
       }
       colTab <- unique(x$dat[c("genotype", colorBy)])
-      if (nrow(colTab) != nlevels(x$dat$genotype)) {
+      if (nrow(colTab) != nlevels(droplevels(x$dat$genotype))) {
         stop("colorBy should have exactly one value per genotype")
       }
     }
+  }
+  if (!is.numeric(envFactor) || length(envFactor) > 1 || envFactor <= 0) {
+    stop("envFactor should be a single numerical value > 0.\n")
   }
   dotArgs <- list(...)
   if (plotType == "AMMI1") {
     if (x$byYear) {
       ## Create a list of AMMI1 plots.
       p <- sapply(X = names(x$envScores), FUN = function(year) {
-        plotAMMI1(loadings = x$envScores[[year]], scores = x$genoScores[[year]],
+        plotAMMI1(loadings = x$envScores[[year]] * envFactor,
+                  scores = x$genoScores[[year]],
                   importance = x$importance[[year]],
-                  overallMean = x$overallMean[[year]],
-                  genoMean = x$genoMean[[year]], envMean = x$envMean[[year]],
+                  overallMean = x$overallMean[[year]] * envFactor,
+                  genoMean = x$genoMean[[year]],
+                  envMean = x$envMean[[year]] * envFactor,
                   trait = x$trait, dat = x$dat[[year]], GGE = x$GGE, year = year,
                   scale = scale, plotGeno = plotGeno, colGeno = colGeno,
                   sizeGeno = sizeGeno, plotEnv = plotEnv, colEnv = colEnv,
@@ -241,9 +260,10 @@ plot.AMMI <- function(x,
       }, simplify = FALSE)
     } else {
       ## Create a single AMMI1 plot.
-      p <- plotAMMI1(loadings = x$envScores, scores = x$genoScores,
-                     importance = x$importance, overallMean = x$overallMean,
-                     genoMean = x$genoMean, envMean = x$envMean,
+      p <- plotAMMI1(loadings = x$envScores * envFactor,
+                     scores = x$genoScores, importance = x$importance,
+                     overallMean = x$overallMean * envFactor,
+                     genoMean = x$genoMean, envMean = x$envMean * envFactor,
                      trait = x$trait, dat = x$dat, GGE = x$GGE, scale = scale,
                      plotGeno = plotGeno, colGeno = colGeno,
                      sizeGeno = sizeGeno, plotEnv = plotEnv, colEnv = colEnv,
@@ -286,7 +306,7 @@ plot.AMMI <- function(x,
       }
       p <- sapply(X = names(x$envScores)[nPCs >= max(nPC1, nPC2)],
                   FUN = function(year) {
-                    plotAMMI2(loadings = x$envScores[[year]],
+                    plotAMMI2(loadings = x$envScores[[year]] * envFactor,
                               scores = x$genoScores[[year]],
                               importance = x$importance[[year]],
                               trait = x$trait, dat = x$dat[[year]], GGE = x$GGE,
@@ -309,7 +329,8 @@ plot.AMMI <- function(x,
                     "components. Plotting of PC", nPC2, " is not possible.\n"))
       }
       ## Create a single AMMI2 plot.
-      p <- plotAMMI2(loadings = x$envScores, scores = x$genoScores,
+      p <- plotAMMI2(loadings = x$envScores * envFactor,
+                     scores = x$genoScores,
                      importance = x$importance, trait = x$trait, dat = x$dat,
                      GGE = x$GGE, primAxis = primAxis, secAxis = secAxis,
                      scale = scale, plotGeno = plotGeno, colGeno = colGeno,
@@ -447,16 +468,16 @@ plotAMMI2 <- function(loadings,
     genoDat$.colorBy <- factor(1)
   }
   envDat <- as.data.frame(t(t(loadings[, c(primAxis, secAxis)]) * lam))
-  ## Compute multiplication factor for rescaling environmental data.
-  mult <- min(
-    (max(genoDat[[primAxis]]) - min(genoDat[[primAxis]])) /
-      (max(envDat[[primAxis]]) - min(envDat[[primAxis]])),
-    (max(genoDat[[secAxis]]) - min(genoDat[[secAxis]])) /
-      (max(envDat[[secAxis]]) - min(envDat[[secAxis]]))
-  )
-  ## Rescale data. 0.6 is more or less random but seems to work well in
-  ## practice.
-  envDat <- envDat * mult * 0.6
+  # Compute multiplication factor for rescaling environmental data.
+  # mult <- min(
+  #   (max(genoDat[[primAxis]]) - min(genoDat[[primAxis]])) /
+  #     (max(envDat[[primAxis]]) - min(envDat[[primAxis]])),
+  #   (max(genoDat[[secAxis]]) - min(genoDat[[secAxis]])) /
+  #     (max(envDat[[secAxis]]) - min(envDat[[secAxis]]))
+  # )
+  # ## Rescale data. 0.6 is more or less random but seems to work well in
+  # ## practice.
+  # envDat <- envDat * mult
   plotRatio <- (max(c(envDat[[primAxis]], genoDat[[primAxis]])) -
                   min(c(envDat[[primAxis]], genoDat[[primAxis]]))) /
     (max(c(envDat[[secAxis]], genoDat[[secAxis]])) -
@@ -481,8 +502,7 @@ plotAMMI2 <- function(loadings,
     } else {
       p <- p + ## Plot genotypes as text.
         ggplot2::geom_text(data = genoDat,
-                           ggplot2::aes_string(x = "x", y = "y",
-                                               label = "rownames(genoDat)"),
+                           ggplot2::aes_string(label = "rownames(genoDat)"),
                            size = sizeGeno, vjust = 1, color = colGeno)
     }
   }

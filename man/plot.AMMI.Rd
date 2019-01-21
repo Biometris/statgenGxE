@@ -6,8 +6,8 @@
 \usage{
 \method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2"), scale = 1,
   colorBy = NULL, plotGeno = TRUE, colGeno = "black", sizeGeno = 0,
-  plotEnv = TRUE, colEnv = "red", sizeEnv = 3, primAxis = "PC1",
-  secAxis = "PC2", output = TRUE)
+  plotEnv = TRUE, colEnv = "red", sizeEnv = 3, envFactor = 1,
+  primAxis = "PC1", secAxis = "PC2", output = TRUE)
 }
 \arguments{
 \item{x}{An object of class AMMI}
@@ -45,6 +45,10 @@ of using their names.}
 
 \item{sizeEnv}{An integer indicating the text size for plotting the
 environments.}
+
+\item{envFactor}{A positive numerical value giving a factor by which to blow
+up the environmental scores. Providing a value between 0 and 1 will
+effectively blow up the genotypic scores.}
 
 \item{primAxis}{A character string indicating the principal component to be
 plotted on the primary axis of the AMMI2 plot. Has to be given as
