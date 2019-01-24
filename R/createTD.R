@@ -594,9 +594,9 @@ plot.TD <- function(x,
                     trials = names(x),
                     traits = NULL,
                     output = TRUE) {
-  ## Maps seems to change graphics parameters without resetting. Do so here.
-  if (!is.character(trials) || !all(trials %in% names(x))) {
-    stop(paste0("All trials should be in ", deparse(x), ".\n"))
+  ## Checks.
+  if (!is.character(trials) || !all(hasName(x = x, name = trials))) {
+    stop(paste0("All trials should be in ", deparse(substitute(x)), ".\n"))
   }
   plotType <- match.arg(plotType)
   dotArgs <- list(...)
