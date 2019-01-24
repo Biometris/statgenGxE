@@ -87,8 +87,9 @@ summary.FW <- function(object, ...) {
 #' plot of genotypic means, mse and sensitivities, a plot of fitted lines for
 #' each genotype or a trellis plot of the individual genotype slopes
 #' respectively.
-#' @param sorted A character string specifying whether the results should be
-#' sorted in an increasing (or decreasing) order of sensitivities.
+#' @param order A character string specifying whether the results in the line
+#' plot should be ordered in an increasing (or decreasing) order of
+#' sensitivities.
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
@@ -110,10 +111,10 @@ summary.FW <- function(object, ...) {
 plot.FW <- function(x,
                     ...,
                     plotType = c("scatter", "line", "trellis"),
-                    sorted = c("ascending", "descending", "none"),
+                    order = c("ascending", "descending"),
                     output = TRUE) {
   plotType <- match.arg(plotType, several.ok = TRUE)
-  sorted <- match.arg(sorted)
+  order <- match.arg(order)
   dotArgs <- list(...)
   envEffs <- x$envEffs[c("trial", "effect")]
   TDTot <- Reduce(f = rbind, x = x$TD)
@@ -168,10 +169,10 @@ plot.FW <- function(x,
   } else if ("line" %in% plotType) {
     fVal <- tapply(X = x$fittedGeno, INDEX = TDTot[, c("trial", "genotype")],
                    FUN = mean, na.rm = TRUE)
-    if (sorted == "none") {
-      orderEnv <- 1:nrow(envEffs)
+    if (order == "descending") {
+      xTrans <- "reverse"
     } else {
-      orderEnv <- order(envEffs$effect, decreasing = (sorted == "descending"))
+      xTrans <- "identity"
     }
     lineDat <- reshape2::melt(fVal)
     lineDat <- merge(x = lineDat, y = envEffs)
@@ -186,7 +187,8 @@ plot.FW <- function(x,
                          do.call(ggplot2::aes_string, args = aesArgs)) +
       ggplot2::geom_point() + ggplot2::geom_line(size = 0.5, alpha = 0.7) +
       ggplot2::scale_x_continuous(breaks = envEffs$effect, minor_breaks = NULL,
-                                  labels = levels(lineDat$trial)) +
+                                  labels = levels(lineDat$trial),
+                                  trans = xTrans) +
       ggplot2::theme(legend.position = "none",
                      plot.title = ggplot2::element_text(hjust = 0.5),
                      axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) +
