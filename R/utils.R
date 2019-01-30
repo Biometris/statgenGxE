@@ -296,9 +296,9 @@ createReport <- function(x,
   knitr::knit(input = reportFile, output = outTex, quiet = TRUE)
   ## Construct shell commands for calling pdf latex.
   ## First only draftmode for speed.
-  cmdRun1 <- paste0("pdflatex -interaction=nonstopmode -draftmode ",
+  cmdRun1 <- paste0(Sys.which("pdflatex"), " -interaction=nonstopmode -draftmode ",
                     outBase, "tex")
-  cmdRun2 <- paste0("pdflatex -interaction=nonstopmode ",
+  cmdRun2 <- paste0(Sys.which("pdflatex"), " -interaction=nonstopmode ",
                     outBase, "tex")
   ## Run shell commands. System doens't work for windows.
   ## Two runs needed to get references right.
