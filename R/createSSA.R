@@ -466,7 +466,7 @@ plot.SSA <- function(x,
         plotDat <- ggplot2::remove_missing(plotDat, na.rm = TRUE)
         ## Code taken from plot.SpATS and simplified.
         ## Set colors and legends.
-        colors = topo.colors(100)
+        colors <- topo.colors(100)
         legends <- c("Raw data", "Fitted data", "Residuals",
                      "Fitted Spatial Trend",
                      ifelse(what == "fixed", "Genotypic BLUEs",

@@ -468,24 +468,15 @@ plotAMMI2 <- function(loadings,
     genoDat$.colorBy <- factor(1)
   }
   envDat <- as.data.frame(t(t(loadings[, c(primAxis, secAxis)]) * lam))
-  # Compute multiplication factor for rescaling environmental data.
-  # mult <- min(
-  #   (max(genoDat[[primAxis]]) - min(genoDat[[primAxis]])) /
-  #     (max(envDat[[primAxis]]) - min(envDat[[primAxis]])),
-  #   (max(genoDat[[secAxis]]) - min(genoDat[[secAxis]])) /
-  #     (max(envDat[[secAxis]]) - min(envDat[[secAxis]]))
-  # )
-  # ## Rescale data. 0.6 is more or less random but seems to work well in
-  # ## practice.
-  # envDat <- envDat * mult
-  plotRatio <- (max(c(envDat[[primAxis]], genoDat[[primAxis]])) -
-                  min(c(envDat[[primAxis]], genoDat[[primAxis]]))) /
-    (max(c(envDat[[secAxis]], genoDat[[secAxis]])) -
-       min(c(envDat[[secAxis]], genoDat[[secAxis]])))
-  p <- ggplot2::ggplot(genoDat,
+  plotRatio <- (max(c(envDat[[secAxis]], genoDat[[secAxis]])) -
+                  min(c(envDat[[secAxis]], genoDat[[secAxis]]))) /
+    (max(c(envDat[[primAxis]], genoDat[[primAxis]])) -
+       min(c(envDat[[primAxis]], genoDat[[primAxis]])))
+  p <- ggplot2::ggplot(envDat,
                        ggplot2::aes_string(x = primAxis, y = secAxis)) +
     ## Needed for a square plot output.
-    ggplot2::coord_fixed(clip = "off", ratio = plotRatio) +
+    ggplot2::coord_equal(clip = "off", ratio = 1) +
+    ggplot2::theme(aspect.ratio = plotRatio) +
     ## Add labeling.
     ggplot2::labs(x = paste0(primAxis, " (", percPC1, "%)"),
                   y = paste0(secAxis, " (", percPC2, "%)")) +
@@ -495,7 +486,8 @@ plotAMMI2 <- function(loadings,
   if (plotGeno) {
     if (sizeGeno == 0) {
       ## Plot genotypes as points.
-      p <- p + ggplot2::geom_point(ggplot2::aes_string(color = colorBy),
+      p <- p + ggplot2::geom_point(data = genoDat,
+                                   ggplot2::aes_string(color = colorBy),
                                    show.legend = colorBy != ".colorBy") +
         ## Add color(s) to genotypes.
         ggplot2::scale_color_manual(values = colGeno)
