@@ -581,7 +581,7 @@ print.summary.TD <- function(x, ...) {
 #' @param plotType A single character string indicating which plot should be
 #' made. See the sections below for a detailed explanation of the plots.
 #' @param trials A character vector indicating the trials to be plotted when
-#' plotting field layouts. Only used if \code{plotType} = "layout".
+#' plotting field layouts. Only used if \code{plotType} = "layout" or "box".
 #' @param traits A character vector indicating the traits to be plotted in
 #' a boxplot. Only used if \code{plotType} = "box" or "cor".
 #' @param output Should the plot be output to the current device? If
@@ -814,7 +814,7 @@ plot.TD <- function(x,
       ## trail where trait is not measured/available are removed by setting
       ## them to NULL.
       xVar <- if (is.null(groupBy)) "trial" else groupBy
-      plotDat <- Reduce(f = rbind, x = lapply(X = x, function(trial) {
+      plotDat <- Reduce(f = rbind, x = lapply(X = x[trials], function(trial) {
         if (!hasName(x = trial, name = trait)) {
           NULL
         } else {
