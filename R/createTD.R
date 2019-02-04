@@ -13,11 +13,11 @@
 #' columns. Columns other than the default columns, e.g. traits or other
 #' covariates will be included in the output unchanged.}
 #' \item{Split input data by trial - each trial in the input data will become
-#' a list item in the output}
+#' a list item in the output.}
 #' \item{Add meta data - the trial meta data are added as attributes to the
-#' different output items. The function parameters starting with tr provide
+#' different output items. The function parameters starting with "tr" provide
 #' the meta data. Their values will be recycled if needed, so by setting a
-#' single trDesign all trials will get the same design. The meta data can be
+#' single "trDesign", all trials will get the same design. The meta data can be
 #' changed later on using \code{getMeta} and \code{setMeta}}
 #' }
 #' \code{addTD}\cr
@@ -32,7 +32,7 @@
 #' class TD.\cr\cr
 #' \code{\link{summary.TD}} and \code{\link{plot.TD}} methods are available.
 #'
-#' @param data A data.frame containing trial data with a least a column for
+#' @param data A data.frame containing trial data with at least a column for
 #' genotype. The data.frame should be in a wide format, i.e. all available
 #' phenotypic data should be in a separate column within the data.frame.
 #' @param genotype An optional character string indicating the column in
@@ -47,7 +47,7 @@
 #' \code{data} that contains replicates.
 #' @param subBlock An optional character string indicating the column in
 #' \code{data} that contains sub blocks.
-#' @param plot An optional character string indicating the column in
+#' @param plotId An optional character string indicating the column in
 #' \code{data} that contains plots. This column will be combined with trial
 #' to a single output factor.
 #' @param rowCoord An optional character string indicating the column in
@@ -55,17 +55,17 @@
 #' @param colCoord An optional character string indicating the column in
 #' \code{data} that contains the column coordinates.
 #' @param rowId An optional character string indicating the column in
-#' \code{data} that contains field rows. If not supplied this is assumed to
+#' \code{data} that contains field rows. If not supplied, this is assumed to
 #' be the same as rowCoord.
 #' @param colId An optional character string indicating the column in
-#' \code{data} that contains field columns. If not supplied this is assumed to
+#' \code{data} that contains field columns. If not supplied, this is assumed to
 #' be the same as colCoord.
 #' @param checkId An optional character string indicating the column in
 #' \code{data} that contains the check IDs.
 #' @param trLocation An optional character vector indicating the locations of
-#' the trials. This will be used for constructing default names for plots and
-#' such. If no locations are provided the trialname will be used as default
-#' name.
+#' the trials. This will be used as default names when creating plots and
+#' summaries. If no locations are provided, the trialname will be used as
+#' default name.
 #' @param trDate An optional date vector indicating the dates of the trials.
 #' @param trDesign An optional character vector indicating the designs of the
 #' trials. Either "none" (no (known) design), "ibd" (incomplete-block design),
@@ -82,11 +82,11 @@
 #' lengths of the plots.
 #'
 #' @return An object of class TD, a list of data.frames with renamed columns
-#' and an attribute \code{renamedCols} containing info on which columns have
-#' been renamed. For each unique value of trial the output has a data.frame in
+#' and an attribute \code{renamedCols} containing an overview of renamed
+#' columns. For each unique value of trial, the output has a data.frame in
 #' the list with the same name as the trial. These data.frames have attributes
 #' containing the metadata for the corresponding trial. If there is no column
-#' for trial the list will contain one item named after the input data.
+#' for trial, the list will contain one item named after the input data.
 #'
 #' @examples
 #' ## Create a data.frame with two traits to be converted to TD object.
@@ -114,7 +114,7 @@ createTD <- function(data,
                      year = NULL,
                      repId = NULL,
                      subBlock = NULL,
-                     plot = NULL,
+                     plotId = NULL,
                      rowCoord = NULL,
                      colCoord = NULL,
                      rowId = rowCoord,
@@ -140,7 +140,7 @@ createTD <- function(data,
   ## tibbles and possibly other data structures in the future.
   data <- as.data.frame(data)
   cols <- colnames(data)
-  for (param in c(genotype, trial, loc, year, repId, subBlock, plot,
+  for (param in c(genotype, trial, loc, year, repId, subBlock, plotId,
                   rowId, colId, rowCoord, colCoord, checkId)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
                             !hasName(data, param))) {
@@ -150,7 +150,7 @@ createTD <- function(data,
   checkTDMeta(trDesign = trDesign, trLat = trLat, trLong = trLong,
               trPlWidth = trPlWidth, trPlLength = trPlLength)
   ## Create list of reserved column names for renaming columns.
-  renameCols <- c("genotype", "trial", "loc", "year", "repId", "plot",
+  renameCols <- c("genotype", "trial", "loc", "year", "repId", "plotId",
                   "subBlock", "rowId", "colId", "rowCoord", "colCoord",
                   "checkId")
   ## First rename duplicate colums and add duplicated columns to data
@@ -178,17 +178,17 @@ createTD <- function(data,
   colnames(data) <- cols
   ## Convert columns to factor if neccessary.
   factorCols <-  c("genotype", "trial", "loc", "year", "repId", "subBlock",
-                   "plot", "rowId", "colId", "checkId")
+                   "plotId", "rowId", "colId", "checkId")
   for (factorCol in factorCols) {
     if (hasName(data, factorCol)) {
       data[cols == factorCol] <- as.factor(data[, cols == factorCol])
     }
   }
-  ## Combine plot and trial into a single factor if both are available.
-  ## If trial is not available plot itself was converted to factor in the
+  ## Combine plotId and trial into a single factor if both are available.
+  ## If trial is not available plotId itself was converted to factor in the
   ## previous step.
-  if (all(hasName(data, c("trial", "plot")))) {
-    data$plot <- interaction(data$trial, data$plot, sep = "_")
+  if (all(hasName(data, c("trial", "plotId")))) {
+    data$plotId <- interaction(data$trial, data$plotId, sep = "_")
   }
   ## Convert columns to numeric if neccessary.
   numCols <- c("rowCoord", "colCoord")
@@ -252,7 +252,7 @@ addTD <- function(TD,
                   year = NULL,
                   repId = NULL,
                   subBlock = NULL,
-                  plot = NULL,
+                  plotId = NULL,
                   rowCoord = NULL,
                   colCoord = NULL,
                   rowId = rowCoord,
@@ -267,7 +267,7 @@ addTD <- function(TD,
                   trPlLength = NULL) {
   TDNw <- createTD(data = data, genotype = genotype, trial = trial,
                    loc = loc, year = year, repId = repId,
-                   subBlock = subBlock, plot = plot, rowCoord = rowCoord,
+                   subBlock = subBlock, plotId = plotId, rowCoord = rowCoord,
                    colCoord = colCoord, rowId = rowId, colId = colId,
                    checkId = checkId, trLocation = trLocation, trDate = trDate,
                    trDesign = trDesign, trLat = trLat, trLong = trLong,
@@ -285,22 +285,22 @@ addTD <- function(TD,
 
 #' @inheritParams addTD
 #'
-#' @param trials A character vector of trials that should be removed.
+#' @param rmTrials A character vector of trials that should be removed.
 #'
 #' @rdname TD
 #' @export
 dropTD <- function(TD,
-                   trials) {
-  naTrials <- trials[!trials %in% names(TD)]
+                   rmTrials) {
+  naTrials <- rmTrials[!rmTrials %in% names(TD)]
   if (length(naTrials) > 0) {
     warning(paste0("The following trials are not in TD: ",
                    paste(naTrials, collapse = ", "), ".\n"), call. = FALSE)
   }
-  leftTrials <- names(TD)[!names(TD) %in% trials]
+  leftTrials <- names(TD)[!names(TD) %in% rmTrials]
   if (length(leftTrials) == 0) {
     warning("All trials have been removed from TD.\n", call. = FALSE)
   }
-  return(TD[!names(TD) %in% trials])
+  return(TD[!names(TD) %in% rmTrials])
 }
 
 #' Summarizing objects of class \code{TD}
@@ -312,9 +312,9 @@ dropTD <- function(TD,
 #' @param trial A character string specifying the trial to be summarised.
 #' @param traits A character vector specifying the traits to be summarised.
 #' @param groupBy A character string specifying a column in TD by which the
-#' summary should be grouped. If \code{NULL} no grouping is done.
+#' summary should be grouped. If \code{NULL}, no grouping is done.
 #' @param what A character vector indicating which summary statistics should be
-#' computed. If \code{what = "all"} all available statistics are computed.\cr
+#' computed. If \code{what = "all"}, all available statistics are computed.\cr
 #' Possible options are:
 #' \describe{
 #' \item{nVals}{The number of values, i.e. non-missing + missing values.}
@@ -517,25 +517,25 @@ print.summary.TD <- function(x, ...) {
 #'
 #' Plotting function for objects of class TD. Plots either the layout of the
 #' different trials within the TD object or locates the trials on a map. Also a
-#' boxplot can be made for selected traits per trial and a plot of correlations
+#' boxplot can be made for selected traits and trials and a plot of correlations
 #' between trials. A detailed description and optional extra parameters of the
 #' different plots is given in the sections below.
 #'
 #' @section Layout Plot:
-#' A layout plot plots the layout of the selected trials (all available trials
-#' by default). This plot can only be made for trials that contain both
-#' row (\code{rowCoord}) and column(\code{colCoord}) information. If either one
-#' of those is missing the trial is skipped with a warning. If blocks
-#' (\code{subBlock}) are available for a trial these are indicated in different
-#' colors per block, otherwise all plots are colored in grey. If replicates
-#' (\code{repId}) are available a black line is plotted between diffent
-#' replicates. Missing plots are indicated in white. This can either be single
-#' plots in a trial or complete missing columns or rows.\cr
+#' Plots the layout of the selected trials (all available trials by default).
+#' This plot can only be made for trials that contain both row (\code{rowCoord})
+#' and column (\code{colCoord}) information. If either one of those is missing
+#' the trial is skipped with a warning. If blocks (\code{subBlock}) are
+#' available for a trial these are indicated in different colors per block,
+#' otherwise all plots are colored in grey. If replicates (\code{repId}) are
+#' available a black line is plotted between diffent replicates. Missing plots
+#' are indicated in white. This can either be single plots in a trial or
+#' complete missing columns or rows.\cr
 #' Extra parameter options:
-#' \itemize{
-#' \item{showGeno} {Should individual genotypes be indicated in the plot?
+#' \describe{
+#' \item{showGeno}{Should individual genotypes be indicated in the plot?
 #' Defaults to \code{FALSE}}
-#' \item{highlight} {A character vector of genotypes to be highlighted in the
+#' \item{highlight}{A character vector of genotypes to be highlighted in the
 #' plot.}
 #' }
 #'
@@ -550,27 +550,26 @@ print.summary.TD <- function(x, ...) {
 #' the maps package is needed.
 #'
 #' @section Box Plot:
-#' Per selected trait a boxplot is created grouped per trial.
-#' Extra parameter options:
-#' \itemize{
-#' \item{groupBy} {A character string indicating a column in \code{TD} by which
+#' Creates a boxplot per selected trait grouped by trial. Extra parameter
+#' options:
+#' \describe{
+#' \item{groupBy}{A character string indicating a column in \code{TD} by which
 #' the boxes in the plot should be grouped. By default the boxes are grouped
 #' per trial.}
-#' \item{colorBy} {A character string indicating a column in \code{TD} by which
+#' \item{colorBy}{A character string indicating a column in \code{TD} by which
 #' the boxes are colored. Coloring will be done within the groups indicated by
 #' the \code{groupBy} parameter.}
-#' \item{orderBy} {A character vector indicating columns in \code{TD} on which
+#' \item{orderBy}{A character vector indicating columns in \code{TD} on which
 #' the trials in the plot should be ordered. By default ordering is done
 #' alphabetically.}
 #' }
 #'
 #' @section Correlation Plot:
-#' Per selected trait a plot is drawn of correlations between the trials in the
-#' \code{TD} object. If genotypes are replicated within trials genotypic means are
-#' taken before computing correlations.
-#' Extra parameter options:
-#' \itemize{
-#' \item{orderBy} {A character vector indicating columns in \code{TD} on which
+#' Draws a heatmap of correlations between trials per selected trait. If
+#' genotypes are replicated within trials genotypic means are taken before
+#' computing correlations. Extra parameter options:
+#' \describe{
+#' \item{orderBy}{A character vector indicating columns in \code{TD} on which
 #' the trials in the plot should be ordered. By default ordering is done
 #' alphabetically.}
 #' }
@@ -811,7 +810,7 @@ plot.TD <- function(x,
     p <- setNames(vector(mode = "list", length = length(traits)), traits)
     for (trait in traits) {
       ## Create a single data.frame from x with only columns trial and trait.
-      ## trail where trait is not measured/available are removed by setting
+      ## trial where trait is not measured/available are removed by setting
       ## them to NULL.
       xVar <- if (is.null(groupBy)) "trial" else groupBy
       plotDat <- Reduce(f = rbind, x = lapply(X = x[trials], function(trial) {
@@ -863,7 +862,7 @@ plot.TD <- function(x,
     p <- setNames(vector(mode = "list", length = length(traits)), traits)
     for (trait in traits) {
       ## Create a single data.frame from x with only columns trial and trait.
-      ## trails where trait is not measured/available are removed by setting
+      ## trials where trait is not measured/available are removed by setting
       ## them to NULL.
       plotDat <- Reduce(f = rbind, x = lapply(X = x, FUN = function(trial) {
         if (!hasName(x = trial, name = trait)) {
@@ -937,7 +936,7 @@ plot.TD <- function(x,
 #'
 #' Function for extracting metadata as a data.frame from objects of class TD.
 #' Location, data, design, latitude, longitude, plotWidth and plotLength for
-#' all trials in TD will be extracted and return in the form of a data.frame.
+#' all trials in TD will be extracted and returned as a data.frame.
 #'
 #' @param TD An object of class TD.
 #'

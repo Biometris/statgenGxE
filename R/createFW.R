@@ -75,10 +75,10 @@ summary.FW <- function(object, ...) {
 #' Plot function for class FW
 #'
 #' Three types of plot can be made. A scatter plot for genotypic mean,
-#' mse and sensitivity, a line plot with fitted lines for each genotype and
-#' a trellis plot with individual slopes per genotype (for max 64 genotypes).
-#' If there are more than 64 genotypes only the first 64 are plotted in the
-#' trellis plot.
+#' mean squared error (mse) and sensitivity, a line plot with fitted lines for
+#' each genotype and a trellis plot with individual slopes per genotype
+#' (for max 64 genotypes). If there are more than 64 genotypes only the first
+#' 64 are plotted in the trellis plot.
 #'
 #' @param x An object of class FW.
 #' @param ... Further graphical parameters passed on to actual plot function.
@@ -229,8 +229,8 @@ plot.FW <- function(x,
 
 #' Report method for class FW
 #'
-#' A pdf report will be created containing a summary of a Finlay-Wilkinson
-#' analysis. Simultaneously the same report will be created as a tex file.
+#' A pdf report will be created containing a summary of an FW object.
+#' Simultaneously the same report will be created as a tex file.
 #'
 #' @inheritParams report.AMMI
 #'

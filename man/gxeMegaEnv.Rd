@@ -11,7 +11,7 @@ gxeMegaEnv(TD, trials = names(TD), trait, useWinGeno = TRUE,
 \item{TD}{An object of class \code{\link{TD}}.}
 
 \item{trials}{A character string specifying the trials to be analyzed. If
-not supplied all trials are used in the analysis.}
+not supplied, all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 
@@ -24,7 +24,7 @@ across years.}
 the best genotype per environment, either \code{"max"} or \code{"min"}.}
 
 \item{cutOff}{A numerical value indicating the proportion of best genotypes
-per location used in the calculation. I.e. a value of 0.8 indicates that
+per location used in the calculation, i.e. a value of 0.8 indicates that
 the best 80\% genotypes will be used.}
 
 \item{sumTab}{Should a summary table be printed?}
@@ -35,8 +35,8 @@ column megaEnv.
 }
 \description{
 This function fits an AMMI model and then using the fitted values produces
-a new factor clustering trials . This factor is added as a column megaEnv to
-the input data. If a column megaEnv already exists this column is
+a new factor clustering the trials. This factor is added as a column megaEnv
+to the input data. If a column megaEnv already exists this column is
 overwritten with a warning.\cr\cr
 Mega environments can be created by two methods. The first method
 (\code{useWinGeno = TRUE}) groups
@@ -46,21 +46,20 @@ whether environments correspond to years or locations.\cr\cr
 In the second method (\code{useWinGeno = FALSE}),
 genotypes that are above a certain quantile are used to classify locations
 into mega environments that are consistent across years. In this method,
-genotypes are scored according to whether they are above the \code{cutOff}
-threshold for the genotypic ranking within each location (1 if a genotype is
-above the cutOff and 0 if below). This genotype by location matrix with 1's
-and 0's is used to calculate the correlation between locations. Then,
-correlations across years are combined using the method by Charter and
-Alexander (1993). The combined correlations are used to calculate Euclidean
-distances for hierarchical clustering. The number of mega environments
-obtained with the hierarchical clustering procedure is chosen to maximize
-the correlated response to selection within mega environments, as proposed
-in Atlin et al (2000).
+genotypes are scored according to a \code{cutOff} threshold for the genotypic
+ranking within each location (one if a genotype is above the cutOff and zero
+if below). This genotype by location matrix with ones and zeros is used to
+calculate the correlation between locations. Then, correlations across years
+are combined using the method by Charter and Alexander (1993). The combined
+correlations are used to calculate Euclidean distances for hierarchical
+clustering. The number of mega environments obtained with the hierarchical
+clustering procedure is chosen to maximize the correlated response to
+selection within mega environments, as proposed in Atlin et al (2000).
 }
 \examples{
-## Calculate mega-environments for TDMaize and print a summary of the results.
+## Calculate mega environments for TDMaize and print a summary of the results.
 TDmegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
-## Calculate new mega-environments based on the genotypes with the lowest
+## Calculate new mega environments based on the genotypes with the lowest
 ## value per environment.
 TDmegaEnv2 <- gxeMegaEnv(TD = TDmegaEnv, trait = "yld", method = "min")
 

@@ -30,10 +30,10 @@ A plot depending on \code{plotType}.
 }
 \description{
 Three types of plot can be made. A scatter plot for genotypic mean,
-mse and sensitivity, a line plot with fitted lines for each genotype and
-a trellis plot with individual slopes per genotype (for max 64 genotypes).
-If there are more than 64 genotypes only the first 64 are plotted in the
-trellis plot.
+mean squared error (mse) and sensitivity, a line plot with fitted lines for
+each genotype and a trellis plot with individual slopes per genotype
+(for max 64 genotypes). If there are more than 64 genotypes only the first
+64 are plotted in the trellis plot.
 }
 \examples{
 ## Run Finlay-Wilkinson analysis.

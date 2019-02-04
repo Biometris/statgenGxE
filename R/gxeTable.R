@@ -1,24 +1,24 @@
-#' Compute BLUPS and based on a set of mega-environments
+#' Compute BLUPS based on a set of mega environments
 #'
-#' This function calculates predicted means (BLUPS) and associated standard
-#' errors based on a set of mega-environments.
+#' This function calculates Best Lineair Unbiased Predictors (BLUPS) and
+#' associated standard errors based on a set of mega environments.
 #'
 #' @inheritParams gxeAmmi
 #'
-#' @param useYear Should year be used for modelling (as years within
-#' trials). If \code{TRUE TD} should contain a column "year".
+#' @param useYear Should year be used for modeling (as years within
+#' trials). If \code{TRUE}, \code{TD} should contain a column "year".
 #' @param engine A character string specifying the engine used for modeling.
 #' Either "lme4" or "asreml".
 #' @param ... Further parameters passed to either \code{asreml} or \code{lmer}.
 #'
 #' @return A list consisting of two data.frames, \code{predictedValue}
-#' containing BLUPs per genotype per mega-environment and \code{standardError}
+#' containing BLUPs per genotype per mega environment and \code{standardError}
 #' containing standard errors for those BLUPs.
 #'
 #' @examples
-#' ## Compute mega-environments for TDMaize.
+#' ## Compute mega environments for TDMaize.
 #' TDMegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld", sumTab = FALSE)
-#' ## Compute BLUPS and standard errors for those mega-environments.
+#' ## Compute BLUPS and standard errors for those mega environments.
 #' geTab <- gxeTable(TD = TDMegaEnv, trait = "yld")
 #'
 #' @export

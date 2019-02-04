@@ -1,6 +1,6 @@
-#' Multmissing procedure
+#' Estimate missing values in multivariate data
 #'
-#' This function estimates missing values for units in a multivariate data set,
+#' This function estimates missing values for units in a multivariate dataset,
 #' using an iterative regression technique.
 #'
 #' Initial estimates of the missing values in each variate are formed from the

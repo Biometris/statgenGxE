@@ -11,7 +11,7 @@ outlierSSA(SSA, trial = NULL, traits, rLimit = NULL,
 \item{SSA}{An object of class \code{\link{SSA}}.}
 
 \item{trial}{A character string specifying the trial for which outliers
-should be identified. If \code{NULL} and \code{SSA} contains only one trial
+should be identified. If \code{NULL} and \code{SSA} contains only one trial,
 that trial is used.}
 
 \item{traits}{A character vector specifying the names of the traits for
@@ -23,7 +23,7 @@ exceeding \code{rLimit} will be marked as outliers.}
 
 \item{commonFactors}{A character vector specifying the names of columns
 in \code{TD} used for selecting observations that are similar to the
-outliers. If \code{commonFactors = NULL} only outliers are reported and
+outliers. If \code{commonFactors = NULL}, only outliers are reported and
 no similar observations.}
 
 \item{verbose}{Should the outliers be printed to the console?}

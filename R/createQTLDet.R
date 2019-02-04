@@ -64,7 +64,7 @@ summary.QTLDet <- function(object,
 #' @param ... Not used
 #' @param yLim A numerical value for the upper limit of the y-axis. If
 #' \code{NA} the limit is determined based on the data.
-#' @param title A character value for the title of the plot. If not supplied
+#' @param title A character value for the title of the plot. If not supplied,
 #' the trait used in the qTL Detection is used as plot title.
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.

@@ -15,26 +15,26 @@ traits in the TD object. Multiple statistics can be included in which case
 they will appear as \code{statistic_trait} in the output}
 
 \item{traits}{A character string containing the traits to be included in the
-TD object. If \code{NULL} all traits are exported.}
+TD object. If \code{NULL}, all traits are exported.}
 
 \item{keep}{Columns from the TD object used as input for the SSA model to
 be copied to the output. see \code{\link{STExtract}} for possible columns to
-copy. If if it is available in TD the column \code{trial} will always be
-copied.}
+copy. If if it is available in \code{TD}, the column \code{trial} will always
+be copied.}
 
 \item{addWt}{Should a column wt be added to the output? If \code{TRUE}
-weight is calculated as 1/SE BLUEs. If multiple traits are included in the
-output multiple weight columns will be added, 1 for each trait. These will
-be named \code{wt_trait}.}
+weight is calculated as 1/(SE BLUEs) ^ 2. If multiple traits are included in
+the output, multiple weight columns will be added, 1 for each trait. These
+will be named \code{wt_trait}.}
 }
 \description{
 Convert an SSA object to a TD object.\cr
-To be able to use the output of a single site analysis in Genotype by
-Environment (GxE) analysis the output first needs to be converted bakc to
-an TD object. This function does exactly that. It extracts BLUEs, BLUPs and
-their standard errors from the SSA object and creates a new TD object using
-these. Also a column wt may also be added. Weights are then calculated as
-1/SE BLUEs.
+To be able to use the output of a single site analysis in
+Genotype-by-Environment (GxE) analysis the output first needs to be converted
+back to an TD object. This function does exactly that. It extracts BLUEs,
+BLUPs and their standard errors from the SSA object and creates a new TD
+object using these. Also a column "wt" (weigth) may also be added. Weights
+are then calculated as 1/(SE BLUEs) ^ 2.
 }
 \details{
 Trial information for the trials in the SSA object will be copied from the

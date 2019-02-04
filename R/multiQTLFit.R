@@ -63,7 +63,7 @@ multiQTLFit <- function(QTLDet,
   if (!is.numeric(thr) || length(thr) > 1 || thr < 0) {
     stop("thr should be a single positive numerical value.\n")
   }
-  ## Create an object of class qtl for modelling.
+  ## Create an object of class qtl for modeling.
   qtl <- qtl::makeqtl(QTLDet$cross, chr = QTLDet$peaks$chr,
                       pos = QTLDet$peaks$pos, what = "prob")
   ## Construct model formula.

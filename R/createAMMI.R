@@ -120,12 +120,11 @@ summary.AMMI <- function(object,
 #' Two types of biplot can be made. A biplot of genotype and environment
 #' means vs PC1 (AMMI1) or a biplot of genotypes and environment interaction
 #' with PC1 and PC2 (AMMI2).\cr\cr
-#' If the AMMI analysis was done by year a separate plot will be made for
-#' every year in the data. If for some of the years it is not possible to
-#' make the plot because the number of principal components for those year is
-#' lower than the number specified as secondary axis those years will be
-#' skipped when plotting. If this would be the case for all years the function
-#' returns an error.
+#' If the AMMI analysis was done by year, a separate plot will be made for
+#' every year in the data. For some years the number of principal components
+#' may be lower than the number specified on the secondary axis. If this is the
+#' case this year is skipped when plotting. If this happens for all years the
+#' function returns an error.
 #'
 #' @param x An object of class AMMI
 #' @param ... Further graphical parameters passed on to actual plot function.
@@ -421,6 +420,7 @@ plotAMMI1 <- function(loadings,
                                                     label = "rownames(envDat)"),
                                 size = sizeEnv, vjust = 1, color = colEnv)
   }
+  p <- p + ggplot2::geom_abline(intercept = 0, slope = 1)
   return(p)
 }
 
@@ -475,7 +475,7 @@ plotAMMI2 <- function(loadings,
   p <- ggplot2::ggplot(envDat,
                        ggplot2::aes_string(x = primAxis, y = secAxis)) +
     ## Needed for a square plot output.
-    ggplot2::coord_equal(clip = "off", ratio = 1) +
+    ggplot2::coord_equal(clip = "off") +
     ggplot2::theme(aspect.ratio = plotRatio) +
     ## Add labeling.
     ggplot2::labs(x = paste0(primAxis, " (", percPC1, "%)"),
@@ -521,13 +521,13 @@ plotAMMI2 <- function(loadings,
 
 #' Report method for class AMMI
 #'
-#' A pdf report will be created containing a summary of an AMMI model.
+#' A pdf report will be created containing a summary of an AMMI object.
 #' Simultaneously the same report will be created as a tex file.
 #'
 #' @param x An object of class AMMI.
 #' @param ... Further arguments passed on from other functions - not used yet.
 #' @param outfile A character string, the name and location of the output .pdf
-#' and .tex file for the report. If \code{NULL} a report with a default name
+#' and .tex file for the report. If \code{NULL}, a report with a default name
 #' will be created in the current working directory.
 #'
 #' @return A pdf and tex report.

@@ -7,7 +7,7 @@
 \format{A TD object, a list containing 1 data.frames with the following
 columns:
 \describe{
-  \item{trial}{trail, a combination of watering regime, year and nitrogen
+  \item{trial}{trial, a combination of watering regime, year and nitrogen
   treatment}
   \item{genotype}{genotype}
   \item{Plot}{plot number in the field}
@@ -15,7 +15,7 @@ columns:
   \item{subBlock}{block id}
   \item{rowId}{row within the field (as factor)}
   \item{colId}{column within the field (as factor)}
-  \item{yield}{yield in grams per m2}
+  \item{yield}{yield in grams per square meter}
   \item{rowCoord}{row within the field (as numerical value)}
   \item{colCoord}{column within the field (as numerical value)}
 }}

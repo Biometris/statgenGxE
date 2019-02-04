@@ -9,7 +9,7 @@ BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
 geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1", sumTab = FALSE)
 geMegaEnvTot <- Reduce(f = rbind, x = geMegaEnv)
-test_that("mega-environments are computed correctly", {
+test_that("mega environments are computed correctly", {
   expect_is(geMegaEnv, "TD")
   expect_identical(dim(geMegaEnvTot), c(45L, 4L))
   expect_equal(as.numeric(geMegaEnvTot$megaEnv), rep(x = c(1, 2, 3), each = 15))

@@ -70,12 +70,11 @@ biplot is returned invisibly.
 Two types of biplot can be made. A biplot of genotype and environment
 means vs PC1 (AMMI1) or a biplot of genotypes and environment interaction
 with PC1 and PC2 (AMMI2).\cr\cr
-If the AMMI analysis was done by year a separate plot will be made for
-every year in the data. If for some of the years it is not possible to
-make the plot because the number of principal components for those year is
-lower than the number specified as secondary axis those years will be
-skipped when plotting. If this would be the case for all years the function
-returns an error.
+If the AMMI analysis was done by year, a separate plot will be made for
+every year in the data. For some years the number of principal components
+may be lower than the number specified on the secondary axis. If this is the
+case this year is skipped when plotting. If this happens for all years the
+function returns an error.
 }
 \examples{
 ## Run AMMI analysis.

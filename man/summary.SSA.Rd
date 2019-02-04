@@ -17,10 +17,10 @@ multiple trials a summary table with the most importantant statistics is
 returned.}
 
 \item{trait}{A character string indicating the trait to summarize. If
-\code{trait = NULL} and only one trait is modelled this trait is summarized.}
+\code{trait = NULL} and only one trait is modeled, this trait is summarized.}
 
 \item{nBest}{An integer indicating the number of the best genotypes (sorted
-by either BLUEs or BLUPs) to print. If \code{NA} all genotypes will be
+by either BLUEs or BLUPs) to print. If \code{NA}, all genotypes will be
 printed.}
 
 \item{sortBy}{A character string specifying how the genotypes will be sorted.

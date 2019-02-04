@@ -2,7 +2,7 @@
 % Please edit documentation in R/multMissing.R
 \name{multMissing}
 \alias{multMissing}
-\title{Multmissing procedure}
+\title{Estimate missing values in multivariate data}
 \usage{
 multMissing(Y, maxIter = 10, naStrings = NULL)
 }
@@ -19,7 +19,7 @@ An object of the same class as the input \code{Y} with the
 missing values replaced by their estimates.
 }
 \description{
-This function estimates missing values for units in a multivariate data set,
+This function estimates missing values for units in a multivariate dataset,
 using an iterative regression technique.
 }
 \details{

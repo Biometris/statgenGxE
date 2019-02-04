@@ -12,13 +12,13 @@ gxeStability(TD, trials = names(TD), trait, method = c("superiority",
 \item{TD}{An object of class \code{\link{TD}}.}
 
 \item{trials}{A character string specifying the trials to be analyzed. If
-not supplied all trials are used in the analysis.}
+not supplied, all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 
 \item{method}{A character vector specifying the measures of stability to be
-calculated. Options are superiority (cultivar-superiority measure), static
-(Shukla's stability variance) or wricke (wricke's ecovalence).}
+calculated. Options are "superiority" (cultivar-superiority measure),
+"static" (Shukla's stability variance) or "wricke" (wricke's ecovalence).}
 
 \item{bestMethod}{A character string specifying the criterion to define
 the best genotype. Either \code{"max"} or \code{"min"}.}

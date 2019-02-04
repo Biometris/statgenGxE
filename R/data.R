@@ -7,21 +7,21 @@
 #' genotypes 4 traits were measured in 2011 but in 2012 only grain yield was
 #' measured.
 #'
-#' @format A data.frame with 4000 rows and 11 variables:
+#' @format A data.frame with 4000 rows and 11 columns:
 #' \describe{
 #'   \item{rep}{replicate}
 #'   \item{bl}{block id}
 #'   \item{trt}{genotype}
 #'   \item{row}{row within the field}
 #'   \item{col}{column within the field}
-#'   \item{DH}{Days to Heading, the number of days from sowing till 50% of
+#'   \item{DH}{Days to Heading, the number of days from sowing till 50\% of
 #'   the spikes emerged}
 #'   \item{GY}{Grain Yield, in tons}
 #'   \item{NKS}{Number of Kernels per Spike, calculated from 25 randomly
 #'   selected spikes per plot}
 #'   \item{TKW}{Thousand Kernel Weight, in grams, calculated from 25 randomly
 #'   selected spikes per plot}
-#'   \item{trial}{trail, a combination of location and year}
+#'   \item{trial}{trial, a combination of location and year}
 #'   \item{year}{year}
 #' }
 #'
@@ -51,7 +51,7 @@
 #' @format A TD object, a list containing 1 data.frames with the following
 #' columns:
 #' \describe{
-#'   \item{trial}{trail, a combination of watering regime, year and nitrogen
+#'   \item{trial}{trial, a combination of watering regime, year and nitrogen
 #'   treatment}
 #'   \item{genotype}{genotype}
 #'   \item{Plot}{plot number in the field}
@@ -59,7 +59,7 @@
 #'   \item{subBlock}{block id}
 #'   \item{rowId}{row within the field (as factor)}
 #'   \item{colId}{column within the field (as factor)}
-#'   \item{yield}{yield in grams per m2}
+#'   \item{yield}{yield in grams per square meter}
 #'   \item{rowCoord}{row within the field (as numerical value)}
 #'   \item{colCoord}{column within the field (as numerical value)}
 #' }
@@ -85,9 +85,9 @@
 #' grain yield is included in the data.
 #'
 #' @format A TD object, a list containing 8 data.frames, each with the following
-#' column:
+#' columns:
 #' \describe{
-#'   \item{trial}{trail, a combination of watering regime, year and nitrogen
+#'   \item{trial}{trial, a combination of watering regime, year and nitrogen
 #'   treatment}
 #'   \item{genotype}{genotype}
 #'   \item{yld}{grain yield in tons}

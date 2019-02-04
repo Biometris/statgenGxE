@@ -11,7 +11,7 @@ gxeFw(TD, trials = names(TD), trait, maxIter = 15, tol = 0.001,
 \item{TD}{An object of class \code{\link{TD}}.}
 
 \item{trials}{A character string specifying the trials to be analyzed. If
-not supplied all trials are used in the analysis.}
+not supplied, all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 
@@ -24,7 +24,7 @@ algorithm.}
 \item{sorted}{A character string specifying the sorting order of the
 estimated values in the output.}
 
-\item{useWt}{Should weighting be used when modelling? Requires a column
+\item{useWt}{Should weighting be used when modeling? Requires a column
 \code{wt} in \code{TD}.}
 }
 \value{
