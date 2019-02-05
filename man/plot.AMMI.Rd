@@ -5,7 +5,7 @@
 \title{Plot function for class AMMI}
 \usage{
 \method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2"), scale = 1,
-  colorBy = NULL, plotGeno = TRUE, colGeno = "black", sizeGeno = 0,
+  colorBy = NULL, plotGeno = TRUE, colGeno = 1:50, sizeGeno = 0,
   plotEnv = TRUE, colEnv = "red", sizeEnv = 3, envFactor = 1,
   primAxis = "PC1", secAxis = "PC2", output = TRUE)
 }
