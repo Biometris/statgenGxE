@@ -111,7 +111,7 @@ summary.SSA <- function(object,
     ## Create summary table with default statistics.
     ## Transpose to get trials in rows, stats in columns.
     sumTab <- t(sapply(X = names(predTD), FUN = function(trial) {
-      summary(predTD, trial = trial, traits = "grain.yield")[, 1, 1]
+      summary(predTD, trial = trial, traits = trait)[, 1, 1]
     }))
     ## Order by mean in descending order.
     sumTab <- sumTab[order(sumTab[, colnames(sumTab) == "Mean"],
