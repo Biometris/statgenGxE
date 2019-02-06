@@ -92,7 +92,7 @@ gxeMegaEnv <- function(TD,
     rmYear <- TRUE
   }
   ## Save and then drop factor levels.
-  envLevels <- levels(TDTot$trial)
+  envLevels <- levels(TDTot$trial)[levels(TDTot$trial) %in% trials]
   TDTot$trial <- droplevels(TDTot$trial)
   if (useWinGeno) {
     ## Perform AMMI analysis.

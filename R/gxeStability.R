@@ -69,6 +69,7 @@ gxeStability <- function(TD,
     stop("All trials should be in TD.")
   }
   TDTot <- Reduce(f = rbind, x = TD[trials])
+  TDTot <- droplevels(TDTot)
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
       !trait %in% colnames(TDTot)) {
     stop("trait has to be a column in TD.\n")
