@@ -200,13 +200,13 @@ gxeFw <- function(TD,
   sigma <- as.vector(tapply(X = varG, INDEX = TDTot$genotype,
                             FUN = mean, na.rm = TRUE))
   ## Compute mean squared error (MSE) of the trait means for each genotype.
-  mse <- as.vector(tapply(X = residuals(model1),  INDEX = TDTot$genotype,
+  mse <- as.vector(tapply(X = residuals(model1), INDEX = TDTot$genotype,
                           FUN = function(x) {
                             checkG <- length(x)
                             if (checkG > 2) {
                               sum(x ^ 2, na.rm = TRUE) / (checkG - 2)
                             } else {
-                              rep(NA, checkG)
+                              NA
                             }
                           }))
   ## Compute sorting order for estimates.
