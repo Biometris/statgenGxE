@@ -581,12 +581,8 @@ print.summary.TD <- function(x, ...) {
 #' @section Correlation Plot:
 #' Draws a heatmap of correlations between trials per selected trait. If
 #' genotypes are replicated within trials genotypic means are taken before
-#' computing correlations. Extra parameter options:
-#' \describe{
-#' \item{orderBy}{A character vector indicating columns in \code{TD} on which
-#' the trials in the plot should be ordered. By default ordering is done
-#' alphabetically.}
-#' }
+#' computing correlations. The order of the trials in the heatmap is determined
+#' by clustering them.
 #'
 #' @param x An object of class TD.
 #' @param ... Extra plot options. Described per plotType in their respective
@@ -860,7 +856,7 @@ plot.TD <- function(x,
                        "Plot skipped.\n"), call. = FALSE)
         break
       }
-      if (orderBy != "alphabetical") {
+      if (orderBy != "alphabetic") {
         ## Reorder levels in trial so plotting is done according to orderBy.
         ## do.call needed since order doesn't accept a vector as input.
         levNw <- reorder(x = plotDat[[xVar]], X = plotDat[[trait]],
@@ -887,15 +883,6 @@ plot.TD <- function(x,
     if (is.null(traits) || !is.character(traits)) {
       stop("traits should be a character vector.\n")
     }
-    orderBy <- dotArgs$orderBy
-    if (!is.null(orderBy) && !is.character(orderBy)) {
-      stop("orderBy should be a character vector.\n")
-    }
-    if (!is.null(orderBy) && !all(sapply(X = x, FUN = function(trial) {
-      all(hasName(x = trial, name = orderBy))
-    }))) {
-      stop("All items in orderBy should be columns in TD.\n")
-    }
     p <- setNames(vector(mode = "list", length = length(traits)), traits)
     for (trait in traits) {
       ## Create a single data.frame from x with only columns trial and trait.
@@ -905,7 +892,7 @@ plot.TD <- function(x,
         if (!hasName(x = trial, name = trait)) {
           NULL
         } else {
-          trial[c("genotype", "trial", trait, if (!is.null(orderBy)) orderBy)]
+          trial[c("genotype", "trial", trait)]
         }
       }))
       if (is.null(plotDat)) {
@@ -913,22 +900,24 @@ plot.TD <- function(x,
                        "Plot skipped.\n"), call. = FALSE)
         break
       }
-      if (!is.null(orderBy)) {
-        ## Reorder levels in trial so plotting is done according to orderBy.
-        ## do.call needed since order doesn't accept a vector as input.
-        levNw <- unique(plotDat$trial[do.call(order, lapply(orderBy,
-                                                            FUN = function(x) {
-                                                              plotDat[x]}))])
-        plotDat$trial <- factor(plotDat$trial, levels = levNw)
-      }
       ## Create table with values trait per genotype per trial.
       ## If TD already contains BLUEs/BLUPs taking means doesn't do anything
       ## but it is needed for raw data where there can be replicates.
       plotTab <- tapply(plotDat[[trait]],
                         INDEX = list(plotDat$genotype, plotDat$trial),
-                        FUN = mean)
+                        FUN = mean, na.rm = TRUE)
       ## Create a correlation matrix.
       corMat <- cor(plotTab, use = "pairwise.complete.obs")
+      ## Remove rows and columns with only NA.
+      corKeep <- sapply(X = 1:ncol(corMat), FUN = function(i) {
+        any(!is.na(corMat[, i]))
+      })
+      corMat <- corMat[corKeep, corKeep]
+      ## Determine ordering according to clustering of trials.
+      corClust <- hclust(as.dist(1 - corMat), method = "ward.D2")
+      ordClust <- order.dendrogram(as.dendrogram(corClust))
+      ## Reorder according to clusters.
+      corMat <- corMat[ordClust, ordClust]
       ## Melt to get the proper format for ggplot.
       meltedCorMat <- reshape2::melt(corMat)
       ## Remove top left of the plot. Only plotting a bottom right triangle.

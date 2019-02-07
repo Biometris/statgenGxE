@@ -92,11 +92,7 @@ descending mean. Default boxes are ordered alphabetically.}
 
 Draws a heatmap of correlations between trials per selected trait. If
 genotypes are replicated within trials genotypic means are taken before
-computing correlations. Extra parameter options:
-\describe{
-\item{orderBy}{A character vector indicating columns in \code{TD} on which
-the trials in the plot should be ordered. By default ordering is done
-alphabetically.}
-}
+computing correlations. The order of the trials in the heatmap is determined
+by clustering them.
 }
 
