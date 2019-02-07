@@ -64,8 +64,9 @@
 #' \code{data} that contains the check IDs.
 #' @param trLocation An optional character vector indicating the locations of
 #' the trials. This will be used as default names when creating plots and
-#' summaries. If no locations are provided, the trialname will be used as
-#' default name.
+#' summaries. If no locations are provided, first the column loc is considered.
+#' If this contains one unique value for a trial this is used as trLocation.
+#' Otherwise the trialname is used.
 #' @param trDate An optional date vector indicating the dates of the trials.
 #' @param trDesign An optional character vector indicating the designs of the
 #' trials. Either "none" (no (known) design), "ibd" (incomplete-block design),
@@ -227,7 +228,13 @@ createTD <- function(data,
     ## Location should always be filled since it is used in plot titles as
     ## well. Use trial name as default value.
     if (is.null(trLocation)) {
-      attr(x = listData[[tr]], which = "trLocation") <- tr
+      if (hasName(x = listData[[tr]], name = "loc") &
+          length(unique(listData[[tr]][["loc"]])) == 1) {
+        attr(x = listData[[tr]],
+             which = "trLocation") <- as.character(listData[[tr]][["loc"]][1])
+      } else {
+        attr(x = listData[[tr]], which = "trLocation") <- tr
+      }
     }
     ## Add a list of columns that have been renamed as attribute to TD.
     attr(x = listData[[tr]], which = "renamedCols") <-

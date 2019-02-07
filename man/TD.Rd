@@ -69,8 +69,9 @@ be the same as colCoord.}
 
 \item{trLocation}{An optional character vector indicating the locations of
 the trials. This will be used as default names when creating plots and
-summaries. If no locations are provided, the trialname will be used as
-default name.}
+summaries. If no locations are provided, first the column loc is considered.
+If this contains one unique value for a trial this is used as trLocation.
+Otherwise the trialname is used.}
 
 \item{trDate}{An optional date vector indicating the dates of the trials.}
 
