@@ -81,9 +81,10 @@ per trial.}
 \item{colorBy}{A character string indicating a column in \code{TD} by which
 the boxes are colored. Coloring will be done within the groups indicated by
 the \code{groupBy} parameter.}
-\item{orderBy}{A character vector indicating columns in \code{TD} on which
-the trials in the plot should be ordered. By default ordering is done
-alphabetically.}
+\item{orderBy}{A character string indicating the way the boxes should be
+ordered. Either "alphabetic" for alphabetical ordering of the groups,
+"ascending" for ordering by ascending mean, or "descending" for ordering by
+descending mean. Default boxes are ordered alphabetically.}
 }
 }
 
