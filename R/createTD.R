@@ -747,13 +747,15 @@ plot.TD <- function(x,
     ## Population has a random value but if left out nothing is plotted.
     locs <- setNames(getMeta(x)[c("trLocation", "trLat", "trLong")],
                      c("name", "lat", "long"))
-    locs <- locs[!is.na(locs$lat) & !is.na(locs$long), ]
+    locs <- unique(locs[!is.na(locs$lat) & !is.na(locs$long), ])
     if (nrow(locs) == 0) {
       stop(paste("At least one trial should have latitute and longitude",
                  "for plotting on map.\n"))
     }
     longR <- range(locs$long)
+    longR <- longR + (diff(longR) < 5) * c(-1, 1) * (5 - diff(longR)) / 2
     latR <- range(locs$lat)
+    latR <- latR + (diff(latR) < 10) * c(-1, 1) * (10 - diff(latR)) / 2
     ## Create data useable by ggplot geom_polygon.
     mapDat <- ggplot2::map_data("world", xlim = longR, ylim = latR)
     p <- ggplot2::ggplot(mapDat, ggplot2::aes_string(x = "long", y = "lat")) +
