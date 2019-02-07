@@ -61,7 +61,13 @@ longitude available are skipped with a warning message. The countries in
 which the trials are located will be plotted on a single map and the
 location of the trials will be indicated on this map. The actual plot is
 made using ggplot, but for getting the data for the borders of the countries
-the maps package is needed.
+the maps package is needed. Extra parameter options:
+\describe{
+\item{minLatRange}{A positive numerical value indicating the minimum range
+(in degrees) for the latitude on the plotted map. Defaults to 10.}
+\item{minLongRange}{A positive numerical value indicating the minimum range
+(in degrees) for the longitud on the plotted map. Defaults to 5.}
+}
 }
 
 \section{Box Plot}{

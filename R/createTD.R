@@ -554,7 +554,13 @@ print.summary.TD <- function(x, ...) {
 #' which the trials are located will be plotted on a single map and the
 #' location of the trials will be indicated on this map. The actual plot is
 #' made using ggplot, but for getting the data for the borders of the countries
-#' the maps package is needed.
+#' the maps package is needed. Extra parameter options:
+#' \describe{
+#' \item{minLatRange}{A positive numerical value indicating the minimum range
+#' (in degrees) for the latitude on the plotted map. Defaults to 10.}
+#' \item{minLongRange}{A positive numerical value indicating the minimum range
+#' (in degrees) for the longitud on the plotted map. Defaults to 5.}
+#' }
 #'
 #' @section Box Plot:
 #' Creates a boxplot per selected trait grouped by trial. Extra parameter
@@ -759,18 +765,39 @@ plot.TD <- function(x,
       stop(paste("At least one trial should have latitute and longitude",
                  "for plotting on map.\n"))
     }
-    longR <- range(locs$long)
-    longR <- longR + (diff(longR) < 5) * c(-1, 1) * (5 - diff(longR)) / 2
+    minLatRange <- dotArgs$minLatRange
+    minLongRange <- dotArgs$minLongRange
+    if (!is.null(minLatRange) && (!is.numeric(minLatRange) ||
+                                  length(minLatRange) > 1)) {
+      stop("minLatRange should be a single numerical value.\n")
+    }
+    if (!is.null(minLongRange) && (!is.numeric(minLongRange) ||
+                                  length(minLongRange) > 1)) {
+      stop("minLatRange should be a single numerical value.\n")
+    }
+    if (is.null(minLatRange)) {
+      minLatRange <- 10
+    }
+    if (is.null(minLongRange)) {
+      minLongRange <- 5
+    }
+    ## Set minimum range for latitude and longitude.
     latR <- range(locs$lat)
-    latR <- latR + (diff(latR) < 10) * c(-1, 1) * (10 - diff(latR)) / 2
+    latR <- latR +
+      (diff(latR) < minLatRange) * c(-1, 1) * (minLatRange - diff(latR)) / 2
+    longR <- range(locs$long)
+    longR <- longR +
+      (diff(longR) < minLongRange) * c(-1, 1) * (minLongRange - diff(longR)) / 2
+    ## Add 10% to edges of map so locations are not on the absolute edge.
+    longR <- longR + c(-0.1, 0.1) * diff(longR)
+    latR <- latR + c(-0.1, 0.1) * diff(latR)
     ## Create data useable by ggplot geom_polygon.
     mapDat <- ggplot2::map_data("world", xlim = longR, ylim = latR)
     p <- ggplot2::ggplot(mapDat, ggplot2::aes_string(x = "long", y = "lat")) +
       ggplot2::geom_polygon(ggplot2::aes_string(group = "group"),
                             fill = "white", color = "black") +
       ## Add a proper map projection.
-      ggplot2::coord_map(clip = "on", xlim = longR + c(-0.1, 0.1) * diff(longR),
-                         ylim = latR + c(-0.1, 0.1) * diff(latR)) +
+      ggplot2::coord_map(clip = "on", xlim = longR, ylim = latR) +
       ## Add trial locations.
       ggplot2::geom_point(data = locs) +
       ggplot2::geom_text(ggplot2::aes_string(label = "name"), data = locs,
