@@ -5,7 +5,8 @@
 \title{Form mega environments based on fitted values from an AMMI model}
 \usage{
 gxeMegaEnv(TD, trials = names(TD), trait, useWinGeno = TRUE,
-  method = c("max", "min"), cutOff = 0.8, sumTab = TRUE)
+  method = c("max", "min"), cutOff = 0.8, byYear = FALSE,
+  sumTab = TRUE)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
@@ -26,6 +27,10 @@ the best genotype per environment, either \code{"max"} or \code{"min"}.}
 \item{cutOff}{A numerical value indicating the proportion of best genotypes
 per location used in the calculation, i.e. a value of 0.8 indicates that
 the best 80\% genotypes will be used.}
+
+\item{byYear}{Should the analysis be done by year? If \code{TRUE} the data
+is split by the variable year, analysis is performed and the results are
+merged together and returned.}
 
 \item{sumTab}{Should a summary table be printed?}
 }

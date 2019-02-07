@@ -60,6 +60,7 @@ gxeMegaEnv <- function(TD,
                        useWinGeno = TRUE,
                        method = c("max", "min"),
                        cutOff = 0.8,
+                       byYear = FALSE,
                        sumTab = TRUE) {
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -87,7 +88,7 @@ gxeMegaEnv <- function(TD,
   })
   TDTot <- TDTot[!TDTot$genotype %in% names(allNA[allNA]), ]
   rmYear <- FALSE
-  if (!hasName(x = TDTot, name = "year")) {
+  if (!byYear || !hasName(x = TDTot, name = "year")) {
     TDTot$year <- 0
     rmYear <- TRUE
   }
@@ -96,7 +97,8 @@ gxeMegaEnv <- function(TD,
   TDTot$trial <- droplevels(TDTot$trial)
   if (useWinGeno) {
     ## Perform AMMI analysis.
-    AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = 2, byYear = TRUE)
+    AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = 2,
+                    byYear = byYear)
     fitted <- AMMI$fitted
     ## Extract position of best genotype per trial.
     winPos <- apply(X = fitted, MARGIN = 2,
