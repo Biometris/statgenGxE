@@ -116,6 +116,8 @@ gxeMegaEnv <- function(TD,
     if (isTRUE(rmYear)) {
       TDTot <- TDTot[-which(colnames(TDTot) == "year")]
     }
+    ## Relevel megaEnv so it is in increasing order.
+    TDTot$megaEnv <- factor(as.numeric(as.character(TDTot$megaEnv)))
     TDOut <- createTD(TDTot)
     ## Create summary table.
     summTab <- data.frame("Mega factor" = megaFactor, Trial = colnames(fitted),
