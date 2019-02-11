@@ -248,7 +248,8 @@ modelChecks <- function(TD,
                 ".\n"))
   }
   if (is.na(engine)) {
-    if (design %in% c("rowcol", "res.rowcol")) {
+    if (isTRUE(length(unique(TD[[trial]][["rowCoord"]])) > 1) &
+        isTRUE(length(unique(TD[[trial]][["colCoord"]])) > 1)) {
       message("Using SpATS for fitting models.")
       engine <- "SpATS"
     } else {
