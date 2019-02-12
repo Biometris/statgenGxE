@@ -40,18 +40,18 @@ test_that("BLUPs are computed correctly", {
   expect_identical(dim(extLm$BLUPs), c(15L, 2L))
   expect_equal(colnames(extLm$BLUPs), c("genotype", "t1"))
   expect_equal(extLm$BLUPs$t1,
-               c(80.770606359766, 76.7768080023636, 77.0450583853567,
-                 79.16287869028, 75.7330509618824, 74.8828391375616,
-                 72.7466691625783, 77.5190647619399, 74.2463424383353,
-                 75.4017603711797, 84.4232847547063, 74.9422194060249,
-                 85.8382002872437, 77.9340479462189, 77.3688200231731))
+               c(80.7705943535508, 76.7768113755654, 77.0450607255733,
+                 79.1628728751421, 75.7330583544096, 74.8828498041054,
+                 72.746688055138, 77.5190652768411, 74.2463555559162,
+                 75.4017690394489, 84.4232586826672, 74.9422298439057,
+                 85.838168766613, 77.9340468630927, 77.3688211166405))
 })
 
 test_that("SE of BLUPs are computed correctly", {
   expect_is(extLm$seBLUPs, "data.frame"	)
   expect_identical(dim(extLm$seBLUPs), c(15L, 2L))
   expect_equal(colnames(extLm$seBLUPs), c("genotype", "t1"))
-  expect_equal(extLm$seBLUPs$t1, rep(x = 6.86556085594243, times = 15))
+  expect_equal(extLm$seBLUPs$t1, rep(x = 6.86554949586288, times = 15))
 })
 
 test_that("unit errors are computed correctly", {
@@ -65,21 +65,21 @@ test_that("heritability is computed correctly", {
   expect_is(extLm$heritability, "numeric")
   expect_length(extLm$heritability, 1)
   expect_equal(names(extLm$heritability), "t1")
-  expect_equivalent(extLm$heritability, 0.219516387233952)
+  expect_equivalent(extLm$heritability, 0.219515541914842)
 })
 
 test_that("varGen is computed correctly", {
   expect_is(extLm$varGen, "numeric")
   expect_length(extLm$varGen, 1)
   expect_equal(names(extLm$varGen), "t1")
-  expect_equivalent(extLm$varGen, 60.3932293973456)
+  expect_equivalent(extLm$varGen, 60.3929641286978)
 })
 
 test_that("varErr is computed correctly", {
   expect_is(extLm$varErr, "numeric")
   expect_length(extLm$varErr, 1)
   expect_equal(names(extLm$varErr), "t1")
-  expect_equivalent(extLm$varErr, 429.452456471173)
+  expect_equivalent(extLm$varErr, 429.452689034918)
 })
 
 test_that("fitted values are computed correctly", {
@@ -138,16 +138,16 @@ test_that("rMeans are computed correctly", {
   expect_identical(dim(extLm$rMeans), c(30L, 3L))
   expect_equal(colnames(extLm$rMeans), c("genotype", "repId", "t1"))
   expect_equal(extLm$rMeans$t1,
-               c(87.0704393072783, 83.8188977094521, 80.5461753858475,
-                 81.701593318692,  90.7231177022186, 81.2420523535372,
-                 92.138033234756, 84.2338808937312, 83.6686529706854,
-                 83.0766409498759, 83.3448913328689, 85.4627116377923,
-                 82.0328839093947, 81.1826720850739, 79.0465021100905,
-                 74.4707734122537, 71.2192318144276, 67.946509490823,
-                 69.1019274236675, 78.123451807194, 68.6423864585126,
-                 79.5383673397315, 71.6342149987067, 71.0689870756608,
-                 70.4769750548513, 70.7452254378444, 72.8630457427678,
-                 69.4332180143702, 68.5830061900493, 66.446836215066))
+               c(87.0704273010631, 83.8188982243534, 80.5461885034285,
+                 81.7016019869611, 90.7230916301794, 81.242062791418,
+                 92.1380017141253, 84.233879810605, 83.6686540641528,
+                 83.0766443230777, 83.3448936730856, 85.4627058226544,
+                 82.0328913019219, 81.1826827516177, 79.0465210026503,
+                 74.4707614060385, 71.2192323293289, 67.946522608404,
+                 69.1019360919366, 78.1234257351549, 68.6423968963934,
+                 79.5383358191008, 71.6342139155804, 71.0689881691282,
+                 70.4769784280532, 70.7452277780611, 72.8630399276299,
+                 69.4332254068973, 68.5830168565931, 66.4468551076258))
 })
 
 test_that("random effects are computed correctly", {
@@ -155,11 +155,11 @@ test_that("random effects are computed correctly", {
   expect_identical(dim(extLm$ranEf), c(15L, 2L))
   expect_equal(colnames(extLm$ranEf), c("genotype", "t1"))
   expect_equal(extLm$ranEf$t1,
-               c(3.11782964719197, -0.875968710210448, -0.607718327217375,
-                 1.510101977706, -1.9197257506916, -2.76993757501244,
-                 -4.90610754999576, -0.133711950634149, -3.40643427423876,
-                 -2.25101634139431, 6.77050804213227, -2.71055730654913,
-                 8.18542357466969, 0.28127123364488, -0.283956689400929))
+               c(3.1178176409768, -0.875965337008561, -0.60771598700067,
+                 1.51009616256813, -1.9197183581644, -2.76992690846861,
+                 -4.90608865743599, -0.13371143573287, -3.40642115665777,
+                 -2.25100767312514, 6.77048197009317, -2.71054686866831,
+                 8.18539205403902, 0.281270150518691, -0.283955595933513))
 })
 
 test_that("Waldtest is computed correctly", {

@@ -68,9 +68,9 @@ test_that("lme4 model gives correct output", {
   ## This test works fine in RStudio but gives an error when testing on CRAN.
   ## Therefore added a lower tolerance
   expect_equivalent(geVCLm$vcov,
-                    c(35.7978301877475, 4.51026038047197, 4.51026038047198,
-                      4.51026038047197, 35.7978301877475, 4.51026038047197,
-                      4.51026038047198, 4.51026038047197, 35.7978301877475),
+                    c(35.7978169002067, 4.5102010045834, 4.5102010045834,
+                      4.5102010045834, 35.7978169002067, 4.5102010045834,
+                      4.5102010045834, 4.5102010045834, 35.7978169002067),
                     tolerance = 1e-6)
 })
 
