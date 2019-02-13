@@ -35,7 +35,7 @@
 #' not supplied, all trials are used in the analysis.
 #' @param trait A character string specifying the trait to be analyzed.
 #' @param nPC An integer specifying the number of principal components used
-#' as multiplicative term of genotype-by-trial interaction. If \code{NULL} the
+#' as multiplicative term of genotype-by-trial interaction. If \code{NULL}, the
 #' number of principal components is determined by the algorithm using
 #' forward selection. See details.
 #' @param byYear Should the analysis be done by year? If \code{TRUE} the data
@@ -45,6 +45,8 @@
 #' @param scale Should the variables be scaled to have unit variance?
 #' @param GGE Should a GGE analysis be performed instead of a regular AMMI
 #' analysis. When doing so genotype will be excluded from the model.
+#' @param excludeGeno An optional character vector with names of genotypes to
+#' be excluded from the analysis. If \code{NULL}, all genotypes are used.
 #' @param useWt Should weighting be used when modeling? Requires a column
 #' \code{wt} in \code{TD}.
 #'
@@ -92,12 +94,13 @@ gxeAmmi <- function(TD,
                     center = TRUE,
                     scale = FALSE,
                     GGE = FALSE,
+                    excludeGeno = NULL,
                     useWt = FALSE) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
-  if (!is.character(trials) || !all(trials %in% names(TD))) {
+  if (!is.character(trials) || !all(hasName(TD, trials))) {
     stop("All trials should be in TD.")
   }
   TDTot <- Reduce(f = rbind, x = TD[trials])
@@ -105,7 +108,7 @@ gxeAmmi <- function(TD,
       !hasName(x = TDTot, name = trait)) {
     stop("trait has to be a column in TD.\n")
   }
-  if (!"trial" %in% colnames(TDTot)) {
+  if (!hasName(x = TDTot, name = "trial")) {
     stop("TD should contain a column trial to be able to run an AMMI analysis.\n")
   }
   if (useWt && !hasName(x = TDTot, name = "wt")) {
@@ -115,17 +118,27 @@ gxeAmmi <- function(TD,
                         round(nPC) != nPC || nPC < 0)) {
     stop("nPC should be NULL or a single integer.\n")
   }
+  if (!is.null(excludeGeno) && !all(excludeGeno %in% TDTot[["genotype"]])) {
+    stop("All genotypes to exclude should be in TD.\n")
+  }
   TDTot$year. <- if (byYear) {
     as.character(TDTot$year)
   } else {
     "0"
+  }
+  if (!is.null(excludeGeno)) {
+    TDTot <- TDTot[!TDTot[["genotype"]] %in% excludeGeno, ]
+    if (nrow(TDTot) < 20) {
+      stop(paste("Less than 20 genotypes remain. Ammi can only be run with at",
+                 "least 20 genotypes.\n"))
+    }
   }
   ## Extract years and define empty objects for output.
   years <- sort(unique(TDTot$year.))
   fitTot <- data.frame(genotype = unique(TDTot$genotype))
   loadTot <- scoreTot <- impTot <- aovTot <- envMeanTot <- genoMeanTot <-
     ovMeanTot <- datTot <- setNames(vector(mode = "list",
-                                          length = length(years)), years)
+                                           length = length(years)), years)
   for (year in years) {
     TDYear <- TDTot[TDTot$year. == year, ]
     ## Remove genotypes that contain only NAs

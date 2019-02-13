@@ -5,7 +5,8 @@
 \title{AMMI analysis}
 \usage{
 gxeAmmi(TD, trials = names(TD), trait, nPC = 2, byYear = FALSE,
-  center = TRUE, scale = FALSE, GGE = FALSE, useWt = FALSE)
+  center = TRUE, scale = FALSE, GGE = FALSE, excludeGeno = NULL,
+  useWt = FALSE)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
@@ -16,7 +17,7 @@ not supplied, all trials are used in the analysis.}
 \item{trait}{A character string specifying the trait to be analyzed.}
 
 \item{nPC}{An integer specifying the number of principal components used
-as multiplicative term of genotype-by-trial interaction. If \code{NULL} the
+as multiplicative term of genotype-by-trial interaction. If \code{NULL}, the
 number of principal components is determined by the algorithm using
 forward selection. See details.}
 
@@ -30,6 +31,9 @@ merged together and returned.}
 
 \item{GGE}{Should a GGE analysis be performed instead of a regular AMMI
 analysis. When doing so genotype will be excluded from the model.}
+
+\item{excludeGeno}{An optional character vector with names of genotypes to
+be excluded from the analysis. If \code{NULL}, all genotypes are used.}
 
 \item{useWt}{Should weighting be used when modeling? Requires a column
 \code{wt} in \code{TD}.}
