@@ -74,14 +74,47 @@ summary.varComp <- function(object, ...) {
 plot.varComp <- function(x,
                          ...,
                          output = TRUE) {
-  dotArgs <- list(...)
-  ## Set arguments for plot
-  plotArgs <- list(varMat = x$vcov,
-                   main = paste("Heatmap for model:", x$choice))
-  ## Add and overwrite args with custom args from ...
-  fixedArgs <- c("varMat")
-  plotArgs <- modifyList(plotArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
-  p <- do.call(plotCorMat, args = plotArgs)
+  corMat <- cov2cor(x$vcov)
+  PC1 <- princomp(corMat)$loadings[, 1]
+  orderPC1 <- order(PC1)
+  corMat <- corMat[orderPC1, orderPC1]
+  ## Melt variance and correlation matrices to get proper shape for ggplot.
+  meltedCorMat <- reshape2::melt(corMat)
+  meltedVarMat <- reshape2::melt(x$vcov[orderPC1, orderPC1])
+  ## Select bottom triangle for correlations and top for variances.
+  meltedCorMatLow <- meltedCorMat[as.numeric(meltedCorMat$Var1) >
+                                    as.numeric(meltedCorMat$Var2), ]
+  meltedVarMatUp <- meltedVarMat[as.numeric(meltedVarMat$Var1) <=
+                                   as.numeric(meltedVarMat$Var2), ]
+  ## Round values for nicer display
+  meltedVarMatUp$value <- round(meltedVarMatUp$value)
+  p <- ggplot2::ggplot(data = meltedCorMatLow,
+                  ggplot2::aes_string("Var1", "Var2", fill = "value")) +
+    ggplot2::geom_tile(color = "white") +
+    ## Discrete scales for x and y are needed to assure the diagonal is
+    ## included in the plot. It is filled with variances later.
+    ggplot2::scale_x_discrete(drop = FALSE) +
+    ggplot2::scale_y_discrete(drop = FALSE) +
+    ## Create a gradient scale.
+    ggplot2::scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                                  na.value = "grey", limit = c(-1, 1)) +
+    ## Var1 and Var2 have to be converted to numeric here to prevent ggplot
+    ## from refactoring the data.
+    ggplot2::geom_text(data = meltedVarMatUp,
+                       ggplot2::aes_string("as.numeric(Var1)", "as.numeric(Var2)",
+                         label = "value", size = "value")) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1,
+                                                       size = 10, hjust = 1)) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
+    ## Remove grid behind text output.
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
+                   panel.grid.minor = ggplot2::element_blank()) +
+    ggplot2::ggtitle(paste("Heatmap for model:", x$choice)) +
+    ggplot2::xlab("") + ggplot2::ylab("") +
+    ggplot2::labs(fill = "correlation", size = "variance") +
+    ## Fix coordinates to get a square sized plot.
+    ggplot2::coord_fixed()
   if (output) {
     plot(p)
   }
