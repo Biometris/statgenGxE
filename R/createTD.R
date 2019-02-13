@@ -840,15 +840,16 @@ plot.TD <- function(x,
     }
     p <- setNames(vector(mode = "list", length = length(traits)), traits)
     for (trait in traits) {
-      ## Create a single data.frame from x with only columns trial and trait.
-      ## trial where trait is not measured/available are removed by setting
+      ## Create a single data.frame from x with only columns trial, trait and
+      ## genotype. Genotype is needed to be able to display hovering info.
+      ## trials where trait is not measured/available are removed by setting
       ## them to NULL.
       xVar <- if (is.null(groupBy)) "trial" else groupBy
       plotDat <- Reduce(f = rbind, x = lapply(X = x[trials], function(trial) {
         if (!hasName(x = trial, name = trait)) {
           NULL
         } else {
-          trial[c(trait, xVar, if (!is.null(colorBy)) colorBy)]
+          trial[c(trait, "genotype", xVar, if (!is.null(colorBy)) colorBy)]
         }
       }))
       if (is.null(plotDat)) {
