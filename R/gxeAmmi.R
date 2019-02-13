@@ -272,8 +272,8 @@ gxeAmmi <- function(TD,
     genoMeanTot[[year]] <- genoMean
     ovMeanTot[[year]] <- overallMean
   } # End loop over years.
-  rownames(fitTot) <- fitTot$genotype
-  fitTot <- as.matrix(fitTot[-1])
+  fitTot <- reshape2::melt(fitTot, id.vars = "genotype", variable.name = "trial",
+                           value.name = "fittedValue")
   if (!byYear) {
     loadTot <- loadTot[[1]]
     scoreTot <- scoreTot[[1]]

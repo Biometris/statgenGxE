@@ -99,12 +99,17 @@ gxeMegaEnv <- function(TD,
     ## Perform AMMI analysis.
     AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = 2,
                     byYear = byYear)
-    fitted <- AMMI$fitted
-    ## Extract position of best genotype per trial.
-    winPos <- apply(X = fitted, MARGIN = 2,
-                    FUN = getFunction(paste0("which.", method)))
-    ## Extract best genotype per trial.
-    winGeno <- rownames(fitted)[winPos]
+    ## Extract winning genotype per trial.
+    winGeno <- by(data = AMMI$fitted, INDICES = AMMI$fitted$trial,
+                  FUN = function(trial) {
+                    as.character(trial$genotype)[do.call(paste0("which.", method),
+                                                         args = list(trial$fittedValue))]
+                  })
+    ## Extract values for winning genotype per trial.
+    winGenoVal <- by(data = AMMI$fitted, INDICES = AMMI$fitted$trial,
+                     FUN = function(trial) {
+                       do.call(method, args = list(trial$fittedValue))
+                     })
     ## Create factor based on best genotypes.
     megaFactor <- factor(winGeno, labels = "")
     ## Merge factor levels to original data.
@@ -120,10 +125,10 @@ gxeMegaEnv <- function(TD,
     TDTot$megaEnv <- factor(as.numeric(as.character(TDTot$megaEnv)))
     TDOut <- createTD(TDTot)
     ## Create summary table.
-    summTab <- data.frame("Mega factor" = megaFactor, Trial = colnames(fitted),
-                          "Winning genotype" = winGeno,
-                          "AMMI estimates" =
-                            fitted[matrix(c(winPos, 1:ncol(fitted)), ncol = 2)],
+    summTab <- data.frame("Mega factor" = megaFactor,
+                          Trial = names(winGeno),
+                          "Winning genotype" = as.character(winGeno),
+                          "AMMI estimates" = as.numeric(winGenoVal),
                           check.names = FALSE)
     summTab <- summTab[order(megaFactor), ]
     attr(TDOut, "sumTab") <- summTab
@@ -168,12 +173,10 @@ gxeMegaEnv <- function(TD,
     ## Perform AMMI analysis.
     AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = NULL,
                     byYear = TRUE)
-    ammiRaw <- reshape2::melt(AMMI$fitted, varnames = c("genotype", "trial"),
-                              value.name = "ammiPred")
-    ammiRaw <- merge(ammiRaw, TDTot[c("genotype", "trial", "loc", "year")])
+    ammiRaw <- merge(AMMI$fitted, TDTot[c("genotype", "trial", "loc", "year")])
     ## Compute quantile for determining best genotypes per year per location.
-    quant <- tapply(X = ammiRaw$ammiPred, INDEX = list(ammiRaw$year, ammiRaw$loc),
-                    FUN = quantile,
+    quant <- tapply(X = ammiRaw$fittedVals,
+                    INDEX = list(ammiRaw$year, ammiRaw$loc), FUN = quantile,
                     probs = ifelse(method == "max", cutOff, 1 - cutOff),
                     na.rm = TRUE, type = 1)
     ## Merge quantile to data.
@@ -181,19 +184,19 @@ gxeMegaEnv <- function(TD,
                      by.y = c("Var1", "Var2"))
     ## Replace values by 0 when lower than quantile value and 1 otherwise.
     ## Reverse the equation if low values are better for current trait.
-    ammiQnt$ammiPred <- if (method == "max") {
-      as.numeric(ammiQnt$ammiPred > ammiQnt$value)
+    ammiQnt$fittedVals <- if (method == "max") {
+      as.numeric(ammiQnt$fittedVals > ammiQnt$value)
     } else {
-      as.numeric(ammiQnt$ammiPred < ammiQnt$value)
+      as.numeric(ammiQnt$fittedVals < ammiQnt$value)
     }
     ## Reshape data to get locations as header.
     ammiLoc <- reshape2::dcast(ammiQnt, genotype + year ~ loc,
                                fun.aggregate = length,
-                               value.var = "ammiPred", drop = FALSE)
+                               value.var = "fittedVals", drop = FALSE)
     ## Compute means and standard deviations.
     ## For sd division by n should be used so this cannot be done by sd().
-    Xi = tapply(ammiQnt$ammiPred, list(ammiQnt$year, ammiQnt$loc), FUN = mean)
-    SXi = tapply(ammiQnt$ammiPred, list(ammiQnt$year, ammiQnt$loc),
+    Xi = tapply(ammiQnt$fittedVals, list(ammiQnt$year, ammiQnt$loc), FUN = mean)
+    SXi = tapply(ammiQnt$fittedVals, list(ammiQnt$year, ammiQnt$loc),
                  FUN = function(x) {
                    sqrt(sum((x - mean(x)) ^ 2) / length(x))
                  })
