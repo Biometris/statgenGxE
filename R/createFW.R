@@ -54,6 +54,7 @@ createFW <- function(estimates,
   return(FW)
 }
 
+#' @importFrom utils head
 #' @export
 print.FW <- function(x, ...) {
   cat("Environmental effects",
@@ -209,6 +210,9 @@ plot.FW <- function(x,
       trellisDat <- trellisDat[first64, ]
     }
     trellisDat <- ggplot2::remove_missing(trellisDat, na.rm = TRUE)
+    ## The data needs to be ordered for the lines to be drawn properly.
+    trellisDat <- trellisDat[order(trellisDat[["genotype"]],
+                                   trellisDat[["xEff"]]), ]
     p <- ggplot2::ggplot(data = trellisDat,
                          ggplot2::aes_string(x = "xEff", y = "trait + fitted")) +
       ggplot2::geom_point() +
