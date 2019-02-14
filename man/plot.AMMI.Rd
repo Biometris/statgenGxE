@@ -4,10 +4,11 @@
 \alias{plot.AMMI}
 \title{Plot function for class AMMI}
 \usage{
-\method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2"), scale = 1,
-  colorBy = NULL, plotGeno = TRUE, colGeno = 1:50, sizeGeno = 0,
-  plotEnv = TRUE, colEnv = "red", sizeEnv = 3, envFactor = 1,
-  primAxis = "PC1", secAxis = "PC2", output = TRUE)
+\method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2", "GGE1",
+  "GGE2"), scale = 1, colorBy = NULL, plotGeno = TRUE,
+  colGeno = 1:50, sizeGeno = 0, plotEnv = TRUE, colEnv = "red",
+  sizeEnv = 3, envFactor = 1, primAxis = "PC1", secAxis = "PC2",
+  output = TRUE)
 }
 \arguments{
 \item{x}{An object of class AMMI}
@@ -15,9 +16,10 @@
 \item{...}{Further graphical parameters passed on to actual plot function.}
 
 \item{plotType}{A character string indicating which plot should be made.
-Either "AMMI1" or "AMMI2" for an AMMI1 biplot (genotype and
-environment means vs PC1) or an AMMI2 biplot (genotypes and environment
-interaction with PC1 and PC2) respectively.}
+Either "AMMI1" for an AMMI1 biplot (genotype and
+environment means vs PC1) or "AMMI2" for an AMMI2 biplot (genotypes and
+environment interaction with PC1 and PC2) respectively. "GGE1" and "GGE2"
+may be used instead of "AMMI1" and "AMMI2".}
 
 \item{scale}{A numerical value. The variables are scaled by
 \code{lambda ^ scale} and the observations by \code{lambda ^ (1 - scale)}

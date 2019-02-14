@@ -129,9 +129,10 @@ summary.AMMI <- function(object,
 #' @param x An object of class AMMI
 #' @param ... Further graphical parameters passed on to actual plot function.
 #' @param plotType A character string indicating which plot should be made.
-#' Either "AMMI1" or "AMMI2" for an AMMI1 biplot (genotype and
-#' environment means vs PC1) or an AMMI2 biplot (genotypes and environment
-#' interaction with PC1 and PC2) respectively.
+#' Either "AMMI1" for an AMMI1 biplot (genotype and
+#' environment means vs PC1) or "AMMI2" for an AMMI2 biplot (genotypes and
+#' environment interaction with PC1 and PC2) respectively. "GGE1" and "GGE2"
+#' may be used instead of "AMMI1" and "AMMI2".
 #' @param scale A numerical value. The variables are scaled by
 #' \code{lambda ^ scale} and the observations by \code{lambda ^ (1 - scale)}
 #' where \code{lambda} are the singular values computed by
@@ -180,7 +181,7 @@ summary.AMMI <- function(object,
 #' @export
 plot.AMMI <- function(x,
                       ...,
-                      plotType = c("AMMI1", "AMMI2"),
+                      plotType = c("AMMI1", "AMMI2", "GGE1", "GGE2"),
                       scale = 1,
                       colorBy = NULL,
                       plotGeno = TRUE,
@@ -195,6 +196,9 @@ plot.AMMI <- function(x,
                       output = TRUE) {
   ## Checks.
   plotType <- match.arg(plotType)
+  if (plotType %in% c("GGE1", "GGE2")) {
+    plotType <- gsub(pattern = "GGE", replacement = "AMMI", x = plotType)
+  }
   if (!is.numeric(scale) || length(scale) > 1) {
     stop("scale should be a single numerical value.\n")
   }
