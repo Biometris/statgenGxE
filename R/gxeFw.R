@@ -16,9 +16,32 @@
 #' estimated values in the output.
 #'
 #' @return An object of class \code{\link{FW}}, a list containing:
-#' \item{estimates}{A data.frame containing the estimated values.}
+#' \item{estimates}{A data.frame containing the estimated values, with the
+#' following columns:
+#' \itemize{
+#' \item{genotype} {The name of the genotype.}
+#' \item{sens} {The estimate of the sensitivity.}
+#' \item{se_sens} {The standard error of the estimate of the sensitivity.}
+#' \item{genMean} {The estimate of the genotypic mean.}
+#' \item{se_genMean} {The standard error of the estimate of the genotypic
+#' mean.}
+#' \item{MSdeviation} {The mean square deviation about the line fitted to
+#' each genotype}
+#' \item{rank} {The rank of the genotype based on its sensitivity.}
+#' }
+#' }
 #' \item{anova}{A data.frame containing anova scores of the FW analysis.}
-#' \item{envEffs}{A data.frame containing the environmental effects.}
+#' \item{envEffs}{A data.frame containing the environmental effects, with the
+#' following columns:
+#' \itemize{
+#' \item{trial} {The name of the trial.}
+#' \item{envEff} {The estimate of the environment effect.}
+#' \item{se_envEff} {The standard error of the estimate of the environment
+#' effect.}
+#' \item{envMean} {The estimate of the environment mean.}
+#' \item{rank} {The rank of the trial based on its mean.}
+#' }
+#' }
 #' \item{TD}{The object of class TD on which the analysis was performed.}
 #' \item{fittedGeno}{A numerical vector containing the fitted values for the
 #' genotypes.}
@@ -226,8 +249,9 @@ gxeFw <- function(TD,
     orderSens <- order(sens, decreasing = (sorted == "descending"))
   }
   ## Construct estimate data.frame.
-  estimates <- data.frame(genotype = levels(TDTot$genotype), sens, sigmaE,
-                          genMean, sigma, mse,
+  estimates <- data.frame(genotype = levels(TDTot$genotype), sens,
+                          se_sens = sigmaE, genMean, se_genMean = sigma,
+                          MSdeviation = mse, rank = order(sens),
                           row.names = 1:length(sens))[orderSens, ]
   ## Construct data.frame with trial effects.
   matchPos <- match(paste0("trial", levels(TDTot$trial), ":beta"),
@@ -246,8 +270,9 @@ gxeFw <- function(TD,
     meansFitted <- tapply(X = model1$fitted, INDEX = TDTot$trial, FUN = mean)
   }
   meansFitted <- meansFitted[matchPos2]
-  envEffsSummary <- data.frame(trial = names(meansFitted), effect = envEffs,
-                               SE = seEnvEffs, mean = as.vector(meansFitted),
+  envEffsSummary <- data.frame(trial = names(meansFitted), envEff = envEffs,
+                               se_envEff = seEnvEffs,
+                               envMean = as.vector(meansFitted),
                                rank = rank(-meansFitted), row.names = NULL)
   return(createFW(estimates = estimates, anova = aovTable,
                   envEffs = envEffsSummary, TD = createTD(TDTot),

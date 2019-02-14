@@ -122,15 +122,15 @@ plot.FW <- function(x,
   plotType <- match.arg(plotType, several.ok = TRUE)
   order <- match.arg(order)
   dotArgs <- list(...)
-  envEffs <- x$envEffs[c("trial", "effect")]
+  envEffs <- x$envEffs[c("trial", "envEff")]
   TDTot <- Reduce(f = rbind, x = x$TD)
   plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
                       paste0("Finlay & Wilkinson analysis for ",
                              x$trait))
   if ("scatter" %in% plotType) {
-    selCols = c(1:2, if (!all(is.na(x$estimates$mse))) 3, 4)
+    selCols = c(1:2, if (!all(is.na(x$estimates$MSdeviation))) 3, 4)
     scatterDat <- setNames(x$estimates[, c("genotype", "genMean",
-                                           "mse", "sens")[selCols]],
+                                           "MSdeviation", "sens")[selCols]],
                            c("genotype", "Mean", "m.s.deviation",
                              "Sensitivity")[selCols])
     scatterDat <- ggplot2::remove_missing(scatterDat, na.rm = TRUE)
@@ -184,7 +184,7 @@ plot.FW <- function(x,
     lineDat <- merge(x = lineDat, y = envEffs)
     lineDat <- ggplot2::remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
-    aesArgs <- list(x = "effect", y = "value", color = "genotype")
+    aesArgs <- list(x = "envEff", y = "value", color = "genotype")
     fixedArgs <- c("x", "y", "color", "title")
     ## Add and overwrite args with custom args from ...
     aesArgs <- modifyList(aesArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
@@ -192,7 +192,7 @@ plot.FW <- function(x,
     p <- ggplot2::ggplot(data = lineDat,
                          do.call(ggplot2::aes_string, args = aesArgs)) +
       ggplot2::geom_point() + ggplot2::geom_line(size = 0.5, alpha = 0.7) +
-      ggplot2::scale_x_continuous(breaks = envEffs$effect, minor_breaks = NULL,
+      ggplot2::scale_x_continuous(breaks = envEffs$envEff, minor_breaks = NULL,
                                   labels = levels(lineDat$trial),
                                   trans = xTrans) +
       ggplot2::theme(legend.position = "none",
@@ -211,7 +211,7 @@ plot.FW <- function(x,
     trellisDat <- data.frame(genotype = TDTot[["genotype"]],
                              trait = TDTot[[x$trait]],
                              fitted = x$fittedGen,
-                             xEff = rep(x = envEffs$effect, each = x$nGeno))
+                             xEff = rep(x = envEffs$envEff, each = x$nGeno))
     if (!is.null(genotypes)) {
       trellisDat <- trellisDat[trellisDat[["genotype"]] %in% genotypes, ]
       trellisDat <- droplevels(trellisDat)
