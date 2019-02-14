@@ -5,7 +5,8 @@
 \title{Finlay-Wilkinson analysis}
 \usage{
 gxeFw(TD, trials = names(TD), trait, maxIter = 15, tol = 0.001,
-  sorted = c("ascending", "descending", "none"), useWt = FALSE)
+  sorted = c("ascending", "descending", "none"), restrictGeno = NULL,
+  useWt = FALSE)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
@@ -23,6 +24,10 @@ algorithm.}
 
 \item{sorted}{A character string specifying the sorting order of the
 estimated values in the output.}
+
+\item{restrictGeno}{An optional character string containing the genotypes to
+which the analysis should be restricted. If \code{NULL}, all genotypes are
+used.}
 
 \item{useWt}{Should weighting be used when modeling? Requires a column
 \code{wt} in \code{TD}.}
