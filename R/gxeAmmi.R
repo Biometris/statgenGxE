@@ -128,9 +128,9 @@ gxeAmmi <- function(TD,
   }
   if (!is.null(excludeGeno)) {
     TDTot <- TDTot[!TDTot[["genotype"]] %in% excludeGeno, ]
-    if (nrow(TDTot) < 10) {
-      stop(paste("Less than 10 genotypes remain. Ammi can only be run with at",
-                 "least 10 genotypes.\n"))
+    remGeno <- length(unique(TDTot[["genotype"]]))
+    if (remGeno < 10) {
+      warning("Less than 10 genotypes present in data.\n")
     }
   }
   ## Extract years and define empty objects for output.
