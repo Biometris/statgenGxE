@@ -78,8 +78,9 @@ summary.FW <- function(object, ...) {
 #' Three types of plot can be made. A scatter plot for genotypic mean,
 #' mean squared error (mse) and sensitivity, a line plot with fitted lines for
 #' each genotype and a trellis plot with individual slopes per genotype
-#' (for max 64 genotypes). If there are more than 64 genotypes only the first
-#' 64 are plotted in the trellis plot.
+#' (for max 64 genotypes). It is possible to select genotypes for the trellis
+#' plot using the \code{genotypes} parameter. If there are more than 64
+#' genotypes, only the first 64 are plotted in the trellis plot.
 #'
 #' @param x An object of class FW.
 #' @param ... Further graphical parameters passed on to actual plot function.
@@ -91,8 +92,11 @@ summary.FW <- function(object, ...) {
 #' @param order A character string specifying whether the results in the line
 #' plot should be ordered in an increasing (or decreasing) order of
 #' sensitivities.
+#' @param genotypes An optional character string containing the genotypes to
+#' be plotted in the trellis plot. If \code{NULL} all genotypes are plotted.
+#' If more than 64 genotypes are selected, only the first 64 are plotted.
 #' @param output Should the plot be output to the current device? If
-#' \code{FALSE} only a list of ggplot objects is invisibly returned.
+#' \code{FALSE}, only a list of ggplot objects is invisibly returned.
 #'
 #' @return A plot depending on \code{plotType}.
 #'
@@ -113,6 +117,7 @@ plot.FW <- function(x,
                     ...,
                     plotType = c("scatter", "line", "trellis"),
                     order = c("ascending", "descending"),
+                    genotypes = NULL,
                     output = TRUE) {
   plotType <- match.arg(plotType, several.ok = TRUE)
   order <- match.arg(order)
@@ -200,14 +205,21 @@ plot.FW <- function(x,
     }
     invisible(p)
   } else if ("trellis" %in% plotType) {
-    trellisDat <- data.frame(genotype = TDTot$genotype,
+    if (!is.null(genotypes) && !all(genotypes %in% TDTot[["genotype"]])) {
+      stop("All genotypes should be in TD.\n")
+    }
+    trellisDat <- data.frame(genotype = TDTot[["genotype"]],
                              trait = TDTot[[x$trait]],
                              fitted = x$fittedGen,
                              xEff = rep(x = envEffs$effect, each = x$nGeno))
-    if (x$nGeno > 64) {
+    if (!is.null(genotypes)) {
+      trellisDat <- trellisDat[trellisDat[["genotype"]] %in% genotypes, ]
+      trellisDat <- droplevels(trellisDat)
+    }
+    if (nlevels(trellisDat[["genotype"]]) > 64) {
       ## Select first 64 genotypes for plotting.
-      first64 <- TDTot$genotype %in% levels(x$estimates$genotype)[1:64]
-      trellisDat <- trellisDat[first64, ]
+      trellisDat <- trellisDat[trellisDat[["genotype"]] %in%
+                                 levels(trellisDat[["genotype"]])[1:64], ]
     }
     trellisDat <- ggplot2::remove_missing(trellisDat, na.rm = TRUE)
     ## The data needs to be ordered for the lines to be drawn properly.

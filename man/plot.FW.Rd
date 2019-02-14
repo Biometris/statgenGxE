@@ -5,7 +5,8 @@
 \title{Plot function for class FW}
 \usage{
 \method{plot}{FW}(x, ..., plotType = c("scatter", "line", "trellis"),
-  order = c("ascending", "descending"), output = TRUE)
+  order = c("ascending", "descending"), genotypes = NULL,
+  output = TRUE)
 }
 \arguments{
 \item{x}{An object of class FW.}
@@ -22,8 +23,12 @@ respectively.}
 plot should be ordered in an increasing (or decreasing) order of
 sensitivities.}
 
+\item{genotypes}{An optional character string containing the genotypes to
+be plotted in the trellis plot. If \code{NULL} all genotypes are plotted.
+If more than 64 genotypes are selected, only the first 64 are plotted.}
+
 \item{output}{Should the plot be output to the current device? If
-\code{FALSE} only a list of ggplot objects is invisibly returned.}
+\code{FALSE}, only a list of ggplot objects is invisibly returned.}
 }
 \value{
 A plot depending on \code{plotType}.
@@ -32,8 +37,9 @@ A plot depending on \code{plotType}.
 Three types of plot can be made. A scatter plot for genotypic mean,
 mean squared error (mse) and sensitivity, a line plot with fitted lines for
 each genotype and a trellis plot with individual slopes per genotype
-(for max 64 genotypes). If there are more than 64 genotypes only the first
-64 are plotted in the trellis plot.
+(for max 64 genotypes). It is possible to select genotypes for the trellis
+plot using the \code{genotypes} parameter. If there are more than 64
+genotypes, only the first 64 are plotted in the trellis plot.
 }
 \examples{
 ## Run Finlay-Wilkinson analysis.
