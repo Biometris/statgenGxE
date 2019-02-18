@@ -14,10 +14,10 @@
 \item{...}{Further graphical parameters.}
 
 \item{trials}{A character vector indicating the trials to plot. If
-\code{trials = NULL} all trials are plotted.}
+\code{trials = NULL}, all trials are plotted.}
 
 \item{traits}{A character vector indicating the traits to plot. If
-\code{traits = NULL} all traits are plotted.}
+\code{traits = NULL}, all traits are plotted.}
 
 \item{what}{A character string indicating whether the fitted model with
 genotype as fixed or genotype as random factor should be plotted.
@@ -45,7 +45,7 @@ This function draws either four base plots:
 \item{A residuals vs fitted values plot}
 \item{An absolute residuals vs fitted values plot}
 }
-or five or (in case SpATS is used for modelling) six spatial plots:
+or five or six spatial plots:
 \itemize{
 \item{A spatial plot of the raw data}
 \item{A spatial plot of the fitted data}

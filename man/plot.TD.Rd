@@ -17,7 +17,7 @@ section.}
 made. See the sections below for a detailed explanation of the plots.}
 
 \item{trials}{A character vector indicating the trials to be plotted when
-plotting field layouts. Only used if \code{plotType} = "layout".}
+plotting field layouts. Only used if \code{plotType} = "layout" or "box".}
 
 \item{traits}{A character vector indicating the traits to be plotted in
 a boxplot. Only used if \code{plotType} = "box" or "cor".}
@@ -28,26 +28,26 @@ a boxplot. Only used if \code{plotType} = "box" or "cor".}
 \description{
 Plotting function for objects of class TD. Plots either the layout of the
 different trials within the TD object or locates the trials on a map. Also a
-boxplot can be made for selected traits per trial and a plot of correlations
+boxplot can be made for selected traits and trials and a plot of correlations
 between trials. A detailed description and optional extra parameters of the
 different plots is given in the sections below.
 }
 \section{Layout Plot}{
 
-A layout plot plots the layout of the selected trials (all available trials
-by default). This plot can only be made for trials that contain both
-row (\code{rowCoord}) and column(\code{colCoord}) information. If either one
-of those is missing the trial is skipped with a warning. If blocks
-(\code{subBlock}) are available for a trial these are indicated in different
-colors per block, otherwise all plots are colored in grey. If replicates
-(\code{repId}) are available a black line is plotted between diffent
-replicates. Missing plots are indicated in white. This can either be single
-plots in a trial or complete missing columns or rows.\cr
+Plots the layout of the selected trials (all available trials by default).
+This plot can only be made for trials that contain both row (\code{rowCoord})
+and column (\code{colCoord}) information. If either one of those is missing
+the trial is skipped with a warning. If blocks (\code{subBlock}) are
+available for a trial these are indicated in different colors per block,
+otherwise all plots are colored in grey. If replicates (\code{repId}) are
+available a black line is plotted between diffent replicates. Missing plots
+are indicated in white. This can either be single plots in a trial or
+complete missing columns or rows.\cr
 Extra parameter options:
-\itemize{
-\item{showGeno} {Should individual genotypes be indicated in the plot?
+\describe{
+\item{showGeno}{Should individual genotypes be indicated in the plot?
 Defaults to \code{FALSE}}
-\item{highlight} {A character vector of genotypes to be highlighted in the
+\item{highlight}{A character vector of genotypes to be highlighted in the
 plot.}
 }
 }
@@ -61,36 +61,38 @@ longitude available are skipped with a warning message. The countries in
 which the trials are located will be plotted on a single map and the
 location of the trials will be indicated on this map. The actual plot is
 made using ggplot, but for getting the data for the borders of the countries
-the maps package is needed.
+the maps package is needed. Extra parameter options:
+\describe{
+\item{minLatRange}{A positive numerical value indicating the minimum range
+(in degrees) for the latitude on the plotted map. Defaults to 10.}
+\item{minLongRange}{A positive numerical value indicating the minimum range
+(in degrees) for the longitud on the plotted map. Defaults to 5.}
+}
 }
 
 \section{Box Plot}{
 
-Per selected trait a boxplot is created grouped per trial.
-Extra parameter options:
-\itemize{
-\item{groupBy} {A character string indicating a column in \code{TD} by which
+Creates a boxplot per selected trait grouped by trial. Extra parameter
+options:
+\describe{
+\item{groupBy}{A character string indicating a column in \code{TD} by which
 the boxes in the plot should be grouped. By default the boxes are grouped
 per trial.}
-\item{colorBy} {A character string indicating a column in \code{TD} by which
+\item{colorBy}{A character string indicating a column in \code{TD} by which
 the boxes are colored. Coloring will be done within the groups indicated by
 the \code{groupBy} parameter.}
-\item{orderBy} {A character vector indicating columns in \code{TD} on which
-the trials in the plot should be ordered. By default ordering is done
-alphabetically.}
+\item{orderBy}{A character string indicating the way the boxes should be
+ordered. Either "alphabetic" for alphabetical ordering of the groups,
+"ascending" for ordering by ascending mean, or "descending" for ordering by
+descending mean. Default boxes are ordered alphabetically.}
 }
 }
 
 \section{Correlation Plot}{
 
-Per selected trait a plot is drawn of correlations between the trials in the
-\code{TD} object. If genotypes are replicated within trials genotypic means are
-taken before computing correlations.
-Extra parameter options:
-\itemize{
-\item{orderBy} {A character vector indicating columns in \code{TD} on which
-the trials in the plot should be ordered. By default ordering is done
-alphabetically.}
-}
+Draws a heatmap of correlations between trials per selected trait. If
+genotypes are replicated within trials genotypic means are taken before
+computing correlations. The order of the trials in the heatmap is determined
+by clustering them.
 }
 

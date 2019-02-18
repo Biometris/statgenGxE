@@ -56,7 +56,8 @@ test_that("running models creates objects with correct structure - SpATS", {
 })
 
 test_that("running models creates objects with correct structure - lme4", {
-  modelLm <- STRunModel(testTD, trials = "E1", design = "rcbd", traits = "t1")
+  modelLm <- STRunModel(testTD, trials = "E1", design = "rcbd", traits = "t1",
+                        engine = "lme4")
   expect_SSA(modelLm)
   expect_SSAMod(modelLm, "mRand", class = "lmerMod")
   expect_SSAMod(modelLm, "mFix", class = "lm")
@@ -96,15 +97,16 @@ test_that("option what produces expected output - SpATS", {
 })
 
 test_that("option what produces expected output - lme4", {
-  modelLm <- STRunModel(testTD, trials = "E1", design = "rcbd", traits = "t1")
+  modelLm <- STRunModel(testTD, trials = "E1", design = "rcbd", traits = "t1",
+                        engine = "lme4")
   modelLmF <- STRunModel(testTD, trials = "E1", design = "rcbd",
-                         traits = "t1", what = "fixed")
+                         traits = "t1", what = "fixed", engine = "lme4")
   expect_SSA(modelLmF)
   expect_null(modelLmF[["E1"]]$mRand)
   expect_SSAMod(modelLmF, "mFix", "lm")
   expect_equal(modelLmF[["E1"]]$mFix, modelLm[["E1"]]$mFix)
   modelLmR <- STRunModel(testTD, trials = "E1", design = "rcbd",
-                         traits = "t1", what = "random")
+                         traits = "t1", what = "random", engine = "lme4")
   expect_SSA(modelLmR)
   expect_SSAMod(modelLmR, "mRand", "lmerMod")
   expect_equal(modelLm[["E1"]]$mRand, modelLmR[["E1"]]$mRand)
@@ -174,7 +176,7 @@ test_that("option covariates produces expected output structure", {
   expect_true(grepl(pattern = "repId",
                     x = deparse(modelSpCov[["E1"]]$mFix$t1$model$fixed)))
   modelLmCov <- STRunModel(testTD, trials = "E1", design = "rcbd",
-                           traits = "t1", covariates = "repId")
+                           traits = "t1", covariates = "repId", engine = "lme4")
   expect_SSA(modelLmCov)
   expect_SSAMod(modelLmCov, "mRand", "lmerMod")
   expect_SSAMod(modelLmCov, "mFix", "lm")
@@ -204,7 +206,7 @@ test_that("option useCheckId produces expected output structure", {
   expect_true(grepl(pattern = "checkId",
                     x = deparse(modelSpCi[["E1"]]$mFix$t1$model$fixed)))
   modelLmCi <- STRunModel(testTD, trials = "E1", design = "rcbd", traits = "t1",
-                          useCheckId = TRUE)
+                          useCheckId = TRUE, engine = "lme4")
   expect_SSA(modelLmCi)
   expect_SSAMod(modelLmCi, "mRand", "lmerMod")
   expect_SSAMod(modelLmCi, "mFix", "lm")

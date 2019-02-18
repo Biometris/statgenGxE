@@ -19,10 +19,10 @@
 \item{traits}{A character vector specifying the traits to be summarised.}
 
 \item{groupBy}{A character string specifying a column in TD by which the
-summary should be grouped. If \code{NULL} no grouping is done.}
+summary should be grouped. If \code{NULL}, no grouping is done.}
 
 \item{what}{A character vector indicating which summary statistics should be
-computed. If \code{what = "all"} all available statistics are computed.\cr
+computed. If \code{what = "all"}, all available statistics are computed.\cr
 Possible options are:
 \describe{
 \item{nVals}{The number of values, i.e. non-missing + missing values.}

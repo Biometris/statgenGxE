@@ -8,6 +8,5 @@ testReports
 ^data-raw$
 vignettes\RAP overview.pptx
 .gitlab-ci.yml
-
 ^README\.Rmd$
 ^README-.*\.png$

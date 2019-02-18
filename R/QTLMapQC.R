@@ -5,13 +5,14 @@
 #' \enumerate{
 #' \item{Markers with a fraction of missing values higher than \code{missMrk}
 #' are removed.}
-#' \item{Duplicate markers are removed.}
+#' \item{Duplicated markers are removed.}
 #' \item{Individuals with a fraction of missing values higher than \code{missInd}
 #' are removed.}
 #' \item{Markers that show evidence of segregation distortion (P-value below
 #' \code{segDistortion}) are removed.}
 #' \item{Markers which might have been switched (with threshold
-#' \code{recombination} are removed. See also \code{\link[qtl]{checkAlleles}}).}
+#' \code{recombination}) are removed. See also
+#' \code{\link[qtl]{checkAlleles}}.}
 #' \item{The map is reestimated based on the observed markers.}
 #' \item{Individuals with a fraction of crossovers higher than
 #' \code{crossover} are removed.}

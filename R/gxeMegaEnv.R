@@ -1,8 +1,8 @@
 #' Form mega environments based on fitted values from an AMMI model
 #'
 #' This function fits an AMMI model and then using the fitted values produces
-#' a new factor clustering trials . This factor is added as a column megaEnv to
-#' the input data. If a column megaEnv already exists this column is
+#' a new factor clustering the trials. This factor is added as a column megaEnv
+#' to the input data. If a column megaEnv already exists this column is
 #' overwritten with a warning.\cr\cr
 #' Mega environments can be created by two methods. The first method
 #' (\code{useWinGeno = TRUE}) groups
@@ -12,16 +12,15 @@
 #' In the second method (\code{useWinGeno = FALSE}),
 #' genotypes that are above a certain quantile are used to classify locations
 #' into mega environments that are consistent across years. In this method,
-#' genotypes are scored according to whether they are above the \code{cutOff}
-#' threshold for the genotypic ranking within each location (1 if a genotype is
-#' above the cutOff and 0 if below). This genotype by location matrix with 1's
-#' and 0's is used to calculate the correlation between locations. Then,
-#' correlations across years are combined using the method by Charter and
-#' Alexander (1993). The combined correlations are used to calculate Euclidean
-#' distances for hierarchical clustering. The number of mega environments
-#' obtained with the hierarchical clustering procedure is chosen to maximize
-#' the correlated response to selection within mega environments, as proposed
-#' in Atlin et al (2000).
+#' genotypes are scored according to a \code{cutOff} threshold for the genotypic
+#' ranking within each location (one if a genotype is above the cutOff and zero
+#' if below). This genotype by location matrix with ones and zeros is used to
+#' calculate the correlation between locations. Then, correlations across years
+#' are combined using the method by Charter and Alexander (1993). The combined
+#' correlations are used to calculate Euclidean distances for hierarchical
+#' clustering. The number of mega environments obtained with the hierarchical
+#' clustering procedure is chosen to maximize the correlated response to
+#' selection within mega environments, as proposed in Atlin et al (2000).
 #'
 #' @inheritParams gxeAmmi
 #'
@@ -32,7 +31,7 @@
 #' @param method A character string indicating the criterion to determine
 #' the best genotype per environment, either \code{"max"} or \code{"min"}.
 #' @param cutOff A numerical value indicating the proportion of best genotypes
-#' per location used in the calculation. I.e. a value of 0.8 indicates that
+#' per location used in the calculation, i.e. a value of 0.8 indicates that
 #' the best 80\% genotypes will be used.
 #' @param sumTab Should a summary table be printed?
 #'
@@ -40,9 +39,9 @@
 #' column megaEnv.
 #'
 #' @examples
-#' ## Calculate mega-environments for TDMaize and print a summary of the results.
+#' ## Calculate mega environments for TDMaize and print a summary of the results.
 #' TDmegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
-#' ## Calculate new mega-environments based on the genotypes with the lowest
+#' ## Calculate new mega environments based on the genotypes with the lowest
 #' ## value per environment.
 #' TDmegaEnv2 <- gxeMegaEnv(TD = TDmegaEnv, trait = "yld", method = "min")
 #'
@@ -61,6 +60,7 @@ gxeMegaEnv <- function(TD,
                        useWinGeno = TRUE,
                        method = c("max", "min"),
                        cutOff = 0.8,
+                       byYear = FALSE,
                        sumTab = TRUE) {
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -88,22 +88,28 @@ gxeMegaEnv <- function(TD,
   })
   TDTot <- TDTot[!TDTot$genotype %in% names(allNA[allNA]), ]
   rmYear <- FALSE
-  if (!hasName(x = TDTot, name = "year")) {
+  if (!byYear || !hasName(x = TDTot, name = "year")) {
     TDTot$year <- 0
     rmYear <- TRUE
   }
   ## Save and then drop factor levels.
-  envLevels <- levels(TDTot$trial)
+  envLevels <- levels(TDTot$trial)[levels(TDTot$trial) %in% trials]
   TDTot$trial <- droplevels(TDTot$trial)
   if (useWinGeno) {
     ## Perform AMMI analysis.
-    AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = 2, byYear = TRUE)
-    fitted <- AMMI$fitted
-    ## Extract position of best genotype per trial.
-    winPos <- apply(X = fitted, MARGIN = 2,
-                    FUN = getFunction(paste0("which.", method)))
-    ## Extract best genotype per trial.
-    winGeno <- rownames(fitted)[winPos]
+    AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = 2,
+                    byYear = byYear)
+    ## Extract winning genotype per trial.
+    winGeno <- by(data = AMMI$fitted, INDICES = AMMI$fitted$trial,
+                  FUN = function(trial) {
+                    as.character(trial$genotype)[do.call(paste0("which.", method),
+                                                         args = list(trial$fittedValue))]
+                  })
+    ## Extract values for winning genotype per trial.
+    winGenoVal <- by(data = AMMI$fitted, INDICES = AMMI$fitted$trial,
+                     FUN = function(trial) {
+                       do.call(method, args = list(trial$fittedValue))
+                     })
     ## Create factor based on best genotypes.
     megaFactor <- factor(winGeno, labels = "")
     ## Merge factor levels to original data.
@@ -115,12 +121,14 @@ gxeMegaEnv <- function(TD,
     if (isTRUE(rmYear)) {
       TDTot <- TDTot[-which(colnames(TDTot) == "year")]
     }
+    ## Relevel megaEnv so it is in increasing order.
+    TDTot$megaEnv <- factor(as.numeric(as.character(TDTot$megaEnv)))
     TDOut <- createTD(TDTot)
     ## Create summary table.
-    summTab <- data.frame("Mega factor" = megaFactor, Trial = colnames(fitted),
-                          "Winning genotype" = winGeno,
-                          "AMMI estimates" =
-                            fitted[matrix(c(winPos, 1:ncol(fitted)), ncol = 2)],
+    summTab <- data.frame("Mega factor" = megaFactor,
+                          Trial = names(winGeno),
+                          "Winning genotype" = as.character(winGeno),
+                          "AMMI estimates" = as.numeric(winGenoVal),
                           check.names = FALSE)
     summTab <- summTab[order(megaFactor), ]
     attr(TDOut, "sumTab") <- summTab
@@ -165,12 +173,10 @@ gxeMegaEnv <- function(TD,
     ## Perform AMMI analysis.
     AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = NULL,
                     byYear = TRUE)
-    ammiRaw <- reshape2::melt(AMMI$fitted, varnames = c("genotype", "trial"),
-                              value.name = "ammiPred")
-    ammiRaw <- merge(ammiRaw, TDTot[c("genotype", "trial", "loc", "year")])
+    ammiRaw <- merge(AMMI$fitted, TDTot[c("genotype", "trial", "loc", "year")])
     ## Compute quantile for determining best genotypes per year per location.
-    quant <- tapply(X = ammiRaw$ammiPred, INDEX = list(ammiRaw$year, ammiRaw$loc),
-                    FUN = quantile,
+    quant <- tapply(X = ammiRaw$fittedVals,
+                    INDEX = list(ammiRaw$year, ammiRaw$loc), FUN = quantile,
                     probs = ifelse(method == "max", cutOff, 1 - cutOff),
                     na.rm = TRUE, type = 1)
     ## Merge quantile to data.
@@ -178,19 +184,19 @@ gxeMegaEnv <- function(TD,
                      by.y = c("Var1", "Var2"))
     ## Replace values by 0 when lower than quantile value and 1 otherwise.
     ## Reverse the equation if low values are better for current trait.
-    ammiQnt$ammiPred <- if (method == "max") {
-      as.numeric(ammiQnt$ammiPred > ammiQnt$value)
+    ammiQnt$fittedVals <- if (method == "max") {
+      as.numeric(ammiQnt$fittedVals > ammiQnt$value)
     } else {
-      as.numeric(ammiQnt$ammiPred < ammiQnt$value)
+      as.numeric(ammiQnt$fittedVals < ammiQnt$value)
     }
     ## Reshape data to get locations as header.
     ammiLoc <- reshape2::dcast(ammiQnt, genotype + year ~ loc,
                                fun.aggregate = length,
-                               value.var = "ammiPred", drop = FALSE)
+                               value.var = "fittedVals", drop = FALSE)
     ## Compute means and standard deviations.
     ## For sd division by n should be used so this cannot be done by sd().
-    Xi = tapply(ammiQnt$ammiPred, list(ammiQnt$year, ammiQnt$loc), FUN = mean)
-    SXi = tapply(ammiQnt$ammiPred, list(ammiQnt$year, ammiQnt$loc),
+    Xi = tapply(ammiQnt$fittedVals, list(ammiQnt$year, ammiQnt$loc), FUN = mean)
+    SXi = tapply(ammiQnt$fittedVals, list(ammiQnt$year, ammiQnt$loc),
                  FUN = function(x) {
                    sqrt(sum((x - mean(x)) ^ 2) / length(x))
                  })
@@ -202,7 +208,7 @@ gxeMegaEnv <- function(TD,
     ## Compute correlations across years per genotype.
     ## If numbers of observations are similar per location x year this
     ## has very similar results to just applying cor with pairwise.complete.obs
-    ## on the complete data set. However when the numbers start differing so
+    ## on the complete dataset. However when the numbers start differing so
     ## do the reults.
     combs <- rbind(combs, mapply(FUN = combLocs, combs[1, ], combs[2, ],
                                  MoreArgs = list(ammi = ammiLoc, r0 = r0,

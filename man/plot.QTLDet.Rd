@@ -15,7 +15,7 @@
 \item{yLim}{A numerical value for the upper limit of the y-axis. If
 \code{NA} the limit is determined based on the data.}
 
-\item{title}{A character value for the title of the plot. If not supplied
+\item{title}{A character value for the title of the plot. If not supplied,
 the trait used in the qTL Detection is used as plot title.}
 
 \item{output}{Should the plot be output to the current device? If

@@ -12,14 +12,14 @@
 \item{...}{Further arguments passed on from other functions - not used yet.}
 
 \item{outfile}{A character string, the name and location of the output .pdf
-and .tex file for the report. If \code{NULL} a report with a default name
+and .tex file for the report. If \code{NULL}, a report with a default name
 will be created in the current working directory.}
 }
 \value{
 A pdf and tex report.
 }
 \description{
-A pdf report will be created containing a summary of an AMMI model.
+A pdf report will be created containing a summary of an AMMI object.
 Simultaneously the same report will be created as a tex file.
 }
 \examples{

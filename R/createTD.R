@@ -13,11 +13,11 @@
 #' columns. Columns other than the default columns, e.g. traits or other
 #' covariates will be included in the output unchanged.}
 #' \item{Split input data by trial - each trial in the input data will become
-#' a list item in the output}
+#' a list item in the output.}
 #' \item{Add meta data - the trial meta data are added as attributes to the
-#' different output items. The function parameters starting with tr provide
+#' different output items. The function parameters starting with "tr" provide
 #' the meta data. Their values will be recycled if needed, so by setting a
-#' single trDesign all trials will get the same design. The meta data can be
+#' single "trDesign", all trials will get the same design. The meta data can be
 #' changed later on using \code{getMeta} and \code{setMeta}}
 #' }
 #' \code{addTD}\cr
@@ -32,7 +32,7 @@
 #' class TD.\cr\cr
 #' \code{\link{summary.TD}} and \code{\link{plot.TD}} methods are available.
 #'
-#' @param data A data.frame containing trial data with a least a column for
+#' @param data A data.frame containing trial data with at least a column for
 #' genotype. The data.frame should be in a wide format, i.e. all available
 #' phenotypic data should be in a separate column within the data.frame.
 #' @param genotype An optional character string indicating the column in
@@ -47,7 +47,7 @@
 #' \code{data} that contains replicates.
 #' @param subBlock An optional character string indicating the column in
 #' \code{data} that contains sub blocks.
-#' @param plot An optional character string indicating the column in
+#' @param plotId An optional character string indicating the column in
 #' \code{data} that contains plots. This column will be combined with trial
 #' to a single output factor.
 #' @param rowCoord An optional character string indicating the column in
@@ -55,17 +55,18 @@
 #' @param colCoord An optional character string indicating the column in
 #' \code{data} that contains the column coordinates.
 #' @param rowId An optional character string indicating the column in
-#' \code{data} that contains field rows. If not supplied this is assumed to
+#' \code{data} that contains field rows. If not supplied, this is assumed to
 #' be the same as rowCoord.
 #' @param colId An optional character string indicating the column in
-#' \code{data} that contains field columns. If not supplied this is assumed to
+#' \code{data} that contains field columns. If not supplied, this is assumed to
 #' be the same as colCoord.
 #' @param checkId An optional character string indicating the column in
 #' \code{data} that contains the check IDs.
 #' @param trLocation An optional character vector indicating the locations of
-#' the trials. This will be used for constructing default names for plots and
-#' such. If no locations are provided the trialname will be used as default
-#' name.
+#' the trials. This will be used as default names when creating plots and
+#' summaries. If no locations are provided, first the column loc is considered.
+#' If this contains one unique value for a trial this is used as trLocation.
+#' Otherwise the trialname is used.
 #' @param trDate An optional date vector indicating the dates of the trials.
 #' @param trDesign An optional character vector indicating the designs of the
 #' trials. Either "none" (no (known) design), "ibd" (incomplete-block design),
@@ -82,11 +83,11 @@
 #' lengths of the plots.
 #'
 #' @return An object of class TD, a list of data.frames with renamed columns
-#' and an attribute \code{renamedCols} containing info on which columns have
-#' been renamed. For each unique value of trial the output has a data.frame in
+#' and an attribute \code{renamedCols} containing an overview of renamed
+#' columns. For each unique value of trial, the output has a data.frame in
 #' the list with the same name as the trial. These data.frames have attributes
 #' containing the metadata for the corresponding trial. If there is no column
-#' for trial the list will contain one item named after the input data.
+#' for trial, the list will contain one item named after the input data.
 #'
 #' @examples
 #' ## Create a data.frame with two traits to be converted to TD object.
@@ -114,7 +115,7 @@ createTD <- function(data,
                      year = NULL,
                      repId = NULL,
                      subBlock = NULL,
-                     plot = NULL,
+                     plotId = NULL,
                      rowCoord = NULL,
                      colCoord = NULL,
                      rowId = rowCoord,
@@ -140,7 +141,7 @@ createTD <- function(data,
   ## tibbles and possibly other data structures in the future.
   data <- as.data.frame(data)
   cols <- colnames(data)
-  for (param in c(genotype, trial, loc, year, repId, subBlock, plot,
+  for (param in c(genotype, trial, loc, year, repId, subBlock, plotId,
                   rowId, colId, rowCoord, colCoord, checkId)) {
     if (!is.null(param) && (!is.character(param) || length(param) > 1 ||
                             !hasName(data, param))) {
@@ -150,7 +151,7 @@ createTD <- function(data,
   checkTDMeta(trDesign = trDesign, trLat = trLat, trLong = trLong,
               trPlWidth = trPlWidth, trPlLength = trPlLength)
   ## Create list of reserved column names for renaming columns.
-  renameCols <- c("genotype", "trial", "loc", "year", "repId", "plot",
+  renameCols <- c("genotype", "trial", "loc", "year", "repId", "plotId",
                   "subBlock", "rowId", "colId", "rowCoord", "colCoord",
                   "checkId")
   ## First rename duplicate colums and add duplicated columns to data
@@ -178,17 +179,17 @@ createTD <- function(data,
   colnames(data) <- cols
   ## Convert columns to factor if neccessary.
   factorCols <-  c("genotype", "trial", "loc", "year", "repId", "subBlock",
-                   "plot", "rowId", "colId", "checkId")
+                   "plotId", "rowId", "colId", "checkId")
   for (factorCol in factorCols) {
     if (hasName(data, factorCol)) {
       data[cols == factorCol] <- as.factor(data[, cols == factorCol])
     }
   }
-  ## Combine plot and trial into a single factor if both are available.
-  ## If trial is not available plot itself was converted to factor in the
+  ## Combine plotId and trial into a single factor if both are available.
+  ## If trial is not available plotId itself was converted to factor in the
   ## previous step.
-  if (all(hasName(data, c("trial", "plot")))) {
-    data$plot <- interaction(data$trial, data$plot, sep = "_")
+  if (all(hasName(data, c("trial", "plotId")))) {
+    data$plotId <- interaction(data$trial, data$plotId, sep = "_")
   }
   ## Convert columns to numeric if neccessary.
   numCols <- c("rowCoord", "colCoord")
@@ -227,7 +228,13 @@ createTD <- function(data,
     ## Location should always be filled since it is used in plot titles as
     ## well. Use trial name as default value.
     if (is.null(trLocation)) {
-      attr(x = listData[[tr]], which = "trLocation") <- tr
+      if (hasName(x = listData[[tr]], name = "loc") &
+          length(unique(listData[[tr]][["loc"]])) == 1) {
+        attr(x = listData[[tr]],
+             which = "trLocation") <- as.character(listData[[tr]][["loc"]][1])
+      } else {
+        attr(x = listData[[tr]], which = "trLocation") <- tr
+      }
     }
     ## Add a list of columns that have been renamed as attribute to TD.
     attr(x = listData[[tr]], which = "renamedCols") <-
@@ -252,7 +259,7 @@ addTD <- function(TD,
                   year = NULL,
                   repId = NULL,
                   subBlock = NULL,
-                  plot = NULL,
+                  plotId = NULL,
                   rowCoord = NULL,
                   colCoord = NULL,
                   rowId = rowCoord,
@@ -267,7 +274,7 @@ addTD <- function(TD,
                   trPlLength = NULL) {
   TDNw <- createTD(data = data, genotype = genotype, trial = trial,
                    loc = loc, year = year, repId = repId,
-                   subBlock = subBlock, plot = plot, rowCoord = rowCoord,
+                   subBlock = subBlock, plotId = plotId, rowCoord = rowCoord,
                    colCoord = colCoord, rowId = rowId, colId = colId,
                    checkId = checkId, trLocation = trLocation, trDate = trDate,
                    trDesign = trDesign, trLat = trLat, trLong = trLong,
@@ -285,22 +292,22 @@ addTD <- function(TD,
 
 #' @inheritParams addTD
 #'
-#' @param trials A character vector of trials that should be removed.
+#' @param rmTrials A character vector of trials that should be removed.
 #'
 #' @rdname TD
 #' @export
 dropTD <- function(TD,
-                   trials) {
-  naTrials <- trials[!trials %in% names(TD)]
+                   rmTrials) {
+  naTrials <- rmTrials[!rmTrials %in% names(TD)]
   if (length(naTrials) > 0) {
     warning(paste0("The following trials are not in TD: ",
                    paste(naTrials, collapse = ", "), ".\n"), call. = FALSE)
   }
-  leftTrials <- names(TD)[!names(TD) %in% trials]
+  leftTrials <- names(TD)[!names(TD) %in% rmTrials]
   if (length(leftTrials) == 0) {
     warning("All trials have been removed from TD.\n", call. = FALSE)
   }
-  return(TD[!names(TD) %in% trials])
+  return(TD[!names(TD) %in% rmTrials])
 }
 
 #' Summarizing objects of class \code{TD}
@@ -312,9 +319,9 @@ dropTD <- function(TD,
 #' @param trial A character string specifying the trial to be summarised.
 #' @param traits A character vector specifying the traits to be summarised.
 #' @param groupBy A character string specifying a column in TD by which the
-#' summary should be grouped. If \code{NULL} no grouping is done.
+#' summary should be grouped. If \code{NULL}, no grouping is done.
 #' @param what A character vector indicating which summary statistics should be
-#' computed. If \code{what = "all"} all available statistics are computed.\cr
+#' computed. If \code{what = "all"}, all available statistics are computed.\cr
 #' Possible options are:
 #' \describe{
 #' \item{nVals}{The number of values, i.e. non-missing + missing values.}
@@ -517,25 +524,25 @@ print.summary.TD <- function(x, ...) {
 #'
 #' Plotting function for objects of class TD. Plots either the layout of the
 #' different trials within the TD object or locates the trials on a map. Also a
-#' boxplot can be made for selected traits per trial and a plot of correlations
+#' boxplot can be made for selected traits and trials and a plot of correlations
 #' between trials. A detailed description and optional extra parameters of the
 #' different plots is given in the sections below.
 #'
 #' @section Layout Plot:
-#' A layout plot plots the layout of the selected trials (all available trials
-#' by default). This plot can only be made for trials that contain both
-#' row (\code{rowCoord}) and column(\code{colCoord}) information. If either one
-#' of those is missing the trial is skipped with a warning. If blocks
-#' (\code{subBlock}) are available for a trial these are indicated in different
-#' colors per block, otherwise all plots are colored in grey. If replicates
-#' (\code{repId}) are available a black line is plotted between diffent
-#' replicates. Missing plots are indicated in white. This can either be single
-#' plots in a trial or complete missing columns or rows.\cr
+#' Plots the layout of the selected trials (all available trials by default).
+#' This plot can only be made for trials that contain both row (\code{rowCoord})
+#' and column (\code{colCoord}) information. If either one of those is missing
+#' the trial is skipped with a warning. If blocks (\code{subBlock}) are
+#' available for a trial these are indicated in different colors per block,
+#' otherwise all plots are colored in grey. If replicates (\code{repId}) are
+#' available a black line is plotted between diffent replicates. Missing plots
+#' are indicated in white. This can either be single plots in a trial or
+#' complete missing columns or rows.\cr
 #' Extra parameter options:
-#' \itemize{
-#' \item{showGeno} {Should individual genotypes be indicated in the plot?
+#' \describe{
+#' \item{showGeno}{Should individual genotypes be indicated in the plot?
 #' Defaults to \code{FALSE}}
-#' \item{highlight} {A character vector of genotypes to be highlighted in the
+#' \item{highlight}{A character vector of genotypes to be highlighted in the
 #' plot.}
 #' }
 #'
@@ -547,33 +554,35 @@ print.summary.TD <- function(x, ...) {
 #' which the trials are located will be plotted on a single map and the
 #' location of the trials will be indicated on this map. The actual plot is
 #' made using ggplot, but for getting the data for the borders of the countries
-#' the maps package is needed.
+#' the maps package is needed. Extra parameter options:
+#' \describe{
+#' \item{minLatRange}{A positive numerical value indicating the minimum range
+#' (in degrees) for the latitude on the plotted map. Defaults to 10.}
+#' \item{minLongRange}{A positive numerical value indicating the minimum range
+#' (in degrees) for the longitud on the plotted map. Defaults to 5.}
+#' }
 #'
 #' @section Box Plot:
-#' Per selected trait a boxplot is created grouped per trial.
-#' Extra parameter options:
-#' \itemize{
-#' \item{groupBy} {A character string indicating a column in \code{TD} by which
+#' Creates a boxplot per selected trait grouped by trial. Extra parameter
+#' options:
+#' \describe{
+#' \item{groupBy}{A character string indicating a column in \code{TD} by which
 #' the boxes in the plot should be grouped. By default the boxes are grouped
 #' per trial.}
-#' \item{colorBy} {A character string indicating a column in \code{TD} by which
+#' \item{colorBy}{A character string indicating a column in \code{TD} by which
 #' the boxes are colored. Coloring will be done within the groups indicated by
 #' the \code{groupBy} parameter.}
-#' \item{orderBy} {A character vector indicating columns in \code{TD} on which
-#' the trials in the plot should be ordered. By default ordering is done
-#' alphabetically.}
+#' \item{orderBy}{A character string indicating the way the boxes should be
+#' ordered. Either "alphabetic" for alphabetical ordering of the groups,
+#' "ascending" for ordering by ascending mean, or "descending" for ordering by
+#' descending mean. Default boxes are ordered alphabetically.}
 #' }
 #'
 #' @section Correlation Plot:
-#' Per selected trait a plot is drawn of correlations between the trials in the
-#' \code{TD} object. If genotypes are replicated within trials genotypic means are
-#' taken before computing correlations.
-#' Extra parameter options:
-#' \itemize{
-#' \item{orderBy} {A character vector indicating columns in \code{TD} on which
-#' the trials in the plot should be ordered. By default ordering is done
-#' alphabetically.}
-#' }
+#' Draws a heatmap of correlations between trials per selected trait. If
+#' genotypes are replicated within trials genotypic means are taken before
+#' computing correlations. The order of the trials in the heatmap is determined
+#' by clustering them.
 #'
 #' @param x An object of class TD.
 #' @param ... Extra plot options. Described per plotType in their respective
@@ -581,7 +590,7 @@ print.summary.TD <- function(x, ...) {
 #' @param plotType A single character string indicating which plot should be
 #' made. See the sections below for a detailed explanation of the plots.
 #' @param trials A character vector indicating the trials to be plotted when
-#' plotting field layouts. Only used if \code{plotType} = "layout".
+#' plotting field layouts. Only used if \code{plotType} = "layout" or "box".
 #' @param traits A character vector indicating the traits to be plotted in
 #' a boxplot. Only used if \code{plotType} = "box" or "cor".
 #' @param output Should the plot be output to the current device? If
@@ -594,9 +603,9 @@ plot.TD <- function(x,
                     trials = names(x),
                     traits = NULL,
                     output = TRUE) {
-  ## Maps seems to change graphics parameters without resetting. Do so here.
-  if (!is.character(trials) || !all(trials %in% names(x))) {
-    stop(paste0("All trials should be in ", deparse(x), ".\n"))
+  ## Checks.
+  if (!is.character(trials) || !all(hasName(x = x, name = trials))) {
+    stop(paste0("All trials should be in ", deparse(substitute(x)), ".\n"))
   }
   plotType <- match.arg(plotType)
   dotArgs <- list(...)
@@ -748,21 +757,44 @@ plot.TD <- function(x,
     ## Population has a random value but if left out nothing is plotted.
     locs <- setNames(getMeta(x)[c("trLocation", "trLat", "trLong")],
                      c("name", "lat", "long"))
-    locs <- locs[!is.na(locs$lat) & !is.na(locs$long), ]
+    locs <- unique(locs[!is.na(locs$lat) & !is.na(locs$long), ])
     if (nrow(locs) == 0) {
       stop(paste("At least one trial should have latitute and longitude",
                  "for plotting on map.\n"))
     }
-    longR <- range(locs$long)
+    minLatRange <- dotArgs$minLatRange
+    minLongRange <- dotArgs$minLongRange
+    if (!is.null(minLatRange) && (!is.numeric(minLatRange) ||
+                                  length(minLatRange) > 1)) {
+      stop("minLatRange should be a single numerical value.\n")
+    }
+    if (!is.null(minLongRange) && (!is.numeric(minLongRange) ||
+                                  length(minLongRange) > 1)) {
+      stop("minLatRange should be a single numerical value.\n")
+    }
+    if (is.null(minLatRange)) {
+      minLatRange <- 10
+    }
+    if (is.null(minLongRange)) {
+      minLongRange <- 5
+    }
+    ## Set minimum range for latitude and longitude.
     latR <- range(locs$lat)
+    latR <- latR +
+      (diff(latR) < minLatRange) * c(-1, 1) * (minLatRange - diff(latR)) / 2
+    longR <- range(locs$long)
+    longR <- longR +
+      (diff(longR) < minLongRange) * c(-1, 1) * (minLongRange - diff(longR)) / 2
+    ## Add 10% to edges of map so locations are not on the absolute edge.
+    longR <- longR + c(-0.1, 0.1) * diff(longR)
+    latR <- latR + c(-0.1, 0.1) * diff(latR)
     ## Create data useable by ggplot geom_polygon.
     mapDat <- ggplot2::map_data("world", xlim = longR, ylim = latR)
     p <- ggplot2::ggplot(mapDat, ggplot2::aes_string(x = "long", y = "lat")) +
       ggplot2::geom_polygon(ggplot2::aes_string(group = "group"),
                             fill = "white", color = "black") +
       ## Add a proper map projection.
-      ggplot2::coord_map(clip = "on", xlim = longR + c(-0.1, 0.1) * diff(longR),
-                         ylim = latR + c(-0.1, 0.1) * diff(latR)) +
+      ggplot2::coord_map(clip = "on", xlim = longR, ylim = latR) +
       ## Add trial locations.
       ggplot2::geom_point(data = locs) +
       ggplot2::geom_text(ggplot2::aes_string(label = "name"), data = locs,
@@ -800,26 +832,24 @@ plot.TD <- function(x,
       stop("colorBy should be a column in TD.\n")
     }
     orderBy <- dotArgs$orderBy
-    if (!is.null(orderBy) && !is.character(orderBy)) {
-      stop("orderBy should be a character vector.\n")
-    }
-    if (!is.null(orderBy) && !all(sapply(X = x, FUN = function(trial) {
-      all(hasName(x = trial, name = orderBy))
-    }))) {
-      stop("All items in orderBy should be columns in TD.\n")
+    if (!is.null(orderBy)) {
+      orderBy <- match.arg(orderBy, choices = c("alphabetic", "ascending",
+                                                "descending"))
+    } else {
+      orderBy <- "alphabetic"
     }
     p <- setNames(vector(mode = "list", length = length(traits)), traits)
     for (trait in traits) {
-      ## Create a single data.frame from x with only columns trial and trait.
-      ## trail where trait is not measured/available are removed by setting
+      ## Create a single data.frame from x with only columns trial, trait and
+      ## genotype. Genotype is needed to be able to display hovering info.
+      ## trials where trait is not measured/available are removed by setting
       ## them to NULL.
       xVar <- if (is.null(groupBy)) "trial" else groupBy
-      plotDat <- Reduce(f = rbind, x = lapply(X = x, function(trial) {
+      plotDat <- Reduce(f = rbind, x = lapply(X = x[trials], function(trial) {
         if (!hasName(x = trial, name = trait)) {
           NULL
         } else {
-          trial[c(trait, xVar, if (!is.null(colorBy)) colorBy,
-                  if (!is.null(orderBy)) orderBy)]
+          trial[c(trait, "genotype", xVar, if (!is.null(colorBy)) colorBy)]
         }
       }))
       if (is.null(plotDat)) {
@@ -827,13 +857,16 @@ plot.TD <- function(x,
                        "Plot skipped.\n"), call. = FALSE)
         break
       }
-      if (!is.null(orderBy)) {
+      if (orderBy != "alphabetic") {
         ## Reorder levels in trial so plotting is done according to orderBy.
         ## do.call needed since order doesn't accept a vector as input.
-        levNw <- unique(plotDat[[xVar]][do.call(order, lapply(orderBy,
-                                                              FUN = function(x) {
-                                                                plotDat[x]}))])
-        plotDat[xVar] <- factor(plotDat[[xVar]], levels = levNw)
+        levNw <- reorder(x = plotDat[[xVar]], X = plotDat[[trait]],
+                         FUN = mean, na.rm = TRUE, order = TRUE)
+        if (orderBy == "ascending") {
+          plotDat[xVar] <- factor(plotDat[[xVar]], levels = levels(levNw))
+        } else {
+          plotDat[xVar] <- factor(plotDat[[xVar]], levels = rev(levels(levNw)))
+        }
       }
       ## Create boxplot.
       pTr <- ggplot2::ggplot(plotDat, ggplot2::aes_string(x = xVar, y = trait,
@@ -851,25 +884,16 @@ plot.TD <- function(x,
     if (is.null(traits) || !is.character(traits)) {
       stop("traits should be a character vector.\n")
     }
-    orderBy <- dotArgs$orderBy
-    if (!is.null(orderBy) && !is.character(orderBy)) {
-      stop("orderBy should be a character vector.\n")
-    }
-    if (!is.null(orderBy) && !all(sapply(X = x, FUN = function(trial) {
-      all(hasName(x = trial, name = orderBy))
-    }))) {
-      stop("All items in orderBy should be columns in TD.\n")
-    }
     p <- setNames(vector(mode = "list", length = length(traits)), traits)
     for (trait in traits) {
       ## Create a single data.frame from x with only columns trial and trait.
-      ## trails where trait is not measured/available are removed by setting
+      ## trials where trait is not measured/available are removed by setting
       ## them to NULL.
       plotDat <- Reduce(f = rbind, x = lapply(X = x, FUN = function(trial) {
         if (!hasName(x = trial, name = trait)) {
           NULL
         } else {
-          trial[c("genotype", "trial", trait, if (!is.null(orderBy)) orderBy)]
+          trial[c("genotype", "trial", trait)]
         }
       }))
       if (is.null(plotDat)) {
@@ -877,22 +901,24 @@ plot.TD <- function(x,
                        "Plot skipped.\n"), call. = FALSE)
         break
       }
-      if (!is.null(orderBy)) {
-        ## Reorder levels in trial so plotting is done according to orderBy.
-        ## do.call needed since order doesn't accept a vector as input.
-        levNw <- unique(plotDat$trial[do.call(order, lapply(orderBy,
-                                                            FUN = function(x) {
-                                                              plotDat[x]}))])
-        plotDat$trial <- factor(plotDat$trial, levels = levNw)
-      }
       ## Create table with values trait per genotype per trial.
       ## If TD already contains BLUEs/BLUPs taking means doesn't do anything
       ## but it is needed for raw data where there can be replicates.
       plotTab <- tapply(plotDat[[trait]],
                         INDEX = list(plotDat$genotype, plotDat$trial),
-                        FUN = mean)
+                        FUN = mean, na.rm = TRUE)
       ## Create a correlation matrix.
       corMat <- cor(plotTab, use = "pairwise.complete.obs")
+      ## Remove rows and columns with only NA.
+      corKeep <- sapply(X = 1:ncol(corMat), FUN = function(i) {
+        any(!is.na(corMat[, i]))
+      })
+      corMat <- corMat[corKeep, corKeep]
+      ## Determine ordering according to clustering of trials.
+      corClust <- hclust(as.dist(1 - corMat), method = "ward.D2")
+      ordClust <- order.dendrogram(as.dendrogram(corClust))
+      ## Reorder according to clusters.
+      corMat <- corMat[ordClust, ordClust]
       ## Melt to get the proper format for ggplot.
       meltedCorMat <- reshape2::melt(corMat)
       ## Remove top left of the plot. Only plotting a bottom right triangle.
@@ -937,7 +963,7 @@ plot.TD <- function(x,
 #'
 #' Function for extracting metadata as a data.frame from objects of class TD.
 #' Location, data, design, latitude, longitude, plotWidth and plotLength for
-#' all trials in TD will be extracted and return in the form of a data.frame.
+#' all trials in TD will be extracted and returned as a data.frame.
 #'
 #' @param TD An object of class TD.
 #'

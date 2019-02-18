@@ -5,13 +5,14 @@
 \title{Finlay-Wilkinson analysis}
 \usage{
 gxeFw(TD, trials = names(TD), trait, maxIter = 15, tol = 0.001,
-  sorted = c("ascending", "descending", "none"), useWt = FALSE)
+  sorted = c("ascending", "descending", "none"), restrictGeno = NULL,
+  useWt = FALSE)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
 
 \item{trials}{A character string specifying the trials to be analyzed. If
-not supplied all trials are used in the analysis.}
+not supplied, all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 
@@ -24,14 +25,41 @@ algorithm.}
 \item{sorted}{A character string specifying the sorting order of the
 estimated values in the output.}
 
-\item{useWt}{Should weighting be used when modelling? Requires a column
+\item{restrictGeno}{An optional character string containing the genotypes to
+which the analysis should be restricted. If \code{NULL}, all genotypes are
+used.}
+
+\item{useWt}{Should weighting be used when modeling? Requires a column
 \code{wt} in \code{TD}.}
 }
 \value{
 An object of class \code{\link{FW}}, a list containing:
-\item{estimates}{A data.frame containing the estimated values.}
+\item{estimates}{A data.frame containing the estimated values, with the
+following columns:
+\itemize{
+\item{genotype} {The name of the genotype.}
+\item{sens} {The estimate of the sensitivity.}
+\item{se_sens} {The standard error of the estimate of the sensitivity.}
+\item{genMean} {The estimate of the genotypic mean.}
+\item{se_genMean} {The standard error of the estimate of the genotypic
+mean.}
+\item{MSdeviation} {The mean square deviation about the line fitted to
+each genotype}
+\item{rank} {The rank of the genotype based on its sensitivity.}
+}
+}
 \item{anova}{A data.frame containing anova scores of the FW analysis.}
-\item{envEffs}{A data.frame containing the environmental effects.}
+\item{envEffs}{A data.frame containing the environmental effects, with the
+following columns:
+\itemize{
+\item{trial} {The name of the trial.}
+\item{envEff} {The estimate of the environment effect.}
+\item{se_envEff} {The standard error of the estimate of the environment
+effect.}
+\item{envMean} {The estimate of the environment mean.}
+\item{rank} {The rank of the trial based on its mean.}
+}
+}
 \item{TD}{The object of class TD on which the analysis was performed.}
 \item{fittedGeno}{A numerical vector containing the fitted values for the
 genotypes.}

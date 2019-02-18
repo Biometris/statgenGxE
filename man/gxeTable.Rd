@@ -2,7 +2,7 @@
 % Please edit documentation in R/gxeTable.R
 \name{gxeTable}
 \alias{gxeTable}
-\title{Compute BLUPS and based on a set of mega-environments}
+\title{Compute BLUPS based on a set of mega environments}
 \usage{
 gxeTable(TD, trials = names(TD), trait, useYear = FALSE,
   engine = c("lme4", "asreml"), ...)
@@ -11,12 +11,12 @@ gxeTable(TD, trials = names(TD), trait, useYear = FALSE,
 \item{TD}{An object of class \code{\link{TD}}.}
 
 \item{trials}{A character string specifying the trials to be analyzed. If
-not supplied all trials are used in the analysis.}
+not supplied, all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 
-\item{useYear}{Should year be used for modelling (as years within
-trials). If \code{TRUE TD} should contain a column "year".}
+\item{useYear}{Should year be used for modeling (as years within
+trials). If \code{TRUE}, \code{TD} should contain a column "year".}
 
 \item{engine}{A character string specifying the engine used for modeling.
 Either "lme4" or "asreml".}
@@ -25,17 +25,17 @@ Either "lme4" or "asreml".}
 }
 \value{
 A list consisting of two data.frames, \code{predictedValue}
-containing BLUPs per genotype per mega-environment and \code{standardError}
+containing BLUPs per genotype per mega environment and \code{standardError}
 containing standard errors for those BLUPs.
 }
 \description{
-This function calculates predicted means (BLUPS) and associated standard
-errors based on a set of mega-environments.
+This function calculates Best Lineair Unbiased Predictors (BLUPS) and
+associated standard errors based on a set of mega environments.
 }
 \examples{
-## Compute mega-environments for TDMaize.
+## Compute mega environments for TDMaize.
 TDMegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld", sumTab = FALSE)
-## Compute BLUPS and standard errors for those mega-environments.
+## Compute BLUPS and standard errors for those mega environments.
 geTab <- gxeTable(TD = TDMegaEnv, trait = "yld")
 
 }

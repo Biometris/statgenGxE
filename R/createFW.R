@@ -54,6 +54,7 @@ createFW <- function(estimates,
   return(FW)
 }
 
+#' @importFrom utils head
 #' @export
 print.FW <- function(x, ...) {
   cat("Environmental effects",
@@ -64,7 +65,7 @@ print.FW <- function(x, ...) {
   printCoefmat(x$anova, na.print = "")
   cat("\nMost sensitive genotypes",
       "\n=========\n")
-  print(x$estimates[1:5, ], ..., row.names = FALSE)
+  print(head(x$estimates, 5),  ..., row.names = FALSE)
 }
 
 #' @export
@@ -75,10 +76,11 @@ summary.FW <- function(object, ...) {
 #' Plot function for class FW
 #'
 #' Three types of plot can be made. A scatter plot for genotypic mean,
-#' mse and sensitivity, a line plot with fitted lines for each genotype and
-#' a trellis plot with individual slopes per genotype (for max 64 genotypes).
-#' If there are more than 64 genotypes only the first 64 are plotted in the
-#' trellis plot.
+#' mean squared error (mse) and sensitivity, a line plot with fitted lines for
+#' each genotype and a trellis plot with individual slopes per genotype
+#' (for max 64 genotypes). It is possible to select genotypes for the trellis
+#' plot using the \code{genotypes} parameter. If there are more than 64
+#' genotypes, only the first 64 are plotted in the trellis plot.
 #'
 #' @param x An object of class FW.
 #' @param ... Further graphical parameters passed on to actual plot function.
@@ -87,10 +89,14 @@ summary.FW <- function(object, ...) {
 #' plot of genotypic means, mse and sensitivities, a plot of fitted lines for
 #' each genotype or a trellis plot of the individual genotype slopes
 #' respectively.
-#' @param sorted A character string specifying whether the results should be
-#' sorted in an increasing (or decreasing) order of sensitivities.
+#' @param order A character string specifying whether the results in the line
+#' plot should be ordered in an increasing (or decreasing) order of
+#' sensitivities.
+#' @param genotypes An optional character string containing the genotypes to
+#' be plotted in the trellis plot. If \code{NULL} all genotypes are plotted.
+#' If more than 64 genotypes are selected, only the first 64 are plotted.
 #' @param output Should the plot be output to the current device? If
-#' \code{FALSE} only a list of ggplot objects is invisibly returned.
+#' \code{FALSE}, only a list of ggplot objects is invisibly returned.
 #'
 #' @return A plot depending on \code{plotType}.
 #'
@@ -110,20 +116,21 @@ summary.FW <- function(object, ...) {
 plot.FW <- function(x,
                     ...,
                     plotType = c("scatter", "line", "trellis"),
-                    sorted = c("ascending", "descending", "none"),
+                    order = c("ascending", "descending"),
+                    genotypes = NULL,
                     output = TRUE) {
   plotType <- match.arg(plotType, several.ok = TRUE)
-  sorted <- match.arg(sorted)
+  order <- match.arg(order)
   dotArgs <- list(...)
-  envEffs <- x$envEffs[c("trial", "effect")]
+  envEffs <- x$envEffs[c("trial", "envEff")]
   TDTot <- Reduce(f = rbind, x = x$TD)
   plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
                       paste0("Finlay & Wilkinson analysis for ",
                              x$trait))
   if ("scatter" %in% plotType) {
-    selCols = c(1:2, if (!all(is.na(x$estimates$mse))) 3, 4)
+    selCols = c(1:2, if (!all(is.na(x$estimates$MSdeviation))) 3, 4)
     scatterDat <- setNames(x$estimates[, c("genotype", "genMean",
-                                           "mse", "sens")[selCols]],
+                                           "MSdeviation", "sens")[selCols]],
                            c("genotype", "Mean", "m.s.deviation",
                              "Sensitivity")[selCols])
     scatterDat <- ggplot2::remove_missing(scatterDat, na.rm = TRUE)
@@ -168,16 +175,16 @@ plot.FW <- function(x,
   } else if ("line" %in% plotType) {
     fVal <- tapply(X = x$fittedGeno, INDEX = TDTot[, c("trial", "genotype")],
                    FUN = mean, na.rm = TRUE)
-    if (sorted == "none") {
-      orderEnv <- 1:nrow(envEffs)
+    if (order == "descending") {
+      xTrans <- "reverse"
     } else {
-      orderEnv <- order(envEffs$effect, decreasing = (sorted == "descending"))
+      xTrans <- "identity"
     }
     lineDat <- reshape2::melt(fVal)
     lineDat <- merge(x = lineDat, y = envEffs)
     lineDat <- ggplot2::remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
-    aesArgs <- list(x = "effect", y = "value", color = "genotype")
+    aesArgs <- list(x = "envEff", y = "value", color = "genotype")
     fixedArgs <- c("x", "y", "color", "title")
     ## Add and overwrite args with custom args from ...
     aesArgs <- modifyList(aesArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
@@ -185,8 +192,9 @@ plot.FW <- function(x,
     p <- ggplot2::ggplot(data = lineDat,
                          do.call(ggplot2::aes_string, args = aesArgs)) +
       ggplot2::geom_point() + ggplot2::geom_line(size = 0.5, alpha = 0.7) +
-      ggplot2::scale_x_continuous(breaks = envEffs$effect, minor_breaks = NULL,
-                                  labels = levels(lineDat$trial)) +
+      ggplot2::scale_x_continuous(breaks = envEffs$envEff, minor_breaks = NULL,
+                                  labels = levels(lineDat$trial),
+                                  trans = xTrans) +
       ggplot2::theme(legend.position = "none",
                      plot.title = ggplot2::element_text(hjust = 0.5),
                      axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) +
@@ -197,16 +205,26 @@ plot.FW <- function(x,
     }
     invisible(p)
   } else if ("trellis" %in% plotType) {
-    trellisDat <- data.frame(genotype = TDTot$genotype,
+    if (!is.null(genotypes) && !all(genotypes %in% TDTot[["genotype"]])) {
+      stop("All genotypes should be in TD.\n")
+    }
+    trellisDat <- data.frame(genotype = TDTot[["genotype"]],
                              trait = TDTot[[x$trait]],
                              fitted = x$fittedGen,
-                             xEff = rep(x = envEffs$effect, each = x$nGeno))
-    if (x$nGeno > 64) {
+                             xEff = rep(x = envEffs$envEff, each = x$nGeno))
+    if (!is.null(genotypes)) {
+      trellisDat <- trellisDat[trellisDat[["genotype"]] %in% genotypes, ]
+      trellisDat <- droplevels(trellisDat)
+    }
+    if (nlevels(trellisDat[["genotype"]]) > 64) {
       ## Select first 64 genotypes for plotting.
-      first64 <- TDTot$genotype %in% levels(x$estimates$genotype)[1:64]
-      trellisDat <- trellisDat[first64, ]
+      trellisDat <- trellisDat[trellisDat[["genotype"]] %in%
+                                 levels(trellisDat[["genotype"]])[1:64], ]
     }
     trellisDat <- ggplot2::remove_missing(trellisDat, na.rm = TRUE)
+    ## The data needs to be ordered for the lines to be drawn properly.
+    trellisDat <- trellisDat[order(trellisDat[["genotype"]],
+                                   trellisDat[["xEff"]]), ]
     p <- ggplot2::ggplot(data = trellisDat,
                          ggplot2::aes_string(x = "xEff", y = "trait + fitted")) +
       ggplot2::geom_point() +
@@ -227,8 +245,8 @@ plot.FW <- function(x,
 
 #' Report method for class FW
 #'
-#' A pdf report will be created containing a summary of a Finlay-Wilkinson
-#' analysis. Simultaneously the same report will be created as a tex file.
+#' A pdf report will be created containing a summary of an FW object.
+#' Simultaneously the same report will be created as a tex file.
 #'
 #' @inheritParams report.AMMI
 #'

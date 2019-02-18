@@ -11,7 +11,7 @@ TDHeat05 <- createTD(data = Heat05, genotype = "Genotype", trial = "Env",
                      colId = "Column", rowCoord = "Row",
                      colCoord = "Column")
 # Export to package
-devtools::use_data(TDHeat05, overwrite = TRUE)
+usethis::use_data(TDHeat05, overwrite = TRUE)
 
 ## Create TDMaize.
 
@@ -21,7 +21,7 @@ F2Maize <- read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP")
 # Create object of class TD
 TDMaize <- createTD(data = F2Maize, genotype = "genotype.", trial = "env.")
 # Export to package
-devtools::use_data(TDMaize, overwrite = TRUE)
+usethis::use_data(TDMaize, overwrite = TRUE)
 
 ## Create a dataset for unit testing.
 set.seed(123)
@@ -63,8 +63,8 @@ data(fake.bc, package = "qtl")
 testBc <- fake.bc[1:3, 1:50]
 
 ## Export all internal data in one go to package.
-devtools::use_data(testData, testF2, test4way, testBc,
-                   overwrite = TRUE, internal = TRUE)
+usethis::use_data(testData, testF2, test4way, testBc,
+                  overwrite = TRUE, internal = TRUE)
 
 ## Create data for vignette.
 # Read raw data.
@@ -99,7 +99,7 @@ wheatChl <- rbind(dat2011tot, dat2012tot)
 wheatChl$trt <- sprintf("G%03d", wheatChl$trt_id)
 wheatChl <- wheatChl[!colnames(wheatChl) %in% c("parc", "trt_id")]
 # Export to package
-devtools::use_data(wheatChl, overwrite = TRUE)
+usethis::(wheatChl, overwrite = TRUE)
 
 
 

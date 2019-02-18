@@ -47,7 +47,7 @@ STModSpATS <- function(TD,
                     "Using default values instead.\n"))
     }
   }
-  TDTr <- TD[[trial]]
+  TDTr <- droplevels(TD[[trial]])
   ## Should repId be used as fixed effect in the model.
   useRepIdFix <- design %in% c("res.ibd", "res.rowcol", "rcbd")
   ## Indicate extra random effects.

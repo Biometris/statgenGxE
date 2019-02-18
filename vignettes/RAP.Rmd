@@ -250,7 +250,7 @@ The criterion to be used can be specified using the `control` parameter in `STRu
 Fitting a model similar to the one above using asreml with BIC as 
 goodness-of-fit criterion works as follows
 ```{r fitAs, message=FALSE, results='hide'}
-if (requireNamespace("asreml")) {
+if (requireNamespace("asreml", quietly = TRUE)) {
   modWheatAs <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
                            design = "res.rowcol", trySpatial = TRUE,
                            engine = "asreml", control = list(criterion = "BIC"))
@@ -258,13 +258,13 @@ if (requireNamespace("asreml")) {
 ```
 The fitted models and the best model are stored in the output:
 ```{r spatCh}
-if (requireNamespace("asreml")) {
+if (requireNamespace("asreml", quietly = TRUE)) {
   ## Best model
   modWheatAs$SR_FI_11$spatial$GY
 }  
 ```
 ```{r spatCh2}
-if (requireNamespace("asreml")) {
+if (requireNamespace("asreml", quietly = TRUE)) {
   ## Overview of fitted models
   print(modWheatAs$SR_FI_11$sumTab$GY, digits = 2)
 }

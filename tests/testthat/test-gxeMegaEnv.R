@@ -9,11 +9,11 @@ BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
 geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1", sumTab = FALSE)
 geMegaEnvTot <- Reduce(f = rbind, x = geMegaEnv)
-test_that("mega-environments are computed correctly", {
+test_that("mega environments are computed correctly", {
   expect_is(geMegaEnv, "TD")
   expect_identical(dim(geMegaEnvTot), c(45L, 4L))
-  expect_equal(as.numeric(geMegaEnvTot$megaEnv), rep(x = c(1, 2, 3), each = 15))
-  expect_equal(levels(geMegaEnvTot$megaEnv), c("3", "2", "1"))
+  expect_equal(as.numeric(geMegaEnvTot$megaEnv), rep(x = c(3, 2, 1), each = 15))
+  expect_equal(levels(geMegaEnvTot$megaEnv), c("1", "2", "3"))
 })
 
 summ <- attr(x = geMegaEnv, which = "sumTab")
@@ -28,9 +28,9 @@ geMegaEnvMin <- gxeMegaEnv(TD = BLUEs, trait = "t1", method = "min",
                            sumTab = FALSE)
 geMegaEnvMinTot <- Reduce(f = rbind, x = geMegaEnvMin)
 test_that("option method functions properly", {
-  expect_equal(as.numeric(geMegaEnvMinTot$megaEnv), rep(x = c(1, 2, 3),
+  expect_equal(as.numeric(geMegaEnvMinTot$megaEnv), rep(x = c(3, 2, 1),
                                                         each = 15))
-  expect_equal(levels(geMegaEnvMinTot$megaEnv), c("3", "2", "1"))
+  expect_equal(levels(geMegaEnvMinTot$megaEnv), c("1", "2", "3"))
   expect_equal(as.character(attr(x = geMegaEnvMin,
                                  which = "sumTab")$`Winning genotype`),
                c("G12", "G15", "G6"))
@@ -53,19 +53,19 @@ test_that("gxeTable functions correctly", {
                  "Empty data.frame returned")
   geTabLm <- gxeTable(TD = geMegaEnvNw, trait = "t1")
   expect_equivalent(geTabLm$predictedValue[1, ],
-                    c(80.4703105526859, 80.0424618298571))
+                    c(80.0426463992245, 80.4692101166694))
   ## This test works fine in RStudio but gives an error when testing on CRAN.
   ## Therefore added a lower tolerance
   expect_equivalent(geTabLm$standardError[1, ],
-                    c(9.50660071605727, 5.93819059539989), tolerance = 1e-7)
+                    c(5.93814290627681, 9.51137000477223), tolerance = 1e-7)
   testthat::skip_on_cran()
   expect_warning(gxeTable(TD = geMegaEnv, trait = "t1"),
                  "Empty data.frame returned")
   geTabAs <- gxeTable(TD = geMegaEnvNw, trait = "t1", engine = "asreml")
   expect_equivalent(geTabAs$predictedValue[1, ],
-                    c(80.4703103942918, 80.0424619340866))
+                    c(80.0424619340827, 80.4703103942952))
   expect_equivalent(geTabAs$standardError[1, ],
-                    c(9.77290639163707, 6.58334962888759))
+                    c(6.58334962888207, 9.77290639163001))
 })
 
 test_that("combCor helper function funcions correctly", {

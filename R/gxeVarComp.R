@@ -1,10 +1,10 @@
 #' Selects the best variance-covariance model for a set of trials
 #'
 #' This function selects the best covariance structure for genetic correlations
-#' between trials. It fits a range of variance-covariance models to
-#' compare (identity, compound symmetry, diagonal, heterogeneous compound
-#' symmetry, first order factor analysis, second order factor analysis,
-#' unstructured), and selects the best one using a goodness-of-fit criterion.
+#' between trials. It fits a range of variance-covariance models (identity,
+#' compound symmetry, diagonal, heterogeneous compound symmetry, first order
+#' factor analysis, second order factor analysis, unstructured), and selects
+#' the best one using a goodness-of-fit criterion.
 #'
 #' @inheritParams gxeAmmi
 #'

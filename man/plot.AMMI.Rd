@@ -4,9 +4,11 @@
 \alias{plot.AMMI}
 \title{Plot function for class AMMI}
 \usage{
-\method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2"), scale = 1,
-  colorBy = NULL, colGeno = "black", colEnv = "red",
-  primAxis = "PC1", secAxis = "PC2", output = TRUE)
+\method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2", "GGE1",
+  "GGE2"), scale = 1, colorBy = NULL, plotGeno = TRUE,
+  colGeno = 1:50, sizeGeno = 0, plotEnv = TRUE, colEnv = "red",
+  sizeEnv = 3, envFactor = 1, primAxis = "PC1", secAxis = "PC2",
+  output = TRUE)
 }
 \arguments{
 \item{x}{An object of class AMMI}
@@ -14,9 +16,10 @@
 \item{...}{Further graphical parameters passed on to actual plot function.}
 
 \item{plotType}{A character string indicating which plot should be made.
-Either "AMMI1" or "AMMI2" for an AMMI1 biplot (genotype and
-environment means vs PC1) or an AMMI2 biplot (genotypes and environment
-interaction with PC1 and PC2) respectively.}
+Either "AMMI1" for an AMMI1 biplot (genotype and
+environment means vs PC1) or "AMMI2" for an AMMI2 biplot (genotypes and
+environment interaction with PC1 and PC2) respectively. "GGE1" and "GGE2"
+may be used instead of "AMMI1" and "AMMI2".}
 
 \item{scale}{A numerical value. The variables are scaled by
 \code{lambda ^ scale} and the observations by \code{lambda ^ (1 - scale)}
@@ -29,10 +32,25 @@ scale is outside this range.}
 as input for the AMMI analysis by which the genotypes should be colored. If
 \code{NULL} all genotypes will be colored in black.}
 
+\item{plotGeno}{Should genotypes be plotted?}
+
 \item{colGeno}{A character vector with plot colors for the genotypes. A
 single color when \code{colorBy = NULL}, a vector of colors otherwise.}
 
+\item{sizeGeno}{An numerical value indicating the text size for plotting the
+genotypes. Use \code{sizeGeno = 0} for plotting genotypes as points instead
+of using their names.}
+
+\item{plotEnv}{Should environments be plotted?}
+
 \item{colEnv}{A character string with the plot color for the environments.}
+
+\item{sizeEnv}{An integer indicating the text size for plotting the
+environments.}
+
+\item{envFactor}{A positive numerical value giving a factor by which to blow
+up the environmental scores. Providing a value between 0 and 1 will
+effectively blow up the genotypic scores.}
 
 \item{primAxis}{A character string indicating the principal component to be
 plotted on the primary axis of the AMMI2 plot. Has to be given as
@@ -47,18 +65,18 @@ differ from \code{primAxis}.}
 \code{FALSE} only a list of ggplot objects is invisibly returned.}
 }
 \value{
-A biplot depending on \code{plotType}.
+A biplot depending on \code{plotType}. The ggplot object for the
+biplot is returned invisibly.
 }
 \description{
 Two types of biplot can be made. A biplot of genotype and environment
 means vs PC1 (AMMI1) or a biplot of genotypes and environment interaction
 with PC1 and PC2 (AMMI2).\cr\cr
-If the AMMI analysis was done by year a separate plot will be made for
-every year in the data. If for some of the years it is not possible to
-make the plot because the number of principal components for those year is
-lower than the number specified as secondary axis those years will be
-skipped when plotting. If this would be the case for all years the function
-returns an error.
+If the AMMI analysis was done by year, a separate plot will be made for
+every year in the data. For some years the number of principal components
+may be lower than the number specified on the secondary axis. If this is the
+case this year is skipped when plotting. If this happens for all years the
+function returns an error.
 }
 \examples{
 ## Run AMMI analysis.

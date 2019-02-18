@@ -5,18 +5,19 @@
 \title{AMMI analysis}
 \usage{
 gxeAmmi(TD, trials = names(TD), trait, nPC = 2, byYear = FALSE,
-  center = TRUE, scale = FALSE, GGE = FALSE, useWt = FALSE)
+  center = TRUE, scale = FALSE, GGE = FALSE, excludeGeno = NULL,
+  useWt = FALSE)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
 
 \item{trials}{A character string specifying the trials to be analyzed. If
-not supplied all trials are used in the analysis.}
+not supplied, all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 
 \item{nPC}{An integer specifying the number of principal components used
-as multiplicative term of genotype-by-trial interaction. If \code{NULL} the
+as multiplicative term of genotype-by-trial interaction. If \code{NULL}, the
 number of principal components is determined by the algorithm using
 forward selection. See details.}
 
@@ -31,7 +32,10 @@ merged together and returned.}
 \item{GGE}{Should a GGE analysis be performed instead of a regular AMMI
 analysis. When doing so genotype will be excluded from the model.}
 
-\item{useWt}{Should weighting be used when modelling? Requires a column
+\item{excludeGeno}{An optional character vector with names of genotypes to
+be excluded from the analysis. If \code{NULL}, all genotypes are used.}
+
+\item{useWt}{Should weighting be used when modeling? Requires a column
 \code{wt} in \code{TD}.}
 }
 \value{
@@ -46,12 +50,12 @@ components.}
 \item{envMean}{A numerical vector containing the environmental means.}
 \item{genoMean}{A numerical vector containing the genotypic means.}
 \item{overallMean}{A numerical value containing the overall mean.}
-If \code{byYear} = \code{TRUE} all returned items in the AMMI object except
+If \code{byYear} = \code{TRUE}, all returned items in the AMMI object except
 \code{fitted} will consist of a list of results by year.
 }
 \description{
 The Additive Main Effects and Multiplicative Interaction (AMMI) model fits
-a model which involves the Additive Main effects (i.e. genotype and trial)
+a model which combines the Additive Main effects (i.e. genotype and trial)
 along with the Multiplicative Interaction effects. Then a principal component
 analysis is done on the residuals (multiplicative interaction). This results
 in an interaction characterized by Interaction Principal Components (IPCA)
@@ -59,25 +63,25 @@ enabling simultaneous plotting of genotypes and trials.\cr\cr
 The parameter \code{nPC} is used to indicate the number of principal
 components that is used in the principal component analysis (PCA). By setting
 this parameter to \code{NA} the algorithm determines the best number of
-principal components itself (see Details).\cr\cr
-When setting the parameter \code{GGE} to \code{TRUE} instead of a regular
-AMMI analysis a GGE analysis is performed. In this case instead of fitting
-a model with genotype and trial as main effects only trial is used a a main
-effect.\cr\cr
-By specifying the parameter \code{asYear = true} a separate analysis will be
+principal components (see Details).\cr\cr
+When setting the parameter \code{GGE} to \code{TRUE}, instead of a regular
+AMMI analysis a Genotype plus Genotype by Environment interaction (GGE)
+analysis is performed. In this case, instead of fitting a model with genotype
+and trial as main effects only trial is used as main effect.\cr\cr
+By specifying the parameter \code{asYear = true}, a separate analysis will be
 done for every year in the data. Combining the option with \code{nPC = NA}
 may result in different numbers of principal components per year. The AMMI
 estimates will still be returned as a single data.frame, but the other
 results will be either lists or arrays.
 }
 \details{
-First a linear model \eqn{trait ~ genotype + trial} is fitted with both
+First a linear model \eqn{trait = genotype + trial} is fitted with both
 genotype and trial fixed components in the model.\cr
 The residuals from the fitted model are then used in a PCA. If \code{nPC} is
 not \code{NA} a single PCA is done using \code{\link[stats]{prcomp}} with
 maximum rank \code{nPC}.\cr
-In case \code{nPC = NA} the PCA is first done with maximum rank 1. Then using
-forward selection one by one the maximum rank is increased as long as the
+In case \code{nPC = NA}, the PCA is first done with one PC. Then using
+forward selection one by one the number of PCs is increased as long as the
 added component is significant in the analysis.\cr
 AMMI estimates are then computed using the results of the PCA.\cr
 }

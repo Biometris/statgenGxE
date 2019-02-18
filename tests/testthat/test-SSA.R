@@ -25,7 +25,7 @@ test_that("summary.SSA produces correct output for lme4", {
   expect_null(sumLm$selSpatMod)
   expect_equal(nrow(sumLm$stats), 9)
   expect_equal(dim(sumLm$meanTab), c(15, 4))
-  expect_equivalent(sumLm$heritability, 0.121957305492988)
+  expect_equivalent(sumLm$heritability, 0.121944484712314)
   expect_equal(nrow(sumLm$sed), 0)
   expect_equal(nrow(sumLm$lsd), 0)
 })

@@ -1,15 +1,15 @@
 Package: RAP
 Type: Package
 Title: R Analytical Pipeline (RAP)
-Version: 0.0.1
-Date: 2019-01-01
+Version: 0.0.2
+Date: 2019-18-02
 Authors@R: c(
     person("Bart-Jan", "van Rossum", email = "bart-jan.vanrossum@wur.nl", 
     role = c("aut", "cre")))
 Description: The R Analytical Pipeline (RAP), commissioned by the Generation 
     Challenge Program (GCP), is being developed to streamline the analysis of 
     typical plant breeding experiments, including both phenotypic analysis of 
-    field trials and genotype by environment analysis. Some functions have
+    field trials and genotype-by-environment analysis. Some functions have
     been created to be used in conjunction with the R package 'asreml' for 
     the 'ASReml' software, which can be obtained upon purchase from 'VSN' 
     international (<http://www.vsni.co.uk/software/asreml>).
@@ -26,7 +26,7 @@ Imports: emmeans,
     methods,
     qtl,
     reshape2,
-    SpATS(>= 1.0-7),
+    SpATS(>= 1.0-8),
     xtable,
     gridExtra,
     scales

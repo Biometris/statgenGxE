@@ -14,7 +14,7 @@ test_that("output is of the right class", {
   expect_is(geAmmi$genoScores, "matrix")
   expect_is(geAmmi$importance, "data.frame")
   expect_is(geAmmi$anova, "data.frame")
-  expect_is(geAmmi$fitted, "matrix")
+  expect_is(geAmmi$fitted, "data.frame")
   expect_is(geAmmi$trait, "character")
   expect_is(geAmmi$envMean, "numeric")
   expect_is(geAmmi$genoMean, "numeric")
@@ -62,8 +62,8 @@ test_that("anova is correct", {
 })
 
 test_that("fitted values are correct", {
-  expect_equal(dim(geAmmi$fitted), c(15L, 3L))
-  expect_equal(as.numeric(as.matrix(geAmmi$fitted)),
+  expect_equal(dim(geAmmi$fitted), c(45L, 3L))
+  expect_equal(geAmmi$fitted$fittedValue,
                c(74.7151036023947, 84.6863159645868, 69.2058701507397,
                  72.4263349806975, 74.6775287748894, 84.3169610996821,
                  61.9016626250044, 76.4260688483351, 45.0089083719377,

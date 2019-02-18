@@ -8,23 +8,23 @@
 \title{S3 class TD}
 \usage{
 createTD(data, genotype = NULL, trial = NULL, loc = NULL,
-  year = NULL, repId = NULL, subBlock = NULL, plot = NULL,
+  year = NULL, repId = NULL, subBlock = NULL, plotId = NULL,
   rowCoord = NULL, colCoord = NULL, rowId = rowCoord,
   colId = colCoord, checkId = NULL, trLocation = NULL,
   trDate = NULL, trDesign = NULL, trLat = NULL, trLong = NULL,
   trPlWidth = NULL, trPlLength = NULL)
 
 addTD(TD, data, genotype = NULL, trial = NULL, loc = NULL,
-  year = NULL, repId = NULL, subBlock = NULL, plot = NULL,
+  year = NULL, repId = NULL, subBlock = NULL, plotId = NULL,
   rowCoord = NULL, colCoord = NULL, rowId = rowCoord,
   colId = colCoord, checkId = NULL, trLocation = NULL,
   trDate = NULL, trDesign = NULL, trLat = NULL, trLong = NULL,
   trPlWidth = NULL, trPlLength = NULL)
 
-dropTD(TD, trials)
+dropTD(TD, rmTrials)
 }
 \arguments{
-\item{data}{A data.frame containing trial data with a least a column for
+\item{data}{A data.frame containing trial data with at least a column for
 genotype. The data.frame should be in a wide format, i.e. all available
 phenotypic data should be in a separate column within the data.frame.}
 
@@ -46,7 +46,7 @@ that contains years.}
 \item{subBlock}{An optional character string indicating the column in
 \code{data} that contains sub blocks.}
 
-\item{plot}{An optional character string indicating the column in
+\item{plotId}{An optional character string indicating the column in
 \code{data} that contains plots. This column will be combined with trial
 to a single output factor.}
 
@@ -57,20 +57,21 @@ to a single output factor.}
 \code{data} that contains the column coordinates.}
 
 \item{rowId}{An optional character string indicating the column in
-\code{data} that contains field rows. If not supplied this is assumed to
+\code{data} that contains field rows. If not supplied, this is assumed to
 be the same as rowCoord.}
 
 \item{colId}{An optional character string indicating the column in
-\code{data} that contains field columns. If not supplied this is assumed to
+\code{data} that contains field columns. If not supplied, this is assumed to
 be the same as colCoord.}
 
 \item{checkId}{An optional character string indicating the column in
 \code{data} that contains the check IDs.}
 
 \item{trLocation}{An optional character vector indicating the locations of
-the trials. This will be used for constructing default names for plots and
-such. If no locations are provided the trialname will be used as default
-name.}
+the trials. This will be used as default names when creating plots and
+summaries. If no locations are provided, first the column loc is considered.
+If this contains one unique value for a trial this is used as trLocation.
+Otherwise the trialname is used.}
 
 \item{trDate}{An optional date vector indicating the dates of the trials.}
 
@@ -94,15 +95,15 @@ lengths of the plots.}
 
 \item{TD}{An object of class TD which should be modified.}
 
-\item{trials}{A character vector of trials that should be removed.}
+\item{rmTrials}{A character vector of trials that should be removed.}
 }
 \value{
 An object of class TD, a list of data.frames with renamed columns
-and an attribute \code{renamedCols} containing info on which columns have
-been renamed. For each unique value of trial the output has a data.frame in
+and an attribute \code{renamedCols} containing an overview of renamed
+columns. For each unique value of trial, the output has a data.frame in
 the list with the same name as the trial. These data.frames have attributes
 containing the metadata for the corresponding trial. If there is no column
-for trial the list will contain one item named after the input data.
+for trial, the list will contain one item named after the input data.
 }
 \description{
 \code{createTD}\cr
@@ -118,11 +119,11 @@ are converted to numeric columns, all other renamed columns to factor
 columns. Columns other than the default columns, e.g. traits or other
 covariates will be included in the output unchanged.}
 \item{Split input data by trial - each trial in the input data will become
-a list item in the output}
+a list item in the output.}
 \item{Add meta data - the trial meta data are added as attributes to the
-different output items. The function parameters starting with tr provide
+different output items. The function parameters starting with "tr" provide
 the meta data. Their values will be recycled if needed, so by setting a
-single trDesign all trials will get the same design. The meta data can be
+single "trDesign", all trials will get the same design. The meta data can be
 changed later on using \code{getMeta} and \code{setMeta}}
 }
 \code{addTD}\cr

@@ -11,7 +11,7 @@ gxeVarComp(TD, trials = names(TD), trait, engine = c("lme4", "asreml"),
 \item{TD}{An object of class \code{\link{TD}}.}
 
 \item{trials}{A character string specifying the trials to be analyzed. If
-not supplied all trials are used in the analysis.}
+not supplied, all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
 
@@ -21,7 +21,7 @@ Either "lme4" or "asreml".}
 \item{criterion}{A string specifying a goodness-of-fit criterion. Either
 "AIC" or "BIC".}
 
-\item{useWt}{Should weighting be used when modelling? Requires a column
+\item{useWt}{Should weighting be used when modeling? Requires a column
 \code{wt} in \code{TD}.}
 
 \item{...}{Further arguments to be passed to \code{asreml}.}
@@ -39,10 +39,10 @@ the analysis.}
 }
 \description{
 This function selects the best covariance structure for genetic correlations
-between trials. It fits a range of variance-covariance models to
-compare (identity, compound symmetry, diagonal, heterogeneous compound
-symmetry, first order factor analysis, second order factor analysis,
-unstructured), and selects the best one using a goodness-of-fit criterion.
+between trials. It fits a range of variance-covariance models (identity,
+compound symmetry, diagonal, heterogeneous compound symmetry, first order
+factor analysis, second order factor analysis, unstructured), and selects
+the best one using a goodness-of-fit criterion.
 }
 \note{
 If \code{engine = "lme4"}, only the compound symmetry model can be

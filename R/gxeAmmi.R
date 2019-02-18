@@ -1,7 +1,7 @@
 #' AMMI analysis
 #'
 #' The Additive Main Effects and Multiplicative Interaction (AMMI) model fits
-#' a model which involves the Additive Main effects (i.e. genotype and trial)
+#' a model which combines the Additive Main effects (i.e. genotype and trial)
 #' along with the Multiplicative Interaction effects. Then a principal component
 #' analysis is done on the residuals (multiplicative interaction). This results
 #' in an interaction characterized by Interaction Principal Components (IPCA)
@@ -9,33 +9,33 @@
 #' The parameter \code{nPC} is used to indicate the number of principal
 #' components that is used in the principal component analysis (PCA). By setting
 #' this parameter to \code{NA} the algorithm determines the best number of
-#' principal components itself (see Details).\cr\cr
-#' When setting the parameter \code{GGE} to \code{TRUE} instead of a regular
-#' AMMI analysis a GGE analysis is performed. In this case instead of fitting
-#' a model with genotype and trial as main effects only trial is used a a main
-#' effect.\cr\cr
-#' By specifying the parameter \code{asYear = true} a separate analysis will be
+#' principal components (see Details).\cr\cr
+#' When setting the parameter \code{GGE} to \code{TRUE}, instead of a regular
+#' AMMI analysis a Genotype plus Genotype by Environment interaction (GGE)
+#' analysis is performed. In this case, instead of fitting a model with genotype
+#' and trial as main effects only trial is used as main effect.\cr\cr
+#' By specifying the parameter \code{asYear = true}, a separate analysis will be
 #' done for every year in the data. Combining the option with \code{nPC = NA}
 #' may result in different numbers of principal components per year. The AMMI
 #' estimates will still be returned as a single data.frame, but the other
 #' results will be either lists or arrays.
 #'
-#' First a linear model \eqn{trait ~ genotype + trial} is fitted with both
+#' First a linear model \eqn{trait = genotype + trial} is fitted with both
 #' genotype and trial fixed components in the model.\cr
 #' The residuals from the fitted model are then used in a PCA. If \code{nPC} is
 #' not \code{NA} a single PCA is done using \code{\link[stats]{prcomp}} with
 #' maximum rank \code{nPC}.\cr
-#' In case \code{nPC = NA} the PCA is first done with maximum rank 1. Then using
-#' forward selection one by one the maximum rank is increased as long as the
+#' In case \code{nPC = NA}, the PCA is first done with one PC. Then using
+#' forward selection one by one the number of PCs is increased as long as the
 #' added component is significant in the analysis.\cr
 #' AMMI estimates are then computed using the results of the PCA.\cr
 #'
 #' @param TD An object of class \code{\link{TD}}.
 #' @param trials A character string specifying the trials to be analyzed. If
-#' not supplied all trials are used in the analysis.
+#' not supplied, all trials are used in the analysis.
 #' @param trait A character string specifying the trait to be analyzed.
 #' @param nPC An integer specifying the number of principal components used
-#' as multiplicative term of genotype-by-trial interaction. If \code{NULL} the
+#' as multiplicative term of genotype-by-trial interaction. If \code{NULL}, the
 #' number of principal components is determined by the algorithm using
 #' forward selection. See details.
 #' @param byYear Should the analysis be done by year? If \code{TRUE} the data
@@ -45,7 +45,9 @@
 #' @param scale Should the variables be scaled to have unit variance?
 #' @param GGE Should a GGE analysis be performed instead of a regular AMMI
 #' analysis. When doing so genotype will be excluded from the model.
-#' @param useWt Should weighting be used when modelling? Requires a column
+#' @param excludeGeno An optional character vector with names of genotypes to
+#' be excluded from the analysis. If \code{NULL}, all genotypes are used.
+#' @param useWt Should weighting be used when modeling? Requires a column
 #' \code{wt} in \code{TD}.
 #'
 #' @return An object of class \code{\link{AMMI}}, a list containing:
@@ -59,7 +61,7 @@
 #' \item{envMean}{A numerical vector containing the environmental means.}
 #' \item{genoMean}{A numerical vector containing the genotypic means.}
 #' \item{overallMean}{A numerical value containing the overall mean.}
-#' If \code{byYear} = \code{TRUE} all returned items in the AMMI object except
+#' If \code{byYear} = \code{TRUE}, all returned items in the AMMI object except
 #' \code{fitted} will consist of a list of results by year.
 #'
 #' @seealso \code{\link{AMMI}}, \code{\link{plot.AMMI}},
@@ -92,12 +94,13 @@ gxeAmmi <- function(TD,
                     center = TRUE,
                     scale = FALSE,
                     GGE = FALSE,
+                    excludeGeno = NULL,
                     useWt = FALSE) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
-  if (!is.character(trials) || !all(trials %in% names(TD))) {
+  if (!is.character(trials) || !all(hasName(TD, trials))) {
     stop("All trials should be in TD.")
   }
   TDTot <- Reduce(f = rbind, x = TD[trials])
@@ -105,7 +108,7 @@ gxeAmmi <- function(TD,
       !hasName(x = TDTot, name = trait)) {
     stop("trait has to be a column in TD.\n")
   }
-  if (!"trial" %in% colnames(TDTot)) {
+  if (!hasName(x = TDTot, name = "trial")) {
     stop("TD should contain a column trial to be able to run an AMMI analysis.\n")
   }
   if (useWt && !hasName(x = TDTot, name = "wt")) {
@@ -115,17 +118,27 @@ gxeAmmi <- function(TD,
                         round(nPC) != nPC || nPC < 0)) {
     stop("nPC should be NULL or a single integer.\n")
   }
+  if (!is.null(excludeGeno) && !all(excludeGeno %in% TDTot[["genotype"]])) {
+    stop("All genotypes to exclude should be in TD.\n")
+  }
   TDTot$year. <- if (byYear) {
     as.character(TDTot$year)
   } else {
     "0"
+  }
+  if (!is.null(excludeGeno)) {
+    TDTot <- TDTot[!TDTot[["genotype"]] %in% excludeGeno, ]
+    remGeno <- length(unique(TDTot[["genotype"]]))
+    if (remGeno < 10) {
+      warning("Less than 10 genotypes present in data.\n")
+    }
   }
   ## Extract years and define empty objects for output.
   years <- sort(unique(TDTot$year.))
   fitTot <- data.frame(genotype = unique(TDTot$genotype))
   loadTot <- scoreTot <- impTot <- aovTot <- envMeanTot <- genoMeanTot <-
     ovMeanTot <- datTot <- setNames(vector(mode = "list",
-                                          length = length(years)), years)
+                                           length = length(years)), years)
   for (year in years) {
     TDYear <- TDTot[TDTot$year. == year, ]
     ## Remove genotypes that contain only NAs
@@ -272,8 +285,8 @@ gxeAmmi <- function(TD,
     genoMeanTot[[year]] <- genoMean
     ovMeanTot[[year]] <- overallMean
   } # End loop over years.
-  rownames(fitTot) <- fitTot$genotype
-  fitTot <- as.matrix(fitTot[-1])
+  fitTot <- reshape2::melt(fitTot, id.vars = "genotype", variable.name = "trial",
+                           value.name = "fittedValue")
   if (!byYear) {
     loadTot <- loadTot[[1]]
     scoreTot <- scoreTot[[1]]

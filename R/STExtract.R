@@ -17,8 +17,8 @@
 #' component.}
 #' \item{R - varCompR}{Variance components for model with genotype as random
 #' component.}
-#' \item{R - varGen}{Genetic variance component.}
-#' \item{R - varErr}{Residual variance component - only for \code{lme4}
+#' \item{R - varGen}{Genetic variance component(s).}
+#' \item{R - varErr}{Residual variance component(s) - only for \code{lme4}
 #' and \code{asreml}.}
 #' \item{R - varSpat}{Spatial variance components - only for \code{SpATS}.}
 #' \item{F - fitted}{Fitted values for the model with genotype as fixed
@@ -44,16 +44,16 @@
 #'
 #' @param SSA An object of class SSA.
 #' @param trials A character vector of trials for which the statistics should be
-#' computed. If not supplied statistics are computed for all trials that have
-#' been modelled.
+#' computed. If not supplied, statistics are computed for all trials that have
+#' been modeled.
 #' @param traits A character vector of traits for which the statistics should be
-#' computed. If not supplied statistics are computed for all traits that have
-#' been modelled.
+#' computed. If not supplied, statistics are computed for all traits that have
+#' been modeled.
 #' @param what A character vector indicating which statistics should be
 #' computed. Most statistics are available for all models, some only for models
-#' fitted using a certain engine. If this is the case this is indicated in the
+#' fitted using a certain engine. If this is the case, this is indicated in the
 #' list with options in details.\cr
-#' If \code{what = "all"} all available statistics are computed.
+#' If \code{what = "all"}, all available statistics are computed.
 #' @param keep A character vector of column(s) in the object of class
 #' \code{\link{TD}} used for modeling. These columns will be kept as output when
 #' computing fitted values, residuals, standardized residuals and rMeans.
@@ -61,11 +61,10 @@
 #' the column to keep contains unique values for the modeled variables, i.e. a
 #' column repId with several different values per genotype cannot be kept.
 #' @param restoreColNames Should the original column names be restored in the
-#' output of the extracted data.
+#' output of the extracted data?
 #'
-#' @return A list with per trial for which statistics have been extracted either
-#' a list of those statistics or if only one statistic is extracted
-#' a single object containing this statistic.
+#' @return A list with, per trial for which statistics have been extracted, a
+#' list of those statistics.
 #'
 #' @seealso
 #' \code{\link{STRunModel}}, \code{\link{STModSpATS}}, \code{\link{STModLme4}}

@@ -11,10 +11,10 @@ SSAtoCross(SSA, trial = NULL, traits = NULL, what = c("BLUEs",
 \item{SSA}{An object of class \code{\link{SSA}}.}
 
 \item{trial}{A character string indicating the trial to be exported. If
-\code{NULL} and \code{SSA} contains only one trial that trial is exported.}
+\code{NULL} and \code{SSA} contains only one trial, that trial is exported.}
 
 \item{traits}{A character string containing the traits to be exported. If
-\code{NULL} all traits for the selected trial are exported.}
+\code{NULL}, all traits for the selected trial are exported.}
 
 \item{what}{A character string containing the statistics to be exported as
 phenotype in the cross object. This can be either \code{BLUEs} or
@@ -22,7 +22,7 @@ phenotype in the cross object. This can be either \code{BLUEs} or
 
 \item{genoFile}{A character string indicating a filename containing
 phenotypic data. The data should be in the format required by the
-qtl package. The first column  should contain the individuals, starting
+qtl package. The first column should contain the individuals, starting
 from row 4. The following columns contain markers with in the second and
 third row the chromosome and position on the chromosome and in the
 following rows the genotypes.}

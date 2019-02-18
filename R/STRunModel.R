@@ -6,7 +6,7 @@
 #' used as a default method when design is rowcol or res.rowcol, lme4 for other
 #' designs.
 #'
-#' The actual model fitted depends on the design. For the supported designs the
+#' The actual model fitted depends on the design. For the supported designs, the
 #' following models are used:
 #' \describe{
 #' \item{ibd}{trait = genotype + \emph{subBlock} + e}
@@ -20,17 +20,17 @@
 #' In the above models fixed effects are indicated in \strong{bold}, random
 #' effects in \emph{italics}. genotype is fitted as fixed or random effect
 #' depending on the value of \code{what}.\cr
-#' In case \code{useCheckId = TRUE} an extra fixed effect \strong{checkId} is
+#' In case \code{useCheckId = TRUE}, an extra fixed effect \strong{checkId} is
 #' included in the model.\cr
 #' Variables in \code{covariates} are fitted as extra fixed effects.\cr\cr
-#' When \code{SpATS} is used for modelling an extra spatial term is included
+#' When \code{SpATS} is used for modeling, an extra spatial term is included
 #' in the model. This term is constructed using the function
-#' \code{\link[SpATS]{PSANOVA}} from the SpATS package as
+#' \code{\link[SpATS]{PSANOVA}} from the SpATS package as\cr
 #' \code{PSANOVA(colCoord, rowCoord, nseg = nSeg, nest.div = 2)}
-#' where \code{nSeg = (number of columns / 2, number of rows / 2)}. nseg and
+#' where\cr \code{nSeg = (number of columns / 2, number of rows / 2)}. nseg and
 #' nest.div can be modified using the \code{control} parameter.\cr\cr
 #' When \code{asreml} is used for modeling and \code{trySpatial} is \code{TRUE}
-#' 6 models are fitted with different random term and covariance structure.
+#' six models are fitted with different random terms and covariance structure.
 #' The best model is determined based on a goodness-of-fit criterion, either
 #' AIC or BIC. This can be set using the control parameter \code{criterion},
 #' default is AIC.
@@ -46,8 +46,8 @@
 #' \item{random = repId:colId, spatial = rowCoord:exp(colCoord)}
 #' \item{random = repId:rowId + repId:colId, spatial = iexp(rowCoord,colCoord)}
 #' }
-#' If the design is not regular the following following combinations of random
-#' and spatial terms are fitted
+#' If the design is not regular the following combinations of random and spatial
+#' terms are fitted
 #' \itemize{
 #' \item{random = NULL, spatial = ar1(rowId):colId}
 #' \item{random = NULL, spatial = rowId:ar1(colId)}
@@ -56,8 +56,8 @@
 #' \item{random = repId:colId, spatial = rowId:ar1(colId)}
 #' \item{random = repId:rowId + repId:colId, spatial = ar1(rowId):ar1(colId)}
 #' }
-#' If there are no replicates in the model, in the random parts above, repId is
-#' left out.
+#' If there are no replicates in the model, repId is left out from the random
+#' parts above.
 #'
 #' @param TD An object of class \code{\link{TD}}.
 #' @param trials A character vector specifying the trials for modeling.
@@ -67,35 +67,35 @@
 #' design) or "res.rowcol" (resolvable row column design).
 #' @param traits A character vector specifying the traits for modeling.
 #' @param what A character vector specifying whether "genotype" should
-#' be fitted as "fixed" or "random" effect. If not specified both models
+#' be fitted as "fixed" or "random" effect. If not specified, both models
 #' are fitted.
 #' @param covariates A character vector specifying covariates to be fitted as
 #' extra fixed effects in the model.
 #' @param useCheckId Should checkId be used as a fixed effect in the model?\cr
-#' If \code{TRUE} \code{TD} has to contain a column 'checkId'.
+#' If \code{TRUE}, \code{TD} has to contain a column 'checkId'.
 #' @param trySpatial Should spatial models be tried? Spatial models can
-#' only be fitted with SpATS and asreml. If SpATS is used for modeling only
+#' only be fitted with SpATS and asreml. If SpATS is used for modeling, only
 #' spatial models can be fitted and trySpatial is always set to \code{TRUE}. If
-#' asreml is used fitting spatial models is optional.
-#' @param engine A string specifying the name of the mixed modelling engine to
-#' use, either SpATS, lme4 or asreml. For spatial models SpaTS is used as a
-#' default, for other models lme4.
+#' asreml is used, fitting spatial models is optional.
+#' @param engine A string specifying the name of the mixed modeling engine to
+#' use, either "SpATS", "lme4" or "asreml." For spatial models, "SpaTS" is used
+#' as default, for other models "lme4".
 #' @param control An optional list with control parameters to be passed to the
-#' actual fitting funcions. Currently \code{nSeg} and \code{nestDiv} are valid
+#' actual fitting functions. Currently \code{nSeg} and \code{nestDiv} are valid
 #' parameters when fitting a model using SpATS. They pass a value to nseg and
 #' nest.div in \code{\link[SpATS]{PSANOVA}} respectively. For \code{nSeg} also a
 #' named list can be supplied containing values for nSeg per environment.\cr
 #' \code{criterion} is a valid parameter when fitting a spatial model using
-#' asreml. Use this to pass a goodness-of-fit criterion for comparing different
-#' spatial models. See also in details. Other parameters are ignored.
+#' asreml. It may be used to pass a goodness-of-fit criterion for comparing
+#' different spatial models. See also in details. Other parameters are ignored.
 #' @param progress Should the progress of the modeling be printed. If
-#' \code{TRUE} for every trial a line is output indicating the traits fitted
+#' \code{TRUE}, for every trial a line is output indicating the traits fitted
 #' for the particular trial.
 #' @param ... Further arguments to be passed to \code{SpATS}, \code{lme4} or
 #' \code{asreml}.
 #'
-#' @return An object of class \code{\link{SSA}}, a list containing per trial
-#' that has been analyzed a list of:
+#' @return An object of class \code{\link{SSA}}, a list containing, per trial
+#' that has been analyzed, a list of:
 #' \item{mRand}{A list of models with fitted with genotype as random effect.}
 #' \item{mFix}{A list of models fitted with genotype as fixed effect.}
 #' \item{TD}{An object of class \code{\link{TD}} containing the data on which
@@ -248,7 +248,8 @@ modelChecks <- function(TD,
                 ".\n"))
   }
   if (is.na(engine)) {
-    if (design %in% c("rowcol", "res.rowcol")) {
+    if (isTRUE(length(unique(TD[[trial]][["rowCoord"]])) > 1) &
+        isTRUE(length(unique(TD[[trial]][["colCoord"]])) > 1)) {
       message("Using SpATS for fitting models.")
       engine <- "SpATS"
     } else {

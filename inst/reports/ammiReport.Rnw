@@ -30,7 +30,7 @@
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{AMMI report for \Sexpr{escapeLatex(x$trait)}}%
+\title{\Sexpr{if (x$GGE) "GGE" else "AMMI"} report for \Sexpr{escapeLatex(x$trait)}}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------

@@ -115,7 +115,7 @@ plot.stability <- function(x,
   ## Convert plots to grob for outlining of axes.
   plotsGr <- lapply(X = plots, FUN = ggplot2::ggplotGrob)
   if (length(plotsGr) > 1) {
-    ## At least to plots -> 1 row.
+    ## At least two plots -> 1 row.
     tot <- gridExtra::gtable_cbind(plotsGr[[1]], plotsGr[[2]])
   } else {
     ## Only 1 plot to be made.

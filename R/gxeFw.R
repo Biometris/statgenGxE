@@ -9,13 +9,39 @@
 #' the algorithm.
 #' @param tol A positive numerical value specifying convergence tolerance of the
 #' algorithm.
+#' @param restrictGeno An optional character string containing the genotypes to
+#' which the analysis should be restricted. If \code{NULL}, all genotypes are
+#' used.
 #' @param sorted A character string specifying the sorting order of the
 #' estimated values in the output.
 #'
 #' @return An object of class \code{\link{FW}}, a list containing:
-#' \item{estimates}{A data.frame containing the estimated values.}
+#' \item{estimates}{A data.frame containing the estimated values, with the
+#' following columns:
+#' \itemize{
+#' \item{genotype} {The name of the genotype.}
+#' \item{sens} {The estimate of the sensitivity.}
+#' \item{se_sens} {The standard error of the estimate of the sensitivity.}
+#' \item{genMean} {The estimate of the genotypic mean.}
+#' \item{se_genMean} {The standard error of the estimate of the genotypic
+#' mean.}
+#' \item{MSdeviation} {The mean square deviation about the line fitted to
+#' each genotype}
+#' \item{rank} {The rank of the genotype based on its sensitivity.}
+#' }
+#' }
 #' \item{anova}{A data.frame containing anova scores of the FW analysis.}
-#' \item{envEffs}{A data.frame containing the environmental effects.}
+#' \item{envEffs}{A data.frame containing the environmental effects, with the
+#' following columns:
+#' \itemize{
+#' \item{trial} {The name of the trial.}
+#' \item{envEff} {The estimate of the environment effect.}
+#' \item{se_envEff} {The standard error of the estimate of the environment
+#' effect.}
+#' \item{envMean} {The estimate of the environment mean.}
+#' \item{rank} {The rank of the trial based on its mean.}
+#' }
+#' }
 #' \item{TD}{The object of class TD on which the analysis was performed.}
 #' \item{fittedGeno}{A numerical vector containing the fitted values for the
 #' genotypes.}
@@ -54,6 +80,7 @@ gxeFw <- function(TD,
                   maxIter = 15,
                   tol = 0.001,
                   sorted = c("ascending", "descending", "none"),
+                  restrictGeno = NULL,
                   useWt = FALSE) {
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -70,15 +97,21 @@ gxeFw <- function(TD,
     stop("TD should contain a column trial to be able to run a Finlay
          Wilkinson analysis.\n")
   }
-  if (useWt && !hasName(x = TDTot, name = "wt")) {
-    stop("wt has to be a column in TD when using weighting.")
-  }
   if (is.null(maxIter) || !is.numeric(maxIter) || length(maxIter) > 1 ||
       maxIter != round(maxIter) || maxIter < 1) {
     stop("maxIter should be a positive integer.\n")
   }
   if (is.null(tol) || !is.numeric(tol) || length(tol) > 1 || tol < 0) {
     stop("tol should be a numerical value > 10^-6.\n")
+  }
+  if (!is.null(restrictGeno) && !all(restrictGeno %in% TDTot[["genotype"]])) {
+    stop("All genotypes to include should be in TD.\n")
+  }
+  if (useWt && !hasName(x = TDTot, name = "wt")) {
+    stop("wt has to be a column in TD when using weighting.")
+  }
+  if (!is.null(restrictGeno)) {
+    TDTot <- TDTot[TDTot[["genotype"]] %in% restrictGeno, ]
   }
   ## Remove genotypes that contain only NAs
   allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {
@@ -200,13 +233,13 @@ gxeFw <- function(TD,
   sigma <- as.vector(tapply(X = varG, INDEX = TDTot$genotype,
                             FUN = mean, na.rm = TRUE))
   ## Compute mean squared error (MSE) of the trait means for each genotype.
-  mse <- as.vector(tapply(X = residuals(model1),  INDEX = TDTot$genotype,
+  mse <- as.vector(tapply(X = residuals(model1), INDEX = TDTot$genotype,
                           FUN = function(x) {
                             checkG <- length(x)
                             if (checkG > 2) {
                               sum(x ^ 2, na.rm = TRUE) / (checkG - 2)
                             } else {
-                              rep(NA, checkG)
+                              NA
                             }
                           }))
   ## Compute sorting order for estimates.
@@ -216,8 +249,9 @@ gxeFw <- function(TD,
     orderSens <- order(sens, decreasing = (sorted == "descending"))
   }
   ## Construct estimate data.frame.
-  estimates <- data.frame(genotype = levels(TDTot$genotype), sens, sigmaE,
-                          genMean, sigma, mse,
+  estimates <- data.frame(genotype = levels(TDTot$genotype), sens,
+                          se_sens = sigmaE, genMean, se_genMean = sigma,
+                          MSdeviation = mse, rank = rank(sens),
                           row.names = 1:length(sens))[orderSens, ]
   ## Construct data.frame with trial effects.
   matchPos <- match(paste0("trial", levels(TDTot$trial), ":beta"),
@@ -236,8 +270,9 @@ gxeFw <- function(TD,
     meansFitted <- tapply(X = model1$fitted, INDEX = TDTot$trial, FUN = mean)
   }
   meansFitted <- meansFitted[matchPos2]
-  envEffsSummary <- data.frame(trial = names(meansFitted), effect = envEffs,
-                               SE = seEnvEffs, mean = as.vector(meansFitted),
+  envEffsSummary <- data.frame(trial = names(meansFitted), envEff = envEffs,
+                               se_envEff = seEnvEffs,
+                               envMean = as.vector(meansFitted),
                                rank = rank(-meansFitted), row.names = NULL)
   return(createFW(estimates = estimates, anova = aovTable,
                   envEffs = envEffsSummary, TD = createTD(TDTot),

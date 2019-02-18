@@ -50,9 +50,9 @@ createSSA <- function(models) {
 #' multiple trials a summary table with the most importantant statistics is
 #' returned.
 #' @param trait A character string indicating the trait to summarize. If
-#' \code{trait = NULL} and only one trait is modelled this trait is summarized.
+#' \code{trait = NULL} and only one trait is modeled, this trait is summarized.
 #' @param nBest An integer indicating the number of the best genotypes (sorted
-#' by either BLUEs or BLUPs) to print. If \code{NA} all genotypes will be
+#' by either BLUEs or BLUPs) to print. If \code{NA}, all genotypes will be
 #' printed.
 #' @param sortBy A character string specifying how the genotypes will be sorted.
 #' Either \code{"BLUEs"}, \code{"BLUPs"} or \code{NA} (i.e. no sorting).
@@ -111,7 +111,7 @@ summary.SSA <- function(object,
     ## Create summary table with default statistics.
     ## Transpose to get trials in rows, stats in columns.
     sumTab <- t(sapply(X = names(predTD), FUN = function(trial) {
-      summary(predTD, trial = trial, traits = "grain.yield")[, 1, 1]
+      summary(predTD, trial = trial, traits = trait)[, 1, 1]
     }))
     ## Order by mean in descending order.
     sumTab <- sumTab[order(sumTab[, colnames(sumTab) == "Mean"],
@@ -214,13 +214,13 @@ print.summary.SSA <- function(x,
     }
     printCoefmat(x$meanTab, digits = digits, ...)
     if (nrow(x$sed) > 0) {
-      cat("\nStandard Error of Difference (genotype modelled as fixed effect)",
-          "\n================================================================\n")
+      cat("\nStandard Error of Difference (genotype modeled as fixed effect)",
+          "\n===============================================================\n")
       printCoefmat(x$sed, digits = digits, ...)
     }
     if (nrow(x$lsd) > 0) {
-      cat("\nLeast Significant Difference (genotype modelled as fixed effect)",
-          "\n================================================================\n")
+      cat("\nLeast Significant Difference (genotype modeled as fixed effect)",
+          "\n===============================================================\n")
       printCoefmat(x$lsd, digits = digits, ...)
     }
   }
@@ -235,7 +235,7 @@ print.summary.SSA <- function(x,
 #' \item{A residuals vs fitted values plot}
 #' \item{An absolute residuals vs fitted values plot}
 #' }
-#' or five or (in case SpATS is used for modelling) six spatial plots:
+#' or five or six spatial plots:
 #' \itemize{
 #' \item{A spatial plot of the raw data}
 #' \item{A spatial plot of the fitted data}
@@ -250,9 +250,9 @@ print.summary.SSA <- function(x,
 #' @param x An object of class SSA.
 #' @param ... Further graphical parameters.
 #' @param trials A character vector indicating the trials to plot. If
-#' \code{trials = NULL} all trials are plotted.
+#' \code{trials = NULL}, all trials are plotted.
 #' @param traits A character vector indicating the traits to plot. If
-#' \code{traits = NULL} all traits are plotted.
+#' \code{traits = NULL}, all traits are plotted.
 #' @param what A character string indicating whether the fitted model with
 #' genotype as fixed or genotype as random factor should be plotted.
 #' If \code{x} contains only one model this model is chosen automatically.
@@ -466,7 +466,7 @@ plot.SSA <- function(x,
         plotDat <- ggplot2::remove_missing(plotDat, na.rm = TRUE)
         ## Code taken from plot.SpATS and simplified.
         ## Set colors and legends.
-        colors = topo.colors(100)
+        colors <- topo.colors(100)
         legends <- c("Raw data", "Fitted data", "Residuals",
                      "Fitted Spatial Trend",
                      ifelse(what == "fixed", "Genotypic BLUEs",
@@ -558,9 +558,9 @@ fieldPlot <- function(plotDat,
 #'
 #' @param x An object of class SSA.
 #' @param trial A character string indicating the trial to be reported. If
-#' \code{NULL} and \code{SSA} contains only one trial that trial is reported.
+#' \code{NULL} and \code{SSA} contains only one trial, that trial is reported.
 #' @param trait A character string indicating the trait to be reported. If
-#' \code{NULL} and \code{SSA} contains only one trait that trait is reported.
+#' \code{NULL} and \code{SSA} contains only one trait, that trait is reported.
 #' @param descending Should the trait be ordered in descending order? Set to
 #' \code{FALSE} if low values of the trait indicate better performance.
 #' @param what A character string indicating whether the model with genotype
@@ -651,15 +651,15 @@ report.SSA <- function(x,
 #'
 #' @param SSA An object of class \code{\link{SSA}}.
 #' @param trial A character string indicating the trial to be exported. If
-#' \code{NULL} and \code{SSA} contains only one trial that trial is exported.
+#' \code{NULL} and \code{SSA} contains only one trial, that trial is exported.
 #' @param traits A character string containing the traits to be exported. If
-#' \code{NULL} all traits for the selected trial are exported.
+#' \code{NULL}, all traits for the selected trial are exported.
 #' @param what A character string containing the statistics to be exported as
 #' phenotype in the cross object. This can be either \code{BLUEs} or
 #' \code{BLUPs}.
 #' @param genoFile A character string indicating a filename containing
 #' phenotypic data. The data should be in the format required by the
-#' qtl package. The first column  should contain the individuals, starting
+#' qtl package. The first column should contain the individuals, starting
 #' from row 4. The following columns contain markers with in the second and
 #' third row the chromosome and position on the chromosome and in the
 #' following rows the genotypes.
@@ -732,12 +732,12 @@ SSAtoCross <- function(SSA,
 #' Convert SSA to TD
 #'
 #' Convert an SSA object to a TD object.\cr
-#' To be able to use the output of a single site analysis in Genotype by
-#' Environment (GxE) analysis the output first needs to be converted bakc to
-#' an TD object. This function does exactly that. It extracts BLUEs, BLUPs and
-#' their standard errors from the SSA object and creates a new TD object using
-#' these. Also a column wt may also be added. Weights are then calculated as
-#' 1/SE BLUEs.
+#' To be able to use the output of a single site analysis in
+#' Genotype-by-Environment (GxE) analysis the output first needs to be converted
+#' back to an TD object. This function does exactly that. It extracts BLUEs,
+#' BLUPs and their standard errors from the SSA object and creates a new TD
+#' object using these. Also a column "wt" (weigth) may also be added. Weights
+#' are then calculated as 1/(SE BLUEs) ^ 2.
 #'
 #' Trial information for the trials in the SSA object will be copied from the
 #' original TD object on which the modeling was done.
@@ -747,15 +747,15 @@ SSAtoCross <- function(SSA,
 #' traits in the TD object. Multiple statistics can be included in which case
 #' they will appear as \code{statistic_trait} in the output
 #' @param traits A character string containing the traits to be included in the
-#' TD object. If \code{NULL} all traits are exported.
+#' TD object. If \code{NULL}, all traits are exported.
 #' @param keep Columns from the TD object used as input for the SSA model to
 #' be copied to the output. see \code{\link{STExtract}} for possible columns to
-#' copy. If if it is available in TD the column \code{trial} will always be
-#' copied.
+#' copy. If if it is available in \code{TD}, the column \code{trial} will always
+#' be copied.
 #' @param addWt Should a column wt be added to the output? If \code{TRUE}
-#' weight is calculated as 1/SE BLUEs. If multiple traits are included in the
-#' output multiple weight columns will be added, 1 for each trait. These will
-#' be named \code{wt_trait}.
+#' weight is calculated as 1/(SE BLUEs) ^ 2. If multiple traits are included in
+#' the output, multiple weight columns will be added, 1 for each trait. These
+#' will be named \code{wt_trait}.
 #'
 #' @examples
 #' ## Run model using SpATS.
@@ -854,7 +854,7 @@ SSAtoTD <- function(SSA,
     ## Only NULL data.frames.
     stop("No valid data available.\n")
   }
-  ## Add data.frame one-by-one to create a full TD data set.
+  ## Add data.frame one-by-one to create a full TD dataset.
   predTD <- Reduce(f = addTD, x = predTrTot[-1],
                    init = createTD(data = predTrTot[[1]]))
   return(predTD)

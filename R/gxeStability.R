@@ -7,8 +7,8 @@
 #' @inheritParams gxeAmmi
 #'
 #' @param method A character vector specifying the measures of stability to be
-#' calculated. Options are superiority (cultivar-superiority measure), static
-#' (Shukla's stability variance) or wricke (wricke's ecovalence).
+#' calculated. Options are "superiority" (cultivar-superiority measure),
+#' "static" (Shukla's stability variance) or "wricke" (wricke's ecovalence).
 #' @param bestMethod A character string specifying the criterion to define
 #' the best genotype. Either \code{"max"} or \code{"min"}.
 #' @param sorted A character string specifying the sorting order of the results.
@@ -69,6 +69,7 @@ gxeStability <- function(TD,
     stop("All trials should be in TD.")
   }
   TDTot <- Reduce(f = rbind, x = TD[trials])
+  TDTot <- droplevels(TDTot)
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
       !trait %in% colnames(TDTot)) {
     stop("trait has to be a column in TD.\n")

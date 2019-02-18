@@ -1,12 +1,12 @@
 #' QTL detection
 #'
 #' This function is essentially a wrapper for \code{\link[qtl]{scanone}} and
-#' \code{\link[qtl]{cim}} in the qtl package. Depending on \code{type} one
-#' of these functions is used for QTL detection. After this is done, from
-#' the set of candidate QTLs that are returned proper peaks are selected
-#' by an iterative process using the \code{thr}(eshold) and \code{window}
-#' provided. All resulting peaks will have a LOD score above \code{thr}
-#' and the distance between pairs of peaks will always be at least
+#' \code{\link[qtl]{cim}} in the qtl package. Depending on \code{type}, one
+#' of these functions is used for (Quantitative Trait Locus) QTL detection.
+#' After this is done, from the set of candidate QTLs that are returned, proper
+#' peaks are selected by an iterative process using the \code{thr}(eshold) and
+#' \code{window} provided. All resulting peaks will have a LOD score above
+#' \code{thr} and the distance between pairs of peaks will always be at least
 #' the value given as \code{window}.
 #'
 #' The option \code{thrType} specifies the method for calculating the number of

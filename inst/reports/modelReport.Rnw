@@ -162,7 +162,7 @@ if (engine == "SpATS") {
 modSum <- as.data.frame(summary(x[[trial]]$TD, traits = trait)[, 1, 1])
 modSum <- modSum[!is.na(modSum[[1]]), , drop = FALSE]
 print(xtable::xtable(x = modSum,
-                     caption = "Size of the data set and eight number descriptives",
+                     caption = "Size of the dataset and eight number descriptives",
                      label = "modelSummary", align = c("l", "r")),
       latex.environments = "flushleft", caption.placement = "top",
       include.rownames = TRUE, include.colnames = FALSE)
