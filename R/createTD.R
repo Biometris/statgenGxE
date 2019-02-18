@@ -643,51 +643,16 @@ plot.TD <- function(x,
       } else {
         aspect <- ylen / xlen
       }
+      plotRep <- hasName(x = trDat, name = "repId")
+      plotSubBlock <- hasName(x = trDat, name = "subBlock") &&
+        sum(!is.na(trDat$highlight.)) == 0
       ## Create data for lines between replicates.
-      if ("repId" %in% colnames(trDat)) {
-        yMin <- min(trDat$rowCoord)
-        yMax <- max(trDat$rowCoord)
-        xMin <- min(trDat$colCoord)
-        xMax <- max(trDat$colCoord)
-        ## Create matrix containing replicates.
-        ## First create an empty matrix containing all row/column values
-        ## between min and max to assure complete missing rows/columns
-        ## are added.
-        M <- matrix(nrow = yMax - yMin + 1, ncol = xMax - xMin + 1,
-                    dimnames = list(yMin:yMax, xMin:xMax))
-        for (i in 1:nrow(trDat)) {
-          M[as.character(trDat[i, "rowCoord"]),
-            as.character(trDat[i, "colCoord"])] <- trDat[i, "repId"]
-        }
-        ## Create an imputed version of M for plotting borders around NA values.
-        MImp <- M
-        MImp[is.na(MImp)] <- nlevels(trDat$repId) + 1
-        has.breaks <- function(x) {
-          ncol(x) == 2 & nrow(x) > 0
-        }
-        ## Create a data.frame with positions where the value of rep in the
-        ## data changes in vertical direction.
-        vertW <- do.call(rbind.data.frame,
-                         Filter(f = has.breaks, x = Map(function(i, x) {
-                           cbind(y = i, x = which(diff(c(0, x, 0)) != 0))
-                         }, 1:nrow(MImp), split(MImp, 1:nrow(MImp)))))
-        ## Remove vertical walls that are on the outside bordering an NA value
-        ## to prevent drawing of unneeded lines.
-        vertW <- vertW[!(vertW$x == 1 & is.na(M[vertW$y, 1])) &
-                         !(vertW$x == ncol(M) + 1 &
-                             is.na(M[vertW$y, ncol(M)])), ]
-        ## Add min row value for plotting in the correct position.
-        vertW$y <- vertW$y + yMin - 1
-        vertW$x <- vertW$x + xMin - 1
-        ## For horizontal walls follow the same procedure as above.
-        horW <- do.call(rbind.data.frame,
-                        Filter(f = has.breaks, x = Map(function(i, y) {
-                          cbind(x = i, y = which(diff(c(0, y, 0)) != 0))
-                        }, 1:ncol(MImp), as.data.frame(MImp))))
-        horW <- horW[!(horW$y == 1 & is.na(M[1, horW$x])) &
-                       !(horW$y == nrow(M) + 1 & is.na(M[nrow(M), horW$x])), ]
-        horW$y <- horW$y + yMin - 1
-        horW$x <- horW$x + xMin - 1
+      if (plotRep) {
+        repBord <- calcPlotBorders(trDat = trDat, bordVar = "repId")
+      }
+      ## Create data for lines between subBlocks.
+      if (plotSubBlock) {
+        subBlockBord <- calcPlotBorders(trDat = trDat, bordVar = "subBlock")
       }
       ## Create base plot.
       pTr <- ggplot2::ggplot(data = trDat,
@@ -705,11 +670,22 @@ plot.TD <- function(x,
         ggplot2::scale_y_continuous(breaks = scales::pretty_breaks(),
                                     expand = c(0, 0)) +
         ggplot2::ggtitle(trLoc)
-      if (hasName(x = trDat, name = "subBlock") &&
-          sum(!is.na(trDat$highlight.)) == 0) {
+      if (plotSubBlock) {
         ## If subblocks are available color tiles by subblock.
         pTr <- pTr + ggplot2::geom_tile(
-          ggplot2::aes_string(fill = "subBlock"), color = "grey50")
+          ggplot2::aes_string(fill = "subBlock"), color = "grey50") +
+          ## Add verical lines as segment.
+          ## adding/subtracting 0.5 assures plotting at the borders of
+          ## the tiles.
+          ggplot2::geom_segment(
+            ggplot2::aes_string(x = "x - 0.5", xend = "x - 0.5",
+                                y = "y - 0.5", yend = "y + 0.5",
+                                linetype = "'subBlocks'"),
+            data = subBlockBord$vertW, size = 0.5) +
+          ggplot2::geom_segment(
+            ggplot2::aes_string(x = "x - 0.5", xend = "x + 0.5",
+                                y = "y - 0.5", yend = "y - 0.5"),
+            data = subBlockBord$horW, size = 0.5)
       } else if (sum(!is.na(trDat$highlight.)) > 0) {
         ## Genotypes to be highlighted get a color.
         ## Everything else the NA color.
@@ -727,7 +703,7 @@ plot.TD <- function(x,
         pTr <- pTr + ggplot2::geom_text(ggplot2::aes_string(label = "genotype"),
                                         size = 2, check_overlap = TRUE)
       }
-      if ("repId" %in% colnames(trDat)) {
+      if (plotRep) {
         ## Add lines for replicates.
         pTr <- pTr +
           ## Add verical lines as segment.
@@ -736,16 +712,23 @@ plot.TD <- function(x,
           ggplot2::geom_segment(
             ggplot2::aes_string(x = "x - 0.5", xend = "x - 0.5",
                                 y = "y - 0.5", yend = "y + 0.5",
-                                linetype = "'replicates'"), data = vertW,
-            size = 1) +
+                                linetype = "'replicates'"),
+            data = repBord$vertW, size = 1) +
           ggplot2::geom_segment(
             ggplot2::aes_string(x = "x - 0.5", xend = "x + 0.5",
-                                y = "y - 0.5", yend = "y - 0.5"), data = horW,
-            size = 1) +
-          ## Just needed for adding a legend entry for replicates.
-          ggplot2::scale_linetype_manual("replicates",
-                                         values = c("replicates" = "solid"),
-                                         name = ggplot2::element_blank())
+                                y = "y - 0.5", yend = "y - 0.5"),
+            data = repBord$horW, size = 1)
+      }
+      if (plotSubBlock || plotRep) {
+        shwVals <- c(plotRep, plotSubBlock)
+        pTr <- pTr +
+          ## Add a legend entry for replicates and subBlocks.
+          ggplot2::scale_linetype_manual(c("replicates", "subBlocks")[shwVals],
+                                         values = c("replicates" = "solid",
+                                                    "subBlocks" = "solid")[shwVals],
+                                         name = ggplot2::element_blank()) +
+          ggplot2::guides(linetype = ggplot2::guide_legend(override.aes =
+                                                             list(size = c(1, 0.5)[shwVals])))
       }
       p[[trial]] <- pTr
       if (output) {
@@ -769,7 +752,7 @@ plot.TD <- function(x,
       stop("minLatRange should be a single numerical value.\n")
     }
     if (!is.null(minLongRange) && (!is.numeric(minLongRange) ||
-                                  length(minLongRange) > 1)) {
+                                   length(minLongRange) > 1)) {
       stop("minLatRange should be a single numerical value.\n")
     }
     if (is.null(minLatRange)) {
