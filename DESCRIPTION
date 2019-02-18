@@ -1,8 +1,8 @@
 Package: RAP
 Type: Package
 Title: R Analytical Pipeline (RAP)
-Version: 0.0.1
-Date: 2019-01-01
+Version: 0.0.2
+Date: 2019-18-02
 Authors@R: c(
     person("Bart-Jan", "van Rossum", email = "bart-jan.vanrossum@wur.nl", 
     role = c("aut", "cre")))
