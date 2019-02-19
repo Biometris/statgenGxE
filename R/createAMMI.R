@@ -379,8 +379,9 @@ plotAMMI1 <- function(loadings,
   ## Create data.frames for genotypes and environments.
   genoDat <- data.frame(x = genoMean, y = scores[, 1] / lam)
   if (!is.null(colorBy)) {
-    genoDat <- merge(genoDat, dat[c("genotype", colorBy)],
+    genoDat <- merge(genoDat, unique(dat[c("genotype", colorBy)]),
                      by.x = "row.names", by.y = "genotype")
+    rownames(genoDat) <- genoDat[["Row.names"]]
   } else {
     colorBy <- ".colorBy"
     genoDat$.colorBy <- factor(1)
