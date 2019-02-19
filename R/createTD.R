@@ -544,6 +544,8 @@ print.summary.TD <- function(x, ...) {
 #' Defaults to \code{FALSE}}
 #' \item{highlight}{A character vector of genotypes to be highlighted in the
 #' plot.}
+#' \item{colorSubBlock}{Should subBlocks be colored with a different color per
+#' subBlock? Defaults to \code{FALSE}}
 #' }
 #'
 #' @section Map Plot:
@@ -612,6 +614,7 @@ plot.TD <- function(x,
   if (plotType == "layout") {
     showGeno <- isTRUE(dotArgs$showGeno)
     highlight <- dotArgs$highlight
+    colorSubBlock <- isTRUE(dotArgs$colorSubBlock)
     if (!is.null(highlight) && !is.character(highlight)) {
       stop("highlight should be a character vector.\n")
     }
@@ -671,9 +674,14 @@ plot.TD <- function(x,
                                     expand = c(0, 0)) +
         ggplot2::ggtitle(trLoc)
       if (plotSubBlock) {
-        ## If subblocks are available color tiles by subblock.
-        pTr <- pTr + ggplot2::geom_tile(
-          ggplot2::aes_string(fill = "subBlock"), color = "grey50") +
+        if (colorSubBlock) {
+          ## If subblocks are available color tiles by subblock.
+          pTr <- pTr + ggplot2::geom_tile(
+            ggplot2::aes_string(fill = "subBlock"), color = "grey75")
+        } else {
+          pTr <- pTr + ggplot2::geom_tile(fill = "white", color = "grey75")
+        }
+        pTr <- pTr +
           ## Add verical lines as segment.
           ## adding/subtracting 0.5 assures plotting at the borders of
           ## the tiles.
@@ -681,22 +689,22 @@ plot.TD <- function(x,
             ggplot2::aes_string(x = "x - 0.5", xend = "x - 0.5",
                                 y = "y - 0.5", yend = "y + 0.5",
                                 linetype = "'subBlocks'"),
-            data = subBlockBord$vertW, size = 0.5) +
+            data = subBlockBord$vertW, size = 0.4) +
           ggplot2::geom_segment(
             ggplot2::aes_string(x = "x - 0.5", xend = "x + 0.5",
                                 y = "y - 0.5", yend = "y - 0.5"),
-            data = subBlockBord$horW, size = 0.5)
+            data = subBlockBord$horW, size = 0.4)
       } else if (sum(!is.na(trDat$highlight.)) > 0) {
         ## Genotypes to be highlighted get a color.
         ## Everything else the NA color.
         pTr <- pTr + ggplot2::geom_tile(
-          ggplot2::aes_string(fill = "highlight."), color = "grey50") +
+          ggplot2::aes_string(fill = "highlight."), color = "grey75") +
           ggplot2::labs(fill = "Highlighted") +
           ## Remove NA from scale.
           ggplot2::scale_fill_discrete(na.translate = FALSE)
       } else {
         ## No subblocks and no hightlights so just a single fill color.
-        pTr <- pTr + ggplot2::geom_tile(color = "grey50", fill = "pink")
+        pTr <- pTr + ggplot2::geom_tile(fill = "white", color = "grey75")
       }
       if (showGeno) {
         ## Add names of genotypes to the center of the tiles.
@@ -728,7 +736,7 @@ plot.TD <- function(x,
                                                     "subBlocks" = "solid")[shwVals],
                                          name = ggplot2::element_blank()) +
           ggplot2::guides(linetype = ggplot2::guide_legend(override.aes =
-                                                             list(size = c(1, 0.5)[shwVals])))
+                                                             list(size = c(1, 0.4)[shwVals])))
       }
       p[[trial]] <- pTr
       if (output) {
