@@ -382,9 +382,15 @@ plotAMMI1 <- function(loadings,
     genoDat <- merge(genoDat, unique(dat[c("genotype", colorBy)]),
                      by.x = "row.names", by.y = "genotype")
     rownames(genoDat) <- genoDat[["Row.names"]]
+    convHulls <- by(data = genoDat, INDICES = genoDat[[colorBy]],
+                    FUN = function(z) {
+                      z[chull(z[, c("x", "y")]), ]
+                    })
+    convHulls <- Reduce(f = "rbind", x = convHulls)
   } else {
     colorBy <- ".colorBy"
     genoDat$.colorBy <- factor(1)
+    convHulls <- NULL
   }
   envDat <- data.frame(x = envMean, y = loadings[, 1] * lam)
   plotRatio <- (max(c(genoMean, envMean)) - min(c(genoMean, envMean))) /
@@ -416,6 +422,11 @@ plotAMMI1 <- function(loadings,
                            ggplot2::aes_string(x = "x", y = "y",
                                                label = "rownames(genoDat)"),
                            size = sizeGeno, vjust = 1, color = colGeno)
+    }
+    if (!is.null(convHulls)) {
+      p <- p + ggplot2::geom_polygon(ggplot2::aes_string(color = colorBy,
+                                                         fill = colorBy),
+                                     data = convHulls, alpha = 0.2)
     }
   }
   if (plotEnv) {
@@ -468,9 +479,15 @@ plotAMMI2 <- function(loadings,
     genoDat <- merge(genoDat, unique(dat[c("genotype", colorBy)]),
                      by.x = "row.names", by.y = "genotype")
     rownames(genoDat) <- genoDat[["Row.names"]]
+    convHulls <- by(data = genoDat, INDICES = genoDat[[colorBy]],
+                    FUN = function(z) {
+                      z[chull(z[, c(primAxis, secAxis)]), ]
+                    })
+    convHulls <- Reduce(f = "rbind", x = convHulls)
   } else {
     colorBy <- ".colorBy"
     genoDat$.colorBy <- factor(1)
+    convHulls <- NULL
   }
   envDat <- as.data.frame(t(t(loadings[, c(primAxis, secAxis)]) * lam))
   plotRatio <- (max(c(envDat[[secAxis]], genoDat[[secAxis]])) -
@@ -501,6 +518,11 @@ plotAMMI2 <- function(loadings,
         ggplot2::geom_text(data = genoDat,
                            ggplot2::aes_string(label = "rownames(genoDat)"),
                            size = sizeGeno, vjust = 1, color = colGeno)
+    }
+    if (!is.null(convHulls)) {
+      p <- p + ggplot2::geom_polygon(ggplot2::aes_string(color = colorBy,
+                                                         fill = colorBy),
+                                     data = convHulls, alpha = 0.2)
     }
   }
   if (plotEnv) {
