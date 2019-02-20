@@ -3,7 +3,8 @@
 
 # RAP
 
-R Analytical Pipeline for 
+R Analytical Pipeline for
+
 * Single trial analysis
 * GxE analysis
 * QTL mapping
@@ -23,19 +24,19 @@ devtools::install_git(url = "git@git.wur.nl:rossu027/RAP.git",
 
 # Implemented functionality
 
-So far the following functionality has been implemented:  
-* Single trial analysis
-  * Single trial analysis using SpATS, asreml or lme4
-  * Computation of statistics e.g. BLUEs, BLUPs, SE of BLUEs, SE of BLUPs and heritability based on the fitted models.
-* GxE analysis
-  * Selection of the best variance-covariance model
-  * AMMI analysis
-  * Finlay-Wilkinson anlysis
-  * Computation of mega environments based on AMMI results
-  * Stability measures
-* QTL Mapping
-  * Quality Control and cleaning
-  * QTL Detection and selection of peaks
-  * Multi QTL Mapping 
-* Plotting and reporting (.pdf and .tex) functions for most analyses
+So far the following functionality has been implemented:
 
+* Single trial analysis
+    * Single trial analysis using SpATS, asreml or lme4
+    * Computation of statistics e.g. BLUEs, BLUPs, SE of BLUEs, SE of BLUPs and heritability based on the fitted models.
+* GxE analysis
+    * Selection of the best variance-covariance model
+    * AMMI analysis
+    * Finlay-Wilkinson anlysis
+    * Computation of mega environments based on AMMI results
+    * Stability measures
+* QTL Mapping
+    * Quality Control and cleaning
+    * QTL Detection and selection of peaks
+    * Multi QTL Mapping 
+* Plotting and reporting (.pdf and .tex) functions for most analyses
