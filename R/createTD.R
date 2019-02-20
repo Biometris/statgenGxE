@@ -840,6 +840,9 @@ plot.TD <- function(x,
         if (!hasName(x = trial, name = trait)) {
           NULL
         } else {
+          if (!hasName(x = trial, name = "trial")) {
+            trial[["trial"]] <- names(x)
+          }
           trial[c(trait, "genotype", xVar, if (!is.null(colorBy)) colorBy)]
         }
       }))
