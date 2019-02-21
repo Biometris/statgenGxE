@@ -378,19 +378,14 @@ plotAMMI1 <- function(loadings,
   ovMean <- overallMean
   ## Create data.frames for genotypes and environments.
   genoDat <- data.frame(x = genoMean, y = scores[, 1] / lam)
+  convHulls <- genoDat[chull(genoDat[, c("x", "y")]), ]
   if (!is.null(colorBy)) {
     genoDat <- merge(genoDat, unique(dat[c("genotype", colorBy)]),
                      by.x = "row.names", by.y = "genotype")
     rownames(genoDat) <- genoDat[["Row.names"]]
-    convHulls <- by(data = genoDat, INDICES = genoDat[[colorBy]],
-                    FUN = function(z) {
-                      z[chull(z[, c("x", "y")]), ]
-                    })
-    convHulls <- Reduce(f = "rbind", x = convHulls)
   } else {
     colorBy <- ".colorBy"
     genoDat$.colorBy <- factor(1)
-    convHulls <- NULL
   }
   envDat <- data.frame(x = envMean, y = loadings[, 1] * lam)
   plotRatio <- (max(c(genoMean, envMean)) - min(c(genoMean, envMean))) /
@@ -423,11 +418,10 @@ plotAMMI1 <- function(loadings,
                                                label = "rownames(genoDat)"),
                            size = sizeGeno, vjust = 1, color = colGeno)
     }
-    if (!is.null(convHulls)) {
-      p <- p + ggplot2::geom_polygon(ggplot2::aes_string(color = colorBy,
-                                                         fill = colorBy),
-                                     data = convHulls, alpha = 0.2)
-    }
+    p <- p + ggplot2::geom_polygon(color = "green", data = convHulls,
+                                     alpha = 0.2) +
+    ggplot2::geom_segment(ggplot2::aes(x = ovMean, y = 0,
+                                       xend = 1000, yend = -30))
   }
   if (plotEnv) {
     ## Plot environments as texts.
@@ -479,25 +473,23 @@ plotAMMI2 <- function(loadings,
     genoDat <- merge(genoDat, unique(dat[c("genotype", colorBy)]),
                      by.x = "row.names", by.y = "genotype")
     rownames(genoDat) <- genoDat[["Row.names"]]
-    convHulls <- by(data = genoDat, INDICES = genoDat[[colorBy]],
-                    FUN = function(z) {
-                      z[chull(z[, c(primAxis, secAxis)]), ]
-                    })
-    convHulls <- Reduce(f = "rbind", x = convHulls)
   } else {
     colorBy <- ".colorBy"
     genoDat$.colorBy <- factor(1)
-    convHulls <- NULL
   }
   envDat <- as.data.frame(t(t(loadings[, c(primAxis, secAxis)]) * lam))
-  plotRatio <- (max(c(envDat[[secAxis]], genoDat[[secAxis]])) -
-                  min(c(envDat[[secAxis]], genoDat[[secAxis]]))) /
-    (max(c(envDat[[primAxis]], genoDat[[primAxis]])) -
-       min(c(envDat[[primAxis]], genoDat[[primAxis]])))
+  ## Get x and y limits and compute plotRatio from them. This assures 1 unit on
+  ## the x-asis is identical to 1 unit on the y-axis.
+  yMin <- min(c(envDat[[secAxis]], genoDat[[secAxis]]))
+  yMax <- max(c(envDat[[secAxis]], genoDat[[secAxis]]))
+  xMin <- min(c(envDat[[primAxis]], genoDat[[primAxis]]))
+  xMax <- max(c(envDat[[primAxis]], genoDat[[primAxis]]))
+  plotRatio <- (yMax - yMin) / (xMax - xMin)
   p <- ggplot2::ggplot(envDat,
                        ggplot2::aes_string(x = primAxis, y = secAxis)) +
     ## Needed for a square plot output.
-    ggplot2::coord_equal(clip = "off") +
+    ggplot2::coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax),
+                         clip = "off") +
     ggplot2::theme(aspect.ratio = plotRatio) +
     ## Add labeling.
     ggplot2::labs(x = paste0(primAxis, " (", percPC1, "%)"),
@@ -506,6 +498,39 @@ plotAMMI2 <- function(loadings,
                             " (", info, ") ", year)) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
   if (plotGeno) {
+    ## Compute convex hull for the points.
+    convHulls <- genoDat[chull(genoDat[, c(primAxis, secAxis)]), ]
+
+    xConv <- convHulls[[primAxis]]
+    yConv <- convHulls[[secAxis]]
+    xConv <- c(xConv, xConv[1])
+    yConv <- c(yConv, yConv[1])
+    slopesConv <- sapply(X = 2:length(xConv), FUN = function(i) {
+      diff(yConv[(i - 1):i]) / diff(xConv[(i - 1):i])
+    })
+    slopesPerp <- -1 / slopesConv
+    origConv <- yConv[-1] - slopesConv * xConv[-1]
+    xNew <- -origConv / (slopesConv + 1 / slopesConv)
+    yNew <- slopesPerp * xNew
+    for (i in seq_along(xNew)) {
+      if (xNew[i] > 0) {
+        xNewI <- xMax
+        yNewI <- slopesPerp[i] * xMax
+      } else {
+        xNewI <- xMin
+        yNewI <- slopesPerp[i] * xMin
+      }
+      if (yNewI < yMin) {
+        yNewI <- yMin
+        xNewI <- yMin / slopesPerp[i]
+      } else if (yNewI > yMax) {
+        yNewI <- yMax
+        xNewI <- yMax / slopesPerp[i]
+      }
+      xNew[i] <- xNewI
+      yNew[i] <- yNewI
+    }
+    perpDat <- data.frame(xend = xNew, yend = yNew)
     if (sizeGeno == 0) {
       ## Plot genotypes as points.
       p <- p + ggplot2::geom_point(data = genoDat,
@@ -519,11 +544,11 @@ plotAMMI2 <- function(loadings,
                            ggplot2::aes_string(label = "rownames(genoDat)"),
                            size = sizeGeno, vjust = 1, color = colGeno)
     }
-    if (!is.null(convHulls)) {
-      p <- p + ggplot2::geom_polygon(ggplot2::aes_string(color = colorBy,
-                                                         fill = colorBy),
-                                     data = convHulls, alpha = 0.2)
-    }
+    p <- p + ggplot2::geom_polygon(color = "green", data = convHulls,
+                                   alpha = 0.2) +
+      ggplot2::geom_segment(ggplot2::aes_string(x = 0, y = 0,
+                                         xend = "xend", yend = "yend"),
+                            data = perpDat, col = "brown", size = 0.6)
   }
   if (plotEnv) {
     ## Plot environments as texts.
