@@ -419,9 +419,7 @@ plotAMMI1 <- function(loadings,
                            size = sizeGeno, vjust = 1, color = colGeno)
     }
     p <- p + ggplot2::geom_polygon(color = "green", data = convHulls,
-                                     alpha = 0.2) +
-    ggplot2::geom_segment(ggplot2::aes(x = ovMean, y = 0,
-                                       xend = 1000, yend = -30))
+                                     alpha = 0.2)
   }
   if (plotEnv) {
     ## Plot environments as texts.
