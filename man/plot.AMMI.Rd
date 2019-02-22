@@ -6,9 +6,9 @@
 \usage{
 \method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2", "GGE1",
   "GGE2"), scale = 1, colorBy = NULL, plotGeno = TRUE,
-  colGeno = 1:50, sizeGeno = 0, plotEnv = TRUE, colEnv = "red",
-  sizeEnv = 3, envFactor = 1, primAxis = "PC1", secAxis = "PC2",
-  output = TRUE)
+  colGeno = 1:50, sizeGeno = 0, plotConvHull = FALSE,
+  plotEnv = TRUE, colEnv = "red", sizeEnv = 3, envFactor = 1,
+  primAxis = "PC1", secAxis = "PC2", output = TRUE)
 }
 \arguments{
 \item{x}{An object of class AMMI}
@@ -40,6 +40,10 @@ single color when \code{colorBy = NULL}, a vector of colors otherwise.}
 \item{sizeGeno}{An numerical value indicating the text size for plotting the
 genotypes. Use \code{sizeGeno = 0} for plotting genotypes as points instead
 of using their names.}
+
+\item{plotConvHull}{Should a convex hull be plotted around the genotypes. If
+\code{TRUE} a convex hull is plotted and lines from the origin of the plot
+perpendicular to the edges of the hull are added.}
 
 \item{plotEnv}{Should environments be plotted?}
 

@@ -148,6 +148,9 @@ summary.AMMI <- function(object,
 #' @param sizeGeno An numerical value indicating the text size for plotting the
 #' genotypes. Use \code{sizeGeno = 0} for plotting genotypes as points instead
 #' of using their names.
+#' @param plotConvHull Should a convex hull be plotted around the genotypes. If
+#' \code{TRUE} a convex hull is plotted and lines from the origin of the plot
+#' perpendicular to the edges of the hull are added.
 #' @param plotEnv Should environments be plotted?
 #' @param colEnv A character string with the plot color for the environments.
 #' @param sizeEnv An integer indicating the text size for plotting the
@@ -187,6 +190,7 @@ plot.AMMI <- function(x,
                       plotGeno = TRUE,
                       colGeno = 1:50,
                       sizeGeno = 0,
+                      plotConvHull = FALSE,
                       plotEnv = TRUE,
                       colEnv = "red",
                       sizeEnv = 3,
@@ -258,8 +262,9 @@ plot.AMMI <- function(x,
                   envMean = x$envMean[[year]] * envFactor,
                   trait = x$trait, dat = x$dat[[year]], GGE = x$GGE, year = year,
                   scale = scale, plotGeno = plotGeno, colGeno = colGeno,
-                  sizeGeno = sizeGeno, plotEnv = plotEnv, colEnv = colEnv,
-                  sizeEnv = sizeEnv, colorBy = colorBy)
+                  sizeGeno = sizeGeno, plotConvHull = plotConvHull,
+                  plotEnv = plotEnv, colEnv = colEnv, sizeEnv = sizeEnv,
+                  colorBy = colorBy)
       }, simplify = FALSE)
     } else {
       ## Create a single AMMI1 plot.
@@ -269,8 +274,9 @@ plot.AMMI <- function(x,
                      genoMean = x$genoMean, envMean = x$envMean * envFactor,
                      trait = x$trait, dat = x$dat, GGE = x$GGE, scale = scale,
                      plotGeno = plotGeno, colGeno = colGeno,
-                     sizeGeno = sizeGeno, plotEnv = plotEnv, colEnv = colEnv,
-                     sizeEnv = sizeEnv, colorBy = colorBy)
+                     sizeGeno = sizeGeno, plotConvHull = plotConvHull,
+                     plotEnv = plotEnv, colEnv = colEnv, sizeEnv = sizeEnv,
+                     colorBy = colorBy)
     }
   } else if (plotType == "AMMI2") {
     if (!is.character(primAxis) || length(primAxis) > 1 ||
@@ -316,9 +322,9 @@ plot.AMMI <- function(x,
                               year = year, primAxis = primAxis,
                               secAxis = secAxis, scale = scale,
                               plotGeno = plotGeno, colGeno = colGeno,
-                              sizeGeno = sizeGeno, plotEnv = plotEnv,
-                              colEnv = colEnv, sizeEnv = sizeEnv,
-                              colorBy = colorBy)
+                              sizeGeno = sizeGeno, plotConvHull = plotConvHull,
+                              plotEnv = plotEnv, colEnv = colEnv,
+                              sizeEnv = sizeEnv, colorBy = colorBy)
                   }, simplify = FALSE)
 
 
@@ -337,9 +343,10 @@ plot.AMMI <- function(x,
                      importance = x$importance, trait = x$trait, dat = x$dat,
                      GGE = x$GGE, primAxis = primAxis, secAxis = secAxis,
                      scale = scale, plotGeno = plotGeno, colGeno = colGeno,
-                     sizeGeno = sizeGeno, plotEnv = plotEnv, colEnv = colEnv,
-                     sizeEnv = sizeEnv, colorBy = colorBy)
-    }
+                     sizeGeno = sizeGeno, plotConvHull = plotConvHull,
+                     plotEnv = plotEnv, colEnv = colEnv, sizeEnv = sizeEnv,
+                     colorBy = colorBy)
+      }
   }
   if (output) {
     if (x$byYear) {
@@ -367,6 +374,7 @@ plotAMMI1 <- function(loadings,
                       plotGeno = TRUE,
                       colGeno,
                       sizeGeno,
+                      plotConvHull,
                       plotEnv = TRUE,
                       colEnv,
                       sizeEnv,
@@ -374,11 +382,8 @@ plotAMMI1 <- function(loadings,
   percPC1 <- round(importance[2, 1] * 100, 1)
   ## Calculate lambda scale
   lam <- importance[1, 1] ^ scale
-  ## Put overallMean in variable since using x$ in plot produces an error.
-  ovMean <- overallMean
   ## Create data.frames for genotypes and environments.
   genoDat <- data.frame(x = genoMean, y = scores[, 1] / lam)
-  convHulls <- genoDat[chull(genoDat[, c("x", "y")]), ]
   if (!is.null(colorBy)) {
     genoDat <- merge(genoDat, unique(dat[c("genotype", colorBy)]),
                      by.x = "row.names", by.y = "genotype")
@@ -388,14 +393,19 @@ plotAMMI1 <- function(loadings,
     genoDat$.colorBy <- factor(1)
   }
   envDat <- data.frame(x = envMean, y = loadings[, 1] * lam)
-  plotRatio <- (max(c(genoMean, envMean)) - min(c(genoMean, envMean))) /
-    (max(c(scores[, 1] / lam, loadings[, 1] * lam)) -
-       min(c(scores[, 1] / lam, loadings[, 1] * lam)))
+  ## Get x and y limits and compute plotRatio from them. This assures 1 unit on
+  ## the x-asis is identical to 1 unit on the y-axis.
+  yMin <- min(c(envDat[["y"]], genoDat[["y"]]))
+  yMax <- max(c(envDat[["y"]], genoDat[["y"]]))
+  xMin <- min(c(envDat[["x"]], genoDat[["x"]]))
+  xMax <- max(c(envDat[["x"]], genoDat[["x"]]))
+  plotRatio <- (xMax - xMin) / (yMax - yMin)
   p <- ggplot2::ggplot(genoDat, ggplot2::aes_string(x = "x", y = "y")) +
     ## Needed for a square plot output.
-    ggplot2::coord_fixed(ratio = plotRatio, clip = "off") +
+    ggplot2::coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax),
+                         ratio = plotRatio, clip = "off") +
     ## Add reference axes.
-    ggplot2::geom_vline(ggplot2::aes(xintercept = ovMean),
+    ggplot2::geom_vline(ggplot2::aes(xintercept = overallMean),
                         linetype = "dashed", show.legend = FALSE) +
     ggplot2::geom_hline(ggplot2::aes(yintercept = 0), linetype = "dashed",
                         show.legend = FALSE) +
@@ -418,8 +428,57 @@ plotAMMI1 <- function(loadings,
                                                label = "rownames(genoDat)"),
                            size = sizeGeno, vjust = 1, color = colGeno)
     }
-    p <- p + ggplot2::geom_polygon(color = "green", data = convHulls,
-                                     alpha = 0.2)
+    if (plotConvHull) {
+     ## Compute convex hull for the points.
+      convHulls <- genoDat[chull(genoDat[, c("x", "y")]), ]
+     #  ## Extract x and y coordinates for points on hull. Add first item to the
+     #  ## end to include all edges.
+     #  xConv <- convHulls[["x"]]
+     #  yConv <- convHulls[["y"]]
+     #  xConv <- c(xConv, xConv[1])
+     #  yConv <- c(yConv, yConv[1])
+     #  ## Compute slopes per segment of the hull.
+     #  slopesConv <- diff(yConv) / diff(xConv)
+     #  ## Compute slopes for the lines perpendicular to the hull.
+     #  slopesPerp <- -1 / slopesConv
+     #  ## Compute the coordinates of the points on the hull through which the
+     #  ## perpendicular lines should go.
+     #  origConv <- yConv[-1] - slopesConv * xConv[-1]
+     #  xNew <- (origConv - ovMean * slopesPerp) / (slopesConv - slopesPerp)
+     #
+     # # xNew <- -origConv / (slopesConv - slopesPerp)
+     #
+     #  yNew <- slopesPerp * (xNew - ovMean)
+     #  xNew <- xNew
+     #  ## Expand the lines outward of the hull.
+     #  ## Expansion is done in two steps. First in the x-direction with
+     #  ## computation of the y-coordinate. If this coordinates is outside the
+     #  ## plot area expansion is repeated but then in the y-direction.
+     #  # for (i in seq_along(xNew)) {
+     #  #   if (xNew[i] > ovMean) {
+     #  #     xNewI <- xMax
+     #  #     yNewI <- slopesPerp[i] * xMax
+     #  #   } else {
+     #  #     xNewI <- xMin
+     #  #     yNewI <- slopesPerp[i] * xMin
+     #  #   }
+     #  #   if (yNewI < yMin) {
+     #  #     yNewI <- yMin
+     #  #     xNewI <- yMin / slopesPerp[i]
+     #  #   } else if (yNewI > yMax) {
+     #  #     yNewI <- yMax
+     #  #     xNewI <- yMax / slopesPerp[i]
+     #  #   }
+     #  #   xNew[i] <- xNewI
+     #  #   yNew[i] <- yNewI
+     #  # }
+     #  ## Put data for perpendicular lines in a single data set
+     #  ## for ease of plotting.
+     #  perpDat <- data.frame(xend = xNew, yend = yNew)
+      ## Add convexhull as a polygon and perpendicular lines as segments.
+      p <- p + ggplot2::geom_polygon(color = "darkolivegreen3",
+                                     data = convHulls, alpha = 0.2)
+    }
   }
   if (plotEnv) {
     ## Plot environments as texts.
@@ -446,6 +505,7 @@ plotAMMI2 <- function(loadings,
                       plotGeno = TRUE,
                       colGeno,
                       sizeGeno,
+                      plotConvHull,
                       plotEnv = TRUE,
                       colEnv,
                       sizeEnv,
@@ -496,39 +556,6 @@ plotAMMI2 <- function(loadings,
                             " (", info, ") ", year)) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
   if (plotGeno) {
-    ## Compute convex hull for the points.
-    convHulls <- genoDat[chull(genoDat[, c(primAxis, secAxis)]), ]
-
-    xConv <- convHulls[[primAxis]]
-    yConv <- convHulls[[secAxis]]
-    xConv <- c(xConv, xConv[1])
-    yConv <- c(yConv, yConv[1])
-    slopesConv <- sapply(X = 2:length(xConv), FUN = function(i) {
-      diff(yConv[(i - 1):i]) / diff(xConv[(i - 1):i])
-    })
-    slopesPerp <- -1 / slopesConv
-    origConv <- yConv[-1] - slopesConv * xConv[-1]
-    xNew <- -origConv / (slopesConv + 1 / slopesConv)
-    yNew <- slopesPerp * xNew
-    for (i in seq_along(xNew)) {
-      if (xNew[i] > 0) {
-        xNewI <- xMax
-        yNewI <- slopesPerp[i] * xMax
-      } else {
-        xNewI <- xMin
-        yNewI <- slopesPerp[i] * xMin
-      }
-      if (yNewI < yMin) {
-        yNewI <- yMin
-        xNewI <- yMin / slopesPerp[i]
-      } else if (yNewI > yMax) {
-        yNewI <- yMax
-        xNewI <- yMax / slopesPerp[i]
-      }
-      xNew[i] <- xNewI
-      yNew[i] <- yNewI
-    }
-    perpDat <- data.frame(xend = xNew, yend = yNew)
     if (sizeGeno == 0) {
       ## Plot genotypes as points.
       p <- p + ggplot2::geom_point(data = genoDat,
@@ -542,11 +569,56 @@ plotAMMI2 <- function(loadings,
                            ggplot2::aes_string(label = "rownames(genoDat)"),
                            size = sizeGeno, vjust = 1, color = colGeno)
     }
-    p <- p + ggplot2::geom_polygon(color = "green", data = convHulls,
-                                   alpha = 0.2) +
-      ggplot2::geom_segment(ggplot2::aes_string(x = 0, y = 0,
-                                         xend = "xend", yend = "yend"),
-                            data = perpDat, col = "brown", size = 0.6)
+    if (plotConvHull) {
+      ## Compute convex hull for the points.
+      convHulls <- genoDat[chull(genoDat[, c(primAxis, secAxis)]), ]
+      ## Extract x and y coordinates for points on hull. Add first item to the
+      ## end to include all edges.
+      xConv <- convHulls[[primAxis]]
+      yConv <- convHulls[[secAxis]]
+      xConv <- c(xConv, xConv[1])
+      yConv <- c(yConv, yConv[1])
+      ## Compute slopes per segment of the hull.
+      slopesConv <- diff(yConv) / diff(xConv)
+      ## Compute slopes for the lines perpendicular to the hull.
+      slopesPerp <- -1 / slopesConv
+      ## Compute the coordinates of the points on the hull through which the
+      ## perpendicular lines should go.
+      origConv <- yConv[-1] - slopesConv * xConv[-1]
+      xNew <- -origConv / (slopesConv - slopesPerp)
+      yNew <- slopesPerp * xNew
+      ## Expand the lines outward of the hull.
+      ## Expansion is done in two steps. First in the x-direction with
+      ## computation of the y-coordinate. If this coordinates is outside the
+      ## plot area expansion is repeated but then in the y-direction.
+      for (i in seq_along(xNew)) {
+        if (xNew[i] > 0) {
+          xNewI <- xMax
+          yNewI <- slopesPerp[i] * xMax
+        } else {
+          xNewI <- xMin
+          yNewI <- slopesPerp[i] * xMin
+        }
+        if (yNewI < yMin) {
+          yNewI <- yMin
+          xNewI <- yMin / slopesPerp[i]
+        } else if (yNewI > yMax) {
+          yNewI <- yMax
+          xNewI <- yMax / slopesPerp[i]
+        }
+        xNew[i] <- xNewI
+        yNew[i] <- yNewI
+      }
+      ## Put data for perpendicular lines in a single data set
+      ## for ease of plotting.
+      perpDat <- data.frame(xend = xNew, yend = yNew)
+      ## Add convexhull as a polygon and perpendicular lines as segments.
+      p <- p + ggplot2::geom_polygon(color = "darkolivegreen3",
+                                     data = convHulls, alpha = 0.2) +
+        ggplot2::geom_segment(ggplot2::aes_string(x = 0, y = 0,
+                                                  xend = "xend", yend = "yend"),
+                              data = perpDat, col = "darkgoldenrod", size = 0.6)
+    }
   }
   if (plotEnv) {
     ## Plot environments as texts.
