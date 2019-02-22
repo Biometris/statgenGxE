@@ -545,7 +545,8 @@ print.summary.TD <- function(x, ...) {
 #' \item{highlight}{A character vector of genotypes to be highlighted in the
 #' plot.}
 #' \item{colorSubBlock}{Should subBlocks be colored with a different color per
-#' subBlock? Defaults to \code{FALSE}}
+#' subBlock? Defaults to \code{FALSE}. \code{colorSubBlock} is ignored when
+#' highlight is used to highlight genotypes.}
 #' }
 #'
 #' @section Map Plot:
@@ -647,15 +648,10 @@ plot.TD <- function(x,
         aspect <- ylen / xlen
       }
       plotRep <- hasName(x = trDat, name = "repId")
-      plotSubBlock <- hasName(x = trDat, name = "subBlock") &&
-        sum(!is.na(trDat$highlight.)) == 0
+      plotSubBlock <- hasName(x = trDat, name = "subBlock")
       ## Create data for lines between replicates.
       if (plotRep) {
         repBord <- calcPlotBorders(trDat = trDat, bordVar = "repId")
-      }
-      ## Create data for lines between subBlocks.
-      if (plotSubBlock) {
-        subBlockBord <- calcPlotBorders(trDat = trDat, bordVar = "subBlock")
       }
       ## Create base plot.
       pTr <- ggplot2::ggplot(data = trDat,
@@ -673,14 +669,25 @@ plot.TD <- function(x,
         ggplot2::scale_y_continuous(breaks = scales::pretty_breaks(),
                                     expand = c(0, 0)) +
         ggplot2::ggtitle(trLoc)
+      if (sum(!is.na(trDat$highlight.)) > 0) {
+        ## Genotypes to be highlighted get a color.
+        ## Everything else the NA color.
+        pTr <- pTr + ggplot2::geom_tile(
+          ggplot2::aes_string(fill = "highlight."), color = "grey75") +
+          ggplot2::labs(fill = "Highlighted") +
+          ## Remove NA from scale.
+          ggplot2::scale_fill_discrete(na.translate = FALSE)
+      } else if (plotSubBlock && colorSubBlock) {
+        ## Color tiles by subblock.
+        pTr <- pTr + ggplot2::geom_tile(
+          ggplot2::aes_string(fill = "subBlock"), color = "grey75")
+      } else {
+        ## No subblocks and no hightlights so just a single fill color.
+        pTr <- pTr + ggplot2::geom_tile(fill = "white", color = "grey75")
+      }
+      ## Create data for lines between subBlocks.
       if (plotSubBlock) {
-        if (colorSubBlock) {
-          ## If subblocks are available color tiles by subblock.
-          pTr <- pTr + ggplot2::geom_tile(
-            ggplot2::aes_string(fill = "subBlock"), color = "grey75")
-        } else {
-          pTr <- pTr + ggplot2::geom_tile(fill = "white", color = "grey75")
-        }
+        subBlockBord <- calcPlotBorders(trDat = trDat, bordVar = "subBlock")
         pTr <- pTr +
           ## Add verical lines as segment.
           ## adding/subtracting 0.5 assures plotting at the borders of
@@ -694,17 +701,6 @@ plot.TD <- function(x,
             ggplot2::aes_string(x = "x - 0.5", xend = "x + 0.5",
                                 y = "y - 0.5", yend = "y - 0.5"),
             data = subBlockBord$horW, size = 0.4)
-      } else if (sum(!is.na(trDat$highlight.)) > 0) {
-        ## Genotypes to be highlighted get a color.
-        ## Everything else the NA color.
-        pTr <- pTr + ggplot2::geom_tile(
-          ggplot2::aes_string(fill = "highlight."), color = "grey75") +
-          ggplot2::labs(fill = "Highlighted") +
-          ## Remove NA from scale.
-          ggplot2::scale_fill_discrete(na.translate = FALSE)
-      } else {
-        ## No subblocks and no hightlights so just a single fill color.
-        pTr <- pTr + ggplot2::geom_tile(fill = "white", color = "grey75")
       }
       if (showGeno) {
         ## Add names of genotypes to the center of the tiles.

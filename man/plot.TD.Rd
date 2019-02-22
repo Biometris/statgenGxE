@@ -50,7 +50,8 @@ Defaults to \code{FALSE}}
 \item{highlight}{A character vector of genotypes to be highlighted in the
 plot.}
 \item{colorSubBlock}{Should subBlocks be colored with a different color per
-subBlock? Defaults to \code{FALSE}}
+subBlock? Defaults to \code{FALSE}. \code{colorSubBlock} is ignored when
+highlight is used to highlight genotypes.}
 }
 }
 
