@@ -150,7 +150,8 @@ summary.AMMI <- function(object,
 #' of using their names.
 #' @param plotConvHull Should a convex hull be plotted around the genotypes. If
 #' \code{TRUE} a convex hull is plotted and lines from the origin of the plot
-#' perpendicular to the edges of the hull are added.
+#' perpendicular to the edges of the hull are added. Only valid for AMMI2
+#' biplots.
 #' @param plotEnv Should environments be plotted?
 #' @param colEnv A character string with the plot color for the environments.
 #' @param sizeEnv An integer indicating the text size for plotting the
@@ -262,9 +263,8 @@ plot.AMMI <- function(x,
                   envMean = x$envMean[[year]] * envFactor,
                   trait = x$trait, dat = x$dat[[year]], GGE = x$GGE, year = year,
                   scale = scale, plotGeno = plotGeno, colGeno = colGeno,
-                  sizeGeno = sizeGeno, plotConvHull = plotConvHull,
-                  plotEnv = plotEnv, colEnv = colEnv, sizeEnv = sizeEnv,
-                  colorBy = colorBy)
+                  sizeGeno = sizeGeno, plotEnv = plotEnv, colEnv = colEnv,
+                  sizeEnv = sizeEnv, colorBy = colorBy)
       }, simplify = FALSE)
     } else {
       ## Create a single AMMI1 plot.
@@ -274,9 +274,8 @@ plot.AMMI <- function(x,
                      genoMean = x$genoMean, envMean = x$envMean * envFactor,
                      trait = x$trait, dat = x$dat, GGE = x$GGE, scale = scale,
                      plotGeno = plotGeno, colGeno = colGeno,
-                     sizeGeno = sizeGeno, plotConvHull = plotConvHull,
-                     plotEnv = plotEnv, colEnv = colEnv, sizeEnv = sizeEnv,
-                     colorBy = colorBy)
+                     sizeGeno = sizeGeno, plotEnv = plotEnv, colEnv = colEnv,
+                     sizeEnv = sizeEnv, colorBy = colorBy)
     }
   } else if (plotType == "AMMI2") {
     if (!is.character(primAxis) || length(primAxis) > 1 ||
@@ -413,7 +412,8 @@ plotAMMI1 <- function(loadings,
     ggplot2::labs(x = "Main Effects", y = paste0("PC1 (", percPC1, "%)")) +
     ggplot2::ggtitle(paste0(ifelse(GGE, "GGE", "AMMI1"), " biplot for ",
                             trait, " ", year)) +
-    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
+                   panel.grid = ggplot2::element_blank())
   if (plotGeno) {
     if (sizeGeno == 0) {
       p <- p + ## Plot genotypes as points.
@@ -427,57 +427,6 @@ plotAMMI1 <- function(loadings,
                            ggplot2::aes_string(x = "x", y = "y",
                                                label = "rownames(genoDat)"),
                            size = sizeGeno, vjust = 1, color = colGeno)
-    }
-    if (plotConvHull) {
-     ## Compute convex hull for the points.
-      convHulls <- genoDat[chull(genoDat[, c("x", "y")]), ]
-     #  ## Extract x and y coordinates for points on hull. Add first item to the
-     #  ## end to include all edges.
-     #  xConv <- convHulls[["x"]]
-     #  yConv <- convHulls[["y"]]
-     #  xConv <- c(xConv, xConv[1])
-     #  yConv <- c(yConv, yConv[1])
-     #  ## Compute slopes per segment of the hull.
-     #  slopesConv <- diff(yConv) / diff(xConv)
-     #  ## Compute slopes for the lines perpendicular to the hull.
-     #  slopesPerp <- -1 / slopesConv
-     #  ## Compute the coordinates of the points on the hull through which the
-     #  ## perpendicular lines should go.
-     #  origConv <- yConv[-1] - slopesConv * xConv[-1]
-     #  xNew <- (origConv - ovMean * slopesPerp) / (slopesConv - slopesPerp)
-     #
-     # # xNew <- -origConv / (slopesConv - slopesPerp)
-     #
-     #  yNew <- slopesPerp * (xNew - ovMean)
-     #  xNew <- xNew
-     #  ## Expand the lines outward of the hull.
-     #  ## Expansion is done in two steps. First in the x-direction with
-     #  ## computation of the y-coordinate. If this coordinates is outside the
-     #  ## plot area expansion is repeated but then in the y-direction.
-     #  # for (i in seq_along(xNew)) {
-     #  #   if (xNew[i] > ovMean) {
-     #  #     xNewI <- xMax
-     #  #     yNewI <- slopesPerp[i] * xMax
-     #  #   } else {
-     #  #     xNewI <- xMin
-     #  #     yNewI <- slopesPerp[i] * xMin
-     #  #   }
-     #  #   if (yNewI < yMin) {
-     #  #     yNewI <- yMin
-     #  #     xNewI <- yMin / slopesPerp[i]
-     #  #   } else if (yNewI > yMax) {
-     #  #     yNewI <- yMax
-     #  #     xNewI <- yMax / slopesPerp[i]
-     #  #   }
-     #  #   xNew[i] <- xNewI
-     #  #   yNew[i] <- yNewI
-     #  # }
-     #  ## Put data for perpendicular lines in a single data set
-     #  ## for ease of plotting.
-     #  perpDat <- data.frame(xend = xNew, yend = yNew)
-      ## Add convexhull as a polygon and perpendicular lines as segments.
-      p <- p + ggplot2::geom_polygon(color = "darkolivegreen3",
-                                     data = convHulls, alpha = 0.2)
     }
   }
   if (plotEnv) {
@@ -548,7 +497,8 @@ plotAMMI2 <- function(loadings,
     ## Needed for a square plot output.
     ggplot2::coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax),
                          clip = "off") +
-    ggplot2::theme(aspect.ratio = plotRatio) +
+    ggplot2::theme(aspect.ratio = plotRatio,
+                   panel.grid = ggplot2::element_blank()) +
     ## Add labeling.
     ggplot2::labs(x = paste0(primAxis, " (", percPC1, "%)"),
                   y = paste0(secAxis, " (", percPC2, "%)")) +
@@ -617,7 +567,7 @@ plotAMMI2 <- function(loadings,
                                      data = convHulls, alpha = 0.2) +
         ggplot2::geom_segment(ggplot2::aes_string(x = 0, y = 0,
                                                   xend = "xend", yend = "yend"),
-                              data = perpDat, col = "darkgoldenrod", size = 0.6)
+                              data = perpDat, col = "grey50", size = 0.6)
     }
   }
   if (plotEnv) {

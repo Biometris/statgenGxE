@@ -43,7 +43,8 @@ of using their names.}
 
 \item{plotConvHull}{Should a convex hull be plotted around the genotypes. If
 \code{TRUE} a convex hull is plotted and lines from the origin of the plot
-perpendicular to the edges of the hull are added.}
+perpendicular to the edges of the hull are added. Only valid for AMMI2
+biplots.}
 
 \item{plotEnv}{Should environments be plotted?}
 
