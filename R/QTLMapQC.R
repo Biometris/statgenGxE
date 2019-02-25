@@ -39,6 +39,7 @@
 #' @param crossover A numerical value between 0 and 1 indicating the maximum
 #' allowed fraction of crossovers per individual. Individuals with a fraction of
 #' crossovers above \code{crossover} will be removed.
+#' @param verbose Should a summary of the performed steps be printed?
 #'
 #' @return A cleaned version of the input cross object after markers and
 #' individuals have been removed that are outside the respective thresholds.
@@ -78,7 +79,8 @@ QTLMapQC <- function(cross,
                      segDistortion = 0.001,
                      recombination = 3,
                      reestimateMap = FALSE,
-                     crossover = 0.20) {
+                     crossover = 0.20,
+                     verbose = FALSE) {
   ## Checks.
   if (missing(cross) || !inherits(cross, "cross")) {
     stop("cross should be an object of class cross\n")
@@ -106,28 +108,38 @@ QTLMapQC <- function(cross,
                    crossType, ". Recombination set to 0.\n"), call. = FALSE)
     recombination <- 0
   }
+    cleanSum <- data.frame(msg = c("Summary of quality control", ""))
   ## Extract number of individuals
   nInd <- qtl::nind(cross)
   if (missMrk > 0) {
-    ## Calculate pct missing per marker and remove markers with pct above missMrk.
+    ## Calculate fraction missing per marker and remove markers with fraction
+    ## above missMrk.
     pctMiss <- qtl::nmissing(cross, what = "mar") / nInd
     dropMrk <- names(pctMiss[pctMiss > missMrk])
     cross <- qtl::drop.markers(cross, markers = dropMrk)
+      msg <- paste(length(dropMrk), "markers removed with fraction of missing",
+                   "values above", missMrk)
+      cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   if (removeDuplicates) {
     ## Remove duplicate markers.
     dupMar <- qtl::findDupMarkers(cross)
     cross <- qtl::drop.markers(cross, markers = unlist(dupMar))
+      msg <- paste(length(unlist(dupMar)), "duplicate markers removed")
+      cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   nMrk <- sum(qtl::nmar(cross))
   if (missInd > 0) {
-    ## Calculate pct missing per individual and remover individuals with pct
-    ## above missInd.
+    ## Calculate fraction missing per individual and remove individuals with
+    ## fraction above missInd.
     pctMiss <- qtl::nmissing(cross, what = "ind") / nMrk
     dropInd <- which(pctMiss > missInd)
     if (length(dropInd) > 0) {
       cross <- cross[, -dropInd]
     }
+      msg <- paste(length(dropInd), "individuals removed with fraction of",
+                   "missing values above", missInd)
+      cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   ## Compute the segregation distortion per marker and remove those showing
   ## evidence of distortion.
@@ -135,6 +147,9 @@ QTLMapQC <- function(cross,
     segDist <- qtl::geno.table(cross)
     dropSegDist <- rownames(segDist[segDist$P.value < segDistortion, ])
     cross <- qtl::drop.markers(cross, markers = dropSegDist)
+      msg <-  paste(length(dropSegDist), "markers removed that show evidence",
+                    "of segregation distortion", missMrk)
+      cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   ## Estimate recombination frequencies between all pairs of markers.
   ## Suppress warning generated when there is recombination.
@@ -144,20 +159,33 @@ QTLMapQC <- function(cross,
     dropRecom <- qtl::checkAlleles(crossRec, threshold = recombination,
                                    verbose = FALSE)
     crossRec <- qtl::drop.markers(crossRec, markers = dropRecom$marker)
+      msg <- paste(length(dropRecom$marker), "markers removed that might have",
+                   "been switched")
+      cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   if (reestimateMap) {
-    ## Re-estimate map based on the observed markers
+    ## Re-estimate map based on the observed markers.
     newMap <- qtl::est.map(crossRec, error.prob = 1e-3)
     crossRec <- qtl::replace.map(crossRec, newMap)
+      msg <- "Map reestimated"
+      cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   if (crossover > 0) {
     ## Check pct of crossovers per individual and remove individuals with a
-    ## pct above crossover
+    ## fraction above crossover.
     pctCross <- qtl::countXO(crossRec) / sum(qtl::nmar(crossRec))
     dropCrossInd <- which(pctCross > crossover)
     if (length(dropCrossInd) > 0) {
       crossRec <- crossRec[, -dropCrossInd]
     }
+      msg <- paste(length(dropCrossInd), "individuals removed with a fraction",
+                   "of crossovers above", crossover)
+      cleanSum <- rbind(cleanSum, data.frame(msg))
+  }
+  colnames(cleanSum) <- ""
+  attr(x = crossRec, which = "cleanSum") <- cleanSum
+  if (verbose) {
+    print(cleanSum, row.names = FALSE, right = FALSE)
   }
   return(crossRec)
 }
@@ -175,7 +203,7 @@ QTLMapQC <- function(cross,
 #' ## Read the data
 #' F2 <- qtl::read.cross(format="csv",
 #'                       file = system.file("extdata", "F2maize_geno.csv",
- #'                                         package = "RAP"),
+#'                                         package = "RAP"),
 #'                       genotypes = c("AA", "AB", "BB"),
 #'                       alleles = c("A", "B"), estimate.map = FALSE)
 #' \dontrun{
