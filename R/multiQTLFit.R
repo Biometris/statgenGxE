@@ -89,10 +89,10 @@ multiQTLFit <- function(QTLDet,
   }
   ## Rename rows to contain markerNames instead of chr@pos.
   if (!is.null(qtlFit$result.drop)) {
-    rownames(qtlFit$result.drop) <- qtlPosToName(rownames(qtlFit$result.drop),
-                                                 cross = QTLDet$cross)$chrNames
+    rownames(qtlFit$result.drop) <- qtlPosToName(chrPos = rownames(qtlFit$result.drop),
+                                                 peaks = QTLDet$peaks)$chrNames
   }
-  estNames <- qtlPosToName(names(qtlFit$ests$ests)[-1], cross = QTLDet$cross)
+  estNames <- qtlPosToName(names(qtlFit$ests$ests)[-1], peaks = QTLDet$peaks)
   names(qtlFit$ests$ests)[-1] <- paste0(estNames$chrNames, estNames$ext)
   ## Create multiQTL object.
   multiQtl <- createMultiQTL(qtl = qtlFit, QTLDet = QTLDet,

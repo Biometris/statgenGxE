@@ -335,29 +335,36 @@ createReport <- function(x,
   }
 }
 
-#' Function for extracting the name of a qtl combining a cross object and
-#' the position of the qtl on the chromosome.
+#' Function for extracting the name of a qtl combining the peaks from a QTLDet
+#' object and the position of the qtl on the chromosome.
 #'
 #' @keywords internal
-qtlPosToName <- function(chrPos, cross) {
+qtlPosToName <- function(chrPos,
+                         peaks) {
+  ## chromosome positions are given in chr@position + .a, .d or nothing.
+  ## Extract chromosome.
   chr <- sapply(X = chrPos, function(cp) {
     unlist(strsplit(cp, "@"))[1]
   })
+  ## Extract chromosome position in two steps. First take the part behind @.
+  ## Then remove everything behind the dot.
   pos <- as.numeric(sapply(X = chrPos, function(cp) {
     regmatches(x = unlist(strsplit(cp, "@"))[2],
                gregexpr("[[:digit:]]+\\.*[[:digit:]]",
                         unlist(strsplit(cp, "@"))[2]))[[1]]
   }))
+  ## Extract the extesion, i.e. the bit after the last dot.
   posExt <- sapply(X = chrPos, function(cp) {
     sub(pattern = "\\d*(\\.\\d)", replacement = "",
         x = unlist(strsplit(cp, "@"))[2])
   })
   chrPosDf <- data.frame(chr, pos, posExt, stringsAsFactors = FALSE)
-  mapTot <- qtl::pull.map(cross, as.table = TRUE)[, 1:2]
+  #mapTot <- qtl::pull.map(cross, as.table = TRUE)[, 1:2]
+  mapTot <- peaks[ , c("chr", "pos")]
   mapTot$mrkNames <- rownames(mapTot)
-  ## If there is an X chromosome, position is named pos.female. Rename for
-  ## easier merging. Pos.male is ignored.
-  colnames(mapTot)[2] <- "pos"
+  ## QTLDetection rounds positions to 1 digit in the names.
+  ## For a proper match position in the peaks has to be rounded to 1
+  ## digit as well.
   mapTot$pos <- round(mapTot$pos, digits = 1)
   chrPosMap <- merge(chrPosDf, mapTot, by = c("chr", "pos"), all.x = TRUE)
   chrPosMap[is.na(chrPosMap$mrkNames), "mrkNames"] <-
