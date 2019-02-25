@@ -108,7 +108,7 @@ QTLMapQC <- function(cross,
                    crossType, ". Recombination set to 0.\n"), call. = FALSE)
     recombination <- 0
   }
-    cleanSum <- data.frame(msg = c("Summary of quality control", ""))
+  cleanSum <- data.frame(msg = character())
   ## Extract number of individuals
   nInd <- qtl::nind(cross)
   if (missMrk > 0) {
@@ -117,16 +117,16 @@ QTLMapQC <- function(cross,
     pctMiss <- qtl::nmissing(cross, what = "mar") / nInd
     dropMrk <- names(pctMiss[pctMiss > missMrk])
     cross <- qtl::drop.markers(cross, markers = dropMrk)
-      msg <- paste(length(dropMrk), "markers removed with fraction of missing",
-                   "values above", missMrk)
-      cleanSum <- rbind(cleanSum, data.frame(msg))
+    msg <- paste(length(dropMrk), "markers removed with fraction of missing",
+                 "values above", missMrk)
+    cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   if (removeDuplicates) {
     ## Remove duplicate markers.
     dupMar <- qtl::findDupMarkers(cross)
     cross <- qtl::drop.markers(cross, markers = unlist(dupMar))
-      msg <- paste(length(unlist(dupMar)), "duplicate markers removed")
-      cleanSum <- rbind(cleanSum, data.frame(msg))
+    msg <- paste(length(unlist(dupMar)), "duplicate markers removed")
+    cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   nMrk <- sum(qtl::nmar(cross))
   if (missInd > 0) {
@@ -137,9 +137,9 @@ QTLMapQC <- function(cross,
     if (length(dropInd) > 0) {
       cross <- cross[, -dropInd]
     }
-      msg <- paste(length(dropInd), "individuals removed with fraction of",
-                   "missing values above", missInd)
-      cleanSum <- rbind(cleanSum, data.frame(msg))
+    msg <- paste(length(dropInd), "individuals removed with fraction of",
+                 "missing values above", missInd)
+    cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   ## Compute the segregation distortion per marker and remove those showing
   ## evidence of distortion.
@@ -147,9 +147,9 @@ QTLMapQC <- function(cross,
     segDist <- qtl::geno.table(cross)
     dropSegDist <- rownames(segDist[segDist$P.value < segDistortion, ])
     cross <- qtl::drop.markers(cross, markers = dropSegDist)
-      msg <-  paste(length(dropSegDist), "markers removed that show evidence",
-                    "of segregation distortion", missMrk)
-      cleanSum <- rbind(cleanSum, data.frame(msg))
+    msg <-  paste(length(dropSegDist), "markers removed that show evidence",
+                  "of segregation distortion with threshold", segDistortion)
+    cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   ## Estimate recombination frequencies between all pairs of markers.
   ## Suppress warning generated when there is recombination.
@@ -159,16 +159,16 @@ QTLMapQC <- function(cross,
     dropRecom <- qtl::checkAlleles(crossRec, threshold = recombination,
                                    verbose = FALSE)
     crossRec <- qtl::drop.markers(crossRec, markers = dropRecom$marker)
-      msg <- paste(length(dropRecom$marker), "markers removed that might have",
-                   "been switched")
-      cleanSum <- rbind(cleanSum, data.frame(msg))
+    msg <- paste(length(dropRecom$marker), "markers removed that might have",
+                 "been switched")
+    cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   if (reestimateMap) {
     ## Re-estimate map based on the observed markers.
     newMap <- qtl::est.map(crossRec, error.prob = 1e-3)
     crossRec <- qtl::replace.map(crossRec, newMap)
-      msg <- "Map reestimated"
-      cleanSum <- rbind(cleanSum, data.frame(msg))
+    msg <- "Map reestimated"
+    cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   if (crossover > 0) {
     ## Check pct of crossovers per individual and remove individuals with a
@@ -178,9 +178,9 @@ QTLMapQC <- function(cross,
     if (length(dropCrossInd) > 0) {
       crossRec <- crossRec[, -dropCrossInd]
     }
-      msg <- paste(length(dropCrossInd), "individuals removed with a fraction",
-                   "of crossovers above", crossover)
-      cleanSum <- rbind(cleanSum, data.frame(msg))
+    msg <- paste(length(dropCrossInd), "individuals removed with a fraction",
+                 "of crossovers above", crossover)
+    cleanSum <- rbind(cleanSum, data.frame(msg))
   }
   colnames(cleanSum) <- ""
   attr(x = crossRec, which = "cleanSum") <- cleanSum
