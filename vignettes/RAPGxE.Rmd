@@ -3,8 +3,9 @@ title: "Genotype by Environment analysis using RAP"
 author: "Bart-Jan van Rossum"
 date: "`r Sys.Date()`"
 output: 
-  rmarkdown::pdf_document:
+  rmarkdown::html_vignette:
     toc: false
+    number_sections: false
 bibliography: bibliography.bib
 vignette: >
   %\VignetteIndexEntry{Genotype by Environment analysis using RAP}

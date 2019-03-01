@@ -99,3 +99,9 @@ computing correlations. The order of the trials in the heatmap is determined
 by clustering them.
 }
 
+\seealso{
+Other functions for TD objects: \code{\link{TD}},
+  \code{\link{getMeta}}, \code{\link{setMeta}},
+  \code{\link{summary.TD}}
+}
+\concept{functions for TD objects}

@@ -34,13 +34,45 @@ wheatTD <- addTD(TD = wheatTD, data = wheatChl[wheatChl$trial == "C_SWS_12", ],
 getMeta(TD = wheatTD)
 
 ## ----TDsum---------------------------------------------------------------
+## Create a summary for grain yield in SR_FI_11.
 summary(wheatTD, trial = "SR_FI_11", traits = "GY")
+
+## ----TDsumGroup----------------------------------------------------------
+## Create a summary for the two replicates in SR_FI_11.
+summary(wheatTD, trial = "SR_FI_11", traits = "GY", groupBy = "repId")
 
 ## ----layoutPlot----------------------------------------------------------
 plot(wheatTD, trials = "SR_FI_11")
 
+## ----layoutPlotHL--------------------------------------------------------
+## Plot the layout for SR_FI_11 with genotypes G278 and G279 highlighted.
+plot(wheatTD, trials = "SR_FI_11", highlight = c("G278", "G279"))
+
+## ----layoutPlotSB, fig.dim=c(8,8)----------------------------------------
+## Plot the layout for SR_FI_11, color subBlocks.
+plot(wheatTD, trials = "SR_FI_11", colorSubBlock = TRUE)
+
+## ----layoutPlotSG--------------------------------------------------------
+## Plot the layout for SR_FI_11, color subBlocks.
+plot(wheatTD, trials = "SR_FI_11", showGeno = TRUE)
+
 ## ----mapPlot-------------------------------------------------------------
-#plot(wheatTD, plotType = "map")
+## Plot the locations of the trials on a map.
+plot(wheatTD, plotType = "map")
+
+## ----boxPlot-------------------------------------------------------------
+## Create a boxplot for grain yield.
+plot(wheatTD, plotType = "box", traits = "GY")
+
+## ----boxPlotGR-----------------------------------------------------------
+## Create a boxplot for grain yield with boxes grouped by year and repIds within
+## years colored.
+plot(wheatTD, plotType = "box", traits = "GY", groupBy = "year", 
+     colorBy = "repId", "orderBy" = "descending")
+
+## ----corPlot-------------------------------------------------------------
+## Create a correlation plot for grain yield.
+plot(wheatTD, plotType = "cor", traits = "GY")
 
 ## ----fitSp, message=FALSE------------------------------------------------
 modWheatSp <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",

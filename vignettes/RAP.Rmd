@@ -58,7 +58,7 @@ the column in the data containing variety/accession/genotype is renamed to
 genotype is converted to a factor and rowCoord to a numeric column.
 * Split the data into separate data.frames by trial. The output `TD` object is a
 `list` of `data.frames` where each `data.frame` contains the data for a single
-trial. If there is only one trial or no column trial is defined the output will 
+trial. If there is only one trial or no column trial is defined, the output will 
 be a `list` with only one item.
 * Add meta data to the separate `data.frames` in the `TD` object. The meta data 
 consists of location, date of the experiment, longitude, latitude, trial design,
@@ -67,25 +67,26 @@ analysis but the meta data is used for plotting field layouts, plotting trials
 on a map and naming plots. Meta data for a single trial can simply be added when creating the `TD` object using the parameters in `createTD`. However if the data consists of multiple trials with different meta data per trial it is more 
 convenient to first create a `TD` object without adding meta data. This will 
 still add a location based on the name of the trial. After creating the `TD` 
-object the meta data can then be extracted using `getMeta`. This function 
+object, the meta data can then be extracted using `getMeta`. This function 
 outputs a `data.frame` with the meta data per trial. The content of this 
 `data.frame` can then be modified and added back to the `TD` object using 
 `setMeta`.  
 
-After creating a `TD` object data for new trials can be added to it using 
+After creating a `TD` object, data for new trials can be added to it using 
 `addTD`. This function works in exactly the same way as `createTD` except that
 it adds data to an existing `TD` object instead of creating a new one.  
 Dropping one or more trials from a `TD` object can be done using the function
-`dropTD` specifying the trials to drop in the parameter `trials`.
+`dropTD` specifying the trials to drop in the parameter `rmTrials`.
 
 ## Example
 
 Field data from an experiment with wheat in Chili described in detail by 
 @Lado2013 will be used as an example throughout this vignette. The experiment 
-was performed in 2 locations in Chili with 2 different drought regimes in 2011
-and 2012 for the first location and 1 trial in 2012 for the second location. For
-384 genotypes 4 traits were measured in 2011 but in 2012 only grain yield (GY) 
-was measured and the examples will mainly focus on this trait.  
+was performed in 2 locations in Chili, Santa Rosa and Cauquenes, with 2 
+different drought regimes in 2011 and 2012 for the Santa Rosa and 1 trial 
+in 2012 for Cauquenes. For 384 genotypes 4 traits were measured in 2011 but in 
+2012 only grain yield (GY) was measured and the examples will mainly focus on 
+this trait.  
 
 For the example first a `TD` object is created for the first location and 
 the data for the second location is then added later on. In practice all this
@@ -97,7 +98,17 @@ wheatTD <- createTD(data = wheatChl[wheatChl$trial != "C_SWS_12", ],
                     rowCoord = "row", colCoord = "col")
 ```
 The `TD` object just created is a `list` with 4 items, 1 for each trial 
-(combination of location, drought regime and year) in the original `data.frame`. 
+(combination of location, drought regime and year) in the original `data.frame`.
+The column "trt" in the original data is renamed to "genotype" and converted to 
+a factor. The columns "rep" and "bl" have been renamed and converted likewise.
+The columns "row" and "col" have been renamed to "rowCoord" and "colCoord" 
+respectively. Simultaneously two columns "rowId" and "colId" have been 
+created containing the same information converted to a factor. This seemingly
+duplicate information is needed for spatial analysis. It is possible to define
+different columns as "rowId" and "colId" than the ones used as "rowCoord" and
+"colCoord". The information about which columns have been renamed in the 
+process of creating a `TD` object is stored as ab attribute of each individual
+`data.frame` in the object.
 
 ## Meta data
 
@@ -106,7 +117,7 @@ The meta data will be a `data.frame` with 4 rows, 1 for each item in `wheatTD`.
 (wheatMeta <- getMeta(TD = wheatTD))
 ```
 
-After extracting the meta data it can be modified and then added it back to the original `TD` object.
+After extracting the meta data, it can be modified and then added back to the original `TD` object.
 ```{r setMeta}
 wheatMeta$trLocation <- "Santa Rosa"
 wheatMeta$trDate <- as.Date(rep(c("310811", "310812"), times = 2), "%d%m%y")
@@ -120,7 +131,7 @@ wheatTD <- setMeta(TD = wheatTD, meta = wheatMeta)
 ## Add extra data to a `TD` object
 
 To add the data for the final trial to the `TD` object the function `addTD` can
-be used. Since now 1 new trial is added it makes sense to immediately add the 
+be used. Since now only one new trial is added, it makes sense to immediately dd the 
 meta data for this trial as well using the appropriate parameters in `addTD`. 
 ```{r addTD, R.options=list(width=90)}
 wheatTD <- addTD(TD = wheatTD, data = wheatChl[wheatChl$trial == "C_SWS_12", ], 
@@ -134,18 +145,29 @@ getMeta(TD = wheatTD)
 
 ## Summarising a `TD` object
 
-Use the `summary` function to get an idea of the content of the data in the `TD` object. Multiple traits may be summarised at once but for clarity here a summary is
-only made for GY.
+The `summary` function can be used to get an idea of the content of the data in the `TD` object. Multiple traits may be summarized at once but for clarity here a summary is only made for GY.
 ```{r TDsum}
+## Create a summary for grain yield in SR_FI_11.
 summary(wheatTD, trial = "SR_FI_11", traits = "GY")
 ```
 
-Using the default options 9 summary statistics are printed, but many more are 
+Using the default options nine summary statistics are printed, but many more are 
 available. These can be accessed using the parameter `what` in the `summary`
-function. For a full list of available statistics use `help(summary.TD)`. It is 
-also possible to output all statistics using `what = "all"`.
+function. For a full list of available statistics, use `help(summary.TD)`. It is 
+also possible to output all statistics using `what = "all"`.    
+
+It is possible to summarize the data in a TD object for different groups. This
+can be done using the parameter `groupBy`. It will display three main summary
+statistics per group. Again, more statistics can be displayed using the 
+parameter `what`.
+```{r TDsumGroup}
+## Create a summary for the two replicates in SR_FI_11.
+summary(wheatTD, trial = "SR_FI_11", traits = "GY", groupBy = "repId")
+```
 
 ## Plotting a `TD` object
+
+Several plots can be made to further investigate the contents of a `TD` object.    
 
 The default plot creates plots for the layout of all trials in the `TD` object.
 This can be restricted to selected trials using the `trials` parameter. The 
@@ -155,11 +177,61 @@ the meta data if these are available.
 plot(wheatTD, trials = "SR_FI_11")
 ```
 
-A second type of plot displays the trial locations on a map. This plot is 
-made based on trLat and trLong in the meta data. If not available the 
-corresponding location is not plotted.
+This plot can be extended by highlighting interesting genotypes in the layout.
+```{r layoutPlotHL}
+## Plot the layout for SR_FI_11 with genotypes G278 and G279 highlighted.
+plot(wheatTD, trials = "SR_FI_11", highlight = c("G278", "G279"))
+```
+
+It is also possible to color the subBlocks within the field.
+```{r layoutPlotSB, fig.dim=c(8,8)}
+## Plot the layout for SR_FI_11, color subBlocks.
+plot(wheatTD, trials = "SR_FI_11", colorSubBlock = TRUE)
+```
+
+Highlighting genotypes and coloring subBlocks cannot be done simultaneously. If 
+both options are specified, only highlighting is done.    
+
+Finally it is possible to add the names of the genotypes to the layout. 
+```{r layoutPlotSG}
+## Plot the layout for SR_FI_11, color subBlocks.
+plot(wheatTD, trials = "SR_FI_11", showGeno = TRUE)
+```
+
+A second type of plot displays the trial locations on a map. This plot is made 
+based on trLat and trLong in the meta data. If longitude or latitude is not available 
+for a certain location, then this location is not plotted. If the locations are 
+very close together, the resulting map can become quite small. The parameters 
+`minLatRange` and `minLongRange` can be used to extend the minimum range of latitude
+and longitude respectively to address this issue.
 ```{r mapPlot}
-#plot(wheatTD, plotType = "map")
+## Plot the locations of the trials on a map.
+plot(wheatTD, plotType = "map")
+```
+
+Boxplots can be made to get an idea of the contents of the data in the `TD` object.
+By default a box is plotted per trial in the data for the specified traits. Boxplots for multiple traits can be made at once.
+```{r boxPlot}
+## Create a boxplot for grain yield.
+plot(wheatTD, plotType = "box", traits = "GY")
+```
+
+The trials in the boxplot can be grouped using the parameter `groupBy`. Colors
+can be applied to groups within trials using the parameter `colorBy`. The boxes 
+for the (groups of) trials can be ordered using `orderBy`.
+```{r boxPlotGR}
+## Create a boxplot for grain yield with boxes grouped by year and repIds within
+## years colored.
+plot(wheatTD, plotType = "box", traits = "GY", groupBy = "year", 
+     colorBy = "repId", "orderBy" = "descending")
+```
+
+The last plot that can be made is a plot of the correlations between the fields for
+a specified trait. The order of the plotted fields is determined by clustering them
+and plotting closely related field close to each other.
+```{r corPlot}
+## Create a correlation plot for grain yield.
+plot(wheatTD, plotType = "cor", traits = "GY")
 ```
 
 ----

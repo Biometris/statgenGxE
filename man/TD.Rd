@@ -147,9 +147,8 @@ TD0 <- createTD(data = dat, genotype = "geno", trial = "tr")
 
 }
 \seealso{
-\code{\link{summary.TD}}, \code{\link{plot.TD}},
-\code{\link{getMeta}}, \code{\link{setMeta}}
+Other functions for TD objects: \code{\link{getMeta}},
+  \code{\link{plot.TD}}, \code{\link{setMeta}},
+  \code{\link{summary.TD}}
 }
-\author{
-Bart-Jan van Rossum
-}
+\concept{functions for TD objects}
