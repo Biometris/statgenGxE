@@ -96,10 +96,7 @@
 #' ## Convert data.frame to TD object.
 #' TD0 <- createTD(data = dat, genotype = "geno", trial = "tr")
 #'
-#' @author Bart-Jan van Rossum
-#'
-#' @seealso \code{\link{summary.TD}}, \code{\link{plot.TD}},
-#' \code{\link{getMeta}}, \code{\link{setMeta}}
+#' @family functions for TD objects
 #'
 #' @importFrom utils hasName
 #'
@@ -350,7 +347,8 @@ dropTD <- function(TD,
 #' }
 #'
 #' @return A table containing the selected summary statistics.
-#' @seealso \code{\link{createTD}}
+#'
+#' @family functions for TD objects
 #'
 #' @examples
 #' ## Summarize TDHeat05.
@@ -599,6 +597,8 @@ print.summary.TD <- function(x, ...) {
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returnfed.
 #'
+#' @family functions for TD objects
+#'
 #' @export
 plot.TD <- function(x,
                     ...,
@@ -776,7 +776,7 @@ plot.TD <- function(x,
     longR <- longR + c(-0.1, 0.1) * diff(longR)
     latR <- latR + c(-0.1, 0.1) * diff(latR)
     ## Create data useable by ggplot geom_polygon.
-    mapDat <- ggplot2::map_data("world", xlim = longR, ylim = latR)
+    mapDat <- mapData(xLim = longR, yLim = latR)
     p <- ggplot2::ggplot(mapDat, ggplot2::aes_string(x = "long", y = "lat")) +
       ggplot2::geom_polygon(ggplot2::aes_string(group = "group"),
                             fill = "white", color = "black") +
@@ -959,6 +959,8 @@ plot.TD <- function(x,
 #'
 #' @return A data.frame containing the metadata for all trials in TD.
 #'
+#' @family functions for TD objects
+#'
 #' @export
 getMeta <- function(TD) {
   if (missing(TD) || !inherits(TD, "TD")) {
@@ -998,6 +1000,8 @@ getMeta <- function(TD) {
 #' @param meta A data.frame containing metadata.
 #'
 #' @return The object of class TD with updated metadata.
+#'
+#' @family functions for TD objects
 #'
 #' @export
 setMeta <- function(TD,

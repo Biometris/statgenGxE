@@ -585,3 +585,20 @@ calcPlotBorders <- function(trDat,
   return(list(horW = horW, vertW = vertW))
 }
 
+## This function is a slightly modified copy of map_data from ggplot2 combined
+## with map.fortify also from ggplot2.
+## Using the normal function is not possible because both qtl and maps have
+## a class map and when building the vignette this gives an error.
+mapData <- function(xLim,
+                    yLim) {
+  mapObj <- maps::map("world", exact = FALSE, plot = FALSE,
+                       fill = TRUE, xlim = xLim, ylim = yLim)
+  df <- data.frame(long = mapObj$x, lat = mapObj$y)
+  df$group <- cumsum(is.na(df$long) & is.na(df$lat)) + 1
+  df$order <- 1:nrow(df)
+  names <- do.call("rbind", lapply(strsplit(mapObj$names, "[:,]"),
+                                   "[", 1:2))
+  df$region <- names[df$group, 1]
+  df$subregion <- names[df$group, 2]
+  return(df[stats::complete.cases(df$lat, df$long), ])
+}
