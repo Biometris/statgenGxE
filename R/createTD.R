@@ -508,10 +508,15 @@ print.summary.TD <- function(x, ...) {
     cat(paste("\nSummary statistics for", trait, "in", attr(x, "trial"),
               if (!is.null(groupBy)) paste("grouped by", groupBy), "\n\n"))
     if (dim(xPrint)[3] > 1) {
-      print(xPrint[, i, ], quote = FALSE, right = TRUE)
+      xPrintM <- matrix(nrow = nrow(xPrint), ncol = dim(xPrint)[3])
+      for (j in 1:nrow(xPrint)) {
+        xPrintM[j, ] <- xPrint[j, i, ]
+      }
+      dimnames(xPrintM) <- list(rownames(xPrint), dimnames(xPrint)[[3]])
+      print(xPrintM, quote = FALSE, right = TRUE)
     } else {
       xPrintM <- as.matrix(xPrint[, i , 1])
-      colnames(xPrintM) <- trait
+      dimnames(xPrintM) <- list(rownames(xPrint), trait)
       print(xPrintM, quote = FALSE, right = TRUE)
     }
   }

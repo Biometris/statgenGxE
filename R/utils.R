@@ -592,7 +592,7 @@ calcPlotBorders <- function(trDat,
 mapData <- function(xLim,
                     yLim) {
   mapObj <- maps::map("world", exact = FALSE, plot = FALSE,
-                       fill = TRUE, xlim = xLim, ylim = yLim)
+                       fill = TRUE, xlim = xLim, ylim = yLim, projection = )
   df <- data.frame(long = mapObj$x, lat = mapObj$y)
   df$group <- cumsum(is.na(df$long) & is.na(df$lat)) + 1
   df$order <- 1:nrow(df)
