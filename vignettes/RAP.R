@@ -48,7 +48,7 @@ plot(wheatTD, trials = "SR_FI_11")
 ## Plot the layout for SR_FI_11 with genotypes G278 and G279 highlighted.
 plot(wheatTD, trials = "SR_FI_11", highlight = c("G278", "G279"))
 
-## ----layoutPlotSB, fig.dim=c(8,8)----------------------------------------
+## ----layoutPlotSB, fig.height=8------------------------------------------
 ## Plot the layout for SR_FI_11, color subBlocks.
 plot(wheatTD, trials = "SR_FI_11", colorSubBlock = TRUE)
 
@@ -75,6 +75,7 @@ plot(wheatTD, plotType = "box", traits = "GY", groupBy = "year",
 plot(wheatTD, plotType = "cor", traits = "GY")
 
 ## ----fitSp, message=FALSE------------------------------------------------
+## Fit a single trial model.
 modWheatSp <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
                          design = "res.rowcol")
 
@@ -84,12 +85,15 @@ modWheatSp2 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
                           what = "random", design = "res.rowcol")
 
 ## ----fitSpCtr, message=FALSE---------------------------------------------
+## Fit a spatial single trial model using SpATS. 
+## Manually specify the number of segments for rows and columns.
 modWheatSp3 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
                           design = "res.rowcol", 
                           control = list(nSeg = c(20, 20)))
 
 ## ----fitAs, message=FALSE, results='hide'--------------------------------
 if (requireNamespace("asreml", quietly = TRUE)) {
+  ## Fit a spatial single trial model using asreml.
   modWheatAs <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
                            design = "res.rowcol", trySpatial = TRUE,
                            engine = "asreml", control = list(criterion = "BIC"))
@@ -97,22 +101,18 @@ if (requireNamespace("asreml", quietly = TRUE)) {
 
 ## ----spatCh--------------------------------------------------------------
 if (requireNamespace("asreml", quietly = TRUE)) {
-  ## Best model
+  ## Extract the best model
   modWheatAs$SR_FI_11$spatial$GY
-}  
-
-## ----spatCh2-------------------------------------------------------------
-if (requireNamespace("asreml", quietly = TRUE)) {
   ## Overview of fitted models
   print(modWheatAs$SR_FI_11$sumTab$GY, digits = 2)
-}
+}  
 
 ## ----fitSum, message=FALSE-----------------------------------------------
 ## Set nBest to 5 to decrease size of output.
 summary(modWheatSp, nBest = 5)
 
 ## ----basePlot------------------------------------------------------------
-## Plot for the model with genotype fitted as random effect.
+## Base plots for the model with genotype fitted as random effect.
 plot(modWheatSp, what = "random")
 
 ## ----spatPlot------------------------------------------------------------
@@ -132,17 +132,19 @@ BLUEsWheat <- STExtract(SSA = modWheatSp, what = "BLUEs")
 predWheat <- STExtract(SSA = modWheatSp, what = c("BLUEs", "BLUPs"))
 
 ## ----extBLUEsKeep--------------------------------------------------------
+## Extract BLUEs from the fitted model.
 BLUEsWheat2 <- STExtract(SSA = modWheatSp, what = "BLUEs", keep = "trial")
-head(BLUEsWheat2[[1]]$BLUEs)
+head(BLUEsWheat2[["SR_FI_11"]]$BLUEs)
 
 ## ----extFit--------------------------------------------------------------
+## Extract fitted values from the model.
 fitVals <- STExtract(SSA = modWheatSp, what = "fitted", 
                      keep = c("trial", "repId"))
-head(fitVals[[1]]$fitted)
+head(fitVals[["SR_FI_11"]]$fitted)
 
 ## ----SSAtoTD-------------------------------------------------------------
 ## Fit a model for all trials with genotype as fixed factor.
-modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design = "res.rowcol")
+modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design =                                     "res.rowcol")
 ## Create a TD object containing BLUEs and standard errors of BLUEs.
 TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
 ## Add weights to the output.
