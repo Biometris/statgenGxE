@@ -685,7 +685,8 @@ plot.TD <- function(x,
       } else if (plotSubBlock && colorSubBlock) {
         ## Color tiles by subblock.
         pTr <- pTr + ggplot2::geom_tile(
-          ggplot2::aes_string(fill = "subBlock"), color = "grey75")
+          ggplot2::aes_string(fill = "subBlock"), color = "grey75") +
+          ggplot2::guides(fill = ggplot2::guide_legend(ncol = 3))
       } else {
         ## No subblocks and no hightlights so just a single fill color.
         pTr <- pTr + ggplot2::geom_tile(fill = "white", color = "grey75")
