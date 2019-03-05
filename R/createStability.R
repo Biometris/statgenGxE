@@ -34,19 +34,22 @@ createstability <- function(superiority = NULL,
 
 #' @export
 print.stability <- function(x,
-                            ...) {
+                            ...,
+                            pctGeno = 10) {
   if (!is.null(x$superiority)) {
-    cat("\nCultivar-superiority measure (Top 10% genotypes)\n")
-    print(x$superiority[1:(ceiling(nrow(x$superiority) / 10)), ],
+    cat("\nCultivar-superiority measure (Top", pctGeno, "% genotypes)\n")
+    print(x$superiority[1:(ceiling(nrow(x$superiority) / 100 * pctGeno)), ],
           row.names = FALSE)
   }
   if (!is.null(x$static)) {
-    cat("\nStatic stability (Top 10% genotypes)\n")
-    print(x$static[1:(ceiling(nrow(x$static) / 10)), ], row.names = FALSE)
+    cat("\nStatic stability (Top", pctGeno, "% genotypes)\n")
+    print(x$static[1:(ceiling(nrow(x$static) / 100 * pctGeno)), ],
+          row.names = FALSE)
   }
   if (!is.null(x$wricke)) {
-    cat("\nWricke's ecovalence (Top 10% genotypes)\n")
-    print(x$wricke[1:(ceiling(nrow(x$wricke) / 10)), ], row.names = FALSE)
+    cat("\nWricke's ecovalence (Top", pctGeno, "% genotypes)\n")
+    print(x$wricke[1:(ceiling(nrow(x$wricke) / 100 * pctGeno)), ],
+          row.names = FALSE)
   }
 }
 
@@ -75,6 +78,7 @@ summary.stability <- function(object,
 #' plot(geStab)
 #'
 #' @import graphics grDevices
+#'
 #' @export
 plot.stability <- function(x,
                            ...,
