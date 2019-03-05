@@ -5,8 +5,10 @@ comment = "#>",
 fig.dim = c(6, 4)
 )
 library(RAP)
+## Call requireNamespace here to prevent license output in first call in vignette.
+requireNamespace("asreml", quietly = TRUE)
 
-## ---- include = FALSE, messages = FALSE----------------------------------
+## ---- include = FALSE, message = FALSE-----------------------------------
 ## Recreate data from last step in RAP vignette.
 data("wheatChl")
 wheatTD <- createTD(data = wheatChl, 
@@ -112,8 +114,8 @@ plot(geStab)
 #  report(geStab, outfile = "./myReports/stabReport.pdf")
 
 ## ----geStabMegaEnv-------------------------------------------------------
-## Compute stabilities measures based on mega environments computed in 
+## Compute stabilities measures based on mega environments computed in the 
 ## previous paragraph.
 geStabME <- gxeStability(TD = geMegaEnv, trait = "BLUEs_GY", useMegaEnv = TRUE)
-summary(geStabME)
+summary(geStabME, pctGeno = 2)
 
