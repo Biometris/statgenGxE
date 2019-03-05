@@ -187,34 +187,48 @@ plot(geGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 
 With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank genotypes based on phenotypic stability for each individual trait.  
 
-In the RAP package this analysis can be done using the gxeFW function.
+In the RAP package this analysis can be done using the `gxeFW` function. By default all 
+trials in the `TD` object are used in the analysis, but this can be restricted using the
+parameter `trials`. The genotypes included in the analysis can be restricted using `restrictGeno`.
 ```{r geFW}
+## Perform a Finlay-Wilkinson analysis for all trials.
 geFW <- gxeFw(TD = TDGxE, trait = "BLUEs_GY")
 summary(geFW)
 ```
-Several plots can be made to investigate the output of the analysis.
+Three types of plots can be made to investigate the output of the analysis. `plotType = "scatter"` creates three scatter plots where genotypic mean, mean squared deviation and sensitivity are plotted against each other. `plotType = "line"` creates a plot with fitted lines for all genotypes in the analysis. `plotType = trellis` creates a trellis plot with individual slopes per genotype. At most 64 genotypes are plotted. It is possible to select genotypes using the parameter `genotypes`.
 ```{r plotFW,fig.width=5,fig.height=5,out.width="47%",fig.show="hold"}
 plot(geFW, plotType = "scatter")
 plot(geFW, plotType = "line")
 plot(geFW, plotType = "trellis")
 ```
   
-A report can be made as well.
+A report can be made as well containing a summary of the analysis.
 ```{r geFWRep, eval=FALSE}
 report(geFW, outfile = "./myReports/FWReport.pdf")
 ```
 
 ## Computation of mega environments {#me}
 
-For the computation of mega environments an AMMI model is fitted and then using the fitted values of this model the environments are clustered  
+For the computation of mega environments, an AMMI model is fitted and then, using the fitted values of this model, the environments are clustered.
 Mega environments can be created by two methods. The first method groups environments based on their best performing genotype; i.e. environments that share the same best genotype belong to the same mega environment, regardless whether environments correspond to years or locations.  
 In the second method genotypes that are above a certain quantile are used to classify locations into mega environments that are consistent across years. In this method, genotypes are scored according to whether they are above the `cutOff` threshold for the genotypic ranking within each location (1 if a genotype is above the cutOff and 0 if below). This genotype by location matrix with 1's and 0's is used to calculate the correlation between locations. Then, correlations across years are combined using the method by Charter and Alexander [@Charter1993]. The combined correlations are used to calculate Euclidean distances for hierarchical clustering. The number of mega environments obtained with the hierarchical clustering procedure is chosen to maximize
 the correlated response to selection within mega environments, as proposed in Atlin et al [@Atlin2000].  
-Since the test data doesn't contain information about the year only the first method is available for this data. This is the default setting for the gxeMegaEnv function.
+Since the test data doesn't contain information about the year only the first method is available for this data. This is the default setting for the `gxeMegaEnv` function.
 ```{r geMegaEnv}
 geMegaEnv <- gxeMegaEnv(TD = TDGxE, trait = "BLUEs_GY")
 ```
-As can be seen in the column Mega Factor in the output, four mega environments have been created. In the environments SR_FI_11 and SR_MWS_11 G276 is the best genotype so those two environments have been clustered together. The other three environments have different winning genotypes and therefore are in their own mega environment.
+As can be seen in the column Mega Factor in the output, four mega environments have been created. In the environments SR_FI_11 and SR_MWS_11 G276 is the best genotype so these two environments have been clustered together. The other three environments have different winning genotypes and therefore form their own mega environment.
+
+The values for the BLUPs and associated standard errors for the genotypes based on the
+calculated mega environments can be computed using the function `gxeTable`. This can be
+done using either "asreml" or "lme4" as an engine for fitting 
+
+```{r geMegaEnvPred}
+if (requireNamespace(package = "asreml", quietly = TRUE)) {
+  geMegaEnvPred <- gxeTable(TD = geMegaEnv, trait = "BLUEs_GY", engine = "asreml")
+  head(geMegaEnvPred$predictedValue)
+}
+```
 
 ## Computation of stability measures {#st}
 
@@ -223,19 +237,19 @@ cultivar-superiority measure of Lin & Binns [@LIN1988], Shukla's [@Shukla1972] s
 
 The cultivar-superiority measure is the sum of the squares of the difference between genotypic mean in each environment and the mean of the best genotype, divided by twice the number of environments. Genotypes with the smallest values of the superiority tend to be more stable, and closer to the best genotype in each environment.
 
-Shukla's stability variance (static stability) is defined as the variance around the germplasm’s phenotypic mean across all environments. This provides a measure of the consistency of the genotype, without accounting for performance.
+Shukla's stability variance (static stability) is defined as the variance around the genotype’s phenotypic mean across all environments. This provides a measure of the consistency of the genotype, without accounting for performance.
 
-Wricke’s Ecovalence Stability Coefficient is the contribution of each genotype to the GxE sum of squares, in an unweighted analysis of the GxE means. A low value indicates that the genotype responds in a consistent manner to changes in environment; i.e. stable from a dynamic point of view. Like static stability, the Wricke’s Ecovalence does not account for genotype performance.
+Wricke’s Ecovalence Stability Coefficient is the contribution of each genotype to the GxE sum of squares, in an unweighted analysis of the GxE means. A low value indicates that the genotype responds in a consistent manner to changes in environment; i.e. is stable from a dynamic point of view. Like static stability, the Wricke’s Ecovalence does not account for genotype performance.
 
 ```{r geStab}
 geStab <- gxeStability(TD = TDGxE, trait = "BLUEs_GY")
-summary(geStab)
+summary(geStab, pctGeno = 2)
 ```
-Plotting the results yields a scatter plot for each stability measure.
+Plotting the results yields a scatter plot for each stability measure, plotted against the genotypic mean.
 ```{r plotStab}
 plot(geStab)
 ```
-For the computation of stability measures a report can be made.
+For the computation of stability measures a summary report can be made.
 ```{r geStabRep, eval=FALSE}
 report(geStab, outfile = "./myReports/stabReport.pdf")
 ```
@@ -245,9 +259,8 @@ It is possible to calculate the stability measures based on mega environments in
 ## Compute stabilities measures based on mega environments computed in 
 ## previous paragraph.
 geStabME <- gxeStability(TD = geMegaEnv, trait = "BLUEs_GY", useMegaEnv = TRUE)
-summary(geStabME)
+summary(geStabME, pctGeno = 2)
 ```
-
 
 ----
 

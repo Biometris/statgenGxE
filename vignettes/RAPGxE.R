@@ -60,7 +60,7 @@ summary(geAm3)
 plot(geAm, scale = 0.5, plotType = "AMMI1")
 plot(geAm, scale = 0.5, plotType = "AMMI2")
 
-## ----plotAmmi2, fig.width=5, fig.height=5, out.width="75%", fig.show="hold"----
+## ----plotAmmi2, fig.width=5, fig.height=5, out.width="75%"---------------
 ## Create an AMMI2 biplot with convex hull around the genotypes and genotype names 
 ## displayed. Blow up genotypic scores by using envFactor = 0.3
 plot(geAm, scale = 0.5, plotType = "AMMI2", sizeGeno = 2, plotConvHull = TRUE, 
@@ -75,12 +75,12 @@ plot(geAm, scale = 0.5, plotType = "AMMI2", sizeGeno = 2, plotConvHull = TRUE,
 geGGE <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", GGE = TRUE)
 summary(geGGE)
 
-## ----plotGGE, fig.width=5, fig.height=5, out.width="47%", fig.show="hold"----
+## ----plotGGE, fig.width=5, fig.height=5, out.width="75%"-----------------
 ## Create an GGE1 and GGE2 biplot.
-plot(geGGE, scale = 0.5, plotType = "GGE1")
-plot(geGGE, scale = 0.5, plotType = "GGE2")
+plot(geGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 
 ## ----geFW----------------------------------------------------------------
+## Perform a Finlay-Wilkinson analysis for all trials.
 geFW <- gxeFw(TD = TDGxE, trait = "BLUEs_GY")
 summary(geFW)
 
@@ -95,9 +95,15 @@ plot(geFW, plotType = "trellis")
 ## ----geMegaEnv-----------------------------------------------------------
 geMegaEnv <- gxeMegaEnv(TD = TDGxE, trait = "BLUEs_GY")
 
+## ----geMegaEnvPred-------------------------------------------------------
+if (requireNamespace(package = "asreml", quietly = TRUE)) {
+  geMegaEnvPred <- gxeTable(TD = geMegaEnv, trait = "BLUEs_GY", engine = "asreml")
+  head(geMegaEnvPred$predictedValue)
+}
+
 ## ----geStab--------------------------------------------------------------
 geStab <- gxeStability(TD = TDGxE, trait = "BLUEs_GY")
-summary(geStab)
+summary(geStab, pctGeno = 2)
 
 ## ----plotStab------------------------------------------------------------
 plot(geStab)
