@@ -426,7 +426,7 @@ plotAMMI1 <- function(loadings,
         ggplot2::geom_text(data = genoDat,
                            ggplot2::aes_string(x = "x", y = "y",
                                                label = "rownames(genoDat)"),
-                           size = sizeGeno, vjust = 1, color = colGeno)
+                           size = sizeGeno, vjust = 1, color = colGeno[1])
     }
   }
   if (plotEnv) {
@@ -434,7 +434,7 @@ plotAMMI1 <- function(loadings,
     p <- p + ggplot2::geom_text(data = envDat,
                                 ggplot2::aes_string(x = "x", y = "y",
                                                     label = "rownames(envDat)"),
-                                size = sizeEnv, vjust = 1, color = colEnv)
+                                size = sizeEnv, vjust = 1, color = colEnv[1])
   }
   return(p)
 }
@@ -517,7 +517,7 @@ plotAMMI2 <- function(loadings,
       p <- p + ## Plot genotypes as text.
         ggplot2::geom_text(data = genoDat,
                            ggplot2::aes_string(label = "rownames(genoDat)"),
-                           size = sizeGeno, vjust = 1, color = colGeno)
+                           size = sizeGeno, vjust = 1, color = colGeno[1])
     }
     if (plotConvHull) {
       ## Compute convex hull for the points.
@@ -576,7 +576,7 @@ plotAMMI2 <- function(loadings,
                                 ggplot2::aes_string(x = primAxis, y = secAxis,
                                                     label = "rownames(envDat)"),
                                 size = sizeEnv, vjust = "outward",
-                                hjust = "outward", color = colEnv) +
+                                hjust = "outward", color = colEnv[1]) +
       ## Add arrows from origin to environments.
       ## Adding alpha = for transparency causes the arrows not being plotted
       ## after turning off clipping which is needed since labels may fall off
