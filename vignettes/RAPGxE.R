@@ -2,11 +2,11 @@
 knitr::opts_chunk$set(
 collapse = TRUE,
 comment = "#>",
-fig.dim = c(7, 5)
+fig.dim = c(6, 4)
 )
 library(RAP)
 
-## ---- include = FALSE----------------------------------------------------
+## ---- include = FALSE, messages = FALSE----------------------------------
 ## Recreate data from last step in RAP vignette.
 data("wheatChl")
 wheatTD <- createTD(data = wheatChl, 
@@ -22,7 +22,7 @@ geVC <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY")
 summary(geVC)
 
 ## ----geVCasreml----------------------------------------------------------
-## Use asreml for fitting the models - 8 models fitted. 
+## Use asreml for fitting the models - eight models fitted. 
 ## Use AIC as criterion for determining the best model.
 if (requireNamespace("asreml", quietly = TRUE)) {
   geVC2 <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY", engine = "asreml", 
@@ -44,22 +44,41 @@ geAm <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY")
 summary(geAm)
 
 ## ----geAmmi2-------------------------------------------------------------
-## Run gxeAmmi with 3 principal components.
-geAm2 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = 3)
+## Run gxeAmmi. Algorithm determines number of principal components.
+geAm2 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = NULL)
 summary(geAm2)
 
 ## ----geAmmi3-------------------------------------------------------------
-## Run gxeAmmi. Algorithm determines number of principal components.
-geAm3 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = NULL)
+## Run gxeAmmi with three principal components.
+## Exclude genotypes G278 and G279.
+geAm3 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = 3, 
+                 excludeGeno = c("G278", "G279"))
 summary(geAm3)
 
-## ----plotAmmi,fig.width=5,fig.height=5,out.width="47%",fig.show="hold"----
+## ----plotAmmi, fig.width=5, fig.height=5, out.width="47%", fig.show="hold"----
 ## Create an AMMI1 and AMMI2 biplot.
 plot(geAm, scale = 0.5, plotType = "AMMI1")
 plot(geAm, scale = 0.5, plotType = "AMMI2")
 
+## ----plotAmmi2, fig.width=5, fig.height=5, out.width="75%", fig.show="hold"----
+## Create an AMMI2 biplot with convex hull around the genotypes and genotype names 
+## displayed. Blow up genotypic scores by using envFactor = 0.3
+plot(geAm, scale = 0.5, plotType = "AMMI2", sizeGeno = 2, plotConvHull = TRUE, 
+     envFactor = 0.3)
+
+
 ## ----geAMMIRep, eval=FALSE-----------------------------------------------
 #  report(geAm, outfile = "./myReports/AMMIReport.pdf")
+
+## ----geGGE---------------------------------------------------------------
+## Run gxeAmmi with default settings.
+geGGE <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", GGE = TRUE)
+summary(geGGE)
+
+## ----plotGGE, fig.width=5, fig.height=5, out.width="47%", fig.show="hold"----
+## Create an GGE1 and GGE2 biplot.
+plot(geGGE, scale = 0.5, plotType = "GGE1")
+plot(geGGE, scale = 0.5, plotType = "GGE2")
 
 ## ----geFW----------------------------------------------------------------
 geFW <- gxeFw(TD = TDGxE, trait = "BLUEs_GY")
