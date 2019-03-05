@@ -71,16 +71,19 @@ print.AMMI <- function(x,
   } else {
     print(x$importance[, 1:ncol(x$envScores), drop = FALSE])
   }
-  cat("\nAnova",
-      "\n=====\n")
-  if (x$byYear) {
-    for (year in years) {
-      cat(paste(year, "\n"))
-      printCoefmat(x$anova[[year]], na.print = "")
-      cat("\n")
+  ## For GGE analysis an anova table is meaningless and therefore not printed.
+  if (!x$GGE) {
+    cat("\nAnova",
+        "\n=====\n")
+    if (x$byYear) {
+      for (year in years) {
+        cat(paste(year, "\n"))
+        printCoefmat(x$anova[[year]], na.print = "")
+        cat("\n")
+      }
+    } else {
+      printCoefmat(x$anova, na.print = "")
     }
-  } else {
-    printCoefmat(x$anova, na.print = "")
   }
   cat("\nEnvironment scores",
       "\n==================\n")
@@ -345,7 +348,7 @@ plot.AMMI <- function(x,
                      sizeGeno = sizeGeno, plotConvHull = plotConvHull,
                      plotEnv = plotEnv, colEnv = colEnv, sizeEnv = sizeEnv,
                      colorBy = colorBy)
-      }
+    }
   }
   if (output) {
     if (x$byYear) {
