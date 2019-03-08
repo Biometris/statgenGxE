@@ -49,6 +49,9 @@ Extra parameter options:
 Defaults to \code{FALSE}}
 \item{highlight}{A character vector of genotypes to be highlighted in the
 plot.}
+\item{colorSubBlock}{Should subBlocks be colored with a different color per
+subBlock? Defaults to \code{FALSE}. \code{colorSubBlock} is ignored when
+highlight is used to highlight genotypes.}
 }
 }
 
@@ -96,3 +99,9 @@ computing correlations. The order of the trials in the heatmap is determined
 by clustering them.
 }
 
+\seealso{
+Other functions for TD objects: \code{\link{TD}},
+  \code{\link{getMeta}}, \code{\link{setMeta}},
+  \code{\link{summary.TD}}
+}
+\concept{functions for TD objects}

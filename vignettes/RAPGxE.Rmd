@@ -3,8 +3,9 @@ title: "Genotype by Environment analysis using RAP"
 author: "Bart-Jan van Rossum"
 date: "`r Sys.Date()`"
 output: 
-  rmarkdown::pdf_document:
+  rmarkdown::html_vignette:
     toc: false
+    number_sections: false
 bibliography: bibliography.bib
 vignette: >
   %\VignetteIndexEntry{Genotype by Environment analysis using RAP}
@@ -16,12 +17,14 @@ vignette: >
 knitr::opts_chunk$set(
 collapse = TRUE,
 comment = "#>",
-fig.dim = c(7, 5)
+fig.dim = c(6, 4)
 )
 library(RAP)
+## Call requireNamespace here to prevent license output in first call in vignette.
+requireNamespace("asreml", quietly = TRUE)
 ```
 
-```{r, include = FALSE}
+```{r, include = FALSE, message = FALSE}
 ## Recreate data from last step in RAP vignette.
 data("wheatChl")
 wheatTD <- createTD(data = wheatChl, 
@@ -32,13 +35,15 @@ modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design 
 TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
 ```
 
+---
+
 ## Genotype by Environment Analysis using the RAP package
 
-The RAP package is developed as an easy to use package for analysing data of 
-plant breeding experiments with plenty of options for plotting and reporting 
+The RAP package is developed as an easy to use package for analyzing data of 
+plant breeding experiments with many options for plotting and reporting 
 the results of the analyses.  
 
-The package has 3 main components:
+The package has three main components:
 
 * Modeling trial data for single trials and extracting results
 * Genotype by Environment (GxE) analysis
@@ -51,6 +56,7 @@ The following types of analysis can be done using RAP:
 
 * [Best variance-covariance model](#vc)
 * [AMMI Analysis](#am)
+* [GGE Analysis](#gge)
 * [Finlay-Wilkinson Analysis](#fw)
 * [Computation of mega environments](#me)
 * [Computation of stability measures](#st)
@@ -59,11 +65,11 @@ The following types of analysis can be done using RAP:
 
 ## Data preparation
 
-Just as for the analysis of single field trials the input for GxE analysis in the RAP package is an object of class TD. For a detailed description on how to construct such an object see the vignette [Modeling field trials using RAP](RAP.html). For this vignette the TD object created in the final step of this vignette, ```TDGxE```, will be used as analysis object.
+Just as for the analysis of single field trials, the input for GxE analysis in the RAP package is an object of class TD. For a detailed description on how to construct such an object see the vignette [Modeling field trials using RAP](RAP.html). The TD object created in the final step of this vignette, `TDGxE`, will be used for the GxE analyses in the current vignette.
 
 ## Best variance-covariance model {#vc}
 
-The function gxeVarComp fits models with different variance-covariance structures to the GxE data and determines the best model for the data. With the default settings for the function lme4 is used for fitting the models and only a compound symmetry model is fitted. When changing the modeling engine to asreml 8 different models are fitted:  
+The function gxeVarComp fits models with different variance-covariance structures to the GxE data and determines the best model for the data. With the default settings for the function lme4 is used for fitting the models and only a compound symmetry model is fitted. When changing the modeling engine to asreml eight models with different variance-covariance structures are fitted:  
 
 * identity
 * compound symmetry
@@ -74,9 +80,9 @@ The function gxeVarComp fits models with different variance-covariance structure
 * factor analytic with two factors
 * unstructured
 
-The best model for the data is selected based on either the Akaike Information Criterion (AIC) or the Baysian Information Criterion (BIC). Which criterion is used is determined by the parameter ```criterion``` in the function ```gxeVarComp```.  
+The best model for the data is selected based on either the Akaike Information Criterion (AIC) or the Baysian Information Criterion (BIC). Which criterion is used is determined by the parameter `criterion` in the function `gxeVarComp`.  
 
-Using the ```TDGxE``` TD object created in the RAP vignette the function can be used as follows:
+Using the `TDGxE` TD object created in the vignette [Modeling field trials using RAP](RAP.html) the function can be used as follows:
 ```{r geVClme}
 ## Use lme4 for fitting the models - only compound symmetry.
 geVC <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY")
@@ -84,7 +90,7 @@ summary(geVC)
 ```
 
 ```{r geVCasreml}
-## Use asreml for fitting the models - 8 models fitted. 
+## Use asreml for fitting the models - eight models fitted. 
 ## Use AIC as criterion for determining the best model.
 if (requireNamespace("asreml", quietly = TRUE)) {
   geVC2 <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY", engine = "asreml", 
@@ -92,8 +98,8 @@ if (requireNamespace("asreml", quietly = TRUE)) {
   summary(geVC2)
 }
 ```
-As becomes clear from the summary the best model based on AIC is the model with a factor analytic variance-covariance structure with two factors. 
-Note that for the both factor analytic models to be fitted a minimum of 5 environments are needed. If the data contains less environments those two models are skipped.
+As becomes clear from the summary, the best model based on AIC is the model with a factor analytic variance-covariance structure with two factors. 
+Note that for the both factor analytic models to be fitted a minimum of five environments are needed. If the data contains less environments, those two models are skipped.
 
 A heat map of the correlation between the environments based on the best fitted model can be plotted. 
 
@@ -103,9 +109,9 @@ if (requireNamespace("asreml", quietly = TRUE)) {
 }
 ```
   
-The upper left of the plot displays the variance between environments. Larger values are displayed in a bigger font. In the lower right of the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue a strong negative correlation.  
+The upper left of the plot displays the variance between environments. Larger values are displayed in a bigger font. In the lower right of the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue a strong negative correlation. Environments are clustered by their correlations and ordered according to the results of the clustering.
 
-A report containing the most important results of the analysis can be made as well.
+A pdf report containing the most important results of the analysis can be made using the `report` function.
 ```{r geVCRep, eval=FALSE}
 report(geVC2, outfile = "./myReports/varCompReport.pdf")
 ```
@@ -114,70 +120,117 @@ report(geVC2, outfile = "./myReports/varCompReport.pdf")
 
 The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with the Multiplicative Interaction effects. Then a principal component analysis is done on the residuals (multiplicative interaction). This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials.  
 
-The ammi analysis can be performed with the RAP package using the function gxeAmmi. 
+The AMMI analysis can be performed with the RAP package using the function gxeAmmi. 
 ```{r geAmmi}
 ## Run gxeAmmi with default settings.
 geAm <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY")
 summary(geAm)
 ```
-With the default settings in the principal components analysis a maximum of 2 principal components are used. This can be changed using the ```nPC``` parameter in the function. The number of principal components can never be larger than the number of environments and the number of genotypes in the data. By specifying ```nPC = NULL``` the algorithm will determine the number of principal components to use using a method of forward selection.
+With the default settings in the principal components analysis a maximum of two principal components are used. This can be changed using the `nPC` parameter in the function. The number of principal components can never be larger than the number of environments and the number of genotypes in the data. By specifying `nPC = NULL` the algorithm will determine the number of principal components by a method of forward selection.
 ```{r geAmmi2}
-## Run gxeAmmi with 3 principal components.
-geAm2 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = 3)
+## Run gxeAmmi. Algorithm determines number of principal components.
+geAm2 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = NULL)
 summary(geAm2)
 ```
+
+It is possible to exclude certain genotypes, e.g. outliers, from the analysis using the parameter `excludeGeno`.
+
 ```{r geAmmi3}
-## Run gxeAmmi. Algorithm determines number of principal components.
-geAm3 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = NULL)
+## Run gxeAmmi with three principal components.
+## Exclude genotypes G278 and G279.
+geAm3 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = 3, 
+                 excludeGeno = c("G278", "G279"))
 summary(geAm3)
 ```
-If the data contains a column year it is possible to perform the AMMI analysis per year in the data. This can be done by specifying the parameter ```byYear = TRUE```.  
+If the data contains a column year, it is possible to perform the AMMI analysis per year in the data. This can be done by specifying the parameter `byYear = TRUE`.  
 
 The results of an AMMI analysis can be displayed in a biplot. Two types of biplot are available. "AMMI1" plots the main effects against the first principal component. "AMMI2" plots the first against the second principal component.
-```{r plotAmmi,fig.width=5,fig.height=5,out.width="47%",fig.show="hold"}
+```{r plotAmmi, fig.width=5, fig.height=5, out.width="47%", fig.show="hold"}
 ## Create an AMMI1 and AMMI2 biplot.
 plot(geAm, scale = 0.5, plotType = "AMMI1")
 plot(geAm, scale = 0.5, plotType = "AMMI2")
 ```
-The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axis, group and color genotypes by a variable in the data and use a different scaling factor. Run ```help(plot.AMMI)``` for more details.  
 
-For the AMMI analysis a report can be made as well.
+The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axis using `primAxis` and `secAxis`. Genotypes can be grouped and colored by a variable in the data using `groupBy` and `colorBy`. A convex hull can be plotted around the genotypes in an AMMI2 biplot with lines from the origin perpendicular to the edges of the hull. This is usefull for identifying mega environments. Genotypes can be left out of the plot completely by setting `plotGeno = FALSE` and similarly `plotEnv = FALSE` assures no environments are plotted. For displaying genotypes by their names instead of points, use `sizeGeno` with a size larger than zero. `envFactor` can be used to blow up the environmental scores in the plot. A value for `envFactor` between zero and one effectively blows up the genotypic scores. Some more options are available for sizing and coloring. Run `help(plot.AMMI)` for full details.  
+```{r plotAmmi2, fig.width=5, fig.height=5, out.width="75%"}
+## Create an AMMI2 biplot with convex hull around the genotypes and genotype names 
+## displayed. Blow up genotypic scores by using envFactor = 0.3
+plot(geAm, scale = 0.5, plotType = "AMMI2", sizeGeno = 2, plotConvHull = TRUE, 
+     envFactor = 0.3)
+
+```
+
+For the AMMI analysis a report can be made using the `report` function.
 ```{r geAMMIRep, eval=FALSE}
 report(geAm, outfile = "./myReports/AMMIReport.pdf")
 ```
 
+## GGE Analysis {#gge}
+
+A Genotype plus Genotype by Environment analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. The rest of the analysis is identical to an AMMI analysis and is done in RAP by running the function `gxeAmmi` with parameter
+`GGE = TRUE`.
+
+```{r geGGE}
+## Run gxeAmmi with default settings.
+geGGE <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", GGE = TRUE)
+summary(geGGE)
+```
+
+Options for plotting results of a GGE analysis are identical to those for an AMMI analysis.
+`plotType` "GGE1" and "GGE2" may be used as substitutes for "AMMI1" and "AMMI2", but the
+latter are valid options as well.
+```{r plotGGE, fig.width=5, fig.height=5, out.width="75%"}
+## Create an GGE1 and GGE2 biplot.
+plot(geGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
+```
+
+
 ## Finlay-Wilkinson Analysis {#fw}
 
-With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank germplasm based on phenotypic stability for each individual trait.  
+With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank genotypes based on phenotypic stability for each individual trait.  
 
-In the RAP package this analysis can be done using the gxeFW function.
+In the RAP package this analysis can be done using the `gxeFW` function. By default all 
+trials in the `TD` object are used in the analysis, but this can be restricted using the
+parameter `trials`. The genotypes included in the analysis can be restricted using `restrictGeno`.
 ```{r geFW}
+## Perform a Finlay-Wilkinson analysis for all trials.
 geFW <- gxeFw(TD = TDGxE, trait = "BLUEs_GY")
 summary(geFW)
 ```
-Several plots can be made to investigate the output of the analysis.
+Three types of plots can be made to investigate the output of the analysis. `plotType = "scatter"` creates three scatter plots where genotypic mean, mean squared deviation and sensitivity are plotted against each other. `plotType = "line"` creates a plot with fitted lines for all genotypes in the analysis. `plotType = "trellis"` creates a trellis plot with individual slopes per genotype. At most 64 genotypes are plotted. It is possible to select genotypes using the parameter `genotypes`.
 ```{r plotFW,fig.width=5,fig.height=5,out.width="47%",fig.show="hold"}
 plot(geFW, plotType = "scatter")
 plot(geFW, plotType = "line")
 plot(geFW, plotType = "trellis")
 ```
   
-A report can be made as well.
+A report can be made as well containing a summary of the analysis.
 ```{r geFWRep, eval=FALSE}
 report(geFW, outfile = "./myReports/FWReport.pdf")
 ```
 
 ## Computation of mega environments {#me}
 
-For the computation of mega environments an AMMI model is fitted and then using the fitted values of this model the environments are clustered  
-Mega environments can be created by two methods. The first method groups environments based on their best performing genotype; i.e. environments that share the same best genotype belong to the same mega environment, regardless whether environments correspond to years or locations.  
-In the second method genotypes that are above a certain quantile are used to classify locations into mega environments that are consistent across years. In this method, genotypes are scored according to whether they are above the ```cutOff``` threshold for the genotypic ranking within each location (1 if a genotype is above the cutOff and 0 if below). This genotype by location matrix with 1's and 0's is used to calculate the correlation between locations. Then, correlations across years are combined using the method by Charter and Alexander [@Charter1993]. The combined correlations are used to calculate Euclidean distances for hierarchical clustering. The number of mega environments obtained with the hierarchical clustering procedure is chosen to maximize
+For the computation of mega environments, an AMMI model is fitted and then, using the fitted values from this model, the environments are clustered.
+Mega environments can be created by two clustering methods. The first method groups environments based on their best performing genotype. Environments that share the same best genotype belong to the same mega environment, regardless whether environments correspond to years or locations.  
+In the second method, genotypes that are above a certain quantile are used to classify locations into mega environments that are consistent across years. In this method, genotypes are scored according to whether they are above the `cutOff` threshold for the genotypic ranking within each location (1 if a genotype is above the threshold and 0 otherwise). This gives a genotype by location matrix with 1's and 0's that is used to calculate the correlation between locations. Then correlations across years are combined using the method by Charter and Alexander [@Charter1993]. The combined correlations are used to calculate Euclidean distances for hierarchical clustering. The number of mega environments obtained with the hierarchical clustering procedure is chosen to maximize
 the correlated response to selection within mega environments, as proposed in Atlin et al [@Atlin2000].  
-Since the test data doesn't contain information about the year only the first method is available for this data. This is the default setting for the gxeMegaEnv function.
+Since the test data doesn't contain information about the year, only the first method is available for this data. This is the default setting for the `gxeMegaEnv` function.
 ```{r geMegaEnv}
 geMegaEnv <- gxeMegaEnv(TD = TDGxE, trait = "BLUEs_GY")
 ```
-As can be seen in the column Mega Factor in the output 4 mega environments have been created. In the environments SR_FI_11 and SR_MWS_11 G276 is the best genotype so those two environments have been clustered together. The other three environments have different winning genotypes and therefore are in their own mega environment.
+As can be seen in the column Mega Factor in the output, four mega environments have been created. In the environments SR_FI_11 and SR_MWS_11 G276 is the best genotype, so these two environments are clustered together. The other three environments have different winning genotypes and therefore form their own mega environment.
+
+The values for the BLUPs and associated standard errors for the genotypes based on the
+calculated mega environments, can be computed using the function `gxeTable`. This can be
+done using either "asreml" or "lme4" as an engine for fitting.
+
+```{r geMegaEnvPred}
+if (requireNamespace(package = "asreml", quietly = TRUE)) {
+  geMegaEnvPred <- gxeTable(TD = geMegaEnv, trait = "BLUEs_GY", engine = "asreml")
+  head(geMegaEnvPred$predictedValue)
+}
+```
 
 ## Computation of stability measures {#st}
 
@@ -186,31 +239,31 @@ cultivar-superiority measure of Lin & Binns [@LIN1988], Shukla's [@Shukla1972] s
 
 The cultivar-superiority measure is the sum of the squares of the difference between genotypic mean in each environment and the mean of the best genotype, divided by twice the number of environments. Genotypes with the smallest values of the superiority tend to be more stable, and closer to the best genotype in each environment.
 
-Shukla's stability variance (static stability) is defined as the variance around the germplasm’s phenotypic mean across all environments. This provides a measure of the consistency of the genotype, without accounting for performance.
+Shukla's stability variance (static stability) is defined as the variance around the genotype's phenotypic mean across all environments. This provides a measure of the consistency of the genotype, without accounting for performance.
 
-Wricke’s Ecovalence Stability Coefficient is the contribution of each genotype to the GxE sum of squares, in an unweighted analysis of the GxE means. A low value indicates that the genotype responds in a consistent manner to changes in environment; i.e. stable from a dynamic point of view. Like static stability, the Wricke’s Ecovalence does not account for genotype performance.
+Wricke's Ecovalence Stability Coefficient is the contribution of each genotype to the GxE sum of squares, in an unweighted analysis of the GxE means. A low value indicates that the genotype responds in a consistent manner to changes in environment; i.e. is stable from a dynamic point of view. Like static stability, the Wricke's Ecovalence does not account for genotype performance.
 
 ```{r geStab}
 geStab <- gxeStability(TD = TDGxE, trait = "BLUEs_GY")
-summary(geStab)
+summary(geStab, pctGeno = 2)
 ```
-Plotting the results yields a scatter plot for each stability measure.
+Plotting the results yields a scatter plot for each stability measure, plotted against the genotypic mean.
 ```{r plotStab}
 plot(geStab)
 ```
-For the computation of stability measures a report can be made.
+
+For the computation of stability measures a summary report can be made.
 ```{r geStabRep, eval=FALSE}
 report(geStab, outfile = "./myReports/stabReport.pdf")
 ```
 
-It is possible to calculate the stability measures based on mega environments instead of regular environments. To do so the parameter ```useMegaEnv``` has to be set to ```TRUE```.
+It is possible to calculate the stability measures based on mega environments instead of regular environments. To do so the parameter `useMegaEnv` has to be set to `TRUE`.
 ```{r geStabMegaEnv}
-## Compute stabilities measures based on mega environments computed in 
+## Compute stabilities measures based on mega environments computed in the 
 ## previous paragraph.
 geStabME <- gxeStability(TD = geMegaEnv, trait = "BLUEs_GY", useMegaEnv = TRUE)
-summary(geStabME)
+summary(geStabME, pctGeno = 2)
 ```
-
 
 ----
 

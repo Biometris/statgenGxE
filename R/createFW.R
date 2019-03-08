@@ -76,7 +76,7 @@ summary.FW <- function(object, ...) {
 #' Plot function for class FW
 #'
 #' Three types of plot can be made. A scatter plot for genotypic mean,
-#' mean squared error (mse) and sensitivity, a line plot with fitted lines for
+#' mean squared deviation and sensitivity, a line plot with fitted lines for
 #' each genotype and a trellis plot with individual slopes per genotype
 #' (for max 64 genotypes). It is possible to select genotypes for the trellis
 #' plot using the \code{genotypes} parameter. If there are more than 64

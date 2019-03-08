@@ -96,10 +96,7 @@
 #' ## Convert data.frame to TD object.
 #' TD0 <- createTD(data = dat, genotype = "geno", trial = "tr")
 #'
-#' @author Bart-Jan van Rossum
-#'
-#' @seealso \code{\link{summary.TD}}, \code{\link{plot.TD}},
-#' \code{\link{getMeta}}, \code{\link{setMeta}}
+#' @family functions for TD objects
 #'
 #' @importFrom utils hasName
 #'
@@ -350,7 +347,8 @@ dropTD <- function(TD,
 #' }
 #'
 #' @return A table containing the selected summary statistics.
-#' @seealso \code{\link{createTD}}
+#'
+#' @family functions for TD objects
 #'
 #' @examples
 #' ## Summarize TDHeat05.
@@ -510,10 +508,15 @@ print.summary.TD <- function(x, ...) {
     cat(paste("\nSummary statistics for", trait, "in", attr(x, "trial"),
               if (!is.null(groupBy)) paste("grouped by", groupBy), "\n\n"))
     if (dim(xPrint)[3] > 1) {
-      print(xPrint[, i, ], quote = FALSE, right = TRUE)
+      xPrintM <- matrix(nrow = nrow(xPrint), ncol = dim(xPrint)[3])
+      for (j in 1:nrow(xPrint)) {
+        xPrintM[j, ] <- xPrint[j, i, ]
+      }
+      dimnames(xPrintM) <- list(rownames(xPrint), dimnames(xPrint)[[3]])
+      print(xPrintM, quote = FALSE, right = TRUE)
     } else {
       xPrintM <- as.matrix(xPrint[, i , 1])
-      colnames(xPrintM) <- trait
+      dimnames(xPrintM) <- list(rownames(xPrint), trait)
       print(xPrintM, quote = FALSE, right = TRUE)
     }
   }
@@ -544,6 +547,9 @@ print.summary.TD <- function(x, ...) {
 #' Defaults to \code{FALSE}}
 #' \item{highlight}{A character vector of genotypes to be highlighted in the
 #' plot.}
+#' \item{colorSubBlock}{Should subBlocks be colored with a different color per
+#' subBlock? Defaults to \code{FALSE}. \code{colorSubBlock} is ignored when
+#' highlight is used to highlight genotypes.}
 #' }
 #'
 #' @section Map Plot:
@@ -596,6 +602,8 @@ print.summary.TD <- function(x, ...) {
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returnfed.
 #'
+#' @family functions for TD objects
+#'
 #' @export
 plot.TD <- function(x,
                     ...,
@@ -612,6 +620,7 @@ plot.TD <- function(x,
   if (plotType == "layout") {
     showGeno <- isTRUE(dotArgs$showGeno)
     highlight <- dotArgs$highlight
+    colorSubBlock <- isTRUE(dotArgs$colorSubBlock)
     if (!is.null(highlight) && !is.character(highlight)) {
       stop("highlight should be a character vector.\n")
     }
@@ -643,51 +652,11 @@ plot.TD <- function(x,
       } else {
         aspect <- ylen / xlen
       }
+      plotRep <- hasName(x = trDat, name = "repId")
+      plotSubBlock <- hasName(x = trDat, name = "subBlock")
       ## Create data for lines between replicates.
-      if ("repId" %in% colnames(trDat)) {
-        yMin <- min(trDat$rowCoord)
-        yMax <- max(trDat$rowCoord)
-        xMin <- min(trDat$colCoord)
-        xMax <- max(trDat$colCoord)
-        ## Create matrix containing replicates.
-        ## First create an empty matrix containing all row/column values
-        ## between min and max to assure complete missing rows/columns
-        ## are added.
-        M <- matrix(nrow = yMax - yMin + 1, ncol = xMax - xMin + 1,
-                    dimnames = list(yMin:yMax, xMin:xMax))
-        for (i in 1:nrow(trDat)) {
-          M[as.character(trDat[i, "rowCoord"]),
-            as.character(trDat[i, "colCoord"])] <- trDat[i, "repId"]
-        }
-        ## Create an imputed version of M for plotting borders around NA values.
-        MImp <- M
-        MImp[is.na(MImp)] <- nlevels(trDat$repId) + 1
-        has.breaks <- function(x) {
-          ncol(x) == 2 & nrow(x) > 0
-        }
-        ## Create a data.frame with positions where the value of rep in the
-        ## data changes in vertical direction.
-        vertW <- do.call(rbind.data.frame,
-                         Filter(f = has.breaks, x = Map(function(i, x) {
-                           cbind(y = i, x = which(diff(c(0, x, 0)) != 0))
-                         }, 1:nrow(MImp), split(MImp, 1:nrow(MImp)))))
-        ## Remove vertical walls that are on the outside bordering an NA value
-        ## to prevent drawing of unneeded lines.
-        vertW <- vertW[!(vertW$x == 1 & is.na(M[vertW$y, 1])) &
-                         !(vertW$x == ncol(M) + 1 &
-                             is.na(M[vertW$y, ncol(M)])), ]
-        ## Add min row value for plotting in the correct position.
-        vertW$y <- vertW$y + yMin - 1
-        vertW$x <- vertW$x + xMin - 1
-        ## For horizontal walls follow the same procedure as above.
-        horW <- do.call(rbind.data.frame,
-                        Filter(f = has.breaks, x = Map(function(i, y) {
-                          cbind(x = i, y = which(diff(c(0, y, 0)) != 0))
-                        }, 1:ncol(MImp), as.data.frame(MImp))))
-        horW <- horW[!(horW$y == 1 & is.na(M[1, horW$x])) &
-                       !(horW$y == nrow(M) + 1 & is.na(M[nrow(M), horW$x])), ]
-        horW$y <- horW$y + yMin - 1
-        horW$x <- horW$x + xMin - 1
+      if (plotRep) {
+        repBord <- calcPlotBorders(trDat = trDat, bordVar = "repId")
       }
       ## Create base plot.
       pTr <- ggplot2::ggplot(data = trDat,
@@ -705,29 +674,46 @@ plot.TD <- function(x,
         ggplot2::scale_y_continuous(breaks = scales::pretty_breaks(),
                                     expand = c(0, 0)) +
         ggplot2::ggtitle(trLoc)
-      if (hasName(x = trDat, name = "subBlock") &&
-          sum(!is.na(trDat$highlight.)) == 0) {
-        ## If subblocks are available color tiles by subblock.
-        pTr <- pTr + ggplot2::geom_tile(
-          ggplot2::aes_string(fill = "subBlock"), color = "grey50")
-      } else if (sum(!is.na(trDat$highlight.)) > 0) {
+      if (sum(!is.na(trDat$highlight.)) > 0) {
         ## Genotypes to be highlighted get a color.
         ## Everything else the NA color.
         pTr <- pTr + ggplot2::geom_tile(
-          ggplot2::aes_string(fill = "highlight."), color = "grey50") +
+          ggplot2::aes_string(fill = "highlight."), color = "grey75") +
           ggplot2::labs(fill = "Highlighted") +
           ## Remove NA from scale.
           ggplot2::scale_fill_discrete(na.translate = FALSE)
+      } else if (plotSubBlock && colorSubBlock) {
+        ## Color tiles by subblock.
+        pTr <- pTr + ggplot2::geom_tile(
+          ggplot2::aes_string(fill = "subBlock"), color = "grey75") +
+          ggplot2::guides(fill = ggplot2::guide_legend(ncol = 3))
       } else {
         ## No subblocks and no hightlights so just a single fill color.
-        pTr <- pTr + ggplot2::geom_tile(color = "grey50", fill = "pink")
+        pTr <- pTr + ggplot2::geom_tile(fill = "white", color = "grey75")
+      }
+      ## Create data for lines between subBlocks.
+      if (plotSubBlock) {
+        subBlockBord <- calcPlotBorders(trDat = trDat, bordVar = "subBlock")
+        pTr <- pTr +
+          ## Add verical lines as segment.
+          ## adding/subtracting 0.5 assures plotting at the borders of
+          ## the tiles.
+          ggplot2::geom_segment(
+            ggplot2::aes_string(x = "x - 0.5", xend = "x - 0.5",
+                                y = "y - 0.5", yend = "y + 0.5",
+                                linetype = "'subBlocks'"),
+            data = subBlockBord$vertW, size = 0.4) +
+          ggplot2::geom_segment(
+            ggplot2::aes_string(x = "x - 0.5", xend = "x + 0.5",
+                                y = "y - 0.5", yend = "y - 0.5"),
+            data = subBlockBord$horW, size = 0.4)
       }
       if (showGeno) {
         ## Add names of genotypes to the center of the tiles.
         pTr <- pTr + ggplot2::geom_text(ggplot2::aes_string(label = "genotype"),
                                         size = 2, check_overlap = TRUE)
       }
-      if ("repId" %in% colnames(trDat)) {
+      if (plotRep) {
         ## Add lines for replicates.
         pTr <- pTr +
           ## Add verical lines as segment.
@@ -736,16 +722,23 @@ plot.TD <- function(x,
           ggplot2::geom_segment(
             ggplot2::aes_string(x = "x - 0.5", xend = "x - 0.5",
                                 y = "y - 0.5", yend = "y + 0.5",
-                                linetype = "'replicates'"), data = vertW,
-            size = 1) +
+                                linetype = "'replicates'"),
+            data = repBord$vertW, size = 1) +
           ggplot2::geom_segment(
             ggplot2::aes_string(x = "x - 0.5", xend = "x + 0.5",
-                                y = "y - 0.5", yend = "y - 0.5"), data = horW,
-            size = 1) +
-          ## Just needed for adding a legend entry for replicates.
-          ggplot2::scale_linetype_manual("replicates",
-                                         values = c("replicates" = "solid"),
-                                         name = ggplot2::element_blank())
+                                y = "y - 0.5", yend = "y - 0.5"),
+            data = repBord$horW, size = 1)
+      }
+      if (plotSubBlock || plotRep) {
+        shwVals <- c(plotRep, plotSubBlock)
+        pTr <- pTr +
+          ## Add a legend entry for replicates and subBlocks.
+          ggplot2::scale_linetype_manual(c("replicates", "subBlocks")[shwVals],
+                                         values = c("replicates" = "solid",
+                                                    "subBlocks" = "solid")[shwVals],
+                                         name = ggplot2::element_blank()) +
+          ggplot2::guides(linetype = ggplot2::guide_legend(override.aes =
+                                                             list(size = c(1, 0.4)[shwVals])))
       }
       p[[trial]] <- pTr
       if (output) {
@@ -769,7 +762,7 @@ plot.TD <- function(x,
       stop("minLatRange should be a single numerical value.\n")
     }
     if (!is.null(minLongRange) && (!is.numeric(minLongRange) ||
-                                  length(minLongRange) > 1)) {
+                                   length(minLongRange) > 1)) {
       stop("minLatRange should be a single numerical value.\n")
     }
     if (is.null(minLatRange)) {
@@ -789,7 +782,7 @@ plot.TD <- function(x,
     longR <- longR + c(-0.1, 0.1) * diff(longR)
     latR <- latR + c(-0.1, 0.1) * diff(latR)
     ## Create data useable by ggplot geom_polygon.
-    mapDat <- ggplot2::map_data("world", xlim = longR, ylim = latR)
+    mapDat <- mapData(xLim = longR, yLim = latR)
     p <- ggplot2::ggplot(mapDat, ggplot2::aes_string(x = "long", y = "lat")) +
       ggplot2::geom_polygon(ggplot2::aes_string(group = "group"),
                             fill = "white", color = "black") +
@@ -849,6 +842,9 @@ plot.TD <- function(x,
         if (!hasName(x = trial, name = trait)) {
           NULL
         } else {
+          if (!hasName(x = trial, name = "trial")) {
+            trial[["trial"]] <- names(x)
+          }
           trial[c(trait, "genotype", xVar, if (!is.null(colorBy)) colorBy)]
         }
       }))
@@ -969,6 +965,8 @@ plot.TD <- function(x,
 #'
 #' @return A data.frame containing the metadata for all trials in TD.
 #'
+#' @family functions for TD objects
+#'
 #' @export
 getMeta <- function(TD) {
   if (missing(TD) || !inherits(TD, "TD")) {
@@ -1008,6 +1006,8 @@ getMeta <- function(TD) {
 #' @param meta A data.frame containing metadata.
 #'
 #' @return The object of class TD with updated metadata.
+#'
+#' @family functions for TD objects
 #'
 #' @export
 setMeta <- function(TD,

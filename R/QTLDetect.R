@@ -154,8 +154,13 @@ QTLDetect <- function(cross,
   if (thrType == "liji") {
     ## Compute correction values following the algorithm by Li and Ji.
     corVal <- sapply(X = cross$geno, FUN = function(chr) {
-      ## Compute correaltions between markers on chromosome.
-      mrkCor <- cor(chr$data, use = "complete.obs")
+      mrkCov <- cov(chr$data, use = "complete.obs")
+      validObs <- apply(X = mrkCov, MARGIN = 1, FUN = function(i) {
+        !(all(i == 0))
+      })
+      mrkCov <- mrkCov[validObs, validObs]
+      ## Compute correlations between markers on chromosome.
+      mrkCor <- cov2cor(mrkCov)
       ## Compute eigenvalues of the correlations and restrict these to 2.
       mrkEig <- eigen(mrkCor, only.values = TRUE)$values
       mrkEig[mrkEig >= 1] <- mrkEig[mrkEig > 1] - floor(mrkEig[mrkEig > 1]) + 1

@@ -2,13 +2,13 @@
 % Please edit documentation in R/utils.R
 \name{qtlPosToName}
 \alias{qtlPosToName}
-\title{Function for extracting the name of a qtl combining a cross object and
-the position of the qtl on the chromosome.}
+\title{Function for extracting the name of a qtl combining the peaks from a QTLDet
+object and the position of the qtl on the chromosome.}
 \usage{
-qtlPosToName(chrPos, cross)
+qtlPosToName(chrPos, peaks)
 }
 \description{
-Function for extracting the name of a qtl combining a cross object and
-the position of the qtl on the chromosome.
+Function for extracting the name of a qtl combining the peaks from a QTLDet
+object and the position of the qtl on the chromosome.
 }
 \keyword{internal}

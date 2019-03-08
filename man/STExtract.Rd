@@ -65,7 +65,7 @@ and \code{asreml}.}
 component.}
 \item{F - resid}{Residuals for the model with genotype as fixed component.}
 \item{F - stdRes}{Standardized residuals for the model with genotype as fixed
-component - only for \code{lme4} and \code{asreml}.}
+component}
 \item{R - rMeans}{Fitted values for the model with genotype as random
 component.}
 \item{R - ranEf}{Random genetic effects.}

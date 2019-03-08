@@ -99,7 +99,7 @@ wheatChl <- rbind(dat2011tot, dat2012tot)
 wheatChl$trt <- sprintf("G%03d", wheatChl$trt_id)
 wheatChl <- wheatChl[!colnames(wheatChl) %in% c("parc", "trt_id")]
 # Export to package
-usethis::(wheatChl, overwrite = TRUE)
+usethis::use_data(wheatChl, overwrite = TRUE)
 
 
 

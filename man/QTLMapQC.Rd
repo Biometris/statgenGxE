@@ -6,7 +6,7 @@
 \usage{
 QTLMapQC(cross, missMrk = 0.05, missInd = 0.05,
   removeDuplicates = TRUE, segDistortion = 0.001, recombination = 3,
-  reestimateMap = FALSE, crossover = 0.2)
+  reestimateMap = FALSE, crossover = 0.2, verbose = FALSE)
 }
 \arguments{
 \item{cross}{An object of class cross created by the qtl package.}
@@ -33,6 +33,8 @@ recombination between pairs of markers.}
 \item{crossover}{A numerical value between 0 and 1 indicating the maximum
 allowed fraction of crossovers per individual. Individuals with a fraction of
 crossovers above \code{crossover} will be removed.}
+
+\item{verbose}{Should a summary of the performed steps be printed?}
 }
 \value{
 A cleaned version of the input cross object after markers and

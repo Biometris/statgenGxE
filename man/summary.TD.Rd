@@ -62,5 +62,8 @@ summary(object = TDHeat05, traits = "yield")
 
 }
 \seealso{
-\code{\link{createTD}}
+Other functions for TD objects: \code{\link{TD}},
+  \code{\link{getMeta}}, \code{\link{plot.TD}},
+  \code{\link{setMeta}}
 }
+\concept{functions for TD objects}
