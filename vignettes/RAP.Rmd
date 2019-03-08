@@ -220,7 +220,7 @@ plot(wheatTD, plotType = "box", traits = "GY")
 
 The trials in the boxplot can be grouped using the parameter `groupBy`. Colors
 can be applied to groups within trials using the parameter `colorBy`. The boxes 
-for the (groups of) trials can be ordered using `orderBy`. Boxed can be ordered by external vector or by the group mean.
+for the (groups of) trials can be ordered using `orderBy`. Boxes can be ordered by external vector or by the group mean.
 ```{r boxPlotGR}
 ## Create a boxplot for grain yield with boxes grouped by year and repIds within
 ## years colored.
@@ -305,7 +305,7 @@ modWheatSp2 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
 When using SpATS as a modeling engine for fitting a model, an extra spatial 
 component is always included in the model. This spatial component is composed
 using the `PSANOVA` function in the SpATS package which uses 2-dimensional 
-smoothing with P-splines as described in @Lee2013 and in @Rodriquez2017. See `help(PSANOVA, SpATS)`
+smoothing with P-splines as described in @Lee2013 and in @RodAlv2017. See `help(PSANOVA, SpATS)`
 for a detailed description. The parameters `nseg` and `nest.div` of `PSANOVA` 
 can be modified using the `control` parameter in `STRunModel`.  
 Refitting the model in the previous section specifying the number of segments
