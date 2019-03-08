@@ -1,11 +1,12 @@
 Package: RAP
 Type: Package
 Title: R Analytical Pipeline (RAP)
-Version: 0.0.2
-Date: 2019-18-02
+Version: 0.0.3
+Date: 2019-08-03
 Authors@R: c(
     person("Bart-Jan", "van Rossum", email = "bart-jan.vanrossum@wur.nl", 
-    role = c("aut", "cre")))
+    role = c("aut", "cre")),
+    person("Biometris", rol = "cph"))
 Description: The R Analytical Pipeline (RAP), commissioned by the Generation 
     Challenge Program (GCP), is being developed to streamline the analysis of 
     typical plant breeding experiments, including both phenotypic analysis of 
