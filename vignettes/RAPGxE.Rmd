@@ -54,11 +54,11 @@ detail how to perform the different types of analysis that are available in the 
 
 The following types of analysis can be done using RAP:
 
-* [Best variance-covariance model](#vc)
+* [Mixed model Analysis](#vc)
 * [AMMI Analysis](#am)
 * [GGE Analysis](#gge)
 * [Finlay-Wilkinson Analysis](#fw)
-* [Computation of mega environments](#me)
+* [Identification of mega environments](#me)
 * [Computation of stability measures](#st)
 
 ---
@@ -67,9 +67,10 @@ The following types of analysis can be done using RAP:
 
 Just as for the analysis of single field trials, the input for GxE analysis in the RAP package is an object of class TD. For a detailed description on how to construct such an object see the vignette [Modeling field trials using RAP](RAP.html). The TD object created in the final step of this vignette, `TDGxE`, will be used for the GxE analyses in the current vignette.
 
-## Best variance-covariance model {#vc}
+## Mixed model analysis {#vc}
 
-The function gxeVarComp fits models with different variance-covariance structures to the GxE data and determines the best model for the data. With the default settings for the function lme4 is used for fitting the models and only a compound symmetry model is fitted. When changing the modeling engine to asreml eight models with different variance-covariance structures are fitted:  
+The function gxeVarComp allows to fit linear mixed models of diverse complexity. If the engine is set to 'lme4', models considering multiple variance components, but with a compound symmetry variance-covariance can be fitted. In the engine is set to 'asreml', complex variance-covariance structures will be fitted sequencially to the genotype-by-environment table. The best fitting model is identified.
+The selection of the best variance-covariance model considers the following structures:
 
 * identity
 * compound symmetry
@@ -142,7 +143,7 @@ geAm3 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = 3,
                  excludeGeno = c("G278", "G279"))
 summary(geAm3)
 ```
-If the data contains a column year, it is possible to perform the AMMI analysis per year in the data. This can be done by specifying the parameter `byYear = TRUE`.  
+If the data contains a column year, it is possible to fit a separate AMMI model for each year. This can be done by specifying the parameter `byYear = TRUE`.  
 
 The results of an AMMI analysis can be displayed in a biplot. Two types of biplot are available. "AMMI1" plots the main effects against the first principal component. "AMMI2" plots the first against the second principal component.
 ```{r plotAmmi, fig.width=5, fig.height=5, out.width="47%", fig.show="hold"}
@@ -151,7 +152,7 @@ plot(geAm, scale = 0.5, plotType = "AMMI1")
 plot(geAm, scale = 0.5, plotType = "AMMI2")
 ```
 
-The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axis using `primAxis` and `secAxis`. Genotypes can be grouped and colored by a variable in the data using `groupBy` and `colorBy`. A convex hull can be plotted around the genotypes in an AMMI2 biplot with lines from the origin perpendicular to the edges of the hull. This is usefull for identifying mega environments. Genotypes can be left out of the plot completely by setting `plotGeno = FALSE` and similarly `plotEnv = FALSE` assures no environments are plotted. For displaying genotypes by their names instead of points, use `sizeGeno` with a size larger than zero. `envFactor` can be used to blow up the environmental scores in the plot. A value for `envFactor` between zero and one effectively blows up the genotypic scores. Some more options are available for sizing and coloring. Run `help(plot.AMMI)` for full details.  
+The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axis using `primAxis` and `secAxis`. Genotypes can be grouped and colored by a variable in the data using `groupBy` and `colorBy`. A convex hull can be plotted around the genotypes in an AMMI2 biplot with lines from the origin perpendicular to the edges of the hull. This is useful for identifying mega environments. Genotypes can be left out of the plot completely by setting `plotGeno = FALSE` and similarly `plotEnv = FALSE` assures no environments are plotted. For displaying genotypes by their names instead of points, use `sizeGeno` with a size larger than zero. `envFactor` can be used to blow up the environmental scores in the plot. A value for `envFactor` between zero and one effectively blows up the genotypic scores. Some more options are available for sizing and coloring. Run `help(plot.AMMI)` for full details.  
 ```{r plotAmmi2, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI2 biplot with convex hull around the genotypes and genotype names 
 ## displayed. Blow up genotypic scores by using envFactor = 0.3
@@ -167,7 +168,7 @@ report(geAm, outfile = "./myReports/AMMIReport.pdf")
 
 ## GGE Analysis {#gge}
 
-A Genotype plus Genotype by Environment analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. The rest of the analysis is identical to an AMMI analysis and is done in RAP by running the function `gxeAmmi` with parameter
+A Genotype plus Genotype by Environment analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. Therefore, the principal component analysis is performed on the genotype main effect and the interaction jointly. The GGE analysis is done in RAP by running the function `gxeAmmi` with parameter
 `GGE = TRUE`.
 
 ```{r geGGE}
