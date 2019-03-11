@@ -30,7 +30,7 @@ the results of the analyses.
 
 The package has three main components:
 
-* Modeling trial data for single trials and extracting results
+* Single trial analysis
 * Genotype by Environment (GxE) analysis
 * QTL analysis
 
@@ -80,9 +80,9 @@ Dropping one or more trials from a `TD` object can be done using the function
 
 ## Example
 
-Field data from an experiment with wheat in Chili described in detail by 
+Field data from an experiment with wheat in Chile described in detail by 
 @Lado2013 will be used as an example throughout this vignette. The experiment 
-was performed in two locations in Chili, Santa Rosa and Cauquenes, with two 
+was performed in two locations in Chile, Santa Rosa and Cauquenes, with two 
 different drought regimes in 2011 and 2012 for the Santa Rosa and one trial 
 in 2012 for Cauquenes. For 384 genotypes four traits were measured in 2011, but in 
 2012 only grain yield (GY) was measured and the examples will mainly focus on 
@@ -153,7 +153,7 @@ The `summary` function can be used to get an idea of the content of the data in 
 summary(wheatTD, trial = "SR_FI_11", traits = "GY")
 ```
 
-Using the default options nine summary statistics are printed, but many more are 
+Using the default options, nine summary statistics are printed, but many more are 
 available. These can be accessed using the parameter `what` in the `summary`
 function. For a full list of available statistics, use `help(summary.TD)`. It is 
 also possible to output all statistics using `what = "all"`.    
@@ -194,7 +194,7 @@ plot(wheatTD, trials = "SR_FI_11", colorSubBlock = TRUE)
 Highlighting genotypes and coloring subBlocks cannot be done simultaneously. If 
 both options are specified, only highlighting is done.    
 
-Finally it is possible to add the names of the genotypes to the layout. 
+Finally, it is possible to add the names of the genotypes to the layout. 
 ```{r layoutPlotSG, fig.dim = c(6, 5)}
 ## Plot the layout for SR_FI_11, color subBlocks.
 plot(wheatTD, trials = "SR_FI_11", showGeno = TRUE)
@@ -220,7 +220,7 @@ plot(wheatTD, plotType = "box", traits = "GY")
 
 The trials in the boxplot can be grouped using the parameter `groupBy`. Colors
 can be applied to groups within trials using the parameter `colorBy`. The boxes 
-for the (groups of) trials can be ordered using `orderBy`.
+for the (groups of) trials can be ordered using `orderBy`. Boxes can be ordered by external vector or by the group mean.
 ```{r boxPlotGR}
 ## Create a boxplot for grain yield with boxes grouped by year and repIds within
 ## years colored.
@@ -270,7 +270,7 @@ randomized complete block design (rcbd) | trait = genotype + **repId** + $\epsil
 row column design (rowcol) | trait = genotype + *rowId* + *colId* + $\epsilon$ |
 resolvable row column design (res.rowcol) | trait = genotype + **repId** + *repId:rowId* + *repId:colId* + $\epsilon$ |
 
-In the models above fixed effects are indicated in *italics* whereas random 
+In the models above, fixed effects are indicated in *italics* whereas random 
 effects are indicated in **bold**. genotype can be fitted as fixed or as 
 random effect depending on the value of the parameter `what`. Extra
 fixed effects may be fitted using the parameter `covariates`.  
@@ -305,7 +305,7 @@ modWheatSp2 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
 When using SpATS as a modeling engine for fitting a model, an extra spatial 
 component is always included in the model. This spatial component is composed
 using the `PSANOVA` function in the SpATS package which uses 2-dimensional 
-smoothing with P-splines as described in @Lee2013. See `help(PSANOVA, SpATS)`
+smoothing with P-splines as described in @Lee2013 and in @RodAlv2017. See `help(PSANOVA, SpATS)`
 for a detailed description. The parameters `nseg` and `nest.div` of `PSANOVA` 
 can be modified using the `control` parameter in `STRunModel`.  
 Refitting the model in the previous section specifying the number of segments
@@ -346,8 +346,8 @@ As the overview shows the best model, the model with the lowest BIC, is AR1(x)AR
 ## Model output
 
 Since genotype has been fitted both as fixed and as random factor in 
-`modWheatSp` it is possible to calculate both the Best Lineair Unbiased Estimators 
-(BLUEs) and the Best Lineair Unbiased Predictors (BLUPs). Therefore both are printed 
+`modWheatSp` it is possible to calculate both the Best Linear Unbiased Estimators 
+(BLUEs) and the Best Linear Unbiased Predictors (BLUPs). Therefore both are printed 
 in the summary of the model together with their respective standard errors.
 ```{r fitSum, message=FALSE}
 ## Set nBest to 5 to decrease size of output.
@@ -421,9 +421,9 @@ needed, also states for which modeling engines it can be extracted.
 
 model | result | description |
 ----- | ------ | ------------------------------------------------------------- |
-F | BLUEs | Best Lineair Unbiased Estimators |
+F | BLUEs | Best Linear Unbiased Estimators |
 F | seBLUES | standard errors of the BLUEs |
-R | BLUPs | Best Lineair Unbiased Predictors |
+R | BLUPs | Best Linear Unbiased Predictors |
 R | seBLUPs | standard errors of the BLUPs |
 F | ue | unit errors - only for `lme4` and `asreml` |
 R | heritability | broad sense heritability |
@@ -490,7 +490,7 @@ head(fitVals[["SR_FI_11"]]$fitted)
 To use the BLUEs or BLUPs from the fitted model in a GxE analysis they have to be 
 converted again into a `TD` object. For this the function `SSAtoTD` can be used. It
 creates a `TD` object from a fitted model outputting one or more of the following:
-BLUEs, standard errors of BLUEs, BLUPs and standard errors of BLUPs. Optionally a column `wt` with weights (calculated as $(1 / seBLUEs)^2$) can be added as well. In the same way as described in the previous section extra columns can be added to the output using the parameter `keep`. 
+BLUEs, standard errors of BLUEs, BLUPs and standard errors of BLUPs. Optionally, a column `wt` with weights (calculated as $(1 / seBLUEs)^2$) can be added as well. In the same way as described in the previous section extra columns can be added to the output using the parameter `keep`. 
 ```{r SSAtoTD, message=FALSE}
 ## Fit a model for all trials with genotype as fixed factor.
 modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", 
