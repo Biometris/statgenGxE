@@ -257,7 +257,7 @@ gxeAmmi <- function(TD,
     pcaAov <- pcaToAov(pca = pca, aov = aov)
     ## Create complete ANOVA table.
     aov <- rbind(aov, pcaAov)
-    ## Extract loadings and scoress from pca.
+    ## Extract loadings and scores from pca.
     loadings <- pca$rotation
     scores <- pca$x
     ## Compute AMMI-estimates per genotype per trial.
