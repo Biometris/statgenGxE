@@ -865,12 +865,16 @@ plot.TD <- function(x,
         }
       }
       ## Create boxplot.
-      pTr <- ggplot2::ggplot(plotDat, ggplot2::aes_string(x = xVar, y = trait,
-                                                          fill = colorBy)) +
+      pTr <- ggplot2::ggplot(plotDat,
+                             ggplot2::aes_string(x = paste0("`", xVar, "`"),
+                                                 y = paste0("`", trait, "`"),
+                                                 fill = if (is.null(colorBy)) NULL else
+                                                   paste0("`", colorBy, "`"))) +
         ggplot2::geom_boxplot(na.rm = TRUE) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90,
                                                            vjust = 0.5,
-                                                           hjust = 1))
+                                                           hjust = 1)) +
+        ggplot2::labs(x = xVar, y = trait)
       p[[trait]] <- pTr
       if (output) {
         plot(pTr)
