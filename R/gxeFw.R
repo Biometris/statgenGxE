@@ -130,7 +130,7 @@ gxeFw <- function(TD,
   ## Setup empty vectors for storing rDev and rDF
   rDev <- rDf <- rep(NA, 5)
   ## Estimate trial effects with the sensitivity beta = 1.
-  model0 <- lm(as.formula(paste(trait, "~-1 + trial + genotype")),
+  model0 <- lm(as.formula(paste0("`", trait, "`~-1 + trial + genotype")),
                data = TDTot, weights = TDTot$wt, na.action = na.exclude)
   aov0 <- anova(model0)
   rDev[2] <- aov0["Residuals", "Sum Sq"]
@@ -154,7 +154,7 @@ gxeFw <- function(TD,
   while (maxDiff > tol && iter <= maxIter) {
     beta0 <- TDTot$beta
     ## Fit model with current genotype sensitivity relevant to each unit.
-    model1 <- lm(as.formula(paste(trait, "~-1 + genotype + genotype:envEffs")),
+    model1 <- lm(as.formula(paste0("`", trait, "`~-1 + genotype + genotype:envEffs")),
                  data = TDTot, weights = TDTot$wt, na.action = na.exclude)
     coeffsModel1 <- coefficients(model1)
     ## Update beta.
@@ -162,7 +162,7 @@ gxeFw <- function(TD,
                                             ":envEffs"), names(coeffsModel1))]
     TDTot$beta <- TDTot$beta / mean(TDTot$beta, na.rm = TRUE)
     ## Fit model with current trial means relevant to each unit.
-    model2 <- lm(as.formula(paste(trait, "~-1 + trial:beta")),
+    model2 <- lm(as.formula(paste0("`", trait, "`~-1 + trial:beta")),
                  data = TDTot, weights = TDTot$wt, na.action = na.exclude)
     coeffsModel2 <- coefficients(model2)
     ## Update envEffs.
@@ -185,13 +185,13 @@ gxeFw <- function(TD,
   rDev[4] <- aov1["Residuals","Sum Sq"]
   rDf[4] <- aov1["Residuals", "Df"]
   ## Extract total deviance.
-  modelA <- lm(as.formula(paste(trait, "~ genotype")), data = TDTot,
+  modelA <- lm(as.formula(paste0("`", trait, "`~ genotype")), data = TDTot,
                weights = TDTot$wt, na.action = na.exclude)
   aovA <- anova(modelA)
   rDev[5] <- sum(aovA[["Sum Sq"]])
   rDf[5] <- sum(aovA[["Df"]])
   ## Fit varieties only for first entry in aov.
-  modelB <- lm(as.formula(paste(trait, "~-1 + genotype")), data = TDTot,
+  modelB <- lm(as.formula(paste0("`", trait, "`~-1 + genotype")), data = TDTot,
                weights = TDTot$wt, na.action = na.exclude)
   aovB <- anova(modelB)
   rDev[1] <- aovB["Residuals", "Sum Sq"]

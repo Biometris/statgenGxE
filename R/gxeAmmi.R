@@ -213,7 +213,7 @@ gxeAmmi <- function(TD,
       TDYear$wt <- 1
     }
     ## Fit linear model.
-    modForm <- formula(paste(trait, "~", if (!GGE) "genotype +", "trial"))
+    modForm <- formula(paste0("`", trait, "`~", if (!GGE) "genotype +", "trial"))
     model <- lm(modForm, data = TDYear, weights = TDYear$wt)
     ## Calculate residuals & fitted values of the linear model.
     resids <- tapply(X = resid(model), INDEX = TDYear[, c("genotype", "trial")],
