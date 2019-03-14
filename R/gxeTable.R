@@ -55,16 +55,16 @@ gxeTable <- function(TD,
       tmp <- tempfile()
       sink(file = tmp)
       if (useYear) {
-        mr <- tryCatchExt(asreml::asreml(fixed = as.formula(paste(trait,
-                                                                  "~ trial / year")),
-                                 random = as.formula("~ genotype:us(megaEnv) +
+        mr <- tryCatchExt(asreml::asreml(fixed = as.formula(paste0("`", trait,
+                                                                   "`~ trial / year")),
+                                         random = as.formula("~ genotype:us(megaEnv) +
                                                      genotype:megaEnv:year"),
-                                 data = TDTot, ...))
+                                         data = TDTot, ...))
       } else {
-        mr <- tryCatchExt(asreml::asreml(fixed = as.formula(paste(trait,
-                                                                  "~ trial")),
-                                 random = as.formula("~ genotype:us(megaEnv)"),
-                                 data = TDTot, ...))
+        mr <- tryCatchExt(asreml::asreml(fixed = as.formula(paste0("`", trait,
+                                                                   "`~ trial")),
+                                         random = as.formula("~ genotype:us(megaEnv)"),
+                                         data = TDTot, ...))
       }
       sink()
       unlink(tmp)
@@ -100,12 +100,12 @@ gxeTable <- function(TD,
     }
   } else if (engine == "lme4") {
     if (useYear) {
-      mr <- try(lme4::lmer(as.formula(paste(trait, "~ trial / year +
+      mr <- try(lme4::lmer(as.formula(paste0("`", trait, "`~ trial / year +
                                             (0 + megaEnv | genotype) +
                                             (0 + megaEnv | genotype:year)")),
                            data = TDTot, ...), silent = TRUE)
     } else {
-      mr <- try(lme4::lmer(as.formula(paste(trait, "~ trial +
+      mr <- try(lme4::lmer(as.formula(paste0("`", trait, "`~ trial +
                                             (0 + megaEnv | genotype)")),
                            data = TDTot, ...), silent = TRUE)
     }
