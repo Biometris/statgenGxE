@@ -94,7 +94,7 @@ gxeVarComp <- function(TD,
   ## Main procedure to fit mixed models.
   if (engine == "lme4") {
     ## Compound symmetry ("cs") only.
-    mr = lme4::lmer(formula(paste(trait, "~ trial + (1 | genotype)")),
+    mr = lme4::lmer(formula(paste0("`", trait, "`~ trial + (1 | genotype)")),
                     data = TDTot, ...)
     nPar <- 2
     ## Construct SSA object.
@@ -110,7 +110,7 @@ gxeVarComp <- function(TD,
   } else if (engine == "asreml") {
     if (requireNamespace("asreml", quietly = TRUE)) {
       nTr <- nlevels(TDTot$trial)
-      fixedForm <- formula(paste(trait, "~ trial"))
+      fixedForm <- formula(paste0("`", trait, "`~ trial"))
       tmp <- tempfile()
       for (choice in choices) {
         if (choice == "identity") {
@@ -386,7 +386,7 @@ initVals <- function(TD,
     fixedForm <- fixed
   } else {
     P <- 1
-    fixedForm <- formula(paste(trait, "~ trial"))
+    fixedForm <- formula(paste0("`", trait, "`~ trial"))
   }
   ## Get number of effects contributing to each sum of squares.
   nobsEnv <- rowSums(table(X[, c("trial", "genotype")]))
