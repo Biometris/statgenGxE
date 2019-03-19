@@ -146,6 +146,7 @@ QTLDetect <- function(cross,
     ## (Haley-Knott regression)
     scores <- qtl::scanone(cross, pheno.col = trait, method = "hk", ...)
   } else if (type == "CIM") {
+    set.seed(1)
     ## Perform a QTL search by Composite Interval Mapping (CIM)
     scores <- qtl::cim(cross, pheno.col = trait, n.marcovar = 5,
                        window = window, method = "hk", map.function = "haldane",

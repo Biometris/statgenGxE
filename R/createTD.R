@@ -796,6 +796,7 @@ plot.TD <- function(x,
       ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
                      panel.grid.major = ggplot2::element_blank(),
                      panel.grid.minor = ggplot2::element_blank(),
+                     ## Empty space left represents water areas. Color blue.
                      panel.background =
                        ggplot2::element_rect(fill = "steelblue2")) +
       ggplot2::ggtitle("Trial locations")
