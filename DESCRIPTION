@@ -19,8 +19,9 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 Depends: R (>= 3.3)
-Imports: emmeans,
-    ggplot2(>= 3.0),
+Imports: 
+    emmeans,
+    ggplot2 (>= 3.0),
     knitr,
     lme4,
     maps,
@@ -28,10 +29,11 @@ Imports: emmeans,
     methods,
     qtl,
     reshape2,
-    SpATS(>= 1.0-8),
+    SpATS (>= 1.0-8),
     xtable,
     gridExtra,
-    scales
+    scales,
+    ggrepel
 Suggests: asreml(== 3.0),
     rmarkdown,
     testthat
