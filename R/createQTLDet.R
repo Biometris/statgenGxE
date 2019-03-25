@@ -84,7 +84,7 @@ plot.QTLDet <- function(x,
   }
   p <- ggplot2::ggplot(data = x$scores,
                        ggplot2::aes_string(x = "pos", y = "lod")) +
-    ggplot2::geom_line() +
+    ggplot2::geom_line(na.rm = TRUE) +
     ## Add grid for plotting per chromosome. Scales and space free for x to
     ## get proper width for all chromosomes.
     ggplot2::facet_grid(rows = formula("~chr"), scales = "free_x",
