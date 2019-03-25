@@ -33,8 +33,8 @@ test_that("option rLimit funtions properly", {
                      verbose = FALSE)
   expect_equal(sum(out1$indicator[["t1"]]), 4)
   expect_equal(nrow(out1$outliers), 4)
-  expect_equal(out1$outliers$res, c(1.69959940078883, -1.16726345597009,
-                                    -1.69959940078883, 1.16726345597009))
+  expect_equal(out1$outliers$res, c(-1.69959940078883, 1.16726345597009,
+                                    1.69959940078883, -1.16726345597009))
 })
 
 test_that("option rLimit funtions properly for multiple traits", {

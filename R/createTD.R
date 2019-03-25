@@ -195,6 +195,12 @@ createTD <- function(data,
       data[cols == numCol] <- as.numeric(data[, cols == numCol])
     }
   }
+  ## Sort data by rowCoord and colCoord.
+  ## This is only needed for spatial modeling with asreml but doesn't harm
+  ## always doing so.
+  if (all(hasName(data, c("rowCoord", "colCoord")))) {
+    data <- data[order(data[["rowCoord"]], data[["colCoord"]]), ]
+  }
   if (hasName(data, "trial")) {
     listData <- split(x = data, f = droplevels(data$trial))
   } else {
