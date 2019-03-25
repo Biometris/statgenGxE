@@ -928,7 +928,9 @@ plot.TD <- function(x,
       ## Reorder according to clusters.
       corMat <- corMat[ordClust, ordClust]
       ## Melt to get the proper format for ggplot.
-      meltedCorMat <- reshape2::melt(corMat)
+      ## Use as.is is TRUE to avoid problems with plotting trials with
+      ## number-only names.
+      meltedCorMat <- reshape2::melt(corMat, as.is = TRUE)
       ## Remove top left of the plot. Only plotting a bottom right triangle.
       ## Diagonal is removed as well.
       meltedCorMat <- meltedCorMat[as.numeric(meltedCorMat$Var1) >

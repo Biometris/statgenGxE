@@ -79,8 +79,10 @@ plot.varComp <- function(x,
   orderPC1 <- order(PC1)
   corMat <- corMat[orderPC1, orderPC1]
   ## Melt variance and correlation matrices to get proper shape for ggplot.
-  meltedCorMat <- reshape2::melt(corMat)
-  meltedVarMat <- reshape2::melt(x$vcov[orderPC1, orderPC1])
+  ## Use as.is is TRUE to avoid problems with plotting trials with
+  ## number-only names.
+  meltedCorMat <- reshape2::melt(corMat, as.is = TRUE)
+  meltedVarMat <- reshape2::melt(x$vcov[orderPC1, orderPC1], as.is = TRUE)
   ## Select bottom triangle for correlations and top for variances.
   meltedCorMatLow <- meltedCorMat[as.numeric(meltedCorMat$Var1) >
                                     as.numeric(meltedCorMat$Var2), ]
