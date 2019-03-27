@@ -42,7 +42,7 @@ boldRow <- function(x) {
 % Start Article header
 %-------------------------------------------------------------------------------
 % Title
-\title{Single trial analysis for \Sexpr{escapeLatex(trait)}}%
+\title{Single trial analysis for \Sexpr{escapeLatex(trait)} in \Sexpr{escapeLatex(trial)}}%
 % Authors
 \author{\vspace{-5ex}}
 %-------------------------------------------------------------------------------
@@ -113,11 +113,11 @@ names(modelDesigns) <- c("ibd", "res.ibd", "rcbd", "rowcol", "res.rowcol")
 if (useCheckId) {
   modelDesigns <- paste("checkId (F) +", modelDesigns)
 }
-descrItems <- c(trait, modelDesigns[x[[trial]]$design],
+descrItems <- c(trial, trait, modelDesigns[x[[trial]]$design],
                 if (!is.character(x[[trial]]$spatial[[trait]])) "none" else
                   x[[trial]]$spatial[[trait]],
                 modelType)
-names(descrItems) <- c("Trait",
+names(descrItems) <- c("Trial", "Trait",
                        "Experimental design features",
                        "Spatial model",
                        "Genotype")
@@ -210,12 +210,13 @@ if (modelType == "random") {
 %-------------------------------------------------------------------------------
 <<label=spatialPlots, echo=FALSE, results="asis", out.width="90%">>=
 if (all(c("colId", "rowId") %in% colnames(x[[trial]]$TD[[trial]]))) {
-  plot(x, trial = trial, what = modelType, plotType = "spatial", outCols = 2)
+  plot(x, trials = trial, traits = trait, what = modelType,
+       plotType = "spatial", outCols = 2)
 }
 @
 <<label=basePlots, echo=FALSE, out.width="90%">>=
 ## Base diagnostic plots, identical for all models
-plot(x, trial = trial, what = modelType, plotType = "base")
+plot(x, trials = trial, traits = trait, what = modelType, plotType = "base")
 @
 \newpage
 
@@ -224,8 +225,8 @@ plot(x, trial = trial, what = modelType, plotType = "base")
 \Sexpr{paste(ifelse(descending, "highest", "lowest"), predName)}}
 %-------------------------------------------------------------------------------
 <<label=best10perc, echo=FALSE, results="hide">>=
-pred <- STExtract(x, what = predName)[[trial]][[predName]]
-predSE <- STExtract(x, what = paste0("se", predName))[[trial]][[1]]
+pred <- STExtract(x, what = predName)[[trial]][[predName]][c("genotype", trait)]
+predSE <- STExtract(x, what = paste0("se", predName))[[trial]][[1]][c("genotype", trait)]
 predTot <- merge(x = pred, y = predSE, by = "genotype")
 predTot <- predTot[order(predTot[[paste0(trait,".x")]],
                          decreasing = descending), ]
