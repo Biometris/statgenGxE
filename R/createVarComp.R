@@ -78,11 +78,24 @@ plot.varComp <- function(x,
   PC1 <- princomp(corMat)$loadings[, 1]
   orderPC1 <- order(PC1)
   corMat <- corMat[orderPC1, orderPC1]
+  varMat <- x$vcov[orderPC1, orderPC1]
   ## Melt variance and correlation matrices to get proper shape for ggplot.
-  ## Use as.is is TRUE to avoid problems with plotting trials with
-  ## number-only names.
-  meltedCorMat <- reshape2::melt(corMat, as.is = TRUE)
-  meltedVarMat <- reshape2::melt(x$vcov[orderPC1, orderPC1], as.is = TRUE)
+  meltedCorMat <- reshape2::melt(corMat)
+  meltedVarMat <- reshape2::melt(varMat)
+  ## If trial names consist of only numbers melt converts them to numeric.
+  ## This gives problems with plotting, so reconvert them to factor.
+  if (is.numeric(meltedCorMat[["Var1"]])) {
+    meltedCorMat[["Var1"]] <- factor(meltedCorMat[["Var1"]],
+                                     levels = rownames(corMat))
+    meltedCorMat[["Var2"]] <- factor(meltedCorMat[["Var2"]],
+                                     levels = rownames(corMat))
+  }
+  if (is.numeric(meltedCorMat[["Var1"]])) {
+    meltedVarMat[["Var1"]] <- factor(meltedVarMat[["Var1"]],
+                                     levels = rownames(varMat))
+    meltedVarMat[["Var2"]] <- factor(meltedVarMat[["Var2"]],
+                                     levels = rownames(varMat))
+  }
   ## Select bottom triangle for correlations and top for variances.
   meltedCorMatLow <- meltedCorMat[as.numeric(meltedCorMat$Var1) >
                                     as.numeric(meltedCorMat$Var2), ]
