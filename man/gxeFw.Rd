@@ -5,7 +5,7 @@
 \title{Finlay-Wilkinson analysis}
 \usage{
 gxeFw(TD, trials = names(TD), trait, maxIter = 15, tol = 0.001,
-  sorted = c("ascending", "descending", "none"), restrictGeno = NULL,
+  sorted = c("descending", "ascending", "none"), restrictGeno = NULL,
   useWt = FALSE)
 }
 \arguments{

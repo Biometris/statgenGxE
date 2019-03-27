@@ -79,7 +79,7 @@ gxeFw <- function(TD,
                   trait,
                   maxIter = 15,
                   tol = 0.001,
-                  sorted = c("ascending", "descending", "none"),
+                  sorted = c("descending", "ascending", "none"),
                   restrictGeno = NULL,
                   useWt = FALSE) {
   if (missing(TD) || !inherits(TD, "TD")) {
@@ -251,7 +251,7 @@ gxeFw <- function(TD,
   ## Construct estimate data.frame.
   estimates <- data.frame(genotype = levels(TDTot$genotype), sens,
                           se_sens = sigmaE, genMean, se_genMean = sigma,
-                          MSdeviation = mse, rank = rank(sens),
+                          MSdeviation = mse, rank = rank(-sens),
                           row.names = 1:length(sens))[orderSens, ]
   ## Construct data.frame with trial effects.
   matchPos <- match(paste0("trial", levels(TDTot$trial), ":beta"),
