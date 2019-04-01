@@ -19,7 +19,7 @@ extSp <- STExtract(modelSp)[[1]]
 test_that("BLUEs are computed correctly", {
   expect_is(extSp$BLUEs, "data.frame")
   expect_identical(dim(extSp$BLUEs), c(15L, 2L))
-  expect_equal(colnames(extSp$BLUEs), c("genotype", "t1"))
+  expect_named(extSp$BLUEs, c("genotype", "t1"))
   expect_equal(extSp$BLUEs$t1,
                c(74.7151036023947, 84.6863159645867, 69.2058701507397,
                  72.4263349806975, 74.6775287748894, 84.3169610996821,
@@ -31,7 +31,7 @@ test_that("BLUEs are computed correctly", {
 test_that("SE of BLUEs are computed correctly", {
   expect_is(extSp$seBLUEs, "data.frame")
   expect_identical(dim(extSp$seBLUEs), c(15L, 2L))
-  expect_equal(colnames(extSp$seBLUEs), c("genotype", "t1"))
+  expect_named(extSp$seBLUEs, c("genotype", "t1"))
   expect_equal(extSp$seBLUEs$t1,
                c(13.0937552217265, 12.7812399928054, 12.6750833951795,
                  12.9865301453826, 12.9605688922502, 13.0653342436885,
@@ -43,7 +43,7 @@ test_that("SE of BLUEs are computed correctly", {
 test_that("BLUPs are computed correctly", {
   expect_is(extSp$BLUPs, "data.frame")
   expect_identical(dim(extSp$BLUPs), c(15L, 2L))
-  expect_equal(colnames(extSp$BLUPs), c("genotype", "t1"))
+  expect_named(extSp$BLUPs, c("genotype", "t1"))
   expect_equal(extSp$BLUPs$t1,
                c(82.6087679270256, 76.8599245205723, 77.1948690330156,
                  82.4889022661131, 77.6036907961718, 77.4637164970361,
@@ -55,7 +55,7 @@ test_that("BLUPs are computed correctly", {
 test_that("SE of BLUPs are computed correctly", {
   expect_is(extSp$seBLUPs, "data.frame")
   expect_identical(dim(extSp$seBLUPs), c(15L, 2L))
-  expect_equal(colnames(extSp$seBLUPs), c("genotype", "t1"))
+  expect_named(extSp$seBLUPs, c("genotype", "t1"))
   expect_equal(extSp$seBLUPs$t1,
                c(10.9599851074304, 10.6712268311788, 10.9772900363026,
                  10.7832248077144, 11.0344062893833, 10.8689695115598,
@@ -67,14 +67,14 @@ test_that("SE of BLUPs are computed correctly", {
 test_that("heritability is computed correctly", {
   expect_is(extSp$heritability, "numeric")
   expect_length(extSp$heritability, 1)
-  expect_equal(names(extSp$heritability), "t1")
+  expect_named(extSp$heritability, "t1")
   expect_equivalent(extSp$heritability, 0.46)
 })
 
 test_that("varGen is computed correctly", {
   expect_is(extSp$varGen, "numeric")
   expect_length(extSp$varGen, 1)
-  expect_equal(names(extSp$varGen), "t1")
+  expect_named(extSp$varGen, "t1")
   expect_equivalent(extSp$varGen, 156.002441460485)
 })
 
@@ -91,7 +91,7 @@ test_that("varSpat is computed correctly", {
 test_that("fitted values are computed correctly", {
   expect_is(extSp$fitted, "data.frame")
   expect_identical(dim(extSp$fitted), c(30L, 2L))
-  expect_equal(colnames(extSp$fitted), c("genotype", "t1"))
+  expect_named(extSp$fitted, c("genotype", "t1"))
   expect_equal(extSp$fitted$t1,
                c(71.2011919947091, 63.1039006172925, 55.7774636699599,
                  106.455101381074, 52.0527958005868, 49.7773596923711,
@@ -108,7 +108,7 @@ test_that("fitted values are computed correctly", {
 test_that("residuals are computed correctly", {
   expect_is(extSp$resid, "data.frame")
   expect_identical(dim(extSp$resid), c(30L, 2L))
-  expect_equal(colnames(extSp$resid), c("genotype", "t1"))
+  expect_named(extSp$resid, c("genotype", "t1"))
   expect_equal(extSp$resid$t1,
                c(-6.20768167338727, 7.39043637551345, -16.224531377189,
                  -1.61750498202109, -13.7513442152902, 8.98003165678936,
@@ -122,10 +122,27 @@ test_that("residuals are computed correctly", {
                  8.2108480989332, -8.2108480989332, 6.20768167338725))
 })
 
+test_that("standardized residuals are computed correctly", {
+  expect_is(extSp$stdRes, "data.frame")
+  expect_identical(dim(extSp$stdRes), c(30L, 2L))
+  expect_named(extSp$stdRes, c("genotype", "t1"))
+  expect_equal(extSp$stdRes$t1,
+               c(-0.671396366187042, 0.799318068825644, -1.7547760956287,
+                 -0.174942438152731, -1.48728672346615, 0.971241912815919,
+                 1.48728672346614, 0.835424343826765, 0.409485793199588,
+                 -0.409485793199587, -0.609931076198358, 0.609931076198353,
+                 -0.799318068825646, 0.174942438152768, 1.80177553873165,
+                 0.874031413575107, -0.704175845947232, -0.689479678275425,
+                 1.7547760956287, -0.971241912815913, -0.370550043518796,
+                 0.370550043518799, -0.874031413575096, 0.704175845947242,
+                 -1.80177553873165, 0.689479678275435, -0.835424343826768,
+                 0.888050300738031, -0.888050300738031, 0.671396366187039))
+})
+
 test_that("rMeans are computed correctly", {
   expect_is(extSp$rMeans, "data.frame")
   expect_identical(dim(extSp$rMeans), c(30L, 2L))
-  expect_equal(colnames(extSp$rMeans), c("genotype", "t1"))
+  expect_named(extSp$rMeans, c("genotype", "t1"))
   expect_equal(extSp$rMeans$t1,
                c(79.9923541999958, 60.29016783053, 56.7289964128857,
                  96.126879996754, 59.6937853822697, 56.6957894850249,
@@ -142,7 +159,7 @@ test_that("rMeans are computed correctly", {
 test_that("random effects are computed correctly", {
   expect_is(extSp$ranEf, "data.frame")
   expect_identical(dim(extSp$ranEf), c(15L, 2L))
-  expect_equal(colnames(extSp$ranEf), c("genotype", "t1"))
+  expect_named(extSp$ranEf, c("genotype", "t1"))
   expect_equal(extSp$ranEf$t1,
                c(4.11450226950924, -1.63434113694407, -1.29939662450081,
                  3.99463660859671, -0.890574861344598, -1.03054916048029,
@@ -151,10 +168,45 @@ test_that("random effects are computed correctly", {
                  18.7617819089379, 4.50512240283314, -2.33395333653327))
 })
 
+test_that("residuals are computed correctly for genotype random", {
+  expect_is(extSp$residR, "data.frame")
+  expect_identical(dim(extSp$residR), c(30L, 2L))
+  expect_named(extSp$residR, c("genotype", "t1"))
+  expect_equal(extSp$residR$t1,
+               c(-14.998843878674, 10.204169162276, -17.1760641201148,
+                 8.71071640229897, -21.3923337969731, 2.06160186413552,
+                 2.80191394646394, 10.4622387346317, 13.5034060255476,
+                 23.6265100777066, 0.693250592043213, -2.45571484228808,
+                 -21.3357801703291, -0.568039719720787, 23.6631514180327,
+                 7.08773318783506, -12.4530202041049, -9.60165063336212,
+                 26.091785327406, -4.10107786138522, 4.21348355339642,
+                 -8.83242070952585, -12.9758223746182, 9.88149006444448,
+                 -26.8975429909312, -10.0940647784538, -2.55677842920504,
+                 18.1574529874411, 11.4016518869224, -7.12140072089505))
+})
+
+test_that("standardized residuals are computed correctly for genotype random", {
+  expect_is(extSp$stdResR, "data.frame")
+  expect_identical(dim(extSp$stdResR), c(30L, 2L))
+  expect_named(extSp$stdResR, c("genotype", "t1"))
+  expect_equal(extSp$stdResR$t1,
+               c(-1.06602167449639, 0.725246931377187, -1.22076453243281,
+                 0.619101882808772, -1.5204299531419, 0.146525444836147,
+                 0.199142081960809, 0.743588862254301, 0.959735538232133,
+                 1.67922088124096, 0.0492718080775739, -0.174536468906363,
+                 -1.5164104838907, -0.0403726219230936, 1.68182511282616,
+                 0.50375063987582, -0.885080847424013, -0.682423776719175,
+                 1.85443684262021, -0.291478324889427, 0.299467400913552,
+                 -0.627751844794702, -0.922238274339652, 0.702312969601347,
+                 -1.91170493212481, -0.717421417586865, -0.181719420807676,
+                 1.29051536203953, 0.810356327116889, -0.506143512303795))
+})
+
+
 test_that("rDf is computed correctly", {
   expect_is(extSp$rDf, "numeric")
   expect_length(extSp$rDf, 1)
-  expect_equal(names(extSp$rDf), "t1")
+  expect_named(extSp$rDf, "t1")
   expect_equivalent(extSp$rDf, 14)
 })
 
@@ -182,4 +234,10 @@ test_that("correct attributes are added", {
   expect_equal(attr(x = extSp, which = "traits"), "t1")
   expect_equal(attr(x = extSp, which = "design"), "rowcol")
   expect_equal(attr(x = extSp, which = "engine"), "SpATS")
+})
+
+test_that("calculated values are logically correct", {
+  ## Fitted + residuals should match raw data.
+  expect_equal(testTD[[1]]$t1 - extSp$fitted$t1 - extSp$resid$t1, rep(0, 30))
+  expect_equal(testTD[[1]]$t1 - extSp$rMeans$t1 - extSp$residR$t1, rep(0, 30))
 })
