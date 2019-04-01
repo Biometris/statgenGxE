@@ -69,6 +69,9 @@ component}
 \item{R - rMeans}{Fitted values for the model with genotype as random
 component.}
 \item{R - ranEf}{Random genetic effects.}
+\item{F - residR}{Residuals for the model with genotype as random component.}
+\item{F - stdResR}{Standardized residuals for the model with genotype as
+random component}
 \item{F - wald}{Results of the wald test - only for \code{lme4} and
 \code{asreml}.}
 \item{F - CV}{Coefficient of variation - only for \code{lme4} and

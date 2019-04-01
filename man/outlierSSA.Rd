@@ -4,7 +4,7 @@
 \alias{outlierSSA}
 \title{Identifying outliers in objects of class SSA}
 \usage{
-outlierSSA(SSA, trial = NULL, traits, rLimit = NULL,
+outlierSSA(SSA, trial = NULL, traits, what = NULL, rLimit = NULL,
   commonFactors = NULL, verbose = TRUE)
 }
 \arguments{
@@ -16,6 +16,10 @@ that trial is used.}
 
 \item{traits}{A character vector specifying the names of the traits for
 which outliers should be identified.}
+
+\item{what}{A character string indicating whether the outlier should be
+identified for the fitted model with genotype as fixed or genotype as random
+factor.}
 
 \item{rLimit}{A numerical value used for determining when a value is
 considered an outlier. All observations with standardized residuals

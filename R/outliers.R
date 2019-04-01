@@ -15,6 +15,9 @@
 #' that trial is used.
 #' @param traits A character vector specifying the names of the traits for
 #' which outliers should be identified.
+#' @param what A character string indicating whether the outlier should be
+#' identified for the fitted model with genotype as fixed or genotype as random
+#' factor.
 #' @param rLimit A numerical value used for determining when a value is
 #' considered an outlier. All observations with standardized residuals
 #' exceeding \code{rLimit} will be marked as outliers.
@@ -43,6 +46,7 @@
 outlierSSA <- function(SSA,
                        trial = NULL,
                        traits,
+                       what = NULL,
                        rLimit = NULL,
                        commonFactors = NULL,
                        verbose = TRUE) {
@@ -54,15 +58,21 @@ outlierSSA <- function(SSA,
     stop("No trial provided but multiple trials found in SSA object.\n")
   }
   if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
-                          !trial %in% names(SSA))) {
+                          !hasName(SSA, trial))) {
     stop("Trial has to be a single character string defining a trial in SSA.\n")
   }
   if (is.null(trial)) {
     trial <- names(SSA)
   }
   if (!is.null(traits) && (!is.character(traits) ||
-                           !all(traits %in% colnames(SSA[[trial]]$TD[[trial]])))) {
+                           !all(hasName(x = SSA[[trial]]$TD[[trial]],
+                                        name = traits)))) {
     stop("Trait has to be a character vector defining columns in TD.\n")
+  }
+  if (is.null(what)) {
+    what <- ifelse(is.null(SSA[[trial]]$mFix), "random", "fixed")
+  } else {
+    what <- match.arg(arg = what, choices = c("fixed", "random"))
   }
   if (!is.null(commonFactors) && !is.character(commonFactors) &&
       !all(commonFactors %in% colnames(SSA[[trial]]$TD[[trial]]))) {
@@ -72,8 +82,9 @@ outlierSSA <- function(SSA,
                            rLimit < 0)) {
     stop("rLimit should be NULL or a positive numerical value.\n")
   }
+  whatExt <- ifelse(what == "fixed", "stdRes", "stdResR")
   stdRes <- STExtract(SSA, trials = trial, traits = traits,
-                      what = "stdRes")[[trial]][["stdRes"]]
+                      what = whatExt)[[trial]][[whatExt]]
   rDf <- STExtract(SSA, trials = trial, traits = traits,
                    what = "rDf")[[trial]][["rDf"]]
   ## Create empty data.frame for storing results.
