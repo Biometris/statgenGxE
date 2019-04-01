@@ -7,9 +7,9 @@ SB_Yield <- read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
 Heat05 <- SB_Yield[SB_Yield$Env == "HEAT05", ]
 # Create object of class TD
 TDHeat05 <- createTD(data = Heat05, genotype = "Genotype", trial = "Env",
-                     repId = "Rep", subBlock = "Subblock", rowId = "Row",
-                     colId = "Column", rowCoord = "Row",
-                     colCoord = "Column")
+                     repId = "Rep", subBlock = "Subblock", rowCoord = "Row",
+                     colCoord = "Column", trLong = 5.66667, trLat = 51.97,
+                     trLocation = "Wageningen")
 # Export to package
 usethis::use_data(TDHeat05, overwrite = TRUE)
 

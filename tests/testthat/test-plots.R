@@ -209,6 +209,20 @@ test_that("option highlight overrides colorSubBlock in TD layout plot", {
                "~highlight.")
 })
 
+test_that("TD map plot gives correct output types", {
+  expect_error(plot(TDMaize, plotType = "map"),
+               "should have latitude and longitude")
+  p <- plot(TDHeat05, plotType = "map", output = FALSE)
+  expect_is(p, "ggplot")
+})
+
+test_that("options minLatRange and minLongRange function properly for TD map plot", {
+  p <- plot(TDHeat05, plotType = "map", minLatRange = 20, minLongRange = 20,
+            output = FALSE)
+  expect_equal(p$coordinates$limits$x, c(-6.33333, 17.66667))
+  expect_equal(p$coordinates$limits$y, c(39.97, 63.97))
+})
+
 test_that("TD box plot gives correct output types", {
   expect_warning(plot(TDMaize, plotType = "box", traits = "trait"),
                  "trait isn't a column in any of the trials")
@@ -216,6 +230,27 @@ test_that("TD box plot gives correct output types", {
   expect_is(p, "list")
   expect_length(p, 1)
   expect_is(p[[1]], "ggplot")
+})
+
+test_that("option groupBy functions properly for TD box plot", {
+  p <- plot(TDHeat05, plotType = "box", traits = "yield", groupBy = "repId")
+  expect_true("~repId" %in% as.character(p$yield$mapping))
+})
+
+test_that("option colorBy functions properly for TD box plot", {
+  p <- plot(TDHeat05, plotType = "box", traits = "yield", colorBy = "repId")
+  expect_true(all(c("~repId", "~trial") %in% as.character(p$yield$mapping)))
+})
+
+test_that("option orderBy functions properly for TD box plot", {
+  p0 <- plot(TDHeat05, plotType = "box", traits = "yield")
+  p1 <- plot(TDHeat05, plotType = "box", traits = "yield", orderBy = "ascending")
+  p2 <- plot(TDHeat05, plotType = "box", traits = "yield", orderBy = "descending")
+  ## This basically only checks that releveling took place.
+  expect_equal(setdiff(names(p1$yield$plot_env), names(p0$yield$plot_env)),
+               "levNw")
+  expect_equal(setdiff(names(p2$yield$plot_env), names(p0$yield$plot_env)),
+               "levNw")
 })
 
 test_that("TD correlation plot gives correct output types", {

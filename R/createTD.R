@@ -758,7 +758,7 @@ plot.TD <- function(x,
                      c("name", "lat", "long"))
     locs <- unique(locs[!is.na(locs$lat) & !is.na(locs$long), ])
     if (nrow(locs) == 0) {
-      stop(paste("At least one trial should have latitute and longitude",
+      stop(paste("At least one trial should have latitude and longitude",
                  "for plotting on map.\n"))
     }
     minLatRange <- dotArgs$minLatRange
