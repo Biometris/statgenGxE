@@ -29,6 +29,9 @@
 #' \item{R - rMeans}{Fitted values for the model with genotype as random
 #' component.}
 #' \item{R - ranEf}{Random genetic effects.}
+#' \item{F - residR}{Residuals for the model with genotype as random component.}
+#' \item{F - stdResR}{Standardized residuals for the model with genotype as
+#' random component}
 #' \item{F - wald}{Results of the wald test - only for \code{lme4} and
 #' \code{asreml}.}
 #' \item{F - CV}{Coefficient of variation - only for \code{lme4} and
@@ -156,9 +159,10 @@ extractSpATS <- function(SSA,
                             x = deparse(mr[[1]]$model$fixed))) > 0
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "heritability",
                "varCompF", "varCompR", "varGen", "varSpat", "fitted", "resid",
-               "stdRes", "rMeans", "ranEf", "rDf", "effDim", "ratEffDim")
+               "stdRes", "rMeans", "ranEf", "residR", "stdResR", "rDf",
+               "effDim", "ratEffDim")
   whatMod <- c("F", "F", "R", "R", "R", "F", "R", "R", "R", "F", "F", "F", "R",
-               "R", "F", "R", "R")
+               "R", "R", "R", "F", "R", "R")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
   whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ranEf")
   if (what[[1]] == "all") {
@@ -314,6 +318,26 @@ extractSpATS <- function(SSA,
     result[["ranEf"]] <- restoreColNames(renDat = ranEf, renamedCols = renCols,
                                          restore = restore)
   }
+  ## Extract residuals for genotype random.
+  if ("residR" %in% what) {
+    resVal <- cbind(baseData, sapply(X = traits, FUN = function(trait) {
+      resVals <- residuals(mr[[trait]])
+      resVals[naTr[[trait]]] <- NA
+      resVals
+    }))
+    result[["residR"]] <- restoreColNames(renDat = resVal,
+                                          renamedCols = renCols,
+                                          restore = restore)
+  }
+  ## Extract standardized residuals for genotype random.
+  if ("stdResR" %in% what) {
+    stdRes <- cbind(baseData, sapply(X = mr, FUN = function(mr0) {
+      residuals(mr0) / sd(residuals(mr0), na.rm = TRUE)
+    }))
+    result[["stdResR"]] <- restoreColNames(renDat = stdRes,
+                                           renamedCols = renCols,
+                                           restore = restore)
+  }
   ## Extract residual degrees of freedom.
   if ("rDf" %in% what) {
     result[["rDf"]] <- sapply(X = mf, FUN = function(mf0) {
@@ -353,9 +377,10 @@ extractLme4 <- function(SSA,
   predicted = SSA$predicted
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability",
                "varCompF", "varCompR", "varGen", "varErr", "fitted", "resid",
-               "stdRes", "rMeans", "ranEf", "wald", "CV", "rDf")
+               "stdRes", "rMeans", "ranEf", "residR", "stdResR", "wald", "CV",
+               "rDf")
   whatMod <- c("F", "F", "R", "R", "F", "R", "F", "R", "R", "R", "F", "F", "F",
-               "R", "R", "F", "F", "F")
+               "R", "R", "R", "R", "F", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
   whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "ranEf")
   if (what[[1]] == "all") {
@@ -540,6 +565,27 @@ extractLme4 <- function(SSA,
     result[["ranEf"]] <- restoreColNames(renDat = ranEf, renamedCols = renCols,
                                          restore = restore)
   }
+  ## Extract residuals for genotype random.
+  if ("residR" %in% what) {
+    resVal <- cbind(baseData, sapply(X = mr, FUN = residuals))
+    result[["residR"]] <- restoreColNames(renDat = resVal,
+                                          renamedCols = renCols,
+                                          restore = restore)
+  }
+  ## Extract standardized residuals for genotype random.
+  if ("stdResR" %in% what) {
+    stdRes <- cbind(baseData,
+                    sapply(X = mr, FUN = function(mr0) {
+                      if (inherits(mr0, "lm")) {
+                        stdRes <- rstandard(mr0)
+                      } else if (inherits(mr0, "lmerMod")) {
+                        stdRes <- residuals(mr0, scaled = TRUE)
+                      }
+                    }))
+    result[["stdResR"]] <- restoreColNames(renDat = stdRes,
+                                           renamedCols = renCols,
+                                           restore = restore)
+  }
   ## Compute wald test.
   if ("wald" %in% what) {
     result[["wald"]] <- lapply(X = em, FUN = emmeans::test, joint = TRUE)
@@ -575,9 +621,10 @@ extractAsreml <- function(SSA,
   predicted <- SSA$predicted
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability",
                "varCompF", "varCompR", "varGen", "varErr", "fitted", "resid",
-               "stdRes", "rMeans", "ranEf", "wald", "CV", "rDf", "sed", "lsd")
+               "stdRes", "rMeans", "ranEf", "residR", "stdResR", "wald", "CV",
+               "rDf", "sed", "lsd")
   whatMod <- c("F", "F", "R", "R", "F", "R", "F", "R", "R", "R", "F", "F", "F",
-               "R", "R", "F", "F", "F", "F", "F")
+               "R", "R", "R", "R", "F", "F", "F", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
   whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "ranEf")
   if (what[[1]] == "all") {
@@ -726,6 +773,21 @@ extractAsreml <- function(SSA,
     ranEf <- Reduce(f = merge, x = ranEffs, init = baseDataPred)
     result[["ranEf"]] <- restoreColNames(renDat = ranEf, renamedCols = renCols,
                                          restore = restore)
+  }
+  ## Extract residuals for genotype random.
+  if ("residR" %in% what) {
+    resVal <- cbind(baseData, sapply(X = mr, FUN = residuals,
+                                     type = "response"))
+    result[["residR"]] <- restoreColNames(renDat = resVal,
+                                          renamedCols = renCols,
+                                          restore = restore)
+  }
+  ## Extract standardized residuals.
+  if ("stdResR" %in% what) {
+    stdRes <- cbind(baseData, sapply(X = mr, FUN = residuals, type = "stdCond"))
+    result[["stdResR"]] <- restoreColNames(renDat = stdRes,
+                                           renamedCols = renCols,
+                                           restore = restore)
   }
   ## Compute wald test.
   if ("wald" %in% what) {

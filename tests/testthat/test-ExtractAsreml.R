@@ -12,7 +12,7 @@ if (requireNamespace("asreml", quietly = TRUE)) {
   test_that("the output of extract is of the proper type - asreml", {
     expect_is(STExtract(modelAs, what = "BLUEs"), "list")
     expect_is(STExtract(modelAs), "list")
-    expect_length(STExtract(modelAs)[[1]], 20)
+    expect_length(STExtract(modelAs)[[1]], 22)
     expect_is(STExtract(modelAs, what = c("BLUEs", "BLUPs")), "list")
     expect_length(STExtract(modelAs, what = c("BLUEs", "BLUPs"))[[1]], 2)
   })
