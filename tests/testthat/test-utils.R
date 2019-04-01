@@ -40,3 +40,12 @@ test_that("function supprWarn functions properly", {
   expect_silent(supprWarn(sqrt(-1), "NaNs produced"))
 })
 
+test_that("mapData functions properly", {
+  mapDat <- mapData(xLim = c(0, 5), yLim = c(50, 53))
+  expect_is(mapDat, "data.frame")
+  expect_true(all(hasName(mapDat, c("lat", "long"))))
+  expect_equal(sum(is.na(mapDat$lat)), 0)
+  expect_equal(sum(is.na(mapDat$long)), 0)
+  expect_equal(unique(mapDat$region),
+                      c("Belgium", "France", "UK", "Netherlands"))
+})
