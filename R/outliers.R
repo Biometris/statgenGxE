@@ -83,10 +83,11 @@ outlierSSA <- function(SSA,
     stop("rLimit should be NULL or a positive numerical value.\n")
   }
   whatExt <- ifelse(what == "fixed", "stdRes", "stdResR")
+  whatExtDf <- ifelse(what == "fixed", "rDf", "rDfR")
   stdRes <- STExtract(SSA, trials = trial, traits = traits,
                       what = whatExt)[[trial]][[whatExt]]
   rDf <- STExtract(SSA, trials = trial, traits = traits,
-                   what = "rDf")[[trial]][["rDf"]]
+                   what = whatExtDf)[[trial]][[whatExtDf]]
   ## Create empty data.frame for storing results.
   indicator <- data.frame(matrix(data = FALSE,
                                  nrow = nrow(SSA[[trial]]$TD[[trial]]),

@@ -34,9 +34,8 @@ test_that("option what functions properly", {
   expect_is(out1, "list")
   expect_length(out1, 2)
   expect_is(out1$indicator, "data.frame")
-  expect_equal(sum(out1$indicator[["t1"]]), 1)
-  expect_equal(nrow(out1$outliers), 1)
-  expect_equal(out1$outliers$res, 2.00884115446144)
+  expect_equal(sum(out1$indicator[["t1"]]), 0)
+  expect_null(out1$outliers)
 })
 
 test_that("option rLimit funtions properly", {
@@ -68,7 +67,7 @@ test_that("option verbose functions properly", {
                                                  traits = "t1", verbose = TRUE))
   printOut2 <- capture.output(out1 <- outlierSSA(modelLm, trial = "E1",
                                                  traits = "t1", what = "random",
-                                                 verbose = TRUE))
+                                                 rLimit = 2, verbose = TRUE))
   expect_equal(printOut1, "No large standardized residuals.")
   expect_true("Large standardized residuals" %in% printOut2)
   expect_true(any(grepl(pattern = "2.008841", x = printOut2)))

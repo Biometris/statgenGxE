@@ -76,7 +76,10 @@ random component}
 \code{asreml}.}
 \item{F - CV}{Coefficient of variation - only for \code{lme4} and
 \code{asreml}.}
-\item{F - rDf}{Residual degrees of freedom.}
+\item{F - rDf}{Residual degrees of freedom for the model with genotype as
+fixed component.}
+\item{R - rDfR}{Residual degrees of freedom for the model with genotype as
+random component.}
 \item{R - effDim}{Effective dimensions - only for \code{SpATS}.}
 \item{R - ratEffDim}{Ratio's of the effective dimensions -
 only for \code{SpATS}.}

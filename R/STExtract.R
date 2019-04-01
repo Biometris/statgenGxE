@@ -36,7 +36,10 @@
 #' \code{asreml}.}
 #' \item{F - CV}{Coefficient of variation - only for \code{lme4} and
 #' \code{asreml}.}
-#' \item{F - rDf}{Residual degrees of freedom.}
+#' \item{F - rDf}{Residual degrees of freedom for the model with genotype as
+#' fixed component.}
+#' \item{R - rDfR}{Residual degrees of freedom for the model with genotype as
+#' random component.}
 #' \item{R - effDim}{Effective dimensions - only for \code{SpATS}.}
 #' \item{R - ratEffDim}{Ratio's of the effective dimensions -
 #' only for \code{SpATS}.}
@@ -159,17 +162,18 @@ extractSpATS <- function(SSA,
                             x = deparse(mr[[1]]$model$fixed))) > 0
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "heritability",
                "varCompF", "varCompR", "varGen", "varSpat", "fitted", "resid",
-               "stdRes", "rMeans", "ranEf", "residR", "stdResR", "rDf",
+               "stdRes", "rMeans", "ranEf", "residR", "stdResR", "rDf", "rDfR",
                "effDim", "ratEffDim")
   whatMod <- c("F", "F", "R", "R", "R", "F", "R", "R", "R", "F", "F", "F", "R",
-               "R", "R", "R", "F", "R", "R")
+               "R", "R", "R", "F", "R", "R", "R")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
   whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ranEf")
+  opts <- Reduce("|", sapply(whatSSA, FUN = grepl, x = whatMod,
+                             simplify = FALSE))
   if (what[[1]] == "all") {
-    what <- whatTot[whatMod %in% whatSSA]
+    what <- whatTot[opts]
   } else {
-    what <- match.arg(arg = what, choices = whatTot[whatMod %in% whatSSA],
-                      several.ok = TRUE)
+    what <- match.arg(arg = what, choices = whatTot[opts], several.ok = TRUE)
   }
   ## Fitted values and residuals are not set to NA by SpATS in case the original
   ## data is NA. Get missing values per trait to set them to NA later.
@@ -344,6 +348,12 @@ extractSpATS <- function(SSA,
       unname(mf0$dim[predicted])
     })
   }
+  ## Extract residual degrees of freedom.
+  if ("rDfR" %in% what) {
+    result[["rDfR"]] <- sapply(X = mr, FUN = function(mr0) {
+      unname(mr0$dim[predicted])
+    })
+  }
   ## Extract effective dimensions.
   if ("effDim" %in% what) {
     result[["effDim"]] <- sapply(X = mr, FUN = function(mr0) {
@@ -378,16 +388,17 @@ extractLme4 <- function(SSA,
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability",
                "varCompF", "varCompR", "varGen", "varErr", "fitted", "resid",
                "stdRes", "rMeans", "ranEf", "residR", "stdResR", "wald", "CV",
-               "rDf")
+               "rDf", "rDfR")
   whatMod <- c("F", "F", "R", "R", "F", "R", "F", "R", "R", "R", "F", "F", "F",
-               "R", "R", "R", "R", "F", "F", "F")
+               "R", "R", "R", "R", "F", "F", "F", "R")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
   whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "ranEf")
+  opts <- Reduce("|", sapply(whatSSA, FUN = grepl, x = whatMod,
+                             simplify = FALSE))
   if (what[[1]] == "all") {
-    what <- whatTot[whatMod %in% whatSSA]
+    what <- whatTot[opts]
   } else {
-    what <- match.arg(arg = what, choices = whatTot[whatMod %in% whatSSA],
-                      several.ok = TRUE)
+    what <- match.arg(arg = what, choices = whatTot[opts], several.ok = TRUE)
   }
   ## Create baseData and baseDataPred to which further results will be merged.
   base <- createBaseData(TD, predicted, keep, useRepId,
@@ -599,6 +610,9 @@ extractLme4 <- function(SSA,
   if ("rDf" %in% what) {
     result[["rDf"]] <- sapply(X = mf, FUN = df.residual)
   }
+  if ("rDfR" %in% what) {
+    result[["rDfR"]] <- sapply(X = mr, FUN = df.residual)
+  }
   return(result)
 }
 
@@ -622,16 +636,17 @@ extractAsreml <- function(SSA,
   whatTot <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "heritability",
                "varCompF", "varCompR", "varGen", "varErr", "fitted", "resid",
                "stdRes", "rMeans", "ranEf", "residR", "stdResR", "wald", "CV",
-               "rDf", "sed", "lsd")
+               "rDf", "rDfR", "sed", "lsd")
   whatMod <- c("F", "F", "R", "R", "F", "R", "F", "R", "R", "R", "F", "F", "F",
-               "R", "R", "R", "R", "F", "F", "F", "F", "F")
+               "R", "R", "R", "R", "F", "F", "F", "R", "F", "F")
   whatSSA <- c(if (!is.null(mf)) "F", if (!is.null(mr)) "R")
   whatPred <- c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs", "ue", "ranEf")
+  opts <- Reduce("|", sapply(whatSSA, FUN = grepl, x = whatMod,
+                             simplify = FALSE))
   if (what[[1]] == "all") {
-    what <- whatTot[whatMod %in% whatSSA]
+    what <- whatTot[opts]
   } else {
-    what <- match.arg(arg = what, choices = whatTot[whatMod %in% whatSSA],
-                      several.ok = TRUE)
+    what <- match.arg(arg = what, choices = whatTot[opts], several.ok = TRUE)
   }
   ## Create baseData and baseDataPred to which further results will be merged.
   base <- createBaseData(TD, predicted, keep, useRepId,
@@ -816,6 +831,10 @@ extractAsreml <- function(SSA,
   ## Extract residual degrees of freedom.
   if ("rDf" %in% what) {
     result[["rDf"]] <- sapply(X = mf, FUN = "[[", "nedf")
+  }
+  ## Extract residual degrees of freedom for genotype random.
+  if ("rDfR" %in% what) {
+    result[["rDfR"]] <- sapply(X = mr, FUN = "[[", "nedf")
   }
   ## Extract standard error of difference.
   if ("sed" %in% what) {
