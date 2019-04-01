@@ -70,7 +70,7 @@ test_that("AMMI plot plotEnv functions properly", {
   geoms0_2 <- sapply(p0_2$layers, function(x) class(x$geom)[1])
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
   expect_equal(setdiff(geoms0_1, geoms1_1), "GeomText")
-  expect_equal(setdiff(geoms0_2, geoms1_2), c("GeomText", "GeomSegment"))
+  expect_setequal(setdiff(geoms0_2, geoms1_2), c("GeomText", "GeomSegment"))
 })
 
 test_that("AMMI plot sizeEnv functions properly", {
@@ -166,6 +166,49 @@ test_that("multiQTL plot gives correct output types", {
   expect_is(p, "ggplot")
 })
 
+p0 <- plot(TDHeat05, plotType = "layout", output = FALSE)
+test_that("TD layout plot gives correct output types", {
+  expect_warning(plot(TDMaize, plotType = "layout"), "Plot skipped")
+  expect_is(p0, "list")
+  expect_length(p0, 1)
+  expect_is(p0[[1]], "ggplot")
+})
+
+test_that("option showGeno functions properly in TD layout plot", {
+  p1 <- plot(TDHeat05, plotType = "layout", showGeno = TRUE, output = FALSE)
+  ## Difference with default plot p0 should be the extra GeomText layer.
+  geoms0 <- sapply(p0[[1]]$layers, function(x) class(x$geom)[1])
+  geoms1 <- sapply(p1[[1]]$layers, function(x) class(x$geom)[1])
+  expect_equal(setdiff(geoms1, geoms0), "GeomText")
+})
+
+test_that("option highlight functions properly in TD layout plot", {
+  p1 <- plot(TDHeat05, plotType = "layout", highlight = "SB001", output = FALSE)
+  geoms1 <- sapply(p1[[1]]$layers, function(x) class(x$geom)[1])
+  ## Two plots should be highlighted as defined in variable highlight..
+  expect_equal(as.character(p1[[1]]$layers[geoms1 == "GeomTile"][[1]]$mapping),
+               "~highlight.")
+  expect_equal(sum(!is.na(p1[[1]]$data$highlight.)), 2)
+})
+
+test_that("option colorSubBlock functions properly in TD layout plot", {
+  p1 <- plot(TDHeat05, plotType = "layout", colorSubBlock = TRUE,
+             output = FALSE)
+  geoms1 <- sapply(p1[[1]]$layers, function(x) class(x$geom)[1])
+  ## Fill should be based on subBlocks.
+  expect_equal(as.character(p1[[1]]$layers[geoms1 == "GeomTile"][[1]]$mapping),
+               "~subBlock")
+})
+
+test_that("option highlight overrides colorSubBlock in TD layout plot", {
+  p1 <- plot(TDHeat05, plotType = "layout", highlight = "SB001",
+             colorSubBlock = TRUE, output = FALSE)
+  geoms1 <- sapply(p1[[1]]$layers, function(x) class(x$geom)[1])
+  ## Two plots should be highlighted as defined in variable highlight..
+  expect_equal(as.character(p1[[1]]$layers[geoms1 == "GeomTile"][[1]]$mapping),
+               "~highlight.")
+})
+
 test_that("TD box plot gives correct output types", {
   expect_warning(plot(TDMaize, plotType = "box", traits = "trait"),
                  "trait isn't a column in any of the trials")
@@ -182,4 +225,12 @@ test_that("TD correlation plot gives correct output types", {
   expect_is(p, "list")
   expect_length(p, 1)
   expect_is(p[[1]], "ggplot")
+})
+
+test_that("varComp plot gives correct output types", {
+  geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+  p <- plot(geVarComp, output = FALSE)
+  geoms <- sapply(p$layers, function(x) class(x$geom)[1])
+  expect_is(p, "ggplot")
+  expect_setequal(geoms, c("GeomTile", "GeomText"))
 })

@@ -219,6 +219,13 @@ if (requireNamespace("asreml", quietly = TRUE)) {
     expect_equivalent(extAs$rDf, 14)
   })
 
+  test_that("rDfR is computed correctly", {
+    expect_is(extAs$rDfR, "integer")
+    expect_length(extAs$rDfR, 1)
+    expect_named(extAs$rDfR, "t1")
+    expect_equivalent(extAs$rDfR, 28)
+  })
+
   test_that("sed is computed correctly", {
     expect_is(extAs$sed$t1, "numeric")
     expect_length(extAs$sed$t1, 3)

@@ -202,12 +202,18 @@ test_that("standardized residuals are computed correctly for genotype random", {
                  1.29051536203953, 0.810356327116889, -0.506143512303795))
 })
 
-
 test_that("rDf is computed correctly", {
   expect_is(extSp$rDf, "numeric")
   expect_length(extSp$rDf, 1)
   expect_named(extSp$rDf, "t1")
   expect_equivalent(extSp$rDf, 14)
+})
+
+test_that("rDfR is computed correctly", {
+  expect_is(extSp$rDfR, "numeric")
+  expect_length(extSp$rDfR, 1)
+  expect_named(extSp$rDfR, "t1")
+  expect_equivalent(extSp$rDfR, 15)
 })
 
 test_that("effective dimensions are computed correctly", {

@@ -217,6 +217,13 @@ test_that("rDf is computed correctly", {
   expect_equivalent(extLm$rDf, 14)
 })
 
+test_that("rDfR is computed correctly", {
+  expect_is(extLm$rDfR, "integer")
+  expect_length(extLm$rDfR, 1)
+  expect_named(extLm$rDfR, "t1")
+  expect_equivalent(extLm$rDfR, 26)
+})
+
 test_that("correct attributes are added", {
   expect_equal(attr(x = extLm, which = "traits"), "t1")
   expect_equal(attr(x = extLm, which = "design"), "rcbd")
