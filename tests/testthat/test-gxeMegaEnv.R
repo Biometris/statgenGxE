@@ -52,6 +52,11 @@ test_that("gxeTable functions correctly", {
   expect_warning(gxeTable(TD = geMegaEnv, trait = "t1"),
                  "Empty data.frame returned")
   geTabLm <- gxeTable(TD = geMegaEnvNw, trait = "t1")
+  expect_is(geTabLm, "list")
+  expect_length(geTabLm, 2)
+  expect_named(geTabLm, c("predictedValue", "standardError"))
+  expect_is(geTabLm$predictedValue, "data.frame")
+  expect_is(geTabLm$standardError, "data.frame")
   expect_equivalent(geTabLm$predictedValue[1, ],
                     c(80.0426463992245, 80.4692101166694))
   ## This test works fine in RStudio but gives an error when testing on CRAN.
@@ -59,13 +64,26 @@ test_that("gxeTable functions correctly", {
   expect_equivalent(geTabLm$standardError[1, ],
                     c(5.93814290627681, 9.51137000477223), tolerance = 1e-7)
   testthat::skip_on_cran()
-  expect_warning(gxeTable(TD = geMegaEnv, trait = "t1"),
-                 "Empty data.frame returned")
   geTabAs <- gxeTable(TD = geMegaEnvNw, trait = "t1", engine = "asreml")
   expect_equivalent(geTabAs$predictedValue[1, ],
                     c(80.0424619340827, 80.4703103942952))
   expect_equivalent(geTabAs$standardError[1, ],
                     c(6.58334962888207, 9.77290639163001))
+})
+
+test_that("option year in gxeTable functions properly", {
+  geMegaEnvNw2 <- c(geMegaEnvNw, geMegaEnvNw)
+  names(geMegaEnvNw2) <- paste0("E", 1:6)
+  class(geMegaEnvNw2) <- "TD"
+  geMegaEnvNw2[["E1"]]$year <- geMegaEnvNw2[["E2"]]$year <-
+    geMegaEnvNw2[["E3"]]$year <- 1
+  geMegaEnvNw2[["E4"]]$year <- geMegaEnvNw2[["E5"]]$year <-
+    geMegaEnvNw2[["E6"]]$year <- 2
+  geTab <- gxeTable(TD = geMegaEnvNw2, trait = "t1", useYear = TRUE)
+  expect_equivalent(geTab$predictedValue[1, ],
+                    c(85.7139211061344, 76.5897665641836))
+  expect_equivalent(geTab$standardError[1, ],
+                    c(6.72132965673734, 9.57033282833413))
 })
 
 test_that("combCor helper function funcions correctly", {
