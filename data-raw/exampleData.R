@@ -43,11 +43,17 @@ testData <- data.frame(seed = rep(x = paste0("G", rep(x = 1:15, times = 2)),
 testData$t3[sample.int(n = 90, size = 15)] <- NA
 testData$t4[sample.int(n = 90, size = 15)] <- NA
 
+## Create a second dataset with year info.
+## Just two copies of testData with a year column added.
+testDataYear <- rbind(testData, testData)
+testDataYear$field = rep(x = paste0("E", 1:6), each = 30)
+testDataYear$year <- rep(c(1, 2), each = 90)
+
 ## Use data from qtl package for testing cross functions.
 ## Save locally to prevent errors from changes in data.
 data(fake.f2, package = "qtl")
 ## Restrict data.
-testF2 <- fake.f2[c(1,2,"X"), 1:50]
+testF2 <- fake.f2[c(1, 2, "X"), 1:50]
 ## Add a duplicate marker on chr 1 for testing purposes.
 testF2$geno$`1`$data <- cbind(testF2$geno$`1`$data, testF2$geno$`1`$data[, 7])
 colnames(testF2$geno$`1`$data)[8] <- "D1M37"
@@ -63,7 +69,7 @@ data(fake.bc, package = "qtl")
 testBc <- fake.bc[1:3, 1:50]
 
 ## Export all internal data in one go to package.
-usethis::use_data(testData, testF2, test4way, testBc,
+usethis::use_data(testData, testDataYear, testF2, test4way, testBc,
                   overwrite = TRUE, internal = TRUE)
 
 ## Create data for vignette.

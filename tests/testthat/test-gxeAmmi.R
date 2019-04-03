@@ -97,14 +97,23 @@ test_that("means are correct", {
 
 test_that("options nPC functions properly", {
   geAmmi1 <- gxeAmmi(BLUEs, trait = "t1", nPC = 1)
-  expect_equal(ncol(geAmmi1$envScores), 1L)
-  expect_equal(ncol(geAmmi1$genoScores), 1L)
+  expect_equal(ncol(geAmmi1$envScores), 1)
+  expect_equal(ncol(geAmmi1$genoScores), 1)
   expect_equal(geAmmi1$envScores, geAmmi$envScores[, 1, drop = FALSE])
   expect_equal(geAmmi1$genoScores, geAmmi$genoScores[, 1, drop = FALSE])
   expect_equal(geAmmi1$importance, geAmmi$importance)
   ## Third PC is very close to zero.
   expect_error(gxeAmmi(BLUEs, trait = "t1", nPC = 3),
                "should be smaller than")
+})
+
+test_that("making algorithm decide nPC functions properly", {
+  geAmmi1 <- gxeAmmi(BLUEs, trait = "t1", nPC = NULL)
+  expect_equal(ncol(geAmmi1$envScores), 2)
+  expect_equal(ncol(geAmmi1$genoScores), 2)
+  expect_equal(geAmmi1$envScores, geAmmi$envScores)
+  expect_equal(geAmmi1$genoScore, geAmmi$genoScores)
+  expect_equal(geAmmi1$importance, geAmmi$importance)
 })
 
 test_that("option center functions properly", {
@@ -135,4 +144,59 @@ test_that("option GGE functions properly", {
                  525.170307371249, 405.716961756734, 0.56079293180552,
                  NA, 1.6506386534463, 1.29442531832361, NA, 0.574970929624894,
                  NA, 0.177779894196571, 0.318471094559927, NA))
+})
+
+test_that("option excludeGeno functions properly", {
+  expect_warning(gxeAmmi(BLUEs, trait = "t1", excludeGeno = paste0("G", 1:6)),
+                 "Less than 10 genotypes present")
+  geAmmi1 <- gxeAmmi(BLUEs, trait = "t1", excludeGeno = "G1")
+  expect_equal(nrow(geAmmi1$genoScores), 14)
+  expect_equal(nrow(geAmmi1$fitted), 42)
+  expect_length(geAmmi1$genoMean, 14)
+})
+
+testTDYear <- createTD(data = testDataYear, genotype = "seed",
+                       trial = "field", repId = "rep",
+                       subBlock = "block", rowId = "Y", colId = "X",
+                       rowCoord = "Y", colCoord = "X")
+modelSp <- STRunModel(testTDYear, design = "rowcol", traits = c("t1", "t2"))
+BLUEsYear <- SSAtoTD(modelSp, what = "BLUEs", keep = "year")
+
+test_that("analysis is only run for years with at least three trials", {
+  ## Delete E6 to leave only two trials for year 2.
+  BLUEsYear[["E6"]] <- NULL
+  expect_warning(gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE),
+                 "less than 3 trials for 2.")
+  ## Delete E3 to leave only two trials for both years.
+  BLUEsYear[["E3"]] <- NULL
+  expect_error(gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE),
+               "All years were skipped")
+})
+
+geAmmiYear <- gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE)
+test_that("output is of the right class when byYear = TRUE", {
+  expect_is(geAmmiYear, "AMMI")
+  expect_is(geAmmiYear$envScores, "list")
+  expect_is(geAmmiYear$genoScores, "list")
+  expect_is(geAmmiYear$importance, "list")
+  expect_is(geAmmiYear$anova, "list")
+  expect_is(geAmmiYear$fitted, "data.frame")
+  expect_is(geAmmiYear$trait, "character")
+  expect_is(geAmmiYear$envMean, "list")
+  expect_is(geAmmiYear$genoMean, "list")
+  expect_is(geAmmiYear$overallMean, "list")
+})
+
+test_that("output elements are of the right class when byYear = TRUE", {
+  ## Only check two elements since function works equivalent for all elements.
+  expect_length(geAmmiYear$envScores, 2)
+  expect_named(geAmmiYear$envScores, c("1", "2"))
+  expect_is(geAmmiYear$envScores$`1`, "matrix")
+  ## Different field names so not equal but equivalent.
+  expect_equivalent(geAmmiYear$envScores$`1`, geAmmiYear$envScores$`2`)
+  expect_length(geAmmiYear$anova, 2)
+  expect_named(geAmmiYear$anova, c("1", "2"))
+  expect_is(geAmmiYear$anova$`1`, "data.frame")
+  ## Different field names so not equal but equivalent.
+  expect_equivalent(geAmmiYear$anova$`1`, geAmmiYear$anova$`2`)
 })
