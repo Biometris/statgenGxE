@@ -108,6 +108,28 @@ test_that("AMMI plot colEnv functions properly", {
   expect_equal(p1_2$layers[geoms1_2 == "GeomSegment"][[1]]$aes_params$colour, "green")
 })
 
+testTDYear <- createTD(data = testDataYear, genotype = "seed",
+                       trial = "field", repId = "rep",
+                       subBlock = "block", rowId = "Y", colId = "X",
+                       rowCoord = "Y", colCoord = "X")
+modelSp <- STRunModel(testTDYear, design = "rowcol", traits = c("t1", "t2"))
+BLUEsYear <- SSAtoTD(modelSp, what = "BLUEs", keep = "year")
+geAmmiYear <- gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE)
+test_that("AMMI plot gives correct output types when byYear = TRUE", {
+  p1 <- plot(geAmmiYear, output = FALSE)
+  expect_is(p1, "list")
+  expect_length(p1, 2)
+  expect_named(p1, c("1", "2"))
+  expect_is(p1[[1]], "ggplot")
+  expect_is(p1[[2]], "ggplot")
+  p2 <- plot(geAmmiYear, plotType = "AMMI2", output = FALSE)
+  expect_is(p2, "list")
+  expect_length(p2, 2)
+  expect_named(p2, c("1", "2"))
+  expect_is(p2[[1]], "ggplot")
+  expect_is(p2[[2]], "ggplot")
+})
+
 test_that("FW plot gives correct output types", {
   geFw <- geFW <- gxeFw(TD = TDMaize, trait = "yld")
   p1 <- plot(geFw, output = FALSE)
