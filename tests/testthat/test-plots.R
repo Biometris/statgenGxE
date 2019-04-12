@@ -173,11 +173,23 @@ test_that("stability plot gives correct output types", {
   expect_length(p2, 1)
 })
 
+QTLDetF2 <- QTLDetect(testF2, trait = "phenotype")
+QTLDetF2C <- QTLDetect(testF2, trait = "phenotype", type = "CIM")
 test_that("QTLDet plot gives correct output types", {
-  QTLDetF2 <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed",
-                        thrFixed = 1.5, window = 2)
-  p <- plot(QTLDetF2, output = FALSE)
-  expect_is(p, "ggplot")
+  p1 <- plot(QTLDetF2, output = FALSE)
+  p2 <- plot(QTLDetF2C, output = FALSE)
+  geoms1 <- sapply(p1$layers, function(x) class(x$geom)[1])
+  geoms2 <- sapply(p2$layers, function(x) class(x$geom)[1])
+  expect_is(p1, "ggplot")
+  expect_setequal(geoms1, "GeomLine")
+  expect_setequal(geoms2, c("GeomLine", "GeomPoint"))
+})
+
+test_that("plot options function properly in QTLDet plot", {
+  p <- plot(QTLDetF2, yLim = 5, output = FALSE)
+  expect_equal(p$scales$scales[[1]]$limits, c(0, 5))
+  p <- plot(QTLDetF2, title = "test", output = FALSE)
+  expect_equal(p$labels$title, "test")
 })
 
 test_that("multiQTL plot gives correct output types", {
@@ -255,19 +267,23 @@ test_that("TD box plot gives correct output types", {
 })
 
 test_that("option groupBy functions properly for TD box plot", {
-  p <- plot(TDHeat05, plotType = "box", traits = "yield", groupBy = "repId")
+  p <- plot(TDHeat05, plotType = "box", traits = "yield", groupBy = "repId",
+            output = FALSE)
   expect_true("~repId" %in% as.character(p$yield$mapping))
 })
 
 test_that("option colorBy functions properly for TD box plot", {
-  p <- plot(TDHeat05, plotType = "box", traits = "yield", colorBy = "repId")
+  p <- plot(TDHeat05, plotType = "box", traits = "yield", colorBy = "repId",
+            output = FALSE)
   expect_true(all(c("~repId", "~trial") %in% as.character(p$yield$mapping)))
 })
 
 test_that("option orderBy functions properly for TD box plot", {
-  p0 <- plot(TDHeat05, plotType = "box", traits = "yield")
-  p1 <- plot(TDHeat05, plotType = "box", traits = "yield", orderBy = "ascending")
-  p2 <- plot(TDHeat05, plotType = "box", traits = "yield", orderBy = "descending")
+  p0 <- plot(TDHeat05, plotType = "box", traits = "yield", output = FALSE)
+  p1 <- plot(TDHeat05, plotType = "box", traits = "yield",
+             orderBy = "ascending", output = FALSE)
+  p2 <- plot(TDHeat05, plotType = "box", traits = "yield",
+             orderBy = "descending", output = FALSE)
   ## This basically only checks that releveling took place.
   expect_equal(setdiff(names(p1$yield$plot_env), names(p0$yield$plot_env)),
                "levNw")
