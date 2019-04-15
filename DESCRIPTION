@@ -36,5 +36,6 @@ Imports:
     ggrepel
 Suggests: asreml(== 3.0),
     rmarkdown,
-    testthat
+    testthat,
+    covr
 VignetteBuilder: knitr
