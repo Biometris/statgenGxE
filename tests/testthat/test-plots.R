@@ -108,6 +108,17 @@ test_that("AMMI plot colEnv functions properly", {
   expect_equal(p1_2$layers[geoms1_2 == "GeomSegment"][[1]]$aes_params$colour, "green")
 })
 
+test_that("AMMI plot plotConvHull functions properly", {
+  ## plotConvHull should be ignored for AMMI1.
+  expect_equal(p0_1, plot(geAmmi, plotConvHull = TRUE, output = FALSE))
+  ## For AMMI2 there should be two extra layers.
+  p1_2 <- plot(geAmmi, plotType = "AMMI2", plotConvHull = TRUE, output = FALSE)
+  geoms0_2 <- sapply(p0_2$layers, function(x) class(x$geom)[1])
+  geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
+  expect_setequal(geoms1_2[-match(geoms0_2, geoms1_2)],
+                  c("GeomPolygon", "GeomSegment"))
+})
+
 testTDYear <- createTD(data = testDataYear, genotype = "seed",
                        trial = "field", repId = "rep",
                        subBlock = "block", rowId = "Y", colId = "X",
