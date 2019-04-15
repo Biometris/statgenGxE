@@ -50,7 +50,8 @@ image: rocker/r-base
 before_script:
   - apt-get update -qq
   # install dependencies for packages
-  - apt-get install -y wget locales libxml2-dev libssl-dev libcurl4-openssl-dev zlib1g-dev > /dev/null
+  - apt-get install -y wget locales libxml2-dev libssl-dev libcurl4-openssl-dev zlib1g-dev libglu1-mesa-dev > /dev/null
+  - apt-get install -y wget --no-install-recommends qpdf ghostscript > /dev/null
   # recent pandoc
   - wget --quiet https://github.com/jgm/pandoc/releases/download/2.7.2/pandoc-2.7.2-1-amd64.deb
   - dpkg -i pandoc*.deb
@@ -77,7 +78,7 @@ R-release:
   script:
     - Rscript -e 'sessionInfo()'
     # install missing and outdated packages
-    - Rscript -e 'source(".gitlab-ci.R"); gl_update_pkg_all(repos = "https://cran.rstudio.com", quiet = TRUE, install_pkgdown = TRUE)'
+    - Rscript -e 'source(".gitlab-ci.R"); gl_update_pkg_all(repos = "https://cran.rstudio.com", quiet = TRUE, install_pkgdown = FALSE)'
     # remove vignettes folder and get VignetteBuilder field out of DESCRIPTION file
     - rm -rf vignettes
     - Rscript -e 'd <- read.dcf("DESCRIPTION"); d[, colnames(d) == "VignetteBuilder"] <- NA; write.dcf(d, "DESCRIPTION")'
@@ -130,14 +131,14 @@ coverage:
     paths:
       - installed_deps/
   only:
-    - premaster
+    - develop
     - master
   script:
     - apt-get install --yes git
     # install missing and outdated packages
     - Rscript -e 'source(".gitlab-ci.R"); gl_update_pkg_all(repos = "https://cran.rstudio.com", quiet = TRUE, install_pkgdown = FALSE)'
     # codecov token is set in https://gitlab.com/msberends/AMR/settings/ci_cd
-    - Rscript -e "cc <- covr::package_coverage(); covr::codecov(coverage = cc, token = '$codecov'); cat('Code coverage:', covr::percent_coverage(cc))"
+    - Rscript -e 'covr::package_coverage(line_exclusions = c("R/zzz.R", "R/STModAsreml.R"))'
   coverage: '/Code coverage: \d+\.\d+/'
 
 
