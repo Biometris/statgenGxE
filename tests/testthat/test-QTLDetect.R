@@ -24,8 +24,8 @@ test_that("QTLDetect gives correct scores for different types", {
   QTLDetF2S <- QTLDetect(testF2, trait = "phenotype", type = "SIM")
   expect_equal(QTLDetF2S$peaks$altName, "Q1@9.8")
   expect_equal(rownames(QTLDetF2S$peaks), "D1M318")
-  QTLDetF2C <- QTLDetect(testF2, trait = "phenotype", type = "CIM")
-  expect_equal(rownames(QTLDetF2C$peaks), c("D1M318", "c2.loc30"))
+  #QTLDetF2C <- QTLDetect(testF2, trait = "phenotype", type = "CIM")
+  #expect_equal(rownames(QTLDetF2C$peaks), c("D1M318", "c2.loc30"))
 })
 
 test_that("option thrType functions properly", {
@@ -62,9 +62,9 @@ test_that("option thrFixed functions properly", {
   QTLDetSThr <- QTLDetect(testF2, trait = "phenotype", type = "SIM",
                           thrType = "fixed", thrFixed = 2)
   expect_equal(rownames(QTLDetSThr$peaks), c("D1M318", "D2M241"))
-  QTLDetCThr <- QTLDetect(testF2, trait = "phenotype", type = "CIM",
-                          thrType = "fixed", thrFixed = 2.5)
-  expect_equal(rownames(QTLDetCThr$peaks), c("c2.loc30"))
+  #QTLDetCThr <- QTLDetect(testF2, trait = "phenotype", type = "CIM",
+  #                        thrType = "fixed", thrFixed = 2.5)
+  #expect_equal(rownames(QTLDetCThr$peaks), c("c2.loc30"))
 })
 
 test_that("option window functions properly", {
