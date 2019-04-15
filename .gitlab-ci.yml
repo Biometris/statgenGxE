@@ -28,7 +28,7 @@ image: rocker/r-base
 before_script:
   - apt-get update -qq
   # install dependencies for packages
-  - apt-get update && apt-get install -y --no-install-recommends apt-utils
+  - apt-get update && apt-get install -y --no-install-recommends apt-utils > /dev/null
   - apt-get install -y wget locales libxml2-dev libssl-dev libcurl4-openssl-dev zlib1g-dev libglu1-mesa-dev libfreetype6-dev > /dev/null
   - apt-get install -y wget --no-install-recommends qpdf ghostscript > /dev/null
   # recent pandoc

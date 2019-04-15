@@ -11,3 +11,4 @@ vignettes\RAP overview.pptx
 .gitlab-ci.R
 ^README\.Rmd$
 ^README-.*\.png$
+^installed_deps$
