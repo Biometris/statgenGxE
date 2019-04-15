@@ -1,4 +1,3 @@
-
 install_if_needed <- function(pkg, repos, quiet) {
   package_path <- find.package(pkg, quiet = quiet)
   if (length(package_path) == 0) {

@@ -37,5 +37,6 @@ Imports:
 Suggests: asreml(== 3.0),
     rmarkdown,
     testthat,
+    lattice,
     covr
 VignetteBuilder: knitr
