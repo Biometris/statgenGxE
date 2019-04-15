@@ -40,6 +40,17 @@ test_that("attribute renamed is properly filled in createTD", {
                           stringsAsFactors = FALSE))
 })
 
+test_that("dropTD functions properly", {
+  testTD <- createTD(data = testData, trial = "field")
+  expect_warning(dropTD(TD = testTD, rmTrials = "E4"),
+                "The following trials are not in TD")
+  expect_warning(dropTD(TD = testTD, rmTrials = c("E1", "E2", "E3")),
+                 "All trials have been removed from TD")
+  testTDrm <- dropTD(TD = testTD, rmTrials = "E1")
+  expect_is(testTDrm, "TD")
+  expect_named(testTDrm, c("E2", "E3"))
+})
+
 test_that("getMeta functions properly", {
   TD1 <- createTD(data = testData)
   meta1 <- getMeta(TD1)

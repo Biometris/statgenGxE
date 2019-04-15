@@ -68,7 +68,7 @@ test_that("running models creates objects with correct structure - lme4", {
 })
 
 test_that("running models creates objects with correct structure - asreml", {
-  testthat::skip_on_cran()
+  skip_on_cran()
   modelAs <- STRunModel(testTD, trials = "E1", design = "res.ibd",
                         traits = "t1", engine = "asreml")
   expect_SSA(modelAs)
@@ -81,14 +81,14 @@ test_that("running models creates objects with correct structure - asreml", {
 })
 
 test_that("option what produces expected output - SpATS", {
-  modelSp <- STRunModel(testTD, trials = "E1", design = "rowcol", traits = "t1")
-  modelSpF <- STRunModel(testTD, trials = "E1", design = "rowcol",
+  modelSp <- STRunModel(testTD, trials = "E1", design = "res.ibd", traits = "t1")
+  modelSpF <- STRunModel(testTD, trials = "E1", design = "res.ibd",
                          traits = "t1", what = "fixed")
   expect_SSA(modelSpF)
   expect_null(modelSpF[["E1"]]$mRand)
   expect_SSAMod(modelSpF, "mFix")
   expect_equal(modelSpF[["E1"]]$mFix, modelSp[["E1"]]$mFix)
-  modelSpR <- STRunModel(testTD, trials = "E1", design = "rowcol",
+  modelSpR <- STRunModel(testTD, trials = "E1", design = "res.ibd",
                          traits = "t1", what = "random")
   expect_SSA(modelSpR)
   expect_SSAMod(modelSpR, "mRand")
@@ -114,7 +114,7 @@ test_that("option what produces expected output - lme4", {
 })
 
 test_that("option what produces expected output - asreml", {
-  testthat::skip_on_cran()
+  skip_on_cran()
   modelAs <- STRunModel(testTD, trials = "E1", design = "rowcol", traits = "t1",
                         engine = "asreml")
   modelAsF <- STRunModel(testTD, trials = "E1", design = "rowcol",
@@ -126,14 +126,13 @@ test_that("option what produces expected output - asreml", {
                          traits = "t1", what = "random", engine = "asreml")
   expect_SSA(modelAsR)
   expect_SSAMod(modelAsR, "mRand")
-  expect_equal(modelAs[["E1"]]$mRand, modelAsR[["E1"]]$mRand)
   expect_null(modelAsR[["E1"]]$mFix)
 })
 
 test_that("running models for multiple traits produces correct output structure", {
   modelSp2 <- STRunModel(testTD, trials = "E1", design = "rowcol",
                          traits = paste0("t", 1:2))
-  modelSp3 <- STRunModel(testTD, trials = "E1", design = "rowcol",
+  modelSp3 <- STRunModel(testTD, trials = "E1", design = "rcbd",
                          traits = paste0("t", 1:3))
   modelSp4 <- STRunModel(testTD, trials = "E1", design = "rowcol",
                          traits = paste0("t", 1:4))
@@ -182,7 +181,7 @@ test_that("option covariates produces expected output structure", {
   expect_SSAMod(modelLmCov, "mFix", "lm")
   expect_true("repId" %in% colnames(modelLmCov[["E1"]]$mRand$t1@frame))
   expect_true("repId" %in% colnames(modelLmCov[["E1"]]$mFix$t1$model))
-  testthat::skip_on_cran()
+  skip_on_cran()
   modelAsCov <- STRunModel(testTD, trials = "E1", design = "rowcol",
                            traits = "t1", covariates = "repId",
                            engine = "asreml")
@@ -226,7 +225,7 @@ test_that("option trySpatial produces expected output structure", {
   expect_warning(STRunModel(testTD, trials = "E1", design = "rowcol",
                             traits = "t1", trySpatial = TRUE, engine = "lme4"),
                  "Spatial models can only be fitted using SpATS or asreml.")
-  testthat::skip_on_cran()
+  skip_on_cran()
   expect_warning(modelAsTs <- STRunModel(testTD, trials = "E1",
                                          design = "rowcol", traits = "t1",
                                          trySpatial = TRUE, engine = "asreml"))
@@ -260,6 +259,18 @@ test_that("option nSeg in control produces correct output", {
   expect_equivalent(modelSp, modelSp3)
 })
 
+test_that("option nestDiv in control produces correct output", {
+  ## Test using equivalence because of timestamp.
+  modelSp <- STRunModel(testTD, trials = "E1", design = "rowcol", traits = "t1",
+                        control = list(nestDiv = 3))
+  modelSp1 <- STRunModel(testTD, trials = "E1", design = "rowcol",
+                         traits = "t1", control = list(nestDiv = c(3, 3)))
+  expect_equivalent(modelSp, modelSp1)
+  expect_warning(STRunModel(testTD, trials = "E1", design = "rowcol",
+                          traits = "t1", control = list(nestDiv = 0)),
+               "Invalid value for control parameter nestDiv")
+})
+
 testData2 <- testData
 ## Set all observations to NA for 1 trial in 1 field to create data
 ## that causes the model engines to crash.
@@ -280,7 +291,7 @@ test_that("Trial with missing data is handled properly when fitting models", {
                                        engine = "lme4"),
                  "Error in lmer")
   expect_SSA(modelLm)
-  testthat::skip_on_cran()
+  skip_on_cran()
   expect_warning(modelAs <- STRunModel(testTD2, trials = "E1",
                                        design = "rowcol",
                                        traits = c("t1", "t2", "t3"),

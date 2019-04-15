@@ -163,10 +163,9 @@ test_that("FW plot gives correct output types", {
   expect_is(p3, "ggplot")
 })
 
-test_that("SSA plot gives correct output types", {
-  SSA <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
-  p1 <- plot(SSA, output = FALSE)
-  p2 <- plot(SSA, plotType = "spatial", output = FALSE)
+SSA <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+test_that("SSA base plot gives correct output types", {
+  p1 <- plot(SSA, traits = "yield", output = FALSE)
   expect_is(p1, "list")
   expect_length(p1, 1)
   expect_is(p1[[1]], "list")
@@ -174,13 +173,25 @@ test_that("SSA plot gives correct output types", {
   expect_is(p1[[1]][[1]], "list")
   expect_length(p1[[1]][[1]], 4)
   lapply(X = p1[[1]][[1]], FUN = expect_is, "ggplot")
-  expect_is(p2, "list")
-  expect_length(p2, 1)
-  expect_is(p2[[1]], "list")
-  expect_length(p2[[1]], 1)
-  expect_is(p2[[1]][[1]], "list")
-  expect_length(p2[[1]][[1]], 6)
-  lapply(X = p2[[1]][[1]], FUN = expect_is, "ggplot")
+})
+
+test_that("SSA spatial plot gives correct output types", {
+  p1 <- plot(SSA, plotType = "spatial", traits = "yield", output = FALSE)
+  expect_is(p1, "list")
+  expect_length(p1, 1)
+  expect_is(p1[[1]], "list")
+  expect_length(p1[[1]], 1)
+  expect_is(p1[[1]][[1]], "list")
+  expect_length(p1[[1]][[1]], 6)
+  lapply(X = p1[[1]][[1]], FUN = expect_is, "ggplot")
+})
+
+test_that("option what in SSA plot functions properly", {
+  p1 <- plot(SSA, what = "random", output = FALSE)
+  p2 <- plot(SSA, plotType = "spatial", what = "random", output = FALSE)
+  expect_is(p1, "list")
+  expect_equal(p2[[1]][[1]][[5]]$labels$title, "Genotypic BLUPs")
+  expect_equal(p2[[1]][[1]][[6]]$labels$x, "Genotypic BLUPs")
 })
 
 test_that("stability plot gives correct output types", {
@@ -327,4 +338,15 @@ test_that("varComp plot gives correct output types", {
   geoms <- sapply(p$layers, function(x) class(x$geom)[1])
   expect_is(p, "ggplot")
   expect_setequal(geoms, c("GeomTile", "GeomText"))
+})
+
+## melting data in the plot function caused an error when trials have a
+## numerical value. This should not be the case.
+test_that("varComp plot gives correct output types when trials are numerical", {
+  TDMaize2 <- TDMaize
+  for (trial in seq_along(TDMaize2)) {
+    levels(TDMaize2[[trial]][["trial"]]) <- 1:8
+  }
+  geVarComp <- gxeVarComp(TD = TDMaize2, trait = "yld")
+  expect_silent(p <- plot(geVarComp, output = FALSE))
 })

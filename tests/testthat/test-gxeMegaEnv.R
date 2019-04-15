@@ -2,8 +2,7 @@ context("gxeMegaEnv")
 
 testTD <- createTD(data = testData, genotype = "seed",
                    trial = "field", repId = "rep",
-                   subBlock = "block", rowId = "Y", colId = "X",
-                   rowCoord = "Y", colCoord = "X")
+                   subBlock = "block", rowCoord = "Y", colCoord = "X")
 modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
@@ -63,7 +62,7 @@ test_that("gxeTable functions correctly", {
   ## Therefore added a lower tolerance
   expect_equivalent(geTabLm$standardError[1, ],
                     c(5.93814290627681, 9.51137000477223), tolerance = 1e-7)
-  testthat::skip_on_cran()
+  skip_on_cran()
   geTabAs <- gxeTable(TD = geMegaEnvNw, trait = "t1", engine = "asreml")
   expect_equivalent(geTabAs$predictedValue[1, ],
                     c(80.0424619340827, 80.4703103942952))

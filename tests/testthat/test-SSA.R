@@ -49,6 +49,22 @@ test_that("option nBest functions properly", {
   expect_equal(dim(sumSp$meanTab), c(5, 4))
 })
 
+test_that("print.summary.SSA functions properly", {
+  sumSp <- capture.output(print(summary(modelSp)))
+  sumSp2 <- capture.output(print(summary(modelSp, nBest = NA)))
+  expect_true(all(c("Summary statistics for t1 in E1  ",
+                    "Estimated heritability ",
+                    "Predicted means (BLUEs & BLUPs) ") %in% sumSp))
+  expect_false(any(grepl("Best", sumSp2)))
+  skip_on_cran()
+  modelAs <- STRunModel(testTD, trials = "E1", design = "rowcol", traits = "t1",
+                        engine = "asreml")
+  sumAs <- capture.output(print(summary(modelAs)))
+  expect_true(all(c("Standard Error of Difference (genotype modeled as fixed effect) ",
+                    "Least Significant Difference (genotype modeled as fixed effect) ") %in%
+                    sumAs))
+})
+
 test_that("function SSAtoTD functions properly", {
   TDSp <- SSAtoTD(SSA = modelSp)
   expect_is(TDSp, "TD")

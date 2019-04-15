@@ -20,6 +20,12 @@ test_that("AMMI summary produces correct output", {
                     "Environment scores ", "Genotypic scores ") %in% sumAmmi2))
 })
 
+test_that("varComp summary produces correct output", {
+  geVC <- gxeVarComp(TD = BLUEs, trait = "t1")
+  sumVC <- capture.output(summary(geVC))
+  expect_true("Best model: cs, based on BIC." %in% sumVC)
+})
+
 test_that("Stability summary produces correct output", {
   geStab <- gxeStability(TD = BLUEs, trait = "t1")
   sumStab <- capture.output(summary(geStab))
@@ -28,4 +34,14 @@ test_that("Stability summary produces correct output", {
                     "Static stability (Top 10 % genotypes)",
                     "Wricke's ecovalence (Top 10 % genotypes)") %in% sumStab))
   expect_equal(length(sumStab2), length(sumStab) + 3)
+})
+
+test_that("QTLDet summary produces correct output", {
+  QTLDetF2_1 <- QTLDetect(testF2, trait = "phenotype")
+  QTLDetF2_2 <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed",
+                          thrFixed = 5)
+  sumQTLDetF2_1 <- capture.output(summary(QTLDetF2_1))
+  sumQTLDetF2_2 <- capture.output(summary(QTLDetF2_2))
+  expect_true("Peaks" %in% sumQTLDetF2_1)
+  expect_true("No peaks detected" %in% sumQTLDetF2_2)
 })
