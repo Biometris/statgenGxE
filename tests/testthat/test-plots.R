@@ -33,6 +33,16 @@ test_that("AMMI plot plotType options function properly", {
   expect_equal(p2$labels$title, "GGE biplot for yld ")
 })
 
+test_that("AMMI plot scale option functions properly", {
+  ## Only relevant for AMMI2 plots.
+  p1_2 <- plot(geAmmi, plotType = "AMMI2", scale = 0, output = FALSE)
+  p2_2 <- plot(geAmmi, plotType = "AMMI2", scale = 1, output = FALSE)
+  p3_2 <- plot(geAmmi, plotType = "AMMI2", scale = 0.75, output = FALSE)
+  expect_equal(p1_2$labels$title, "AMMI2 biplot for yld (genotype scaling) ")
+  expect_equal(p2_2$labels$title, "AMMI2 biplot for yld (environment scaling) ")
+  expect_equal(p3_2$labels$title, "AMMI2 biplot for yld (51%) ")
+})
+
 test_that("AMMI plot plotGeno functions properly", {
   p1_1 <- plot(geAmmi, plotGeno = FALSE, output = FALSE)
   p1_2 <- plot(geAmmi, plotType = "AMMI2", plotGeno = FALSE, output = FALSE)
