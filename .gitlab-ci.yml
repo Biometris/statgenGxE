@@ -1,25 +1,3 @@
-#before_script:
-#  - apt-get update -qq
-#  - apt-get install -y libglu1-mesa-dev
-#  - apt-get install -y --no-install-recommends qpdf ghostscript
-#  - export _R_CHECK_FORCE_SUGGESTS_="false"
-
-#r-base:
-#   stage: test
-#   image: rocker/tidyverse
-#   script:
-#    - Rscript -e 'remotes::install_deps()'
-#    - R CMD build . --no-manual
-#    - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
-#    - R CMD check "${PKG_FILE_NAME}" --as-cran --no-manual
-#    - Rscript -e 'covr::package_coverage(line_exclusions = c("R/zzz.R", "R/STModAsreml.R"))'
-
-  #before_script:
-#  - apt-get update -qq
-#  - apt-get install -y libglu1-mesa-dev
-#  - apt-get install -y --no-install-recommends qpdf ghostscript
-#  - export _R_CHECK_FORCE_SUGGESTS_="false"
-
 # ==================================================================== #
 # TITLE                                                                #
 # Antimicrobial Resistance (AMR) Analysis                              #
@@ -50,7 +28,8 @@ image: rocker/r-base
 before_script:
   - apt-get update -qq
   # install dependencies for packages
-  - apt-get install -y wget locales libxml2-dev libssl-dev libcurl4-openssl-dev zlib1g-dev libglu1-mesa-dev > /dev/null
+  - apt-get update && apt-get install -y --no-install-recommends apt-utils
+  - apt-get install -y wget locales libxml2-dev libssl-dev libcurl4-openssl-dev zlib1g-dev libglu1-mesa-dev libfreetype6-dev > /dev/null
   - apt-get install -y wget --no-install-recommends qpdf ghostscript > /dev/null
   # recent pandoc
   - wget --quiet https://github.com/jgm/pandoc/releases/download/2.7.2/pandoc-2.7.2-1-amd64.deb
