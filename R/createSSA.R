@@ -595,22 +595,23 @@ report.SSA <- function(x,
     stop("No trial provided but multiple trials found in SSA object.\n")
   }
   if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
-                          !trial %in% names(x))) {
+                          !hasName(x = x, name = trial))) {
     stop("Trial has to be a single character string defining a trial in SSA.\n")
   }
   if (is.null(trial)) {
     trial <- names(x)
   }
-  if (is.null(trait) && length(x[[trial]]$traits) > 1) {
+  if (is.null(trait) && length(x[[trial]][["traits"]]) > 1) {
     stop("No trait provided but multiple traits found.\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-                          !trait %in% colnames(x[[trial]]$TD[[trial]]))) {
-    stop("Trait has to be a single character string defining a column in TD.\n")
+                          !trait %in% x[[trial]][["traits"]])) {
+    stop(paste("Trait has to be a single character string defining a trait",
+               "for which a model was fitted.\n"))
   }
   ## If no trait is given as input extract it from the SSA object.
   if (is.null(trait)) {
-    trait <- x[[trial]]$traits
+    trait <- x[[trial]][["traits"]]
   }
   what <- match.arg(what)
   if (is.null(x[[trial]]$mFix)) {
@@ -618,13 +619,6 @@ report.SSA <- function(x,
   }
   if (is.null(x[[trial]]$mRand)) {
     what <- "fixed"
-  }
-  if (is.null(what) && !is.null(x[[trial]]$mFix) &&
-      !is.null(x[[trial]]$mRand)) {
-    warning("Model contains both a fitted model with fixed genotype and random
-            genotype. Reporting can be done for only one. By default the model with
-            genotype fixed is reported. Use option 'what' for changing this.\n",
-            call. = FALSE)
   }
   if (what == "fixed") {
     x[[trial]]$mRand <- NULL

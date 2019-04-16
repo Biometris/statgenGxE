@@ -70,19 +70,29 @@ test_that("gxeTable functions correctly", {
                     c(6.58334962888207, 9.77290639163001))
 })
 
+geMegaEnvNw2 <- c(geMegaEnvNw, geMegaEnvNw)
+names(geMegaEnvNw2) <- paste0("E", 1:6)
+class(geMegaEnvNw2) <- "TD"
+geMegaEnvNw2[["E1"]]$year <- geMegaEnvNw2[["E2"]]$year <-
+  geMegaEnvNw2[["E3"]]$year <- 1
+geMegaEnvNw2[["E4"]]$year <- geMegaEnvNw2[["E5"]]$year <-
+  geMegaEnvNw2[["E6"]]$year <- 2
 test_that("option year in gxeTable functions properly", {
-  geMegaEnvNw2 <- c(geMegaEnvNw, geMegaEnvNw)
-  names(geMegaEnvNw2) <- paste0("E", 1:6)
-  class(geMegaEnvNw2) <- "TD"
-  geMegaEnvNw2[["E1"]]$year <- geMegaEnvNw2[["E2"]]$year <-
-    geMegaEnvNw2[["E3"]]$year <- 1
-  geMegaEnvNw2[["E4"]]$year <- geMegaEnvNw2[["E5"]]$year <-
-    geMegaEnvNw2[["E6"]]$year <- 2
   geTab <- gxeTable(TD = geMegaEnvNw2, trait = "t1", useYear = TRUE)
   expect_equivalent(geTab$predictedValue[1, ],
                     c(85.7139211061344, 76.5897665641836))
   expect_equivalent(geTab$standardError[1, ],
                     c(6.72132965673734, 9.57033282833413))
+})
+
+test_that("option year in gxeTable functions properly for asreml", {
+  skip_on_cran()
+  geTab <- gxeTable(TD = geMegaEnvNw2, trait = "t1", useYear = TRUE,
+                    engine = "asreml")
+  expect_equivalent(geTab$predictedValue[1, ],
+                    c(86.5858674442788, 77.4617649806083))
+  expect_equivalent(geTab$standardError[1, ],
+                    c(6.98377813814263, 10.2119509172305))
 })
 
 test_that("combCor helper function funcions correctly", {

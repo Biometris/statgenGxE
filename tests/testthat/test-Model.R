@@ -1,10 +1,9 @@
 context("Modeling")
 
 ## Create testdata containing only one trial.
-testTD <- createTD(data = testData, trial = "field",
-                   genotype = "seed", repId = "rep",
-                   subBlock = "block", rowId = "Y", colId = "X",
-                   rowCoord = "Y", colCoord = "X")
+testTD <- createTD(data = testData, trial = "field", genotype = "seed",
+                   repId = "rep", subBlock = "block", rowCoord = "Y",
+                   colCoord = "X")
 
 ## Helper function for testing base structure that has to be consistent
 ## for all SSA objects independent of engine and options.
@@ -226,9 +225,8 @@ test_that("option trySpatial produces expected output structure", {
                             traits = "t1", trySpatial = TRUE, engine = "lme4"),
                  "Spatial models can only be fitted using SpATS or asreml.")
   skip_on_cran()
-  expect_warning(modelAsTs <- STRunModel(testTD, trials = "E1",
-                                         design = "rowcol", traits = "t1",
-                                         trySpatial = TRUE, engine = "asreml"))
+  modelAsTs <- STRunModel(testTD, trials = "E1", design = "rcbd", traits = "t1",
+                          trySpatial = TRUE, engine = "asreml")
   expect_SSA(modelAsTs)
   expect_SSAMod(modelAsTs, "mRand")
   expect_SSAMod(modelAsTs, "mFix")
@@ -269,6 +267,11 @@ test_that("option nestDiv in control produces correct output", {
   expect_warning(STRunModel(testTD, trials = "E1", design = "rowcol",
                           traits = "t1", control = list(nestDiv = 0)),
                "Invalid value for control parameter nestDiv")
+})
+
+test_that("option progress functions properly", {
+  expect_output(STRunModel(testTD, trials = "E1", design = "rowcol", traits = "t1",
+                           progress = TRUE), "Fitting models for t1 in E1")
 })
 
 testData2 <- testData

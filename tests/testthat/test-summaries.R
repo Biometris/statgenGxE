@@ -20,6 +20,20 @@ test_that("AMMI summary produces correct output", {
                     "Environment scores ", "Genotypic scores ") %in% sumAmmi2))
 })
 
+test_that("FW summary produces correct output", {
+  ## t1 doesn't converge. Use t2 instead.
+  geFW <- gxeFw(TD = BLUEs, trait = "t2")
+  sumFW <- capture.output(summary(geFW))
+  geFW2 <- gxeFw(TD = BLUEs, trait = "t2", sorted = "ascending")
+  sumFW2 <- capture.output(summary(geFW2))
+  geFW3 <- gxeFw(TD = BLUEs, trait = "t2", sorted = "none")
+  sumFW3 <- capture.output(summary(geFW3))
+  expect_true(all(c("Environmental effects ", "Anova ",
+                    "Most sensitive genotypes") %in% sumFW))
+  expect_true("Least sensitive genotypes" %in% sumFW2)
+  expect_true("First five genotypes" %in% sumFW3)
+})
+
 test_that("varComp summary produces correct output", {
   geVC <- gxeVarComp(TD = BLUEs, trait = "t1")
   sumVC <- capture.output(summary(geVC))
@@ -45,3 +59,14 @@ test_that("QTLDet summary produces correct output", {
   expect_true("Peaks" %in% sumQTLDetF2_1)
   expect_true("No peaks detected" %in% sumQTLDetF2_2)
 })
+
+test_that("multiQTL summary produces correct output", {
+  QTLDetF2 <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed",
+                      thrFixed = 1.5, window = 2)
+  mqf <- multiQTLFit(QTLDetF2)
+  sumMqf <- capture.output(summary(mqf))
+  expect_true(all(c("Method: Haley-Knott regression ", "Full model result",
+                    "Model formula: y ~ Q1 ",
+                    "Estimated effects:") %in% sumMqf))
+})
+

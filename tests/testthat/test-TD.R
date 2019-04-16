@@ -96,6 +96,21 @@ test_that("option groupBy in summary.TD produces correct output", {
   expect_equivalent(sumTD["Number of observations", "t4", ], c(27, 22, 26))
 })
 
+test_that("print.summary.TD produces correct output", {
+  sumTD <- capture.output(print(summary(createTD(data = testData),
+                                        traits = c("t1", "t4"), what = "all")))
+  expect_true(all(c("Summary statistics for t1 in testData  ",
+                    "Summary statistics for t4 in testData  ") %in% sumTD))
+})
+
+test_that("option groupBy in print.summary.TD produces correct output", {
+  sumTD <- capture.output(print(summary(createTD(data = testData),
+                                        traits = c("t1", "t4"),
+                                        groupBy = "field")))
+  expect_true(all(c("Summary statistics for t1 in testData grouped by field ",
+                    "Summary statistics for t4 in testData grouped by field ") %in% sumTD))
+})
+
 test_that("createTD accepts tibbles as input", {
   ## Skip on cran since it needs package tibble as extra dependency.
   skip_on_cran()
