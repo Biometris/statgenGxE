@@ -260,6 +260,11 @@ gxeAmmi <- function(TD,
     ## Extract loadings and scores from pca.
     loadings <- pca$rotation
     scores <- pca$x
+    ## For GGE assure loadings for PC1 are positive to assure proper plotting.
+    if (GGE && all(loadings[, "PC1"] < 0)) {
+      loadings[, "PC1"] <- -loadings[, "PC1"]
+      scores[, "PC1"] <- -scores[, "PC1"]
+    }
     ## Compute AMMI-estimates per genotype per trial.
     mTerms <- matrix(data = 0, nrow = nGeno, ncol = nEnv)
     for (i in 1:nPCYear) {
