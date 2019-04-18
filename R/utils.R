@@ -565,3 +565,12 @@ mapData <- function(xLim,
   df$subregion <- names[df$group, 2]
   return(df[stats::complete.cases(df$lat, df$long), ])
 }
+
+## The syntax for asreml4 differs from asreml3.
+## This helper function is for detecting if the version is 4 or higher.
+asreml4 <- function() {
+  if (requireNamespace("asreml", quietly = TRUE)) {
+    return(packageVersion("asreml") >= 4)
+  }
+}
+
