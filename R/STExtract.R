@@ -345,20 +345,18 @@ extractSpATS <- function(SSA,
   ## Extract residual degrees of freedom.
   if ("rDf" %in% what) {
     result[["rDf"]] <- sapply(X = mf, FUN = function(mf0) {
-      unname(mf0$dim[predicted])
+      round(mf0[["nobs"]] - sum(mf0[["eff.dim"]]))
     })
   }
   ## Extract residual degrees of freedom.
   if ("rDfR" %in% what) {
     result[["rDfR"]] <- sapply(X = mr, FUN = function(mr0) {
-      unname(mr0$dim[predicted])
+      round(mr0[["nobs"]] - sum(mr0[["eff.dim"]]))
     })
   }
   ## Extract effective dimensions.
   if ("effDim" %in% what) {
-    result[["effDim"]] <- sapply(X = mr, FUN = function(mr0) {
-      mr0$eff.dim
-    })
+    result[["effDim"]] <- sapply(X = mr, FUN = `[[`, "eff.dim")
   }
   ## Extract ratio's of effective dimensions.
   if ("ratEffDim" %in% what) {

@@ -1,8 +1,7 @@
 context("Extract SpATS")
 
 testTD <- createTD(data = testData[testData$field == "E1", ],
-                   genotype = "seed", repId = "rep",
-                   subBlock = "block", rowId = "Y", colId = "X",
+                   genotype = "seed", repId = "rep", subBlock = "block",
                    rowCoord = "Y", colCoord = "X")
 
 modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
@@ -206,14 +205,14 @@ test_that("rDf is computed correctly", {
   expect_is(extSp$rDf, "numeric")
   expect_length(extSp$rDf, 1)
   expect_named(extSp$rDf, "t1")
-  expect_equivalent(extSp$rDf, 14)
+  expect_equivalent(extSp$rDf, 11)
 })
 
 test_that("rDfR is computed correctly", {
   expect_is(extSp$rDfR, "numeric")
   expect_length(extSp$rDfR, 1)
   expect_named(extSp$rDfR, "t1")
-  expect_equivalent(extSp$rDfR, 15)
+  expect_equivalent(extSp$rDfR, 19)
 })
 
 test_that("effective dimensions are computed correctly", {
