@@ -117,7 +117,7 @@ coverage:
     # install missing and outdated packages
     - Rscript -e 'source(".gitlab-ci.R"); gl_update_pkg_all(repos = "https://cran.rstudio.com", quiet = TRUE, install_pkgdown = FALSE)'
     - Rscript -e 'covr::package_coverage(line_exclusions = c("R/zzz.R", "R/STModAsreml.R"))'
-  coverage: '/Code coverage: \d+\.\d+/'
+  coverage: 'Coverage:\s*(\d+.\d+\%)'
 
 
 # Working example: https://gitlab.com/msberends/AMR/blob/master/_pkgdown.yml
