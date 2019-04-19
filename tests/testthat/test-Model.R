@@ -187,10 +187,17 @@ test_that("option covariates produces expected output structure", {
   expect_SSA(modelAsCov)
   expect_SSAMod(modelAsCov, "mRand")
   expect_SSAMod(modelAsCov, "mFix")
-  expect_true(grepl(pattern = "repId",
-                    x = deparse(modelAsCov[["E1"]]$mRand$t1$fixed.formula)))
-  expect_true(grepl(pattern = "repId",
-                    x = deparse(modelAsCov[["E1"]]$mFix$t1$fixed.formula)))
+  if (asreml4()) {
+    expect_true(grepl(pattern = "repId",
+                      x = deparse(modelAsCov[["E1"]]$mRand$t1$formulae$fixed)))
+    expect_true(grepl(pattern = "repId",
+                      x = deparse(modelAsCov[["E1"]]$mFix$t1$formulae$fixed)))
+  } else {
+    expect_true(grepl(pattern = "repId",
+                      x = deparse(modelAsCov[["E1"]]$mRand$t1$fixed.formula)))
+    expect_true(grepl(pattern = "repId",
+                      x = deparse(modelAsCov[["E1"]]$mFix$t1$fixed.formula)))
+  }
 })
 
 test_that("option useCheckId produces expected output structure", {

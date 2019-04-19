@@ -63,6 +63,7 @@ gxeVarComp <- function(TD,
   }
   TDTot <- Reduce(f = rbind, x = TD[trials])
   TDTot$trial <- droplevels(TDTot$trial)
+  TDTot$wt <- 1
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
       !hasName(x = TDTot, name = trait)) {
     stop("trait has to be a column in TD.\n")
@@ -112,80 +113,58 @@ gxeVarComp <- function(TD,
       nTr <- nlevels(TDTot$trial)
       fixedForm <- formula(paste0("`", trait, "`~ trial"))
       tmp <- tempfile()
+      ## Put arguments for models in a list to make it easier to switch
+      ## between asreml3 and asreml4. Usually only one or two arguments differ.
+      ## Also some arguments are identical for all models
+      modArgs0 <- list(fixed = fixedForm, data = TDTot, maxiter = maxIter,
+                      trace = FALSE)
       for (choice in choices) {
         if (choice == "identity") {
-          sink(file = tmp)
-          mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
-                                           rcov = ~ genotype:trial,
-                                           data = TDTot, maxiter = maxIter,
-                                           ...))
-          sink()
+          modArgs <- modArgs0
+          modArgs[[ifelse(asreml4(), "residual", "rcov")]] <-
+            formula("~genotype:trial")
+          mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
           nPar <- 1
         } else if (choice == "cs") {
-          sink(file = tmp)
-          mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
-                                           random = ~ genotype,
-                                           rcov = ~ genotype:trial,
-                                           data = TDTot, maxiter = maxIter,
-                                           ...))
-          sink()
+          modArgs <- c(modArgs0, list(random = formula("~genotype")))
+          modArgs[[ifelse(asreml4(), "residual", "rcov")]] <-
+            formula("~ genotype:trial")
+          mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
           nPar <- 2
         } else if (choice == "diagonal") {
-          sink(file = tmp)
-          mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
-                                           rcov = ~ genotype:diag(trial),
-                                           data = TDTot, maxiter = maxIter,
-                                           ...))
-          sink()
+          modArgs <- modArgs0
+          modArgs[[ifelse(asreml4(), "residual", "rcov")]] <-
+            formula("~genotype:diag(trial)")
+          mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
           nPar <- nTr
         } else if (choice == "hcs") {
-          sink(file = tmp)
-          mr <- tryCatchExt(asreml::asreml(fixed = fixedForm,
-                                           random = ~ genotype,
-                                           rcov = ~ genotype:diag(trial),
-                                           data = TDTot, maxiter = maxIter,
-                                           ...))
-          sink()
+          modArgs <- c(modArgs0, list(random = formula("~genotype")))
+          modArgs[[ifelse(asreml4(), "residual", "rcov")]] <-
+            formula("~ genotype:diag(trial)")
+          mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
           nPar <- nTr + 1
         } else if (choice == "outside") {
-          sink(file = tmp)
-          initVals <- asreml::asreml(fixed = fixedForm,
-                                     random = ~ genotype:corh(trial),
-                                     start.values = TRUE, data = TDTot, ...)
-          sink()
+          modArgs <- c(modArgs0,
+                       list(random = formula("~genotype:corh(trial)"),
+                            start.values = TRUE))
+          initVals <- do.call(asreml::asreml, modArgs)
           tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
                                 vcmodel = "outside", fixed = fixedForm, ...)
           tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(tmpValues$vg,
                                    scale(tmpValues$diag, center = FALSE), 1)
-          sink(file = tmp)
-          if (useWt) {
-            mr <- tryCatchExt(
-              asreml::asreml(fixed = fixedForm,
-                             random = ~ genotype:corh(trial),
-                             G.param = tmpTable,
-                             R.param = tmpTable, data = TDTot,
-                             maxiter = maxIter, workspace = 160e6,
-                             weigths = "wt",
-                             family = asreml::asreml.gaussian(dispersion = 1),
-                             ...))
-          } else {
-            mr <- tryCatchExt(
-              asreml::asreml(fixed = fixedForm,
-                             random = ~ genotype:corh(trial),
-                             G.param = tmpTable,
-                             R.param = tmpTable, data = TDTot,
-                             maxiter = maxIter, workspace = 160e6,
-                             ...))
-          }
-          sink()
+          modArgs <- c(modArgs, list(G.param = tmpTable, R.param = tmpTable,
+                                     workspace = 160e6))
+          ## Putting start.values to FALSE instead of removing it from the list
+          ## crashes asreml.
+          modArgs[["start.values"]] <- NULL
+          mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
           nPar <- nTr + 1
         } else if (choice == "fa" && nTr > 4) {
-          sink(file = tmp)
-          initVals <- asreml::asreml(fixed = fixedForm,
-                                     random = ~ genotype:fa(trial, 1),
-                                     start.values = TRUE, data = TDTot, ...)
-          sink()
+          modArgs <- c(modArgs0,
+                       list(random = formula("~genotype:fa(trial, 1)"),
+                            start.values = TRUE))
+          initVals <- do.call(asreml::asreml, modArgs)
           tmpTable <- initVals$gammas.table
           tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
                                 vcmodel = "fa", fixed = fixedForm, ...)
@@ -193,36 +172,18 @@ gxeVarComp <- function(TD,
             tmpTable[, "Value"] <- c(scale(tmpValues$psi, center = FALSE),
                                      tmpValues$gamma, 1)
           }
-          sink(file = tmp)
-          if (useWt) {
-            mr <- tryCatchExt(
-              asreml::asreml(fixed = fixedForm,
-                             random = ~ genotype:fa(trial, 1),
-                             R.param = tmpTable,
-                             G.param = tmpTable, data = TDTot,
-                             maxiter = maxIter,
-                             workspace = 160e6,
-                             weigths = "wt",
-                             family = asreml::asreml.gaussian(dispersion = 1),
-                             ...))
-
-          } else {
-            mr <- tryCatchExt(
-              asreml::asreml(fixed = fixedForm,
-                             random = ~ genotype:fa(trial, 1),
-                             R.param = tmpTable,
-                             G.param = tmpTable, data = TDTot,
-                             maxiter = maxIter,
-                             workspace = 160e6, ...))
-          }
-          sink()
+          modArgs <- c(modArgs, list(G.param = tmpTable, R.param = tmpTable,
+                                     workspace = 160e6))
+          ## Putting start.values to FALSE instead of removing it from the list
+          ## crashes asreml.
+          modArgs[["start.values"]] <- NULL
+          mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
           nPar <- nTr * 2
         } else if (choice == "fa2" && nTr > 4) {
-          sink(file = tmp)
-          initVals <- asreml::asreml(fixed = fixedForm,
-                                     random = ~ genotype:fa(trial, 2),
-                                     start.values = TRUE, data = TDTot, ...)
-          sink()
+          modArgs <- c(modArgs0,
+                       list(random = formula("~genotype:fa(trial, 2)"),
+                            start.values = TRUE))
+          initVals <- do.call(asreml::asreml, modArgs)
           tmpTable <- initVals$gammas.table
           tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
                                 vcmodel = "fa2", fixed = fixedForm, ...)
@@ -235,37 +196,18 @@ gxeVarComp <- function(TD,
                                      tmpValues$gamma[1, ],
                                      tmpValues$gamma[2, ], 1)
           }
-          sink(file = tmp)
-          if (useWt) {
-            mr <- tryCatchExt(
-              asreml::asreml(fixed = fixedForm,
-                             random = ~ genotype:fa(trial, 2),
-                             R.param = tmpTable,
-                             G.param = tmpTable, data = TDTot,
-                             maxiter = maxIter,
-                             workspace = 160e6,
-                             weigths = "wt",
-                             family = asreml::asreml.gaussian(dispersion = 1),
-                             ...))
-
-          } else {
-            mr <- tryCatchExt(
-              asreml::asreml(fixed = fixedForm,
-                             random = ~ genotype:fa(trial, 2),
-                             R.param = tmpTable,
-                             G.param = tmpTable, data = TDTot,
-                             maxiter = maxIter,
-                             workspace = 160e6, ...))
-          }
-          sink()
+          modArgs <- c(modArgs, list(G.param = tmpTable, R.param = tmpTable,
+                                     workspace = 160e6))
+          ## Putting start.values to FALSE instead of removing it from the list
+          ## crashes asreml.
+          modArgs[["start.values"]] <- NULL
+          mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
           nPar <- nTr * 3 - 1
         } else if (choice == "unstructured") {
-          ## Check model.
-          sink(file = tmp)
-          initVals <- asreml::asreml(fixed = fixedForm,
-                                     random = ~ genotype:us(trial),
-                                     start.values = TRUE, data = TDTot, ...)
-          sink()
+          modArgs <- c(modArgs0,
+                       list(random = formula("~genotype:us(trial)"),
+                            start.values = TRUE))
+          initVals <- do.call(asreml::asreml, modArgs)
           tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
                                 vcmodel = "unstructured", fixed = fixedForm,
                                 ...)
@@ -278,27 +220,12 @@ gxeVarComp <- function(TD,
           tmpTable[-c((1:nTr) * ((1:nTr) + 1) / 2), "Constraint"] <- "U"
           ## Fix residual variance.
           tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
-          sink(file = tmp)
-          if (useWt) {
-            mr <- tryCatchExt(
-              asreml::asreml(fixed = fixedForm,
-                             random = ~ genotype:us(trial),
-                             G.param = tmpTable,
-                             R.param = tmpTable, data = TDTot,
-                             maxiter = maxIter, workspace = 160e6,
-                             weigths = "wt",
-                             family = asreml::asreml.gaussian(dispersion = 1),
-                             ...))
-          } else {
-            mr <- tryCatchExt(
-              asreml::asreml(fixed = fixedForm,
-                             random = ~ genotype:us(trial),
-                             G.param = tmpTable,
-                             R.param = tmpTable, data = TDTot,
-                             maxiter = maxIter, workspace = 160e6,
-                             ...))
-          }
-          sink()
+          modArgs <- c(modArgs, list(G.param = tmpTable, R.param = tmpTable,
+                                     workspace = 160e6))
+          ## Putting start.values to FALSE instead of removing it from the list
+          ## crashes asreml.
+          modArgs[["start.values"]] <- NULL
+          mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
           nPar <- nTr * (nTr + 1) / 2
         }
         if (!is.null(mr$warning)) {
@@ -379,9 +306,8 @@ initVals <- function(TD,
   nGeno <- nlevels(X$genotype)
   ## Get fixed df by stealth - in absence of other info, share among trials.
   if (!is.null(fixed)) {
-    sink(file = tmp)
-    mr <- asreml::asreml(fixed = fixed, rcov = ~id(units), data = X, ...)
-    sink()
+    mr <- asreml::asreml(fixed = fixed, rcov = ~id(units), data = X,
+                         trace = FALSE, ...)
     P <- length(mr$fitted.values) - (1 + mr$nedf)
     fixedForm <- fixed
   } else {
@@ -395,27 +321,22 @@ initVals <- function(TD,
   if (useWt) {
     ## This case is trickier, because of partitioning between two random terms,
     ## but use of the diag structure is better than nothing!
-    sink(file = tmp)
     initValues <- asreml::asreml(fixed = fixedForm,
                                  random = ~ genotype:idh(trial),
                                  weights = "wt", start.values = TRUE,
-                                 data = X, ...)
-    sink()
+                                 data = X, trace = FALSE, ...)
     tmpTable <- initValues$gammas.table
     tmpTable[, "Constraint"] <- as.character(tmpTable[,"Constraint"])
     tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
     tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
-    sink(file = tmp)
     mr <- asreml::asreml(fixed = fixedForm, random = ~ genotype:idh(trial),
-                         weights = "wt", R.param = tmpTable, data = X, ...)
-    sink()
+                         weights = "wt", R.param = tmpTable, data = X,
+                         trace = FALSE, ...)
     RMat <- matrix(data = coefficients(mr)$random, nrow = nGeno,
                    ncol = nEnv, byrow = TRUE)
   } else {
     ## This gives correct answers for complete balanced data.
-    sink(file = tmp)
-    mr <- asreml::asreml(fixed = fixedForm, data = X, ...)
-    sink()
+    mr <- asreml::asreml(fixed = fixedForm, data = X, trace = FALSE, ...)
     mr$call$fixed <- fixedForm
     mr$call$data <- X
     res <- residuals(mr, type = "response")
