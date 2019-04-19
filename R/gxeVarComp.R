@@ -112,7 +112,6 @@ gxeVarComp <- function(TD,
     if (requireNamespace("asreml", quietly = TRUE)) {
       nTr <- nlevels(TDTot$trial)
       fixedForm <- formula(paste0("`", trait, "`~ trial"))
-      tmp <- tempfile()
       ## Put arguments for models in a list to make it easier to switch
       ## between asreml3 and asreml4. Usually only one or two arguments differ.
       ## Also some arguments are identical for all models
@@ -150,7 +149,8 @@ gxeVarComp <- function(TD,
           initVals <- do.call(asreml::asreml, modArgs)
           tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
                                 vcmodel = "outside", fixed = fixedForm, ...)
-          tmpTable <- initVals$gammas.table
+          tmpTable <- initVals[[ifelse(asreml4(), "vparameters.table",
+                                       "gammas.table")]]
           tmpTable[, "Value"] <- c(tmpValues$vg,
                                    scale(tmpValues$diag, center = FALSE), 1)
           modArgs <- c(modArgs, list(G.param = tmpTable, R.param = tmpTable,
@@ -165,7 +165,8 @@ gxeVarComp <- function(TD,
                        list(random = formula("~genotype:fa(trial, 1)"),
                             start.values = TRUE))
           initVals <- do.call(asreml::asreml, modArgs)
-          tmpTable <- initVals$gammas.table
+          tmpTable <- initVals[[ifelse(asreml4(), "vparameters.table",
+                                       "gammas.table")]]
           tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
                                 vcmodel = "fa", fixed = fixedForm, ...)
           if (!is.null(tmpValues)) {
@@ -184,7 +185,8 @@ gxeVarComp <- function(TD,
                        list(random = formula("~genotype:fa(trial, 2)"),
                             start.values = TRUE))
           initVals <- do.call(asreml::asreml, modArgs)
-          tmpTable <- initVals$gammas.table
+          tmpTable <- initVals[[ifelse(asreml4(), "vparameters.table",
+                                       "gammas.table")]]
           tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
                                 vcmodel = "fa2", fixed = fixedForm, ...)
           if (!is.null(tmpValues)) {
@@ -211,15 +213,21 @@ gxeVarComp <- function(TD,
           tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
                                 vcmodel = "unstructured", fixed = fixedForm,
                                 ...)
+          tmpTable <- initVals[[ifelse(asreml4(), "vparameters.table",
+                                       "gammas.table")]]
           tmpValues <- tmpValues$evCov[upper.tri(tmpValues$evCov, diag = TRUE)]
-          tmpTable <- initVals$gammas.table
           tmpTable[, "Value"] <- c(scale(tmpValues, center = FALSE),
                                    10 ^ min(floor(log10(min(abs(tmpValues)))), 0))
           ## All off diagonal elements are unconstrained, diagonal elements
           ## should be positive
           tmpTable[-c((1:nTr) * ((1:nTr) + 1) / 2), "Constraint"] <- "U"
           ## Fix residual variance.
-          tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
+          ## Column and component names are different for asreml3/asreml4.
+          if (asreml4()) {
+            tmpTable[tmpTable$Component == "units!R", "Constraint"] <- "F"
+          } else {
+            tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
+          }
           modArgs <- c(modArgs, list(G.param = tmpTable, R.param = tmpTable,
                                      workspace = 160e6))
           ## Putting start.values to FALSE instead of removing it from the list
@@ -254,18 +262,21 @@ gxeVarComp <- function(TD,
           models[[choice]] <- mr
           bestTab[choice, "AIC"] <- -2 * mr$loglik + 2 * nPar
           bestTab[choice, "BIC"] <- -2 * mr$loglik +
-            (log(length(mr$fitted.values) - nlevels(TDTot$genotype)) * nPar)
+            (log(length(fitted(mr)) - nlevels(TDTot$genotype)) * nPar)
           bestTab[choice, "Deviance"] <- -2 * mr$loglik
           bestTab[choice, "NParameters"] <- nPar
         }
       } # End loop over choices
       bestTab <- bestTab[order(bestTab[, criterion]), ]
       bestModel <- models[[rownames(bestTab)[1]]]
-      bestModel <- predictAsreml(model = bestModel, classify = "trial",
-                                 TD = TDTot, maxiter = maxIter, ...)
-      vcovBest <- bestModel$predictions$vcov
+      bestPred <- predictAsreml(model = bestModel, classify = "trial",
+                                TD = TDTot, maxiter = maxIter, ...)
+      vcovBest <- if (asreml4()) {
+        bestPred$vcov
+      } else {
+        bestPred$predictions$vcov
+      }
       colnames(vcovBest) <- rownames(vcovBest) <- levels(TDTot$trial)
-      unlink(tmp)
     } else {
       stop("Failed to load 'asreml'.\n")
     }
@@ -297,8 +308,6 @@ initVals <- function(TD,
                      fixed = NULL,
                      ...) {
   ## First, form estimate of unstructured matrix
-  ## Create tempfile for asreml output.
-  tmp <- tempfile()
   ## Remove the rows with NA.
   X <- na.omit(TD[, colnames(TD) %in% c(trait, "genotype", "trial", "wt")])
   X <- droplevels(X)
@@ -306,8 +315,7 @@ initVals <- function(TD,
   nGeno <- nlevels(X$genotype)
   ## Get fixed df by stealth - in absence of other info, share among trials.
   if (!is.null(fixed)) {
-    mr <- asreml::asreml(fixed = fixed, rcov = ~id(units), data = X,
-                         trace = FALSE, ...)
+    mr <- asreml::asreml(fixed = fixed, data = X, trace = FALSE, ...)
     P <- length(mr$fitted.values) - (1 + mr$nedf)
     fixedForm <- fixed
   } else {
@@ -325,9 +333,16 @@ initVals <- function(TD,
                                  random = ~ genotype:idh(trial),
                                  weights = "wt", start.values = TRUE,
                                  data = X, trace = FALSE, ...)
-    tmpTable <- initValues$gammas.table
-    tmpTable[, "Constraint"] <- as.character(tmpTable[,"Constraint"])
-    tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
+    tmpTable <- initValues[[ifelse(asreml4(), "vparameters.table",
+                                   "gammas.table")]]
+    tmpTable[, "Constraint"] <- as.character(tmpTable[, "Constraint"])
+    ## Fix residual variance.
+    ## Column and component names are different for asreml3/asreml4.
+    if (asreml4()) {
+      tmpTable[tmpTable$Component == "units!R", "Constraint"] <- "F"
+    } else {
+      tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
+    }
     tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
     mr <- asreml::asreml(fixed = fixedForm, random = ~ genotype:idh(trial),
                          weights = "wt", R.param = tmpTable, data = X,
@@ -385,7 +400,6 @@ initVals <- function(TD,
   } else if (vcmodel == "unstructured") {
     vcInitial <- list(evCov = evCov)
   }
-  unlink(tmp)
   return(vcInitial)
 }
 
