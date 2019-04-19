@@ -655,18 +655,30 @@ extractAsreml <- function(SSA,
   result <- setNames(vector(mode = "list", length = length(what)), what)
   ## Extract BLUEs and se of BLUEs from fixed model.
   if ("BLUEs" %in% what) {
+    ## asreml3 saves the predictions inside the asreml object.
+    ## asreml4 creates a list containing nothing but the predictions.
     predVals <- lapply(X = traits, FUN = function(trait) {
-      setNames(mf[[trait]]$predictions$pvals[c(predicted, "predicted.value")],
-               c(predicted, trait))
+      mfPred <- predictAsreml(mf[[trait]], TD = TD)
+      setNames(if (asreml4()) {
+        mfPred$pvals[c(predicted, "predicted.value")]
+      } else {
+        mfPred$predictions$pvals[c(predicted, "predicted.value")]
+      }, c(predicted, trait))
     })
     BLUEs <- Reduce(f = merge, x = predVals, init = baseDataPred)
     result[["BLUEs"]] <- restoreColNames(renDat = BLUEs, renamedCols = renCols,
                                          restore = restore)
   }
   if ("seBLUEs" %in% what) {
+    ## asreml3 saves the predictions inside the asreml object.
+    ## asreml4 creates a list containing nothing but the predictions.
     predErrs <- lapply(X = traits, FUN = function(trait) {
-      setNames(mf[[trait]]$predictions$pvals[c(predicted, "standard.error")],
-               c(predicted, trait))
+      mfPred <- predictAsreml(mf[[trait]], TD = TD)
+      setNames(if (asreml4()) {
+        mfPred$pvals[c(predicted, "std.error")]
+      } else {
+        mfPred$predictions$pvals[c(predicted, "standard.error")]
+      }, c(predicted, trait))
     })
     seBLUEs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
     result[["seBLUEs"]] <- restoreColNames(renDat = seBLUEs,
@@ -675,18 +687,30 @@ extractAsreml <- function(SSA,
   }
   ## Extract BLUPs and se of BLUPs from fixed model.
   if ("BLUPs" %in% what) {
+    ## asreml3 saves the predictions inside the asreml object.
+    ## asreml4 creates a list containing nothing but the predictions.
     predVals <- lapply(X = traits, FUN = function(trait) {
-      setNames(mr[[trait]]$predictions$pvals[c(predicted, "predicted.value")],
-               c(predicted, trait))
+      mrPred <- predictAsreml(mr[[trait]], TD = TD)
+      setNames(if (asreml4()) {
+        mrPred$pvals[c(predicted, "predicted.value")]
+      } else {
+        mrPred$predictions$pvals[c(predicted, "predicted.value")]
+      }, c(predicted, trait))
     })
     BLUPs <- Reduce(f = merge, x = predVals, init = baseDataPred)
     result[["BLUPs"]] <- restoreColNames(renDat = BLUPs, renamedCols = renCols,
                                          restore = restore)
   }
   if ("seBLUPs" %in% what) {
+    ## asreml3 saves the predictions inside the asreml object.
+    ## asreml4 creates a list containing nothing but the predictions.
     predErrs <- lapply(X = traits, FUN = function(trait) {
-      setNames(mr[[trait]]$predictions$pvals[c(predicted, "standard.error")],
-               c(predicted, trait))
+      mrPred <- predictAsreml(mr[[trait]], TD = TD)
+      setNames(if (asreml4()) {
+        mrPred$pvals[c(predicted, "std.error")]
+      } else {
+        mrPred$predictions$pvals[c(predicted, "standard.error")]
+      }, c(predicted, trait))
     })
     seBLUPs <- Reduce(f = merge, x = predErrs, init = baseDataPred)
     result[["seBLUPs"]] <- restoreColNames(renDat = seBLUPs, renamedCols = renCols,
@@ -695,8 +719,15 @@ extractAsreml <- function(SSA,
   ## Compute unit errors.
   if ("ue" %in% what) {
     ue <- cbind(baseDataPred, sapply(X = mf, FUN = function(mf0) {
+      ## asreml3 saves the predictions inside the asreml object.
+      ## asreml4 creates a list containing nothing but the predictions.
+      mfPred <- predictAsreml(mf0, TD = TD)
       ## Extract V from mf.
-      V <- mf0$predictions$vcov
+      V <- if (asreml4()) {
+        mfPred$vcov
+      } else {
+        mfPred$predictions$vcov
+      }
       ## Remove columns and rows containing NA.
       VMiss <- apply(X = V, MARGIN = 2, FUN = anyNA)
       V <- V[!VMiss, !VMiss]
@@ -723,26 +754,42 @@ extractAsreml <- function(SSA,
     result[["varCompR"]] <- lapply(X = mr, FUN = extractVarComp,
                                    engine = "asreml")
   }
-  ## Extract variances
+  ## Extract variances.
+  ## In asreml3 variances are stored in gammas, in asreml4 in vparameters.
+  ## Also the naming is different.
   varGen <- sapply(X = mr, FUN = function(mr0) {
-    unname(mr0$gammas[grep(pattern = paste0(predicted, "!", predicted, ".var"),
-                           x = names(mr0$gammas))] * mr0$sigma2)
+    if (asreml4()) {
+      unname(mr0$vparameters[predicted] * mr0$sigma2)
+    } else {
+      unname(mr0$gammas[pattern = paste0(predicted, "!", predicted, ".var")] *
+               mr0$sigma2)
+    }
   })
   if ("varGen" %in% what) {
     result[["varGen"]] <- varGen
   }
   if ("varErr" %in% what) {
     result[["varErr"]] <- sapply(X = mr, FUN = function(mr0) {
-      unname(mr0$gammas[grep(pattern = "R!variance",
-                             x = names(mr0$gammas))] * mr0$sigma2)
+      if (asreml4()) {
+        unname(mr0$vparameters["units!R"] * mr0$sigma2)
+      } else {
+        unname(mr0$gammas["R!variance"] * mr0$sigma2)
+      }
     })
   }
   ## Estimate heritability on a line mean basis.
+  ## asreml3 saves the predictions inside the asreml object.
+  ## asreml4 creates a list containing nothing but the predictions.
   if ("heritability" %in% what) {
     result[["heritability"]] <- sapply(X = traits, FUN = function(trait) {
-      sedSq <- predictAsreml(model = mr[[trait]], classify = predicted,
+      mrPred <- predictAsreml(model = mr[[trait]], classify = predicted,
                              vcov = FALSE, TD = TD, only = predicted,
-                             sed = TRUE)$predictions$sed ^ 2
+                             sed = TRUE)
+      sedSq <- if (asreml4()) {
+        mrPred$sed ^ 2
+      } else {
+        mrPred$predictions$sed ^ 2
+      }
       unname(1 - mean(sedSq[lower.tri(sedSq)]) / (2 * varGen[[trait]]))
     })
   }
@@ -775,11 +822,19 @@ extractAsreml <- function(SSA,
   if ("ranEf" %in% what) {
     ranEffs <- lapply(X = traits, FUN = function(trait) {
       coefs <- mr[[trait]]$coe$random
-      ranEff <- data.frame(gsub(pattern = paste0(predicted, "_"),
-                                replacement = "",
-                                x = names(coefs)[grep(pattern = predicted,
-                                                      x = names(coefs))]),
-                           coefs[grep(pattern = predicted, x = names(coefs))])
+      ## In asreml3 coefficients are stored as a vector,
+      ## in asreml4 as a data.frame.
+      ranEff <- if (asreml4()) {
+        data.frame(gsub(pattern = paste0(predicted, "_"), replacement = "",
+                        x = rownames(coefs)[grep(pattern = predicted,
+                                                 x = rownames(coefs))]),
+                   coefs[grep(pattern = predicted, x = rownames(coefs))])
+      } else {
+        data.frame(gsub(pattern = paste0(predicted, "_"), replacement = "",
+                        x = names(coefs)[grep(pattern = predicted,
+                                              x = names(coefs))]),
+                   coefs[grep(pattern = predicted, x = names(coefs))])
+      }
       colnames(ranEff) <- c(predicted, trait)
       return(ranEff)
     })
@@ -807,7 +862,8 @@ extractAsreml <- function(SSA,
     tmpfile <- tempfile()
     sink(file = tmpfile)
     result[["wald"]] <- lapply(X = mf, function(mf0) {
-      wtt <- asreml::wald.asreml(mf0, ssType = "conditional", denDF = "numeric")
+      wtt <- asreml::wald.asreml(mf0, ssType = "conditional", denDF = "numeric",
+                                 maxiter = 200, data = TD)
       pos <- grep(pattern = predicted, x = row.names(wtt$Wald))
       chi2 <- wtt$Wald$F.con[pos] * wtt$Wald$Df[pos]
       prob <- 1 - pchisq(q = chi2, df = wtt$Wald$Df[pos])
@@ -835,15 +891,29 @@ extractAsreml <- function(SSA,
     result[["rDfR"]] <- sapply(X = mr, FUN = "[[", "nedf")
   }
   ## Extract standard error of difference.
+  ## asreml3 saves the predictions inside the asreml object.
+  ## asreml4 creates a list containing nothing but the predictions.
   if ("sed" %in% what) {
     result[["sed"]] <- lapply(X = mf, FUN = function(mf0) {
-      mf0$predictions$avsed
+      mfPred <- predictAsreml(mf0, TD = TD)
+      if (asreml4()) {
+        mfPred$avsed
+      } else {
+        mfPred$predictions$avsed
+      }
     })
   }
   ## Compute lsd with signifcance level 5%.
+  ## asreml3 saves the predictions inside the asreml object.
+  ## asreml4 creates a list containing nothing but the predictions.
   if ("lsd" %in% what) {
     result[["lsd"]] <- lapply(X = mf, FUN = function(mf0) {
-      qt(p = .975, df = mf0$nedf) * mf0$predictions$avsed
+      mfPred <- predictAsreml(mf0, TD = TD)
+      if (asreml4()) {
+        qt(p = .975, df = mf0$nedf) * mfPred$avsed
+      } else {
+        qt(p = .975, df = mf0$nedf) * mfPred$avsed
+      }
     })
   }
   return(result)

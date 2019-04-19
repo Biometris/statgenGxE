@@ -100,7 +100,7 @@ STModAsreml <- function(TD,
           asreml::asreml(fixed = formula(paste(trait, fixedForm)),
                          random = formula(paste("~", randomForm,
                                                 if (length(randomForm) != 0) "+",
-                                                "genotype")), rcov = ~ units,
+                                                "genotype")),
                          aom = TRUE, data = TDTr, maxiter = maxIter, ...))
         sink()
         if (!is.null(mrTrait$warning)) {
@@ -137,9 +137,6 @@ STModAsreml <- function(TD,
           mrTrait$call$fixed <- eval(mrTrait$call$fixed)
           mrTrait$call$random <- eval(mrTrait$call$random)
           mrTrait$call$rcov <- eval(mrTrait$call$rcov)
-          ## Run predict.
-          mrTrait <- predictAsreml(mrTrait, TD = TDTr)
-          mrTrait$call$data <- substitute(TDTr)
         }
         mr[[trait]] <- mrTrait
       } # End random.
@@ -156,15 +153,14 @@ STModAsreml <- function(TD,
             asreml::asreml(fixed = formula(paste(trait, fixedForm,
                                                  "+ genotype")),
                            random = formula(paste("~", randomForm)),
-                           rcov = ~ units, G.param = GParamTmp, aom = TRUE,
-                           data = TDTr, maxiter = maxIter, ...))
+                           G.param = GParamTmp, aom = TRUE, data = TDTr,
+                           maxiter = maxIter, ...))
         } else {
           mfTrait <- tryCatchExt(
             asreml::asreml(fixed = formula(paste(trait, fixedForm,
-                                                 "+ genotype")), rcov = ~ units,
+                                                 "+ genotype")),
                            G.param = GParamTmp, aom = TRUE, data = TDTr,
-                           maxiter = maxIter,
-                           ...))
+                           maxiter = maxIter, ...))
         }
         sink()
         if (!is.null(mfTrait$warning)) {
@@ -194,9 +190,6 @@ STModAsreml <- function(TD,
           } else {
             assocForm <- formula("~ NULL")
           }
-          ## Run predict.
-          mfTrait <- predictAsreml(mfTrait, TD = TDTr, associate = assocForm)
-          mfTrait$call$data <- substitute(TDTr)
         }
         mf[[trait]] <- mfTrait
       } # End fixed.

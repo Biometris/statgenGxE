@@ -466,7 +466,7 @@ extractVarComp <- function(model,
   ## Add an empty row before residuals if it is not already there.
   ## Only done if there is more than 1 row.
   resRow <- which(rownames(varComp) == "Residual")
-  if (nrow(varComp) > 1 && rownames(varComp)[resRow - 1] != "") {
+  if (length(resRow) && nrow(varComp) > 1 && rownames(varComp)[resRow - 1] != "") {
     varComp <- rbind(varComp[1:(resRow - 1), , drop = FALSE],
                      rep(NA, times = ncol(varComp)),
                      varComp[resRow:nrow(varComp), , drop = FALSE])
