@@ -146,10 +146,10 @@ gxeVarComp <- function(TD,
           modArgs <- c(modArgs0,
                        list(random = formula("~genotype:corh(trial)"),
                             start.values = TRUE))
-          initVals <- do.call(asreml::asreml, modArgs)
+          startVals <- do.call(asreml::asreml, modArgs)
           tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
                                 vcmodel = "outside", fixed = fixedForm, ...)
-          tmpTable <- initVals[[ifelse(asreml4(), "vparameters.table",
+          tmpTable <- startVals[[ifelse(asreml4(), "vparameters.table",
                                        "gammas.table")]]
           tmpTable[, "Value"] <- c(tmpValues$vg,
                                    scale(tmpValues$diag, center = FALSE), 1)
@@ -164,8 +164,8 @@ gxeVarComp <- function(TD,
           modArgs <- c(modArgs0,
                        list(random = formula("~genotype:fa(trial, 1)"),
                             start.values = TRUE))
-          initVals <- do.call(asreml::asreml, modArgs)
-          tmpTable <- initVals[[ifelse(asreml4(), "vparameters.table",
+          startVals <- do.call(asreml::asreml, modArgs)
+          tmpTable <- startVals[[ifelse(asreml4(), "vparameters.table",
                                        "gammas.table")]]
           tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
                                 vcmodel = "fa", fixed = fixedForm, ...)
@@ -184,8 +184,8 @@ gxeVarComp <- function(TD,
           modArgs <- c(modArgs0,
                        list(random = formula("~genotype:fa(trial, 2)"),
                             start.values = TRUE))
-          initVals <- do.call(asreml::asreml, modArgs)
-          tmpTable <- initVals[[ifelse(asreml4(), "vparameters.table",
+          startVals <- do.call(asreml::asreml, modArgs)
+          tmpTable <- startVals[[ifelse(asreml4(), "vparameters.table",
                                        "gammas.table")]]
           tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
                                 vcmodel = "fa2", fixed = fixedForm, ...)
@@ -209,11 +209,11 @@ gxeVarComp <- function(TD,
           modArgs <- c(modArgs0,
                        list(random = formula("~genotype:us(trial)"),
                             start.values = TRUE))
-          initVals <- do.call(asreml::asreml, modArgs)
+          startVals <- do.call(asreml::asreml, modArgs)
           tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
                                 vcmodel = "unstructured", fixed = fixedForm,
                                 ...)
-          tmpTable <- initVals[[ifelse(asreml4(), "vparameters.table",
+          tmpTable <- startVals[[ifelse(asreml4(), "vparameters.table",
                                        "gammas.table")]]
           tmpValues <- tmpValues$evCov[upper.tri(tmpValues$evCov, diag = TRUE)]
           tmpTable[, "Value"] <- c(scale(tmpValues, center = FALSE),
@@ -316,7 +316,7 @@ initVals <- function(TD,
   ## Get fixed df by stealth - in absence of other info, share among trials.
   if (!is.null(fixed)) {
     mr <- asreml::asreml(fixed = fixed, data = X, trace = FALSE, ...)
-    P <- length(mr$fitted.values) - (1 + mr$nedf)
+    P <- length(fitted(mr)) - mr$nedf
     fixedForm <- fixed
   } else {
     P <- 1

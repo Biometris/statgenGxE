@@ -33,8 +33,7 @@ supprWarn <- function(expression,
 #' or more can be expected and are ok.
 #' @keywords internal
 chkLastIter <- function(model) {
-  wrnMsg <- paste("At least one parameter changed by more than 1%",
-                  "on the last iteration")
+  wrnMsg <- "changed by more than 1%"
   if (any(grepl(pattern = wrnMsg, x = model$warning))) {
     ## EXtract monitor df from model object.
     mon <- model$value$monitor
@@ -568,6 +567,7 @@ mapData <- function(xLim,
 
 ## The syntax for asreml4 differs from asreml3.
 ## This helper function is for detecting if the version is 4 or higher.
+#' @importFrom utils packageVersion
 asreml4 <- function() {
   if (requireNamespace("asreml", quietly = TRUE)) {
     return(packageVersion("asreml") >= 4)

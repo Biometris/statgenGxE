@@ -34,7 +34,7 @@ Imports:
     gridExtra,
     scales,
     ggrepel
-Suggests: asreml(== 3.0),
+Suggests: asreml(>= 3.0),
     rmarkdown,
     testthat,
     covr
