@@ -39,7 +39,7 @@ test_that("summary.SSA produces correct output for asreml", {
   expect_null(sumAs$selSpatMod)
   expect_equal(nrow(sumAs$stats), 9)
   expect_equal(dim(sumAs$meanTab), c(15, 4))
-  expect_equivalent(sumAs$heritability, 0.206091659337936)
+  expect_equivalent(sumAs$heritability, 0.206084437486658)
   expect_equal(nrow(sumAs$sed), 3)
   expect_equal(nrow(sumAs$lsd), 3)
 })

@@ -232,7 +232,7 @@ test_that("option trySpatial produces expected output structure", {
                             traits = "t1", trySpatial = TRUE, engine = "lme4"),
                  "Spatial models can only be fitted using SpATS or asreml.")
   skip_on_cran()
-  modelAsTs <- STRunModel(testTD, trials = "E1", design = "rcbd", traits = "t1",
+  modelAsTs <- STRunModel(testTD, trials = "E1", design = "ibd", traits = "t1",
                           trySpatial = TRUE, engine = "asreml")
   expect_SSA(modelAsTs)
   expect_SSAMod(modelAsTs, "mRand")

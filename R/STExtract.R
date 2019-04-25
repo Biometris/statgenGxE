@@ -912,7 +912,7 @@ extractAsreml <- function(SSA,
       if (asreml4()) {
         qt(p = .975, df = mf0$nedf) * mfPred$avsed
       } else {
-        qt(p = .975, df = mf0$nedf) * mfPred$avsed
+        qt(p = .975, df = mf0$nedf) * mfPred$predictions$avsed
       }
     })
   }

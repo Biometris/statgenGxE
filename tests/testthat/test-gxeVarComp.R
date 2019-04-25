@@ -102,6 +102,6 @@ test_that("options useWT functions properly", {
   geVC <- gxeVarComp(TD = BLUEs2, trait = "BLUEs_GY", useWt = TRUE,
                      engine = "asreml")
   expect_equal(rownames(geVC$summary),
-               c("cs", "identity", "diagonal", "unstructured", "hcs", "fa",
-                 "fa2", "outside"))
+               c("outside", "cs", "identity", "diagonal", "unstructured", "fa",
+                 "hcs", "fa2"))
 })
