@@ -129,7 +129,7 @@ summary.SSA <- function(object,
     ## get predicted means (BLUEs + BLUPs).
     extr <- STExtract(object, trials = trials, traits = trait)[[trials]]
     ## Merge results using a loop to avoid warnings over suffixes caused by
-    ## merge when using using Reduce.
+    ## merge when using Reduce.
     joinList <- Filter(f = Negate(f = is.null),
                        x = extr[c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs")])
     meanTab <- joinList[[1]]
