@@ -127,8 +127,8 @@ test_that("combLocs helper function functions correctly", {
                   SXi = SXi)
   expect_is(r12, "numeric")
   expect_length(r12, 1)
-  expect_equal(r12, 0.0671135566187331)
+  expect_equal(r12, -0.0848965850102576)
   r13 <- combLocs(l1 = "l1", l2 = "l3", ammi = ammi, r0 = r0, Xi = Xi,
                   SXi = SXi)
-  expect_equal(r13, -0.0187937478121317)
+  expect_equal(r13, 0.201282778931538)
 })
