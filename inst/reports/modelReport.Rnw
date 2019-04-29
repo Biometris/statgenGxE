@@ -177,8 +177,9 @@ if (engine == "SpATS") {
   ## Print table of effective dimensions
   effDims <- SpATSSum$p.table.dim
   rownames(effDims)[is.na(rownames(effDims))] <- ""
-  for (i in 1:length(renameFrom)) {
-    rownames(effDims)[which(rownames(effDims) == renameFrom[i])] <- renameTo[i]
+  for (i in seq_along(renameVars[["renameFrom"]])) {
+    rownames(effDims)[rownames(effDims) == renameVars[["renameFrom"]][i]] <-
+      renameVars[["renameTo"]][i]
   }
   print(xtable::xtable(x = effDims, caption = "Effective dimensions",
                        label = "effDims",

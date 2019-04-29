@@ -389,24 +389,29 @@ escapeLatex = function(x, newlines = FALSE, spaces = FALSE) {
 }
 
 # Vectors for renaming columns in varcomp and effdim tables.
-renameFrom <- c("genotype", "repId", "rowId", "colId", "subBlock",
-                "repId:rowId", "repId:colId", "repId:subBlock",
-                "colCoord", "rowCoord", "rowCoordcolCoord",
-                "f(colCoord)", "f(rowCoord)",
-                "f(colCoord):rowCoord",
-                "colCoord:f(rowCoord)",
-                "f(colCoord):f(rowCoord)", "Nobs", "R", "variance",
-                "pow", "units")
-renameTo <- c("Genotype", "Replicate", "Row", "Col", "Block",
-              "Row(replicate)", "Col(replicate)", "Block(replicate)",
-              "Linear trend along cols", "Linear trend along rows",
-              "Linear trend along rows and cols",
-              "Smooth trend along cols", "Smooth trend along rows",
-              "Linear trend in rows changing smoothly along cols",
-              "Linear trend in cols changing smoothly along rows",
-              "Smooth-by-smooth interaction trend over rows and cols",
-              "Number of observations", "Residual", "Residual", "Power",
-              "Units")
+renameVars <- data.frame(renameFrom = c("genotype", "repId", "rowId", "colId",
+                                        "subBlock", "repId:rowId",
+                                        "repId:colId", "repId:subBlock",
+                                        "colCoord", "rowCoord",
+                                        "rowCoordcolCoord", "f(colCoord)",
+                                        "f(rowCoord)", "f(colCoord):rowCoord",
+                                        "colCoord:f(rowCoord)",
+                                        "f(colCoord):f(rowCoord)", "Nobs", "R",
+                                        "variance", "pow", "units"),
+                         renameTo = c("Genotype", "Replicate", "Row", "Col",
+                                      "Block", "Row(replicate)",
+                                      "Col(replicate)", "Block(replicate)",
+                                      "Linear trend along cols",
+                                      "Linear trend along rows",
+                                      "Linear trend along rows and cols",
+                                      "Smooth trend along cols",
+                                      "Smooth trend along rows",
+                                      "Linear trend in rows changing smoothly along cols",
+                                      "Linear trend in cols changing smoothly along rows",
+                                      "Smooth-by-smooth interaction trend over rows and cols",
+                                      "Number of observations",
+                                      "Residual", "Residual", "Power",
+                                      "Units"), stringsAsFactors = FALSE)
 
 #' Function for extracting the table with variance components from a model in
 #' a nicely printable format.
@@ -454,8 +459,9 @@ extractVarComp <- function(model,
     colnames(varComp) <- c("Variance", "SE")
   }
   ## Rename rows for more user readable output.
-  for (j in seq_along(renameFrom)) {
-    rownames(varComp)[rownames(varComp) == renameFrom[j]] <- renameTo[j]
+  for (i in seq_along(renameVars[["renameFrom"]])) {
+    rownames(varComp)[rownames(varComp) == renameVars[["renameFrom"]][i]] <-
+      renameVars[["renameTo"]][i]
   }
   ## Always put genotype as first row.
   if ("Genotype" %in% rownames(varComp)) {
@@ -554,7 +560,7 @@ calcPlotBorders <- function(trDat,
 mapData <- function(xLim,
                     yLim) {
   mapObj <- maps::map("world", exact = FALSE, plot = FALSE,
-                       fill = TRUE, xlim = xLim, ylim = yLim)
+                      fill = TRUE, xlim = xLim, ylim = yLim)
   df <- data.frame(long = mapObj$x, lat = mapObj$y)
   df$group <- cumsum(is.na(df$long) & is.na(df$lat)) + 1
   df$order <- 1:nrow(df)
