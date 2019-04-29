@@ -2,7 +2,7 @@ context("Summaries")
 
 testTD <- createTD(data = testData, genotype = "seed", trial = "field",
                    rowId = "Y", colId = "X", rowCoord = "Y", colCoord = "X")
-modelSp <- STRunModel(testTD, design = "rowcol", traits = c("t1", "t2"))
+modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
 test_that("AMMI summary produces correct output", {

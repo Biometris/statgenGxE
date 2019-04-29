@@ -24,10 +24,10 @@ library(RAP)
 ```{r, include = FALSE}
 ## Recreate data from last step in RAP vignette.
 data("wheatChl")
-wheatTD <- createTD(data = wheatChl, 
-                    genotype = "trt", repId = "rep", subBlock = "bl", 
-                    rowCoord = "row", colCoord = "col")
-modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design = "res.rowcol")
+wheatTD <- createTD(data = wheatChl, genotype = "trt", repId = "rep", 
+                    subBlock = "bl", rowCoord = "row", colCoord = "col")
+modWheatSpTot <- fitTD(TD = wheatTD, traits = "GY", what = "fixed", 
+                       design = "res.rowcol")
 ```
 
 ## QTL Analysis using the RAP package
@@ -50,7 +50,7 @@ detail how to perform such an analysis.
 ## Data preparation
 
 The functions in the RAP package for QTL analysis are essentially wrappers for functions in the qtl package [@Broman2003]. To start a QTL analysis as in the qtl package an object of class ```cross``` needs to be constructed. This can be done using the ````read.cross``` function from the qtl package (see ```help(read.cross, package = "qtl")```) on how to do this.  
-A more convenient way is to directly convert the output of a model fitted using ```STRunModel``` into an object of class cross using the function ```SSAtoCross```. For the examp
+A more convenient way is to directly convert the output of a model fitted using ```fitTD``` into an object of class cross using the function ```SSAtoCross```. For the examp
 
 ```{r createCross}
 cr1 <- SSAtoCross(SSA = modWheatSpTot, trial = "C_SWS_12",  

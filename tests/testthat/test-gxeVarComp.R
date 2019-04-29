@@ -4,8 +4,8 @@ testTD <- createTD(data = testData, genotype = "seed",
                    trial = "field", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",
                    rowCoord = "Y", colCoord = "X")
-modelSp <- STRunModel(testTD, design = "rowcol",
-                      traits = c("t1", "t2", "t3", "t4"))
+modelSp <- fitTD(testTD, design = "rowcol",
+                    traits = c("t1", "t2", "t3", "t4"))
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
 geVCLm <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "lme4")
@@ -87,7 +87,7 @@ test_that("option criterion works properly", {
 testTD2 <- createTD(data = wheatChl[wheatChl$trt %in% paste0("G", 100:109), ],
                     genotype = "trt", repId = "rep",
                     rowCoord = "row", colCoord = "col")
-modelSp2 <- STRunModel(testTD2, design = "rowcol", traits = "GY")
+modelSp2 <- fitTD(testTD2, design = "rowcol", traits = "GY")
 BLUEs2 <- SSAtoTD(modelSp2, what = c("BLUEs", "seBLUEs"), addWt = TRUE)
 test_that("models for fa and fa2 are fitted when #trials >= 5", {
   skip_on_cran()

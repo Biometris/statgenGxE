@@ -5,7 +5,7 @@ testTD <- createTD(data = testData[testData$field == "E1", ],
                    subBlock = "block", rowId = "Y", colId = "X",
                    rowCoord = "Y", colCoord = "X")
 
-modelLm <- STRunModel(testTD, design = "rcbd", traits = "t1", engine = "lme4")
+modelLm <- fitTD(testTD, design = "rcbd", traits = "t1", engine = "lme4")
 test_that("option keep functions properly", {
   expect_named(STExtract(modelLm, what = "BLUEs",
                          keep = "field")[[1]][["BLUEs"]],

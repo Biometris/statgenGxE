@@ -72,13 +72,11 @@
 #' @return A list with, per trial for which statistics have been extracted, a
 #' list of those statistics.
 #'
-#' @seealso
-#' \code{\link{STRunModel}}, \code{\link{STModSpATS}}, \code{\link{STModLme4}}
-#' and \code{\link{STModAsreml}}
+#' @seealso \code{\link{fitTD}}
 #'
 #' @examples
 #' ## Fit model using SpATS.
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+#' myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 #' ## Extract all available statistics from the fitted model.
 #' extr <- STExtract(myModel)
 #' ## Extract only the BLUEs from the fitted model.
@@ -783,8 +781,8 @@ extractAsreml <- function(SSA,
   if ("heritability" %in% what) {
     result[["heritability"]] <- sapply(X = traits, FUN = function(trait) {
       mrPred <- predictAsreml(model = mr[[trait]], classify = predicted,
-                             vcov = FALSE, TD = TD, only = predicted,
-                             sed = TRUE)
+                              vcov = FALSE, TD = TD, only = predicted,
+                              sed = TRUE)
       sedSq <- if (asreml4()) {
         mrPred$sed ^ 2
       } else {

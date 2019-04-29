@@ -3,7 +3,7 @@ context("gxeMegaEnv")
 testTD <- createTD(data = testData, genotype = "seed",
                    trial = "field", repId = "rep",
                    subBlock = "block", rowCoord = "Y", colCoord = "X")
-modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
+modelSp <- fitTD(testTD, design = "rowcol", traits = "t1")
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
 geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1", sumTab = FALSE)

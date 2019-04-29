@@ -133,7 +133,7 @@ testTDYear <- createTD(data = testDataYear, genotype = "seed",
                        trial = "field", repId = "rep",
                        subBlock = "block", rowId = "Y", colId = "X",
                        rowCoord = "Y", colCoord = "X")
-modelSp <- STRunModel(testTDYear, design = "rowcol", traits = c("t1", "t2"))
+modelSp <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
 BLUEsYear <- SSAtoTD(modelSp, what = "BLUEs", keep = "year")
 geAmmiYear <- gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE)
 test_that("AMMI plot gives correct output types when byYear = TRUE", {
@@ -163,7 +163,7 @@ test_that("FW plot gives correct output types", {
   expect_is(p3, "ggplot")
 })
 
-SSA <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+SSA <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 test_that("SSA base plot gives correct output types", {
   p1 <- plot(SSA, traits = "yield", output = FALSE)
   expect_is(p1, "list")

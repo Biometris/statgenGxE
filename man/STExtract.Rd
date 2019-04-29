@@ -90,7 +90,7 @@ only for \code{SpATS}.}
 }
 \examples{
 ## Fit model using SpATS.
-myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 ## Extract all available statistics from the fitted model.
 extr <- STExtract(myModel)
 ## Extract only the BLUEs from the fitted model.
@@ -101,6 +101,5 @@ BLUEs2 <- STExtract(myModel, what = "BLUEs", keep = "trial")
 
 }
 \seealso{
-\code{\link{STRunModel}}, \code{\link{STModSpATS}}, \code{\link{STModLme4}}
-and \code{\link{STModAsreml}}
+\code{\link{fitTD}}
 }

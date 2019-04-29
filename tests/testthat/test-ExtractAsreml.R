@@ -6,8 +6,7 @@ if (requireNamespace("asreml", quietly = TRUE)) {
                      subBlock = "block", rowId = "Y", colId = "X",
                      rowCoord = "Y", colCoord = "X")
 
-  modelAs <- STRunModel(testTD, design = "res.ibd", traits = "t1",
-                        engine = "asreml")
+  modelAs <- fitTD(testTD, design = "res.ibd", traits = "t1", engine = "asreml")
 
   test_that("the output of extract is of the proper type - asreml", {
     expect_is(STExtract(modelAs, what = "BLUEs"), "list")

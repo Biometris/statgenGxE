@@ -13,7 +13,7 @@
 #' \item{traits}{A character vector indicating the traits for which the analysis
 #' is done.}
 #' \item{design}{A character string containing the design of the trial.
-#' (see \code{\link{STRunModel}} for the possible designs).}
+#' (see \code{\link{fitTD}} for the possible designs).}
 #' \item{spatial}{A character string indicating the spatial part of the model.
 #' \code{FALSE} if no spatial design has been used.}
 #' \item{engine}{A character string containing the engine used for the
@@ -62,7 +62,7 @@ createSSA <- function(models) {
 #'
 #' @examples
 #' ## Run a single trait analysis using SpATS.
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+#' myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 #' ## Print a summary of the fitted model.
 #' summary(myModel)
 #'
@@ -271,7 +271,7 @@ print.summary.SSA <- function(x,
 #'
 #' @examples
 #' ## Run a single trait analysis using SpATS.
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+#' myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 #' ## Create base plots.
 #' plot(myModel, what = "fixed", plotType = "base")
 #' ## Create spatial plots.
@@ -364,7 +364,7 @@ plot.SSA <- function(x,
       fitted <- STExtract(x, trials = trial, traits = trait,
                           what = ifelse(what == "fixed", "fitted", "rMeans"),
                           keep = mergeCols)[[trial]][[ifelse(what == "fixed",
-                                                   "fitted", "rMeans")]]
+                                                             "fitted", "rMeans")]]
       predType <- ifelse(what == "fixed", "BLUEs", "BLUPs")
       pred <- STExtract(x, trials = trial, traits = trait,
                         what = predType)[[trial]][[predType]][c(predicted, trait)]
@@ -571,7 +571,7 @@ fieldPlot <- function(plotDat,
 #'
 #' @examples
 #' ## Fit model using lme4.
-#' myModel1 <- STRunModel(TD = TDHeat05, design = "ibd", traits = "yield")
+#' myModel1 <- fitTD(TD = TDHeat05, design = "ibd", traits = "yield")
 #' \dontrun{
 #' ## Create a pdf report summarizing the results for the model with genotype
 #' ## as fixed factor.
@@ -666,7 +666,7 @@ report.SSA <- function(x,
 #'
 #' @examples
 #' ## Run model using SpATS.
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+#' myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                       what = "fixed")
 #' ## Create cross object with BLUEs from myModel using genotypic information
 #' ## from markers.csv in the package.
@@ -753,7 +753,7 @@ SSAtoCross <- function(SSA,
 #'
 #' @examples
 #' ## Run model using SpATS.
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+#' myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                       what = "fixed")
 #' ## Create TD object from the fitted model.
 #' myTD <- SSAtoTD(myModel)

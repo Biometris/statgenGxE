@@ -5,7 +5,7 @@ testTD <- createTD(data = testData, trial = "field",
                    genotype = "seed", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",
                    rowCoord = "Y", colCoord = "X")
-modelSp <- STRunModel(testTD, trials = "E1", design = "rowcol", traits = "t1")
+modelSp <- fitTD(testTD, trials = "E1", design = "rowcol", traits = "t1")
 test_that("summary.SSA produces correct output for SpATS", {
   sumSp <- summary(modelSp)
   expect_length(sumSp, 6)
@@ -18,7 +18,7 @@ test_that("summary.SSA produces correct output for SpATS", {
 })
 
 test_that("summary.SSA produces correct output for lme4", {
-  modelLm <- STRunModel(testTD, trials = "E1", design = "rowcol", traits = "t1",
+  modelLm <- fitTD(testTD, trials = "E1", design = "rowcol", traits = "t1",
                         engine = "lme4")
   sumLm <- summary(modelLm)
   expect_length(sumLm, 6)
@@ -32,7 +32,7 @@ test_that("summary.SSA produces correct output for lme4", {
 
 test_that("summary.SSA produces correct output for asreml", {
   skip_on_cran()
-  modelAs <- STRunModel(testTD, trials = "E1", design = "rowcol", traits = "t1",
+  modelAs <- fitTD(testTD, trials = "E1", design = "rowcol", traits = "t1",
                         engine = "asreml")
   sumAs <- summary(modelAs)
   expect_length(sumAs, 6)
@@ -45,7 +45,7 @@ test_that("summary.SSA produces correct output for asreml", {
 })
 
 test_that("summary.SSA produces correct output for multiple trials", {
-  modelSp <- STRunModel(testTD, trials = c("E1", "E2"), design = "rowcol",
+  modelSp <- fitTD(testTD, trials = c("E1", "E2"), design = "rowcol",
                         traits = "t1")
   sumSp <- summary(modelSp, traits = "t1")
   expect_length(sumSp, 3)
@@ -67,7 +67,7 @@ test_that("print.summary.SSA functions properly", {
                     "Predicted means (BLUEs & BLUPs) ") %in% sumSp))
   expect_false(any(grepl("Best", sumSp2)))
   skip_on_cran()
-  modelAs <- STRunModel(testTD, trials = "E1", design = "rowcol", traits = "t1",
+  modelAs <- fitTD(testTD, trials = "E1", design = "rowcol", traits = "t1",
                         engine = "asreml")
   sumAs <- capture.output(print(summary(modelAs)))
   expect_true(all(c("Standard Error of Difference (genotype modeled as fixed effect) ",
@@ -76,7 +76,7 @@ test_that("print.summary.SSA functions properly", {
 })
 
 test_that("print.summary.SSA functions properly for multiple trials", {
-  modelSp <- STRunModel(testTD, trials = c("E1", "E2"), design = "rowcol",
+  modelSp <- fitTD(testTD, trials = c("E1", "E2"), design = "rowcol",
                         traits = "t1")
   sumSp <- capture.output(print(summary(modelSp)))
   expect_true("Summary statistics for BLUEs of t1 " %in% sumSp)
@@ -103,7 +103,7 @@ test_that("function SSAtoTD functions properly", {
 })
 
 test_that("function SSAtoCross functions properly", {
-  myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+  myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield",
                         what = "fixed")
   expect_error(SSAtoCross(SSA = myModel, trial = "HEAT06",
                           genoFile = system.file("extdata", "markers.csv",
@@ -120,7 +120,7 @@ test_that("function SSAtoCross functions properly", {
 test_that("function report.SSA functions properly" ,{
   ## Reporting doesn't work on cran because of usage of pdflatex.
   skip_on_cran()
-  modelSp <- STRunModel(testTD, trials = c("E1", "E2"), design = "rowcol",
+  modelSp <- fitTD(testTD, trials = c("E1", "E2"), design = "rowcol",
                         traits = c("t1", "t2"))
   expect_error(report(modelSp),
                "No trial provided but multiple trials found")

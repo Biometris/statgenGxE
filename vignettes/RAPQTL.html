@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bart-Jan van Rossum" />
 
-<meta name="date" content="2019-03-01" />
+<meta name="date" content="2019-04-29" />
 
 <title>QTL analysis using RAP</title>
 
@@ -291,6 +291,9 @@ code > span.al { color: #ff0000; font-weight: bold; }
 code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
+
+
+
 </head>
 
 <body>
@@ -299,8 +302,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 
 <h1 class="title toc-ignore">QTL analysis using RAP</h1>
-<h4 class="author"><em>Bart-Jan van Rossum</em></h4>
-<h4 class="date"><em>2019-03-01</em></h4>
+<h4 class="author">Bart-Jan van Rossum</h4>
+<h4 class="date">2019-04-29</h4>
 
 
 
@@ -319,7 +322,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="data-preparation" class="section level2">
 <h2>Data preparation</h2>
 <p>The functions in the RAP package for QTL analysis are essentially wrappers for functions in the qtl package <span class="citation">(Broman et al. 2003)</span>. To start a QTL analysis as in the qtl package an object of class <code>cross</code> needs to be constructed. This can be done using the `<code>read.cross</code> function from the qtl package (see <code>help(read.cross, package = &quot;qtl&quot;)</code>) on how to do this.<br />
-A more convenient way is to directly convert the output of a model fitted using <code>STRunModel</code> into an object of class cross using the function <code>SSAtoCross</code>. For the examp</p>
+A more convenient way is to directly convert the output of a model fitted using <code>fitTD</code> into an object of class cross using the function <code>SSAtoCross</code>. For the examp</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">cr1 &lt;-<span class="st"> </span><span class="kw">SSAtoCross</span>(<span class="dt">SSA =</span> modWheatSpTot, <span class="dt">trial =</span> <span class="st">&quot;C_SWS_12&quot;</span>,  </a>
 <a class="sourceLine" id="cb1-2" title="2">                  <span class="dt">what =</span> <span class="st">&quot;BLUEs&quot;</span>, <span class="dt">genoFile =</span> <span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;markersWheatChl.csv&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;RAP&quot;</span>), <span class="dt">na.strings =</span> <span class="kw">c</span>(<span class="st">&quot;N&quot;</span>, <span class="st">&quot;H&quot;</span>))</a>
 <a class="sourceLine" id="cb1-3" title="3"><span class="co">#&gt;  --Read the following data:</span></a>

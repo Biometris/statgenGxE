@@ -59,7 +59,7 @@ information.
 }
 \examples{
 ## Run a single trait analysis using SpATS.
-myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 ## Create base plots.
 plot(myModel, what = "fixed", plotType = "base")
 ## Create spatial plots.

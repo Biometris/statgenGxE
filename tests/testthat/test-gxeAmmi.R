@@ -4,7 +4,7 @@ testTD <- createTD(data = testData, genotype = "seed",
                    trial = "field", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",
                    rowCoord = "Y", colCoord = "X")
-modelSp <- STRunModel(testTD, design = "rowcol", traits = c("t1", "t2"))
+modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
 geAmmi <- gxeAmmi(BLUEs, trait = "t1")
@@ -159,7 +159,7 @@ testTDYear <- createTD(data = testDataYear, genotype = "seed",
                        trial = "field", repId = "rep",
                        subBlock = "block", rowId = "Y", colId = "X",
                        rowCoord = "Y", colCoord = "X")
-modelSp <- STRunModel(testTDYear, design = "rowcol", traits = c("t1", "t2"))
+modelSp <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
 BLUEsYear <- SSAtoTD(modelSp, what = "BLUEs", keep = "year")
 
 test_that("analysis is only run for years with at least three trials", {

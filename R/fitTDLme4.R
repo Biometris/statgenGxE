@@ -2,12 +2,12 @@
 #'
 #' Fit Single Trial Model using lme4
 #'
-#' @inheritParams STRunModel
+#' @inheritParams fitTD
 #'
-#' @seealso \code{\link{STRunModel}}
+#' @seealso \code{\link{fitTD}}
 #'
 #' @keywords internal
-STModLme4 <- function(TD,
+fitTDLme4 <- function(TD,
                       trial = NULL,
                       traits,
                       what = c("fixed", "random"),

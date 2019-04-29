@@ -42,7 +42,7 @@ original TD object on which the modeling was done.
 }
 \examples{
 ## Run model using SpATS.
-myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield",
                       what = "fixed")
 ## Create TD object from the fitted model.
 myTD <- SSAtoTD(myModel)

@@ -241,19 +241,19 @@ plot(wheatTD, plotType = "cor", traits = "GY")
 # Modeling
 
 After creating a `TD` object, a model can be fitted on the trial data. This is done 
-using the function `STRunModel`. Depending on the design of the trial several 
+using the function `fitTD`. Depending on the design of the trial several 
 different models can be fitted. The design can be given as a parameter in the 
 function or included in the meta data of the `TD` object. In the former case the 
 same model will be fitted for all trials, in the latter different models can be 
 fitted for different trials depending on the design. If both are available the 
 function parameter will always be leading. 
 
-The output of `STRunModel` is an object of class `SSA` (Single Site Analysis), a
+The output of `fitTD` is an object of class `SSA` (Single Site Analysis), a
 `list` of fitted models with one item for each trial the model was fitted for. 
 
 ## Model types
 
-`STRunModel` uses three different engines for fitting the models, namely
+`fitTD` uses three different engines for fitting the models, namely
 SpATS [@RodAlv2017], lme4 [@Bates2015] and asreml [@Gilmour2009]. For models 
 with row column or resolvable row column design, SpATS is the default engine, 
 for the other models lme4. This can always be overruled by specifying the function 
@@ -284,8 +284,8 @@ of the trial a resolvable row column design is assumed. Since `engine` is not
 supplied as a parameter SpATS is used for fitting the model.
 ```{r fitSp, message=FALSE}
 ## Fit a single trial model.
-modWheatSp <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                         design = "res.rowcol")
+modWheatSp <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                    design = "res.rowcol")
 ```
 Note that by not supplying the `what` argument to the function, two models are
 fitted, one with genotype as a fixed effect and one with genotype as a 
@@ -296,8 +296,8 @@ fitting only one so when fitting models on large datasets it is sensible to use
 `what` if only a subset of the results are needed as output.
 ```{r fitSpSm, message=FALSE}
 ## Fit a single trial model with genotype as random effect.
-modWheatSp2 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                          what = "random", design = "res.rowcol")
+modWheatSp2 <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                     what = "random", design = "res.rowcol")
 ```
 
 ## Spatial models
@@ -307,30 +307,29 @@ component is always included in the model. This spatial component is composed
 using the `PSANOVA` function in the SpATS package which uses 2-dimensional 
 smoothing with P-splines as described in @Lee2013 and in @RodAlv2017. See `help(PSANOVA, SpATS)`
 for a detailed description. The parameters `nseg` and `nest.div` of `PSANOVA` 
-can be modified using the `control` parameter in `STRunModel`.  
+can be modified using the `control` parameter in `fitTD`.  
 Refitting the model in the previous section specifying the number of segments
 for both rows and columns as 20 works as follows
 ```{r fitSpCtr, message=FALSE}
 ## Fit a spatial single trial model using SpATS. 
 ## Manually specify the number of segments for rows and columns.
-modWheatSp3 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                          design = "res.rowcol", 
-                          control = list(nSeg = c(20, 20)))
+modWheatSp3 <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                     design = "res.rowcol", control = list(nSeg = c(20, 20)))
 ```
 
 Alternatively, spatial models can be fitted using asreml as modeling engine 
 and setting the parameter `trySpatial = TRUE`. In this case seven models are fitted 
 and the best model, based on a goodness-of-fit criterion, either AIC or BIC, is 
-chosen. For a full specification of the models fitted see `help(STRunModel)`. 
-The criterion to be used can be specified using the `control` parameter in `STRunModel`.  
+chosen. For a full specification of the models fitted see `help(fitTD)`. 
+The criterion to be used can be specified using the `control` parameter in `fitTD`.  
 Fitting a model similar to the one above using asreml with BIC as 
 goodness-of-fit criterion works as follows
 ```{r fitAs, message=FALSE, results='hide'}
 if (requireNamespace("asreml", quietly = TRUE)) {
   ## Fit a spatial single trial model using asreml.
-  modWheatAs <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                           design = "res.rowcol", trySpatial = TRUE,
-                           engine = "asreml", control = list(criterion = "BIC"))
+  modWheatAs <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                      design = "res.rowcol", trySpatial = TRUE,
+                      engine = "asreml", control = list(criterion = "BIC"))
 }
 ```
 The fitted models and the best model are stored in the output together with a summary
@@ -493,8 +492,8 @@ creates a `TD` object from a fitted model outputting one or more of the followin
 BLUEs, standard errors of BLUEs, BLUPs and standard errors of BLUPs. Optionally, a column `wt` with weights (calculated as $(1 / seBLUEs)^2$) can be added as well. In the same way as described in the previous section extra columns can be added to the output using the parameter `keep`. 
 ```{r SSAtoTD, message=FALSE}
 ## Fit a model for all trials with genotype as fixed factor.
-modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", 
-                            design = "res.rowcol")
+modWheatSpTot <- fitTD(TD = wheatTD, traits = "GY", what = "fixed", 
+                       design = "res.rowcol")
 ## Create a TD object containing BLUEs and standard errors of BLUEs.
 TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
 ## Add weights to the output.

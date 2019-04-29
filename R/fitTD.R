@@ -1,8 +1,8 @@
 #' Fit Single Trial Mixed Model
 #'
 #' Perform REML analysis given a specific experimental design. This is a wrapper
-#' function of \code{\link{STModSpATS}}, \code{\link{STModLme4}} and
-#' \code{\link{STModAsreml}}. See details for the exact models fitted. SpATS is
+#' function of \code{\link{fitTDSpATS}}, \code{\link{fitTDLme4}} and
+#' \code{\link{fitTDAsreml}}. See details for the exact models fitted. SpATS is
 #' used as a default method when design is rowcol or res.rowcol, lme4 for other
 #' designs.
 #'
@@ -103,16 +103,13 @@
 #' \item{traits}{A character vector indicating the traits for which the analysis
 #' is done.}
 #' \item{design}{A character string containing the design of the trial.
-#' (see \code{\link{STRunModel}} for the possible designs).}
+#' (see \code{\link{fitTD}} for the possible designs).}
 #' \item{spatial}{A character string indicating the spatial part of the model.
 #' \code{FALSE} if no spatial design has been used.}
 #' \item{engine}{A character string containing the engine used for the
 #' analysis.}
 #' \item{predicted}{A character string indicating the variable that has been
 #' predicted.}
-#'
-#' @seealso \code{\link{STModSpATS}}, \code{\link{STModLme4}},
-#' \code{\link{STModAsreml}}
 #'
 #' @references
 #' Maria Xose Rodriguez-Alvarez, Martin P. Boer, Fred A. van Eeuwijk, Paul H.C.
@@ -129,7 +126,7 @@
 #'
 #' @examples
 #' ## Fit model using lme4.
-#' myModel1 <- STRunModel(TD = TDHeat05, design = "ibd", traits = "yield",
+#' myModel1 <- fitTD(TD = TDHeat05, design = "ibd", traits = "yield",
 #'                       what = "fixed")
 #' ## Summarize results.
 #' summary(myModel1)
@@ -140,7 +137,7 @@
 #' report(myModel1, outfile = "./testReports/reportModelLme4.pdf")
 #' }
 #' ## Fit model using SpATS.
-#' myModel2 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+#' myModel2 <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                       what = "fixed")
 #' summary(myModel2)
 #' ## Create spatial plots of the results.
@@ -151,24 +148,24 @@
 #'
 #' ## Fit model using asreml.
 #' \dontrun{
-#' myModel3 <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+#' myModel3 <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                       what = "fixed", engine = "asreml")
 #' summary(myModel3)
 #' report(myModel3, outfile = "./testReports/reportModelAsreml.pdf")
 #' }
 #' @export
-STRunModel = function(TD,
-                      trials = names(TD),
-                      design = NULL,
-                      traits,
-                      what = c("fixed", "random"),
-                      covariates = NULL,
-                      useCheckId = FALSE,
-                      trySpatial = FALSE,
-                      engine = NA,
-                      control = NULL,
-                      progress = FALSE,
-                      ...) {
+fitTD = function(TD,
+                 trials = names(TD),
+                 design = NULL,
+                 traits,
+                 what = c("fixed", "random"),
+                 covariates = NULL,
+                 useCheckId = FALSE,
+                 trySpatial = FALSE,
+                 engine = NA,
+                 control = NULL,
+                 progress = FALSE,
+                 ...) {
   ## Base check.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -187,7 +184,7 @@ STRunModel = function(TD,
                  " in ", trial, ".\n"))
     }
     list2env(x = checkOut, envir = environment())
-    model <- do.call(what = paste0("STMod", tools::toTitleCase(engine)),
+    model <- do.call(what = paste0("fitTD", tools::toTitleCase(engine)),
                      args = list(TD = TD[trial], trial = trial, traits = traits,
                                  what = what, covariates = covariates,
                                  useCheckId = useCheckId,

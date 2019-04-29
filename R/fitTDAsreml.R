@@ -2,12 +2,12 @@
 #'
 #' Fit Single Trial Model using asreml
 #'
-#' @inheritParams STRunModel
+#' @inheritParams fitTD
 #'
-#' @seealso \code{\link{STRunModel}}
+#' @seealso \code{\link{fitTD}}
 #'
 #' @keywords internal
-STModAsreml <- function(TD,
+fitTDAsreml <- function(TD,
                         trial = NULL,
                         traits,
                         what = c("fixed", "random"),

@@ -4,7 +4,7 @@ testTD <- createTD(data = testData[testData$field == "E1", ],
                    genotype = "seed", repId = "rep", subBlock = "block",
                    rowCoord = "Y", colCoord = "X")
 
-modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
+modelSp <- fitTD(testTD, design = "rowcol", traits = "t1")
 
 test_that("the output of extract is of the proper type", {
   expect_is(STExtract(modelSp, what = "BLUEs"), "list")
