@@ -127,7 +127,7 @@ summary.SSA <- function(object,
     }
     stats <- summary.TD(object = TD, traits = trait)
     ## get predicted means (BLUEs + BLUPs).
-    extr <- STExtract(object, trials = trials, traits = trait)[[trials]]
+    extr <- extract(object, trials = trials, traits = trait)[[trials]]
     ## Merge results using a loop to avoid warnings over suffixes caused by
     ## merge when using Reduce.
     joinList <- Filter(f = Negate(f = is.null),
@@ -361,13 +361,13 @@ plot.SSA <- function(x,
       }
       predicted <- x[[trial]]$predicted
       ## Extract fitted and predicted values from model.
-      fitted <- STExtract(x, trials = trial, traits = trait,
-                          what = ifelse(what == "fixed", "fitted", "rMeans"),
-                          keep = mergeCols)[[trial]][[ifelse(what == "fixed",
-                                                             "fitted", "rMeans")]]
+      fitted <- extract(x, trials = trial, traits = trait,
+                        what = ifelse(what == "fixed", "fitted", "rMeans"),
+                        keep = mergeCols)[[trial]][[ifelse(what == "fixed",
+                                                           "fitted", "rMeans")]]
       predType <- ifelse(what == "fixed", "BLUEs", "BLUPs")
-      pred <- STExtract(x, trials = trial, traits = trait,
-                        what = predType)[[trial]][[predType]][c(predicted, trait)]
+      pred <- extract(x, trials = trial, traits = trait,
+                      what = predType)[[trial]][[predType]][c(predicted, trait)]
       ## Extract raw data and compute residuals.
       response <- x[[trial]]$TD[[trial]][, c(predicted, trait, mergeCols)]
       ## Create plot data by merging extracted data together and renaming some
@@ -707,7 +707,7 @@ SSAtoCross <- function(SSA,
     stop("genoFile is not a valid filename.\n")
   }
   ## Extract predictions from the model.
-  pred <- STExtract(SSA, traits = traits, what = what)[[trial]][[what]]
+  pred <- extract(SSA, traits = traits, what = what)[[trial]][[what]]
   ## Rename first column to match first column in genoFile.
   colnames(pred)[1] <- colnames(utils::read.csv(genoFile, nrow = 1))[1]
   ## Write predictions to temporary file.
@@ -743,7 +743,7 @@ SSAtoCross <- function(SSA,
 #' @param traits A character string containing the traits to be included in the
 #' TD object. If \code{NULL}, all traits are exported.
 #' @param keep Columns from the TD object used as input for the SSA model to
-#' be copied to the output. see \code{\link{STExtract}} for possible columns to
+#' be copied to the output. see \code{\link{extract}} for possible columns to
 #' copy. If if it is available in \code{TD}, the column \code{trial} will always
 #' be copied.
 #' @param addWt Should a column wt be added to the output? If \code{TRUE}
@@ -810,7 +810,7 @@ SSAtoTD <- function(SSA,
   predTrTot <- lapply(X = names(SSA), FUN = function(trial) {
     ## Extract predictions from the model.
     predLst <- unlist(lapply(X = traits, FUN = function(trait) {
-      STExtract(SSA, trials = trial, traits = trait, what = what, keep = keep)
+      extract(SSA, trials = trial, traits = trait, what = what, keep = keep)
     }), recursive = FALSE)
     if (length(what) + addWt > 1) {
       ## Rename columns if more than one column per trait will appear in the

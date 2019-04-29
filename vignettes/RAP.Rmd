@@ -402,7 +402,7 @@ which the report should be made.
 # Extracting model results
 
 After fitting a model, various results can be extracted or calculated from the 
-fitted model using the function `STExtract`. This can be anything from a single 
+fitted model using the function `extract`. This can be anything from a single 
 result for one trait and one trial to a `list` of different results for all models 
 in an `SSA` object. The results that can be extracted depend on the type of 
 model fitted and sometimes on the modeling engine as well. For example, BLUEs 
@@ -414,7 +414,7 @@ All results that can be extracted are shown in the table below. The first column
 shows what model needs to be fitted in order to be able to extract the result.
 Here F stands for genotype as fixed effect and R for genotype as random effect. In the 
 second column is the result. This is also the value to be used for the parameter
-`what` in `STExtract` needed to extract the corresponding result. The last 
+`what` in `extract` needed to extract the corresponding result. The last 
 column gives a short description of the result that will be extracted and, where
 needed, also states for which modeling engines it can be extracted.
 
@@ -450,9 +450,9 @@ fitted model. This is also the default.
 Below are some examples of extracting results from a fitted model. Recall that `modWheatSp` contains two fitted models, one with genotype as fixed effect and one with genotype as random effect.
 ```{r extBLUEs}
 ## Extract BLUEs
-BLUEsWheat <- STExtract(SSA = modWheatSp, what = "BLUEs")
+BLUEsWheat <- extract(SSA = modWheatSp, what = "BLUEs")
 ## Extract BLUEs and BLUPs
-predWheat <- STExtract(SSA = modWheatSp, what = c("BLUEs", "BLUPs"))
+predWheat <- extract(SSA = modWheatSp, what = c("BLUEs", "BLUPs"))
 ```
 Both `BLUEsWheat` and `predWheat` are a `list` with one item, the trial used for
 modeling. In general, when extracting results, there will be an item in the `list` for every trial for which results were extracted. These items are a `list` themselves with an item for every statistic that has been extracted, so one item for `BLUEsWheat`, a `data.frame` containing the BLUEs, and two for `predWheat`, the `data.frames` containing BLUEs and BLUPs respectively. 
@@ -463,12 +463,12 @@ The `data.frame` BLUEs in either of the `lists` consists of only two columns,
 genotype and GY. If the model would have been fitted for multiple traits all 
 these traits would become columns in the `data.frame`. It might be useful to add
 extra columns from the data used to fit the model to the output. This can be 
-achieved using the paramater `keep` in `STExtract`. To include the trial in the 
+achieved using the paramater `keep` in `extract`. To include the trial in the 
 output, useful for easily combining several `data.frames` with BLUEs and using
 them for a GxE analysis, use the following command
 ```{r extBLUEsKeep}
 ## Extract BLUEs from the fitted model.
-BLUEsWheat2 <- STExtract(SSA = modWheatSp, what = "BLUEs", keep = "trial")
+BLUEsWheat2 <- extract(SSA = modWheatSp, what = "BLUEs", keep = "trial")
 head(BLUEsWheat2[["SR_FI_11"]]$BLUEs)
 ```
 Not every column from the original `TD` object can be included in the extracted 
@@ -479,8 +479,7 @@ It is however possible to include `repId` when extracting fitted values, since
 for each observation in the original data a fitted value is computed. 
 ```{r extFit}
 ## Extract fitted values from the model.
-fitVals <- STExtract(SSA = modWheatSp, what = "fitted", 
-                     keep = c("trial", "repId"))
+fitVals <- extract(SSA = modWheatSp, what = "fitted", keep = c("trial", "repId"))
 head(fitVals[["SR_FI_11"]]$fitted)
 ```
 

@@ -116,7 +116,7 @@ coverage:
     - apt-get install --yes git
     # install missing and outdated packages
     - Rscript -e 'source(".gitlab-ci.R"); gl_update_pkg_all(repos = "https://cran.rstudio.com", quiet = TRUE, install_pkgdown = FALSE)'
-    - Rscript -e 'covr::package_coverage(line_exclusions = c("R/zzz.R", "R/STModAsreml.R"))'
+    - Rscript -e 'covr::package_coverage(line_exclusions = c("R/zzz.R", "R/fitModAsreml.R"))'
   coverage: '/Coverage:\s*(\d+.\d+\%)/'
 
 

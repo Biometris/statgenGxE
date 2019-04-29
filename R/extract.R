@@ -78,21 +78,21 @@
 #' ## Fit model using SpATS.
 #' myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 #' ## Extract all available statistics from the fitted model.
-#' extr <- STExtract(myModel)
+#' extr <- extract(myModel)
 #' ## Extract only the BLUEs from the fitted model.
-#' BLUEs <- STExtract(myModel, what = "BLUEs")
+#' BLUEs <- extract(myModel, what = "BLUEs")
 #' ## Extract only the BLUEs from the fitted model and keep trial as variable in
 #' ## the output.
-#' BLUEs2 <- STExtract(myModel, what = "BLUEs", keep = "trial")
+#' BLUEs2 <- extract(myModel, what = "BLUEs", keep = "trial")
 #'
 #' @importFrom utils capture.output
 #' @export
-STExtract <- function(SSA,
-                      trials = names(SSA),
-                      traits = NULL,
-                      what = "all",
-                      keep = NULL,
-                      restoreColNames = FALSE) {
+extract <- function(SSA,
+                    trials = names(SSA),
+                    traits = NULL,
+                    what = "all",
+                    keep = NULL,
+                    restoreColNames = FALSE) {
   ## Checks.
   if (!inherits(SSA, "SSA")) {
     stop("SSA has to be an object of class SSA.\n")

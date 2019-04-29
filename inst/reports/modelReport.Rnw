@@ -188,7 +188,7 @@ if (engine == "SpATS") {
 }
 ## Print variance components
 vcWhat <- paste0("varComp", ifelse(modelType == "fixed", "F", "R"))
-varComp <- STExtract(x, trials = trial,
+varComp <- extract(x, trials = trial,
                      what = vcWhat)[[trial]][[vcWhat]][[trait]]
 print(xtable::xtable(x = varComp, label = "varComps",
                      caption =  "Variance components",
@@ -198,7 +198,7 @@ print(xtable::xtable(x = varComp, label = "varComps",
 ## Print generalized heritability
 if (modelType == "random") {
   cat(paste("The generalized heritability is",
-            round(STExtract(x, trials = trial,
+            round(extract(x, trials = trial,
                             what = "heritability")[[trial]][["heritability"]],
                   digits = 2)))
 }
@@ -225,8 +225,8 @@ plot(x, trials = trial, traits = trait, what = modelType, plotType = "base")
 \Sexpr{paste(ifelse(descending, "highest", "lowest"), predName)}}
 %-------------------------------------------------------------------------------
 <<label=best10perc, echo=FALSE, results="hide">>=
-pred <- STExtract(x, what = predName)[[trial]][[predName]][c("genotype", trait)]
-predSE <- STExtract(x, what = paste0("se", predName))[[trial]][[1]][c("genotype", trait)]
+pred <- extract(x, what = predName)[[trial]][[predName]][c("genotype", trait)]
+predSE <- extract(x, what = paste0("se", predName))[[trial]][[1]][c("genotype", trait)]
 predTot <- merge(x = pred, y = predSE, by = "genotype")
 predTot <- predTot[order(predTot[[paste0(trait,".x")]],
                          decreasing = descending), ]

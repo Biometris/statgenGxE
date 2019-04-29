@@ -608,10 +608,10 @@ Fitting a model similar to the one above using asreml with BIC as goodness-of-fi
 </div>
 <div id="extracting-model-results" class="section level1">
 <h1><span class="header-section-number">4</span> Extracting model results</h1>
-<p>After fitting a model, various results can be extracted or calculated from the fitted model using the function <code>STExtract</code>. This can be anything from a single result for one trait and one trial to a <code>list</code> of different results for all models in an <code>SSA</code> object. The results that can be extracted depend on the type of model fitted and sometimes on the modeling engine as well. For example, BLUEs can only extracted if genotype was fitted as fixed effect whereas BLUPs and heritabilities can only be extracted and calculated if genotype was fitted as random effect.</p>
+<p>After fitting a model, various results can be extracted or calculated from the fitted model using the function <code>extract</code>. This can be anything from a single result for one trait and one trial to a <code>list</code> of different results for all models in an <code>SSA</code> object. The results that can be extracted depend on the type of model fitted and sometimes on the modeling engine as well. For example, BLUEs can only extracted if genotype was fitted as fixed effect whereas BLUPs and heritabilities can only be extracted and calculated if genotype was fitted as random effect.</p>
 <div id="possible-results-to-extract" class="section level2">
 <h2><span class="header-section-number">4.1</span> Possible results to extract</h2>
-<p>All results that can be extracted are shown in the table below. The first column shows what model needs to be fitted in order to be able to extract the result. Here F stands for genotype as fixed effect and R for genotype as random effect. In the second column is the result. This is also the value to be used for the parameter <code>what</code> in <code>STExtract</code> needed to extract the corresponding result. The last column gives a short description of the result that will be extracted and, where needed, also states for which modeling engines it can be extracted.</p>
+<p>All results that can be extracted are shown in the table below. The first column shows what model needs to be fitted in order to be able to extract the result. Here F stands for genotype as fixed effect and R for genotype as random effect. In the second column is the result. This is also the value to be used for the parameter <code>what</code> in <code>extract</code> needed to extract the corresponding result. The last column gives a short description of the result that will be extracted and, where needed, also states for which modeling engines it can be extracted.</p>
 <table>
 <colgroup>
 <col width="6%"></col>
@@ -746,16 +746,16 @@ Fitting a model similar to the one above using asreml with BIC as goodness-of-fi
 <p>Using <code>what = &quot;all&quot;</code> in the function call, extracts all results possible for the fitted model. This is also the default.</p>
 <p>Below are some examples of extracting results from a fitted model. Recall that <code>modWheatSp</code> contains two fitted models, one with genotype as fixed effect and one with genotype as random effect.</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1"><span class="co">## Extract BLUEs</span></a>
-<a class="sourceLine" id="cb24-2" title="2">BLUEsWheat &lt;-<span class="st"> </span><span class="kw">STExtract</span>(<span class="dt">SSA =</span> modWheatSp, <span class="dt">what =</span> <span class="st">&quot;BLUEs&quot;</span>)</a>
+<a class="sourceLine" id="cb24-2" title="2">BLUEsWheat &lt;-<span class="st"> </span><span class="kw">extract</span>(<span class="dt">SSA =</span> modWheatSp, <span class="dt">what =</span> <span class="st">&quot;BLUEs&quot;</span>)</a>
 <a class="sourceLine" id="cb24-3" title="3"><span class="co">## Extract BLUEs and BLUPs</span></a>
-<a class="sourceLine" id="cb24-4" title="4">predWheat &lt;-<span class="st"> </span><span class="kw">STExtract</span>(<span class="dt">SSA =</span> modWheatSp, <span class="dt">what =</span> <span class="kw">c</span>(<span class="st">&quot;BLUEs&quot;</span>, <span class="st">&quot;BLUPs&quot;</span>))</a></code></pre></div>
+<a class="sourceLine" id="cb24-4" title="4">predWheat &lt;-<span class="st"> </span><span class="kw">extract</span>(<span class="dt">SSA =</span> modWheatSp, <span class="dt">what =</span> <span class="kw">c</span>(<span class="st">&quot;BLUEs&quot;</span>, <span class="st">&quot;BLUPs&quot;</span>))</a></code></pre></div>
 <p>Both <code>BLUEsWheat</code> and <code>predWheat</code> are a <code>list</code> with one item, the trial used for modeling. In general, when extracting results, there will be an item in the <code>list</code> for every trial for which results were extracted. These items are a <code>list</code> themselves with an item for every statistic that has been extracted, so one item for <code>BLUEsWheat</code>, a <code>data.frame</code> containing the BLUEs, and two for <code>predWheat</code>, the <code>data.frames</code> containing BLUEs and BLUPs respectively.</p>
 </div>
 <div id="adding-extra-variables" class="section level2">
 <h2><span class="header-section-number">4.2</span> Adding extra variables</h2>
-<p>The <code>data.frame</code> BLUEs in either of the <code>lists</code> consists of only two columns, genotype and GY. If the model would have been fitted for multiple traits all these traits would become columns in the <code>data.frame</code>. It might be useful to add extra columns from the data used to fit the model to the output. This can be achieved using the paramater <code>keep</code> in <code>STExtract</code>. To include the trial in the output, useful for easily combining several <code>data.frames</code> with BLUEs and using them for a GxE analysis, use the following command</p>
+<p>The <code>data.frame</code> BLUEs in either of the <code>lists</code> consists of only two columns, genotype and GY. If the model would have been fitted for multiple traits all these traits would become columns in the <code>data.frame</code>. It might be useful to add extra columns from the data used to fit the model to the output. This can be achieved using the paramater <code>keep</code> in <code>extract</code>. To include the trial in the output, useful for easily combining several <code>data.frames</code> with BLUEs and using them for a GxE analysis, use the following command</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="co">## Extract BLUEs from the fitted model.</span></a>
-<a class="sourceLine" id="cb25-2" title="2">BLUEsWheat2 &lt;-<span class="st"> </span><span class="kw">STExtract</span>(<span class="dt">SSA =</span> modWheatSp, <span class="dt">what =</span> <span class="st">&quot;BLUEs&quot;</span>, <span class="dt">keep =</span> <span class="st">&quot;trial&quot;</span>)</a>
+<a class="sourceLine" id="cb25-2" title="2">BLUEsWheat2 &lt;-<span class="st"> </span><span class="kw">extract</span>(<span class="dt">SSA =</span> modWheatSp, <span class="dt">what =</span> <span class="st">&quot;BLUEs&quot;</span>, <span class="dt">keep =</span> <span class="st">&quot;trial&quot;</span>)</a>
 <a class="sourceLine" id="cb25-3" title="3"><span class="kw">head</span>(BLUEsWheat2[[<span class="st">&quot;SR_FI_11&quot;</span>]]<span class="op">$</span>BLUEs)</a>
 <a class="sourceLine" id="cb25-4" title="4"><span class="co">#&gt;   genotype    trial       GY</span></a>
 <a class="sourceLine" id="cb25-5" title="5"><span class="co">#&gt; 1     G001 SR_FI_11 8828.678</span></a>
@@ -767,16 +767,15 @@ Fitting a model similar to the one above using asreml with BIC as goodness-of-fi
 <p>Not every column from the original <code>TD</code> object can be included in the extracted data in this way. Only columns for which the values are uniform per genotype can be included. For example, the column <code>repId</code> containing replicates, that has several different values for a single genotype, cannot be included. When trying to do so it will be dropped with a warning.<br />
 It is however possible to include <code>repId</code> when extracting fitted values, since for each observation in the original data a fitted value is computed.</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="co">## Extract fitted values from the model.</span></a>
-<a class="sourceLine" id="cb26-2" title="2">fitVals &lt;-<span class="st"> </span><span class="kw">STExtract</span>(<span class="dt">SSA =</span> modWheatSp, <span class="dt">what =</span> <span class="st">&quot;fitted&quot;</span>, </a>
-<a class="sourceLine" id="cb26-3" title="3">                     <span class="dt">keep =</span> <span class="kw">c</span>(<span class="st">&quot;trial&quot;</span>, <span class="st">&quot;repId&quot;</span>))</a>
-<a class="sourceLine" id="cb26-4" title="4"><span class="kw">head</span>(fitVals[[<span class="st">&quot;SR_FI_11&quot;</span>]]<span class="op">$</span>fitted)</a>
-<a class="sourceLine" id="cb26-5" title="5"><span class="co">#&gt;   repId genotype    trial       GY</span></a>
-<a class="sourceLine" id="cb26-6" title="6"><span class="co">#&gt; 1     1     G275 SR_FI_11 8234.353</span></a>
-<a class="sourceLine" id="cb26-7" title="7"><span class="co">#&gt; 2     1     G325 SR_FI_11 7660.984</span></a>
-<a class="sourceLine" id="cb26-8" title="8"><span class="co">#&gt; 3     1     G119 SR_FI_11 6675.174</span></a>
-<a class="sourceLine" id="cb26-9" title="9"><span class="co">#&gt; 4     1     G138 SR_FI_11 7638.940</span></a>
-<a class="sourceLine" id="cb26-10" title="10"><span class="co">#&gt; 5     1     G296 SR_FI_11 8409.450</span></a>
-<a class="sourceLine" id="cb26-11" title="11"><span class="co">#&gt; 6     1     G257 SR_FI_11 5556.333</span></a></code></pre></div>
+<a class="sourceLine" id="cb26-2" title="2">fitVals &lt;-<span class="st"> </span><span class="kw">extract</span>(<span class="dt">SSA =</span> modWheatSp, <span class="dt">what =</span> <span class="st">&quot;fitted&quot;</span>, <span class="dt">keep =</span> <span class="kw">c</span>(<span class="st">&quot;trial&quot;</span>, <span class="st">&quot;repId&quot;</span>))</a>
+<a class="sourceLine" id="cb26-3" title="3"><span class="kw">head</span>(fitVals[[<span class="st">&quot;SR_FI_11&quot;</span>]]<span class="op">$</span>fitted)</a>
+<a class="sourceLine" id="cb26-4" title="4"><span class="co">#&gt;   repId genotype    trial       GY</span></a>
+<a class="sourceLine" id="cb26-5" title="5"><span class="co">#&gt; 1     1     G275 SR_FI_11 8234.353</span></a>
+<a class="sourceLine" id="cb26-6" title="6"><span class="co">#&gt; 2     1     G325 SR_FI_11 7660.984</span></a>
+<a class="sourceLine" id="cb26-7" title="7"><span class="co">#&gt; 3     1     G119 SR_FI_11 6675.174</span></a>
+<a class="sourceLine" id="cb26-8" title="8"><span class="co">#&gt; 4     1     G138 SR_FI_11 7638.940</span></a>
+<a class="sourceLine" id="cb26-9" title="9"><span class="co">#&gt; 5     1     G296 SR_FI_11 8409.450</span></a>
+<a class="sourceLine" id="cb26-10" title="10"><span class="co">#&gt; 6     1     G257 SR_FI_11 5556.333</span></a></code></pre></div>
 </div>
 <div id="prepare-data-for-gxe-analysis" class="section level2">
 <h2><span class="header-section-number">4.3</span> Prepare data for GxE analysis</h2>

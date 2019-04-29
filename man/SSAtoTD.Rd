@@ -18,7 +18,7 @@ they will appear as \code{statistic_trait} in the output}
 TD object. If \code{NULL}, all traits are exported.}
 
 \item{keep}{Columns from the TD object used as input for the SSA model to
-be copied to the output. see \code{\link{STExtract}} for possible columns to
+be copied to the output. see \code{\link{extract}} for possible columns to
 copy. If if it is available in \code{TD}, the column \code{trial} will always
 be copied.}
 

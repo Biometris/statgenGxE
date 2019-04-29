@@ -1,4 +1,4 @@
-context("STExtract general options")
+context("extract general options")
 
 testTD <- createTD(data = testData[testData$field == "E1", ],
                    genotype = "seed", repId = "rep",
@@ -7,34 +7,32 @@ testTD <- createTD(data = testData[testData$field == "E1", ],
 
 modelLm <- fitTD(testTD, design = "rcbd", traits = "t1", engine = "lme4")
 test_that("option keep functions properly", {
-  expect_named(STExtract(modelLm, what = "BLUEs",
-                         keep = "field")[[1]][["BLUEs"]],
+  expect_named(extract(modelLm, what = "BLUEs", keep = "field")[[1]][["BLUEs"]],
                c("genotype", "field", "t1"))
-  expect_named(STExtract(modelLm, what = "fitted",
-                         keep = "repId")[[1]][["fitted"]],
+  expect_named(extract(modelLm, what = "fitted", keep = "repId")[[1]][["fitted"]],
                c("genotype", "repId", "t1"))
   ## Columns that have duplicate values should be dropped with a warning.
-  expect_warning(ext <- STExtract(modelLm, what = "BLUEs", keep = "checkId"),
+  expect_warning(ext <- extract(modelLm, what = "BLUEs", keep = "checkId"),
                  "Duplicate values for")
   expect_named(ext[[1]][["BLUEs"]], c("genotype", "t1"))
-  expect_warning(ext2 <- STExtract(modelLm, what = "BLUEs",
-                                   keep = c("field", "checkId")),
+  expect_warning(ext2 <- extract(modelLm, what = "BLUEs",
+                                 keep = c("field", "checkId")),
                  "Duplicate values for")
   expect_named(ext2[[1]][["BLUEs"]], c("genotype", "field", "t1"))
 })
 
 test_that("option restoreColNames functions properly", {
   ## Restoring original colnames should work with and without keeping columns.
-  expect_named(STExtract(modelLm, what = "BLUEs",
-                         restoreColNames = TRUE)[[1]][["BLUEs"]],
+  expect_named(extract(modelLm, what = "BLUEs",
+                       restoreColNames = TRUE)[[1]][["BLUEs"]],
                c("seed", "t1"))
-  expect_named(STExtract(modelLm, what = "BLUEs", keep = "field",
-                         restoreColNames = TRUE)[[1]][["BLUEs"]],
+  expect_named(extract(modelLm, what = "BLUEs", keep = "field",
+                       restoreColNames = TRUE)[[1]][["BLUEs"]],
                c("seed", "field", "t1"))
   ## Duplicate mappings are a potential problem.
-  expect_named(STExtract(modelLm, what = "fitted",
-                         keep = c("rowCoord", "rowId"),
-                         restoreColNames = TRUE)[[1]][["fitted"]],
+  expect_named(extract(modelLm, what = "fitted",
+                       keep = c("rowCoord", "rowId"),
+                       restoreColNames = TRUE)[[1]][["fitted"]],
                c("seed", "rep", "Y", "t1"))
 })
 

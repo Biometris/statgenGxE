@@ -84,9 +84,9 @@ outlierSSA <- function(SSA,
   }
   whatExt <- ifelse(what == "fixed", "stdRes", "stdResR")
   whatExtDf <- ifelse(what == "fixed", "rDf", "rDfR")
-  stdRes <- STExtract(SSA, trials = trial, traits = traits,
+  stdRes <- extract(SSA, trials = trial, traits = traits,
                       what = whatExt)[[trial]][[whatExt]]
-  rDf <- STExtract(SSA, trials = trial, traits = traits,
+  rDf <- extract(SSA, trials = trial, traits = traits,
                    what = whatExtDf)[[trial]][[whatExtDf]]
   ## Create empty data.frame for storing results.
   indicator <- data.frame(matrix(data = FALSE,

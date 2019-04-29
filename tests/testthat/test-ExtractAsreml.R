@@ -9,14 +9,14 @@ if (requireNamespace("asreml", quietly = TRUE)) {
   modelAs <- fitTD(testTD, design = "res.ibd", traits = "t1", engine = "asreml")
 
   test_that("the output of extract is of the proper type - asreml", {
-    expect_is(STExtract(modelAs, what = "BLUEs"), "list")
-    expect_is(STExtract(modelAs), "list")
-    expect_length(STExtract(modelAs)[[1]], 23)
-    expect_is(STExtract(modelAs, what = c("BLUEs", "BLUPs")), "list")
-    expect_length(STExtract(modelAs, what = c("BLUEs", "BLUPs"))[[1]], 2)
+    expect_is(extract(modelAs, what = "BLUEs"), "list")
+    expect_is(extract(modelAs), "list")
+    expect_length(extract(modelAs)[[1]], 23)
+    expect_is(extract(modelAs, what = c("BLUEs", "BLUPs")), "list")
+    expect_length(extract(modelAs, what = c("BLUEs", "BLUPs"))[[1]], 2)
   })
 
-  extAs <- STExtract(modelAs)[[1]]
+  extAs <- extract(modelAs)[[1]]
   test_that("BLUEs are computed correctly", {
     expect_is(extAs$BLUEs, "data.frame")
     expect_identical(dim(extAs$BLUEs), c(15L, 2L))

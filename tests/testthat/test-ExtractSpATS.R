@@ -7,14 +7,14 @@ testTD <- createTD(data = testData[testData$field == "E1", ],
 modelSp <- fitTD(testTD, design = "rowcol", traits = "t1")
 
 test_that("the output of extract is of the proper type", {
-  expect_is(STExtract(modelSp, what = "BLUEs"), "list")
-  expect_is(STExtract(modelSp), "list")
-  expect_length(STExtract(modelSp)[[1]], 20)
-  expect_is(STExtract(modelSp, what = c("BLUEs", "BLUPs")), "list")
-  expect_length(STExtract(modelSp, what = c("BLUEs", "BLUPs"))[[1]], 2)
+  expect_is(extract(modelSp, what = "BLUEs"), "list")
+  expect_is(extract(modelSp), "list")
+  expect_length(extract(modelSp)[[1]], 20)
+  expect_is(extract(modelSp, what = c("BLUEs", "BLUPs")), "list")
+  expect_length(extract(modelSp, what = c("BLUEs", "BLUPs"))[[1]], 2)
 })
 
-extSp <- STExtract(modelSp)[[1]]
+extSp <- extract(modelSp)[[1]]
 test_that("BLUEs are computed correctly", {
   expect_is(extSp$BLUEs, "data.frame")
   expect_identical(dim(extSp$BLUEs), c(15L, 2L))

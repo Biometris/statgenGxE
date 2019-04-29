@@ -128,19 +128,18 @@ plot(modWheatSp, plotType = "spatial")
 
 ## ----extBLUEs------------------------------------------------------------
 ## Extract BLUEs
-BLUEsWheat <- STExtract(SSA = modWheatSp, what = "BLUEs")
+BLUEsWheat <- extract(SSA = modWheatSp, what = "BLUEs")
 ## Extract BLUEs and BLUPs
-predWheat <- STExtract(SSA = modWheatSp, what = c("BLUEs", "BLUPs"))
+predWheat <- extract(SSA = modWheatSp, what = c("BLUEs", "BLUPs"))
 
 ## ----extBLUEsKeep--------------------------------------------------------
 ## Extract BLUEs from the fitted model.
-BLUEsWheat2 <- STExtract(SSA = modWheatSp, what = "BLUEs", keep = "trial")
+BLUEsWheat2 <- extract(SSA = modWheatSp, what = "BLUEs", keep = "trial")
 head(BLUEsWheat2[["SR_FI_11"]]$BLUEs)
 
 ## ----extFit--------------------------------------------------------------
 ## Extract fitted values from the model.
-fitVals <- STExtract(SSA = modWheatSp, what = "fitted", 
-                     keep = c("trial", "repId"))
+fitVals <- extract(SSA = modWheatSp, what = "fitted", keep = c("trial", "repId"))
 head(fitVals[["SR_FI_11"]]$fitted)
 
 ## ----SSAtoTD, message=FALSE----------------------------------------------
