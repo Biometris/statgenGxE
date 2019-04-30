@@ -29,12 +29,11 @@ supprWarn <- function(expression,
 
 #' Helper function for checking whether error message about 1% change on
 #' last iteration for asreml is worth mentioning as a warning.
-#' If the corresponding parameter is close to zero and then changes off 1%
-#' or more can be expected an are ok.
+#' If the corresponding parameter is close to zero and then changes of 1%
+#' or more can be expected and are ok.
 #' @keywords internal
 chkLastIter <- function(model) {
-  wrnMsg <- paste("At least one parameter changed by more than 1%",
-                  "on the last iteration")
+  wrnMsg <- "changed by more than 1%"
   if (any(grepl(pattern = wrnMsg, x = model$warning))) {
     ## EXtract monitor df from model object.
     mon <- model$value$monitor
@@ -390,24 +389,29 @@ escapeLatex = function(x, newlines = FALSE, spaces = FALSE) {
 }
 
 # Vectors for renaming columns in varcomp and effdim tables.
-renameFrom <- c("genotype", "repId", "rowId", "colId", "subBlock",
-                "repId:rowId", "repId:colId", "repId:subBlock",
-                "colCoord", "rowCoord", "rowCoordcolCoord",
-                "f(colCoord)", "f(rowCoord)",
-                "f(colCoord):rowCoord",
-                "colCoord:f(rowCoord)",
-                "f(colCoord):f(rowCoord)", "Nobs", "R", "variance",
-                "pow", "units")
-renameTo <- c("Genotype", "Replicate", "Row", "Col", "Block",
-              "Row(replicate)", "Col(replicate)", "Block(replicate)",
-              "Linear trend along cols", "Linear trend along rows",
-              "Linear trend along rows and cols",
-              "Smooth trend along cols", "Smooth trend along rows",
-              "Linear trend in rows changing smoothly along cols",
-              "Linear trend in cols changing smoothly along rows",
-              "Smooth-by-smooth interaction trend over rows and cols",
-              "Number of observations", "Residual", "Residual", "Power",
-              "Units")
+renameVars <- data.frame(renameFrom = c("genotype", "repId", "rowId", "colId",
+                                        "subBlock", "repId:rowId",
+                                        "repId:colId", "repId:subBlock",
+                                        "colCoord", "rowCoord",
+                                        "rowCoordcolCoord", "f(colCoord)",
+                                        "f(rowCoord)", "f(colCoord):rowCoord",
+                                        "colCoord:f(rowCoord)",
+                                        "f(colCoord):f(rowCoord)", "Nobs", "R",
+                                        "variance", "pow", "units"),
+                         renameTo = c("Genotype", "Replicate", "Row", "Col",
+                                      "Block", "Row(replicate)",
+                                      "Col(replicate)", "Block(replicate)",
+                                      "Linear trend along cols",
+                                      "Linear trend along rows",
+                                      "Linear trend along rows and cols",
+                                      "Smooth trend along cols",
+                                      "Smooth trend along rows",
+                                      "Linear trend in rows changing smoothly along cols",
+                                      "Linear trend in cols changing smoothly along rows",
+                                      "Smooth-by-smooth interaction trend over rows and cols",
+                                      "Number of observations",
+                                      "Residual", "Residual", "Power",
+                                      "Units"), stringsAsFactors = FALSE)
 
 #' Function for extracting the table with variance components from a model in
 #' a nicely printable format.
@@ -455,8 +459,9 @@ extractVarComp <- function(model,
     colnames(varComp) <- c("Variance", "SE")
   }
   ## Rename rows for more user readable output.
-  for (j in seq_along(renameFrom)) {
-    rownames(varComp)[rownames(varComp) == renameFrom[j]] <- renameTo[j]
+  for (i in seq_along(renameVars[["renameFrom"]])) {
+    rownames(varComp)[rownames(varComp) == renameVars[["renameFrom"]][i]] <-
+      renameVars[["renameTo"]][i]
   }
   ## Always put genotype as first row.
   if ("Genotype" %in% rownames(varComp)) {
@@ -466,7 +471,7 @@ extractVarComp <- function(model,
   ## Add an empty row before residuals if it is not already there.
   ## Only done if there is more than 1 row.
   resRow <- which(rownames(varComp) == "Residual")
-  if (nrow(varComp) > 1 && rownames(varComp)[resRow - 1] != "") {
+  if (length(resRow) && nrow(varComp) > 1 && rownames(varComp)[resRow - 1] != "") {
     varComp <- rbind(varComp[1:(resRow - 1), , drop = FALSE],
                      rep(NA, times = ncol(varComp)),
                      varComp[resRow:nrow(varComp), , drop = FALSE])
@@ -555,7 +560,7 @@ calcPlotBorders <- function(trDat,
 mapData <- function(xLim,
                     yLim) {
   mapObj <- maps::map("world", exact = FALSE, plot = FALSE,
-                       fill = TRUE, xlim = xLim, ylim = yLim)
+                      fill = TRUE, xlim = xLim, ylim = yLim)
   df <- data.frame(long = mapObj$x, lat = mapObj$y)
   df$group <- cumsum(is.na(df$long) & is.na(df$lat)) + 1
   df$order <- 1:nrow(df)
@@ -565,3 +570,19 @@ mapData <- function(xLim,
   df$subregion <- names[df$group, 2]
   return(df[stats::complete.cases(df$lat, df$long), ])
 }
+
+## The syntax for asreml4 differs from asreml3.
+## This helper function is for detecting if the version is 4 or higher.
+#' @importFrom utils packageVersion
+asreml4 <- function() {
+  if (requireNamespace("asreml", quietly = TRUE)) {
+    if (packageVersion("asreml") >= 4) {
+      ## Calling license status apparently also activates the license if this
+      ## was done once before.
+      asreml::asreml.license.status()
+      return(TRUE)
+    }
+    return(FALSE)
+  }
+}
+

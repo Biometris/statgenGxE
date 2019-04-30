@@ -5,8 +5,8 @@ testTD <- createTD(data = testData, trial = "field",
                    genotype = "seed", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",
                    rowCoord = "Y", colCoord = "X")
-modelLm <- STRunModel(testTD, trials = "E1", design = "rowcol",
-                      traits = paste0("t", 1:4), engine = "lme4")
+modelLm <- fitTD(testTD, trials = "E1", design = "rowcol",
+                 traits = paste0("t", 1:4), engine = "lme4")
 
 test_that("outliersSSA functions properly", {
   out1 <- outlierSSA(modelLm, trial = "E1", traits = "t1", verbose = FALSE)

@@ -13,7 +13,7 @@
 #' \item{traits}{A character vector indicating the traits for which the analysis
 #' is done.}
 #' \item{design}{A character string containing the design of the trial.
-#' (see \code{\link{STRunModel}} for the possible designs).}
+#' (see \code{\link{fitTD}} for the possible designs).}
 #' \item{spatial}{A character string indicating the spatial part of the model.
 #' \code{FALSE} if no spatial design has been used.}
 #' \item{engine}{A character string containing the engine used for the
@@ -62,7 +62,7 @@ createSSA <- function(models) {
 #'
 #' @examples
 #' ## Run a single trait analysis using SpATS.
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+#' myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 #' ## Print a summary of the fitted model.
 #' summary(myModel)
 #'
@@ -127,9 +127,9 @@ summary.SSA <- function(object,
     }
     stats <- summary.TD(object = TD, traits = trait)
     ## get predicted means (BLUEs + BLUPs).
-    extr <- STExtract(object, trials = trials, traits = trait)[[trials]]
+    extr <- extract(object, trials = trials, traits = trait)[[trials]]
     ## Merge results using a loop to avoid warnings over suffixes caused by
-    ## merge when using using Reduce.
+    ## merge when using Reduce.
     joinList <- Filter(f = Negate(f = is.null),
                        x = extr[c("BLUEs", "seBLUEs", "BLUPs", "seBLUPs")])
     meanTab <- joinList[[1]]
@@ -271,7 +271,7 @@ print.summary.SSA <- function(x,
 #'
 #' @examples
 #' ## Run a single trait analysis using SpATS.
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+#' myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield")
 #' ## Create base plots.
 #' plot(myModel, what = "fixed", plotType = "base")
 #' ## Create spatial plots.
@@ -361,13 +361,13 @@ plot.SSA <- function(x,
       }
       predicted <- x[[trial]]$predicted
       ## Extract fitted and predicted values from model.
-      fitted <- STExtract(x, trials = trial, traits = trait,
-                          what = ifelse(what == "fixed", "fitted", "rMeans"),
-                          keep = mergeCols)[[trial]][[ifelse(what == "fixed",
-                                                   "fitted", "rMeans")]]
+      fitted <- extract(x, trials = trial, traits = trait,
+                        what = ifelse(what == "fixed", "fitted", "rMeans"),
+                        keep = mergeCols)[[trial]][[ifelse(what == "fixed",
+                                                           "fitted", "rMeans")]]
       predType <- ifelse(what == "fixed", "BLUEs", "BLUPs")
-      pred <- STExtract(x, trials = trial, traits = trait,
-                        what = predType)[[trial]][[predType]][c(predicted, trait)]
+      pred <- extract(x, trials = trial, traits = trait,
+                      what = predType)[[trial]][[predType]][c(predicted, trait)]
       ## Extract raw data and compute residuals.
       response <- x[[trial]]$TD[[trial]][, c(predicted, trait, mergeCols)]
       ## Create plot data by merging extracted data together and renaming some
@@ -571,7 +571,7 @@ fieldPlot <- function(plotDat,
 #'
 #' @examples
 #' ## Fit model using lme4.
-#' myModel1 <- STRunModel(TD = TDHeat05, design = "ibd", traits = "yield")
+#' myModel1 <- fitTD(TD = TDHeat05, design = "ibd", traits = "yield")
 #' \dontrun{
 #' ## Create a pdf report summarizing the results for the model with genotype
 #' ## as fixed factor.
@@ -595,22 +595,23 @@ report.SSA <- function(x,
     stop("No trial provided but multiple trials found in SSA object.\n")
   }
   if (!is.null(trial) && (!is.character(trial) || length(trial) > 1 ||
-                          !trial %in% names(x))) {
+                          !hasName(x = x, name = trial))) {
     stop("Trial has to be a single character string defining a trial in SSA.\n")
   }
   if (is.null(trial)) {
     trial <- names(x)
   }
-  if (is.null(trait) && length(x[[trial]]$traits) > 1) {
+  if (is.null(trait) && length(x[[trial]][["traits"]]) > 1) {
     stop("No trait provided but multiple traits found.\n")
   }
   if (!is.null(trait) && (!is.character(trait) || length(trait) > 1 ||
-                          !trait %in% colnames(x[[trial]]$TD[[trial]]))) {
-    stop("Trait has to be a single character string defining a column in TD.\n")
+                          !trait %in% x[[trial]][["traits"]])) {
+    stop(paste("Trait has to be a single character string defining a trait",
+               "for which a model was fitted.\n"))
   }
   ## If no trait is given as input extract it from the SSA object.
   if (is.null(trait)) {
-    trait <- x[[trial]]$traits
+    trait <- x[[trial]][["traits"]]
   }
   what <- match.arg(what)
   if (is.null(x[[trial]]$mFix)) {
@@ -618,13 +619,6 @@ report.SSA <- function(x,
   }
   if (is.null(x[[trial]]$mRand)) {
     what <- "fixed"
-  }
-  if (is.null(what) && !is.null(x[[trial]]$mFix) &&
-      !is.null(x[[trial]]$mRand)) {
-    warning("Model contains both a fitted model with fixed genotype and random
-            genotype. Reporting can be done for only one. By default the model with
-            genotype fixed is reported. Use option 'what' for changing this.\n",
-            call. = FALSE)
   }
   if (what == "fixed") {
     x[[trial]]$mRand <- NULL
@@ -672,7 +666,7 @@ report.SSA <- function(x,
 #'
 #' @examples
 #' ## Run model using SpATS.
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+#' myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                       what = "fixed")
 #' ## Create cross object with BLUEs from myModel using genotypic information
 #' ## from markers.csv in the package.
@@ -713,7 +707,7 @@ SSAtoCross <- function(SSA,
     stop("genoFile is not a valid filename.\n")
   }
   ## Extract predictions from the model.
-  pred <- STExtract(SSA, traits = traits, what = what)[[trial]][[what]]
+  pred <- extract(SSA, traits = traits, what = what)[[trial]][[what]]
   ## Rename first column to match first column in genoFile.
   colnames(pred)[1] <- colnames(utils::read.csv(genoFile, nrow = 1))[1]
   ## Write predictions to temporary file.
@@ -749,7 +743,7 @@ SSAtoCross <- function(SSA,
 #' @param traits A character string containing the traits to be included in the
 #' TD object. If \code{NULL}, all traits are exported.
 #' @param keep Columns from the TD object used as input for the SSA model to
-#' be copied to the output. see \code{\link{STExtract}} for possible columns to
+#' be copied to the output. see \code{\link{extract}} for possible columns to
 #' copy. If if it is available in \code{TD}, the column \code{trial} will always
 #' be copied.
 #' @param addWt Should a column wt be added to the output? If \code{TRUE}
@@ -759,7 +753,7 @@ SSAtoCross <- function(SSA,
 #'
 #' @examples
 #' ## Run model using SpATS.
-#' myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+#' myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield",
 #'                       what = "fixed")
 #' ## Create TD object from the fitted model.
 #' myTD <- SSAtoTD(myModel)
@@ -816,7 +810,7 @@ SSAtoTD <- function(SSA,
   predTrTot <- lapply(X = names(SSA), FUN = function(trial) {
     ## Extract predictions from the model.
     predLst <- unlist(lapply(X = traits, FUN = function(trait) {
-      STExtract(SSA, trials = trial, traits = trait, what = what, keep = keep)
+      extract(SSA, trials = trial, traits = trait, what = what, keep = keep)
     }), recursive = FALSE)
     if (length(what) + addWt > 1) {
       ## Rename columns if more than one column per trait will appear in the

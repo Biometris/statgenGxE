@@ -241,19 +241,19 @@ plot(wheatTD, plotType = "cor", traits = "GY")
 # Modeling
 
 After creating a `TD` object, a model can be fitted on the trial data. This is done 
-using the function `STRunModel`. Depending on the design of the trial several 
+using the function `fitTD`. Depending on the design of the trial several 
 different models can be fitted. The design can be given as a parameter in the 
 function or included in the meta data of the `TD` object. In the former case the 
 same model will be fitted for all trials, in the latter different models can be 
 fitted for different trials depending on the design. If both are available the 
 function parameter will always be leading. 
 
-The output of `STRunModel` is an object of class `SSA` (Single Site Analysis), a
+The output of `fitTD` is an object of class `SSA` (Single Site Analysis), a
 `list` of fitted models with one item for each trial the model was fitted for. 
 
 ## Model types
 
-`STRunModel` uses three different engines for fitting the models, namely
+`fitTD` uses three different engines for fitting the models, namely
 SpATS [@RodAlv2017], lme4 [@Bates2015] and asreml [@Gilmour2009]. For models 
 with row column or resolvable row column design, SpATS is the default engine, 
 for the other models lme4. This can always be overruled by specifying the function 
@@ -284,8 +284,8 @@ of the trial a resolvable row column design is assumed. Since `engine` is not
 supplied as a parameter SpATS is used for fitting the model.
 ```{r fitSp, message=FALSE}
 ## Fit a single trial model.
-modWheatSp <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                         design = "res.rowcol")
+modWheatSp <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                    design = "res.rowcol")
 ```
 Note that by not supplying the `what` argument to the function, two models are
 fitted, one with genotype as a fixed effect and one with genotype as a 
@@ -296,8 +296,8 @@ fitting only one so when fitting models on large datasets it is sensible to use
 `what` if only a subset of the results are needed as output.
 ```{r fitSpSm, message=FALSE}
 ## Fit a single trial model with genotype as random effect.
-modWheatSp2 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                          what = "random", design = "res.rowcol")
+modWheatSp2 <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                     what = "random", design = "res.rowcol")
 ```
 
 ## Spatial models
@@ -307,30 +307,29 @@ component is always included in the model. This spatial component is composed
 using the `PSANOVA` function in the SpATS package which uses 2-dimensional 
 smoothing with P-splines as described in @Lee2013 and in @RodAlv2017. See `help(PSANOVA, SpATS)`
 for a detailed description. The parameters `nseg` and `nest.div` of `PSANOVA` 
-can be modified using the `control` parameter in `STRunModel`.  
+can be modified using the `control` parameter in `fitTD`.  
 Refitting the model in the previous section specifying the number of segments
 for both rows and columns as 20 works as follows
 ```{r fitSpCtr, message=FALSE}
 ## Fit a spatial single trial model using SpATS. 
 ## Manually specify the number of segments for rows and columns.
-modWheatSp3 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                          design = "res.rowcol", 
-                          control = list(nSeg = c(20, 20)))
+modWheatSp3 <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                     design = "res.rowcol", control = list(nSeg = c(20, 20)))
 ```
 
 Alternatively, spatial models can be fitted using asreml as modeling engine 
 and setting the parameter `trySpatial = TRUE`. In this case seven models are fitted 
 and the best model, based on a goodness-of-fit criterion, either AIC or BIC, is 
-chosen. For a full specification of the models fitted see `help(STRunModel)`. 
-The criterion to be used can be specified using the `control` parameter in `STRunModel`.  
+chosen. For a full specification of the models fitted see `help(fitTD)`. 
+The criterion to be used can be specified using the `control` parameter in `fitTD`.  
 Fitting a model similar to the one above using asreml with BIC as 
 goodness-of-fit criterion works as follows
 ```{r fitAs, message=FALSE, results='hide'}
 if (requireNamespace("asreml", quietly = TRUE)) {
   ## Fit a spatial single trial model using asreml.
-  modWheatAs <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                           design = "res.rowcol", trySpatial = TRUE,
-                           engine = "asreml", control = list(criterion = "BIC"))
+  modWheatAs <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                      design = "res.rowcol", trySpatial = TRUE,
+                      engine = "asreml", control = list(criterion = "BIC"))
 }
 ```
 The fitted models and the best model are stored in the output together with a summary
@@ -403,7 +402,7 @@ which the report should be made.
 # Extracting model results
 
 After fitting a model, various results can be extracted or calculated from the 
-fitted model using the function `STExtract`. This can be anything from a single 
+fitted model using the function `extract`. This can be anything from a single 
 result for one trait and one trial to a `list` of different results for all models 
 in an `SSA` object. The results that can be extracted depend on the type of 
 model fitted and sometimes on the modeling engine as well. For example, BLUEs 
@@ -415,7 +414,7 @@ All results that can be extracted are shown in the table below. The first column
 shows what model needs to be fitted in order to be able to extract the result.
 Here F stands for genotype as fixed effect and R for genotype as random effect. In the 
 second column is the result. This is also the value to be used for the parameter
-`what` in `STExtract` needed to extract the corresponding result. The last 
+`what` in `extract` needed to extract the corresponding result. The last 
 column gives a short description of the result that will be extracted and, where
 needed, also states for which modeling engines it can be extracted.
 
@@ -451,9 +450,9 @@ fitted model. This is also the default.
 Below are some examples of extracting results from a fitted model. Recall that `modWheatSp` contains two fitted models, one with genotype as fixed effect and one with genotype as random effect.
 ```{r extBLUEs}
 ## Extract BLUEs
-BLUEsWheat <- STExtract(SSA = modWheatSp, what = "BLUEs")
+BLUEsWheat <- extract(SSA = modWheatSp, what = "BLUEs")
 ## Extract BLUEs and BLUPs
-predWheat <- STExtract(SSA = modWheatSp, what = c("BLUEs", "BLUPs"))
+predWheat <- extract(SSA = modWheatSp, what = c("BLUEs", "BLUPs"))
 ```
 Both `BLUEsWheat` and `predWheat` are a `list` with one item, the trial used for
 modeling. In general, when extracting results, there will be an item in the `list` for every trial for which results were extracted. These items are a `list` themselves with an item for every statistic that has been extracted, so one item for `BLUEsWheat`, a `data.frame` containing the BLUEs, and two for `predWheat`, the `data.frames` containing BLUEs and BLUPs respectively. 
@@ -464,12 +463,12 @@ The `data.frame` BLUEs in either of the `lists` consists of only two columns,
 genotype and GY. If the model would have been fitted for multiple traits all 
 these traits would become columns in the `data.frame`. It might be useful to add
 extra columns from the data used to fit the model to the output. This can be 
-achieved using the paramater `keep` in `STExtract`. To include the trial in the 
+achieved using the paramater `keep` in `extract`. To include the trial in the 
 output, useful for easily combining several `data.frames` with BLUEs and using
 them for a GxE analysis, use the following command
 ```{r extBLUEsKeep}
 ## Extract BLUEs from the fitted model.
-BLUEsWheat2 <- STExtract(SSA = modWheatSp, what = "BLUEs", keep = "trial")
+BLUEsWheat2 <- extract(SSA = modWheatSp, what = "BLUEs", keep = "trial")
 head(BLUEsWheat2[["SR_FI_11"]]$BLUEs)
 ```
 Not every column from the original `TD` object can be included in the extracted 
@@ -480,8 +479,7 @@ It is however possible to include `repId` when extracting fitted values, since
 for each observation in the original data a fitted value is computed. 
 ```{r extFit}
 ## Extract fitted values from the model.
-fitVals <- STExtract(SSA = modWheatSp, what = "fitted", 
-                     keep = c("trial", "repId"))
+fitVals <- extract(SSA = modWheatSp, what = "fitted", keep = c("trial", "repId"))
 head(fitVals[["SR_FI_11"]]$fitted)
 ```
 
@@ -493,8 +491,8 @@ creates a `TD` object from a fitted model outputting one or more of the followin
 BLUEs, standard errors of BLUEs, BLUPs and standard errors of BLUPs. Optionally, a column `wt` with weights (calculated as $(1 / seBLUEs)^2$) can be added as well. In the same way as described in the previous section extra columns can be added to the output using the parameter `keep`. 
 ```{r SSAtoTD, message=FALSE}
 ## Fit a model for all trials with genotype as fixed factor.
-modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", 
-                            design = "res.rowcol")
+modWheatSpTot <- fitTD(TD = wheatTD, traits = "GY", what = "fixed", 
+                       design = "res.rowcol")
 ## Create a TD object containing BLUEs and standard errors of BLUEs.
 TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
 ## Add weights to the output.

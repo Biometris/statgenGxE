@@ -47,7 +47,7 @@ package.
 }
 \examples{
 ## Run model using SpATS.
-myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield",
                       what = "fixed")
 ## Create cross object with BLUEs from myModel using genotypic information
 ## from markers.csv in the package.

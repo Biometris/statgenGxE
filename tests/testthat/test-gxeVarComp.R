@@ -4,8 +4,8 @@ testTD <- createTD(data = testData, genotype = "seed",
                    trial = "field", repId = "rep",
                    subBlock = "block", rowId = "Y", colId = "X",
                    rowCoord = "Y", colCoord = "X")
-modelSp <- STRunModel(testTD, design = "rowcol",
-                      traits = c("t1", "t2", "t3", "t4"))
+modelSp <- fitTD(testTD, design = "rowcol",
+                    traits = c("t1", "t2", "t3", "t4"))
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
 geVCLm <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "lme4")
@@ -23,7 +23,7 @@ if (requireNamespace("asreml", quietly = TRUE)) {
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
 }
 test_that("output is of the right class for asreml", {
-  testthat::skip_on_cran()
+  skip_on_cran()
   expect_is(geVCAs, "varComp")
   expect_is(geVCAs$SSA, "SSA")
   expect_is(geVCAs$choice, "character")
@@ -34,7 +34,7 @@ test_that("output is of the right class for asreml", {
 })
 
 test_that("asreml model gives correct output", {
-  testthat::skip_on_cran()
+  skip_on_cran()
   summAs <- geVCAs$summary
   expect_equal(geVCAs$choice, "identity")
   expect_equal(rownames(summAs),
@@ -75,11 +75,33 @@ test_that("lme4 model gives correct output", {
 })
 
 test_that("option criterion works properly", {
-  testthat::skip_on_cran()
+  skip_on_cran()
   geVCAsA <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml",
                         criterion = "AIC")
   expect_identical(geVCAs$summary[, "BIC"],
                    geVCAs$summary[, "BIC"][order(geVCAs$summary[, "BIC"])])
   expect_identical(geVCAsA$summary[, "AIC"],
                    geVCAsA$summary[, "AIC"][order(geVCAsA$summary[, "AIC"])])
+})
+
+testTD2 <- createTD(data = wheatChl[wheatChl$trt %in% paste0("G", 100:109), ],
+                    genotype = "trt", repId = "rep",
+                    rowCoord = "row", colCoord = "col")
+modelSp2 <- fitTD(testTD2, design = "rowcol", traits = "GY")
+BLUEs2 <- SSAtoTD(modelSp2, what = c("BLUEs", "seBLUEs"), addWt = TRUE)
+test_that("models for fa and fa2 are fitted when #trials >= 5", {
+  skip_on_cran()
+  geVC <- gxeVarComp(TD = BLUEs2, trait = "BLUEs_GY", engine = "asreml")
+  expect_equal(rownames(geVC$summary),
+               c("outside", "cs", "identity", "diagonal", "unstructured", "fa",
+                 "hcs", "fa2"))
+})
+
+test_that("options useWT functions properly", {
+  skip_on_cran()
+  geVC <- gxeVarComp(TD = BLUEs2, trait = "BLUEs_GY", useWt = TRUE,
+                     engine = "asreml")
+  expect_equal(rownames(geVC$summary),
+               c("outside", "cs", "identity", "diagonal", "unstructured", "fa",
+                 "hcs", "fa2"))
 })

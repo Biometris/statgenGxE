@@ -2,22 +2,22 @@
 #'
 #' Fit Single Trial Model using SpATS
 #'
-#' @inheritParams STRunModel
+#' @inheritParams fitTD
 #'
-#' @seealso \code{\link{STRunModel}}
+#' @seealso \code{\link{fitTD}}
 #'
 #' @keywords internal
-STModSpATS <- function(TD,
-                       trial = NULL,
-                       traits,
-                       what = c("fixed", "random"),
-                       covariates = NULL,
-                       useCheckId = FALSE,
-                       trySpatial = FALSE,
-                       design = "rowcol",
-                       control = NULL,
-                       checks = TRUE,
-                       ...) {
+fitTDSpATS <- function(TD,
+                        trial = NULL,
+                        traits,
+                        what = c("fixed", "random"),
+                        covariates = NULL,
+                        useCheckId = FALSE,
+                        trySpatial = FALSE,
+                        design = "rowcol",
+                        control = NULL,
+                        checks = TRUE,
+                        ...) {
   ## Base check.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")

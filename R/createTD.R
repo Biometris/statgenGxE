@@ -372,10 +372,22 @@ summary.TD <- function(object,
                          c("nObs", "nMiss", "mean", "median", "min", "max",
                            "lowerQ", "upperQ", "var")
                        }) {
-  allWhat <- c("nVals", "nObs", "nMiss", "mean", "median", "min",
-               "max", "range", "lowerQ", "upperQ", "sd", "seMean",
-               "var", "seVar", "CV", "sum", "sumSq", "uncorSumSq",
-               "skew", "seSkew", "kurt", "seKurt")
+  allStat <- data.frame(stat = c("nVals", "nObs", "nMiss", "mean", "median",
+                                 "min","max", "range", "lowerQ", "upperQ", "sd",
+                                 "seMean", "var", "seVar", "CV", "sum", "sumSq",
+                                 "uncorSumSq", "skew", "seSkew", "kurt",
+                                 "seKurt"),
+                        name = c("Number of values", "Number of observations",
+                                 "Number of missing values", "Mean", "Median",
+                                 "Min", "Max", "Range", "Lower quartile",
+                                 "Upper quartile", "Standard deviation",
+                                 "Standard error of mean", "Variance",
+                                 "Standard error of variance",
+                                 "Coefficient of variation", "Sum of values",
+                                 "Sum of squares", "Uncorrected sum of squares",
+                                 "Skewness", "Standard Error of Skewness",
+                                 "Kurtosis", "Standard Error of Kurtosis"),
+                        stringsAsFactors = FALSE)
   ## Checks.
   if (!is.character(trial) || length(trial) > 1 ||
       !hasName(x = object, name = trial)) {
@@ -392,12 +404,13 @@ summary.TD <- function(object,
                "a column in trial"))
   }
   if (what[[1]] == "all") {
-    what <- allWhat
+    what <- allStat[["stat"]]
   }
-  if (!is.character(what) || !all(what %in% allWhat)) {
+  if (!is.character(what) || all(!what %in% allStat[["stat"]])) {
     stop("At least one statistic should be chosen.\n")
   }
-  whichWhat <- which(allWhat %in% what)
+  whichStat <- which(allStat[["stat"]] %in% what)
+  what <- allStat[whichStat, "stat"]
   if (!is.null(groupBy)) {
     groups <- unique(trDat[[groupBy]])
   } else {
@@ -482,16 +495,8 @@ summary.TD <- function(object,
       }
     }
   }
-  rownames(stats) <- c("Number of values", "Number of observations",
-                       "Number of missing values", "Mean", "Median", "Min",
-                       "Max", "Range", "Lower quartile", "Upper quartile",
-                       "Standard deviation", "Standard error of mean",
-                       "Variance", "Standard error of variance",
-                       "Coefficient of variation", "Sum of values",
-                       "Sum of squares", "Uncorrected sum of squares",
-                       "Skewness", "Standard Error of Skewness", "Kurtosis",
-                       "Standard Error of Kurtosis")[whichWhat]
-  attr(x = stats, which = "whichWhat") <- whichWhat
+  rownames(stats) <- allStat[whichStat, "name"]
+  attr(x = stats, which = "whichStat") <- whichStat
   return(structure(stats,
                    class = c("summary.TD", "array"),
                    trial = trial,
@@ -500,11 +505,11 @@ summary.TD <- function(object,
 
 #' @export
 print.summary.TD <- function(x, ...) {
-  whichWhat <- attr(x, "whichWhat")
+  whichStat <- attr(x, "whichStat")
   groupBy  <- attr(x, "group")
   decimals <- c(rep(x = 0, times = 3), rep(x = 2, times = 7),
                 rep(x = 3, times = 5), rep(x = 2, times = 3),
-                rep(x = 3, times = 4))[whichWhat]
+                rep(x = 3, times = 4))[whichStat]
   xPrint <- x
   for (i in seq_along(decimals)) {
     xPrint[i, , ] <- format(x[i, , ], digits = decimals[i], nsmall = decimals[i])

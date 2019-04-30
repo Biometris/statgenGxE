@@ -17,7 +17,7 @@ createSSA(models)
 \item{traits}{A character vector indicating the traits for which the analysis
 is done.}
 \item{design}{A character string containing the design of the trial.
-(see \code{\link{STRunModel}} for the possible designs).}
+(see \code{\link{fitTD}} for the possible designs).}
 \item{spatial}{A character string indicating the spatial part of the model.
 \code{FALSE} if no spatial design has been used.}
 \item{engine}{A character string containing the engine used for the

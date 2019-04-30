@@ -5,17 +5,17 @@ testTD <- createTD(data = testData[testData$field == "E1", ],
                    subBlock = "block", rowId = "Y", colId = "X",
                    rowCoord = "Y", colCoord = "X")
 
-modelLm <- STRunModel(testTD, design = "rcbd", traits = "t1", engine = "lme4")
+modelLm <- fitTD(testTD, design = "rcbd", traits = "t1", engine = "lme4")
 
 test_that("the output of extract is of the proper type", {
-  expect_is(STExtract(modelLm, what = "BLUEs"), "list")
-  expect_is(STExtract(modelLm), "list")
-  expect_length(STExtract(modelLm)[[1]], 21)
-  expect_is(STExtract(modelLm, what = c("BLUEs", "BLUPs")), "list")
-  expect_length(STExtract(modelLm, what = c("BLUEs", "BLUPs"))[[1]], 2)
+  expect_is(extract(modelLm, what = "BLUEs"), "list")
+  expect_is(extract(modelLm), "list")
+  expect_length(extract(modelLm)[[1]], 21)
+  expect_is(extract(modelLm, what = c("BLUEs", "BLUPs")), "list")
+  expect_length(extract(modelLm, what = c("BLUEs", "BLUPs"))[[1]], 2)
 })
 
-extLm <- STExtract(modelLm)[[1]]
+extLm <- extract(modelLm)[[1]]
 test_that("BLUEs are computed correctly", {
   expect_is(extLm$BLUEs, "data.frame"	)
   expect_identical(dim(extLm$BLUEs), c(15L, 2L))

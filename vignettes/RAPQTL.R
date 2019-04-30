@@ -9,10 +9,10 @@ library(RAP)
 ## ---- include = FALSE----------------------------------------------------
 ## Recreate data from last step in RAP vignette.
 data("wheatChl")
-wheatTD <- createTD(data = wheatChl, 
-                    genotype = "trt", repId = "rep", subBlock = "bl", 
-                    rowCoord = "row", colCoord = "col")
-modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design = "res.rowcol")
+wheatTD <- createTD(data = wheatChl, genotype = "trt", repId = "rep", 
+                    subBlock = "bl", rowCoord = "row", colCoord = "col")
+modWheatSpTot <- fitTD(TD = wheatTD, traits = "GY", what = "fixed", 
+                       design = "res.rowcol")
 
 ## ----createCross---------------------------------------------------------
 cr1 <- SSAtoCross(SSA = modWheatSpTot, trial = "C_SWS_12",  

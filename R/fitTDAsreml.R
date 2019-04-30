@@ -2,12 +2,12 @@
 #'
 #' Fit Single Trial Model using asreml
 #'
-#' @inheritParams STRunModel
+#' @inheritParams fitTD
 #'
-#' @seealso \code{\link{STRunModel}}
+#' @seealso \code{\link{fitTD}}
 #'
 #' @keywords internal
-STModAsreml <- function(TD,
+fitTDAsreml <- function(TD,
                         trial = NULL,
                         traits,
                         what = c("fixed", "random"),
@@ -100,7 +100,7 @@ STModAsreml <- function(TD,
           asreml::asreml(fixed = formula(paste(trait, fixedForm)),
                          random = formula(paste("~", randomForm,
                                                 if (length(randomForm) != 0) "+",
-                                                "genotype")), rcov = ~ units,
+                                                "genotype")),
                          aom = TRUE, data = TDTr, maxiter = maxIter, ...))
         sink()
         if (!is.null(mrTrait$warning)) {
@@ -137,8 +137,6 @@ STModAsreml <- function(TD,
           mrTrait$call$fixed <- eval(mrTrait$call$fixed)
           mrTrait$call$random <- eval(mrTrait$call$random)
           mrTrait$call$rcov <- eval(mrTrait$call$rcov)
-          ## Run predict.
-          mrTrait <- predictAsreml(mrTrait, TD = TDTr)
           mrTrait$call$data <- substitute(TDTr)
         }
         mr[[trait]] <- mrTrait
@@ -156,15 +154,14 @@ STModAsreml <- function(TD,
             asreml::asreml(fixed = formula(paste(trait, fixedForm,
                                                  "+ genotype")),
                            random = formula(paste("~", randomForm)),
-                           rcov = ~ units, G.param = GParamTmp, aom = TRUE,
-                           data = TDTr, maxiter = maxIter, ...))
+                           G.param = GParamTmp, aom = TRUE, data = TDTr,
+                           maxiter = maxIter, ...))
         } else {
           mfTrait <- tryCatchExt(
             asreml::asreml(fixed = formula(paste(trait, fixedForm,
-                                                 "+ genotype")), rcov = ~ units,
+                                                 "+ genotype")),
                            G.param = GParamTmp, aom = TRUE, data = TDTr,
-                           maxiter = maxIter,
-                           ...))
+                           maxiter = maxIter, ...))
         }
         sink()
         if (!is.null(mfTrait$warning)) {
@@ -188,15 +185,13 @@ STModAsreml <- function(TD,
           mfTrait$call$fixed <- eval(mfTrait$call$fixed)
           mfTrait$call$random <- eval(mfTrait$call$random)
           mfTrait$call$rcov <- eval(mfTrait$call$rcov)
+          mfTrait$call$data <- substitute(TDTr)
           ## Construct assocForm for use in associate in predict.
           if (useCheckId) {
             assocForm <- formula("~ checkId:genotype")
           } else {
             assocForm <- formula("~ NULL")
           }
-          ## Run predict.
-          mfTrait <- predictAsreml(mfTrait, TD = TDTr, associate = assocForm)
-          mfTrait$call$data <- substitute(TDTr)
         }
         mf[[trait]] <- mfTrait
       } # End fixed.
@@ -211,7 +206,8 @@ STModAsreml <- function(TD,
   } else {# trySpatial
     regular <- min(repTab) == 1 && max(repTab) == 1
     return(bestSpatMod(TD = TD[trial], traits = traits, what = what,
-                       regular = regular, criterion = criterion,
+                       regular = TRUE, criterion = criterion,
+                       #regular = regular, criterion = criterion,
                        useCheckId = useCheckId, design = design,
                        covariates = covariates, fixedForm = fixedForm,
                        randomForm = randomForm, ...))
@@ -293,10 +289,17 @@ bestSpatMod <- function(TD,
         randFormR <- formula(paste("~ genotype +", randTerm[i]))
       }
       asrArgsR <- c(list(fixed = fixedFormR, random = randFormR, aom = TRUE,
-                         data = TDTr, maxiter = maxIter,
-                         na.method.X = "include"), dotArgs)
+                         data = TDTr, maxiter = maxIter), dotArgs)
+      ## In asreml3 na.method.X and na.method.Y are used.
+      ## In asreml4 this is replaced by na.action.
+      asrArgsR <- c(asrArgsR, if (asreml4()) {
+        list(na.action = asreml::na.method(x = "include"))
+      } else {
+        list(na.method.X = "include")
+      })
       if (!is.na(spatTerm[i])) {
-        asrArgsR$rcov <- formula(spatTerm[i])
+        ## In asreml4 rcov is replaced by residual.
+        asrArgsR[[ifelse(asreml4(), "residual", "rcov")]] <- formula(spatTerm[i])
       }
       sink(file = tmp)
       mrTrait <- tryCatchExt(do.call(what = asreml::asreml, args = asrArgsR))
@@ -326,32 +329,52 @@ bestSpatMod <- function(TD,
       modSum[i, "converge"] <- isTRUE(!is.null(mrTrait) & mrTrait$converge)
       if (!is.null(mrTrait)) {
         summ <- summary(mrTrait)$varcomp["component"]
-        modSum[i, "AIC"] <- -2 * mrTrait$loglik + 2 * length(mrTrait$gammas)
+        modSum[i, "AIC"] <- -2 * mrTrait$loglik + 2 * nrow(summ)
         modSum[i, "BIC"] <- -2 * mrTrait$loglik +
-          log(length(mrTrait$fitted.values)) * length(mrTrait$gammas)
+          log(length(fitted(mrTrait))) * nrow(summ)
         ## Row and column output differs for regular/non-regular.
         ## Always max. one of the possibilities is in summary so rowVal and
         ## colVal are always a single value.
         rowVal <- summ[rownames(summ) %in%
-                         c("R!rowId.cor", "R!rowCoord.pow", "R!pow"), ]
+                         c("R!rowId.cor", "R!rowCoord.pow", "R!pow",
+                           ## New naming for asreml4.
+                           "rowId:colId!rowId!cor",
+                           "rowCoord:colCoord!rowCoord!pow",
+                           "iexp(rowCoord,colCoord)!pow"), ]
         modSum[i, "row"] <- ifelse(length(rowVal) == 0, NA, rowVal)
         colVal <- summ[rownames(summ) %in%
-                         c("R!colId.cor", "R!colCoord.pow", "R!pow"), ]
+                         c("R!colId.cor", "R!colCoord.pow", "R!pow",
+                           ## New naming for asreml4
+                           "rowId:colId!colId!cor",
+                           "rowCoord:colCoord!colCoord!pow",
+                           "iexp(rowCoord,colCoord)!pow"), ]
         modSum[i, "col"] <- ifelse(length(colVal) == 0, NA, colVal)
         modSum[i, "error"] <- ifelse(randTerm[i] == "units",
-                                     summ["units!units.var", ],
-                                     summ["R!variance", ])
+                                     summ[rownames(summ) %in%
+                                            c("units!units.var",
+                                              ## New naming for asreml4.
+                                              "units"), ],
+                                     summ[rownames(summ) %in%
+                                            c("R!variance",
+                                              ## New naming for asreml4.
+                                              "units!R", "rowId:colId!R",
+                                              "rowCoord:colCoord!R",
+                                              "iexp(rowCoord,colCoord)!R"), ])
         if (randTerm[i] == "units") {
-          modSum[i, "correlated error"] <- summ["R!variance", ]
+          modSum[i, "correlated error"] <- summ[rownames(summ) %in%
+                                                  c("R!variance",
+                                                    ## New naming for asreml4.
+                                                    "rowId:colId!R",
+                                                    "rowCoord:colCoord!R",
+                                                    "iexp(rowCoord,colCoord)!R"), ]
         }
         ## If current model is better than best so far based on chosen criterion
         ## define best model as current model.
         if (mrTrait$converge) {
           if (criterion == "AIC") {
-            criterionCur <- -2 * mrTrait$loglik + 2 * length(mrTrait$gammas)
+            criterionCur <- modSum[i, "AIC"]
           } else {
-            criterionCur <- -2 * mrTrait$loglik +
-              log(length(mrTrait$fitted.values)) * length(mrTrait$gammas)
+            criterionCur <- modSum[i, "BIC"]
           }
         }
         if (criterionCur < criterionBest) {
@@ -384,9 +407,17 @@ bestSpatMod <- function(TD,
     }
     asrArgsF <- c(list(fixed = fixedFormfTrait, random = randFormF,
                        G.param = GParamTmp, aom = TRUE, data = TDTr,
-                       maxiter = maxIter, na.method.X = "include"), dotArgs)
+                       maxiter = maxIter), dotArgs)
+    ## In asreml3 na.method.X and na.method.Y are used.
+    ## In asreml4 this is replaced by na.action.
+    asrArgsR <- c(asrArgsR, if (asreml4()) {
+      list(na.action = asreml::na.method(x = "include"))
+    } else {
+      list(na.method.X = "include")
+    })
     if (!is.na(spatTerm[bestMod])) {
-      asrArgsF$rcov <- formula(spatTerm[bestMod])
+      ## In asreml4 parameter rcov is replaced by residual.
+      asrArgsF[[ifelse(asreml4(), "residual", "rcov")]] <- formula(spatTerm[bestMod])
     }
     sink(file = tmp)
     ## Fit the model with genotype fixed only for the best model.
@@ -411,22 +442,10 @@ bestSpatMod <- function(TD,
                      "\n"), call. = FALSE)
       mfTrait <- NULL
     }
-    # Run predict.
-    if (!is.null(bestModTr)) {
-      bestModTr <- predictAsreml(bestModTr, TD = TDTr)
-    }
     if (!is.null(mfTrait)) {
       mfTrait$call$fixed <- eval(mfTrait$call$fixed)
       mfTrait$call$random <- eval(mfTrait$call$random)
       mfTrait$call$rcov <- eval(mfTrait$call$rcov)
-      ## Construct assocForm for use in associate in predict.
-      if (useCheckId) {
-        assocForm <- formula("~ checkId:genotype")
-      } else {
-        assocForm <- formula("~ NULL")
-      }
-      ## Run predict.
-      mfTrait <- predictAsreml(mfTrait, TD = TDTr, associate = assocForm)
     }
     mr[[trait]] <- bestModTr
     mf[[trait]] <- mfTrait

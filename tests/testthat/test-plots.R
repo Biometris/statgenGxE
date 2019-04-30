@@ -33,6 +33,16 @@ test_that("AMMI plot plotType options function properly", {
   expect_equal(p2$labels$title, "GGE biplot for yld ")
 })
 
+test_that("AMMI plot scale option functions properly", {
+  ## Only relevant for AMMI2 plots.
+  p1_2 <- plot(geAmmi, plotType = "AMMI2", scale = 0, output = FALSE)
+  p2_2 <- plot(geAmmi, plotType = "AMMI2", scale = 1, output = FALSE)
+  p3_2 <- plot(geAmmi, plotType = "AMMI2", scale = 0.75, output = FALSE)
+  expect_equal(p1_2$labels$title, "AMMI2 biplot for yld (genotype scaling) ")
+  expect_equal(p2_2$labels$title, "AMMI2 biplot for yld (environment scaling) ")
+  expect_equal(p3_2$labels$title, "AMMI2 biplot for yld (51%) ")
+})
+
 test_that("AMMI plot plotGeno functions properly", {
   p1_1 <- plot(geAmmi, plotGeno = FALSE, output = FALSE)
   p1_2 <- plot(geAmmi, plotType = "AMMI2", plotGeno = FALSE, output = FALSE)
@@ -108,11 +118,22 @@ test_that("AMMI plot colEnv functions properly", {
   expect_equal(p1_2$layers[geoms1_2 == "GeomSegment"][[1]]$aes_params$colour, "green")
 })
 
+test_that("AMMI plot plotConvHull functions properly", {
+  ## plotConvHull should be ignored for AMMI1.
+  expect_equal(p0_1, plot(geAmmi, plotConvHull = TRUE, output = FALSE))
+  ## For AMMI2 there should be two extra layers.
+  p1_2 <- plot(geAmmi, plotType = "AMMI2", plotConvHull = TRUE, output = FALSE)
+  geoms0_2 <- sapply(p0_2$layers, function(x) class(x$geom)[1])
+  geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
+  expect_setequal(geoms1_2[-match(geoms0_2, geoms1_2)],
+                  c("GeomPolygon", "GeomSegment"))
+})
+
 testTDYear <- createTD(data = testDataYear, genotype = "seed",
                        trial = "field", repId = "rep",
                        subBlock = "block", rowId = "Y", colId = "X",
                        rowCoord = "Y", colCoord = "X")
-modelSp <- STRunModel(testTDYear, design = "rowcol", traits = c("t1", "t2"))
+modelSp <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
 BLUEsYear <- SSAtoTD(modelSp, what = "BLUEs", keep = "year")
 geAmmiYear <- gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE)
 test_that("AMMI plot gives correct output types when byYear = TRUE", {
@@ -142,10 +163,9 @@ test_that("FW plot gives correct output types", {
   expect_is(p3, "ggplot")
 })
 
-test_that("SSA plot gives correct output types", {
-  SSA <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield")
-  p1 <- plot(SSA, output = FALSE)
-  p2 <- plot(SSA, plotType = "spatial", output = FALSE)
+SSA <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield")
+test_that("SSA base plot gives correct output types", {
+  p1 <- plot(SSA, traits = "yield", output = FALSE)
   expect_is(p1, "list")
   expect_length(p1, 1)
   expect_is(p1[[1]], "list")
@@ -153,13 +173,25 @@ test_that("SSA plot gives correct output types", {
   expect_is(p1[[1]][[1]], "list")
   expect_length(p1[[1]][[1]], 4)
   lapply(X = p1[[1]][[1]], FUN = expect_is, "ggplot")
-  expect_is(p2, "list")
-  expect_length(p2, 1)
-  expect_is(p2[[1]], "list")
-  expect_length(p2[[1]], 1)
-  expect_is(p2[[1]][[1]], "list")
-  expect_length(p2[[1]][[1]], 6)
-  lapply(X = p2[[1]][[1]], FUN = expect_is, "ggplot")
+})
+
+test_that("SSA spatial plot gives correct output types", {
+  p1 <- plot(SSA, plotType = "spatial", traits = "yield", output = FALSE)
+  expect_is(p1, "list")
+  expect_length(p1, 1)
+  expect_is(p1[[1]], "list")
+  expect_length(p1[[1]], 1)
+  expect_is(p1[[1]][[1]], "list")
+  expect_length(p1[[1]][[1]], 6)
+  lapply(X = p1[[1]][[1]], FUN = expect_is, "ggplot")
+})
+
+test_that("option what in SSA plot functions properly", {
+  p1 <- plot(SSA, what = "random", output = FALSE)
+  p2 <- plot(SSA, plotType = "spatial", what = "random", output = FALSE)
+  expect_is(p1, "list")
+  expect_equal(p2[[1]][[1]][[5]]$labels$title, "Genotypic BLUPs")
+  expect_equal(p2[[1]][[1]][[6]]$labels$x, "Genotypic BLUPs")
 })
 
 test_that("stability plot gives correct output types", {
@@ -173,11 +205,23 @@ test_that("stability plot gives correct output types", {
   expect_length(p2, 1)
 })
 
+QTLDetF2 <- QTLDetect(testF2, trait = "phenotype")
+QTLDetF2C <- QTLDetect(testF2, trait = "phenotype", type = "CIM")
 test_that("QTLDet plot gives correct output types", {
-  QTLDetF2 <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed",
-                        thrFixed = 1.5, window = 2)
-  p <- plot(QTLDetF2, output = FALSE)
-  expect_is(p, "ggplot")
+  p1 <- plot(QTLDetF2, output = FALSE)
+  p2 <- plot(QTLDetF2C, output = FALSE)
+  geoms1 <- sapply(p1$layers, function(x) class(x$geom)[1])
+  geoms2 <- sapply(p2$layers, function(x) class(x$geom)[1])
+  expect_is(p1, "ggplot")
+  expect_setequal(geoms1, "GeomLine")
+  expect_setequal(geoms2, c("GeomLine", "GeomPoint"))
+})
+
+test_that("plot options function properly in QTLDet plot", {
+  p <- plot(QTLDetF2, yLim = 5, output = FALSE)
+  expect_equal(p$scales$scales[[1]]$limits, c(0, 5))
+  p <- plot(QTLDetF2, title = "test", output = FALSE)
+  expect_equal(p$labels$title, "test")
 })
 
 test_that("multiQTL plot gives correct output types", {
@@ -255,19 +299,23 @@ test_that("TD box plot gives correct output types", {
 })
 
 test_that("option groupBy functions properly for TD box plot", {
-  p <- plot(TDHeat05, plotType = "box", traits = "yield", groupBy = "repId")
+  p <- plot(TDHeat05, plotType = "box", traits = "yield", groupBy = "repId",
+            output = FALSE)
   expect_true("~repId" %in% as.character(p$yield$mapping))
 })
 
 test_that("option colorBy functions properly for TD box plot", {
-  p <- plot(TDHeat05, plotType = "box", traits = "yield", colorBy = "repId")
+  p <- plot(TDHeat05, plotType = "box", traits = "yield", colorBy = "repId",
+            output = FALSE)
   expect_true(all(c("~repId", "~trial") %in% as.character(p$yield$mapping)))
 })
 
 test_that("option orderBy functions properly for TD box plot", {
-  p0 <- plot(TDHeat05, plotType = "box", traits = "yield")
-  p1 <- plot(TDHeat05, plotType = "box", traits = "yield", orderBy = "ascending")
-  p2 <- plot(TDHeat05, plotType = "box", traits = "yield", orderBy = "descending")
+  p0 <- plot(TDHeat05, plotType = "box", traits = "yield", output = FALSE)
+  p1 <- plot(TDHeat05, plotType = "box", traits = "yield",
+             orderBy = "ascending", output = FALSE)
+  p2 <- plot(TDHeat05, plotType = "box", traits = "yield",
+             orderBy = "descending", output = FALSE)
   ## This basically only checks that releveling took place.
   expect_equal(setdiff(names(p1$yield$plot_env), names(p0$yield$plot_env)),
                "levNw")
@@ -284,10 +332,34 @@ test_that("TD correlation plot gives correct output types", {
   expect_is(p[[1]], "ggplot")
 })
 
+## melting data in the plot function caused an error when trials have a
+## numerical value. This should not be the case.
+test_that("TD correlation plot gives correct output types", {
+  expect_warning(plot(TDMaize, plotType = "cor", traits = "trait"),
+                 "trait isn't a column in any of the trials")
+  TDMaize2 <- TDMaize
+  for (trial in seq_along(TDMaize2)) {
+    levels(TDMaize2[[trial]][["trial"]]) <- 1:8
+  }
+  expect_silent(p <- plot(TDMaize2, plotType = "cor", traits = "yld",
+                          output = FALSE))
+})
+
 test_that("varComp plot gives correct output types", {
   geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
   p <- plot(geVarComp, output = FALSE)
   geoms <- sapply(p$layers, function(x) class(x$geom)[1])
   expect_is(p, "ggplot")
   expect_setequal(geoms, c("GeomTile", "GeomText"))
+})
+
+## melting data in the plot function caused an error when trials have a
+## numerical value. This should not be the case.
+test_that("varComp plot gives correct output types when trials are numerical", {
+  TDMaize2 <- TDMaize
+  for (trial in seq_along(TDMaize2)) {
+    levels(TDMaize2[[trial]][["trial"]]) <- 1:8
+  }
+  geVarComp <- gxeVarComp(TD = TDMaize2, trait = "yld")
+  expect_silent(p <- plot(geVarComp, output = FALSE))
 })

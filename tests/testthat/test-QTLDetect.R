@@ -24,9 +24,8 @@ test_that("QTLDetect gives correct scores for different types", {
   QTLDetF2S <- QTLDetect(testF2, trait = "phenotype", type = "SIM")
   expect_equal(QTLDetF2S$peaks$altName, "Q1@9.8")
   expect_equal(rownames(QTLDetF2S$peaks), "D1M318")
-  ## CIM sometimes seems to give random warnings.
   #QTLDetF2C <- QTLDetect(testF2, trait = "phenotype", type = "CIM")
-  #expect_equal(nrow(QTLDetF2C$peaks), 0)
+  #expect_equal(rownames(QTLDetF2C$peaks), c("D1M318", "c2.loc30"))
 })
 
 test_that("option thrType functions properly", {
@@ -63,9 +62,9 @@ test_that("option thrFixed functions properly", {
   QTLDetSThr <- QTLDetect(testF2, trait = "phenotype", type = "SIM",
                           thrType = "fixed", thrFixed = 2)
   expect_equal(rownames(QTLDetSThr$peaks), c("D1M318", "D2M241"))
-  ## CIM sometimes seems to give random warnings.
-  #QTLDetCThr <- QTLDetect(testF2, trait = "phenotype", type = "CIM", thr = 2.5)
-  #expect_equal(rownames(QTLDetCThr$peaks), c("c1.loc20", "c2.loc20"))
+  #QTLDetCThr <- QTLDetect(testF2, trait = "phenotype", type = "CIM",
+  #                        thrType = "fixed", thrFixed = 2.5)
+  #expect_equal(rownames(QTLDetCThr$peaks), c("c2.loc30"))
 })
 
 test_that("option window functions properly", {
@@ -77,4 +76,11 @@ test_that("option window functions properly", {
   expect_equal(rownames(QTLDetSWin$peaks),
                c("c1.loc5", "D1M318", "c1.loc15", "c1.loc20", "c1.loc25",
                  "c1.loc30", "D2M241", "c2.loc25"))
+})
+
+test_that("option step functions properly", {
+  QTLDetSt1 <- QTLDetect(testF2, trait = "phenotype", step = 1)
+  QTLDetSt2 <- QTLDetect(testF2, trait = "phenotype", step = 50)
+  expect_equal(dim(QTLDetSt1$cross$geno$`1`$prob), c(50, 145, 3))
+  expect_equal(dim(QTLDetSt2$cross$geno$`1`$prob), c(50, 10, 3))
 })

@@ -38,7 +38,7 @@ fitted model. Simultaneously the same report will be created as a tex file.
 }
 \examples{
 ## Fit model using lme4.
-myModel1 <- STRunModel(TD = TDHeat05, design = "ibd", traits = "yield")
+myModel1 <- fitTD(TD = TDHeat05, design = "ibd", traits = "yield")
 \dontrun{
 ## Create a pdf report summarizing the results for the model with genotype
 ## as fixed factor.

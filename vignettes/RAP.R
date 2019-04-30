@@ -80,27 +80,26 @@ plot(wheatTD, plotType = "cor", traits = "GY")
 
 ## ----fitSp, message=FALSE------------------------------------------------
 ## Fit a single trial model.
-modWheatSp <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                         design = "res.rowcol")
+modWheatSp <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                    design = "res.rowcol")
 
 ## ----fitSpSm, message=FALSE----------------------------------------------
 ## Fit a single trial model with genotype as random effect.
-modWheatSp2 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                          what = "random", design = "res.rowcol")
+modWheatSp2 <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                     what = "random", design = "res.rowcol")
 
 ## ----fitSpCtr, message=FALSE---------------------------------------------
 ## Fit a spatial single trial model using SpATS. 
 ## Manually specify the number of segments for rows and columns.
-modWheatSp3 <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                          design = "res.rowcol", 
-                          control = list(nSeg = c(20, 20)))
+modWheatSp3 <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                     design = "res.rowcol", control = list(nSeg = c(20, 20)))
 
 ## ----fitAs, message=FALSE, results='hide'--------------------------------
 if (requireNamespace("asreml", quietly = TRUE)) {
   ## Fit a spatial single trial model using asreml.
-  modWheatAs <- STRunModel(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                           design = "res.rowcol", trySpatial = TRUE,
-                           engine = "asreml", control = list(criterion = "BIC"))
+  modWheatAs <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+                      design = "res.rowcol", trySpatial = TRUE,
+                      engine = "asreml", control = list(criterion = "BIC"))
 }
 
 ## ----spatCh--------------------------------------------------------------
@@ -129,25 +128,24 @@ plot(modWheatSp, plotType = "spatial")
 
 ## ----extBLUEs------------------------------------------------------------
 ## Extract BLUEs
-BLUEsWheat <- STExtract(SSA = modWheatSp, what = "BLUEs")
+BLUEsWheat <- extract(SSA = modWheatSp, what = "BLUEs")
 ## Extract BLUEs and BLUPs
-predWheat <- STExtract(SSA = modWheatSp, what = c("BLUEs", "BLUPs"))
+predWheat <- extract(SSA = modWheatSp, what = c("BLUEs", "BLUPs"))
 
 ## ----extBLUEsKeep--------------------------------------------------------
 ## Extract BLUEs from the fitted model.
-BLUEsWheat2 <- STExtract(SSA = modWheatSp, what = "BLUEs", keep = "trial")
+BLUEsWheat2 <- extract(SSA = modWheatSp, what = "BLUEs", keep = "trial")
 head(BLUEsWheat2[["SR_FI_11"]]$BLUEs)
 
 ## ----extFit--------------------------------------------------------------
 ## Extract fitted values from the model.
-fitVals <- STExtract(SSA = modWheatSp, what = "fitted", 
-                     keep = c("trial", "repId"))
+fitVals <- extract(SSA = modWheatSp, what = "fitted", keep = c("trial", "repId"))
 head(fitVals[["SR_FI_11"]]$fitted)
 
 ## ----SSAtoTD, message=FALSE----------------------------------------------
 ## Fit a model for all trials with genotype as fixed factor.
-modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", 
-                            design = "res.rowcol")
+modWheatSpTot <- fitTD(TD = wheatTD, traits = "GY", what = "fixed", 
+                       design = "res.rowcol")
 ## Create a TD object containing BLUEs and standard errors of BLUEs.
 TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
 ## Add weights to the output.

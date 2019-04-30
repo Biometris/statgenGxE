@@ -8,5 +8,7 @@ testReports
 ^data-raw$
 vignettes\RAP overview.pptx
 .gitlab-ci.yml
+.gitlab-ci.R
 ^README\.Rmd$
 ^README-.*\.png$
+^installed_deps$

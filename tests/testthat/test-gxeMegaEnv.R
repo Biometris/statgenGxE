@@ -2,9 +2,8 @@ context("gxeMegaEnv")
 
 testTD <- createTD(data = testData, genotype = "seed",
                    trial = "field", repId = "rep",
-                   subBlock = "block", rowId = "Y", colId = "X",
-                   rowCoord = "Y", colCoord = "X")
-modelSp <- STRunModel(testTD, design = "rowcol", traits = "t1")
+                   subBlock = "block", rowCoord = "Y", colCoord = "X")
+modelSp <- fitTD(testTD, design = "rowcol", traits = "t1")
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
 geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1", sumTab = FALSE)
@@ -63,7 +62,7 @@ test_that("gxeTable functions correctly", {
   ## Therefore added a lower tolerance
   expect_equivalent(geTabLm$standardError[1, ],
                     c(5.93814290627681, 9.51137000477223), tolerance = 1e-7)
-  testthat::skip_on_cran()
+  skip_on_cran()
   geTabAs <- gxeTable(TD = geMegaEnvNw, trait = "t1", engine = "asreml")
   expect_equivalent(geTabAs$predictedValue[1, ],
                     c(80.0424619340827, 80.4703103942952))
@@ -71,19 +70,29 @@ test_that("gxeTable functions correctly", {
                     c(6.58334962888207, 9.77290639163001))
 })
 
+geMegaEnvNw2 <- c(geMegaEnvNw, geMegaEnvNw)
+names(geMegaEnvNw2) <- paste0("E", 1:6)
+class(geMegaEnvNw2) <- "TD"
+geMegaEnvNw2[["E1"]]$year <- geMegaEnvNw2[["E2"]]$year <-
+  geMegaEnvNw2[["E3"]]$year <- 1
+geMegaEnvNw2[["E4"]]$year <- geMegaEnvNw2[["E5"]]$year <-
+  geMegaEnvNw2[["E6"]]$year <- 2
 test_that("option year in gxeTable functions properly", {
-  geMegaEnvNw2 <- c(geMegaEnvNw, geMegaEnvNw)
-  names(geMegaEnvNw2) <- paste0("E", 1:6)
-  class(geMegaEnvNw2) <- "TD"
-  geMegaEnvNw2[["E1"]]$year <- geMegaEnvNw2[["E2"]]$year <-
-    geMegaEnvNw2[["E3"]]$year <- 1
-  geMegaEnvNw2[["E4"]]$year <- geMegaEnvNw2[["E5"]]$year <-
-    geMegaEnvNw2[["E6"]]$year <- 2
   geTab <- gxeTable(TD = geMegaEnvNw2, trait = "t1", useYear = TRUE)
   expect_equivalent(geTab$predictedValue[1, ],
                     c(85.7139211061344, 76.5897665641836))
   expect_equivalent(geTab$standardError[1, ],
                     c(6.72132965673734, 9.57033282833413))
+})
+
+test_that("option year in gxeTable functions properly for asreml", {
+  skip_on_cran()
+  geTab <- gxeTable(TD = geMegaEnvNw2, trait = "t1", useYear = TRUE,
+                    engine = "asreml")
+  expect_equivalent(geTab$predictedValue[1, ],
+                    c(86.5858674442788, 77.4617649806083))
+  expect_equivalent(geTab$standardError[1, ],
+                    c(6.98377813814263, 10.2119509172305))
 })
 
 test_that("combCor helper function funcions correctly", {
@@ -118,8 +127,8 @@ test_that("combLocs helper function functions correctly", {
                   SXi = SXi)
   expect_is(r12, "numeric")
   expect_length(r12, 1)
-  expect_equal(r12, 0.0671135566187331)
+  expect_equal(r12, -0.0848965850102576)
   r13 <- combLocs(l1 = "l1", l2 = "l3", ammi = ammi, r0 = r0, Xi = Xi,
                   SXi = SXi)
-  expect_equal(r13, -0.0187937478121317)
+  expect_equal(r13, 0.201282778931538)
 })

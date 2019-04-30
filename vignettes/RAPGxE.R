@@ -11,10 +11,10 @@ requireNamespace("asreml", quietly = TRUE)
 ## ---- include = FALSE, message = FALSE-----------------------------------
 ## Recreate data from last step in RAP vignette.
 data("wheatChl")
-wheatTD <- createTD(data = wheatChl, 
-                    genotype = "trt", repId = "rep", subBlock = "bl", 
-                    rowCoord = "row", colCoord = "col")
-modWheatSpTot <- STRunModel(TD = wheatTD, traits = "GY", what = "fixed", design = "res.rowcol")
+wheatTD <- createTD(data = wheatChl, genotype = "trt", repId = "rep", 
+                    subBlock = "bl", rowCoord = "row", colCoord = "col")
+modWheatSpTot <- fitTD(TD = wheatTD, traits = "GY", what = "fixed", 
+                       design = "res.rowcol")
 ## Create a TD object containing BLUEs and standard errors of BLUEs.
 TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
 

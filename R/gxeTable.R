@@ -59,12 +59,12 @@ gxeTable <- function(TD,
                                                                    "`~ trial / year")),
                                          random = as.formula("~ genotype:us(megaEnv) +
                                                      genotype:megaEnv:year"),
-                                         data = TDTot, ...))
+                                         data = TDTot, maxiter = 200, ...))
       } else {
         mr <- tryCatchExt(asreml::asreml(fixed = as.formula(paste0("`", trait,
                                                                    "`~ trial")),
                                          random = as.formula("~ genotype:us(megaEnv)"),
-                                         data = TDTot, ...))
+                                         data = TDTot, maxiter = 200, ...))
       }
       sink()
       unlink(tmp)

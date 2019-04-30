@@ -18,7 +18,7 @@ they will appear as \code{statistic_trait} in the output}
 TD object. If \code{NULL}, all traits are exported.}
 
 \item{keep}{Columns from the TD object used as input for the SSA model to
-be copied to the output. see \code{\link{STExtract}} for possible columns to
+be copied to the output. see \code{\link{extract}} for possible columns to
 copy. If if it is available in \code{TD}, the column \code{trial} will always
 be copied.}
 
@@ -42,7 +42,7 @@ original TD object on which the modeling was done.
 }
 \examples{
 ## Run model using SpATS.
-myModel <- STRunModel(TD = TDHeat05, design = "res.rowcol", traits = "yield",
+myModel <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield",
                       what = "fixed")
 ## Create TD object from the fitted model.
 myTD <- SSAtoTD(myModel)

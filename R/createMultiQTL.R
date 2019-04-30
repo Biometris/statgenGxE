@@ -36,12 +36,12 @@ createMultiQTL <- function(qtl,
 
 #' @export
 print.multiQTL <- function(x, ...) {
-  summary(x, ...)
+  summary(x$qtl, ...)
 }
 
 #' @export
 summary.multiQTL <- function(object, ...) {
-  summary(object$qtl, ...)
+  print(object, ...)
 }
 
 #' Plot function for class multiQTL
