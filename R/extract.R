@@ -651,12 +651,18 @@ extractAsreml <- function(SSA,
   baseDataPred <- base$baseDataPred
   ## Create empty result list.
   result <- setNames(vector(mode = "list", length = length(what)), what)
+  ## Construct assocForm for use in associate in predict.
+  if (length(grep(pattern = "+ checkId +", x = getCall(mf[[1]]))) > 0) {
+    assocForm <- formula("~ checkId:genotype")
+  } else {
+    assocForm <- formula("~ NULL")
+  }
   ## Extract BLUEs and se of BLUEs from fixed model.
   if ("BLUEs" %in% what) {
     ## asreml3 saves the predictions inside the asreml object.
     ## asreml4 creates a list containing nothing but the predictions.
     predVals <- lapply(X = traits, FUN = function(trait) {
-      mfPred <- predictAsreml(mf[[trait]], TD = TD)
+      mfPred <- predictAsreml(mf[[trait]], TD = TD, associate = assocForm)
       setNames(if (asreml4()) {
         mfPred$pvals[c(predicted, "predicted.value")]
       } else {
@@ -671,7 +677,7 @@ extractAsreml <- function(SSA,
     ## asreml3 saves the predictions inside the asreml object.
     ## asreml4 creates a list containing nothing but the predictions.
     predErrs <- lapply(X = traits, FUN = function(trait) {
-      mfPred <- predictAsreml(mf[[trait]], TD = TD)
+      mfPred <- predictAsreml(mf[[trait]], TD = TD, associate = assocForm)
       setNames(if (asreml4()) {
         mfPred$pvals[c(predicted, "std.error")]
       } else {
