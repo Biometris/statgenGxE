@@ -190,9 +190,7 @@ plot(geGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 
 With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank genotypes based on phenotypic stability for each individual trait.  
 
-In the RAP package this analysis can be done using the `gxeFW` function. By default all 
-trials in the `TD` object are used in the analysis, but this can be restricted using the
-parameter `trials`. The genotypes included in the analysis can be restricted using `restrictGeno`.
+In the RAP package this analysis can be done using the `gxeFW` function. By default all trials in the `TD` object are used in the analysis, but this can be restricted using the parameter `trials`. The genotypes included in the analysis can be restricted using the parameter `genotypes`.
 ```{r geFW}
 ## Perform a Finlay-Wilkinson analysis for all trials.
 geFW <- gxeFw(TD = TDGxE, trait = "BLUEs_GY")

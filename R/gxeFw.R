@@ -9,7 +9,7 @@
 #' the algorithm.
 #' @param tol A positive numerical value specifying convergence tolerance of the
 #' algorithm.
-#' @param restrictGeno An optional character string containing the genotypes to
+#' @param genotypes An optional character string containing the genotypes to
 #' which the analysis should be restricted. If \code{NULL}, all genotypes are
 #' used.
 #' @param sorted A character string specifying the sorting order of the
@@ -80,7 +80,7 @@ gxeFw <- function(TD,
                   maxIter = 15,
                   tol = 0.001,
                   sorted = c("descending", "ascending", "none"),
-                  restrictGeno = NULL,
+                  genotypes = NULL,
                   useWt = FALSE) {
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -104,14 +104,14 @@ gxeFw <- function(TD,
   if (is.null(tol) || !is.numeric(tol) || length(tol) > 1 || tol < 0) {
     stop("tol should be a numerical value > 10^-6.\n")
   }
-  if (!is.null(restrictGeno) && !all(restrictGeno %in% TDTot[["genotype"]])) {
+  if (!is.null(genotypes) && !all(genotypes %in% TDTot[["genotype"]])) {
     stop("All genotypes to include should be in TD.\n")
   }
   if (useWt && !hasName(x = TDTot, name = "wt")) {
     stop("wt has to be a column in TD when using weighting.")
   }
-  if (!is.null(restrictGeno)) {
-    TDTot <- TDTot[TDTot[["genotype"]] %in% restrictGeno, ]
+  if (!is.null(genotypes)) {
+    TDTot <- TDTot[TDTot[["genotype"]] %in% genotypes, ]
   }
   ## Remove genotypes that contain only NAs
   allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {
