@@ -24,7 +24,7 @@ library(RAP)
 
 # The RAP Package  
 
-The RAP package is developed as an easy to use package for analyzing data of 
+The RAP package is developed as an easy-to-use package for analyzing data of 
 plant breeding experiments with many options for plotting and reporting 
 the results of the analyses.  
 
@@ -35,7 +35,7 @@ The package has three main components:
 * QTL analysis
 
 This vignette deals with the modeling part of the package and describes in 
-detail how to prepare data for analysis, perform analysis using different
+detail how to prepare data for analysis, perform analyses using different
 modeling engines and extract the results from the models.
 
 ----
@@ -43,8 +43,7 @@ modeling engines and extract the results from the models.
 # Data preparation
 
 The first step when modeling field trial data or performing a GxE analysis with 
-the RAP package is creating an object of class `TD`. This object is used by the 
-RAP package for performing most analyses.  
+the RAP package is creating an object of class `TD` (Trial Data). This object is used by the RAP package for performing most analyses.  
 
 ## Creating a `TD` object
 
@@ -254,7 +253,7 @@ The output of `fitTD` is an object of class `SSA` (Single Site Analysis), a
 ## Model types
 
 `fitTD` uses three different engines for fitting the models, namely
-SpATS [@RodAlv2017], lme4 [@Bates2015] and asreml [@Gilmour2009]. For models 
+SpATS [@RodAlv2017], lme4 [@Bates2015] and asreml [@Gilmour2017]. For models 
 with row column or resolvable row column design, SpATS is the default engine, 
 for the other models lme4. This can always be overruled by specifying the function 
 parameter `engine`.
@@ -262,13 +261,13 @@ parameter `engine`.
 Models can be fitted for five different trial designs. These are listed in the 
 following table with their respective model specifications.  
 
-design | model fitted |
--------------------------------- | ------------------------------------------- |
-incomplete block design (ibd) | trait = genotype + *subBlock* + $\epsilon$ |
-resovable incomplete block design (res.ibd) | trait = genotype + **repId** + **repId:subBlock** + $\epsilon$ |
-randomized complete block design (rcbd) | trait = genotype + **repId** + $\epsilon$ | 
-row column design (rowcol) | trait = genotype + *rowId* + *colId* + $\epsilon$ |
-resolvable row column design (res.rowcol) | trait = genotype + **repId** + *repId:rowId* + *repId:colId* + $\epsilon$ |
+design | code | model fitted |
+-------------------------- | -------- | ----------------------------------------- |
+incomplete block design | ibd | trait = genotype + *subBlock* + $\epsilon$ |
+resovable incomplete block design | res.ibd | trait = genotype + **repId** + **repId:subBlock** + $\epsilon$ |
+randomized complete block design | rcbd | trait = genotype + **repId** + $\epsilon$ | 
+row column design | rowcol | trait = genotype + *rowId* + *colId* + $\epsilon$ |
+resolvable row column design | res.rowcol | trait = genotype + **repId** + *repId:rowId* + *repId:colId* + $\epsilon$ |
 
 In the models above, fixed effects are indicated in *italics* whereas random 
 effects are indicated in **bold**. genotype can be fitted as fixed or as 
@@ -284,19 +283,17 @@ of the trial a resolvable row column design is assumed. Since `engine` is not
 supplied as a parameter SpATS is used for fitting the model.
 ```{r fitSp, message=FALSE}
 ## Fit a single trial model.
-modWheatSp <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                    design = "res.rowcol")
+modWheatSp <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY", design = "res.rowcol")
 ```
 Note that by not supplying the `what` argument to the function, two models are
 fitted, one with genotype as a fixed effect and one with genotype as a 
 random effect. The results of both these models are stored in the `SSA` object
 `modWheatSp`. This is very useful for extracting different results from the 
-model later on. A trade off is that fitting two models takes more time than 
-fitting only one so when fitting models on large datasets it is sensible to use 
-`what` if only a subset of the results are needed as output.
+model later on. A trade-off is that fitting two models takes more time than 
+fitting only one so when fitting models on large datasets it is sensible to explicitly define `what` if only a subset of the results are needed as output.
 ```{r fitSpSm, message=FALSE}
 ## Fit a single trial model with genotype as random effect.
-modWheatSp2 <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+modWheatSp2 <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY", 
                      what = "random", design = "res.rowcol")
 ```
 
@@ -308,12 +305,12 @@ using the `PSANOVA` function in the SpATS package which uses 2-dimensional
 smoothing with P-splines as described in @Lee2013 and in @RodAlv2017. See `help(PSANOVA, SpATS)`
 for a detailed description. The parameters `nseg` and `nest.div` of `PSANOVA` 
 can be modified using the `control` parameter in `fitTD`.  
-Refitting the model in the previous section specifying the number of segments
+Fitting the model in the previous section specifying the number of segments
 for both rows and columns as 20 works as follows
 ```{r fitSpCtr, message=FALSE}
 ## Fit a spatial single trial model using SpATS. 
 ## Manually specify the number of segments for rows and columns.
-modWheatSp3 <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
+modWheatSp3 <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY", 
                      design = "res.rowcol", control = list(nSeg = c(20, 20)))
 ```
 
@@ -327,20 +324,18 @@ goodness-of-fit criterion works as follows
 ```{r fitAs, message=FALSE, results='hide'}
 if (requireNamespace("asreml", quietly = TRUE)) {
   ## Fit a spatial single trial model using asreml.
-  modWheatAs <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY",
-                      design = "res.rowcol", trySpatial = TRUE,
-                      engine = "asreml", control = list(criterion = "BIC"))
+  modWheatAs <- fitTD(TD = wheatTD, trials = "SR_FI_11", traits = "GY", design = "res.rowcol", trySpatial = TRUE, engine = "asreml", control = list(criterion = "BIC"))
 }
 ```
 The fitted models and the best model are stored in the output together with a summary
 table with details on the fitted models.
 ```{r spatCh}
-if (requireNamespace("asreml", quietly = TRUE)) {
+if (exists("modWheatAs")) {
   ## Overview of fitted models
   print(modWheatAs$SR_FI_11$sumTab$GY, digits = 2)
 }  
 ```
-As the overview shows the best model, the model with the lowest BIC, is AR1(x)AR1.
+`r if (exists("modWheatAs")) {"As the overview shows the best model, the model with the lowest BIC, is AR1(x)AR1."}`
 
 ## Model output
 
@@ -408,8 +403,6 @@ in an `SSA` object. The results that can be extracted depend on the type of
 model fitted and sometimes on the modeling engine as well. For example, BLUEs 
 can only extracted if genotype was fitted as fixed effect whereas BLUPs and heritabilities can only be extracted and calculated if genotype was fitted as random effect.  
 
-## Possible results to extract
-
 All results that can be extracted are shown in the table below. The first column
 shows what model needs to be fitted in order to be able to extract the result.
 Here F stands for genotype as fixed effect and R for genotype as random effect. In the 
@@ -436,9 +429,12 @@ F | resid | residuals for the model with genotype as fixed component |
 F | stdRes | standardized residuals for the model with genotype as fixed component |
 R | rMeans | fitted values for the model with genotype as random component |
 R | ranEf | random genetic effects |
+R | residR | residuals for the model with genotype as random component |
+R | stdResR | standardized residuals for the model with genotype as random component |
 F | wald | results of the wald test - only for `lme4` and `asreml` |
 F | CV | Coefficient of Variation - only for `lme4` and `asreml` |
-F | rDf | residual degrees of freedom |
+F | rDf | residual degrees of freedom for the model with genotype as fixed component |
+R | rDfR | residual degrees of freedom for the model with genotype as random component |
 R | effDim | effective dimensions - only for `SpATS` |
 R | ratEffDim | ratios of the effective dimensions - only for `SpATS` |
 F | sed | standard error of difference - only for `asreml` |
