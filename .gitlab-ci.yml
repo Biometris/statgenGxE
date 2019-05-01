@@ -57,7 +57,7 @@ R-release:
   script:
     - Rscript -e 'sessionInfo()'
     # install missing and outdated packages
-    - Rscript -e 'source(".gitlab-ci.R"); gl_update_pkg_all(repos = "https://cran.rstudio.com", quiet = TRUE, install_pkgdown = FALSE)'
+    - Rscript -e 'source(".gitlab-ci.R"); pkgsUpdate(repos = "https://cran.rstudio.com", quiet = TRUE, instPkgdown = FALSE)'
     # remove vignettes folder and get VignetteBuilder field out of DESCRIPTION file
     - rm -rf vignettes
     - Rscript -e 'd <- read.dcf("DESCRIPTION"); d[, colnames(d) == "VignetteBuilder"] <- NA; write.dcf(d, "DESCRIPTION")'
@@ -87,7 +87,7 @@ R-devel:
     - rm -rf installed_deps
     - Rscriptdevel -e 'sessionInfo()'
     # install missing and outdated packages
-    - Rscriptdevel -e 'source(".gitlab-ci.R"); gl_update_pkg_all(repos = "https://cran.rstudio.com", quiet = TRUE, install_pkgdown = FALSE)'
+    - Rscriptdevel -e 'source(".gitlab-ci.R"); pkgsUpdate(repos = "https://cran.rstudio.com", quiet = TRUE, instPkgdown = FALSE)'
     # remove vignettes folder and get VignetteBuilder field out of DESCRIPTION file
     - rm -rf vignettes
     - Rscriptdevel -e 'd <- read.dcf("DESCRIPTION"); d[, colnames(d) == "VignetteBuilder"] <- NA; write.dcf(d, "DESCRIPTION")'
@@ -115,7 +115,7 @@ coverage:
   script:
     - apt-get install --yes git
     # install missing and outdated packages
-    - Rscript -e 'source(".gitlab-ci.R"); gl_update_pkg_all(repos = "https://cran.rstudio.com", quiet = TRUE, install_pkgdown = FALSE)'
+    - Rscript -e 'source(".gitlab-ci.R"); pkgsUpdate(repos = "https://cran.rstudio.com", quiet = TRUE, instPkgdown = FALSE)'
     - Rscript -e 'covr::package_coverage(line_exclusions = c("R/zzz.R", "R/fitModAsreml.R"))'
   coverage: '/Coverage:\s*(\d+.\d+\%)/'
 
