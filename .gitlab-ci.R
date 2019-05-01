@@ -15,11 +15,12 @@ pkgsUpdate <- function(repos = "https://cran.rstudio.com",
   if (instPkgdown) {
     installIfNeeded(pkg = "pkgdown", repos = repos, quiet = quiet)
   }
-  remotes::install_deps(repos = repos, quiet = quiet)
+  remotes::install_deps(repos = repos, quiet = quiet, dependencies = TRUE)
   cat("INSTALLED:\n")
   instld <- as.data.frame(installed.packages())
   rownames(instld) <- NULL
   print(instld[, c("Package", "Version")])
   return(invisible(TRUE))
 }
+
 
