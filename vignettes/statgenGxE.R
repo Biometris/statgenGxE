@@ -4,7 +4,7 @@ collapse = TRUE,
 comment = "#>",
 fig.dim = c(6, 4)
 )
-library(RAP)
+library(statgenGxE)
 ## Call requireNamespace here to prevent license output in first call in vignette.
 requireNamespace("asreml", quietly = TRUE)
 
@@ -13,10 +13,10 @@ requireNamespace("asreml", quietly = TRUE)
 data("wheatChl")
 wheatTD <- createTD(data = wheatChl, genotype = "trt", repId = "rep", 
                     subBlock = "bl", rowCoord = "row", colCoord = "col")
-modWheatSpTot <- fitTD(TD = wheatTD, traits = "GY", what = "fixed", 
-                       design = "res.rowcol")
+modWheatSpTot <- statgenSSA::fitTD(TD = wheatTD, traits = "GY", what = "fixed", 
+                                   design = "res.rowcol")
 ## Create a TD object containing BLUEs and standard errors of BLUEs.
-TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
+TDGxE <- statgenSSA::SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
 
 ## ----geVClme-------------------------------------------------------------
 ## Use lme4 for fitting the models - only compound symmetry.

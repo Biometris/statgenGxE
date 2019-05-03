@@ -123,96 +123,6 @@ predictAsreml <- function(model,
   }
 }
 
-#' Helper function for computing the standard error of the variance.
-#'
-#' @keywords internal
-seVar <- function(x,
-                  na.rm = FALSE) {
-  if (inherits(x, c("matrix", "data.frame"))) {
-    se <- apply(X = x, MARGIN = 2, FUN = seVar, na.rm = na.rm)
-  } else if (is.vector(x)) {
-    if (na.rm) {
-      x <- x[!is.na(x)]
-    }
-    n <- length(x)
-    m1 <- sum(x) / n
-    m2 <- sum(x ^ 2) / n
-    m3 <- sum(x ^ 3) / n
-    m4 <- sum(x ^ 4) / n
-    se <- sqrt((n * (m4 - 4 * m1 * m3 + 6 * m1 ^ 2 * m2 - 3 * m1 ^ 4) /
-                  (n - 1) - (n * (m2 - m1 ^ 2) / (n - 1)) ^ 2) / n)
-  } else {
-    se <- seVar(x = as.vector(x), na.rm = na.rm)
-  }
-  return(se)
-}
-
-#' Helper function for computing the skewness.
-#' This and following formulas taken from
-#' https://brownmath.com/stat/shape.htm#Normal.
-#'
-#' @keywords internal
-skewness <- function(x,
-                     na.rm = FALSE) {
-  if (inherits(x, c("matrix", "data.frame"))) {
-    skw <- apply(X = x, MARGIN = 2, FUN = skewness, na.rm = na.rm)
-  } else if (is.vector(x)) {
-    if (na.rm) {
-      x <- x[!is.na(x)]
-    }
-    n <- length(x)
-    skw <- (sum((x - mean(x)) ^ 3) / n) / (sum((x - mean(x)) ^ 2) / n) ^ (3 / 2)
-  } else {
-    skw <- skewness(x = as.vector(x), na.rm = na.rm)
-  }
-  return(skw)
-}
-
-#' Helper function for computing the standard error of the skewness.
-#'
-#' @keywords internal
-seSkewness <- function(n) {
-  if (n <= 2) {
-    warning(paste("For n less than 2 the standard error of skewness cannot be",
-                  "calculated"), call. = FALSE)
-    return(NA)
-  }
-  return(sqrt((6 * n * (n - 1)) / ((n - 2) * (n + 1) * (n + 3))))
-}
-
-#' Helper function for computing kurtosis.
-#' Rescaled by subtracting 3 from the result to give the normal distribution
-#' a kurtosis of 0, so basically the excess kurtosis.
-#'
-#' @keywords internal
-kurtosis <- function(x,
-                     na.rm = FALSE) {
-  if (inherits(x, c("matrix", "data.frame"))) {
-    kurt <- apply(X = x, MARGIN = 2, FUN = kurtosis, na.rm = na.rm)
-  } else if (is.vector(x)) {
-    if (na.rm) {
-      x <- x[!is.na(x)]
-    }
-    n <- length(x)
-    kurt <- n * sum((x - mean(x)) ^ 4) / (sum((x - mean(x)) ^ 2) ^ 2) - 3
-  } else {
-    kurt <- kurtosis(x = as.vector(x), na.rm = na.rm)
-  }
-  return(kurt)
-}
-
-#' Helper function for computing the standard error of the kurtosis.
-#'
-#' @keywords internal
-seKurtosis <- function(n) {
-  if (n <= 3) {
-    warning(paste("For n less than 2 the standard error of kurtosis cannot be",
-                  "calculated"), call. = FALSE)
-    return(NA)
-  }
-  return(sqrt((24 * n * (n - 1) ^ 2) / ((n - 2) * (n - 3) * (n + 3) * (n + 5))))
-}
-
 #' Base method for creating a report
 #'
 #' Base method for creating a .pdf and .tex report from an \code{R} object.
@@ -220,10 +130,8 @@ seKurtosis <- function(n) {
 #' @param x An \code{R} object
 #' @param ... Further arguments to be passed on to specific report functions.
 #'
-#' @seealso \code{\link{report.SSA}}, \code{\link{report.varComp}},
-#' \code{\link{report.AMMI}}, \code{\link{report.FW}},
-#' \code{\link{report.stability}}, \code{\link{report.cross}},
-#' \code{\link{report.QTLDet}}, \code{\link{report.multiQTL}}
+#' @seealso \code{\link{report.varComp}}, \code{\link{report.AMMI}},
+#' \code{\link{report.FW}}, \code{\link{report.stability}}
 #'
 #' @export
 report <- function(x,
@@ -281,7 +189,7 @@ createReport <- function(x,
   ## Construct the output name of the .tex file
   outTex <- file.path(outDir, paste0(outBase, "tex"))
   ## Get the report file from the directory where the package is installed.
-  reportFile <- system.file("reports", reportName, package = "RAP")
+  reportFile <- system.file("reports", reportName, package = "statgenGxE")
   ## Save knitr options for reset when exiting function.
   knitrOptsOrig <- knitr::opts_chunk$get()
   on.exit(knitr::opts_chunk$set(knitrOptsOrig))
@@ -327,49 +235,11 @@ createReport <- function(x,
   ## A .csv file might be created in the package directory.
   ## This file is moved to the proper output location.
   if (file.exists(system.file("reports", paste0(outBase, "csv"),
-                              package = "RAP"))) {
-    file.copy(system.file("reports", paste0(outBase, "csv"), package = "RAP"),
+                              package = "statgenGxE"))) {
+    file.copy(system.file("reports", paste0(outBase, "csv"), package = "statgenGxE"),
               file.path(outDir, paste0(outBase, "csv")), overwrite = TRUE)
-    unlink(system.file("reports", paste0(outBase, "csv"), package = "RAP"))
+    unlink(system.file("reports", paste0(outBase, "csv"), package = "statgenGxE"))
   }
-}
-
-#' Function for extracting the name of a qtl combining the peaks from a QTLDet
-#' object and the position of the qtl on the chromosome.
-#'
-#' @keywords internal
-qtlPosToName <- function(chrPos,
-                         peaks) {
-  ## chromosome positions are given in chr@position + .a, .d or nothing.
-  ## Extract chromosome.
-  chr <- sapply(X = chrPos, function(cp) {
-    unlist(strsplit(cp, "@"))[1]
-  })
-  ## Extract chromosome position in two steps. First take the part behind @.
-  ## Then remove everything behind the dot.
-  pos <- as.numeric(sapply(X = chrPos, function(cp) {
-    regmatches(x = unlist(strsplit(cp, "@"))[2],
-               gregexpr("[[:digit:]]+\\.*[[:digit:]]",
-                        unlist(strsplit(cp, "@"))[2]))[[1]]
-  }))
-  ## Extract the extesion, i.e. the bit after the last dot.
-  posExt <- sapply(X = chrPos, function(cp) {
-    sub(pattern = "\\d*(\\.\\d)", replacement = "",
-        x = unlist(strsplit(cp, "@"))[2])
-  })
-  chrPosDf <- data.frame(chr, pos, posExt, stringsAsFactors = FALSE)
-  #mapTot <- qtl::pull.map(cross, as.table = TRUE)[, 1:2]
-  mapTot <- peaks[ , c("chr", "pos")]
-  mapTot$mrkNames <- rownames(mapTot)
-  ## QTLDetection rounds positions to 1 digit in the names.
-  ## For a proper match position in the peaks has to be rounded to 1
-  ## digit as well.
-  mapTot$pos <- round(mapTot$pos, digits = 1)
-  chrPosMap <- merge(chrPosDf, mapTot, by = c("chr", "pos"), all.x = TRUE)
-  chrPosMap[is.na(chrPosMap$mrkNames), "mrkNames"] <-
-    paste0("c", chrPosMap[is.na(chrPosMap$mrkNames), "chr"], ".loc",
-           chrPosMap[is.na(chrPosMap$mrkNames), "pos"])
-  return(list(chrNames = chrPosMap$mrkNames, ext = chrPosMap$posExt))
 }
 
 #' Function for escaping special LaTeX characters
@@ -386,97 +256,6 @@ escapeLatex = function(x, newlines = FALSE, spaces = FALSE) {
   if (newlines) x = gsub('(?<!\n)\n(?!\n)', '\\\\\\\\', x, perl = TRUE)
   if (spaces) x = gsub('  ', '\\\\ \\\\ ', x)
   x
-}
-
-# Vectors for renaming columns in varcomp and effdim tables.
-renameVars <- data.frame(renameFrom = c("genotype", "repId", "rowId", "colId",
-                                        "subBlock", "repId:rowId",
-                                        "repId:colId", "repId:subBlock",
-                                        "colCoord", "rowCoord",
-                                        "rowCoordcolCoord", "f(colCoord)",
-                                        "f(rowCoord)", "f(colCoord):rowCoord",
-                                        "colCoord:f(rowCoord)",
-                                        "f(colCoord):f(rowCoord)", "Nobs", "R",
-                                        "variance", "pow", "units"),
-                         renameTo = c("Genotype", "Replicate", "Row", "Col",
-                                      "Block", "Row(replicate)",
-                                      "Col(replicate)", "Block(replicate)",
-                                      "Linear trend along cols",
-                                      "Linear trend along rows",
-                                      "Linear trend along rows and cols",
-                                      "Smooth trend along cols",
-                                      "Smooth trend along rows",
-                                      "Linear trend in rows changing smoothly along cols",
-                                      "Linear trend in cols changing smoothly along rows",
-                                      "Smooth-by-smooth interaction trend over rows and cols",
-                                      "Number of observations",
-                                      "Residual", "Residual", "Power",
-                                      "Units"), stringsAsFactors = FALSE)
-
-#' Function for extracting the table with variance components from a model in
-#' a nicely printable format.
-#'
-#' @keywords internal
-extractVarComp <- function(model,
-                           engine) {
-  if (engine == "SpATS") {
-    ## Extract variance components directly from model since using summary
-    ## creates a matrix with values already rounded restricting flexibility.
-    varComp <- matrix(data = c(model$var.comp, model$psi[1]),
-                      dimnames = list(c(names(model$var.comp), "Residual"),
-                                      "Variance"))
-
-  } else if (engine == "lme4") {
-    if (inherits(model, "lm")) {
-      ## In this case there is only residual variance since there are no
-      ## random effects.
-      varComp <- matrix(data = summary(model)$sigma ^ 2,
-                        dimnames = list("Residual", "Variance"))
-    } else {
-      varComp <- as.data.frame(lme4::VarCorr(model))
-      varComp <- matrix(data = varComp$vcov,
-                        dimnames = list(varComp$grp, "Variance"))
-    }
-  } else if (engine == "asreml") {
-    ## asreml provides the SE of the variance components as standard output.
-    ## This is included in varComp.
-    varComp <- as.matrix(summary(model)$varcomp[c("component", "std.error")])
-    ## Remove correlations from output. These are present for spatials models.
-    varComp <- varComp[!grepl(pattern = ".cor", x = rownames(varComp)), ,
-                       drop = FALSE]
-    ## To extract user readable names similar to the other engines from
-    ## asreml output split the rownames on "." and "!" Depending on the first
-    ## part of the split use the appropriate part as row name.
-    rownames(varComp) <- sapply(X = strsplit(x = rownames(varComp),
-                                             split = "[!.]+"),
-                                FUN = function(split) {
-                                  if (split[[1]] == "R") {
-                                    return(split[[2]])
-                                  } else {
-                                    return(split[[1]])
-                                  }
-                                })
-    colnames(varComp) <- c("Variance", "SE")
-  }
-  ## Rename rows for more user readable output.
-  for (i in seq_along(renameVars[["renameFrom"]])) {
-    rownames(varComp)[rownames(varComp) == renameVars[["renameFrom"]][i]] <-
-      renameVars[["renameTo"]][i]
-  }
-  ## Always put genotype as first row.
-  if ("Genotype" %in% rownames(varComp)) {
-    varComp <- rbind(varComp["Genotype", , drop = FALSE],
-                     varComp[rownames(varComp) != "Genotype", , drop = FALSE])
-  }
-  ## Add an empty row before residuals if it is not already there.
-  ## Only done if there is more than 1 row.
-  resRow <- which(rownames(varComp) == "Residual")
-  if (length(resRow) && nrow(varComp) > 1 && rownames(varComp)[resRow - 1] != "") {
-    varComp <- rbind(varComp[1:(resRow - 1), , drop = FALSE],
-                     rep(NA, times = ncol(varComp)),
-                     varComp[resRow:nrow(varComp), , drop = FALSE])
-  }
-  return(varComp)
 }
 
 #' Helper function for printing anova table in reports.
@@ -503,72 +282,6 @@ printAnova <- function(aovTab,
         add.to.row = list(pos = list(nrow(aovTab)),
                           command = paste0("\\hline  \\multicolumn{",
                                            ncol(aovTab), "}{c}{", legendText)))
-}
-
-calcPlotBorders <- function(trDat,
-                            bordVar) {
-  yMin <- min(trDat$rowCoord)
-  yMax <- max(trDat$rowCoord)
-  xMin <- min(trDat$colCoord)
-  xMax <- max(trDat$colCoord)
-  ## Create matrix containing replicates.
-  ## First create an empty matrix containing all row/column values
-  ## between min and max to assure complete missing rows/columns
-  ## are added.
-  M <- matrix(nrow = yMax - yMin + 1, ncol = xMax - xMin + 1,
-              dimnames = list(yMin:yMax, xMin:xMax))
-  for (i in 1:nrow(trDat)) {
-    M[as.character(trDat[i, "rowCoord"]),
-      as.character(trDat[i, "colCoord"])] <- trDat[i, bordVar]
-  }
-  ## Create an imputed version of M for plotting borders around NA values.
-  MImp <- M
-  MImp[is.na(MImp)] <- nlevels(trDat[[bordVar]]) + 1
-  has.breaks <- function(x) {
-    ncol(x) == 2 & nrow(x) > 0
-  }
-  ## Create a data.frame with positions where the value of rep in the
-  ## data changes in vertical direction.
-  vertW <- do.call(rbind.data.frame,
-                   Filter(f = has.breaks, x = Map(function(i, x) {
-                     cbind(y = i, x = which(diff(c(0, x, 0)) != 0))
-                   }, 1:nrow(MImp), split(MImp, 1:nrow(MImp)))))
-  ## Remove vertical walls that are on the outside bordering an NA value
-  ## to prevent drawing of unneeded lines.
-  vertW <- vertW[!(vertW$x == 1 & is.na(M[vertW$y, 1])) &
-                   !(vertW$x == ncol(M) + 1 &
-                       is.na(M[vertW$y, ncol(M)])), ]
-  ## Add min row value for plotting in the correct position.
-  vertW$y <- vertW$y + yMin - 1
-  vertW$x <- vertW$x + xMin - 1
-  ## For horizontal walls follow the same procedure as above.
-  horW <- do.call(rbind.data.frame,
-                  Filter(f = has.breaks, x = Map(function(i, y) {
-                    cbind(x = i, y = which(diff(c(0, y, 0)) != 0))
-                  }, 1:ncol(MImp), as.data.frame(MImp))))
-  horW <- horW[!(horW$y == 1 & is.na(M[1, horW$x])) &
-                 !(horW$y == nrow(M) + 1 & is.na(M[nrow(M), horW$x])), ]
-  horW$y <- horW$y + yMin - 1
-  horW$x <- horW$x + xMin - 1
-  return(list(horW = horW, vertW = vertW))
-}
-
-## This function is a slightly modified copy of map_data from ggplot2 combined
-## with map.fortify also from ggplot2.
-## Using the normal function is not possible because both packages qtl and maps
-## have a class map and when building the vignette this gives an error.
-mapData <- function(xLim,
-                    yLim) {
-  mapObj <- maps::map("world", exact = FALSE, plot = FALSE,
-                      fill = TRUE, xlim = xLim, ylim = yLim)
-  df <- data.frame(long = mapObj$x, lat = mapObj$y)
-  df$group <- cumsum(is.na(df$long) & is.na(df$lat)) + 1
-  df$order <- 1:nrow(df)
-  names <- do.call("rbind", lapply(strsplit(mapObj$names, "[:,]"),
-                                   "[", 1:2))
-  df$region <- names[df$group, 1]
-  df$subregion <- names[df$group, 2]
-  return(df[stats::complete.cases(df$lat, df$long), ])
 }
 
 ## The syntax for asreml4 differs from asreml3.

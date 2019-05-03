@@ -1,7 +1,8 @@
 ## Create TDHeat05.
 
 # Read raw data
-SB_Yield <- read.csv(system.file("extdata", "SB_yield.csv", package = "RAP"),
+SB_Yield <- read.csv(system.file("extdata", "SB_yield.csv",
+                                 package = "statgenGxE"),
                      stringsAsFactors = FALSE, na.strings = c("NA", "*"))
 # Restrict to HEAT05
 Heat05 <- SB_Yield[SB_Yield$Env == "HEAT05", ]
@@ -16,7 +17,8 @@ usethis::use_data(TDHeat05, overwrite = TRUE)
 ## Create TDMaize.
 
 # Read raw data
-F2Maize <- read.csv(system.file("extdata", "F2maize_pheno.csv", package = "RAP"),
+F2Maize <- read.csv(system.file("extdata", "F2maize_pheno.csv",
+                                package = "statgenGxE"),
                     stringsAsFactors = FALSE)
 # Create object of class TD
 TDMaize <- createTD(data = F2Maize, genotype = "genotype.", trial = "env.")
@@ -24,6 +26,7 @@ TDMaize <- createTD(data = F2Maize, genotype = "genotype.", trial = "env.")
 usethis::use_data(TDMaize, overwrite = TRUE)
 
 ## Create a dataset for unit testing.
+RNGversion("3.5.3")
 set.seed(123)
 testData <- data.frame(seed = rep(x = paste0("G", rep(x = 1:15, times = 2)),
                                   times = 3),
@@ -49,35 +52,15 @@ testDataYear <- rbind(testData, testData)
 testDataYear$field = rep(x = paste0("E", 1:6), each = 30)
 testDataYear$year <- rep(c(1, 2), each = 90)
 
-## Use data from qtl package for testing cross functions.
-## Save locally to prevent errors from changes in data.
-data(fake.f2, package = "qtl")
-## Restrict data.
-testF2 <- fake.f2[c(1, 2, "X"), 1:50]
-## Add a duplicate marker on chr 1 for testing purposes.
-testF2$geno$`1`$data <- cbind(testF2$geno$`1`$data, testF2$geno$`1`$data[, 7])
-colnames(testF2$geno$`1`$data)[8] <- "D1M37"
-testF2$geno$`1`$map <- c(testF2$geno$`1`$map, 137.37)
-names(testF2$geno$`1`$map)[8] <- "D1M37"
-
-data(fake.4way, package = "qtl")
-## Restrict data.
-test4way <- fake.4way[c(1,2,"X"), 1:50]
-
-data(fake.bc, package = "qtl")
-## Restrict data.
-testBc <- fake.bc[1:3, 1:50]
-
 ## Export all internal data in one go to package.
-usethis::use_data(testData, testDataYear, testF2, test4way, testBc,
-                  overwrite = TRUE, internal = TRUE)
+usethis::use_data(testData, testDataYear, overwrite = TRUE, internal = TRUE)
 
 ## Create data for vignette.
 # Read raw data.
 dat2011 <- read.delim(system.file("extdata", "pheno_data2011.txt",
-                                  package = "RAP"))
+                                  package = "statgenGxE"))
 dat2012 <- read.delim(system.file("extdata", "pheno_data2012.txt",
-                                  package = "RAP"))
+                                  package = "statgenGxE"))
 # Split data into separate year/trials.
 dat2011_1 <- dat2011[, 1:11]
 dat2011_1$trial <- "SR_FI_11"

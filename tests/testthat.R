@@ -1,4 +1,4 @@
 library(testthat)
-library(RAP)
+library(statgenGxE)
 
-test_check("RAP")
+test_check("statgenGxE")

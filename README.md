@@ -1,5 +1,5 @@
-[![pipeline status](https://git.wur.nl/rossu027/RAP/badges/master/pipeline.svg)](https://git.wur.nl/rossu027/RAP/commits/master)
-[![coverage report](https://git.wur.nl/rossu027/RAP/badges/master/coverage.svg)](https://git.wur.nl/rossu027/RAP/commits/master)
+[![pipeline status](https://git.wur.nl/rossu027/statistical-genetic-pipeline/statgenGxE/badges/master/pipeline.svg)](https://git.wur.nl/rossu027/statistical-genetic-pipeline/statgenGxE/commits/master)
+[![coverage report](https://git.wur.nl/rossu027/statistical-genetic-pipeline/statgenGxE/badges/master/coverage.svg)](https://git.wur.nl/rossu027/statistical-genetic-pipeline/statgenGxE/commits/master)
 
 # RAP
 

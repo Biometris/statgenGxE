@@ -49,24 +49,3 @@ test_that("Stability summary produces correct output", {
                     "Wricke's ecovalence (Top 10 % genotypes)") %in% sumStab))
   expect_equal(length(sumStab2), length(sumStab) + 3)
 })
-
-test_that("QTLDet summary produces correct output", {
-  QTLDetF2_1 <- QTLDetect(testF2, trait = "phenotype")
-  QTLDetF2_2 <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed",
-                          thrFixed = 5)
-  sumQTLDetF2_1 <- capture.output(summary(QTLDetF2_1))
-  sumQTLDetF2_2 <- capture.output(summary(QTLDetF2_2))
-  expect_true("Peaks" %in% sumQTLDetF2_1)
-  expect_true("No peaks detected" %in% sumQTLDetF2_2)
-})
-
-test_that("multiQTL summary produces correct output", {
-  QTLDetF2 <- QTLDetect(testF2, trait = "phenotype", thrType = "fixed",
-                      thrFixed = 1.5, window = 2)
-  mqf <- multiQTLFit(QTLDetF2)
-  sumMqf <- capture.output(summary(mqf))
-  expect_true(all(c("Method: Haley-Knott regression ", "Full model result",
-                    "Model formula: y ~ Q1 ",
-                    "Estimated effects:") %in% sumMqf))
-})
-

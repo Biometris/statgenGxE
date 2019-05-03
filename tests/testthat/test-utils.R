@@ -47,37 +47,3 @@ test_that("function wrnToErr functions properly", {
   expect_equal(modOut$error, c("testErr", "Abnormal termination"))
   expect_equal(modOut$warning, "testWrn")
 })
-
-trDat <- data.frame(rowCoord = rep(1:4, each = 4),
-                    colCoord = rep(1:4, times = 4),
-                    repId = rep(1:2, each = 8))
-test_that("calcPlotBorders functions properly", {
-  bord <- calcPlotBorders(trDat = trDat, bordVar = "repId")
-  expect_is(bord, "list")
-  expect_named(bord, c("horW", "vertW"))
-  expect_is(bord$horW, "data.frame")
-  expect_is(bord$vertW, "data.frame")
-  expect_equal(bord$horW$x, rep(1:4, each = 3))
-  expect_equal(bord$horW$y, rep(c(1, 3, 5), times = 4))
-  expect_equal(bord$vertW$x, rep(c(1, 5), times = 4))
-  expect_equal(bord$vertW$y, rep(1:4, each = 2))
-})
-
-test_that("calcPlotBorders functions properly with NA", {
-  trDat <- trDat[-1, ]
-  bord <- calcPlotBorders(trDat = trDat, bordVar = "repId")
-  expect_equal(bord$horW$x, c(1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4))
-  expect_equal(bord$horW$y, c(3, 5, 1, 3, 5, 1, 3, 5, 1, 3, 5))
-  expect_equal(bord$vertW$x, c(5, 1, 5, 1, 5, 1, 5))
-  expect_equal(bord$vertW$y, c(1, 2, 2, 3, 3, 4, 4))
-})
-
-test_that("mapData functions properly", {
-  mapDat <- mapData(xLim = c(0, 5), yLim = c(50, 53))
-  expect_is(mapDat, "data.frame")
-  expect_true(all(hasName(mapDat, c("lat", "long"))))
-  expect_equal(sum(is.na(mapDat$lat)), 0)
-  expect_equal(sum(is.na(mapDat$long)), 0)
-  expect_equal(unique(mapDat$region),
-                      c("Belgium", "France", "UK", "Netherlands"))
-})
