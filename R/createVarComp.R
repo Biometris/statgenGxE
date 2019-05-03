@@ -126,7 +126,7 @@ plot.varComp <- function(x,
                    panel.grid.minor = ggplot2::element_blank()) +
     ggplot2::ggtitle(paste("Heatmap for model:", x$choice)) +
     ggplot2::xlab("") + ggplot2::ylab("") +
-    ggplot2::labs(fill = "correlation", size = "variance") +
+    ggplot2::labs(fill = "correlation", size = "covariance") +
     ## Fix coordinates to get a square sized plot.
     ggplot2::coord_fixed()
   if (output) {

@@ -5,7 +5,7 @@
 \title{Finlay-Wilkinson analysis}
 \usage{
 gxeFw(TD, trials = names(TD), trait, maxIter = 15, tol = 0.001,
-  sorted = c("descending", "ascending", "none"), restrictGeno = NULL,
+  sorted = c("descending", "ascending", "none"), genotypes = NULL,
   useWt = FALSE)
 }
 \arguments{
@@ -25,7 +25,7 @@ algorithm.}
 \item{sorted}{A character string specifying the sorting order of the
 estimated values in the output.}
 
-\item{restrictGeno}{An optional character string containing the genotypes to
+\item{genotypes}{An optional character string containing the genotypes to
 which the analysis should be restricted. If \code{NULL}, all genotypes are
 used.}
 

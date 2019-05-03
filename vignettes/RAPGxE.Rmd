@@ -39,7 +39,7 @@ TDGxE <- SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
 
 ## Genotype by Environment Analysis using the RAP package
 
-The RAP package is developed as an easy to use package for analyzing data of 
+The RAP package is developed as an easy-to-use package for analyzing data of 
 plant breeding experiments with many options for plotting and reporting 
 the results of the analyses.  
 
@@ -99,18 +99,18 @@ if (requireNamespace("asreml", quietly = TRUE)) {
   summary(geVC2)
 }
 ```
-As becomes clear from the summary, the best model based on AIC is the model with a factor analytic variance-covariance structure with two factors. 
-Note that for the both factor analytic models to be fitted a minimum of five environments are needed. If the data contains less environments, those two models are skipped.
+`r if (exists("geVC2")) {"As becomes clear from the summary, the best model based on AIC is the model with a factor analytic variance-covariance structure with two factors."}` 
+Note that for the both factor analytic models to be fitted a minimum of five environments are needed. If the data contains fewer environments, those two models are skipped.
 
 A heat map of the correlation between the environments based on the best fitted model can be plotted. 
 
 ```{r geVCPlot, out.width="75%"}
-if (requireNamespace("asreml", quietly = TRUE)) {
+if (exists("geVC2")) {
   plot(geVC2)
 }
 ```
   
-The upper left of the plot displays the variance between environments. Larger values are displayed in a bigger font. In the lower right of the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue a strong negative correlation. Environments are clustered by their correlations and ordered according to the results of the clustering.
+The upper left of the plot displays the covariance between environments. Larger values are displayed in a bigger font. In the lower right of the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue a strong negative correlation. Environments are clustered by their correlations and ordered according to the results of the clustering.
 
 A pdf report containing the most important results of the analysis can be made using the `report` function.
 ```{r geVCRep, eval=FALSE}
@@ -190,16 +190,14 @@ plot(geGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 
 With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank genotypes based on phenotypic stability for each individual trait.  
 
-In the RAP package this analysis can be done using the `gxeFW` function. By default all 
-trials in the `TD` object are used in the analysis, but this can be restricted using the
-parameter `trials`. The genotypes included in the analysis can be restricted using `restrictGeno`.
+In the RAP package this analysis can be done using the `gxeFW` function. By default all trials in the `TD` object are used in the analysis, but this can be restricted using the parameter `trials`. The genotypes included in the analysis can be restricted using the parameter `genotypes`.
 ```{r geFW}
 ## Perform a Finlay-Wilkinson analysis for all trials.
 geFW <- gxeFw(TD = TDGxE, trait = "BLUEs_GY")
 summary(geFW)
 ```
 Three types of plots can be made to investigate the output of the analysis. `plotType = "scatter"` creates three scatter plots where genotypic mean, mean squared deviation and sensitivity are plotted against each other. `plotType = "line"` creates a plot with fitted lines for all genotypes in the analysis. `plotType = "trellis"` creates a trellis plot with individual slopes per genotype. At most 64 genotypes are plotted. It is possible to select genotypes using the parameter `genotypes`.
-```{r plotFW,fig.width=5,fig.height=5,out.width="47%",fig.show="hold"}
+```{r plotFW,fig.width=5,fig.height=5,fig.show="hold"}
 plot(geFW, plotType = "scatter")
 plot(geFW, plotType = "line")
 plot(geFW, plotType = "trellis")
@@ -236,7 +234,7 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
 ## Computation of stability measures {#st}
 
 Different measures of stability can be calculated using the RAP package, the
-cultivar-superiority measure of Lin & Binns [@LIN1988], Shukla's [@Shukla1972] stability variance and Wricke's [@Wricke1962] ecovalence.
+cultivar-superiority measure of Lin & Binns [@Lin1988], Shukla's [@Shukla1972] stability variance and Wricke's [@Wricke1962] ecovalence.
 
 The cultivar-superiority measure is the sum of the squares of the difference between genotypic mean in each environment and the mean of the best genotype, divided by twice the number of environments. Genotypes with the smallest values of the superiority tend to be more stable, and closer to the best genotype in each environment.
 
