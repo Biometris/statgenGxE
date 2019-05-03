@@ -25,7 +25,7 @@ requireNamespace("asreml", quietly = TRUE)
 ```
 
 ```{r, include = FALSE, message = FALSE}
-## Recreate data from last step in RAP vignette.
+## Recreate data from last step in statgenSSA vignette.
 data("wheatChl")
 wheatTD <- createTD(data = wheatChl, genotype = "trt", repId = "rep", 
                     subBlock = "bl", rowCoord = "row", colCoord = "col")
@@ -37,9 +37,9 @@ TDGxE <- statgenSSA::SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
 
 ---
 
-## Genotype by Environment Analysis using the RAP package
+## Genotype by Environment Analysis using the statgenGxE package
 
-The RAP package is developed as an easy to use package for analyzing data of 
+The statgenGxE package is developed as an easy to use package for analyzing data of 
 plant breeding experiments with many options for plotting and reporting 
 the results of the analyses.  
 
@@ -52,7 +52,7 @@ The package has three main components:
 This vignette deals with the GxE part of the package and describes in 
 detail how to perform the different types of analysis that are available in the package.
 
-The following types of analysis can be done using RAP:
+The following types of analysis can be done using statgenGxE:
 
 * [Mixed model Analysis](#vc)
 * [AMMI Analysis](#am)
@@ -121,7 +121,7 @@ report(geVC2, outfile = "./myReports/varCompReport.pdf")
 
 The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with the Multiplicative Interaction effects. Then a principal component analysis is done on the residuals (multiplicative interaction). This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials.  
 
-The AMMI analysis can be performed with the RAP package using the function gxeAmmi. 
+The AMMI analysis can be performed with the statgenGxE package using the function gxeAmmi. 
 ```{r geAmmi}
 ## Run gxeAmmi with default settings.
 geAm <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY")
@@ -168,7 +168,7 @@ report(geAm, outfile = "./myReports/AMMIReport.pdf")
 
 ## GGE Analysis {#gge}
 
-A Genotype plus Genotype by Environment analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. Therefore, the principal component analysis is performed on the genotype main effect and the interaction jointly. The GGE analysis is done in RAP by running the function `gxeAmmi` with parameter
+A Genotype plus Genotype by Environment analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. Therefore, the principal component analysis is performed on the genotype main effect and the interaction jointly. The GGE analysis is done in statgenGxE by running the function `gxeAmmi` with parameter
 `GGE = TRUE`.
 
 ```{r geGGE}
@@ -190,16 +190,14 @@ plot(geGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 
 With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank genotypes based on phenotypic stability for each individual trait.  
 
-In the RAP package this analysis can be done using the `gxeFW` function. By default all 
-trials in the `TD` object are used in the analysis, but this can be restricted using the
-parameter `trials`. The genotypes included in the analysis can be restricted using `restrictGeno`.
+In the statgenGxE package this analysis can be done using the `gxeFW` function. By default all trials in the `TD` object are used in the analysis, but this can be restricted using the parameter `trials`. The genotypes included in the analysis can be restricted using `genotypes`.
 ```{r geFW}
 ## Perform a Finlay-Wilkinson analysis for all trials.
 geFW <- gxeFw(TD = TDGxE, trait = "BLUEs_GY")
 summary(geFW)
 ```
 Three types of plots can be made to investigate the output of the analysis. `plotType = "scatter"` creates three scatter plots where genotypic mean, mean squared deviation and sensitivity are plotted against each other. `plotType = "line"` creates a plot with fitted lines for all genotypes in the analysis. `plotType = "trellis"` creates a trellis plot with individual slopes per genotype. At most 64 genotypes are plotted. It is possible to select genotypes using the parameter `genotypes`.
-```{r plotFW,fig.width=5,fig.height=5,out.width="47%",fig.show="hold"}
+```{r plotFW,fig.width=5,fig.height=5,fig.show="hold"}
 plot(geFW, plotType = "scatter")
 plot(geFW, plotType = "line")
 plot(geFW, plotType = "trellis")
@@ -235,7 +233,7 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
 
 ## Computation of stability measures {#st}
 
-Different measures of stability can be calculated using the RAP package, the
+Different measures of stability can be calculated using the statgenGxE package, the
 cultivar-superiority measure of Lin & Binns [@Lin1988], Shukla's [@Shukla1972] stability variance and Wricke's [@Wricke1962] ecovalence.
 
 The cultivar-superiority measure is the sum of the squares of the difference between genotypic mean in each environment and the mean of the best genotype, divided by twice the number of environments. Genotypes with the smallest values of the superiority tend to be more stable, and closer to the best genotype in each environment.
