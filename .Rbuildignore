@@ -9,3 +9,5 @@ R/redundant
 ^README\.Rmd$
 ^README-.*\.png$
 ^installed_deps$
+^.apt$
+^ci
