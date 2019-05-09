@@ -12,9 +12,12 @@ pkgsUpdate <- function(repos = "https://cran.rstudio.com",
                        quiet = TRUE,
                        instPkgdown = FALSE) {
   installIfNeeded(pkg = "remotes", repos = repos, quiet = quiet)
+  remotes::install_github("r-lib/remotes")
   if (instPkgdown) {
     installIfNeeded(pkg = "pkgdown", repos = repos, quiet = quiet)
   }
+  remotes::install_gitlab(repo = "statistical-genetic-pipeline/statgenSSA",
+                          host = "git.wur.nl")
   remotes::install_deps(repos = repos, quiet = quiet, dependencies = TRUE)
   cat("INSTALLED:\n")
   instld <- as.data.frame(installed.packages())
