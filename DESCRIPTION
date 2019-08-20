@@ -1,19 +1,20 @@
 Package: statgenGxE
 Type: Package
-Title: R Analytical Pipeline (RAP)
-Version: 0.0.1
-Date: 2019-05-03
+Title: Genotype by Environment Analysis (GxE)
+Version: 0.0.5
+Date: 2019-08-20
 Authors@R: c(
     person("Bart-Jan", "van Rossum", email = "bart-jan.vanrossum@wur.nl", 
     role = c("aut", "cre")),
     person("Biometris", rol = "cph"))
-Description: The R Analytical Pipeline (RAP), commissioned by the Generation 
-    Challenge Program (GCP), is being developed to streamline the analysis of 
-    typical plant breeding experiments, including both phenotypic analysis of 
-    field trials and genotype-by-environment analysis. Some functions have
-    been created to be used in conjunction with the R package 'asreml' for 
-    the 'ASReml' software, which can be obtained upon purchase from 'VSN' 
-    international (<http://www.vsni.co.uk/software/asreml>).
+Description: The statgen packages, commissioned by the Generation Challenge 
+    Program (GCP), are being developed to streamline the analysis of typical 
+    plant breeding experiments, including both phenotypic analysis of field 
+    trials and genotype-by-environment analysis. statgenGxE can be used for 
+    genotype by environment analysis.
+    Some functions have been created to be used in conjunction with the R 
+    package 'asreml' for the 'ASReml' software, which can be obtained upon 
+    purchase from 'VSN' international (<http://www.vsni.co.uk/software/asreml>).
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
