@@ -272,7 +272,7 @@ gxeVarComp <- function(TD,
       bestPred <- predictAsreml(model = bestModel, classify = "trial",
                                 TD = TDTot, maxiter = maxIter, ...)
       vcovBest <- if (asreml4()) {
-        bestPred$vcov
+        as.matrix(bestPred$vcov)
       } else {
         bestPred$predictions$vcov
       }
