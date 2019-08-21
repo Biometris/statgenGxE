@@ -1,8 +1,8 @@
 Package: statgenGxE
 Type: Package
 Title: Genotype by Environment Analysis (GxE)
-Version: 0.0.5
-Date: 2019-08-20
+Version: 0.0.5.1
+Date: 2019-08-21
 Authors@R: c(
     person("Bart-Jan", "van Rossum", email = "bart-jan.vanrossum@wur.nl", 
     role = c("aut", "cre")),
