@@ -9,7 +9,7 @@ library(statgenGxE)
 requireNamespace("asreml", quietly = TRUE)
 
 ## ---- include = FALSE, message = FALSE-----------------------------------
-## Recreate data from last step in RAP vignette.
+## Recreate data from last step in statgenSSA vignette.
 data("wheatChl")
 wheatTD <- createTD(data = wheatChl, genotype = "trt", repId = "rep", 
                     subBlock = "bl", rowCoord = "row", colCoord = "col")
@@ -86,7 +86,7 @@ plot(geGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 geFW <- gxeFw(TD = TDGxE, trait = "BLUEs_GY")
 summary(geFW)
 
-## ----plotFW,fig.width=5,fig.height=5,out.width="47%",fig.show="hold"-----
+## ----plotFW,fig.width=5,fig.height=5,fig.show="hold"---------------------
 plot(geFW, plotType = "scatter")
 plot(geFW, plotType = "line")
 plot(geFW, plotType = "trellis")

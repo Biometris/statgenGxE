@@ -3,14 +3,15 @@ title: "Genotype by Environment analysis using statgenGxE"
 author: "Bart-Jan van Rossum"
 date: "`r Sys.Date()`"
 output: 
-  rmarkdown::html_vignette:
+  rmarkdown::pdf_document:  
     toc: false
     number_sections: false
+  # rmarkdown::html_vignette:
 bibliography: bibliography.bib
 vignette: >
   %\VignetteIndexEntry{Genotype by Environment analysis using statgenGxE}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
   
 ```{r setup, include = FALSE}
