@@ -68,7 +68,7 @@ gxeTable <- function(TD,
       }
       sink()
       unlink(tmp)
-      if (!is.null(mr$warning) || !is.null(mr$error)) {
+      if (!is.null(mr$error)  || (!is.null(mr$warning) && !mr$value$converge)) {
         ## In case asreml gave an error return a data.frame with NAs.
         warning("asreml gave an error. Empty data.frame returned.\n")
         predVals <- se <- data.frame(matrix(nrow = nlevels(TDTot$genotype),
@@ -77,12 +77,18 @@ gxeTable <- function(TD,
                                                             levels(TDTot$megaEnv))),
                                      check.names = FALSE)
       } else {
-        mr <-  mr$value
+        mr <- mr$value
         ## Eval of fixed is needed since fixed contains a variable term trait.
         mr$call$fixed <- eval(mr$call$fixed)
         ## Predict and extract BLUPs
-        mr <- predictAsreml(model = mr, classify = "genotype:megaEnv", TD = TDTot)
-        pVal <- mr$predictions$pvals
+        mr <- suppressWarnings(predictAsreml(model = mr,
+                                             classify = "genotype:megaEnv",
+                                             TD = TDTot))
+        if (asreml4()) {
+          pVal <- mr$pvals
+        } else {
+          pVal <- mr$predictions$pvals
+        }
         ## If megaEnv consists of numerical values megaEnv will be a numerical
         ## column in pVal instead of the expected factor. This causes a
         ## shift in column order. Therefore set it back to factor.
@@ -91,7 +97,7 @@ gxeTable <- function(TD,
         predVals <- as.data.frame(tapply(X = pVal$predicted.value,
                                          INDEX = pVal[, c("genotype", "megaEnv")],
                                          FUN = identity))
-        se <- as.data.frame(tapply(X = pVal$standard.error,
+        se <- as.data.frame(tapply(X = pVal[[if (asreml4()) "std.error" else "standard.error"]],
                                    INDEX = pVal[, c("genotype", "megaEnv")],
                                    FUN = identity))
       }

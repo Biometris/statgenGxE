@@ -292,7 +292,7 @@ asreml4 <- function() {
     if (packageVersion("asreml") >= 4) {
       ## Calling license status apparently also activates the license if this
       ## was done once before.
-      asreml::asreml.license.status()
+      #asreml::asreml.license.status()
       return(TRUE)
     }
     return(FALSE)
