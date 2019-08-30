@@ -29,10 +29,10 @@ Imports: emmeans,
     xtable,
     gridExtra,
     scales,
-    statgenHTP
+    RAP
 Suggests: asreml(>= 3.0),
     rmarkdown,
     testthat,
     covr
-Remotes: git::git@git.wur.nl:rossu027/statgenHTP.git
+Remotes: git::git@git.wur.nl:rossu027/RAP.git
 VignetteBuilder: knitr
