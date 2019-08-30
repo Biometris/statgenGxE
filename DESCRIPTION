@@ -29,7 +29,7 @@ Imports: emmeans,
     xtable,
     gridExtra,
     scales,
-    statgenhtp
+    statgenHTP
 Suggests: asreml(>= 3.0),
     rmarkdown,
     testthat,
