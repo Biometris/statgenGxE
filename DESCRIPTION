@@ -28,8 +28,7 @@ Imports: emmeans,
     reshape2,
     xtable,
     gridExtra,
-    scales,
-    statgenhtp
+    scales
 Suggests: asreml(>= 3.0),
     rmarkdown,
     testthat,
