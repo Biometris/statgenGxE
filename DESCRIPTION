@@ -34,5 +34,5 @@ Suggests: asreml(>= 3.0),
     rmarkdown,
     testthat,
     covr
-Remotes: git::git@git.wur.nl/statistical-genetic-pipeline/statgenSSA.git
+Remotes: git::git@git.wur.nl:statistical-genetic-pipeline/statgenSSA.git
 VignetteBuilder: knitr
