@@ -116,8 +116,6 @@ summary.FW <- function(object, ...) {
 #' ## Create a line plot.
 #' plot(geFW, plotType = "trellis")
 #'
-#' @import graphics grDevices
-#' @importFrom utils modifyList
 #' @export
 plot.FW <- function(x,
                     ...,
@@ -139,34 +137,31 @@ plot.FW <- function(x,
                                            "MSdeviation", "sens")[selCols]],
                            c("genotype", "Mean", "m.s.deviation",
                              "Sensitivity")[selCols])
-    scatterDat <- ggplot2::remove_missing(scatterDat, na.rm = TRUE)
+    scatterDat <- remove_missing(scatterDat, na.rm = TRUE)
     ## Create plot of mean x mse. No x axis because of position in grid.
-    p1 <- ggplot2::ggplot(data = scatterDat,
-                          ggplot2::aes_string(x = "Mean", y = "m.s.deviation")) +
-      ggplot2::geom_point() +
-      ggplot2::theme(axis.title.x = ggplot2::element_blank(),
-                     axis.text.x = ggplot2::element_blank(),
-                     axis.ticks.x = ggplot2::element_blank())
+    p1 <- ggplot(data = scatterDat,
+                 aes_string(x = "Mean", y = "m.s.deviation")) +
+      geom_point() +
+      theme(axis.title.x = element_blank(),
+            axis.text.x = element_blank(),
+            axis.ticks.x = element_blank())
     ## Create plot of mean x sensitivity.
-    p2 <- ggplot2::ggplot(data = scatterDat,
-                          ggplot2::aes_string(x = "Mean", y = "Sensitivity")) +
-      ggplot2::geom_point()
+    p2 <- ggplot(data = scatterDat, aes_string(x = "Mean", y = "Sensitivity")) +
+      geom_point()
     ## Create plot of mse x sensitivity. No y axis because of position in grid.
-    p3 <- ggplot2::ggplot(data = scatterDat,
-                          ggplot2::aes_string(x = "m.s.deviation",
-                                              y = "Sensitivity")) +
-      ggplot2::geom_point() +
-      ggplot2::theme(axis.title.y = ggplot2::element_blank(),
-                     axis.text.y = ggplot2::element_blank(),
-                     axis.ticks.y = ggplot2::element_blank())
+    p3 <- ggplot(data = scatterDat, aes_string(x = "m.s.deviation",
+                                               y = "Sensitivity")) +
+      geom_point() +
+      theme(axis.title.y = element_blank(),
+            axis.text.y = element_blank(),
+            axis.ticks.y = element_blank())
     ## Create empty plot for top right grid position.
-    pEmpty <- ggplot2::ggplot() +
-      ggplot2::theme(panel.background = ggplot2::element_blank())
+    pEmpty <- ggplot() + theme(panel.background = element_blank())
     ## Convert to Grobs to make alignment of axis possible.
-    p1Gr <- ggplot2::ggplotGrob(p1)
-    p2Gr <- ggplot2::ggplotGrob(p2)
-    p3Gr <- ggplot2::ggplotGrob(p3)
-    pEmpty <- ggplot2::ggplotGrob(pEmpty)
+    p1Gr <- ggplotGrob(p1)
+    p2Gr <- ggplotGrob(p2)
+    p3Gr <- ggplotGrob(p3)
+    pEmpty <- ggplotGrob(pEmpty)
     ## Create grid by first binding rows to assure axis alignment and then
     ## by columns.
     c1 <- gridExtra::gtable_rbind(p1Gr, p2Gr)
@@ -188,24 +183,23 @@ plot.FW <- function(x,
     }
     lineDat <- reshape2::melt(fVal)
     lineDat <- merge(x = lineDat, y = envEffs)
-    lineDat <- ggplot2::remove_missing(lineDat, na.rm = TRUE)
+    lineDat <- remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
     aesArgs <- list(x = "envEff", y = "value", color = "genotype")
     fixedArgs <- c("x", "y", "color", "title")
     ## Add and overwrite args with custom args from ...
-    aesArgs <- modifyList(aesArgs, dotArgs[!names(dotArgs) %in% fixedArgs])
+    aesArgs <- utils::modifyList(aesArgs,
+                                 dotArgs[!names(dotArgs) %in% fixedArgs])
     ## Create plot.
-    p <- ggplot2::ggplot(data = lineDat,
-                         do.call(ggplot2::aes_string, args = aesArgs)) +
-      ggplot2::geom_point() + ggplot2::geom_line(size = 0.5, alpha = 0.7) +
-      ggplot2::scale_x_continuous(breaks = envEffs$envEff, minor_breaks = NULL,
-                                  labels = levels(lineDat$trial),
-                                  trans = xTrans) +
-      ggplot2::theme(legend.position = "none",
-                     plot.title = ggplot2::element_text(hjust = 0.5),
-                     axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) +
-      ggplot2::ggtitle(plotTitle) +
-      ggplot2::labs(x = "Environment", y = x$trait)
+    p <- ggplot(data = lineDat, do.call(aes_string, args = aesArgs)) +
+      geom_point() + geom_line(size = 0.5, alpha = 0.7) +
+      scale_x_continuous(breaks = envEffs$envEff, minor_breaks = NULL,
+                         labels = levels(lineDat$trial),
+                         trans = xTrans) +
+      theme(legend.position = "none",
+            plot.title = element_text(hjust = 0.5),
+            axis.text.x = element_text(angle = 90, hjust = 1)) +
+      labs(title = plotTitle, x = "Environment", y = x$trait)
     if (output) {
       plot(p)
     }
@@ -227,21 +221,21 @@ plot.FW <- function(x,
       trellisDat <- trellisDat[trellisDat[["genotype"]] %in%
                                  levels(trellisDat[["genotype"]])[1:64], ]
     }
-    trellisDat <- ggplot2::remove_missing(trellisDat, na.rm = TRUE)
+    trellisDat <- remove_missing(trellisDat, na.rm = TRUE)
     ## The data needs to be ordered for the lines to be drawn properly.
     trellisDat <- trellisDat[order(trellisDat[["genotype"]],
                                    trellisDat[["xEff"]]), ]
-    p <- ggplot2::ggplot(data = trellisDat,
-                         ggplot2::aes_string(x = "xEff", y = "trait + fitted")) +
-      ggplot2::geom_point() +
-      ggplot2::geom_path() +
-      ggplot2::facet_wrap(facets = "genotype") +
-      ggplot2::labs(x = "Environment", y = x$trait) +
-      ggplot2::ggtitle(plotTitle) +
-      ggplot2::theme(legend.position = "none",
-                     plot.title = ggplot2::element_text(hjust = 0.5),
-                     panel.spacing = ggplot2::unit(.2, "cm"),
-                     axis.text = ggplot2::element_text(size = 6))
+    p <- ggplot(data = trellisDat,
+                aes_string(x = "xEff", y = "trait + fitted")) +
+      geom_point() +
+      geom_path() +
+      facet_wrap(facets = "genotype") +
+      labs(x = "Environment", y = x$trait) +
+      ggtitle(plotTitle) +
+      theme(legend.position = "none",
+            plot.title = element_text(hjust = 0.5),
+            panel.spacing = unit(.2, "cm"),
+            axis.text = element_text(size = 6))
     if (output) {
       plot(p)
     }

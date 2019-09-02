@@ -84,7 +84,6 @@
 #' report(geAmmi, outfile = "./testReports/reportAmmi.pdf")
 #' }
 #'
-#' @import stats
 #' @export
 gxeAmmi <- function(TD,
                     trials = names(TD),

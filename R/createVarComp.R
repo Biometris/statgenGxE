@@ -68,7 +68,6 @@ summary.varComp <- function(object, ...) {
 #' plot(geVarComp)
 #' }
 #'
-#' @import stats
 #' @export
 plot.varComp <- function(x,
                          ...,
@@ -102,33 +101,33 @@ plot.varComp <- function(x,
                                    as.numeric(meltedVarMat$Var2), ]
   ## Round values for nicer display
   meltedVarMatUp$value <- round(meltedVarMatUp$value)
-  p <- ggplot2::ggplot(data = meltedCorMatLow,
-                  ggplot2::aes_string("Var1", "Var2", fill = "value")) +
-    ggplot2::geom_tile(color = "white") +
+  p <- ggplot(data = meltedCorMatLow,
+              aes_string("Var1", "Var2", fill = "value")) +
+    geom_tile(color = "white") +
     ## Discrete scales for x and y are needed to assure the diagonal is
     ## included in the plot. It is filled with variances later.
-    ggplot2::scale_x_discrete(drop = FALSE) +
-    ggplot2::scale_y_discrete(drop = FALSE) +
+    scale_x_discrete(drop = FALSE) +
+    scale_y_discrete(drop = FALSE) +
     ## Create a gradient scale.
-    ggplot2::scale_fill_gradient2(low = "blue", high = "red", mid = "white",
-                                  na.value = "grey", limit = c(-1, 1)) +
+    scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                         na.value = "grey", limit = c(-1, 1)) +
     ## Var1 and Var2 have to be converted to numeric here to prevent ggplot
     ## from refactoring the data.
-    ggplot2::geom_text(data = meltedVarMatUp,
-                       ggplot2::aes_string("as.numeric(Var1)", "as.numeric(Var2)",
+    geom_text(data = meltedVarMatUp,
+              aes_string("as.numeric(Var1)", "as.numeric(Var2)",
                          label = "value", size = "value")) +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1,
-                                                       size = 10, hjust = 1)) +
-    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1,
+                                     size = 10, hjust = 1)) +
+    theme(plot.title = element_text(hjust = 0.5)) +
     ## Remove grid behind text output.
-    ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
-                   panel.grid.minor = ggplot2::element_blank()) +
-    ggplot2::ggtitle(paste("Heatmap for model:", x$choice)) +
-    ggplot2::xlab("") + ggplot2::ylab("") +
-    ggplot2::labs(fill = "correlation", size = "covariance") +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank()) +
+    ggtitle(paste("Heatmap for model:", x$choice)) +
+    xlab("") + ylab("") +
+    labs(fill = "correlation", size = "covariance") +
     ## Fix coordinates to get a square sized plot.
-    ggplot2::coord_fixed()
+    coord_fixed()
   if (output) {
     plot(p)
   }

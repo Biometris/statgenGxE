@@ -77,8 +77,6 @@ summary.stability <- function(object,
 #' ## Create scatter plots of the computed stability measures against the means.
 #' plot(geStab)
 #'
-#' @import graphics grDevices
-#'
 #' @export
 plot.stability <- function(x,
                            ...,
@@ -89,35 +87,30 @@ plot.stability <- function(x,
   plots <- vector(mode = "list")
   if (!is.null(x$superiority)) {
     ## Create superiority plot.
-    plots$p1 <- ggplot2::ggplot(data = x$superiority,
-                                ggplot2::aes_string(x = "mean",
-                                                    y = "superiority")) +
-      ggplot2::geom_point(col = "blue", shape = 1) +
-      ggplot2::labs(x = "Mean", y = "Cultivar superiority")
+    plots$p1 <- ggplot(data = x$superiority, aes_string(x = "mean",
+                                                        y = "superiority")) +
+      geom_point(col = "blue", shape = 1) +
+      labs(x = "Mean", y = "Cultivar superiority")
   }
   if (!is.null(x$static)) {
     ## Create static plot.
-    plots$p2 <- ggplot2::ggplot(data = x$static,
-                                ggplot2::aes_string(x = "mean",
-                                                    y = "static")) +
-      ggplot2::geom_point(col = "blue", shape = 1) +
-      ggplot2::labs(x = "Mean", y = "Static stability")
+    plots$p2 <- ggplot(data = x$static, aes_string(x = "mean", y = "static")) +
+      geom_point(col = "blue", shape = 1) +
+      labs(x = "Mean", y = "Static stability")
   }
   if (!is.null(x$wricke)) {
     ## Create Wricke plot.
-    plots$p3 <- ggplot2::ggplot(data = x$wricke,
-                                ggplot2::aes_string(x = "mean",
-                                                    y = "wricke")) +
-      ggplot2::geom_point(col = "blue", shape = 1) +
-      ggplot2::labs(x = "Mean", y = "Wricke's ecovalence")
+    plots$p3 <- ggplot(data = x$wricke, aes_string(x = "mean", y = "wricke")) +
+      geom_point(col = "blue", shape = 1) +
+      labs(x = "Mean", y = "Wricke's ecovalence")
   }
   if (length(plots) == 3) {
     ## Create empty plot for bottom right grid position.
-    plots$p4 <- ggplot2::ggplot() +
-      ggplot2::theme(panel.background = ggplot2::element_blank())
+    plots$p4 <- ggplot() +
+      theme(panel.background = element_blank())
   }
   ## Convert plots to grob for outlining of axes.
-  plotsGr <- lapply(X = plots, FUN = ggplot2::ggplotGrob)
+  plotsGr <- lapply(X = plots, FUN = ggplotGrob)
   if (length(plotsGr) > 1) {
     ## At least two plots -> 1 row.
     tot <- gridExtra::gtable_cbind(plotsGr[[1]], plotsGr[[2]])
