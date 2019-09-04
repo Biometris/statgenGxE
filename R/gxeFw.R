@@ -213,6 +213,7 @@ gxeFw <- function(TD,
                          row.names = c("genotype", "trial", "Sensitivities",
                                        "Residual", "Total"),
                          check.names = FALSE)
+  class(aovTable) <- c("anova", "data.frame")
   ## Extract sensitivity beta.
   sens <- as.vector(tapply(X = TDTot$beta, INDEX = TDTot$genotype,
                            FUN = mean, na.rm = TRUE))
