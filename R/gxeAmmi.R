@@ -163,13 +163,14 @@ gxeAmmi <- function(TD,
       }
     }
     ## check if the supplied data contains the genotype by environment means.
-    if (nTrait > nGeno * nEnv) {
+    maxTrGeno <- max(table(TDYear$trial, TDYear$genotype))
+    if (maxTrGeno > 1 || nTrait > nGeno * nEnv) {
       if (byYear) {
         warning(paste0("More than 1 value per trial per genotype for ", year,
                        ".\nYear ", year, " skipped.\n"), call. =  FALSE)
         next
       } else {
-        stop("TD should contain 1 value per trial per genotype.\n")
+        stop("TD should contain at most 1 value per trial per genotype.\n")
       }
     }
     if (!is.null(nPC) && nPC >= min(nEnv, nGeno)) {
