@@ -2,7 +2,7 @@ stages:
   - build
   - test
 
-image: rocker/r-ver
+image: docker-registry.wur.nl/rossu027/r-verasreml:latest
 
 variables:
   R_LIBS_USER: "$CI_PROJECT_DIR/ci/lib"
@@ -14,21 +14,14 @@ before_script:
   - mkdir -p "${APT_STATE_LISTS}/partial" && mkdir -p "${APT_CACHE_ARCHIVES}/partial"
   ## install apt dependencies for packages.
   - apt-get update -qq
-  - apt-get update && apt-get install -y libxml2-dev libssl-dev libcurl4-openssl-dev zlib1g-dev libglu1-mesa-dev libfreetype6-dev netbase > /dev/null
-  ## Install qpdf - needed for checking vignettes.
-  - apt-get update && apt-get install -y --no-install-recommends qpdf ghostscript > /dev/null
-  ## Install pandoc - needed for checking readme.
-  - apt-get update && apt-get install -y pandoc pandoc-citeproc > /dev/null
   ## Install git - needed for installing dependency statgenSSA.
   - apt-get update && apt-get install -y git
   ## Create directory for caching R packages.
   - mkdir -p $R_LIBS_USER
   ## Add R_LIBS_USER to libpaths.
   - echo '.libPaths("'${R_LIBS_USER}'")' > .Rprofile
-  ## Set _R_CHECK_FORCE_SUGGESTS_ to FALSE so R check doesn't crash over asreml.
-  - echo '_R_CHECK_FORCE_SUGGESTS_="false"' > .Renviron
-    ## set GITLAB_PAT.
-  - echo 'GITLAB_PAT='$GITLAB_PAT >> .Renviron
+  ## set GITLAB_PAT.
+  - echo 'GITLAB_PAT='$GITLAB_PAT > .Renviron
 
 R-release:
   stage: build
@@ -36,7 +29,7 @@ R-release:
   script:
     - Rscript -e 'sessionInfo()'
     # install missing and outdated packages
-    - Rscript -e 'source(".gitlab-ci.R"); pkgsUpdate(quiet = TRUE, instPkgdown = FALSE)'
+    - Rscript -e 'source(".gitlab-ci.R"); pkgsUpdate()'
     - Rscript -e 'remotes::install_gitlab(repo = "statistical-genetic-pipeline/statgenSSA", host = "git.wur.nl")'
     # build package
     - R CMD build .  --no-manual
@@ -55,12 +48,13 @@ R-release:
 
 R-devel:
   stage: build
-  image: rocker/r-devel
+  image: docker-registry.wur.nl/rossu027/r-develasreml:latest
   allow_failure: true
   script:
     - Rscriptdevel -e 'sessionInfo()'
     ## Install missing and outdated packages.
-    - Rscriptdevel -e 'source(".gitlab-ci.R"); pkgsUpdate(quiet = TRUE, instPkgdown = FALSE)'
+    - Rscriptdevel -e 'source(".gitlab-ci.R"); pkgsUpdate()'
+    - Rscriptdevel -e 'remotes::install_gitlab(repo = "statistical-genetic-pipeline/statgenSSA", host = "git.wur.nl")'
     ## Build package.
     - Rdevel CMD build . --no-manual
     - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
@@ -86,7 +80,6 @@ coverage:
     key: release-cache
     paths:
       - $R_LIBS_USER
-      - $CI_PROJECT_DIR/.apt
     policy: pull
   only:
     - develop
@@ -96,5 +89,11 @@ coverage:
     - echo '.libPaths("'${R_LIBS_USER}'")' > .Rprofile
   script:
     - Rscript -e 'covr::package_coverage()'
+    - Rscript -e 'covr::gitlab()'
   coverage: '/Coverage:\s*(\d+.\d+\%)/'
+  artifacts:
+    when: always
+    paths:
+      - public
+    expire_in: '1 month'
 
