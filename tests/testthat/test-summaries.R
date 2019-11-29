@@ -1,7 +1,5 @@
 context("Summaries")
 
-testTD <- createTD(data = testData, genotype = "seed", trial = "field",
-                   rowId = "Y", colId = "X", rowCoord = "Y", colCoord = "X")
 modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 

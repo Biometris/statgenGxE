@@ -1,9 +1,5 @@
 context("gxeVarComp")
 
-testTD <- createTD(data = testData, genotype = "seed",
-                   trial = "field", repId = "rep",
-                   subBlock = "block", rowId = "Y", colId = "X",
-                   rowCoord = "Y", colCoord = "X")
 modelSp <- fitTD(testTD, design = "rowcol",
                     traits = c("t1", "t2", "t3", "t4"))
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")

@@ -46,6 +46,12 @@ testData <- data.frame(seed = rep(x = paste0("G", rep(x = 1:15, times = 2)),
 testData$t3[sample.int(n = 90, size = 15)] <- NA
 testData$t4[sample.int(n = 90, size = 15)] <- NA
 
+## Create TD object from testData.
+testTD <- statgenSSA::createTD(data = testData, genotype = "seed",
+                               trial = "field", repId = "rep",
+                               subBlock = "block", rowCoord = "Y",
+                               colCoord = "X")
+
 ## Create a second dataset with year info.
 ## Just two copies of testData with a year column added.
 testDataYear <- rbind(testData, testData)
@@ -53,7 +59,7 @@ testDataYear$field = rep(x = paste0("E", 1:6), each = 30)
 testDataYear$year <- rep(c(1, 2), each = 90)
 
 ## Export all internal data in one go to package.
-usethis::use_data(testData, testDataYear, overwrite = TRUE, internal = TRUE)
+usethis::use_data(testTD, testDataYear, overwrite = TRUE, internal = TRUE)
 
 ## Create data for vignette.
 # Read raw data.

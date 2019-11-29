@@ -1,8 +1,5 @@
 context("gxeMegaEnv")
 
-testTD <- createTD(data = testData, genotype = "seed",
-                   trial = "field", repId = "rep",
-                   subBlock = "block", rowCoord = "Y", colCoord = "X")
 modelSp <- fitTD(testTD, design = "rowcol", traits = "t1")
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 

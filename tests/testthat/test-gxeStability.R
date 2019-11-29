@@ -1,8 +1,5 @@
 context("gxeStability")
 
-testTD <- createTD(data = testData, genotype = "seed", trial = "field",
-                   rowId = "Y", colId = "X", rowCoord = "Y", colCoord = "X")
-
 geStab <- gxeStability(TD = testTD, trait = "t1")
 test_that("output is of the right class", {
   expect_is(geStab, "stability")

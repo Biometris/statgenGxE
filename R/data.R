@@ -104,7 +104,3 @@
 #' in tropical maize.2. Yield components and marker-assisted selection
 #' strategies. Theor Appl Genet 94:887–896
 "TDMaize"
-
-#' Random test data for unit testing.
-#' @keywords internal
-"testData"
