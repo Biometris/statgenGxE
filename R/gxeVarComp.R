@@ -52,7 +52,6 @@ gxeVarComp <- function(TD,
                        trait,
                        engine = c("lme4", "asreml"),
                        criterion = c("BIC", "AIC"),
-                       useWt = FALSE,
                        ...) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
@@ -63,13 +62,9 @@ gxeVarComp <- function(TD,
   }
   TDTot <- Reduce(f = rbind, x = TD[trials])
   TDTot$trial <- droplevels(TDTot$trial)
-  TDTot$wt <- 1
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
       !hasName(x = TDTot, name = trait)) {
     stop("trait has to be a column in TD.\n")
-  }
-  if (useWt && !hasName(x = TDTot, name = "wt")) {
-    stop("wt has to be a column in TD when using weighting.")
   }
   engine <- match.arg(engine)
   criterion <- match.arg(criterion)
@@ -82,8 +77,8 @@ gxeVarComp <- function(TD,
                      trial = levels(TDTot$trial))
   TDTot <- merge(TD0, TDTot, all.x = TRUE)
   if (engine == "asreml") {
-    choices <- c("identity", "cs", "diagonal", "hcs", "outside",
-                 "fa", "fa2", "unstructured")
+    choices <- c("identity", "cs", "diagonal", "hcs", "outside", "fa", "fa2",
+                 "unstructured")
   } else {
     choices <- "cs"
   }
@@ -147,8 +142,8 @@ gxeVarComp <- function(TD,
                        list(random = formula("~genotype:corh(trial)"),
                             start.values = TRUE))
           startVals <- do.call(asreml::asreml, modArgs)
-          tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
-                                vcmodel = "outside", fixed = fixedForm, ...)
+          tmpValues <- initVals(TD = TDTot, trait = trait, vcmodel = "outside",
+                                fixed = fixedForm, ...)
           tmpTable <- startVals[[ifelse(asreml4(), "vparameters.table",
                                        "gammas.table")]]
           tmpTable[, "Value"] <- c(tmpValues$vg,
@@ -167,8 +162,8 @@ gxeVarComp <- function(TD,
           startVals <- do.call(asreml::asreml, modArgs)
           tmpTable <- startVals[[ifelse(asreml4(), "vparameters.table",
                                        "gammas.table")]]
-          tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
-                                vcmodel = "fa", fixed = fixedForm, ...)
+          tmpValues <- initVals(TD = TDTot, trait = trait, vcmodel = "fa",
+                                fixed = fixedForm, ...)
           if (!is.null(tmpValues)) {
             tmpTable[, "Value"] <- c(scale(tmpValues$psi, center = FALSE),
                                      tmpValues$gamma, 1)
@@ -187,8 +182,8 @@ gxeVarComp <- function(TD,
           startVals <- do.call(asreml::asreml, modArgs)
           tmpTable <- startVals[[ifelse(asreml4(), "vparameters.table",
                                        "gammas.table")]]
-          tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
-                                vcmodel = "fa2", fixed = fixedForm, ...)
+          tmpValues <- initVals(TD = TDTot, trait = trait, vcmodel = "fa2",
+                                fixed = fixedForm, ...)
           if (!is.null(tmpValues)) {
             ## Keep loadings of factor 2 away from 0.
             tmpValues$gamma[2, tmpValues$gamma[2, ] < 1e-3] <- 1e-3
@@ -210,7 +205,7 @@ gxeVarComp <- function(TD,
                        list(random = formula("~genotype:us(trial)"),
                             start.values = TRUE))
           startVals <- do.call(asreml::asreml, modArgs)
-          tmpValues <- initVals(TD = TDTot, trait = trait, useWt = useWt,
+          tmpValues <- initVals(TD = TDTot, trait = trait,
                                 vcmodel = "unstructured", fixed = fixedForm,
                                 ...)
           tmpTable <- startVals[[ifelse(asreml4(), "vparameters.table",
@@ -309,7 +304,7 @@ initVals <- function(TD,
                      ...) {
   ## First, form estimate of unstructured matrix
   ## Remove the rows with NA.
-  X <- na.omit(TD[, colnames(TD) %in% c(trait, "genotype", "trial", "wt")])
+  X <- na.omit(TD[, colnames(TD) %in% c(trait, "genotype", "trial")])
   X <- droplevels(X)
   nEnv <- nlevels(X$trial)
   nGeno <- nlevels(X$genotype)
