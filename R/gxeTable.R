@@ -35,6 +35,10 @@ gxeTable <- function(TD,
   if (!is.character(trials) || !all(trials %in% names(TD))) {
     stop("All trials should be in TD.")
   }
+  if (length(trials) < 10) {
+    warning("One should be cautious with the interpretation of predictions ",
+            "for mega environments that are based on less than 10 trials.\n")
+  }
   TDTot <- Reduce(f = rbind, x = TD[trials])
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
       !trait %in% colnames(TDTot)) {
