@@ -4,9 +4,16 @@
 \alias{gxeMegaEnv}
 \title{Form mega environments based on fitted values from an AMMI model}
 \usage{
-gxeMegaEnv(TD, trials = names(TD), trait, useWinGeno = TRUE,
-  method = c("max", "min"), cutOff = 0.8, byYear = FALSE,
-  sumTab = TRUE)
+gxeMegaEnv(
+  TD,
+  trials = names(TD),
+  trait,
+  useWinGeno = TRUE,
+  method = c("max", "min"),
+  cutOff = 0.8,
+  byYear = FALSE,
+  sumTab = TRUE
+)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}

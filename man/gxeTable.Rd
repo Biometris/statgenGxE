@@ -4,8 +4,14 @@
 \alias{gxeTable}
 \title{Compute BLUPS based on a set of mega environments}
 \usage{
-gxeTable(TD, trials = names(TD), trait, useYear = FALSE,
-  engine = c("lme4", "asreml"), ...)
+gxeTable(
+  TD,
+  trials = names(TD),
+  trait,
+  useYear = FALSE,
+  engine = c("lme4", "asreml"),
+  ...
+)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}

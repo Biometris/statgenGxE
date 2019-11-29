@@ -4,8 +4,14 @@
 \alias{gxeVarComp}
 \title{Selects the best variance-covariance model for a set of trials}
 \usage{
-gxeVarComp(TD, trials = names(TD), trait, engine = c("lme4", "asreml"),
-  criterion = c("BIC", "AIC"), useWt = FALSE, ...)
+gxeVarComp(
+  TD,
+  trials = names(TD),
+  trait,
+  engine = c("lme4", "asreml"),
+  criterion = c("BIC", "AIC"),
+  ...
+)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}
@@ -20,9 +26,6 @@ Either "lme4" or "asreml".}
 
 \item{criterion}{A string specifying a goodness-of-fit criterion. Either
 "AIC" or "BIC".}
-
-\item{useWt}{Should weighting be used when modeling? Requires a column
-\code{wt} in \code{TD}.}
 
 \item{...}{Further arguments to be passed to \code{asreml}.}
 }

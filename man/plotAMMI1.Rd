@@ -4,9 +4,26 @@
 \alias{plotAMMI1}
 \title{Helper function for creating AMMI1 plot}
 \usage{
-plotAMMI1(loadings, scores, importance, overallMean, genoMean, envMean,
-  trait, dat, GGE, year = "", scale, plotGeno = TRUE, colGeno,
-  sizeGeno, plotEnv = TRUE, colEnv, sizeEnv, colorBy)
+plotAMMI1(
+  loadings,
+  scores,
+  importance,
+  overallMean,
+  genoMean,
+  envMean,
+  trait,
+  dat,
+  GGE,
+  year = "",
+  scale,
+  plotGeno = TRUE,
+  colGeno,
+  sizeGeno,
+  plotEnv = TRUE,
+  colEnv,
+  sizeEnv,
+  colorBy
+)
 }
 \description{
 Helper function for creating AMMI1 plot

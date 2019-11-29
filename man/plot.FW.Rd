@@ -4,9 +4,14 @@
 \alias{plot.FW}
 \title{Plot function for class FW}
 \usage{
-\method{plot}{FW}(x, ..., plotType = c("scatter", "line", "trellis"),
-  order = c("ascending", "descending"), genotypes = NULL,
-  output = TRUE)
+\method{plot}{FW}(
+  x,
+  ...,
+  plotType = c("scatter", "line", "trellis"),
+  order = c("ascending", "descending"),
+  genotypes = NULL,
+  output = TRUE
+)
 }
 \arguments{
 \item{x}{An object of class FW.}

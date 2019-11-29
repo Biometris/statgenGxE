@@ -3,7 +3,6 @@
 \docType{package}
 \name{statgenGxE}
 \alias{statgenGxE}
-\alias{statgenGxE-package}
 \title{\code{statgenGxE} package}
 \description{
 statgenGxE

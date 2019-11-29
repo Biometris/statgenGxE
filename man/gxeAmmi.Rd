@@ -4,9 +4,18 @@
 \alias{gxeAmmi}
 \title{AMMI analysis}
 \usage{
-gxeAmmi(TD, trials = names(TD), trait, nPC = 2, byYear = FALSE,
-  center = TRUE, scale = FALSE, GGE = FALSE, excludeGeno = NULL,
-  useWt = FALSE)
+gxeAmmi(
+  TD,
+  trials = names(TD),
+  trait,
+  nPC = 2,
+  byYear = FALSE,
+  center = TRUE,
+  scale = FALSE,
+  GGE = FALSE,
+  excludeGeno = NULL,
+  useWt = FALSE
+)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}

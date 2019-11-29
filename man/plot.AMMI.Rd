@@ -4,11 +4,24 @@
 \alias{plot.AMMI}
 \title{Plot function for class AMMI}
 \usage{
-\method{plot}{AMMI}(x, ..., plotType = c("AMMI1", "AMMI2", "GGE1",
-  "GGE2"), scale = 1, colorBy = NULL, plotGeno = TRUE,
-  colGeno = 1:50, sizeGeno = 0, plotConvHull = FALSE,
-  plotEnv = TRUE, colEnv = "red", sizeEnv = 3, envFactor = 1,
-  primAxis = "PC1", secAxis = "PC2", output = TRUE)
+\method{plot}{AMMI}(
+  x,
+  ...,
+  plotType = c("AMMI1", "AMMI2", "GGE1", "GGE2"),
+  scale = 1,
+  colorBy = NULL,
+  plotGeno = TRUE,
+  colGeno = 1:50,
+  sizeGeno = 0,
+  plotConvHull = FALSE,
+  plotEnv = TRUE,
+  colEnv = "red",
+  sizeEnv = 3,
+  envFactor = 1,
+  primAxis = "PC1",
+  secAxis = "PC2",
+  output = TRUE
+)
 }
 \arguments{
 \item{x}{An object of class AMMI}

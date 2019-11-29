@@ -4,9 +4,16 @@
 \alias{gxeFw}
 \title{Finlay-Wilkinson analysis}
 \usage{
-gxeFw(TD, trials = names(TD), trait, maxIter = 15, tol = 0.001,
-  sorted = c("descending", "ascending", "none"), genotypes = NULL,
-  useWt = FALSE)
+gxeFw(
+  TD,
+  trials = names(TD),
+  trait,
+  maxIter = 15,
+  tol = 0.001,
+  sorted = c("descending", "ascending", "none"),
+  genotypes = NULL,
+  useWt = FALSE
+)
 }
 \arguments{
 \item{TD}{An object of class \code{\link{TD}}.}

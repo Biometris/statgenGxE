@@ -4,8 +4,14 @@
 \alias{predictAsreml}
 \title{Extended version of asreml.predict}
 \usage{
-predictAsreml(model, classify = "genotype",
-  associate = as.formula("~ NULL"), vcov = TRUE, TD, ...)
+predictAsreml(
+  model,
+  classify = "genotype",
+  associate = as.formula("~ NULL"),
+  vcov = TRUE,
+  TD,
+  ...
+)
 }
 \description{
 Asreml has a bug that may throw a warning message:
