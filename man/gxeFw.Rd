@@ -82,7 +82,7 @@ analysis to converge.}
 }
 \description{
 This function performs a Finlay-Wilkinson analysis of data classified by two
-factors.
+factors. The function is based on the RJOINT funciton in GenStat.
 }
 \examples{
 ## Run Finlay-Wilkinson analysis on TDMaize.

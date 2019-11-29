@@ -97,11 +97,3 @@ test_that("models for fa and fa2 are fitted when #trials >= 5", {
                  "hcs", "fa2"))
 })
 
-test_that("options useWT functions properly", {
-  skip_on_cran()
-  geVC <- gxeVarComp(TD = BLUEs2, trait = "BLUEs_GY", useWt = TRUE,
-                     engine = "asreml")
-  expect_equal(rownames(geVC$summary),
-               c("outside", "cs", "identity", "diagonal", "unstructured", "fa",
-                 "hcs", "fa2"))
-})

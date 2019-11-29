@@ -1,7 +1,7 @@
 #' Finlay-Wilkinson analysis
 #'
 #' This function performs a Finlay-Wilkinson analysis of data classified by two
-#' factors.
+#' factors. The function is based on the RJOINT funciton in GenStat.
 #'
 #' @inheritParams gxeAmmi
 #'
@@ -123,7 +123,7 @@ gxeFw <- function(TD,
   TDTot$trial <- droplevels(TDTot$trial)
   ## Set wt to 1 if no weighting is used.
   if (!useWt) {
-    TDTot$wt <- 1
+    TDTot[["wt"]] <- 1
   }
   sorted <- match.arg(sorted)
   nGeno <- nlevels(TDTot$genotype)

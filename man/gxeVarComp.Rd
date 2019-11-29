@@ -43,9 +43,10 @@ the analysis.}
 \description{
 This function selects the best covariance structure for genetic correlations
 between trials. It fits a range of variance-covariance models (identity,
-compound symmetry, diagonal, heterogeneous compound symmetry, first order
-factor analysis, second order factor analysis, unstructured), and selects
-the best one using a goodness-of-fit criterion.
+compound symmetry (cs), diagonal, simple correlation with heterogeneous
+variance (outside), heterogeneous compound symmetry (hcs),
+first order factor analytic (fa), second order factor analytic (fa2) and
+unstructured), and selects the best one using a goodness-of-fit criterion.
 }
 \note{
 If \code{engine = "lme4"}, only the compound symmetry model can be
@@ -67,7 +68,7 @@ report(geVarComp, outfile = "./testReports/reportVarComp.pdf")
 geVarComp2 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "asreml",
                         criterion = "BIC")
 summary(geVarComp2)
-## Create a heatmap of the correlation matrix for the best model.
+## Plot a heatmap of the correlation matrix for the best model.
 plot(geVarComp2)
 }
 }
