@@ -16,13 +16,14 @@ plotAMMI2(
   secAxis = "PC2",
   scale,
   plotGeno = TRUE,
-  colGeno,
+  colGeno = NULL,
   sizeGeno,
   plotConvHull,
   plotEnv = TRUE,
-  colEnv,
+  colorEnvBy,
+  colEnv = NULL,
   sizeEnv,
-  colorBy
+  colorGenoBy
 )
 }
 \description{

@@ -17,12 +17,13 @@ plotAMMI1(
   year = "",
   scale,
   plotGeno = TRUE,
-  colGeno,
+  colorGenoBy,
+  colGeno = NULL,
   sizeGeno,
   plotEnv = TRUE,
-  colEnv,
-  sizeEnv,
-  colorBy
+  colorEnvBy,
+  colEnv = NULL,
+  sizeEnv
 )
 }
 \description{

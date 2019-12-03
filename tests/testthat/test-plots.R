@@ -65,9 +65,11 @@ test_that("AMMI plot sizeGeno functions properly", {
   geoms0_2 <- sapply(p0_2$layers, function(x) class(x$geom)[1])
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
   expect_equal(geoms1_1[geoms0_1 == "GeomPoint"], "GeomText")
-  expect_equal(p1_1$layers[geoms0_1 == "GeomPoint"][[1]]$aes_params$size, 5)
+  dat1_1 <- p1_1$layers[geoms0_1 == "GeomPoint"][[1]]$data
+  expect_equal(unique(dat1_1[dat1_1[["type"]] == "geno", ".size"]), 5)
   expect_equal(geoms1_2[geoms0_2 == "GeomPoint"], "GeomText")
-  expect_equal(p1_2$layers[geoms0_2 == "GeomPoint"][[1]]$aes_params$size, 5)
+  dat1_2 <- p1_2$layers[geoms0_2 == "GeomPoint"][[1]]$data
+  expect_equal(unique(dat1_1[dat1_1[["type"]] == "geno", ".size"]), 5)
 })
 
 test_that("AMMI plot plotEnv functions properly", {
@@ -88,8 +90,10 @@ test_that("AMMI plot sizeEnv functions properly", {
   p1_2 <- plot(geAmmi, plotType = "AMMI2", sizeEnv = 5, output = FALSE)
   geoms1_1 <- sapply(p1_1$layers, function(x) class(x$geom)[1])
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
-  expect_equal(p1_1$layers[geoms1_1 == "GeomText"][[1]]$aes_params$size, 5)
-  expect_equal(p1_2$layers[geoms1_2 == "GeomText"][[1]]$aes_params$size, 5)
+  dat1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
+  expect_equal(unique(dat1_1[dat1_1[["type"]] == "env", ".size"]), 5)
+  dat1_2 <- p1_2$layers[geoms1_2 == "GeomText"][[1]]$data
+  expect_equal(unique(dat1_2[dat1_2[["type"]] == "env", ".size"]), 5)
 })
 
 test_that("AMMI plot envFactor functions properly", {
@@ -113,9 +117,12 @@ test_that("AMMI plot colEnv functions properly", {
   p1_2 <- plot(geAmmi, plotType = "AMMI2", colEnv = "green", output = FALSE)
   geoms1_1 <- sapply(p1_1$layers, function(x) class(x$geom)[1])
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
-  expect_equal(p1_1$layers[geoms1_1 == "GeomText"][[1]]$aes_params$colour, "green")
-  expect_equal(p1_2$layers[geoms1_2 == "GeomText"][[1]]$aes_params$colour, "green")
-  expect_equal(p1_2$layers[geoms1_2 == "GeomSegment"][[1]]$aes_params$colour, "green")
+  dat1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
+  expect_equal(as.character(unique(dat1_1[dat1_1[["type"]] == "env", ".color"])),
+               "green")
+  dat1_2 <- p1_2$layers[geoms1_2 == "GeomText"][[1]]$data
+  expect_equal(as.character(unique(dat1_2[dat1_2[["type"]] == "env", ".color"])),
+               "green")
 })
 
 test_that("AMMI plot plotConvHull functions properly", {

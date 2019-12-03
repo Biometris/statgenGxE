@@ -18,7 +18,6 @@
 #' @param byYear Has the analysis been performed by year?
 #'
 #' @author Bart-Jan van Rossum
-#'
 #' @seealso \code{\link{plot.AMMI}}, \code{\link{report.AMMI}}
 #'
 #' @name AMMI
@@ -142,12 +141,12 @@ summary.AMMI <- function(object,
 #' \code{\link[stats]{princomp}} in \code{\link{gxeAmmi}}. Normally
 #' \code{0 <= scale <= 1}, and a warning will be issued if the specified
 #' scale is outside this range.
-#' @param colorBy A character string indicating a column in the \code{TD} used
+#' @param plotGeno Should genotypes be plotted?
+#' @param colorGenoBy A character string indicating a column in the \code{TD} used
 #' as input for the AMMI analysis by which the genotypes should be colored. If
 #' \code{NULL} all genotypes will be colored in black.
-#' @param plotGeno Should genotypes be plotted?
 #' @param colGeno A character vector with plot colors for the genotypes. A
-#' single color when \code{colorBy = NULL}, a vector of colors otherwise.
+#' single color when \code{colorGenoBy = NULL}, a vector of colors otherwise.
 #' @param sizeGeno An numerical value indicating the text size for plotting the
 #' genotypes. Use \code{sizeGeno = 0} for plotting genotypes as points instead
 #' of using their names.
@@ -156,7 +155,11 @@ summary.AMMI <- function(object,
 #' perpendicular to the edges of the hull are added. Only valid for AMMI2
 #' biplots.
 #' @param plotEnv Should environments be plotted?
-#' @param colEnv A character string with the plot color for the environments.
+#' @param colorEnvBy A character string indicating a column in the \code{TD}
+#' used as input for the AMMI analysis by which the environments should be
+#' colored. If \code{NULL} all genotypes will be colored in red.
+#' @param colEnv A character string with plot colors for the environments. A
+#' single color when \code{colorEnvBy = NULL}, a vector of colors otherwise.
 #' @param sizeEnv An integer indicating the text size for plotting the
 #' environments.
 #' @param envFactor A positive numerical value giving a factor by which to blow
@@ -183,18 +186,21 @@ summary.AMMI <- function(object,
 #' ## Create a biplot of genotypes and environment interaction with PC1 and PC2.
 #' plot(geAmmi, plotType = "AMMI2")
 #'
+#' @importFrom grDevices topo.colors
+#'
 #' @export
 plot.AMMI <- function(x,
                       ...,
                       plotType = c("AMMI1", "AMMI2", "GGE1", "GGE2"),
                       scale = 1,
-                      colorBy = NULL,
                       plotGeno = TRUE,
-                      colGeno = 1:50,
+                      colorGenoBy = NULL,
+                      colGeno = NULL,
                       sizeGeno = 0,
                       plotConvHull = FALSE,
                       plotEnv = TRUE,
-                      colEnv = "red",
+                      colorEnvBy = NULL,
+                      colEnv = NULL,
                       sizeEnv = 3,
                       envFactor = 1,
                       primAxis = "PC1",
@@ -213,45 +219,44 @@ plot.AMMI <- function(x,
   }
   if (plotGeno) {
     if (!is.numeric(sizeGeno) || length(sizeGeno) > 1 || sizeGeno < 0) {
-      stop("plotGeno should be a single numerical value >= 0.\n")
+      stop("sizeGeno should be a single numerical value >= 0.\n")
     }
   }
   if (plotEnv) {
     if (!is.numeric(sizeEnv) || length(sizeEnv) > 1 || sizeEnv <= 0) {
-      stop("plotGeno should be a single numerical value > 0.\n")
+      stop("sizeEnv should be a single numerical value > 0.\n")
     }
-    if (!is.character(colEnv) || length(colEnv) > 1) {
-      stop("colEnv should be a single character string.\n")
+    if (!is.null(colEnv) && !is.character(colEnv)) {
+      stop("colEnv should be NULL or a character vector.\n")
     }
   }
-  if (!is.null(colorBy) && (!is.character(colorBy) || length(colorBy) > 1)) {
-    stop("colorBy should be a single character string.\n")
+  if (!is.null(colorGenoBy) && (!is.character(colorGenoBy) || length(colorGenoBy) > 1)) {
+    stop("colorGenoBy should be a single character string.\n")
   }
-  if (!is.null(colorBy)) {
+  if (!is.null(colorGenoBy)) {
     if (x$byYear) {
       for (dat in x$dat) {
-        if (!hasName(x = dat, name = colorBy)) {
-          stop("colorBy should be a column in data.\n")
+        if (!hasName(x = dat, name = colorGenoBy)) {
+          stop("colorGenoBy should be a column in data.\n")
         }
-        colTab <- unique(dat[c("genotype", colorBy)])
+        colTab <- unique(dat[c("genotype", colorGenoBy)])
         if (nrow(colTab) != nlevels(droplevels(dat$genotype))) {
-          stop("colorBy should have exactly one value per genotype")
+          stop("colorGenoBy should have exactly one value per genotype")
         }
       }
     } else {
-      if (!hasName(x = x$dat, name = colorBy)) {
-        stop("colorBy should be a column in data.\n")
+      if (!hasName(x = x$dat, name = colorGenoBy)) {
+        stop("colorGenoBy should be a column in data.\n")
       }
-      colTab <- unique(x$dat[c("genotype", colorBy)])
+      colTab <- unique(x$dat[c("genotype", colorGenoBy)])
       if (nrow(colTab) != nlevels(droplevels(x$dat$genotype))) {
-        stop("colorBy should have exactly one value per genotype")
+        stop("colorGenoBy should have exactly one value per genotype")
       }
     }
   }
   if (!is.numeric(envFactor) || length(envFactor) > 1 || envFactor <= 0) {
     stop("envFactor should be a single numerical value > 0.\n")
   }
-  dotArgs <- list(...)
   if (plotType == "AMMI1") {
     if (x$byYear) {
       ## Create a list of AMMI1 plots.
@@ -264,8 +269,8 @@ plot.AMMI <- function(x,
                   envMean = x$envMean[[year]] * envFactor,
                   trait = x$trait, dat = x$dat[[year]], GGE = x$GGE, year = year,
                   scale = scale, plotGeno = plotGeno, colGeno = colGeno,
-                  sizeGeno = sizeGeno, plotEnv = plotEnv, colEnv = colEnv,
-                  sizeEnv = sizeEnv, colorBy = colorBy)
+                  sizeGeno = sizeGeno, plotEnv = plotEnv, colorEnvBy = colorEnvBy,
+                  colEnv = colEnv, sizeEnv = sizeEnv, colorGenoBy = colorGenoBy)
       }, simplify = FALSE)
     } else {
       ## Create a single AMMI1 plot.
@@ -275,8 +280,10 @@ plot.AMMI <- function(x,
                      genoMean = x$genoMean, envMean = x$envMean * envFactor,
                      trait = x$trait, dat = x$dat, GGE = x$GGE, scale = scale,
                      plotGeno = plotGeno, colGeno = colGeno,
-                     sizeGeno = sizeGeno, plotEnv = plotEnv, colEnv = colEnv,
-                     sizeEnv = sizeEnv, colorBy = colorBy)
+                     sizeGeno = sizeGeno, plotEnv = plotEnv,
+                     colorEnvBy = colorEnvBy,
+                     colEnv = colEnv, sizeEnv = sizeEnv,
+                     colorGenoBy = colorGenoBy)
     }
   } else if (plotType == "AMMI2") {
     if (!is.character(primAxis) || length(primAxis) > 1 ||
@@ -324,7 +331,8 @@ plot.AMMI <- function(x,
                               plotGeno = plotGeno, colGeno = colGeno,
                               sizeGeno = sizeGeno, plotConvHull = plotConvHull,
                               plotEnv = plotEnv, colEnv = colEnv,
-                              sizeEnv = sizeEnv, colorBy = colorBy)
+                              colorEnvBy = colorEnvBy, sizeEnv = sizeEnv,
+                              colorGenoBy = colorGenoBy)
                   }, simplify = FALSE)
 
 
@@ -344,8 +352,9 @@ plot.AMMI <- function(x,
                      GGE = x$GGE, primAxis = primAxis, secAxis = secAxis,
                      scale = scale, plotGeno = plotGeno, colGeno = colGeno,
                      sizeGeno = sizeGeno, plotConvHull = plotConvHull,
-                     plotEnv = plotEnv, colEnv = colEnv, sizeEnv = sizeEnv,
-                     colorBy = colorBy)
+                     plotEnv = plotEnv, colEnv = colEnv,
+                     colorEnvBy = colorEnvBy, sizeEnv = sizeEnv,
+                     colorGenoBy = colorGenoBy)
     }
   }
   if (output) {
@@ -373,37 +382,121 @@ plotAMMI1 <- function(loadings,
                       year = "",
                       scale,
                       plotGeno = TRUE,
-                      colGeno,
+                      colorGenoBy,
+                      colGeno = NULL,
                       sizeGeno,
                       plotEnv = TRUE,
-                      colEnv,
-                      sizeEnv,
-                      colorBy) {
+                      colorEnvBy,
+                      colEnv = NULL,
+                      sizeEnv) {
   percPC1 <- round(importance[2, 1] * 100, 1)
   ## Calculate lambda scale
   lam <- importance[1, 1] ^ scale
-  ## Create data.frames for genotypes and environments.
-  genoDat <- data.frame(x = genoMean, y = scores[, 1] / lam)
-  if (!is.null(colorBy)) {
-    genoDat <- merge(genoDat, unique(dat[c("genotype", colorBy)]),
-                     by.x = "row.names", by.y = "genotype")
-    rownames(genoDat) <- genoDat[["Row.names"]]
+  if (plotGeno) {
+    ## Create data.frame for genotypes.
+    genoDat <- data.frame(type = "geno", x = genoMean, y = scores[, 1] / lam)
+    if (!is.null(colorGenoBy)) {
+      ## Merge the colorGenoBy column to the data.
+      genoDat <- merge(genoDat, unique(dat[c("genotype", colorGenoBy)]),
+                       by.x = "row.names", by.y = "genotype")
+      if (length(colGeno) == 0) {
+        ## Get number of colors.
+        ## Defaults to black for one color for genotypes and
+        ## n topo.colors for n genotypes.
+        nColGeno <- nlevels(genoDat[[colorGenoBy]])
+        colGeno <- if (nColGeno == 1) "black" else topo.colors(nColGeno)
+      }
+      ## Add group variable with contents of colorGenoBy.
+      genoDat[[".group"]] <- genoDat[[colorGenoBy]]
+      ## Set colors as levels of colorGenoBy.
+      levels(genoDat[[colorGenoBy]]) <- colGeno
+      rownames(genoDat) <- genoDat[["Row.names"]]
+      colnames(genoDat)[colnames(genoDat) == colorGenoBy] <- ".color"
+    } else {
+      genoDat[[".group"]] <- "genoGroup1"
+      genoDat[[".color"]] <-
+        factor(if (is.null(colGeno)) "black" else colGeno[1])
+    }
+    ## Restrict columns so rbinding to envDat is possible.
+    genoDat <- genoDat[c("type","x", "y", ".group", ".color")]
+    ## Add size.
+    genoDat[[".size"]] <- sizeGeno
   } else {
-    colorBy <- ".colorBy"
-    genoDat$.colorBy <- factor(1)
+    genoDat <- NULL
   }
-  envDat <- data.frame(x = envMean, y = loadings[, 1] * lam)
-  ## Get x and y limits and compute plotRatio from them. This assures 1 unit on
-  ## the x-asis is identical to 1 unit on the y-axis.
-  yMin <- min(c(envDat[["y"]], genoDat[["y"]]))
-  yMax <- max(c(envDat[["y"]], genoDat[["y"]]))
-  xMin <- min(c(envDat[["x"]], genoDat[["x"]]))
-  xMax <- max(c(envDat[["x"]], genoDat[["x"]]))
+  if (plotEnv) {
+    ## Create data.frame for environments.
+    envDat <- data.frame(type = "env", x = envMean, y = loadings[, 1] * lam)
+    if (!is.null(colorEnvBy)) {
+      envDat <- merge(envDat, unique(dat[c("trial", colorEnvBy)]),
+                      by.x = "row.names", by.y = "trial")
+      if (length(colEnv) == 0) {
+        ## Get number of colors.
+        ## Defaults to black for one color for environments and
+        ## n topo.colors for n environments.
+        nColEnv <- nlevels(envDat[[colorEnvBy]])
+        colEnv <- if (nColEnv == 1) "red" else topo.colors(nColEnv)
+      }
+      ## Add group variable with contents of colorGenoBy.
+      envDat[[".group"]] <- envDat[[colorEnvBy]]
+      ## Set colors as levels of colorEnvBy
+      levels(envDat[[colorEnvBy]]) <- colEnv
+      rownames(envDat) <- envDat[["Row.names"]]
+      colnames(envDat)[colnames(envDat) == colorEnvBy] <- ".color"
+    } else {
+      envDat[[".group"]] <- "envGroup1"
+      envDat[[".color"]] <- factor(if (is.null(colEnv)) "red" else colEnv[1])
+    }
+    ## Restrict columns so rbinding to genoDat is possible.
+    envDat <- envDat[c("type", "x", "y", ".group", ".color")]
+    ## Add size.
+    envDat[[".size"]] <- sizeEnv
+  } else {
+    envDat <- NULL
+  }
+  ## Bind together so everything can be plotted in one go.
+  ## This has to be done because only one color legend is allowed.
+  ## Split between points and text data.
+  if (sizeGeno == 0) {
+    pointDat <- genoDat
+    textDat <- envDat
+  } else {
+    pointDat <- NULL
+    textDat <- rbind(genoDat, envDat)
+  }
+  ## Create total data,frame for convenience.
+  totDat <- rbind(genoDat, envDat)
+  ## Get x and y limits and compute plotRatio from them.
+  ## This assures 1 unit on the x-asis is identical to 1 unit on the y-axis.
+  yMin <- min(totDat[["y"]])
+  yMax <- max(totDat[["y"]])
+  xMin <- min(totDat[["x"]])
+  xMax <- max(totDat[["x"]])
   plotRatio <- (xMax - xMin) / (yMax - yMin)
-  p <- ggplot(genoDat, aes_string(x = "x", y = "y")) +
+  colGroups <- setdiff(unique(totDat[[".group"]]),
+                       c("envGroup1", "genoGroup1"))
+  colNamed <- setNames(c(unique(as.character(genoDat[[".color"]])),
+                         unique(as.character(envDat[[".color"]]))),
+                       unique(as.character(totDat[[".group"]])))
+  if (plotGeno && !is.null(colorGenoBy) && plotEnv && !is.null(colorEnvBy)) {
+    nGenoGroups <- length(unique(genoDat[[".group"]]))
+    nEnvGroups <- length(unique(envDat[[".group"]]))
+    nrowGuide <- length(unique(genoDat[[".group"]]))
+    shapesGuide <- c(rep(16, times = nGenoGroups), rep(NA, times = nEnvGroups))
+    sizesGuide <- c(rep(NULL, times = nGenoGroups),
+                    rep(sizeEnv, times = nEnvGroups))
+  } else {
+    nrowGuide <- shapesGuide <- sizesGuide <- NULL
+  }
+  p <- ggplot(totDat, aes_string(x = "x", y = "y", color = ".group")) +
     ## Needed for a square plot output.
     coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax),
                 ratio = plotRatio, clip = "off") +
+    scale_color_manual(breaks = colGroups, values = colNamed, name = NULL,
+                       guide =
+                         guide_legend(nrow = nrowGuide,
+                                      override.aes = list(shape = shapesGuide,
+                                                          size = sizesGuide))) +
     ## Add reference axes.
     geom_vline(aes(xintercept = overallMean), linetype = "dashed",
                show.legend = FALSE) +
@@ -414,25 +507,16 @@ plotAMMI1 <- function(loadings,
                    " biplot for ", trait, " ", year)) +
     theme(plot.title = element_text(hjust = 0.5),
           panel.grid = element_blank())
-  if (plotGeno) {
-    if (sizeGeno == 0) {
-      p <- p + ## Plot genotypes as points.
-        geom_point(aes_string(color = colorBy),
-                   show.legend = colorBy != ".colorBy") +
-        ## Add color(s) to genotypes.
-        scale_color_manual(values = colGeno)
-    } else {
-      p <- p + ## Plot genotypes as text.
-        geom_text(data = genoDat, aes_string(x = "x", y = "y",
-                                             label = "rownames(genoDat)"),
-                  size = sizeGeno, vjust = 1, color = colGeno[1])
-    }
+  if (!is.null(pointDat)) {
+    ## Plot genotypes as points.
+    p <- p + geom_point(data = pointDat, show.legend = !is.null(colorGenoBy))
   }
-  if (plotEnv) {
-    ## Plot environments as texts.
-    p <- p + geom_text(data = envDat, aes_string(x = "x", y = "y",
-                                                 label = "rownames(envDat)"),
-                       size = sizeEnv, vjust = 1, color = colEnv[1])
+  if (!is.null(textDat)) {
+    ## Plot genotypes and environments as text.
+    p <- p + geom_text(data = textDat,
+                       aes_string(label = "rownames(textDat)", size = ".size"),
+                       show.legend = !is.null(colorEnvBy), vjust = 1) +
+      scale_size(range = range(textDat[[".size"]]), guide = FALSE)
   }
   return(p)
 }
@@ -451,13 +535,14 @@ plotAMMI2 <- function(loadings,
                       secAxis = "PC2",
                       scale,
                       plotGeno = TRUE,
-                      colGeno,
+                      colGeno = NULL,
                       sizeGeno,
                       plotConvHull,
                       plotEnv = TRUE,
-                      colEnv,
+                      colorEnvBy,
+                      colEnv = NULL,
                       sizeEnv,
-                      colorBy) {
+                      colorGenoBy) {
   percPC1 <- round(importance[2, primAxis] * 100, 1)
   percPC2 <- round(importance[2, secAxis] * 100, 1)
   if (scale == 1) {
@@ -473,111 +558,191 @@ plotAMMI2 <- function(loadings,
   lam <- as.numeric(importance[1, c(primAxis, secAxis)])
   lam <- lam * sqrt(nrow(scores))
   lam <- lam ^ scale
-  ## Create dataframes for genotypes and environments.
-  genoDat <- as.data.frame(t(t(scores[, c(primAxis, secAxis)]) / lam))
-  if (!is.null(colorBy)) {
-    genoDat <- merge(genoDat, unique(dat[c("genotype", colorBy)]),
-                     by.x = "row.names", by.y = "genotype")
-    rownames(genoDat) <- genoDat[["Row.names"]]
+  if (plotGeno) {
+    ## Create data.frames for genotypes.
+    genoDat <- as.data.frame(t(t(scores[, c(primAxis, secAxis)]) / lam))
+    genoDat[["type"]] <- "geno"
+    if (!is.null(colorGenoBy)) {
+      ## Merge the colorGenoBy column to the data.
+      genoDat <- merge(genoDat, unique(dat[c("genotype", colorGenoBy)]),
+                       by.x = "row.names", by.y = "genotype")
+      if (length(colGeno) == 0) {
+        ## Get number of colors.
+        ## Defaults to black for one color for genotypes and
+        ## n topo.colors for n genotypes.
+        nColGeno <- nlevels(genoDat[[colorGenoBy]])
+        colGeno <- if (nColGeno == 1) "black" else topo.colors(nColGeno)
+      }
+      ## Add group variable with contents of colorGenoBy.
+      genoDat[[".group"]] <- genoDat[[colorGenoBy]]
+      ## Set colors as levels of colorGenoBy.
+      levels(genoDat[[colorGenoBy]]) <- colGeno
+      rownames(genoDat) <- genoDat[["Row.names"]]
+      colnames(genoDat)[colnames(genoDat) == colorGenoBy] <- ".color"
+    } else {
+      genoDat[[".group"]] <- "genoGroup1"
+      genoDat[[".color"]] <- factor(if (is.null(colGeno)) "black" else colGeno[1])
+    }
+    ## Restrict columns so rbinding to envDat is possible.
+    genoDat <- genoDat[c("type", primAxis, secAxis, ".group", ".color")]
+    ## Add size, vjust and hjust.
+    genoDat[[".size"]] <- sizeGeno
+    genoDat[[".vjust"]] <- 1
+    genoDat[[".hjust"]] <- 0
   } else {
-    colorBy <- ".colorBy"
-    genoDat$.colorBy <- factor(1)
+    genoDat <- NULL
   }
-  envDat <- as.data.frame(t(t(loadings[, c(primAxis, secAxis)]) * lam))
-  ## Get x and y limits and compute plotRatio from them. This assures 1 unit on
-  ## the x-asis is identical to 1 unit on the y-axis.
-  yMin <- min(c(envDat[[secAxis]], genoDat[[secAxis]]))
-  yMax <- max(c(envDat[[secAxis]], genoDat[[secAxis]]))
-  xMin <- min(c(envDat[[primAxis]], genoDat[[primAxis]]))
-  xMax <- max(c(envDat[[primAxis]], genoDat[[primAxis]]))
-  plotRatio <- (yMax - yMin) / (xMax - xMin)
-  p <- ggplot(envDat, aes_string(x = primAxis, y = secAxis)) +
+  if (plotEnv) {
+    ## Create data.frames for environments.
+    envDat <- as.data.frame(t(t(loadings[, c(primAxis, secAxis)]) * lam))
+    envDat[["type"]] <- "env"
+    if (!is.null(colorEnvBy)) {
+      envDat <- merge(envDat, unique(dat[c("trial", colorEnvBy)]),
+                      by.x = "row.names", by.y = "trial")
+      if (length(colEnv) == 0) {
+        ## Get number of colors.
+        ## Defaults to black for one color for environments and
+        ## n topo.colors for n environments.
+        nColEnv <- nlevels(envDat[[colorEnvBy]])
+        colEnv <- if (nColEnv == 1) "red" else topo.colors(nColEnv)
+      }
+      ## Add group variable with contents of colorGenoBy.
+      envDat[[".group"]] <- envDat[[colorEnvBy]]
+      ## Set colors as levels of colorEnvBy
+      levels(envDat[[colorEnvBy]]) <- colEnv
+      rownames(envDat) <- envDat[["Row.names"]]
+      colnames(envDat)[colnames(envDat) == colorEnvBy] <- ".color"
+    } else {
+      envDat[[".group"]] <- "envGroup1"
+      envDat[[".color"]] <- factor(if (is.null(colEnv)) "red" else colEnv[1])
+    }
+    ## Restrict columns so rbinding to genoDat is possible.
+    envDat <- envDat[c("type", primAxis, secAxis, ".group", ".color")]
+    ## Add size, vjust and hjust.
+    envDat[[".size"]] <- sizeEnv
+    envDat[[".vjust"]] <- "outward"
+    envDat[[".hjust"]] <- "outward"
+  } else {
+    envDat <- NULL
+  }
+  ## Bind together so everything can be plotted in one go.
+  ## This has to be done because only one color legend is allowed.
+  ## Split between points and text data.
+  if (sizeGeno == 0) {
+    pointDat <- genoDat
+    textDat <- envDat
+  } else {
+    pointDat <- NULL
+    textDat <- rbind(genoDat, envDat)
+  }
+  ## Create total data,frame for convenience.
+  totDat <- rbind(genoDat, envDat)
+  ## Get x and y limits and compute plotRatio from them.
+  ## This assures 1 unit on the x-asis is identical to 1 unit on the y-axis.
+  yMin <- min(totDat[[secAxis]])
+  yMax <- max(totDat[[secAxis]])
+  xMin <- min(totDat[[primAxis]])
+  xMax <- max(totDat[[primAxis]])
+  plotRatio <- (xMax - xMin) / (yMax - yMin)
+  colGroups <- setdiff(unique(totDat[[".group"]]),
+                       c("envGroup1", "genoGroup1"))
+  colNamed <- setNames(c(unique(as.character(genoDat[[".color"]])),
+                         unique(as.character(envDat[[".color"]]))),
+                       unique(as.character(totDat[[".group"]])))
+  if (plotGeno && !is.null(colorGenoBy) && plotEnv && !is.null(colorEnvBy)) {
+    nGenoGroups <- length(unique(genoDat[[".group"]]))
+    nEnvGroups <- length(unique(envDat[[".group"]]))
+    nrowGuide <- length(unique(genoDat[[".group"]]))
+    shapesGuide <- c(rep(16, times = nGenoGroups), rep(NA, times = nEnvGroups))
+    sizesGuide <- c(rep(NULL, times = nGenoGroups),
+                    rep(sizeEnv, times = nEnvGroups))
+  } else {
+    nrowGuide <- shapesGuide <- sizesGuide <- NULL
+  }
+  p <- ggplot(totDat, aes_string(x = primAxis, y = secAxis, color = ".group")) +
     ## Needed for a square plot output.
-    coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax), clip = "off") +
-    theme(aspect.ratio = plotRatio, panel.grid = element_blank()) +
+    coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax),
+                ratio = plotRatio, clip = "off") +
+    scale_color_manual(breaks = colGroups, values = colNamed, name = NULL,
+                       guide = guide_legend(nrow = nrowGuide)) +
     ## Add labeling.
     labs(x = paste0(primAxis, " (", percPC1, "%)"),
          y = paste0(secAxis, " (", percPC2, "%)")) +
     ggtitle(paste0(ifelse(GGE, "GGE", "AMMI2"), " biplot for ", trait,
                    " (", info, ") ", year)) +
-    theme(plot.title = element_text(hjust = 0.5))
-  if (plotGeno) {
-    if (sizeGeno == 0) {
-      ## Plot genotypes as points.
-      p <- p + geom_point(data = genoDat, aes_string(color = colorBy),
-                          show.legend = colorBy != ".colorBy") +
-        ## Add color(s) to genotypes.
-        scale_color_manual(values = colGeno)
-    } else {
-      p <- p + ## Plot genotypes as text.
-        geom_text(data = genoDat, aes_string(label = "rownames(genoDat)"),
-                  size = sizeGeno, vjust = 1, color = colGeno[1])
-    }
-    if (plotConvHull) {
-      ## Compute convex hull for the points.
-      convHulls <- genoDat[grDevices::chull(genoDat[, c(primAxis, secAxis)]), ]
-      ## Extract x and y coordinates for points on hull. Add first item to the
-      ## end to include all edges.
-      xConv <- convHulls[[primAxis]]
-      yConv <- convHulls[[secAxis]]
-      xConv <- c(xConv, xConv[1])
-      yConv <- c(yConv, yConv[1])
-      ## Compute slopes per segment of the hull.
-      slopesConv <- diff(yConv) / diff(xConv)
-      ## Compute slopes for the lines perpendicular to the hull.
-      slopesPerp <- -1 / slopesConv
-      ## Compute the coordinates of the points on the hull through which the
-      ## perpendicular lines should go.
-      origConv <- yConv[-1] - slopesConv * xConv[-1]
-      xNew <- -origConv / (slopesConv - slopesPerp)
-      yNew <- slopesPerp * xNew
-      ## Expand the lines outward of the hull.
-      ## Expansion is done in two steps. First in the x-direction with
-      ## computation of the y-coordinate. If this coordinates is outside the
-      ## plot area expansion is repeated but then in the y-direction.
-      for (i in seq_along(xNew)) {
-        if (xNew[i] > 0) {
-          xNewI <- xMax
-          yNewI <- slopesPerp[i] * xMax
-        } else {
-          xNewI <- xMin
-          yNewI <- slopesPerp[i] * xMin
-        }
-        if (yNewI < yMin) {
-          yNewI <- yMin
-          xNewI <- yMin / slopesPerp[i]
-        } else if (yNewI > yMax) {
-          yNewI <- yMax
-          xNewI <- yMax / slopesPerp[i]
-        }
-        xNew[i] <- xNewI
-        yNew[i] <- yNewI
+    theme(plot.title = element_text(hjust = 0.5),
+          panel.grid = element_blank())
+  if (!is.null(pointDat)) {
+    ## Plot genotypes as points.
+    p <- p + geom_point(data = pointDat, show.legend = !is.null(colorGenoBy))
+  }
+  if (!is.null(textDat)) {
+    ## Plot genotypes and environments as text.
+    p <- p + geom_text(data = textDat,
+                       aes_string(label = "rownames(textDat)", size = ".size",
+                                  vjust = ".vjust", hjust = ".hjust"),
+                       show.legend = !is.null(colorEnvBy)) +
+      scale_size(range = range(textDat[[".size"]]), guide = FALSE)
+  }
+  if (plotConvHull) {
+    ## Compute convex hull for the points.
+    convHulls <- genoDat[grDevices::chull(genoDat[, c(primAxis, secAxis)]), ]
+    ## Extract x and y coordinates for points on hull. Add first item to the
+    ## end to include all edges.
+    xConv <- convHulls[[primAxis]]
+    yConv <- convHulls[[secAxis]]
+    xConv <- c(xConv, xConv[1])
+    yConv <- c(yConv, yConv[1])
+    ## Compute slopes per segment of the hull.
+    slopesConv <- diff(yConv) / diff(xConv)
+    ## Compute slopes for the lines perpendicular to the hull.
+    slopesPerp <- -1 / slopesConv
+    ## Compute the coordinates of the points on the hull through which the
+    ## perpendicular lines should go.
+    origConv <- yConv[-1] - slopesConv * xConv[-1]
+    xNew <- -origConv / (slopesConv - slopesPerp)
+    yNew <- slopesPerp * xNew
+    ## Expand the lines outward of the hull.
+    ## Expansion is done in two steps. First in the x-direction with
+    ## computation of the y-coordinate. If this coordinate is outside the
+    ## plot area expansion is repeated but then in the y-direction.
+    for (i in seq_along(xNew)) {
+      if (xNew[i] > 0) {
+        xNewI <- xMax
+        yNewI <- slopesPerp[i] * xMax
+      } else {
+        xNewI <- xMin
+        yNewI <- slopesPerp[i] * xMin
       }
-      ## Put data for perpendicular lines in a single data set
-      ## for ease of plotting.
-      perpDat <- data.frame(xend = xNew, yend = yNew)
-      ## Add convexhull as a polygon and perpendicular lines as segments.
-      p <- p + geom_polygon(color = "darkolivegreen3",
-                            data = convHulls, alpha = 0.2) +
-        geom_segment(aes_string(x = 0, y = 0, xend = "xend", yend = "yend"),
-                     data = perpDat, col = "grey50", size = 0.6)
+      if (yNewI < yMin) {
+        yNewI <- yMin
+        xNewI <- yMin / slopesPerp[i]
+      } else if (yNewI > yMax) {
+        yNewI <- yMax
+        xNewI <- yMax / slopesPerp[i]
+      }
+      xNew[i] <- xNewI
+      yNew[i] <- yNewI
     }
+    ## Put data for perpendicular lines in a single data set
+    ## for ease of plotting.
+    perpDat <- data.frame(xend = xNew, yend = yNew)
+    ## Add convexhull as a polygon and perpendicular lines as segments.
+    p <- p + geom_polygon(color = "darkolivegreen3",
+                          data = convHulls, alpha = 0.2) +
+      geom_segment(aes_string(x = 0, y = 0, xend = "xend", yend = "yend"),
+                   data = perpDat, col = "grey50", size = 0.6)
   }
   if (plotEnv) {
-    ## Plot environments as texts.
-    p <- p + geom_text(data = envDat,
-                       aes_string(x = primAxis, y = secAxis,
-                                  label = "rownames(envDat)"),
-                       size = sizeEnv, vjust = "outward", hjust = "outward",
-                       color = colEnv[1]) +
-      ## Add arrows from origin to environments.
-      ## Adding alpha = for transparency causes the arrows not being plotted
-      ## after turning off clipping which is needed since labels may fall off
-      ## the plot otherwise.
-      geom_segment(data = envDat, aes_string(x = 0, y = 0, xend = primAxis,
-                                             yend = secAxis),
-                   arrow = arrow(length = unit(0.2, "cm")),
-                   color = colEnv)
+    ## Add arrows from origin to environments.
+    ## Adding alpha = for transparency causes the arrows not being plotted
+    ## after turning off clipping which is needed since labels may fall off
+    ## the plot otherwise.
+    p <- p + geom_segment(data = envDat, aes_string(x = 0, y = 0,
+                                                    xend = primAxis,
+                                                    yend = secAxis),
+                          arrow = arrow(length = unit(0.2, "cm")),
+                          show.legend = FALSE)
   }
   return(p)
 }

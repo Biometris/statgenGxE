@@ -9,13 +9,14 @@
   ...,
   plotType = c("AMMI1", "AMMI2", "GGE1", "GGE2"),
   scale = 1,
-  colorBy = NULL,
   plotGeno = TRUE,
-  colGeno = 1:50,
+  colorGenoBy = NULL,
+  colGeno = NULL,
   sizeGeno = 0,
   plotConvHull = FALSE,
   plotEnv = TRUE,
-  colEnv = "red",
+  colorEnvBy = NULL,
+  colEnv = NULL,
   sizeEnv = 3,
   envFactor = 1,
   primAxis = "PC1",
@@ -41,14 +42,14 @@ where \code{lambda} are the singular values computed by
 \code{0 <= scale <= 1}, and a warning will be issued if the specified
 scale is outside this range.}
 
-\item{colorBy}{A character string indicating a column in the \code{TD} used
+\item{plotGeno}{Should genotypes be plotted?}
+
+\item{colorGenoBy}{A character string indicating a column in the \code{TD} used
 as input for the AMMI analysis by which the genotypes should be colored. If
 \code{NULL} all genotypes will be colored in black.}
 
-\item{plotGeno}{Should genotypes be plotted?}
-
 \item{colGeno}{A character vector with plot colors for the genotypes. A
-single color when \code{colorBy = NULL}, a vector of colors otherwise.}
+single color when \code{colorGenoBy = NULL}, a vector of colors otherwise.}
 
 \item{sizeGeno}{An numerical value indicating the text size for plotting the
 genotypes. Use \code{sizeGeno = 0} for plotting genotypes as points instead
@@ -61,7 +62,12 @@ biplots.}
 
 \item{plotEnv}{Should environments be plotted?}
 
-\item{colEnv}{A character string with the plot color for the environments.}
+\item{colorEnvBy}{A character string indicating a column in the \code{TD}
+used as input for the AMMI analysis by which the environments should be
+colored. If \code{NULL} all genotypes will be colored in red.}
+
+\item{colEnv}{A character string with plot colors for the environments. A
+single color when \code{colorEnvBy = NULL}, a vector of colors otherwise.}
 
 \item{sizeEnv}{An integer indicating the text size for plotting the
 environments.}
