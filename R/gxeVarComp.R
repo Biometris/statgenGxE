@@ -295,6 +295,7 @@ gxeVarComp <- function(TD,
 #'
 #' Replicates '_qvInitial' procedure (S. J. Welham 15/05/09) in GenStat
 #'
+#' @noRd
 #' @keywords internal
 initVals <- function(TD,
                      trait,

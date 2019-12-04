@@ -1,9 +1,5 @@
-#' \code{statgenGxE} package
-#'
-#' statgenGxE
-#'
-#' @docType package
-#' @name statgenGxE
+#' @keywords internal
+"_PACKAGE"
 #'
 #' @import stats ggplot2
 #' @importFrom graphics plot

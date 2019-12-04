@@ -1,6 +1,7 @@
 #' Custom tryCatch to return result, errors and warnings.
 #' Copied from http://stackoverflow.com/a/24569739/2271856.
 #'
+#' @noRd
 #' @keywords internal
 tryCatchExt <- function(expr) {
   warn <- err <- NULL
@@ -16,6 +17,8 @@ tryCatchExt <- function(expr) {
 }
 
 #' Helper function for suppressing a single warning message.
+#'
+#' @noRd
 #' @keywords internal
 supprWarn <- function(expression,
                       message) {
@@ -31,6 +34,8 @@ supprWarn <- function(expression,
 #' last iteration for asreml is worth mentioning as a warning.
 #' If the corresponding parameter is close to zero and then changes of 1%
 #' or more can be expected and are ok.
+#'
+#' @noRd
 #' @keywords internal
 chkLastIter <- function(model) {
   wrnMsg <- "changed by more than 1%"
@@ -54,6 +59,8 @@ chkLastIter <- function(model) {
 }
 
 #' Helper function for converting certain asreml warnings to errors.
+#'
+#' @noRd
 #' @keywords internal
 wrnToErr <- function(model) {
   wrns <- c("Abnormal termination", "returning -Inf")
@@ -78,6 +85,7 @@ wrnToErr <- function(model) {
 #' always work.
 #' If this happens pworkspace is increased in 'small' steps.
 #'
+#' @noRd
 #' @keywords internal
 predictAsreml <- function(model,
                           classify = "genotype",
@@ -141,6 +149,7 @@ report <- function(x,
 
 #' Helper function for creating the actual report
 #'
+#' @noRd
 #' @keywords internal
 createReport <- function(x,
                          reportName,
@@ -246,6 +255,7 @@ createReport <- function(x,
 #'
 #' Taken from knitr package. Copied since it is an internal knitr function.
 #
+#' @noRd
 #' @keywords internal
 escapeLatex = function(x, newlines = FALSE, spaces = FALSE) {
   x = gsub('\\\\', '\\\\textbackslash', x)
@@ -259,6 +269,8 @@ escapeLatex = function(x, newlines = FALSE, spaces = FALSE) {
 }
 
 #' Helper function for printing anova table in reports.
+#'
+#' @noRd
 #' @keywords internal
 printAnova <- function(aovTab,
                        title = NULL) {
@@ -286,6 +298,7 @@ printAnova <- function(aovTab,
 
 ## The syntax for asreml4 differs from asreml3.
 ## This helper function is for detecting if the version is 4 or higher.
+#' @noRd
 #' @importFrom utils packageVersion
 asreml4 <- function() {
   if (requireNamespace("asreml", quietly = TRUE)) {

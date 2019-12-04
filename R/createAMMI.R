@@ -369,6 +369,7 @@ plot.AMMI <- function(x,
 
 #' Helper function for creating AMMI1 plot
 #'
+#' @noRd
 #' @keywords internal
 plotAMMI1 <- function(loadings,
                       scores,
@@ -523,6 +524,7 @@ plotAMMI1 <- function(loadings,
 
 #' Helper function for creating AMMI2 plot
 #'
+#' @noRd
 #' @keywords internal
 plotAMMI2 <- function(loadings,
                       scores,
