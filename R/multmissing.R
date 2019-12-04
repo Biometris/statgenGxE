@@ -48,13 +48,8 @@ multMissing <- function(Y,
   if (!is.matrix(Y) && !is.data.frame(Y) && !is.vector(Y)) {
     stop("Y should be a data.frame, matrix or vector.\n")
   }
-  if (!is.numeric(maxIter) || length(maxIter) > 1 ||
-      round(maxIter) != maxIter || maxIter < 0) {
-    stop("maxIter should be an integer.\n")
-  }
-  if (!is.null(naStrings) && !is.character(naStrings)) {
-    stop("naStrings should be NULL or a character vector.\n")
-  }
+  chkNum(maxIter, min = 1, incl = TRUE)
+  chkChar(naStrings)
   if (!is.vector(Y)) {
     inMat <- is.matrix(Y)
     if (is.data.frame(Y)) {

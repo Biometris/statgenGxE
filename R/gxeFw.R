@@ -85,9 +85,7 @@ gxeFw <- function(TD,
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
-  if (!is.character(trials) || !all(trials %in% names(TD))) {
-    stop("All trials should be in TD.")
-  }
+  trials <- chkTrials(trials, TD)
   TDTot <- Reduce(f = rbind, x = TD[trials])
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
       !hasName(x = TDTot, name = trait)) {
@@ -97,13 +95,8 @@ gxeFw <- function(TD,
     stop("TD should contain a column trial to be able to run a Finlay
          Wilkinson analysis.\n")
   }
-  if (is.null(maxIter) || !is.numeric(maxIter) || length(maxIter) > 1 ||
-      maxIter != round(maxIter) || maxIter < 1) {
-    stop("maxIter should be a positive integer.\n")
-  }
-  if (is.null(tol) || !is.numeric(tol) || length(tol) > 1 || tol < 0) {
-    stop("tol should be a numerical value > 10^-6.\n")
-  }
+  chkNum(maxIter, min = 1, incl = TRUE)
+  chkNum(tol, min = 0)
   if (!is.null(genotypes) && !all(genotypes %in% TDTot[["genotype"]])) {
     stop("All genotypes to include should be in TD.\n")
   }

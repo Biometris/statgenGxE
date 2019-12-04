@@ -211,28 +211,15 @@ plot.AMMI <- function(x,
   if (plotType %in% c("GGE1", "GGE2")) {
     plotType <- gsub(pattern = "GGE", replacement = "AMMI", x = plotType)
   }
-  if (!is.numeric(scale) || length(scale) > 1) {
-    stop("scale should be a single numerical value.\n")
-  }
-  if (scale < 0 || scale > 1) {
-    warning("Scale is outside [0, 1].\n", call. = FALSE)
-  }
+  chkNum(scale, min = 0, max = 1, incl = TRUE)
   if (plotGeno) {
-    if (!is.numeric(sizeGeno) || length(sizeGeno) > 1 || sizeGeno < 0) {
-      stop("sizeGeno should be a single numerical value >= 0.\n")
-    }
+    chkNum(sizeGeno, min = 0, incl = TRUE)
   }
   if (plotEnv) {
-    if (!is.numeric(sizeEnv) || length(sizeEnv) > 1 || sizeEnv <= 0) {
-      stop("sizeEnv should be a single numerical value > 0.\n")
-    }
-    if (!is.null(colEnv) && !is.character(colEnv)) {
-      stop("colEnv should be NULL or a character vector.\n")
-    }
+    chkNum(sizeEnv, min = 0, incl = TRUE)
+    chkChar(colEnv)
   }
-  if (!is.null(colorGenoBy) && (!is.character(colorGenoBy) || length(colorGenoBy) > 1)) {
-    stop("colorGenoBy should be a single character string.\n")
-  }
+  chkChar(colorGenoBy)
   if (!is.null(colorGenoBy)) {
     if (x$byYear) {
       for (dat in x$dat) {
@@ -254,9 +241,7 @@ plot.AMMI <- function(x,
       }
     }
   }
-  if (!is.numeric(envFactor) || length(envFactor) > 1 || envFactor <= 0) {
-    stop("envFactor should be a single numerical value > 0.\n")
-  }
+  chkNum(envFactor, min = 0)
   if (plotType == "AMMI1") {
     if (x$byYear) {
       ## Create a list of AMMI1 plots.

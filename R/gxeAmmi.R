@@ -99,9 +99,7 @@ gxeAmmi <- function(TD,
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
-  if (!is.character(trials) || !all(hasName(TD, trials))) {
-    stop("All trials should be in TD.")
-  }
+  trials <- chkTrials(trials, TD)
   TDTot <- Reduce(f = rbind, x = TD[trials])
   if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
       !hasName(x = TDTot, name = trait)) {

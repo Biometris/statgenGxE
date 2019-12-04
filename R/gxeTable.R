@@ -32,9 +32,7 @@ gxeTable <- function(TD,
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
-  if (!is.character(trials) || !all(trials %in% names(TD))) {
-    stop("All trials should be in TD.")
-  }
+  trials <- chkTrials(trials, TD)
   if (length(trials) < 10) {
     warning("One should be cautious with the interpretation of predictions ",
             "for mega environments that are based on less than 10 trials.\n")
