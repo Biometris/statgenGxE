@@ -68,30 +68,21 @@ gxeStability <- function(TD,
   trials <- chkTrials(trials, TD)
   TDTot <- Reduce(f = rbind, x = TD[trials])
   TDTot <- droplevels(TDTot)
-  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TDTot)) {
-    stop("trait has to be a column in TD.\n")
-  }
-  if (!"trial" %in% colnames(TDTot)) {
-    stop(paste("TD should contain a column trial to be able",
-               "to calculate stabilities.\n"))
-  }
-  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TDTot)) {
-    stop("trait has to be a column in TD.\n")
-  }
+  chkCol(trait, TDTot)
+  chkCol("trial", TDTot)
+  chkCol("genotype", TDTot)
   method <- match.arg(method, several.ok = TRUE)
   bestMethod <- match.arg(bestMethod)
   sorted <- match.arg(sorted)
-  if (useMegaEnv && !hasName(x = TDTot, name = "megaEnv")) {
-    stop("megaEnv has to be a column in TD.\n")
+  if (useMegaEnv) {
+    chkCol("megaEnv", TDTot)
   }
   trCol <- ifelse(useMegaEnv, "megaEnv", "trial")
   ## Remove genotypes that contain only NAs
-  allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {
+  allNA <- by(TDTot, TDTot[["genotype"]], FUN = function(x) {
     all(is.na(x[trait]))
   })
-  TDTot <- TDTot[!TDTot$genotype %in% names(allNA[allNA]), ]
+  TDTot <- TDTot[!TDTot[["genotype"]] %in% names(allNA[allNA]), ]
   if (any(is.na(TDTot[[trait]]))) {
     y0 <- tapply(TDTot[[trait]], TDTot[, c("genotype", trCol)], mean)
     ## Actual imputation.
@@ -102,7 +93,7 @@ gxeStability <- function(TD,
     ## imputate missing values.
     TDTot[is.na(TDTot[[trait]]), trait] <- y1[is.na(y0) & !is.na(yIndex)]
   }
-  lab <- levels(TDTot$genotype)
+  lab <- levels(TDTot[["genotype"]])
   nGeno <- length(lab)
   if (useMegaEnv) {
     trials <- levels(TDTot[[trCol]])
@@ -125,7 +116,7 @@ gxeStability <- function(TD,
     ## Observed genotype field response in the trial j
     ## (averaged across experiment replicates)
     Rij <- sapply(X = trials, FUN = function(x) {
-      mean(TDTot[TDTot$genotype == lab[i] & TDTot[[trCol]] == x, trait],
+      mean(TDTot[TDTot[["genotype"]] == lab[i] & TDTot[[trCol]] == x, trait],
            na.rm = TRUE)
     })
     pos <- (1:nTr)[!is.na(Rij)]

@@ -69,7 +69,7 @@ test_that("wricke is computed correctly", {
 geStabTr <- gxeStability(TD = testTD, trait = "t1", trials = c("E1", "E2"))
 test_that("option trials functions properly", {
   expect_error(gxeStability(TD = testTD, trait = "t1", trials = "E5"),
-               "All trials should be in TD")
+               "a character vector defining trials in testTD")
   expect_equal(geStabTr$superiority$superiority,
                c(3796.36028162954, 2591.78800746145, 2536.44454355594,
                  2278.26779025891, 2043.64267544932, 1925.54762557928,
