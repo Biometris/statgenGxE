@@ -296,16 +296,22 @@ printAnova <- function(aovTab,
                                            ncol(aovTab), "}{c}{", legendText)))
 }
 
-## The syntax for asreml4 differs from asreml3.
-## This helper function is for detecting if the version is 4 or higher.
+#' Helper function for detecting the version of asreml installed.
+#' This is used wherever the syntax for asreml4 differs from asreml3.
+#'
 #' @noRd
 #' @importFrom utils packageVersion
+#' @keywords internal
 asreml4 <- function() {
   if (requireNamespace("asreml", quietly = TRUE)) {
-    if (packageVersion("asreml") >= 4) {
+    if (packageVersion("asreml")[1] >= 4) {
       ## Calling license status apparently also activates the license if this
       ## was done once before.
-      #asreml::asreml.license.status()
+      licenceStatus <- asreml::asreml.license.status(quiet = TRUE)
+      if (licenceStatus$status != 0) {
+        stop("Error checking asreml licence status:\n",
+             licenceStatus$statusMessage)
+      }
       return(TRUE)
     }
     return(FALSE)
