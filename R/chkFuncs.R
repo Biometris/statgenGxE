@@ -70,3 +70,16 @@ chkTrials <- function(trials,
   }
   return(trials)
 }
+
+#' Check that columns are within an object.
+#'
+#' @noRd
+#' @keywords internal
+chkCol <- function(column,
+                   obj) {
+  if (is.null(column) || !is.character(column) || length(column) > 1 ||
+      !hasName(x = obj, name = column)) {
+    stop(column, " has to be a column in ", deparse(substitute(TD)), ".\n")
+  }
+}
+
