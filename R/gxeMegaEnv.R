@@ -41,60 +41,57 @@ gxeMegaEnv <- function(TD,
   }
   trials <- chkTrials(trials, TD)
   TDTot <- Reduce(f = rbind, x = TD[trials])
-  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !trait %in% colnames(TDTot)) {
-    stop("trait has to be a column in TD.\n")
-  }
-  if (!"trial" %in% colnames(TDTot)) {
-    stop(paste("TD should contain a column trial to be able to run an AMMI",
-               "analysis.\n"))
-  }
-  if ("megaEnv" %in% colnames(TDTot)) {
-    warning(paste("TD already contains a column megaEnv. This column will",
-                  "be overwritten.\n"), call. = FALSE)
+  chkCol(trait, TDTot)
+  chkCol("trial", TDTot)
+  chkCol("genotype", TDTot)
+  if (byYear) {
+    chkCol("year", TDTot)
   }
   method <- match.arg(method)
+  if (hasName(x = TDTot, name = "megaEnv")) {
+    warning("TD already contains a column megaEnv. This column will",
+            "be overwritten.\n", call. = FALSE)
+  }
   ## Remove genotypes that contain only NAs
-  allNA <- by(TDTot, TDTot$genotype, FUN = function(x) {
+  allNA <- by(TDTot, TDTot[["genotype"]], FUN = function(x) {
     all(is.na(x[trait]))
   })
-  TDTot <- TDTot[!TDTot$genotype %in% names(allNA[allNA]), ]
+  TDTot <- TDTot[!TDTot[["genotype"]] %in% names(allNA[allNA]), ]
   rmYear <- FALSE
-  if (!byYear || !hasName(x = TDTot, name = "year")) {
-    TDTot$year <- 0
+  if (!byYear) {
+    TDTot[["year"]] <- 0
     rmYear <- TRUE
   }
   ## Save and then drop factor levels.
-  envLevels <- levels(TDTot$trial)[levels(TDTot$trial) %in% trials]
-  TDTot$trial <- droplevels(TDTot$trial)
-
+  envLevels <- levels(TDTot[["trial"]])[levels(TDTot[["trial"]]) %in% trials]
+  TDTot[["trial"]] <- droplevels(TDTot[["trial"]])
   ## Perform AMMI analysis.
-  AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = 2,
-                  byYear = byYear)
+  AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = 2, byYear = byYear)
   ## Extract winning genotype per trial.
-  winGeno <- by(data = AMMI$fitted, INDICES = AMMI$fitted$trial,
+  winGeno <- by(data = AMMI$fitted, INDICES = AMMI$fitted[["trial"]],
                 FUN = function(trial) {
-                  as.character(trial$genotype)[do.call(paste0("which.", method),
-                                                       args = list(trial$fittedValue))]
+                  selGeno <- do.call(paste0("which.", method),
+                                     args = list(trial[["fittedValue"]]))
+                  as.character(trial[["genotype"]])[selGeno]
                 })
   ## Extract values for winning genotype per trial.
-  winGenoVal <- by(data = AMMI$fitted, INDICES = AMMI$fitted$trial,
+  winGenoVal <- by(data = AMMI$fitted, INDICES = AMMI$fitted[["trial"]],
                    FUN = function(trial) {
-                     do.call(method, args = list(trial$fittedValue))
+                     do.call(method, args = list(trial[["fittedValue"]]))
                    })
   ## Create factor based on best genotypes.
   megaFactor <- factor(winGeno, labels = "")
   ## Merge factor levels to original data.
-  TDTot$megaEnv <- TDTot$trial
-  levels(TDTot$megaEnv) <- as.character(megaFactor)
+  TDTot[["megaEnv"]] <- TDTot[["trial"]]
+  levels(TDTot[["megaEnv"]]) <- as.character(megaFactor)
   ## Reapply saved levels to ensure input and output TDTot are identical.
-  levels(TDTot$trial) <- envLevels
+  levels(TDTot[["trial"]]) <- envLevels
   ## If year was added, remove if before creating output.
   if (isTRUE(rmYear)) {
     TDTot <- TDTot[-which(colnames(TDTot) == "year")]
   }
   ## Relevel megaEnv so it is in increasing order.
-  TDTot$megaEnv <- factor(as.numeric(as.character(TDTot$megaEnv)))
+  TDTot[["megaEnv"]] <- factor(as.numeric(as.character(TDTot[["megaEnv"]])))
   TDOut <- createTD(TDTot)
   ## Create summary table.
   summTab <- data.frame("Mega factor" = megaFactor,
@@ -107,6 +104,5 @@ gxeMegaEnv <- function(TD,
   if (sumTab) {
     print(summTab, row.names = FALSE)
   }
-
   return(TDOut)
 }
