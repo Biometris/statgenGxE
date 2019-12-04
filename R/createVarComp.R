@@ -100,7 +100,7 @@ plot.varComp <- function(x,
   meltedVarMatUp <- meltedVarMat[as.numeric(meltedVarMat$Var1) <=
                                    as.numeric(meltedVarMat$Var2), ]
   ## Round values for nicer display
-  meltedVarMatUp$value <- round(meltedVarMatUp$value)
+  meltedVarMatUp$value <- signif(meltedVarMatUp$value, digits = 2)
   p <- ggplot(data = meltedCorMatLow,
               aes_string("Var1", "Var2", fill = "value")) +
     geom_tile(color = "white") +
