@@ -101,25 +101,22 @@ gxeAmmi <- function(TD,
   }
   trials <- chkTrials(trials, TD)
   TDTot <- Reduce(f = rbind, x = TD[trials])
-  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !hasName(x = TDTot, name = trait)) {
-    stop("trait has to be a column in TD.\n")
+  chkCol(trait, TDTot)
+  chkCol("genotype", TDTot)
+  chkCol("trial", TDTot)
+  if (useWt) {
+    chkCol("wt", TDTot)
   }
-  if (!hasName(x = TDTot, name = "trial")) {
-    stop("TD should contain a column trial to be able to run an AMMI analysis.\n")
+  if (byYear) {
+    chkCol("year", TDTot)
   }
-  if (useWt && !hasName(x = TDTot, name = "wt")) {
-    stop("wt has to be a column in TD when using weighting.")
-  }
-  if (!is.null(nPC) && (!is.numeric(nPC) || length(nPC) > 1 ||
-                        round(nPC) != nPC || nPC < 0)) {
-    stop("nPC should be NULL or a single integer.\n")
-  }
+  chkNum(nPC, min = 1, incl = TRUE)
+  chkChar(excludeGeno)
   if (!is.null(excludeGeno) && !all(excludeGeno %in% TDTot[["genotype"]])) {
     stop("All genotypes to exclude should be in TD.\n")
   }
-  TDTot$year. <- if (byYear) {
-    as.character(TDTot$year)
+  TDTot[["year."]] <- if (byYear) {
+    as.character(TDTot[["year"]])
   } else {
     "0"
   }
@@ -131,24 +128,23 @@ gxeAmmi <- function(TD,
     }
   }
   ## Extract years and define empty objects for output.
-  years <- sort(unique(TDTot$year.))
-  fitTot <- data.frame(genotype = unique(TDTot$genotype))
+  years <- sort(unique(TDTot[["year."]]))
+  fitTot <- data.frame(genotype = unique(TDTot[["genotype"]]))
   loadTot <- scoreTot <- impTot <- aovTot <- envMeanTot <- genoMeanTot <-
     ovMeanTot <- datTot <- setNames(vector(mode = "list",
                                            length = length(years)), years)
   for (year in years) {
-    TDYear <- TDTot[TDTot$year. == year, ]
+    TDYear <- TDTot[TDTot[["year."]] == year, ]
     ## Remove genotypes that contain only NAs
-    allNA <- by(TDYear, TDYear$genotype, FUN = function(x) {
+    allNA <- by(TDYear, TDYear[["genotype"]], FUN = function(x) {
       all(is.na(x[trait]))
     })
-    TDYear <- TDYear[!TDYear$genotype %in% names(allNA[allNA]), ]
+    TDYear <- TDYear[!TDYear[["genotype"]] %in% names(allNA[allNA]), ]
     ## Drop levels to make sure prcomp doesn't crash.
-    TDYear$genotype <- droplevels(TDYear$genotype)
-    TDYear$trial <- droplevels(TDYear$trial)
+    TDYear <- droplevels(TDYear)
     ## Count number of genotypes, environments and traits.
-    nGeno <- nlevels(TDYear$genotype)
-    nEnv <- nlevels(TDYear$trial)
+    nGeno <- nlevels(TDYear[["genotype"]])
+    nEnv <- nlevels(TDYear[["trial"]])
     nTrait <- nrow(TDYear)
     ## At least 3 trials needed.
     if (nEnv < 3) {
@@ -161,7 +157,7 @@ gxeAmmi <- function(TD,
       }
     }
     ## check if the supplied data contains the genotype by environment means.
-    maxTrGeno <- max(table(TDYear$trial, TDYear$genotype))
+    maxTrGeno <- max(table(TDYear[["trial"]], TDYear[["genotype"]]))
     if (maxTrGeno > 1 || nTrait > nGeno * nEnv) {
       if (byYear) {
         warning(paste0("More than 1 value per trial per genotype for ", year,
@@ -208,12 +204,13 @@ gxeAmmi <- function(TD,
     }
     ## Set wt to 1 if no weighting is used.
     if (!useWt) {
-      TDYear$wt <- 1
+      TDYear[["wt"]] <- 1
     }
     ## Fit linear model.
-    modForm <- formula(paste0("`", trait, "`~", if (!GGE) "genotype +", "trial"))
-    model <- lm(modForm, data = TDYear, weights = TDYear$wt)
-    ## Calculate residuals & fitted values of the linear model.
+    modForm <- formula(paste0("`", trait, "`~",
+                              if (!GGE) "genotype +", "trial"))
+    model <- lm(modForm, data = TDYear, weights = TDYear[["wt"]])
+    ## Calculate residuals and fitted values of the linear model.
     resids <- tapply(X = resid(model), INDEX = TDYear[, c("genotype", "trial")],
                      FUN = I)
     fittedVals <- tapply(X = fitted(model),
@@ -231,7 +228,7 @@ gxeAmmi <- function(TD,
       nPCYear <- nPC
     } else {
       ## nPC is not supplied. Do principal component analyses as long as
-      ## when adding an extra component this new component is signifacant.
+      ## when adding an extra component this new component is significant.
       pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
                     scale. = scale, rank. = 2)
       if (nEnv > 4) {
@@ -273,9 +270,11 @@ gxeAmmi <- function(TD,
     importance <- as.data.frame(summary(pca)$importance)
     colnames(importance) <- paste0("PC", 1:ncol(importance))
     ## Compute means.
-    envMean <- tapply(X = TDYear[[trait]], INDEX = TDYear$trial, FUN = mean)
+    envMean <- tapply(X = TDYear[[trait]], INDEX = TDYear[["trial"]],
+                      FUN = mean)
     envMean <- setNames(as.numeric(envMean), names(envMean))
-    genoMean <- tapply(X = TDYear[[trait]], INDEX = TDYear$genotype, FUN = mean)
+    genoMean <- tapply(X = TDYear[[trait]], INDEX = TDYear[["genotype"]],
+                       FUN = mean)
     genoMean <- setNames(as.numeric(genoMean), names(genoMean))
     overallMean <- mean(TDYear[[trait]])
     fitTot <- merge(fitTot, fitted, by.x = "genotype", by.y = "row.names",
@@ -288,8 +287,8 @@ gxeAmmi <- function(TD,
     genoMeanTot[[year]] <- genoMean
     ovMeanTot[[year]] <- overallMean
   } # End loop over years.
-  fitTot <- reshape2::melt(fitTot, id.vars = "genotype", variable.name = "trial",
-                           value.name = "fittedValue")
+  fitTot <- reshape2::melt(fitTot, id.vars = "genotype",
+                           variable.name = "trial", value.name = "fittedValue")
   if (!byYear) {
     loadTot <- loadTot[[1]]
     scoreTot <- scoreTot[[1]]
