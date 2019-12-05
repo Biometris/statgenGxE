@@ -125,9 +125,8 @@ predictAsreml <- function(model,
       is.null(modelP$error)) {
     return(modelP$value)
   } else {
-    stop(paste("Error in asreml when running predict. Asreml message:\n",
-               modelP$error, "\n",
-               modelP$warning, "\n"), call. = FALSE)
+    stop("Error in asreml when running predict. Asreml message:\n",
+         modelP$error, "\n", modelP$warning, "\n", call. = FALSE)
   }
 }
 

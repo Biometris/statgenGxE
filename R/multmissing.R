@@ -122,9 +122,8 @@ multMissing <- function(Y,
         ## Update values for iterative process.
         maxDiff <- max(abs(colMeans(Y) - estPrev))
         if (iter == maxIter && maxDiff > tol) {
-          warning(paste0("No convergence achieved after ", iter," iterations.
-                        Tolerance at last iteration ", signif(maxDiff, 4),
-                        ".\n"))
+          warning("No convergence achieved after ", iter," iterations.
+                  Tolerance at last iteration ", signif(maxDiff, 4), ".\n")
         }
         iter <- iter + 1
       }

@@ -217,9 +217,9 @@ gxeVarComp <- function(TD,
           ## Fix residual variance.
           ## Column and component names are different for asreml3/asreml4.
           if (asreml4()) {
-            tmpTable[tmpTable$Component == "units!R", "Constraint"] <- "F"
+            tmpTable[tmpTable[["Component"]] == "units!R", "Constraint"] <- "F"
           } else {
-            tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
+            tmpTable[tmpTable[["Gamma"]] == "R!variance", "Constraint"] <- "F"
           }
           modArgs <- c(modArgs, list(G.param = tmpTable, R.param = tmpTable,
                                      workspace = 160e6))
@@ -234,12 +234,12 @@ gxeVarComp <- function(TD,
           mr <- chkLastIter(mr)
         }
         if (length(mr$warning) != 0) {
-          warning(paste0("Asreml gave the following warning for ", choice,
-                         ":\n", mr$warning, "\n"), call. = FALSE)
+          warning("Asreml gave the following warning for ", choice, ":\n",
+                  mr$warning, "\n", call. = FALSE)
         }
         if (!is.null(mr$error)) {
-          warning(paste0("Asreml gave the following error for ", choice,
-                         ":\n", mr$error), call. = FALSE)
+          warning("Asreml gave the following error for ", choice, ":\n",
+                  mr$error, call. = FALSE)
           mr <- list(loglik = -Inf)
         } else if (!(nTr <= 4 && choice %in% c("fa", "fa2"))) {
           mr <- mr$value
@@ -249,7 +249,7 @@ gxeVarComp <- function(TD,
           mr$call$G.param <- eval(mr$call$G.param)
           mr$call$R.param <- eval(mr$call$R.param)
           if (!mr$converge) {
-            warning(paste0("No convergence for ", choice, ".\n"), call. = FALSE)
+            warning("No convergence for ", choice, ".\n", call. = FALSE)
             mr$loglik <- -Inf
           }
           models[[choice]] <- mr
@@ -333,9 +333,9 @@ initVals <- function(TD,
     ## Fix residual variance.
     ## Column and component names are different for asreml3/asreml4.
     if (asreml4()) {
-      tmpTable[tmpTable$Component == "units!R", "Constraint"] <- "F"
+      tmpTable[tmpTable[["Component"]] == "units!R", "Constraint"] <- "F"
     } else {
-      tmpTable[tmpTable$Gamma == "R!variance", "Constraint"] <- "F"
+      tmpTable[tmpTable[["Gamma"]] == "R!variance", "Constraint"] <- "F"
     }
     tmpTable[, "Constraint"] <- as.factor(tmpTable[, "Constraint"])
     mr <- asreml::asreml(fixed = fixedForm, random = ~ genotype:idh(trial),

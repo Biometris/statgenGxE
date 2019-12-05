@@ -149,8 +149,8 @@ gxeAmmi <- function(TD,
     ## At least 3 trials needed.
     if (nEnv < 3) {
       if (byYear) {
-        warning(paste0("There are less than 3 trials for ", year, ".\n",
-                       "Year ", year, " skipped.\n"), call. =  FALSE)
+        warning("There are less than 3 trials for ", year, ".\n",
+                "Year ", year, " skipped.\n", call. =  FALSE)
         next
       } else {
         stop("TD should contain at least 3 trials to run the AMMI model.\n")
@@ -160,8 +160,8 @@ gxeAmmi <- function(TD,
     maxTrGeno <- max(table(TDYear[["trial"]], TDYear[["genotype"]]))
     if (maxTrGeno > 1 || nTrait > nGeno * nEnv) {
       if (byYear) {
-        warning(paste0("More than 1 value per trial per genotype for ", year,
-                       ".\nYear ", year, " skipped.\n"), call. =  FALSE)
+        warning("More than 1 value per trial per genotype for ", year, ".\n",
+                "Year ", year, " skipped.\n", call. =  FALSE)
         next
       } else {
         stop("TD should contain at most 1 value per trial per genotype.\n")
@@ -169,8 +169,8 @@ gxeAmmi <- function(TD,
     }
     if (!is.null(nPC) && nPC >= min(nEnv, nGeno)) {
       if (byYear) {
-        warning(paste0("nPC is larger than the number of trials for ", year,
-                       ".\nYear ", year, " skipped.\n"), call. =  FALSE)
+        warning("nPC is larger than the number of trials for ", year, ".\n",
+                "Year ", year, " skipped.\n", call. =  FALSE)
         next
       } else {
         stop("nPC should be smaller than the number of trials.\n")
@@ -190,8 +190,8 @@ gxeAmmi <- function(TD,
                    INDEX = TDYear[, c("genotype", "trial")], FUN = identity)
       if (sum(is.na(y0)) / length(y0) > 0.3) {
         if (byYear) {
-          warning(paste0("More than 30% missing values for ", year,
-                         ".\nYear ", year, "skipped.\n"), call. =  FALSE)
+          warning("More than 30% missing values for ", year, ".\n",
+                  "Year ", year, "skipped.\n", call. =  FALSE)
           next
         } else {
           stop("More than 30% missing values.\n")

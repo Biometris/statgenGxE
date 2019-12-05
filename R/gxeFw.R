@@ -165,10 +165,8 @@ gxeFw <- function(TD,
     ## Compute max difference of sensitivities between the succesive iterations.
     maxDiff <- max(abs(TDTot[["beta"]] - beta0), na.rm = TRUE)
     if (iter == maxIter && maxDiff > tol) {
-      warning(paste0("Convergence not achieved in ", iter,
-                     " iterations. Tolerance ", tol,
-                     ", criterion at last iteration ", signif(maxDiff, 4),
-                     ".\n"))
+      warning("Convergence not achieved in ", iter, " iterations. Tolerance ",
+              tol, ", criterion at last iteration ", signif(maxDiff, 4), ".\n")
     }
     iter <- iter + 1
   }
