@@ -48,7 +48,7 @@ multMissing <- function(Y,
   if (!is.matrix(Y) && !is.data.frame(Y) && !is.vector(Y)) {
     stop("Y should be a data.frame, matrix or vector.\n")
   }
-  chkNum(maxIter, min = 1, incl = TRUE)
+  chkNum(maxIter, min = 1, null = FALSE, incl = TRUE)
   chkChar(naStrings)
   if (!is.vector(Y)) {
     inMat <- is.matrix(Y)
@@ -127,12 +127,12 @@ multMissing <- function(Y,
         }
         iter <- iter + 1
       }
-      ## Reset row and column names to original values.
-      colnames(Y) <- cNames0
-      rownames(Y) <- rNames0
-      if (inMat) {
-        Y <- as.matrix(Y)
-      }
+    }
+    ## Reset row and column names to original values.
+    colnames(Y) <- cNames0
+    rownames(Y) <- rNames0
+    if (inMat) {
+      Y <- as.matrix(Y)
     }
   }
   return(Y)
