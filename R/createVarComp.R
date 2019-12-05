@@ -88,7 +88,7 @@ plot.varComp <- function(x,
     meltedCorMat[["Var2"]] <- factor(meltedCorMat[["Var2"]],
                                      levels = rownames(corMat))
   }
-  if (is.numeric(meltedCorMat[["Var1"]])) {
+  if (is.numeric(meltedVarMat[["Var1"]])) {
     meltedVarMat[["Var1"]] <- factor(meltedVarMat[["Var1"]],
                                      levels = rownames(varMat))
     meltedVarMat[["Var2"]] <- factor(meltedVarMat[["Var2"]],
