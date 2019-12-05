@@ -94,13 +94,10 @@ predictAsreml <- function(model,
                           TD,
                           ...) {
   wrnMsg <- "reset workspace or pworkspace arguments"
-  ## Create tempfile to suppress asreml output messages.
-  tmp <- tempfile()
-  sink(tmp)
   ## Predict using default settings, i.e. pworkspace = 8e6
   modelP <- tryCatchExt(predict(model, classify = classify,
                                 vcov = vcov, associate = associate,
-                                data = TD, maxiter = 20, ...))
+                                data = TD, maxiter = 20, trace = FALSE, ...))
   pWorkSpace <- 8e6
   ## While there is a warning, increase pWorkSpace and predict again.
   while (!is.null(modelP$warning) &&
@@ -109,10 +106,9 @@ predictAsreml <- function(model,
     pWorkSpace <- pWorkSpace + 8e6
     modelP <- tryCatchExt(predict(model, classify = classify,
                                   vcov = vcov, associate = associate, data = TD,
-                                  maxiter = 20, pworkspace = pWorkSpace, ...))
+                                  maxiter = 20, pworkspace = pWorkSpace,
+                                  trace = FALSE, ...))
   }
-  sink()
-  unlink(tmp)
   if (!is.null(modelP$warning) && !all(grepl(pattern = wrnMsg,
                                              x = modelP$warning))) {
     modelP <- chkLastIter(modelP)
@@ -126,7 +122,8 @@ predictAsreml <- function(model,
     return(modelP$value)
   } else {
     stop("Error in asreml when running predict. Asreml message:\n",
-         modelP$error, "\n", modelP$warning, "\n", call. = FALSE)
+         modelP$error, "\n",
+         modelP$warning, "\n", call. = FALSE)
   }
 }
 
