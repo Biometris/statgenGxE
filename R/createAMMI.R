@@ -223,21 +223,35 @@ plot.AMMI <- function(x,
   if (!is.null(colorGenoBy)) {
     if (x$byYear) {
       for (dat in x$dat) {
-        if (!hasName(x = dat, name = colorGenoBy)) {
-          stop("colorGenoBy should be a column in data.\n")
-        }
+        chkCol(colorGenoBy, dat)
         colTab <- unique(dat[c("genotype", colorGenoBy)])
-        if (nrow(colTab) != nlevels(droplevels(dat$genotype))) {
+        if (nrow(colTab) != nlevels(droplevels(dat[["genotype"]]))) {
           stop("colorGenoBy should have exactly one value per genotype")
         }
       }
     } else {
-      if (!hasName(x = x$dat, name = colorGenoBy)) {
-        stop("colorGenoBy should be a column in data.\n")
-      }
+      chkCol(colorGenoBy, dat)
       colTab <- unique(x$dat[c("genotype", colorGenoBy)])
-      if (nrow(colTab) != nlevels(droplevels(x$dat$genotype))) {
+      if (nrow(colTab) != nlevels(droplevels(x$dat[["genotype"]]))) {
         stop("colorGenoBy should have exactly one value per genotype")
+      }
+    }
+  }
+  chkChar(colorEnvBy)
+  if (!is.null(colorEnvBy)) {
+    if (x$byYear) {
+      for (dat in x$dat) {
+        chkCol(colorEnvBy, dat)
+        colTab <- unique(dat[c("genotype", colorEnvBy)])
+        if (nrow(colTab) != nlevels(droplevels(dat[["genotype"]]))) {
+          stop("colorEnvBy should have exactly one value per genotype")
+        }
+      }
+    } else {
+      chkCol(colorEnvBy, dat)
+      colTab <- unique(x$dat[c("genotype", colorEnvBy)])
+      if (nrow(colTab) != nlevels(droplevels(x$dat[["genotype"]]))) {
+        stop("colorEnvBy should have exactly one value per genotype")
       }
     }
   }
@@ -277,9 +291,9 @@ plot.AMMI <- function(x,
     }
     nPC1 <- suppressWarnings(as.numeric(substring(text = primAxis, first = 3)))
     if (is.na(nPC1)) {
-      stop(paste("Invalid value provided for primAxis Make sure the value is",
-                 "of the form primAxis = 'PCn' where n is the principal",
-                 "component to plot on the secondary axis.\n"))
+      stop("Invalid value provided for primAxis Make sure the value is ",
+           "of the form primAxis = 'PCn' where n is the principal ",
+           "component to plot on the secondary axis.\n")
     }
     if (!is.character(secAxis) || length(secAxis) > 1 ||
         substring(text = secAxis, first = 1, last = 2) != "PC") {
@@ -287,9 +301,9 @@ plot.AMMI <- function(x,
     }
     nPC2 <- suppressWarnings(as.numeric(substring(text = secAxis, first = 3)))
     if (is.na(nPC2)) {
-      stop(paste("Invalid value provided for secAxis. Make sure the value is",
-                 "of the form secAxis = 'PCn' where n is the principal",
-                 "component to plot on the secondary axis.\n"))
+      stop("Invalid value provided for secAxis. Make sure the value is ",
+           "of the form secAxis = 'PCn' where n is the principal ",
+           "component to plot on the secondary axis.\n")
     }
     if (nPC1 == nPC2) {
       stop("primAxis should differ from secAxis.\n")
@@ -298,12 +312,12 @@ plot.AMMI <- function(x,
       nPCs <- sapply(X = x$envScores, FUN = ncol)
       maxPC <- max(nPCs)
       if (nPC1 > maxPC) {
-        stop(paste0("Highest number of principal components is ", maxPC,
-                    ". Plotting of PC", nPC1, " is not possible.\n"))
+        stop("Highest number of principal components is ", maxPC,
+             ". Plotting of PC", nPC1, " is not possible.\n")
       }
       if (nPC2 > maxPC) {
-        stop(paste0("Highest number of principal components is ", maxPC,
-                    ". Plotting of PC", nPC2, " is not possible.\n"))
+        stop("Highest number of principal components is ", maxPC,
+             ". Plotting of PC", nPC2, " is not possible.\n")
       }
       p <- sapply(X = names(x$envScores)[nPCs >= max(nPC1, nPC2)],
                   FUN = function(year) {
@@ -323,12 +337,12 @@ plot.AMMI <- function(x,
 
     } else {
       if (nPC1 > ncol(x$envScores)) {
-        stop(paste0("AMMI was run with ", ncol(x$envScores), " principal ",
-                    "components. Plotting of PC", nPC1, " is not possible.\n"))
+        stop("AMMI was run with ", ncol(x$envScores), " principal ",
+             "components. Plotting of PC", nPC1, " is not possible.\n")
       }
       if (nPC2 > ncol(x$envScores)) {
-        stop(paste0("AMMI was run with ", ncol(x$envScores), " principal ",
-                    "components. Plotting of PC", nPC2, " is not possible.\n"))
+        stop("AMMI was run with ", ncol(x$envScores), " principal ",
+             "components. Plotting of PC", nPC2, " is not possible.\n")
       }
       ## Create a single AMMI2 plot.
       p <- plotAMMI2(loadings = x$envScores * envFactor,
