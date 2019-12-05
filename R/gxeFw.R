@@ -90,8 +90,8 @@ gxeFw <- function(TD,
   chkCol(trait, TDTot)
   chkCol("trial", TDTot)
   chkCol("genotype", TDTot)
-  chkNum(maxIter, min = 1, incl = TRUE)
-  chkNum(tol, min = 0)
+  chkNum(maxIter, min = 1, null = FALSE, incl = TRUE)
+  chkNum(tol, min = 0, null = FALSE)
   sorted <- match.arg(sorted)
   if (useWt) {
     chkCol("wt", TDTot)
