@@ -69,15 +69,12 @@ gxeStability <- function(TD,
   TDTot <- Reduce(f = rbind, x = TD[trials])
   TDTot <- droplevels(TDTot)
   chkCol(trait, TDTot)
-  chkCol("trial", TDTot)
   chkCol("genotype", TDTot)
   method <- match.arg(method, several.ok = TRUE)
   bestMethod <- match.arg(bestMethod)
   sorted <- match.arg(sorted)
-  if (useMegaEnv) {
-    chkCol("megaEnv", TDTot)
-  }
   trCol <- ifelse(useMegaEnv, "megaEnv", "trial")
+  chkCol(trCol, TDTot)
   ## Remove genotypes that contain only NAs
   allNA <- by(TDTot, TDTot[["genotype"]], FUN = function(x) {
     all(is.na(x[trait]))
@@ -88,10 +85,10 @@ gxeStability <- function(TD,
     ## Actual imputation.
     y1 <- multMissing(y0, maxIter = 50)
     ## Insert imputed values back into original data.
-    yIndex <- tapply(X = 1:nrow(TDTot), INDEX = TDTot[, c("genotype", trCol)],
-                     FUN = length)
-    ## imputate missing values.
-    TDTot[is.na(TDTot[[trait]]), trait] <- y1[is.na(y0) & !is.na(yIndex)]
+    for (missVal in which(is.na(TDTot[[trait]]))) {
+      TDTot[missVal, trait] <- y1[TDTot[missVal, "genotype"],
+                                  TDTot[missVal, "trial"]]
+    }
   }
   lab <- levels(TDTot[["genotype"]])
   nGeno <- length(lab)
