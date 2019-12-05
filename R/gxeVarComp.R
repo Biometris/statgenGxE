@@ -60,20 +60,19 @@ gxeVarComp <- function(TD,
   }
   trials <- chkTrials(trials, TD)
   TDTot <- Reduce(f = rbind, x = TD[trials])
-  TDTot$trial <- droplevels(TDTot$trial)
-  if (is.null(trait) || !is.character(trait) || length(trait) > 1 ||
-      !hasName(x = TDTot, name = trait)) {
-    stop("trait has to be a column in TD.\n")
-  }
+  chkCol(trait, TDTot)
+  chkCol("trial", TDTot)
+  chkCol("genotype", TDTot)
   engine <- match.arg(engine)
   criterion <- match.arg(criterion)
+  TDTot <- droplevels(TDTot)
   ## Increase maximum number of iterations for asreml. Needed for more complex
   ## designs to converge.
   maxIter <- 200
   ## Add combinations of trial and genotype currently not in TD to TD.
   ## No missing combinations are allowed when fitting asreml models.
-  TD0 <- expand.grid(genotype = levels(TDTot$genotype),
-                     trial = levels(TDTot$trial))
+  TD0 <- expand.grid(genotype = levels(TDTot[["genotype"]]),
+                     trial = levels(TDTot[["trial"]]))
   TDTot <- merge(TD0, TDTot, all.x = TRUE)
   if (engine == "asreml") {
     choices <- c("identity", "cs", "diagonal", "hcs", "outside", "fa", "fa2",
@@ -101,10 +100,10 @@ gxeVarComp <- function(TD,
     bestModel <- models[[rownames(bestTab)[1]]]
     vcovBest <- vcov(emmeans::emmeans(bestModel, specs = "trial",
                                       lmer.df = "asymptotic"))
-    colnames(vcovBest) <- rownames(vcovBest) <- levels(TDTot$trial)
+    colnames(vcovBest) <- rownames(vcovBest) <- levels(TDTot[["trial"]])
   } else if (engine == "asreml") {
     if (requireNamespace("asreml", quietly = TRUE)) {
-      nTr <- nlevels(TDTot$trial)
+      nTr <- nlevels(TDTot[["trial"]])
       fixedForm <- formula(paste0("`", trait, "`~ trial"))
       ## Put arguments for models in a list to make it easier to switch
       ## between asreml3 and asreml4. Usually only one or two arguments differ.
@@ -256,7 +255,7 @@ gxeVarComp <- function(TD,
           models[[choice]] <- mr
           bestTab[choice, "AIC"] <- -2 * mr$loglik + 2 * nPar
           bestTab[choice, "BIC"] <- -2 * mr$loglik +
-            (log(length(fitted(mr)) - nlevels(TDTot$genotype)) * nPar)
+            (log(length(fitted(mr)) - nlevels(TDTot[["genotype"]])) * nPar)
           bestTab[choice, "Deviance"] <- -2 * mr$loglik
           bestTab[choice, "NParameters"] <- nPar
         }
@@ -270,12 +269,12 @@ gxeVarComp <- function(TD,
       } else {
         bestPred$predictions$vcov
       }
-      colnames(vcovBest) <- rownames(vcovBest) <- levels(TDTot$trial)
+      colnames(vcovBest) <- rownames(vcovBest) <- levels(TDTot[["trial"]])
     } else {
       stop("Failed to load 'asreml'.\n")
     }
   }
-  TDTot$trial <- rownames(bestTab)[1]
+  TDTot[["trial"]] <- rownames(bestTab)[1]
   ## Create output.
   model <- setNames(list(list(mRand = NULL,
                               mFix = setNames(list(bestModel), trait),
@@ -306,8 +305,8 @@ initVals <- function(TD,
   ## Remove the rows with NA.
   X <- na.omit(TD[, colnames(TD) %in% c(trait, "genotype", "trial")])
   X <- droplevels(X)
-  nEnv <- nlevels(X$trial)
-  nGeno <- nlevels(X$genotype)
+  nEnv <- nlevels(X[["trial"]])
+  nGeno <- nlevels(X[["genotype"]])
   ## Get fixed df by stealth - in absence of other info, share among trials.
   if (!is.null(fixed)) {
     mr <- asreml::asreml(fixed = fixed, data = X, trace = FALSE, ...)
@@ -350,7 +349,8 @@ initVals <- function(TD,
     mr$call$fixed <- fixedForm
     mr$call$data <- X
     res <- residuals(mr, type = "response")
-    RMat <- tapply(X = res, INDEX = list(X$genotype, X$trial), FUN = mean)
+    RMat <- tapply(X = res, INDEX = list(X[["genotype"]], X[["trial"]]),
+                   FUN = mean)
     RMat[is.na(RMat)] <- 0
   }
   evCov <- crossprod(RMat) / (Nobs - (P / nEnv))
