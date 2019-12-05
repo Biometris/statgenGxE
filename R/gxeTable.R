@@ -33,10 +33,6 @@ gxeTable <- function(TD,
     stop("TD should be a valid object of class TD.\n")
   }
   trials <- chkTrials(trials, TD)
-  if (length(trials) < 10) {
-    warning("One should be cautious with the interpretation of predictions ",
-            "for mega environments that are based on less than 10 trials.\n")
-  }
   TDTot <- Reduce(f = rbind, x = TD[trials])
   chkCol(trait, TDTot)
   chkCol("trial", TDTot)
@@ -46,6 +42,10 @@ gxeTable <- function(TD,
     chkCol("year", TDTot)
   }
   engine <- match.arg(engine)
+  if (length(trials) < 10) {
+    warning("One should be cautious with the interpretation of predictions ",
+            "for mega environments that are based on less than 10 trials.\n")
+  }
   TDTot <- droplevels(TDTot)
   if (engine == "asreml") {
     if (requireNamespace("asreml", quietly = TRUE)) {
