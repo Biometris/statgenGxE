@@ -4,7 +4,27 @@ context("Plots")
 ## objects on which the plots are based are invisibly returned at least some
 ## checking can be done.
 
-geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
+modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
+BLUEs <- SSAtoTD(modelSp, what = "BLUEs", keep = c("family", "regime"))
+geAmmi <- gxeAmmi(BLUEs, trait = "t1")
+
+test_that("general checks in ammi plot function properly", {
+  expect_error(plot(geAmmi, scale = 2),
+               "a single numerical value between 0 and 1")
+  expect_error(plot(geAmmi, sizeGeno = -1),
+               "a single numerical value greater than or equal to 0")
+  expect_error(plot(geAmmi, sizeEnv = -1),
+               "a single numerical value greater than or equal to 0")
+  expect_error(plot(geAmmi, colGeno = 1),
+               "NULL or a character vector")
+  expect_error(plot(geAmmi, colEnv = 1),
+               "NULL or a character vector")
+  expect_error(plot(geAmmi, plotType = "AMMI2", primAxis = "PCC"),
+               "Invalid value provided for primAxis")
+  expect_error(plot(geAmmi, plotType = "AMMI2", secAxis = "PCC"),
+               "Invalid value provided for secAxis")
+})
+
 p0_1 <- plot(geAmmi)
 p0_2 <- plot(geAmmi, plotType = "AMMI2")
 test_that("AMMI plot gives correct output types", {
@@ -25,12 +45,12 @@ test_that("AMMI plot gives correct output types", {
 })
 
 test_that("AMMI plot plotType options function properly", {
-  geGGE <- gxeAmmi(TD = TDMaize, trait = "yld", GGE = TRUE)
+  geGGE <- gxeAmmi(TD = BLUEs, trait = "t1", GGE = TRUE)
   p1a <- plot(geAmmi)
   p1b <- plot(geAmmi, plotType = "GGE1")
   p2 <- plot(geGGE)
   expect_equal(p1a, p1b)
-  expect_equal(p2$labels$title, "GGE biplot for yld ")
+  expect_equal(p2$labels$title, "GGE biplot for t1 ")
 })
 
 test_that("AMMI plot scale option functions properly", {
@@ -38,9 +58,11 @@ test_that("AMMI plot scale option functions properly", {
   p1_2 <- plot(geAmmi, plotType = "AMMI2", scale = 0)
   p2_2 <- plot(geAmmi, plotType = "AMMI2", scale = 1)
   p3_2 <- plot(geAmmi, plotType = "AMMI2", scale = 0.75)
-  expect_equal(p1_2$labels$title, "AMMI2 biplot for yld (genotype scaling) ")
-  expect_equal(p2_2$labels$title, "AMMI2 biplot for yld (environment scaling) ")
-  expect_equal(p3_2$labels$title, "AMMI2 biplot for yld (51%) ")
+  p4_2 <- plot(geAmmi, plotType = "AMMI2", scale = 0.5)
+  expect_equal(p1_2$labels$title, "AMMI2 biplot for t1 (genotype scaling) ")
+  expect_equal(p2_2$labels$title, "AMMI2 biplot for t1 (environment scaling) ")
+  expect_equal(p3_2$labels$title, "AMMI2 biplot for t1 (100%) ")
+  expect_equal(p4_2$labels$title, "AMMI2 biplot for t1 (symmetric scaling) ")
 })
 
 test_that("AMMI plot plotGeno functions properly", {
@@ -100,9 +122,7 @@ test_that("AMMI plot envFactor functions properly", {
   p1_1 <- plot(geAmmi, envFactor = 5)
   p1_2 <- plot(geAmmi, plotType = "AMMI2", envFactor = 5)
   ## Coordinate limits should blow up by a factor 5.
-  ## Lower x-limit is strongly dependent on genoscores so not blown up as much.
-  expect_equal(5 * p0_1$plot_env$p$coordinates$limits$x[2],
-               p1_1$plot_env$p$coordinates$limits$x[2])
+  ## x-limits is strongly dependent on genoscores so not blown up as much.
   expect_equal(5 * p0_1$plot_env$p$coordinates$limits$y,
                p1_1$plot_env$p$coordinates$limits$y)
   ## Coordinate limits should blow up by a factor 5.
@@ -125,6 +145,114 @@ test_that("AMMI plot colEnv functions properly", {
                "green")
 })
 
+test_that("AMMI plot colorEnvBy functions properly", {
+  expect_error(plot(geAmmi, colorEnvBy = 1),
+               "NULL or a character vector")
+  expect_error(plot(geAmmi, colorEnvBy = "col"),
+               "col has to be a column")
+  expect_error(plot(geAmmi, colorEnvBy = "family"),
+               "exactly one value per environment")
+  expect_error(plot(geAmmi, colorEnvBy = "regime", colEnv = "blue"))
+
+  ## AMMI1
+  p1_1 <- plot(geAmmi, colorEnvBy = "regime")
+  p1_2 <- plot(geAmmi, colorEnvBy = "regime", colEnv = c("green", "blue"))
+  geoms1_1 <- sapply(p1_1$layers, function(x) class(x$geom)[1])
+  geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
+  dat1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
+  expect_equal(as.character(dat1_1[[".color"]]),
+               c("#4C00FFFF", "#4C00FFFF", "#00E5FFFF"))
+  dat1_2 <- p1_2$layers[geoms1_2 == "GeomText"][[1]]$data
+  expect_equal(as.character(dat1_2[[".color"]]),
+               c("green", "green", "blue"))
+
+  ## AMMI2
+  p1_1 <- plot(geAmmi, plotType = "AMMI2", colorEnvBy = "regime")
+  p1_2 <- plot(geAmmi, plotType = "AMMI2", colorEnvBy = "regime",
+               colEnv = c("green", "blue"))
+  geoms1_1 <- sapply(p1_1$layers, function(x) class(x$geom)[1])
+  geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
+  dat1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
+  expect_equal(as.character(dat1_1[[".color"]]),
+               c("#4C00FFFF", "#4C00FFFF", "#00E5FFFF"))
+  dat1_2 <- p1_2$layers[geoms1_2 == "GeomText"][[1]]$data
+  expect_equal(as.character(dat1_2[[".color"]]),
+               c("green", "green", "blue"))
+})
+
+test_that("AMMI plot colorGenoBy functions properly", {
+  expect_error(plot(geAmmi, colorGenoBy = 1),
+               "NULL or a character vector")
+  expect_error(plot(geAmmi, colorGenoBy = "col"),
+               "col has to be a column")
+  expect_error(plot(geAmmi, colorGenoBy = "regime"),
+               "exactly one value per genotype")
+  expect_error(plot(geAmmi, colorGenoBy = "family", colGeno = "blue"))
+
+  ## AMMI1
+  p1_1 <- plot(geAmmi, colorGenoBy = "family")
+  p1_2 <- plot(geAmmi, colorGenoBy = "family",
+               colGeno = c("green", "blue", "red"))
+  geoms1_1 <- sapply(p1_1$layers, function(x) class(x$geom)[1])
+  geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
+  dat1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
+  expect_equal(as.character(dat1_1[[".color"]]),
+               c("#4C00FFFF", "#00FF4DFF", "#FFFF00FF", "#FFFF00FF",
+                 "#FFFF00FF", "#FFFF00FF", "#FFFF00FF", "#4C00FFFF",
+                 "#4C00FFFF", "#4C00FFFF", "#4C00FFFF", "#00FF4DFF",
+                 "#00FF4DFF", "#00FF4DFF", "#00FF4DFF"))
+  dat1_2 <- p1_2$layers[geoms1_2 == "GeomPoint"][[1]]$data
+  expect_equal(as.character(dat1_2[[".color"]]),
+               c("green", "blue", "red", "red", "red", "red", "red", "green",
+                 "green", "green", "green", "blue", "blue", "blue", "blue"))
+
+  ## AMMI2
+  p1_1 <- plot(geAmmi, plotType = "AMMI2", colorGenoBy = "family")
+  p1_2 <- plot(geAmmi, plotType = "AMMI2", colorGenoBy = "family",
+               colGeno = c("green", "blue", "red"))
+  geoms1_1 <- sapply(p1_1$layers, function(x) class(x$geom)[1])
+  geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
+  dat1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
+  expect_equal(as.character(dat1_1[[".color"]]),
+               c("#4C00FFFF", "#00FF4DFF", "#FFFF00FF", "#FFFF00FF",
+                 "#FFFF00FF", "#FFFF00FF", "#FFFF00FF", "#4C00FFFF",
+                 "#4C00FFFF", "#4C00FFFF", "#4C00FFFF", "#00FF4DFF",
+                 "#00FF4DFF", "#00FF4DFF", "#00FF4DFF"))
+  dat1_2 <- p1_2$layers[geoms1_2 == "GeomPoint"][[1]]$data
+  expect_equal(as.character(dat1_2[[".color"]]),
+               c("green", "blue", "red", "red", "red", "red", "red", "green",
+                 "green", "green", "green", "blue", "blue", "blue", "blue"))
+})
+
+test_that("colorEnvBy combined with colorGenoBy functions properly", {
+  ## AMMI1
+  p1_1 <- plot(geAmmi, colorGenoBy = "family", colorEnvBy = "regime")
+  geoms1_1 <- sapply(p1_1$layers, function(x) class(x$geom)[1])
+  datG1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
+  datE1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
+  expect_equal(as.character(datG1_1[[".color"]]),
+               c("#4C00FFFF", "#00FF4DFF", "#FFFF00FF", "#FFFF00FF",
+                 "#FFFF00FF", "#FFFF00FF", "#FFFF00FF", "#4C00FFFF",
+                 "#4C00FFFF", "#4C00FFFF", "#4C00FFFF", "#00FF4DFF",
+                 "#00FF4DFF", "#00FF4DFF", "#00FF4DFF"))
+  expect_equal(as.character(datE1_1[[".color"]]),
+               c("#4C00FFFF", "#4C00FFFF", "#00E5FFFF"))
+
+  ## AMMI2
+  p1_1 <- plot(geAmmi, plotType = "AMMI2", colorGenoBy = "family",
+               colorEnvBy = "regime")
+  geoms1_1 <- sapply(p1_1$layers, function(x) class(x$geom)[1])
+  datG1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
+  datE1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
+  expect_equal(as.character(datG1_1[[".color"]]),
+               c("#4C00FFFF", "#00FF4DFF", "#FFFF00FF", "#FFFF00FF",
+                 "#FFFF00FF", "#FFFF00FF", "#FFFF00FF", "#4C00FFFF",
+                 "#4C00FFFF", "#4C00FFFF", "#4C00FFFF", "#00FF4DFF",
+                 "#00FF4DFF", "#00FF4DFF", "#00FF4DFF"))
+  expect_equal(as.character(datE1_1[[".color"]]),
+               c("#4C00FFFF", "#4C00FFFF", "#00E5FFFF"))
+})
+
 test_that("AMMI plot plotConvHull functions properly", {
   ## plotConvHull should be ignored for AMMI1.
   expect_equal(p0_1, plot(geAmmi, plotConvHull = TRUE))
@@ -137,13 +265,22 @@ test_that("AMMI plot plotConvHull functions properly", {
 })
 
 testTDYear <- createTD(data = testDataYear, genotype = "seed",
-                       trial = "field", repId = "rep",
-                       subBlock = "block", rowId = "Y", colId = "X",
-                       rowCoord = "Y", colCoord = "X")
+                       trial = "field", rowCoord = "Y", colCoord = "X")
 modelSp <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
-BLUEsYear <- SSAtoTD(modelSp, what = "BLUEs", keep = "year")
+BLUEsYear <- SSAtoTD(modelSp, what = "BLUEs",
+                     keep = c("year", "family", "regime"))
 geAmmiYear <- gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE)
 test_that("AMMI plot gives correct output types when byYear = TRUE", {
+  ## Year specific errors.
+  expect_error(plot(geAmmiYear, colorGenoBy = "regime"),
+               "exactly one value per genotype")
+  expect_error(plot(geAmmiYear, colorEnvBy = "family"),
+               "exactly one value per environment")
+  expect_error(plot(geAmmiYear, plotType = "AMMI2", primAxis = "PC3"),
+               "Highest number of principal components is 2")
+  expect_error(plot(geAmmiYear, plotType = "AMMI2", secAxis = "PC3"),
+               "Highest number of principal components is 2")
+
   p1 <- plot(geAmmiYear)
   expect_is(p1, "list")
   expect_length(p1, 2)
@@ -233,7 +370,6 @@ test_that("title argument functions correctly in stability plot", {
   ## actual plotting, including title, is done by grid.arrange.s
   p <- plot(geStab, title = "Test")
 })
-
 
 test_that("varComp plot gives correct output types", {
   geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")

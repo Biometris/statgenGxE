@@ -211,12 +211,13 @@ plot.AMMI <- function(x,
   if (plotType %in% c("GGE1", "GGE2")) {
     plotType <- gsub(pattern = "GGE", replacement = "AMMI", x = plotType)
   }
-  chkNum(scale, min = 0, max = 1, incl = TRUE)
+  chkNum(scale, min = 0, max = 1, null = FALSE, incl = TRUE)
   if (plotGeno) {
-    chkNum(sizeGeno, min = 0, incl = TRUE)
+    chkNum(sizeGeno, min = 0, null = FALSE, incl = TRUE)
+    chkChar(colGeno)
   }
   if (plotEnv) {
-    chkNum(sizeEnv, min = 0, incl = TRUE)
+    chkNum(sizeEnv, min = 0, null = FALSE, incl = TRUE)
     chkChar(colEnv)
   }
   chkChar(colorGenoBy)
@@ -230,7 +231,7 @@ plot.AMMI <- function(x,
         }
       }
     } else {
-      chkCol(colorGenoBy, dat)
+      chkCol(colorGenoBy, x$dat)
       colTab <- unique(x$dat[c("genotype", colorGenoBy)])
       if (nrow(colTab) != nlevels(droplevels(x$dat[["genotype"]]))) {
         stop("colorGenoBy should have exactly one value per genotype")
@@ -242,16 +243,16 @@ plot.AMMI <- function(x,
     if (x$byYear) {
       for (dat in x$dat) {
         chkCol(colorEnvBy, dat)
-        colTab <- unique(dat[c("genotype", colorEnvBy)])
-        if (nrow(colTab) != nlevels(droplevels(dat[["genotype"]]))) {
-          stop("colorEnvBy should have exactly one value per genotype")
+        colTab <- unique(dat[c("trial", colorEnvBy)])
+        if (nrow(colTab) != nlevels(droplevels(dat[["trial"]]))) {
+          stop("colorEnvBy should have exactly one value per environment.\n")
         }
       }
     } else {
-      chkCol(colorEnvBy, dat)
-      colTab <- unique(x$dat[c("genotype", colorEnvBy)])
-      if (nrow(colTab) != nlevels(droplevels(x$dat[["genotype"]]))) {
-        stop("colorEnvBy should have exactly one value per genotype")
+      chkCol(colorEnvBy, x$dat)
+      colTab <- unique(x$dat[c("trial", colorEnvBy)])
+      if (nrow(colTab) != nlevels(droplevels(x$dat[["trial"]]))) {
+        stop("colorEnvBy should have exactly one value per environment.\n")
       }
     }
   }
@@ -291,9 +292,9 @@ plot.AMMI <- function(x,
     }
     nPC1 <- suppressWarnings(as.numeric(substring(text = primAxis, first = 3)))
     if (is.na(nPC1)) {
-      stop("Invalid value provided for primAxis Make sure the value is ",
+      stop("Invalid value provided for primAxis. Make sure the value is ",
            "of the form primAxis = 'PCn' where n is the principal ",
-           "component to plot on the secondary axis.\n")
+           "component to plot on the primary axis.\n")
     }
     if (!is.character(secAxis) || length(secAxis) > 1 ||
         substring(text = secAxis, first = 1, last = 2) != "PC") {
@@ -483,7 +484,8 @@ plotAMMI1 <- function(loadings,
     nEnvGroups <- length(unique(envDat[[".group"]]))
     nrowGuide <- length(unique(genoDat[[".group"]]))
     shapesGuide <- c(rep(16, times = nGenoGroups), rep(NA, times = nEnvGroups))
-    sizesGuide <- c(rep(NULL, times = nGenoGroups),
+    sizesGuide <- c(rep(if (sizeGeno == 0) 2 else sizeGeno,
+                        times = nGenoGroups),
                     rep(sizeEnv, times = nEnvGroups))
   } else {
     nrowGuide <- shapesGuide <- sizesGuide <- NULL
@@ -655,7 +657,8 @@ plotAMMI2 <- function(loadings,
     nEnvGroups <- length(unique(envDat[[".group"]]))
     nrowGuide <- length(unique(genoDat[[".group"]]))
     shapesGuide <- c(rep(16, times = nGenoGroups), rep(NA, times = nEnvGroups))
-    sizesGuide <- c(rep(NULL, times = nGenoGroups),
+    sizesGuide <- c(rep(if (sizeGeno == 0) 2 else sizeGeno,
+                        times = nGenoGroups),
                     rep(sizeEnv, times = nEnvGroups))
   } else {
     nrowGuide <- shapesGuide <- sizesGuide <- NULL
@@ -665,7 +668,9 @@ plotAMMI2 <- function(loadings,
     coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax),
                 ratio = plotRatio, clip = "off") +
     scale_color_manual(breaks = colGroups, values = colNamed, name = NULL,
-                       guide = guide_legend(nrow = nrowGuide)) +
+                       guide = guide_legend(nrow = nrowGuide,
+                                      override.aes = list(shape = shapesGuide,
+                                                          size = sizesGuide))) +
     ## Add labeling.
     labs(x = paste0(primAxis, " (", percPC1, "%)"),
          y = paste0(secAxis, " (", percPC2, "%)")) +

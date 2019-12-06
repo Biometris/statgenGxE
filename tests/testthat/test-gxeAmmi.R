@@ -3,6 +3,38 @@ context("gxeAmmi")
 modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
+testTDYear <- createTD(data = testDataYear, genotype = "seed",
+                       trial = "field", rowCoord = "Y", colCoord = "X")
+modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
+BLUEsYear <- SSAtoTD(modelSpYear, what = "BLUEs", keep = "year")
+
+test_that("general checks in gxeAmmi function properly", {
+  expect_error(gxeAmmi(1, trait = "t1"),
+               "TD should be a valid object of class TD")
+  expect_error(gxeAmmi(BLUEs, trait = "t5"),
+               "t5 has to be a column in TD")
+  expect_error(gxeAmmi(BLUEs, trials = "E4", trait = "t1"),
+               "a character vector defining trials in BLUEs")
+  expect_error(gxeAmmi(BLUEs, trials = c("E1", "E2"), trait = "t1"),
+               "contain at least 3 trials")
+  expect_error(gxeAmmi(BLUEs, trait = "t1", byYear = TRUE),
+               "year has to be a column in TD")
+  expect_error(gxeAmmi(BLUEs, trait = "t1", useWt = TRUE),
+               "wt has to be a column in TD")
+  expect_error(gxeAmmi(BLUEs, trait = "t1", nPC = 0),
+               "NULL or a single numerical value greater than or equal to 1")
+})
+
+test_that("check for proper GxE data function properly", {
+  ## Duplicate first observation in the data for E1.
+  BLUEs$E1 <- rbind(BLUEs$E1, BLUEs$E1[1, ])
+  expect_error(gxeAmmi(BLUEs, trait = "t1"),
+               "at most 1 value per trial per genotype")
+  BLUEsYear$E1 <- rbind(BLUEsYear$E1, BLUEsYear$E1[1, ])
+  expect_warning(gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE),
+                 "More than 1 value per trial per genotype for 1")
+})
+
 geAmmi <- gxeAmmi(BLUEs, trait = "t1")
 test_that("output is of the right class", {
   expect_is(geAmmi, "AMMI")
@@ -18,14 +50,14 @@ test_that("output is of the right class", {
 })
 
 test_that("environmental scores are correct", {
-  expect_equal(dim(geAmmi$envScores), c(3L, 2L))
+  expect_equal(dim(geAmmi$envScores), c(3, 2))
   expect_equal(as.numeric(geAmmi$envScores),
                c(0.62845165715004, -0.76565288355625, 0.13720122640621,
                  -0.521263063425786, -0.28362356842947, 0.804886631855256))
 })
 
 test_that("genotypic scores are correct", {
-  expect_equal(dim(geAmmi$genoScores), c(15L, 2L))
+  expect_equal(dim(geAmmi$genoScores), c(15, 2))
   expect_equal(as.numeric(geAmmi$genoScores),
                c(-9.03548885189676, 23.6286547023355, -18.8274674051202,
                  -2.86319345697682, -20.2532814542818, -5.60451589942932,
@@ -40,14 +72,14 @@ test_that("genotypic scores are correct", {
 })
 
 test_that("importance is correct", {
-  expect_equal(dim(geAmmi$importance), c(3L, 3L))
+  expect_equal(dim(geAmmi$importance), c(3, 3))
   expect_equal(as.numeric(as.matrix(geAmmi$importance)),
                c(22.9903555201053, 0.56312, 0.56312, 20.2502014369027, 0.43688,
                  1, 9.26204080118966e-15, 0, 1))
 })
 
 test_that("anova is correct", {
-  expect_equal(dim(geAmmi$anova), c(6L, 5L))
+  expect_equal(dim(geAmmi$anova), c(6, 5))
   expect_equal(as.numeric(as.matrix(geAmmi$anova)),
                c(14, 2, 28, 15, 13, 0, 9411.85347947378, 602.255102526225,
                  13140.7794724636, 7399.7902571717, 5740.98921529192, 0,
@@ -58,7 +90,7 @@ test_that("anova is correct", {
 })
 
 test_that("fitted values are correct", {
-  expect_equal(dim(geAmmi$fitted), c(45L, 3L))
+  expect_equal(dim(geAmmi$fitted), c(45, 3))
   expect_equal(geAmmi$fitted$fittedValue,
                c(74.7151036023947, 84.6863159645868, 69.2058701507397,
                  72.4263349806975, 74.6775287748894, 84.3169610996821,
@@ -101,6 +133,10 @@ test_that("options nPC functions properly", {
   ## Third PC is very close to zero.
   expect_error(gxeAmmi(BLUEs, trait = "t1", nPC = 3),
                "should be smaller than")
+  expect_warning(expect_error(gxeAmmi(BLUEsYear, trait = "t1", nPC = 3,
+                                byYear = TRUE),
+                              "All years were skipped"),
+                 "is larger than the number of trials")
 })
 
 test_that("making algorithm decide nPC functions properly", {
@@ -110,6 +146,9 @@ test_that("making algorithm decide nPC functions properly", {
   expect_equal(geAmmi1$envScores, geAmmi$envScores)
   expect_equal(geAmmi1$genoScore, geAmmi$genoScores)
   expect_equal(geAmmi1$importance, geAmmi$importance)
+  ## Use year data but ignore year to use 6 environments.
+  geAmmiYear1 <- gxeAmmi(BLUEsYear, trait = "t1", nPC = NULL)
+  expect_equal(ncol(geAmmiYear1$envScores), 4)
 })
 
 test_that("option center functions properly", {
@@ -143,6 +182,10 @@ test_that("option GGE functions properly", {
 })
 
 test_that("option excludeGeno functions properly", {
+  expect_error(gxeAmmi(BLUEs, trait = "t1", excludeGeno = 1:10),
+                       "should be NULL or a character vector")
+  expect_error(gxeAmmi(BLUEs, trait = "t1", excludeGeno = "g1"),
+               "All genotypes to exclude should be in TD")
   expect_warning(gxeAmmi(BLUEs, trait = "t1", excludeGeno = paste0("G", 1:6)),
                  "Less than 10 genotypes present")
   geAmmi1 <- gxeAmmi(BLUEs, trait = "t1", excludeGeno = "G1")
@@ -151,12 +194,23 @@ test_that("option excludeGeno functions properly", {
   expect_length(geAmmi1$genoMean, 14)
 })
 
-testTDYear <- createTD(data = testDataYear, genotype = "seed",
-                       trial = "field", repId = "rep",
-                       subBlock = "block", rowId = "Y", colId = "X",
-                       rowCoord = "Y", colCoord = "X")
-modelSp <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
-BLUEsYear <- SSAtoTD(modelSp, what = "BLUEs", keep = "year")
+test_that("missing data is imputed correctly", {
+  ## Add missing values.
+  BLUEsMiss1 <- BLUEsMiss2 <- BLUEs
+  BLUEsMiss1$E1[["t1"]] <- NA
+  BLUEsMiss2$E1[1:5, "t1"] <- NA
+  expect_error(gxeAmmi(BLUEsMiss1, trait = "t1"),
+               "More than 30% missing values")
+  geAmmiMiss2 <- gxeAmmi(BLUEsMiss2, trait = "t1")
+  expect_equal(sum(is.na(geAmmiMiss2$genoScores)), 0)
+  ## Add missing values for data by year.
+  BLUEsYearMiss <- BLUEsYear
+  BLUEsYearMiss$E1[["t1"]] <- BLUEsYearMiss$E2[["t1"]] <- NA
+  expect_warning(geAmYear <- gxeAmmi(BLUEsYearMiss, trait = "t1",
+                                     byYear = TRUE),
+                 "More than 30% missing values")
+  expect_is(geAmYear, "AMMI")
+})
 
 test_that("analysis is only run for years with at least three trials", {
   ## Delete E6 to leave only two trials for year 2.

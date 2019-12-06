@@ -187,7 +187,7 @@ gxeAmmi <- function(TD,
     if (any(is.na(TDYear[[trait]]))) {
       ## Transform data to genotype x trial matrix.
       y0 <- tapply(X = TDYear[[trait]],
-                   INDEX = TDYear[, c("genotype", "trial")], FUN = identity)
+                   INDEX = TDYear[, c("genotype", "trial")], FUN = I)
       if (sum(is.na(y0)) / length(y0) > 0.3) {
         if (byYear) {
           warning("More than 30% missing values for ", year, ".\n",

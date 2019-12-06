@@ -30,8 +30,10 @@ RNGversion("3.5.3")
 set.seed(123)
 testData <- data.frame(seed = rep(x = paste0("G", rep(x = 1:15, times = 2)),
                                   times = 3),
-                       family = paste0("F", 1:90),
+                       family = rep(x = paste0("F", rep(x = 1:3, each = 5)),
+                                   times = 6),
                        field = rep(x = paste0("E", 1:3), each = 30),
+                       regime = rep(x = c("D", "D", "W"), each = 30),
                        rep = rep(x = c(1, 2), each = 15),
                        checkId = sample.int(n = 2, size = 90, replace = TRUE),
                        X = rep(x = rep(x = 1:3, each = 10), times = 3),
