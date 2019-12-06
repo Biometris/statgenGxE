@@ -264,8 +264,6 @@ test_that("AMMI plot plotConvHull functions properly", {
                   c("GeomPolygon", "GeomSegment"))
 })
 
-testTDYear <- createTD(data = testDataYear, genotype = "seed",
-                       trial = "field", rowCoord = "Y", colCoord = "X")
 modelSp <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
 BLUEsYear <- SSAtoTD(modelSp, what = "BLUEs",
                      keep = c("year", "family", "regime"))
@@ -296,7 +294,7 @@ test_that("AMMI plot gives correct output types when byYear = TRUE", {
 })
 
 test_that("FW plot gives correct output types", {
-  geFw <- gxeFw(TD = TDMaize, trait = "yld")
+  geFw <- gxeFw(TD = testTD, trait = "t1")
   p1 <- plot(geFw)
   p2 <- plot(geFw, plotType = "line")
   p3 <- plot(geFw, plotType = "trellis")
@@ -308,63 +306,32 @@ test_that("FW plot gives correct output types", {
 })
 
 test_that("option order in FW plot functions properly", {
-  geFw <- gxeFw(TD = TDMaize, trait = "yld")
+  geFw <- gxeFw(TD = testTD, trait = "t1")
   p <- plot(geFw, plotType = "line", order = "descending")
   expect_equal(p$plot_env$xTrans, "reverse" )
 })
 
 test_that("option genotypes in FW plot functions properly", {
-  geFw <- gxeFw(TD = TDMaize, trait = "yld")
+  geFw <- gxeFw(TD = testTD, trait = "t1")
   expect_error(plot(geFw, plotType = "trellis", genotypes = "g1"),
                "All genotypes should be in TD")
-  p <- plot(geFw, plotType = "trellis", genotypes = paste0("G00", 1:9))
+  p <- plot(geFw, plotType = "trellis", genotypes = paste0("G", 1:9))
   expect_equal(nlevels(p$data[["genotype"]]), 9)
 })
 
-SSA <- fitTD(TD = TDHeat05, design = "res.rowcol", traits = "yield")
-test_that("SSA base plot gives correct output types", {
-  p1 <- plot(SSA, traits = "yield")
-  expect_is(p1, "list")
-  expect_length(p1, 1)
-  expect_is(p1[[1]], "list")
-  expect_length(p1[[1]], 1)
-  expect_is(p1[[1]][[1]], "list")
-  expect_length(p1[[1]][[1]], 4)
-  lapply(X = p1[[1]][[1]], FUN = expect_is, "ggplot")
-})
-
-test_that("SSA spatial plot gives correct output types", {
-  p1 <- plot(SSA, plotType = "spatial", traits = "yield")
-  expect_is(p1, "list")
-  expect_length(p1, 1)
-  expect_is(p1[[1]], "list")
-  expect_length(p1[[1]], 1)
-  expect_is(p1[[1]][[1]], "list")
-  expect_length(p1[[1]][[1]], 6)
-  lapply(X = p1[[1]][[1]], FUN = expect_is, "ggplot")
-})
-
-test_that("option what in SSA plot functions properly", {
-  p1 <- plot(SSA, what = "random")
-  p2 <- plot(SSA, plotType = "spatial", what = "random")
-  expect_is(p1, "list")
-  expect_equal(p2[[1]][[1]][[5]]$labels$title, "Genotypic BLUPs")
-  expect_equal(p2[[1]][[1]][[6]]$labels$x, "Genotypic BLUPs")
-})
-
 test_that("stability plot gives correct output types", {
-  geStab <- gxeStability(TD = TDMaize, trait = "yld")
+  geStab <- gxeStability(TD = testTD, trait = "t1")
   p1 <- plot(geStab)
   expect_is(p1, "list")
   expect_length(p1, 4)
   lapply(X = p1, FUN = expect_is, "ggplot")
-  geStab2 <- gxeStability(TD = TDMaize, trait = "yld", method = "superiority")
+  geStab2 <- gxeStability(TD = testTD, trait = "t1", method = "superiority")
   p2 <- plot(geStab2)
   expect_length(p2, 1)
 })
 
 test_that("title argument functions correctly in stability plot", {
-  geStab <- gxeStability(TD = TDMaize, trait = "yld")
+  geStab <- gxeStability(TD = testTD, trait = "t1")
   ## Actually just testing that it doesn't crash.
   ## Plots are returned as a list of plots,
   ## actual plotting, including title, is done by grid.arrange.s
@@ -372,7 +339,7 @@ test_that("title argument functions correctly in stability plot", {
 })
 
 test_that("varComp plot gives correct output types", {
-  geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+  geVarComp <- gxeVarComp(TD = testTD, trait = "t1")
   p <- plot(geVarComp)
   geoms <- sapply(p$layers, function(x) class(x$geom)[1])
   expect_is(p, "ggplot")
@@ -382,10 +349,9 @@ test_that("varComp plot gives correct output types", {
 ## melting data in the plot function caused an error when trials have a
 ## numerical value. This should not be the case.
 test_that("varComp plot gives correct output types when trials are numerical", {
-  TDMaize2 <- TDMaize
-  for (trial in seq_along(TDMaize2)) {
-    levels(TDMaize2[[trial]][["trial"]]) <- 1:8
+  for (trial in seq_along(testTD)) {
+    levels(testTD[[trial]][["trial"]]) <- 1:3
   }
-  geVarComp <- gxeVarComp(TD = TDMaize2, trait = "yld")
+  geVarComp <- gxeVarComp(TD = testTD, trait = "t1")
   expect_silent(p <- plot(geVarComp))
 })

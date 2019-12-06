@@ -3,6 +3,10 @@ context("Summaries")
 modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
+modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
+BLUEsYear <- SSAtoTD(modelSpYear, what = "BLUEs",
+                     keep = c("year", "family", "regime"))
+
 test_that("AMMI summary produces correct output", {
   geAmmi <- gxeAmmi(TD = BLUEs, trait = "t1")
   geGGE <- gxeAmmi(TD = BLUEs, trait = "t1", GGE = TRUE)
@@ -16,6 +20,17 @@ test_that("AMMI summary produces correct output", {
   expect_false(all(c("Anova ", "Genotypic scores ") %in% sumGGE))
   expect_true(all(c("Principal components ", "Anova ",
                     "Environment scores ", "Genotypic scores ") %in% sumAmmi2))
+})
+
+test_that("AMMI summary produces correct output per year", {
+  geAmmiYear <- gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE)
+  sumAmmiYear <- capture.output(summary(geAmmiYear, printGenoScores = TRUE))
+  ## Checking that output is printed for both years.
+  expect_length(grep("Standard deviation", sumAmmiYear), 2)
+  expect_length(grep("Interactions", sumAmmiYear), 2)
+  expect_length(grep("E1", sumAmmiYear), 1)
+  expect_length(grep("E4", sumAmmiYear), 1)
+  expect_length(grep("G2", sumAmmiYear), 2)
 })
 
 test_that("FW summary produces correct output", {

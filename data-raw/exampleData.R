@@ -60,8 +60,12 @@ testDataYear <- rbind(testData, testData)
 testDataYear$field = rep(x = paste0("E", 1:6), each = 30)
 testDataYear$year <- rep(c(1, 2), each = 90)
 
+## Create TD object from testDataYear.
+testTDYear <- createTD(data = testDataYear, genotype = "seed",
+                       trial = "field", rowCoord = "Y", colCoord = "X")
+
 ## Export all internal data in one go to package.
-usethis::use_data(testTD, testDataYear, overwrite = TRUE, internal = TRUE)
+usethis::use_data(testTD, testTDYear, overwrite = TRUE, internal = TRUE)
 
 ## Create data for vignette.
 # Read raw data.

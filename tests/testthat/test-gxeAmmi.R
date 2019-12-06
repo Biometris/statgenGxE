@@ -3,8 +3,6 @@ context("gxeAmmi")
 modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
 BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
 
-testTDYear <- createTD(data = testDataYear, genotype = "seed",
-                       trial = "field", rowCoord = "Y", colCoord = "X")
 modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
 BLUEsYear <- SSAtoTD(modelSpYear, what = "BLUEs", keep = "year")
 
