@@ -146,7 +146,7 @@ test_that("making algorithm decide nPC functions properly", {
   expect_equal(geAmmi1$importance, geAmmi$importance)
   ## Use year data but ignore year to use 6 environments.
   geAmmiYear1 <- gxeAmmi(BLUEsYear, trait = "t1", nPC = NULL)
-  expect_equal(ncol(geAmmiYear1$envScores), 4)
+  expect_equal(ncol(geAmmiYear1$envScores), 2)
 })
 
 test_that("option center functions properly", {
@@ -214,11 +214,12 @@ test_that("analysis is only run for years with at least three trials", {
   ## Delete E6 to leave only two trials for year 2.
   BLUEsYear[["E6"]] <- NULL
   expect_warning(gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE),
-                 "less than 3 trials for 2.")
+                 "less than 3 trials for 2")
   ## Delete E3 to leave only two trials for both years.
   BLUEsYear[["E3"]] <- NULL
-  expect_error(gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE),
-               "All years were skipped")
+  expect_warning(expect_error(gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE),
+                              "All years were skipped"),
+                 "less than 3 trials for 1")
 })
 
 geAmmiYear <- gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE)
@@ -239,12 +240,9 @@ test_that("output elements are of the right class when byYear = TRUE", {
   ## Only check two elements since function works equivalent for all elements.
   expect_length(geAmmiYear$envScores, 2)
   expect_named(geAmmiYear$envScores, c("1", "2"))
-  expect_is(geAmmiYear$envScores$`1`, "matrix")
+  expect_is(geAmmiYear$envScores[["1"]], "matrix")
   ## Different field names so not equal but equivalent.
-  expect_equivalent(geAmmiYear$envScores$`1`, geAmmiYear$envScores$`2`)
   expect_length(geAmmiYear$anova, 2)
   expect_named(geAmmiYear$anova, c("1", "2"))
-  expect_is(geAmmiYear$anova$`1`, "data.frame")
-  ## Different field names so not equal but equivalent.
-  expect_equivalent(geAmmiYear$anova$`1`, geAmmiYear$anova$`2`)
+  expect_is(geAmmiYear$anova[["1"]], "data.frame")
 })

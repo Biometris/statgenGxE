@@ -293,8 +293,8 @@ test_that("AMMI plot gives correct output types when byYear = TRUE", {
   expect_is(p2[[2]], "ggplot")
 })
 
+geFw <- gxeFw(TD = testTD, trait = "t1", maxIter = 30)
 test_that("FW plot gives correct output types", {
-  geFw <- gxeFw(TD = testTD, trait = "t1")
   p1 <- plot(geFw)
   p2 <- plot(geFw, plotType = "line")
   p3 <- plot(geFw, plotType = "trellis")
@@ -306,13 +306,11 @@ test_that("FW plot gives correct output types", {
 })
 
 test_that("option order in FW plot functions properly", {
-  geFw <- gxeFw(TD = testTD, trait = "t1")
   p <- plot(geFw, plotType = "line", order = "descending")
   expect_equal(p$plot_env$xTrans, "reverse" )
 })
 
 test_that("option genotypes in FW plot functions properly", {
-  geFw <- gxeFw(TD = testTD, trait = "t1")
   expect_error(plot(geFw, plotType = "trellis", genotypes = "g1"),
                "All genotypes should be in TD")
   p <- plot(geFw, plotType = "trellis", genotypes = paste0("G", 1:9))
@@ -335,7 +333,7 @@ test_that("title argument functions correctly in stability plot", {
   ## Actually just testing that it doesn't crash.
   ## Plots are returned as a list of plots,
   ## actual plotting, including title, is done by grid.arrange.s
-  p <- plot(geStab, title = "Test")
+  expect_silent(plot(geStab, title = "Test"))
 })
 
 test_that("varComp plot gives correct output types", {

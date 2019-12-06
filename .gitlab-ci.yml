@@ -29,8 +29,8 @@ R-release:
   script:
     - Rscript -e 'sessionInfo()'
     # install missing and outdated packages
-    - Rscript -e 'source(".gitlab-ci.R"); pkgsUpdate()'
     - Rscript -e 'remotes::install_gitlab(repo = "statistical-genetic-pipeline/statgenSSA", host = "git.wur.nl")'
+    - Rscript -e 'source(".gitlab-ci.R"); pkgsUpdate()'
     # build package
     - R CMD build .  --no-manual
     - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
@@ -53,8 +53,8 @@ R-devel:
   script:
     - Rscriptdevel -e 'sessionInfo()'
     ## Install missing and outdated packages.
-    - Rscriptdevel -e 'source(".gitlab-ci.R"); pkgsUpdate()'
     - Rscriptdevel -e 'remotes::install_gitlab(repo = "statistical-genetic-pipeline/statgenSSA", host = "git.wur.nl")'
+    - Rscriptdevel -e 'source(".gitlab-ci.R"); pkgsUpdate()'
     ## Build package.
     - Rdevel CMD build . --no-manual
     - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
@@ -87,13 +87,7 @@ coverage:
   before_script:
     ## Add R_LIBS_USER to libpaths.
     - echo '.libPaths("'${R_LIBS_USER}'")' > .Rprofile
+    - echo 'Sys.setenv(NOT_CRAN="true")' >> .Rprofile
   script:
     - Rscript -e 'covr::package_coverage()'
-    - Rscript -e 'covr::gitlab()'
   coverage: '/Coverage:\s*(\d+.\d+\%)/'
-  artifacts:
-    when: always
-    paths:
-      - public
-    expire_in: '1 month'
-
