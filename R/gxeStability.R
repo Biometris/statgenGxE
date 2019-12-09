@@ -54,6 +54,7 @@
 #'                        bestMethod = "min", sorted = "ascending")
 #' summary(geStab2)
 #'
+#' @importFrom  methods getFunction
 #' @export
 gxeStability <- function(TD,
                          trials = names(TD),
