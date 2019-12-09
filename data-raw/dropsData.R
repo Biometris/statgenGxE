@@ -1,13 +1,32 @@
 ## Load data from zip file.
 phenoFile <- system.file("extdata", "grainYield_components_BLUEs.zip",
-                         package = "statgenGWAS")
+                         package = "statgenGxE")
 dropsPheno <- read.csv(unz(description = phenoFile,
                            filename = "2b-GrainYield_components_BLUEs_level.csv"))
-## Add year column to demonstrate plot options.
+## Load genotype meta data.
+genoMeta <- read.csv(system.file("extdata", "8-Info_Maize_variety.csv",
+                                 package = "statgenGxE"))
+
+## Restrict to 10 relevant environments.
+exps <- c("Cam12R", "Cra12R", "Gai12W", "Kar12W", "Kar13R", "Kar13W",
+          "Mar13R", "Mur13R", "Mur13W", "Ner12R")
+dropsPheno <- dropsPheno[dropsPheno[["Experiment"]] %in% exps, ]
+
+## Add year column.
 dropsPheno[["year"]] <- paste0("20", substring(dropsPheno[["Experiment"]],
                                                first = 4, last = 5))
-## Remove observations from 2011 from dropsPheno.
-dropsPheno <- dropsPheno[dropsPheno[["year"]] != "2011", ]
+## Add scenario columns.
+scenario <- data.frame(Experiment = exps,
+                       scenarioWater = c("WD", "WD", "WW", "WW", "WW",
+                                         "WW", "WD", "WW", "WW", "WD"),
+                       scenarioTemp = c("Hot", "Hot", "Cool", "Cool",
+                                        "Hot(Day)", "Hot(Day)", "Hot(Day)",
+                                        "Hot", "Hot", "Hot(Day)"))
+dropsPheno <- merge(dropsPheno, scenario)
+
+## Add genetic groups.
+dropsPheno <- merge(dropsPheno, genoMeta[c("Variety_ID", "genetic_group")])
+
 dropsPheno <- droplevels(dropsPheno)
 
 usethis::use_data(dropsPheno, overwrite = TRUE)
