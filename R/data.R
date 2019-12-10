@@ -60,36 +60,6 @@
 #' \url{https://doi.org/10.15454/IASSTN}
 "dropsPheno"
 
-#' Field data for a wheat experiment in Mexico.
-#'
-#' A dataset converted to a TD object containing raw plot data for one trial
-#' from a series of wheat trials conducted in Mexico by CIMMYT. The different
-#' trials took place under different regimes of irrigation and temperature,
-#' there were 4 trials across two years, labelled as DRIP05, HEAT05, HEAT06 and
-#' IRRI06. The TD object only contains the data for HEAT05. Within each trial,
-#' a set of 167 progeny of a RIL (Recombinant Inbred Line; 8 generations)
-#' population were tested alongside the population parents (Seri and Babax). A
-#' lattice design with two replicates was used for each trial. In the first
-#' replicate the entries were not randomized, as they were considered to be a
-#' random selection from a population.
-#'
-#' @format A TD object, a list containing 1 data.frames with the following
-#' columns:
-#' \describe{
-#'   \item{trial}{trial, a combination of watering regime, year and nitrogen
-#'   treatment}
-#'   \item{genotype}{genotype}
-#'   \item{Plot}{plot number in the field}
-#'   \item{repId}{replicate}
-#'   \item{subBlock}{block id}
-#'   \item{rowId}{row within the field (as factor)}
-#'   \item{colId}{column within the field (as factor)}
-#'   \item{yield}{yield in grams per square meter}
-#'   \item{rowCoord}{row within the field (as numerical value)}
-#'   \item{colCoord}{column within the field (as numerical value)}
-#' }
-"TDHeat05"
-
 #' Field data for a maize experiment in Tlaltizapan, Mexico.
 #'
 #' A dataset converted into a TD object containing data corresponding to an
