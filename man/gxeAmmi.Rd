@@ -97,10 +97,13 @@ AMMI estimates are then computed using the results of the PCA.\cr
 \examples{
 ## Run AMMI analysis on TDMaize.
 geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
+
 ## Summarize results.
 summary(geAmmi)
+
 ## Create a biplot of genotypes and environment interaction with PC1 and PC2.
 plot(geAmmi, plotType = "AMMI2")
+
 ## Create a pdf report summarizing the results.
 \dontrun{
 report(geAmmi, outfile = "./testReports/reportAmmi.pdf")

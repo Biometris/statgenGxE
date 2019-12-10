@@ -181,9 +181,11 @@ summary.AMMI <- function(object,
 #' @examples
 #' ## Run AMMI analysis.
 #' geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
-#' ## Create a biplot of genotype and environment means vs PC1.
+#'
+#' ## Create an AMMI1 biplot.
 #' plot(geAmmi)
-#' ## Create a biplot of genotypes and environment interaction with PC1 and PC2.
+#'
+#' ## Create an AMMI2 biplot.
 #' plot(geAmmi, plotType = "AMMI2")
 #'
 #' @importFrom grDevices topo.colors

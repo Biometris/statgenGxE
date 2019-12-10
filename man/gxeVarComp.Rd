@@ -55,8 +55,10 @@ fitted.
 \examples{
 ## Select the best variance-covariance model using lme4 for modeling.
 geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+
 ## Summarize results.
 summary(geVarComp)
+
 \dontrun{
 ## Create a pdf report summarizing the results.
 report(geVarComp, outfile = "./testReports/reportVarComp.pdf")
@@ -67,7 +69,9 @@ report(geVarComp, outfile = "./testReports/reportVarComp.pdf")
 ## Use BIC as a goodness-of-fit criterion.
 geVarComp2 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "asreml",
                         criterion = "BIC")
+
 summary(geVarComp2)
+
 ## Plot a heatmap of the correlation matrix for the best model.
 plot(geVarComp2)
 }

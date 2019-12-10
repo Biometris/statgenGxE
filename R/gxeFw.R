@@ -64,10 +64,13 @@
 #' @examples
 #' ## Run Finlay-Wilkinson analysis on TDMaize.
 #' geFW <- gxeFw(TDMaize, trait = "yld")
+#'
 #' ## Summarize results.
 #' summary(geFW)
+#'
 #' ## Create a scatterplot of the results.
 #' plot(geFW, plotType = "scatter")
+#'
 #' \dontrun{
 #' ## Create a report summarizing the results.
 #' report(geFW, outfile = "./testReports/reportFW.pdf")

@@ -47,6 +47,7 @@ whether environments correspond to years or locations.
 \examples{
 ## Calculate mega environments for TDMaize and print a summary of the results.
 TDmegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
+
 ## Calculate new mega environments based on the genotypes with the lowest
 ## value per environment.
 TDmegaEnv2 <- gxeMegaEnv(TD = TDmegaEnv, trait = "yld", method = "min")

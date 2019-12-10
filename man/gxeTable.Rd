@@ -41,6 +41,7 @@ associated standard errors based on a set of mega environments.
 \examples{
 ## Compute mega environments for TDMaize.
 TDMegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld", sumTab = FALSE)
+
 ## Compute BLUPS and standard errors for those mega environments.
 geTab <- gxeTable(TD = TDMegaEnv, trait = "yld")
 

@@ -37,6 +37,7 @@
 #' @examples
 #' M <- matrix(c("1", "2", "3", NA, "b", "5", "6",
 #'               "6", "5", "b", NA, "3", "2", "1"), nrow = 7, ncol = 2)
+#'
 #' ## Estimate missing values treating "b" as NA.
 #' multMissing(M, naStrings = "b")
 #'
