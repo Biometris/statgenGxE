@@ -1,121 +1,141 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE-------------------------------------------------------------
 knitr::opts_chunk$set(
 collapse = TRUE,
 comment = "#>",
-fig.dim = c(6, 4)
+fig.dim = c(7, 4)
 )
 library(statgenGxE)
 ## Call requireNamespace here to prevent license output in first call in vignette.
 requireNamespace("asreml", quietly = TRUE)
+options(width = 90, digits = 2)
 
-## ---- include = FALSE, message = FALSE-----------------------------------
-## Recreate data from last step in statgenSSA vignette.
-data("wheatChl")
-wheatTD <- createTD(data = wheatChl, genotype = "trt", repId = "rep", 
-                    subBlock = "bl", rowCoord = "row", colCoord = "col")
-modWheatSpTot <- statgenSSA::fitTD(TD = wheatTD, traits = "GY", what = "fixed", 
-                                   design = "res.rowcol")
-## Create a TD object containing BLUEs and standard errors of BLUEs.
-TDGxE <- statgenSSA::SSAtoTD(SSA = modWheatSpTot, what = c("BLUEs", "seBLUEs"))
+## ----loadData---------------------------------------------------------------------------
+data(dropsPheno)
 
-## ----geVClme-------------------------------------------------------------
+## ----createTD---------------------------------------------------------------------------
+## Create a TD object from dropsPheno
+dropsTD <- createTD(data = dropsPheno, genotype = "Variety_ID", trial = "Experiment")
+
+## ----TDbox------------------------------------------------------------------------------
+## Create a box plot of dropsTD
+## Color the boxes based on the variable scenarioFull.
+## Plot in  descending order.
+plot(dropsTD, plotType = "box", traits = "grain.yield", colorBy = "scenarioFull", 
+     orderBy = "descending")
+
+## ----geVClme----------------------------------------------------------------------------
 ## Use lme4 for fitting the models - only compound symmetry.
-geVC <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY")
-summary(geVC)
+dropsVC <- gxeVarComp(TD = dropsTD, trait = "grain.yield")
+summary(dropsVC)
 
-## ----geVCasreml----------------------------------------------------------
+## ----geVCasreml-------------------------------------------------------------------------
 ## Use asreml for fitting the models - eight models fitted. 
 ## Use AIC as criterion for determining the best model.
 if (requireNamespace("asreml", quietly = TRUE)) {
-  geVC2 <- gxeVarComp(TD = TDGxE, trait = "BLUEs_GY", engine = "asreml", 
-                      criterion = "AIC")
-  summary(geVC2)
+  dropsVC2 <- gxeVarComp(TD = dropsTD, trait = "grain.yield", engine = "asreml",
+                         criterion = "AIC")
+  summary(dropsVC2)
 }
 
-## ----geVCPlot, out.width="75%"-------------------------------------------
+## ----geVCPlot---------------------------------------------------------------------------
 if (requireNamespace("asreml", quietly = TRUE)) {
-  plot(geVC2)
+  plot(dropsVC2)
 }
 
-## ----geVCRep, eval=FALSE-------------------------------------------------
-#  report(geVC2, outfile = "./myReports/varCompReport.pdf")
+## ----geVCRep, eval=FALSE----------------------------------------------------------------
+#  report(dropsVC2, outfile = "./myReports/varCompReport.pdf")
 
-## ----geAmmi--------------------------------------------------------------
+## ----geAmmi-----------------------------------------------------------------------------
 ## Run gxeAmmi with default settings.
-geAm <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY")
-summary(geAm)
+dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield")
+summary(dropsAm)
 
-## ----geAmmi2-------------------------------------------------------------
-## Run gxeAmmi. Algorithm determines number of principal components.
-geAm2 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = NULL)
-summary(geAm2)
+## ----geAmmi2----------------------------------------------------------------------------
+## Run gxeAmmi. Let algorithm determine number of principal components.
+dropsAm2 <- gxeAmmi(TD = dropsTD, trait = "grain.yield", nPC = NULL)
+summary(dropsAm2)
 
-## ----geAmmi3-------------------------------------------------------------
+## ----geAmmi3----------------------------------------------------------------------------
 ## Run gxeAmmi with three principal components.
-## Exclude genotypes G278 and G279.
-geAm3 <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", nPC = 3, 
-                 excludeGeno = c("G278", "G279"))
-summary(geAm3)
+## Exclude genotypes 11430 and A3.
+dropsAm3 <- gxeAmmi(TD = dropsTD, trait = "grain.yield", nPC = 3, 
+                    excludeGeno = c("11430", "A3"))
 
-## ----plotAmmi, fig.width=5, fig.height=5, out.width="47%", fig.show="hold"----
+## ----geAmmiYear-------------------------------------------------------------------------
+## Run gxeAmmi per year in the data.
+dropsAmYear <- gxeAmmi(TD = dropsTD, trait = "grain.yield", byYear = TRUE)
+
+## ----plotAmmi1, fig.width=5, fig.height=5, out.width="75%"------------------------------
 ## Create an AMMI1 and AMMI2 biplot.
-plot(geAm, scale = 0.5, plotType = "AMMI1")
-plot(geAm, scale = 0.5, plotType = "AMMI2")
+plot(dropsAm, scale = 0.5, plotType = "AMMI1")
 
-## ----plotAmmi2, fig.width=5, fig.height=5, out.width="75%"---------------
-## Create an AMMI2 biplot with convex hull around the genotypes and genotype names 
-## displayed. Blow up genotypic scores by using envFactor = 0.3
-plot(geAm, scale = 0.5, plotType = "AMMI2", sizeGeno = 2, plotConvHull = TRUE, 
-     envFactor = 0.3)
+## ----plotAmmi2, fig.width=5, fig.height=5, out.width="75%"------------------------------
+## Create an AMMI1 and AMMI2 biplot.
+plot(dropsAm, scale = 0.5, plotType = "AMMI2")
+
+## ----plotAmmiCol, fig.width=5, fig.height=5, out.width="75%"----------------------------
+## Create an AMMI2 biplot.
+## Color genotypes based on variable genetic_group. Use custom colors.
+## Color environments base on variable scenarioWater.
+plot(dropsAm, scale = 0.4, plotType = "AMMI2", 
+     colorGenoBy = "genetic_group", colGeno = c("red", "blue", "green", "yellow"),
+     colorEnvBy = "scenarioWater")
 
 
-## ----geAMMIRep, eval=FALSE-----------------------------------------------
-#  report(geAm, outfile = "./myReports/AMMIReport.pdf")
+## ----plotAmmiConvHull, fig.width=5, fig.height=5, out.width="75%"-----------------------
+## Create an AMMI2 biplot with convex hull around the genotypes.
+plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy = "scenarioWater")
 
-## ----geGGE---------------------------------------------------------------
+
+## ----geAMMIRep, eval=FALSE--------------------------------------------------------------
+#  report(dropsAm, outfile = "./myReports/AMMIReport.pdf")
+
+## ----geGGE------------------------------------------------------------------------------
 ## Run gxeAmmi with default settings.
-geGGE <- gxeAmmi(TD = TDGxE, trait = "BLUEs_GY", GGE = TRUE)
-summary(geGGE)
+dropsGGE <- gxeAmmi(TD = dropsTD, trait = "grain.yield", GGE = TRUE)
+summary(dropsGGE)
 
-## ----plotGGE, fig.width=5, fig.height=5, out.width="75%"-----------------
+## ----plotGGE, fig.width=5, fig.height=5, out.width="75%"--------------------------------
 ## Create an GGE1 and GGE2 biplot.
-plot(geGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
+plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 
-## ----geFW----------------------------------------------------------------
+## ----geFW-------------------------------------------------------------------------------
 ## Perform a Finlay-Wilkinson analysis for all trials.
-geFW <- gxeFw(TD = TDGxE, trait = "BLUEs_GY")
-summary(geFW)
+dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")
+summary(dropsFW)
 
-## ----plotFW,fig.width=5,fig.height=5,fig.show="hold"---------------------
-plot(geFW, plotType = "scatter")
-plot(geFW, plotType = "line")
-plot(geFW, plotType = "trellis")
+## ----plotFW,fig.width=5,fig.height=5,fig.show="hold"------------------------------------
+## Create three types of plots for Finlay Wilkinson analysis.
+## Restrict trellis plot to first 5 genotypes.
+plot(dropsFW, plotType = "scatter")
+plot(dropsFW, plotType = "line")
+plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347", "A374"))
 
-## ----geFWRep, eval=FALSE-------------------------------------------------
-#  report(geFW, outfile = "./myReports/FWReport.pdf")
+## ----geFWRep, eval=FALSE----------------------------------------------------------------
+#  report(dropsFW, outfile = "./myReports/FWReport.pdf")
 
-## ----geMegaEnv-----------------------------------------------------------
-geMegaEnv <- gxeMegaEnv(TD = TDGxE, trait = "BLUEs_GY")
+## ----geMegaEnv--------------------------------------------------------------------------
+dropsMegaEnv <- gxeMegaEnv(TD = dropsTD, trait = "grain.yield")
 
-## ----geMegaEnvPred-------------------------------------------------------
+## ----geMegaEnvPred----------------------------------------------------------------------
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
-  geMegaEnvPred <- gxeTable(TD = geMegaEnv, trait = "BLUEs_GY", engine = "asreml")
+  geMegaEnvPred <- gxeTable(TD = dropsMegaEnv, trait = "grain.yield", engine = "asreml")
   head(geMegaEnvPred$predictedValue)
 }
 
-## ----geStab--------------------------------------------------------------
-geStab <- gxeStability(TD = TDGxE, trait = "BLUEs_GY")
-summary(geStab, pctGeno = 2)
+## ----geStab-----------------------------------------------------------------------------
+dropsStab <- gxeStability(TD = dropsTD, trait = "grain.yield")
+summary(dropsStab, pctGeno = 2)
 
-## ----plotStab------------------------------------------------------------
-plot(geStab)
+## ----plotStab---------------------------------------------------------------------------
+plot(dropsStab)
 
-## ----geStabRep, eval=FALSE-----------------------------------------------
-#  report(geStab, outfile = "./myReports/stabReport.pdf")
+## ----geStabRep, eval=FALSE--------------------------------------------------------------
+#  report(dropsStab, outfile = "./myReports/stabReport.pdf")
 
-## ----geStabMegaEnv-------------------------------------------------------
+## ----geStabMegaEnv----------------------------------------------------------------------
 ## Compute stabilities measures based on mega environments computed in the 
 ## previous paragraph.
-geStabME <- gxeStability(TD = geMegaEnv, trait = "BLUEs_GY", useMegaEnv = TRUE)
-summary(geStabME, pctGeno = 2)
+dropsStabME <- gxeStability(TD = dropsMegaEnv, trait = "grain.yield", useMegaEnv = TRUE)
+summary(dropsStabME, pctGeno = 2)
 

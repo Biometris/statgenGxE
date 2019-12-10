@@ -107,7 +107,7 @@ plot.varComp <- function(x,
     ## Discrete scales for x and y are needed to assure the diagonal is
     ## included in the plot. It is filled with variances later.
     scale_x_discrete(drop = FALSE) +
-    scale_y_discrete(drop = FALSE) +
+    scale_y_discrete(drop = FALSE, position = "right") +
     ## Create a gradient scale.
     scale_fill_gradient2(low = "blue", high = "red", mid = "white",
                          na.value = "grey", limit = c(-1, 1)) +
@@ -123,9 +123,9 @@ plot.varComp <- function(x,
     ## Remove grid behind text output.
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank()) +
-    ggtitle(paste("Heatmap for model:", x$choice)) +
-    xlab("") + ylab("") +
-    labs(fill = "correlation", size = "covariance") +
+    scale_size(range = c(1, 3)) +
+    labs(title = paste("Heatmap for model:", x$choice), x = "", y = "",
+         fill = "correlation", size = "covariance") +
     ## Fix coordinates to get a square sized plot.
     coord_fixed()
   if (output) {

@@ -132,7 +132,7 @@ test_that("options nPC functions properly", {
   expect_error(gxeAmmi(BLUEs, trait = "t1", nPC = 3),
                "should be smaller than")
   expect_warning(expect_error(gxeAmmi(BLUEsYear, trait = "t1", nPC = 3,
-                                byYear = TRUE),
+                                      byYear = TRUE),
                               "All years were skipped"),
                  "is larger than the number of trials")
 })
@@ -181,7 +181,7 @@ test_that("option GGE functions properly", {
 
 test_that("option excludeGeno functions properly", {
   expect_error(gxeAmmi(BLUEs, trait = "t1", excludeGeno = 1:10),
-                       "should be NULL or a character vector")
+               "should be NULL or a character vector")
   expect_error(gxeAmmi(BLUEs, trait = "t1", excludeGeno = "g1"),
                "All genotypes to exclude should be in TD")
   expect_warning(gxeAmmi(BLUEs, trait = "t1", excludeGeno = paste0("G", 1:6)),

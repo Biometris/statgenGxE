@@ -63,7 +63,7 @@ knitr::knit_hooks$set(plot = function(x, options) {
 bgItems <- c(format(attr(x, "timestamp"), "%y-%m-%d %H:%M:%S"),
              as.character(packageVersion("statgenGxE")))
 names(bgItems) <- c("Analysis done on",
-                    "Pipeline version")
+                    "statgenGxE version")
 print(xtable::xtable(x = data.frame(bgItems), label = "general",
                      align = c("l", "l")),
       latex.environments = "flushleft", hline.after = NULL,
@@ -141,7 +141,7 @@ if (x$byYear) {
   PCs <- paste0("PC", 2:ncol(x$envScores))
 }
 for (PC in PCs) {
-  plot(x, plotType = "AMMI2", secAxis = PC)
+  plot(x, plotType = "AMMI2", secAxis = PC, scale = 0.5)
 }
 @
 

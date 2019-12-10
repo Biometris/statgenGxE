@@ -24,6 +24,10 @@ scenario <- data.frame(Experiment = exps,
                                         "Hot", "Hot", "Hot(Day)"))
 dropsPheno <- merge(dropsPheno, scenario)
 
+dropsPheno[["scenarioFull"]] <- interaction(dropsPheno[c("scenarioWater",
+                                                          "scenarioTemp")],
+                                            drop = TRUE)
+
 ## Add genetic groups.
 dropsPheno <- merge(dropsPheno, genoMeta[c("Variety_ID", "genetic_group")])
 

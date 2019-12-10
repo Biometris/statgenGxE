@@ -58,7 +58,7 @@
 bgItems <- c(format(attr(x, "timestamp"), "%y-%m-%d %H:%M:%S"),
              as.character(packageVersion("statgenGxE")),
              x$engine)
-names(bgItems) <- c("Analysis done on", "Pipeline version",
+names(bgItems) <- c("Analysis done on", "statgenGxE version",
                     "Mixed model engine")
 print(xtable::xtable(x = data.frame(bgItems), label = "general",
                      align = c("l", "l")),
@@ -92,7 +92,7 @@ print(xtable::xtable(x = summaryTab, caption = paste("Fitted models ordered by",
 cat("\\begin{table}[ht]")
 cat("\\begin{flushleft}")
 cat("\\caption{Covariance matrix for the best model}")
-if (sum(nchar(colnames(x$vcov))) + ncol(x$vcov) > 80) {
+if (sum(nchar(colnames(x$vcov))) + max(nchar(colnames(x$vcov))) + ncol(x$vcov) > 70) {
   cat("\\resizebox{\\textwidth}{!} {")
 }
 print(xtable::xtable(x = x$vcov,
@@ -101,7 +101,7 @@ print(xtable::xtable(x = x$vcov,
                                      times = ncol(x$vcov)))),
       floating = FALSE,
       include.rownames = TRUE, include.colnames = TRUE)
-if (sum(nchar(colnames(x$vcov))) + ncol(x$vcov) > 80) {
+if (sum(nchar(colnames(x$vcov))) + max(nchar(colnames(x$vcov))) + ncol(x$vcov) > 70) {
   cat("}")
 }
 cat("\\end{flushleft}")
@@ -112,7 +112,7 @@ cat("\\end{table}")
 \section{Heatmap}
 %-------------------------------------------------------------------------------
 Heatmap for the fitted correlation between environments from the best model
-<<label=heatmap, echo=FALSE, out.height="10cm", out.width="10cm", fig.align="left">>=
+<<label=heatmap, echo=FALSE, out.width="15cm", fig.align="left">>=
 plot(x)
 @
 

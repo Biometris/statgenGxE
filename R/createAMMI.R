@@ -482,7 +482,7 @@ plotAMMI1 <- function(loadings,
   if (plotGeno && !is.null(colorGenoBy) && plotEnv && !is.null(colorEnvBy)) {
     nGenoGroups <- length(unique(genoDat[[".group"]]))
     nEnvGroups <- length(unique(envDat[[".group"]]))
-    nrowGuide <- length(unique(genoDat[[".group"]]))
+    nrowGuide <- nGenoGroups
     shapesGuide <- c(rep(16, times = nGenoGroups), rep(NA, times = nEnvGroups))
     sizesGuide <- c(rep(if (sizeGeno == 0) 2 else sizeGeno,
                         times = nGenoGroups),
@@ -655,7 +655,7 @@ plotAMMI2 <- function(loadings,
   if (plotGeno && !is.null(colorGenoBy) && plotEnv && !is.null(colorEnvBy)) {
     nGenoGroups <- length(unique(genoDat[[".group"]]))
     nEnvGroups <- length(unique(envDat[[".group"]]))
-    nrowGuide <- length(unique(genoDat[[".group"]]))
+    nrowGuide <- nGenoGroups
     shapesGuide <- c(rep(16, times = nGenoGroups), rep(NA, times = nEnvGroups))
     sizesGuide <- c(rep(if (sizeGeno == 0) 2 else sizeGeno,
                         times = nGenoGroups),
