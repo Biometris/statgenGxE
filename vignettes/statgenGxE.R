@@ -76,15 +76,15 @@ plot(dropsAm, scale = 0.5, plotType = "AMMI2")
 ## ----plotAmmiCol, fig.width=5, fig.height=5, out.width="75%"----------------------------
 ## Create an AMMI2 biplot.
 ## Color genotypes based on variable genetic_group. Use custom colors.
-## Color environments base on variable scenarioWater.
+## Color environments base on variable scenarioFull
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", 
      colorGenoBy = "genetic_group", colGeno = c("red", "blue", "green", "yellow"),
-     colorEnvBy = "scenarioWater")
+     colorEnvBy = "scenarioFull")
 
 
 ## ----plotAmmiConvHull, fig.width=5, fig.height=5, out.width="75%"-----------------------
 ## Create an AMMI2 biplot with convex hull around the genotypes.
-plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy = "scenarioWater")
+plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy = "scenarioFull")
 
 
 ## ----geAMMIRep, eval=FALSE--------------------------------------------------------------
@@ -115,16 +115,21 @@ plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347",
 #  report(dropsFW, outfile = "./myReports/FWReport.pdf")
 
 ## ----geMegaEnv--------------------------------------------------------------------------
+## Compute mega environments.
 dropsMegaEnv <- gxeMegaEnv(TD = dropsTD, trait = "grain.yield")
 
 ## ----geMegaEnvPred----------------------------------------------------------------------
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
+  ## Compute BLUPs.
+  ## Use asreml as engine for fitting model.
   geMegaEnvPred <- gxeTable(TD = dropsMegaEnv, trait = "grain.yield", engine = "asreml")
   head(geMegaEnvPred$predictedValue)
 }
 
 ## ----geStab-----------------------------------------------------------------------------
+## Compute stability measures for dropsTD.
 dropsStab <- gxeStability(TD = dropsTD, trait = "grain.yield")
+## In the summary print the top two percent of the genotypes.
 summary(dropsStab, pctGeno = 2)
 
 ## ----plotStab---------------------------------------------------------------------------
@@ -134,7 +139,7 @@ plot(dropsStab)
 #  report(dropsStab, outfile = "./myReports/stabReport.pdf")
 
 ## ----geStabMegaEnv----------------------------------------------------------------------
-## Compute stabilities measures based on mega environments computed in the 
+## Compute stability measures based on mega environments computed in the 
 ## previous paragraph.
 dropsStabME <- gxeStability(TD = dropsMegaEnv, trait = "grain.yield", useMegaEnv = TRUE)
 summary(dropsStabME, pctGeno = 2)

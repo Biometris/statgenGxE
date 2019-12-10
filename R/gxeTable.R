@@ -107,8 +107,8 @@ gxeTable <- function(TD,
                                           "(0 + megaEnv | genotype:year)")),
                            data = TDTot, ...), silent = TRUE)
     } else {
-      mr <- try(lme4::lmer(as.formula(paste0("`", trait, "`~ trial + ",
-                                             "(0 + megaEnv | genotype)")),
+      mr <- try(lme4::lmer(formula(paste0("`", trait, "`~ trial + ",
+                                          "(0 + megaEnv | genotype)")),
                            data = TDTot, ...), silent = TRUE)
     }
     if (inherits(mr, "try-error")) {

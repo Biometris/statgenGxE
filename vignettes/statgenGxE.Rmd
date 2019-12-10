@@ -25,11 +25,11 @@ requireNamespace("asreml", quietly = TRUE)
 options(width = 90, digits = 2)
 ```
 
-# Genotype by Environment Analysis using the statgenGxE package
+# The statgenGxE package
 
-The statgenGxE package is developed as an easy to use package for Genotype by Environment (GxE) analysis of data of plant breeding experiments with many options for plotting and reporting the results of the analyses.  
+The statgenGxE package is developed as an easy-to-use package for Genotype by Environment (GxE) analysis of data of plant breeding experiments with many options for plotting and reporting the results of the analyses.  
 
-This vignette describes in detail how to perform the different types of analysis that are available in the package. The availability of functions in the package is mainly based on the types of analysis described in @vanEeuwijk2016.
+This vignette describes in detail how to perform the different types of analysis that are available in the package. The availability of functions in the package is mainly based on the analyses described in @vanEeuwijk2016.
 
 The following types of analysis can be done using statgenGxE:
 
@@ -50,16 +50,16 @@ The first step is loading the data into R.
 ```{r loadData} 
 data(dropsPheno)
 ```
-dropsPheno contains data for the genotypic means (Best Linear Unbiased Estimators, BLUEs), with one value per experiment per genotype, for a selection of 10 experiments from the full data set and eight traits. These 10 experiments form a good representation of the full set of experiments covering the scenarios described in @Millet2016. For a more detailed description of the contents of the data see `help(dropsData)`.
+dropsPheno contains data for the genotypic means (Best Linear Unbiased Estimators, BLUEs), with one value per experiment per genotype, for a selection of 10 experiments from the full data set and eight traits. These 10 experiments form a good representation of the full set of experiments covering the five scenarios described in @Millet2016. For a more detailed description of the contents of the data see `help(dropsData)`.
 
-The input for GxE analysis in the statgenGxE package is an object of class TD. For a detailed description on how to construct such an object see the vignette of the statgenSSA package (`vignette("Modeling field trials using statgenSSA")`). For quick GxE analysis, only specifying the columns in the data containing genotype and trial is usually enough. This is also the case for dropsPheno.
+The input for GxE analysis in the statgenGxE package is an object of class TD (Trial Data). For a detailed description on how to construct such an object see the vignette of the statgenSSA package (`vignette("Modeling field trials using statgenSSA")`). For GxE analysis, only specifying the columns in the data containing genotype and trial is usually enough. This is also the case for dropsPheno.
 
 ```{r createTD}
 ## Create a TD object from dropsPheno
 dropsTD <- createTD(data = dropsPheno, genotype = "Variety_ID", trial = "Experiment")
 ```
 
-Before doing any analysis, we can first have a look at the contents of the data. For this we can make a box plot. Coloring the boxes by scenario will provide valuable extra information.
+Before doing any analysis, we can first have a look at the contents of the data. To do this a box plot can be made. Coloring the boxes by scenario will provide valuable extra information.
 
 ```{r TDbox}
 ## Create a box plot of dropsTD
@@ -73,7 +73,7 @@ From the plot it is clear that the trials in the hot, water deficit environments
 
 ## Mixed model analysis {#vc}
 
-The function `gxeVarComp` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 [@Bates2015] or asreml [@Gilmour2017] as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequencially to the genotype-by-environment data. The best fitting model is then identified. The selection of the best variance-covariance model considers the following structures:
+The function `gxeVarComp` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 [@Bates2015] or asreml [@Gilmour2017] as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequencially to the genotype by environment data. The best fitting model is then identified. The selection of the best variance-covariance model considers the following variance-covariance structures:
 
 * identity
 * compound symmetry (cs)
@@ -84,7 +84,7 @@ The function `gxeVarComp` allows to fit linear mixed models of diverse complexit
 * second order factor analytic (fa2)
 * unstructured
 
-The best model for the data is selected based on either the Akaike Information Criterion (AIC) or the Baysian Information Criterion (BIC). Which criterion is used is determined by the parameter `criterion` in the function `gxeVarComp`.  
+The best model for the data is selected based on either the Akaike Information Criterion (AIC [@Akaike1974]) or the Baysian Information Criterion (BIC [@Schwarz1978]). Which criterion is used is determined by the parameter `criterion` in the function `gxeVarComp`.  
 
 ```{r geVClme}
 ## Use lme4 for fitting the models - only compound symmetry.
@@ -102,7 +102,8 @@ if (requireNamespace("asreml", quietly = TRUE)) {
 }
 ```
 `r if (exists("dropsVC2")) {"As becomes clear from the summary, the best model based on AIC is the model with an unstructured variance-covariance structure."  }` 
-Note that for both factor analytic models to be fitted a minimum of five environments is needed. If the data contains less environments, those two models are skipped.
+
+*Note that for both factor analytic models to be fitted a minimum of five environments is needed. If the data contains less environments, those two models are skipped.*
 
 A heat map of the covariance and correlation between the environments based on the best fitted model can be plotted. 
 
@@ -123,7 +124,7 @@ report(dropsVC2, outfile = "./myReports/varCompReport.pdf")
 
 The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with the Multiplicative Interaction effects. Then a principal component analysis is done on the residuals (multiplicative interaction). This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials.  
 
-The AMMI analysis can be performed with the statgenGxE package using the function gxeAmmi. 
+The AMMI analysis can be performed with the statgenGxE package using the function `gxeAmmi`. 
 ```{r geAmmi}
 ## Run gxeAmmi with default settings.
 dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield")
@@ -135,6 +136,7 @@ With the default settings in the principal components analysis a maximum of two 
 dropsAm2 <- gxeAmmi(TD = dropsTD, trait = "grain.yield", nPC = NULL)
 summary(dropsAm2)
 ```
+From the summary it is clear that the final number of principal components, determined by forward selection, is 7.
 
 It is possible to exclude certain genotypes, e.g. outliers, from the analysis using the parameter `excludeGeno`.
 
@@ -144,7 +146,7 @@ It is possible to exclude certain genotypes, e.g. outliers, from the analysis us
 dropsAm3 <- gxeAmmi(TD = dropsTD, trait = "grain.yield", nPC = 3, 
                     excludeGeno = c("11430", "A3"))
 ```
-If the data contains a column year, it is possible to fit a separate AMMI model for each year. This can be done by specifying the parameter `byYear = TRUE`. 
+If the data contains a column year, it is possible to fit a separate AMMI model for each year. This can be done by specifying the parameter `byYear = TRUE`.  This will run an AMMI analysis for all years in the data without taking into account the data for the other years. 
 ```{r geAmmiYear}
 ## Run gxeAmmi per year in the data.
 dropsAmYear <- gxeAmmi(TD = dropsTD, trait = "grain.yield", byYear = TRUE)
@@ -160,21 +162,22 @@ plot(dropsAm, scale = 0.5, plotType = "AMMI1")
 plot(dropsAm, scale = 0.5, plotType = "AMMI2")
 ```
 
-The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axis using `primAxis` and `secAxis`. Genotypes can be grouped and colored by a variable in the data using `colorGenoBy`. Specify custom colors in `colGeno`. Similarly for coloring environments use `colorEnvBy` and `colEnv`.
+The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axes specifying `primAxis` and `secAxis`.  
+Genotypes can be grouped and colored by a variable in the data using `colorGenoBy`. Specify custom colors in `colGeno`. Similarly for coloring environments use `colorEnvBy` and `colEnv`.
 ```{r plotAmmiCol, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI2 biplot.
 ## Color genotypes based on variable genetic_group. Use custom colors.
-## Color environments base on variable scenarioWater.
+## Color environments base on variable scenarioFull
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", 
      colorGenoBy = "genetic_group", colGeno = c("red", "blue", "green", "yellow"),
-     colorEnvBy = "scenarioWater")
+     colorEnvBy = "scenarioFull")
 
 ```
 
 A convex hull can be plotted around the genotypes in an AMMI2 biplot with lines from the origin perpendicular to the edges of the hull. This is useful for identifying mega environments. 
 ```{r plotAmmiConvHull, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI2 biplot with convex hull around the genotypes.
-plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy = "scenarioWater")
+plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy = "scenarioFull")
 
 ```
 
@@ -232,14 +235,17 @@ report(dropsFW, outfile = "./myReports/FWReport.pdf")
 For the computation of mega environments, an AMMI model is fitted and then, using the fitted values from this model, the environments are clustered.
 Mega environments are created by grouping environments based on their best performing genotype. Environments that share the same best genotype belong to the same mega environment, regardless whether environments correspond to years or locations.  
 ```{r geMegaEnv}
+## Compute mega environments.
 dropsMegaEnv <- gxeMegaEnv(TD = dropsTD, trait = "grain.yield")
 ```
-As can be seen in the column Mega Factor in the output, four mega environments have been created, one for each of the winning genotypes "Lo1087", "Lo1251", "Lo1270" and "PHG35".
+As can be seen in the column Mega factor in the output, four mega environments have been created, one for each of the winning genotypes "Lo1087", "Lo1251", "Lo1270" and "PHG35".
 
-The values for the BLUPs and associated standard errors for the genotypes based on the calculated mega environments, can be computed using the function `gxeTable`. This can be done using either "asreml" or "lme4" as an engine for fitting.
+The values for the Best Linear Unbiased Predictors (BLUPs) and associated standard errors for the genotypes based on the calculated mega environments, can be computed using the function `gxeTable`. This can be done using either "asreml" or "lme4" as an engine for fitting the model.
 
 ```{r geMegaEnvPred}
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
+  ## Compute BLUPs.
+  ## Use asreml as engine for fitting model.
   geMegaEnvPred <- gxeTable(TD = dropsMegaEnv, trait = "grain.yield", engine = "asreml")
   head(geMegaEnvPred$predictedValue)
 }
@@ -247,7 +253,7 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
 
 ## Computation of stability measures {#st}
 
-Different measures of stability can be calculated using the statgenGxE package, the cultivar-superiority measure of Lin & Binns [@Lin1988], Shukla's [@Shukla1972] stability variance and Wricke's [@Wricke1962] ecovalence.
+Different measures of stability can be calculated using the statgenGxE package, the cultivar-superiority measure of Lin & Binns [@Lin1988], Shukla's stability variance [@Shukla1972] and Wricke's ecovalence [@Wricke1962].
 
 The cultivar-superiority measure is the sum of the squares of the difference between genotypic mean in each environment and the mean of the best genotype, divided by twice the number of environments. Genotypes with the smallest values of the superiority tend to be more stable, and closer to the best genotype in each environment.
 
@@ -255,8 +261,12 @@ Shukla's stability variance (static stability) is defined as the variance around
 
 Wricke's Ecovalence Stability Coefficient is the contribution of each genotype to the GxE sum of squares, in an unweighted analysis of the GxE means. A low value indicates that the genotype responds in a consistent manner to changes in environment; i.e. is stable from a dynamic point of view. Like static stability, the Wricke's Ecovalence does not account for genotype performance.
 
+To compute the stabibility measures use `gxeStability`. This will compute all three stability measures described above. This can be restricted by specifying one or more measure in `method`.
+
 ```{r geStab}
+## Compute stability measures for dropsTD.
 dropsStab <- gxeStability(TD = dropsTD, trait = "grain.yield")
+## In the summary print the top two percent of the genotypes.
 summary(dropsStab, pctGeno = 2)
 ```
 Plotting the results yields a scatter plot for each stability measure, plotted against the genotypic mean.
