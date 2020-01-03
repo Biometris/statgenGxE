@@ -47,5 +47,13 @@ testDataYear[91:180, "t1"] <- runif(90) * mean(testDataYear[["t1"]])
 testTDYear <- createTD(data = testDataYear, genotype = "seed",
                        trial = "field", rowCoord = "Y", colCoord = "X")
 
+## Fit models on testTD and testTDYear and extract BLUEs
+modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
+BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
+
+modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
+BLUEsYear <- SSAtoTD(modelSpYear, what = "BLUEs", keep = "year")
+
 ## Export all internal data in one go to package.
-usethis::use_data(testTD, testTDYear, overwrite = TRUE, internal = TRUE)
+usethis::use_data(testTD, testTDYear, BLUEs, BLUEsYear,
+                  overwrite = TRUE, internal = TRUE)

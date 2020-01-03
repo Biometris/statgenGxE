@@ -4,7 +4,7 @@
 \alias{report.AMMI}
 \title{Report method for class AMMI}
 \usage{
-\method{report}{AMMI}(x, ..., outfile = NULL)
+report.AMMI(x, ..., outfile = NULL)
 }
 \arguments{
 \item{x}{An object of class AMMI.}

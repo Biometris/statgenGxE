@@ -1,10 +1,10 @@
 context("gxeAmmi")
 
-modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
-BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
-
-modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
-BLUEsYear <- SSAtoTD(modelSpYear, what = "BLUEs", keep = "year")
+# modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
+# BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
+#
+# modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
+# BLUEsYear <- SSAtoTD(modelSpYear, what = "BLUEs", keep = "year")
 
 test_that("general checks in gxeAmmi function properly", {
   expect_error(gxeAmmi(1, trait = "t1"),

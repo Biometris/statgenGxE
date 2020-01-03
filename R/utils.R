@@ -127,22 +127,6 @@ predictAsreml <- function(model,
   }
 }
 
-#' Base method for creating a report
-#'
-#' Base method for creating a .pdf and .tex report from an \code{R} object.
-#'
-#' @param x An \code{R} object
-#' @param ... Further arguments to be passed on to specific report functions.
-#'
-#' @seealso \code{\link{report.varComp}}, \code{\link{report.AMMI}},
-#' \code{\link{report.FW}}, \code{\link{report.stability}}
-#'
-#' @export
-report <- function(x,
-                   ...) {
-  UseMethod("report")
-}
-
 #' Helper function for creating the actual report
 #'
 #' @noRd

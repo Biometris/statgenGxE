@@ -4,7 +4,7 @@
 \alias{report.stability}
 \title{Report method for class stability}
 \usage{
-\method{report}{stability}(x, ..., outfile = NULL)
+report.stability(x, ..., outfile = NULL)
 }
 \arguments{
 \item{x}{An object of class stability.}
