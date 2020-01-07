@@ -13,6 +13,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{statgenSTA}{\code{\link[statgenSTA]{createTD}}, \code{\link[statgenSTA]{fitTD}}, \code{\link[statgenSTA]{STAtoTD}}}
+  \item{statgenSTA}{\code{\link[statgenSTA]{STAtoTD}}, \code{\link[statgenSTA]{createTD}}, \code{\link[statgenSTA]{fitTD}}}
 }}
 

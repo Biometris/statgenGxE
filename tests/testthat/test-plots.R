@@ -341,7 +341,7 @@ test_that("varComp plot gives correct output types", {
   p <- plot(geVarComp)
   geoms <- sapply(p$layers, function(x) class(x$geom)[1])
   expect_is(p, "ggplot")
-  expect_setequal(geoms, c("GeomTile", "GeomText"))
+  expect_equal(geoms, "GeomTile")
 })
 
 ## melting data in the plot function caused an error when trials have a

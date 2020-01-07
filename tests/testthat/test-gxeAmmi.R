@@ -6,7 +6,7 @@ test_that("general checks in gxeAmmi function properly", {
   expect_error(gxeAmmi(BLUEs, trait = "t5"),
                "t5 has to be a column in TD")
   expect_error(gxeAmmi(BLUEs, trials = "E4", trait = "t1"),
-               "a character vector defining trials in BLUEs")
+               "a character vector defining trials in TD")
   expect_error(gxeAmmi(BLUEs, trials = c("E1", "E2"), trait = "t1"),
                "contain at least 3 trials")
   expect_error(gxeAmmi(BLUEs, trait = "t1", byYear = TRUE),
