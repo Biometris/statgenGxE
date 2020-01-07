@@ -4,7 +4,7 @@
 #' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
 #' \code{\link{report}} methods are available.
 #'
-#' @param SSA An object of class SSA, the best fitted model.
+#' @param STA An object of class STA, the best fitted model.
 #' @param choice A character string indicating the best fitted model.
 #' @param summary A data.frame with a summary of the fitted models.
 #' @param vcov The covariance matrix of the best fitted model.
@@ -21,13 +21,13 @@ NULL
 
 #' @rdname varComp
 #' @keywords internal
-createVarComp <- function(SSA,
+createVarComp <- function(STA,
                           choice,
                           summary,
                           vcov,
                           criterion,
                           engine) {
-  varComp <- structure(list(SSA = SSA,
+  varComp <- structure(list(STA = STA,
                             choice = choice,
                             summary = summary,
                             vcov = vcov,

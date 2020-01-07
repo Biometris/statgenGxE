@@ -19,7 +19,7 @@
 #' fitted.
 #'
 #' @return An object of class \code{\link{varComp}}, a list object containing:
-#' \item{SSA}{An object of class SSA containing the best fitted model.}
+#' \item{STA}{An object of class STA containing the best fitted model.}
 #' \item{choice}{A character string indicating the best fitted model.}
 #' \item{summary}{A data.frame with a summary of the fitted models.}
 #' \item{vcov}{The covariance matrix of the best fitted model.}
@@ -95,7 +95,7 @@ gxeVarComp <- function(TD,
     mr = lme4::lmer(formula(paste0("`", trait, "`~ trial + (1 | genotype)")),
                     data = TDTot, ...)
     nPar <- 2
-    ## Construct SSA object.
+    ## Construct STA object.
     models[["cs"]] <- mr
     bestTab["cs", ] <- c(-2 * as.numeric(logLik(mr)) + 2 * nPar,
                          -2 * as.numeric(logLik(mr)) +
@@ -285,8 +285,8 @@ gxeVarComp <- function(TD,
                               TD = createTD(TDTot), traits = trait,
                               engine = engine, predicted = "trial")),
                     rownames(bestTab)[1])
-  SSA <- createSSA(models = model)
-  res <- createVarComp(SSA = SSA, choice = rownames(bestTab)[1],
+  STA <- createSTA(models = model)
+  res <- createVarComp(STA = STA, choice = rownames(bestTab)[1],
                        summary = bestTab, vcov = vcovBest,
                        criterion = criterion, engine = engine)
   return(res)

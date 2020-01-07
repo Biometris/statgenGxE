@@ -31,7 +31,7 @@ Either "lme4" or "asreml".}
 }
 \value{
 An object of class \code{\link{varComp}}, a list object containing:
-\item{SSA}{An object of class SSA containing the best fitted model.}
+\item{STA}{An object of class STA containing the best fitted model.}
 \item{choice}{A character string indicating the best fitted model.}
 \item{summary}{A data.frame with a summary of the fitted models.}
 \item{vcov}{The covariance matrix of the best fitted model.}

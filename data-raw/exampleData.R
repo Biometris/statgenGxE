@@ -33,7 +33,7 @@ testData[sample.int(n = 90, size = 15), "t3"] <- NA
 testData[sample.int(n = 90, size = 15), "t4"] <- NA
 
 ## Create TD object from testData.
-testTD <- statgenSSA::createTD(data = testData, genotype = "seed",
+testTD <- statgenSTA::createTD(data = testData, genotype = "seed",
                                trial = "field", rowCoord = "Y", colCoord = "X")
 
 ## Create a second dataset with year info.
@@ -49,10 +49,10 @@ testTDYear <- createTD(data = testDataYear, genotype = "seed",
 
 ## Fit models on testTD and testTDYear and extract BLUEs
 modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
-BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
+BLUEs <- STAtoTD(modelSp, what = "BLUEs")
 
 modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
-BLUEsYear <- SSAtoTD(modelSpYear, what = "BLUEs", keep = "year")
+BLUEsYear <- STAtoTD(modelSpYear, what = "BLUEs", keep = "year")
 
 ## Export all internal data in one go to package.
 usethis::use_data(testTD, testTDYear, BLUEs, BLUEsYear,

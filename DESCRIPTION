@@ -68,7 +68,7 @@ Imports: emmeans,
     xtable,
     gridExtra,
     scales,
-    statgenSSA
+    statgenSTA
 Suggests: asreml(>= 3.0),
     rmarkdown,
     testthat

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bart-Jan van Rossum" />
 
-<meta name="date" content="2019-12-10" />
+<meta name="date" content="2020-01-07" />
 
 <title>Genotype by Environment analysis using statgenGxE</title>
 
@@ -303,7 +303,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Genotype by Environment analysis using statgenGxE</h1>
 <h4 class="author">Bart-Jan van Rossum</h4>
-<h4 class="date">2019-12-10</h4>
+<h4 class="date">2020-01-07</h4>
 
 
 
@@ -327,7 +327,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>The first step is loading the data into R.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">data</span>(dropsPheno)</a></code></pre></div>
 <p>dropsPheno contains data for the genotypic means (Best Linear Unbiased Estimators, BLUEs), with one value per experiment per genotype, for a selection of 10 experiments from the full data set and eight traits. These 10 experiments form a good representation of the full set of experiments covering the five scenarios described in <span class="citation">Millet et al. (2016)</span>. For a more detailed description of the contents of the data see <code>help(dropsData)</code>.</p>
-<p>The input for GxE analysis in the statgenGxE package is an object of class TD (Trial Data). For a detailed description on how to construct such an object see the vignette of the statgenSSA package (<code>vignette(&quot;Modeling field trials using statgenSSA&quot;)</code>). For GxE analysis, only specifying the columns in the data containing genotype and trial is usually enough. This is also the case for dropsPheno.</p>
+<p>The input for GxE analysis in the statgenGxE package is an object of class TD (Trial Data). For a detailed description on how to construct such an object see the vignette of the statgenSTA package (<code>vignette(&quot;Modeling field trials using statgenSTA&quot;)</code>). For GxE analysis, only specifying the columns in the data containing genotype and trial is usually enough. This is also the case for dropsPheno.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co">## Create a TD object from dropsPheno</span></a>
 <a class="sourceLine" id="cb2-2" title="2">dropsTD &lt;-<span class="st"> </span><span class="kw">createTD</span>(<span class="dt">data =</span> dropsPheno, <span class="dt">genotype =</span> <span class="st">&quot;Variety_ID&quot;</span>, <span class="dt">trial =</span> <span class="st">&quot;Experiment&quot;</span>)</a></code></pre></div>
 <p>Before doing any analysis, we can first have a look at the contents of the data. To do this a box plot can be made. Coloring the boxes by scenario will provide valuable extra information.</p>

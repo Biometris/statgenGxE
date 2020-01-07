@@ -5,7 +5,7 @@ context("Plots")
 ## checking can be done.
 
 modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
-BLUEs <- SSAtoTD(modelSp, what = "BLUEs", keep = c("family", "regime"))
+BLUEs <- STAtoTD(modelSp, what = "BLUEs", keep = c("family", "regime"))
 geAmmi <- gxeAmmi(BLUEs, trait = "t1")
 
 test_that("general checks in ammi plot function properly", {
@@ -265,7 +265,7 @@ test_that("AMMI plot plotConvHull functions properly", {
 })
 
 modelSp <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
-BLUEsYear <- SSAtoTD(modelSp, what = "BLUEs",
+BLUEsYear <- STAtoTD(modelSp, what = "BLUEs",
                      keep = c("year", "family", "regime"))
 geAmmiYear <- gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE)
 test_that("AMMI plot gives correct output types when byYear = TRUE", {

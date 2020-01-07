@@ -1,15 +1,15 @@
-#' @importFrom statgenSSA createTD
+#' @importFrom statgenSTA createTD
 #' @export
-statgenSSA::createTD
+statgenSTA::createTD
 
-#' @importFrom statgenSSA fitTD
+#' @importFrom statgenSTA fitTD
 #' @export
-statgenSSA::fitTD
+statgenSTA::fitTD
 
-#' @importFrom statgenSSA SSAtoTD
+#' @importFrom statgenSTA STAtoTD
 #' @export
-statgenSSA::SSAtoTD
+statgenSTA::STAtoTD
 
 #' @importFrom utils getFromNamespace
 #' @keywords internal
-createSSA <- getFromNamespace(x = "createSSA", ns = "statgenSSA")
+createSTA <- getFromNamespace(x = "createSTA", ns = "statgenSTA")

@@ -5,10 +5,10 @@
 \alias{createVarComp}
 \title{S3 class varComp}
 \usage{
-createVarComp(SSA, choice, summary, vcov, criterion, engine)
+createVarComp(STA, choice, summary, vcov, criterion, engine)
 }
 \arguments{
-\item{SSA}{An object of class SSA, the best fitted model.}
+\item{STA}{An object of class STA, the best fitted model.}
 
 \item{choice}{A character string indicating the best fitted model.}
 

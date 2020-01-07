@@ -1,10 +1,10 @@
 context("gxeVarComp")
 
 modelSp <- fitTD(testTD, design = "rowcol", traits = "t1")
-BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
+BLUEs <- STAtoTD(modelSp, what = "BLUEs")
 
 modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = "t1")
-BLUEsYear <- SSAtoTD(modelSpYear, what = "BLUEs")
+BLUEsYear <- STAtoTD(modelSpYear, what = "BLUEs")
 
 test_that("general checks in gxeAmmi function properly", {
   expect_error(gxeVarComp(1, trait = "t1"),
@@ -18,7 +18,7 @@ test_that("general checks in gxeAmmi function properly", {
 geVCLm <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "lme4")
 test_that("output is of the right class for lme4", {
   expect_is(geVCLm, "varComp")
-  expect_is(geVCLm$SSA, "SSA")
+  expect_is(geVCLm$STA, "STA")
   expect_is(geVCLm$choice, "character")
   expect_is(geVCLm$summary, "matrix")
   expect_is(geVCLm$vcov, "matrix")
@@ -40,7 +40,7 @@ test_that("output is of the right class for asreml", {
   expect_warning(geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1",
                                       engine = "asreml"))
   expect_is(geVCAs, "varComp")
-  expect_is(geVCAs$SSA, "SSA")
+  expect_is(geVCAs$STA, "STA")
   expect_is(geVCAs$choice, "character")
   expect_is(geVCAs$summary, "matrix")
   expect_is(geVCAs$vcov, "matrix")

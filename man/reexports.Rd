@@ -5,7 +5,7 @@
 \alias{reexports}
 \alias{createTD}
 \alias{fitTD}
-\alias{SSAtoTD}
+\alias{STAtoTD}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -13,6 +13,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{statgenSSA}{\code{\link[statgenSSA]{createTD}}, \code{\link[statgenSSA]{fitTD}}, \code{\link[statgenSSA]{SSAtoTD}}}
+  \item{statgenSTA}{\code{\link[statgenSTA]{STAtoTD}}, \code{\link[statgenSTA]{createTD}}, \code{\link[statgenSTA]{fitTD}}}
 }}
 

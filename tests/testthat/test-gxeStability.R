@@ -145,7 +145,7 @@ test_that("data with missing values is handled correctly", {
 
 ## Compute mega environments for testData to test option useMegaEnv.
 modelSp <- fitTD(testTD, design = "rowcol", traits = "t2")
-BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
+BLUEs <- STAtoTD(modelSp, what = "BLUEs")
 geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t2", sumTab = FALSE)
 geStabME <- gxeStability(TD = geMegaEnv, trait = "t2", useMegaEnv = TRUE)
 test_that("option useMegaEnv functions properly", {

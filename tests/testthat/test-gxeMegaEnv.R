@@ -1,7 +1,7 @@
 context("gxeMegaEnv")
 
 modelSp <- fitTD(testTD, design = "rowcol", traits = "t1")
-BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
+BLUEs <- STAtoTD(modelSp, what = "BLUEs")
 
 test_that("general checks in gxeMegaEnv function properly", {
   expect_error(gxeMegaEnv(1, trait = "t1"),

@@ -1,10 +1,10 @@
 context("Summaries")
 
 modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
-BLUEs <- SSAtoTD(modelSp, what = "BLUEs")
+BLUEs <- STAtoTD(modelSp, what = "BLUEs")
 
 modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
-BLUEsYear <- SSAtoTD(modelSpYear, what = "BLUEs",
+BLUEsYear <- STAtoTD(modelSpYear, what = "BLUEs",
                      keep = c("year", "family", "regime"))
 
 test_that("AMMI summary produces correct output", {
