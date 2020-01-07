@@ -162,7 +162,7 @@ test_that("option scale functions properly", {
 })
 
 test_that("option GGE functions properly", {
-  geAmmiGGE <- gxeAmmi(BLUEs, trait = "t1", GGE = TRUE)
+  geAmmiGGE <- gxeGGE(BLUEs, trait = "t1")
   expect_equal(dim(geAmmiGGE$anova), c(5L, 5L))
   expect_equal(as.numeric(as.matrix(geAmmiGGE$anova)),
                c(2, 42, 15, 13, 14, 602.255102526226, 22552.6329519374,

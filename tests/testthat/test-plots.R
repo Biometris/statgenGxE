@@ -45,7 +45,7 @@ test_that("AMMI plot gives correct output types", {
 })
 
 test_that("AMMI plot plotType options function properly", {
-  geGGE <- gxeAmmi(TD = BLUEs, trait = "t1", GGE = TRUE)
+  geGGE <- gxeGGE(TD = BLUEs, trait = "t1")
   p1a <- plot(geAmmi)
   p1b <- plot(geAmmi, plotType = "GGE1")
   p2 <- plot(geGGE)

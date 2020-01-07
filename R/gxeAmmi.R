@@ -10,18 +10,14 @@
 #' components that is used in the principal component analysis (PCA). By setting
 #' this parameter to \code{NA} the algorithm determines the best number of
 #' principal components (see Details).\cr\cr
-#' When setting the parameter \code{GGE} to \code{TRUE}, instead of a regular
-#' AMMI analysis a Genotype plus Genotype by Environment interaction (GGE)
-#' analysis is performed. In this case, instead of fitting a model with genotype
-#' and trial as main effects only trial is used as main effect.\cr\cr
 #' By specifying the parameter \code{asYear = true}, a separate analysis will be
 #' done for every year in the data. Combining the option with \code{nPC = NA}
 #' may result in different numbers of principal components per year. The AMMI
 #' estimates will still be returned as a single data.frame, but the other
 #' results will be either lists or arrays.
 #'
-#' First a linear model \eqn{trait = genotype + trial} is fitted with both
-#' genotype and trial fixed components in the model.\cr
+#' First a linear model \eqn{trait = genotype + trial + \epsilon} is fitted with
+#' both genotype and trial fixed components in the model.\cr
 #' The residuals from the fitted model are then used in a PCA. If \code{nPC} is
 #' not \code{NA} a single PCA is done using \code{\link[stats]{prcomp}} with
 #' maximum rank \code{nPC}.\cr
@@ -43,8 +39,6 @@
 #' merged together and returned.
 #' @param center Should the variables be shifted to be zero centered?
 #' @param scale Should the variables be scaled to have unit variance?
-#' @param GGE Should a GGE analysis be performed instead of a regular AMMI
-#' analysis. When doing so genotype will be excluded from the model.
 #' @param excludeGeno An optional character vector with names of genotypes to
 #' be excluded from the analysis. If \code{NULL}, all genotypes are used.
 #' @param useWt Should weighting be used when modeling? Requires a column
@@ -95,9 +89,67 @@ gxeAmmi <- function(TD,
                     byYear = FALSE,
                     center = TRUE,
                     scale = FALSE,
-                    GGE = FALSE,
                     excludeGeno = NULL,
                     useWt = FALSE) {
+  return(gxeAmmiHelp(TD = TD, trials = trials, trait = trait, nPC = nPC,
+                     byYear = byYear, center = center, scale = scale,
+                     excludeGeno = excludeGeno, useWt = useWt, GGE = FALSE))
+}
+
+#' GGE analysis
+#'
+#' The Genotype plus Genotype by Environment interaction (GGE) model fits
+#' a model with trial as main fixed effect. Then a principal component
+#' analysis is done on the residuals. This results in an interaction
+#' characterized by Interaction Principal Components (IPCA)
+#' enabling simultaneous plotting of genotypes and trials.\cr\cr
+#' The parameter \code{nPC} is used to indicate the number of principal
+#' components that is used in the principal component analysis (PCA). By setting
+#' this parameter to \code{NA} the algorithm determines the best number of
+#' principal components (see Details).\cr\cr
+#' By specifying the parameter \code{asYear = true}, a separate analysis will be
+#' done for every year in the data. Combining the option with \code{nPC = NA}
+#' may result in different numbers of principal components per year. The GGE
+#' estimates will still be returned as a single data.frame, but the other
+#' results will be either lists or arrays.
+#'
+#' First a linear model \eqn{trait = trial + \epsilon} is fitted with trial a
+#' fixed component in the model.\cr
+#' The residuals from the fitted model are then used in a PCA. If \code{nPC} is
+#' not \code{NA} a single PCA is done using \code{\link[stats]{prcomp}} with
+#' maximum rank \code{nPC}.\cr
+#' In case \code{nPC = NA}, the PCA is first done with one PC. Then using
+#' forward selection one by one the number of PCs is increased as long as the
+#' added component is significant in the analysis.\cr
+#' GGE estimates are then computed using the results of the PCA.\cr
+#'
+#' @inheritParams gxeAmmi
+#'
+#' @export
+gxeGGE <- function(TD,
+                   trials = names(TD),
+                   trait,
+                   nPC = 2,
+                   byYear = FALSE,
+                   center = TRUE,
+                   scale = FALSE,
+                   excludeGeno = NULL,
+                   useWt = FALSE) {
+  return(gxeAmmiHelp(TD = TD, trials = trials, trait = trait, nPC = nPC,
+                     byYear = byYear, center = center, scale = scale,
+                     excludeGeno = excludeGeno, useWt = useWt, GGE = TRUE))
+}
+
+gxeAmmiHelp <- function(TD,
+                        trials = names(TD),
+                        trait,
+                        nPC = 2,
+                        byYear = FALSE,
+                        center = TRUE,
+                        scale = FALSE,
+                        GGE = FALSE,
+                        excludeGeno = NULL,
+                        useWt = FALSE) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")

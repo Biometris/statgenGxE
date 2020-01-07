@@ -9,7 +9,7 @@ BLUEsYear <- STAtoTD(modelSpYear, what = "BLUEs",
 
 test_that("AMMI summary produces correct output", {
   geAmmi <- gxeAmmi(TD = BLUEs, trait = "t1")
-  geGGE <- gxeAmmi(TD = BLUEs, trait = "t1", GGE = TRUE)
+  geGGE <- gxeGGE(TD = BLUEs, trait = "t1")
   sumAmmi <- capture.output(summary(geAmmi))
   sumGGE <- capture.output(summary(geGGE))
   sumAmmi2 <- capture.output(summary(geAmmi, printGenoScores = TRUE))
