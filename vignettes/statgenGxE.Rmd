@@ -22,7 +22,7 @@ fig.dim = c(7, 4)
 library(statgenGxE)
 ## Call requireNamespace here to prevent license output in first call in vignette.
 requireNamespace("asreml", quietly = TRUE)
-options(width = 90, digits = 2)
+options(width = 90) #, digits = 3)
 ```
 
 # The statgenGxE package
@@ -33,12 +33,12 @@ This vignette describes in detail how to perform the different types of analysis
 
 The following types of analysis can be done using statgenGxE:
 
-* [Mixed model Analysis](#vc)
+* [Finlay-Wilkinson Analysis](#fw)
 * [AMMI Analysis](#am)
 * [GGE Analysis](#gge)
-* [Finlay-Wilkinson Analysis](#fw)
 * [Identification of mega environments](#me)
 * [Computation of stability measures](#st)
+* [Mixed model Analysis](#vc)
 
 ---
 
@@ -71,53 +71,28 @@ plot(dropsTD, plotType = "box", traits = "grain.yield", colorBy = "scenarioFull"
 
 From the plot it is clear that the trials in the hot, water deficit environments have a lower mean and variance than the other trials.
 
-## Mixed model analysis {#vc}
+## Finlay-Wilkinson Analysis {#fw}
 
-The function `gxeVarComp` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 [@Bates2015] or asreml [@Gilmour2017] as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequencially to the genotype by environment data. The best fitting model is then identified. The selection of the best variance-covariance model considers the following variance-covariance structures:
+With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank genotypes based on phenotypic stability for each individual trait.  
 
-* identity
-* compound symmetry (cs)
-* diagonal
-* heterogeneous compound symmetry (hcs)
-* simple correlation with heterogeneous variance (outside)
-* first order factor analytic (fa)
-* second order factor analytic (fa2)
-* unstructured
-
-The best model for the data is selected based on either the Akaike Information Criterion (AIC [@Akaike1974]) or the Baysian Information Criterion (BIC [@Schwarz1978]). Which criterion is used is determined by the parameter `criterion` in the function `gxeVarComp`.  
-
-```{r geVClme}
-## Use lme4 for fitting the models - only compound symmetry.
-dropsVC <- gxeVarComp(TD = dropsTD, trait = "grain.yield")
-summary(dropsVC)
+In the statgenGxE package this analysis can be done using the `gxeFW` function. By default all trials in the `TD` object are used in the analysis, but this can be restricted using the parameter `trials`. The genotypes included in the analysis can be restricted using `genotypes`.
+```{r geFW}
+## Perform a Finlay-Wilkinson analysis for all trials.
+dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")
+summary(dropsFW)
 ```
-
-```{r geVCasreml}
-## Use asreml for fitting the models - eight models fitted. 
-## Use AIC as criterion for determining the best model.
-if (requireNamespace("asreml", quietly = TRUE)) {
-  dropsVC2 <- gxeVarComp(TD = dropsTD, trait = "grain.yield", engine = "asreml",
-                         criterion = "AIC")
-  summary(dropsVC2)
-}
-```
-`r if (exists("dropsVC2")) {"As becomes clear from the summary, the best model based on AIC is the model with an unstructured variance-covariance structure."  }` 
-
-*Note that for both factor analytic models to be fitted a minimum of five environments is needed. If the data contains less environments, those two models are skipped.*
-
-A heat map of the covariance and correlation between the environments based on the best fitted model can be plotted. 
-
-```{r geVCPlot}
-if (requireNamespace("asreml", quietly = TRUE)) {
-  plot(dropsVC2)
-}
+Three types of plots can be made to investigate the output of the analysis. `plotType = "scatter"` creates three scatter plots where genotypic mean, mean squared deviation and sensitivity are plotted against each other. `plotType = "line"` creates a plot with fitted lines for all genotypes in the analysis. `plotType = "trellis"` creates a trellis plot with individual slopes per genotype. At most 64 genotypes are plotted. It is possible to select genotypes using the parameter `genotypes`.
+```{r plotFW,fig.width=5,fig.height=5,fig.show="hold"}
+## Create three types of plots for Finlay Wilkinson analysis.
+## Restrict trellis plot to first 5 genotypes.
+plot(dropsFW, plotType = "scatter")
+plot(dropsFW, plotType = "line")
+plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347", "A374"))
 ```
   
-The upper left of the plot displays the covariance between environments. Larger values are displayed in a bigger font. In the lower right of the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue color a strong negative correlation. Environments are clustered by their correlations and ordered according to the results of the clustering.
-
-A pdf report containing the most important results of the analysis can be made using the `report` function.
-```{r geVCRep, eval=FALSE}
-report(dropsVC2, outfile = "./myReports/varCompReport.pdf")
+A report can be made as well containing a summary of the analysis.
+```{r geFWRep, eval=FALSE}
+report(dropsFW, outfile = "./myReports/FWReport.pdf")
 ```
 
 ## AMMI Analysis {#am}
@@ -206,29 +181,6 @@ Options for plotting results of a GGE analysis are identical to those for an AMM
 plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 ```
 
-## Finlay-Wilkinson Analysis {#fw}
-
-With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank genotypes based on phenotypic stability for each individual trait.  
-
-In the statgenGxE package this analysis can be done using the `gxeFW` function. By default all trials in the `TD` object are used in the analysis, but this can be restricted using the parameter `trials`. The genotypes included in the analysis can be restricted using `genotypes`.
-```{r geFW}
-## Perform a Finlay-Wilkinson analysis for all trials.
-dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")
-summary(dropsFW)
-```
-Three types of plots can be made to investigate the output of the analysis. `plotType = "scatter"` creates three scatter plots where genotypic mean, mean squared deviation and sensitivity are plotted against each other. `plotType = "line"` creates a plot with fitted lines for all genotypes in the analysis. `plotType = "trellis"` creates a trellis plot with individual slopes per genotype. At most 64 genotypes are plotted. It is possible to select genotypes using the parameter `genotypes`.
-```{r plotFW,fig.width=5,fig.height=5,fig.show="hold"}
-## Create three types of plots for Finlay Wilkinson analysis.
-## Restrict trellis plot to first 5 genotypes.
-plot(dropsFW, plotType = "scatter")
-plot(dropsFW, plotType = "line")
-plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347", "A374"))
-```
-  
-A report can be made as well containing a summary of the analysis.
-```{r geFWRep, eval=FALSE}
-report(dropsFW, outfile = "./myReports/FWReport.pdf")
-```
 
 ## Computation of mega environments {#me}
 
@@ -285,6 +237,55 @@ It is possible to calculate the stability measures based on mega environments in
 ## previous paragraph.
 dropsStabME <- gxeStability(TD = dropsMegaEnv, trait = "grain.yield", useMegaEnv = TRUE)
 summary(dropsStabME, pctGeno = 2)
+```
+
+## Mixed model analysis {#vc}
+
+The function `gxeVarComp` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 [@Bates2015] or asreml [@Gilmour2017] as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequencially to the genotype by environment data. The best fitting model is then identified. The selection of the best variance-covariance model considers the following variance-covariance structures:
+
+* identity
+* compound symmetry (cs)
+* diagonal
+* heterogeneous compound symmetry (hcs)
+* simple correlation with heterogeneous variance (outside)
+* first order factor analytic (fa)
+* second order factor analytic (fa2)
+* unstructured
+
+The best model for the data is selected based on either the Akaike Information Criterion (AIC [@Akaike1974]) or the Baysian Information Criterion (BIC [@Schwarz1978]). Which criterion is used is determined by the parameter `criterion` in the function `gxeVarComp`.  
+
+```{r geVClme}
+## Use lme4 for fitting the models - only compound symmetry.
+dropsVC <- gxeVarComp(TD = dropsTD, trait = "grain.yield")
+summary(dropsVC)
+```
+
+```{r geVCasreml}
+## Use asreml for fitting the models - eight models fitted. 
+## Use AIC as criterion for determining the best model.
+if (requireNamespace("asreml", quietly = TRUE)) {
+  dropsVC2 <- gxeVarComp(TD = dropsTD, trait = "grain.yield", engine = "asreml",
+                         criterion = "AIC")
+  summary(dropsVC2)
+}
+```
+`r if (exists("dropsVC2")) {"As becomes clear from the summary, the best model based on AIC is the model with an unstructured variance-covariance structure."  }` 
+
+*Note that for both factor analytic models to be fitted a minimum of five environments is needed. If the data contains less environments, those two models are skipped.*
+
+A heat map of the covariance and correlation between the environments based on the best fitted model can be plotted. 
+
+```{r geVCPlot}
+if (requireNamespace("asreml", quietly = TRUE)) {
+  plot(dropsVC2)
+}
+```
+  
+The upper left of the plot displays the covariance between environments. Larger values are displayed in a bigger font. In the lower right of the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue color a strong negative correlation. Environments are clustered by their correlations and ordered according to the results of the clustering.
+
+A pdf report containing the most important results of the analysis can be made using the `report` function.
+```{r geVCRep, eval=FALSE}
+report(dropsVC2, outfile = "./myReports/varCompReport.pdf")
 ```
 
 ----

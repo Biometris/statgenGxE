@@ -7,7 +7,7 @@ fig.dim = c(7, 4)
 library(statgenGxE)
 ## Call requireNamespace here to prevent license output in first call in vignette.
 requireNamespace("asreml", quietly = TRUE)
-options(width = 90, digits = 2)
+options(width = 90) #, digits = 3)
 
 ## ----loadData---------------------------------------------------------------------------
 data(dropsPheno)
@@ -23,27 +23,20 @@ dropsTD <- createTD(data = dropsPheno, genotype = "Variety_ID", trial = "Experim
 plot(dropsTD, plotType = "box", traits = "grain.yield", colorBy = "scenarioFull", 
      orderBy = "descending")
 
-## ----geVClme----------------------------------------------------------------------------
-## Use lme4 for fitting the models - only compound symmetry.
-dropsVC <- gxeVarComp(TD = dropsTD, trait = "grain.yield")
-summary(dropsVC)
+## ----geFW-------------------------------------------------------------------------------
+## Perform a Finlay-Wilkinson analysis for all trials.
+dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")
+summary(dropsFW)
 
-## ----geVCasreml-------------------------------------------------------------------------
-## Use asreml for fitting the models - eight models fitted. 
-## Use AIC as criterion for determining the best model.
-if (requireNamespace("asreml", quietly = TRUE)) {
-  dropsVC2 <- gxeVarComp(TD = dropsTD, trait = "grain.yield", engine = "asreml",
-                         criterion = "AIC")
-  summary(dropsVC2)
-}
+## ----plotFW,fig.width=5,fig.height=5,fig.show="hold"------------------------------------
+## Create three types of plots for Finlay Wilkinson analysis.
+## Restrict trellis plot to first 5 genotypes.
+plot(dropsFW, plotType = "scatter")
+plot(dropsFW, plotType = "line")
+plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347", "A374"))
 
-## ----geVCPlot---------------------------------------------------------------------------
-if (requireNamespace("asreml", quietly = TRUE)) {
-  plot(dropsVC2)
-}
-
-## ----geVCRep, eval=FALSE----------------------------------------------------------------
-#  report(dropsVC2, outfile = "./myReports/varCompReport.pdf")
+## ----geFWRep, eval=FALSE----------------------------------------------------------------
+#  report(dropsFW, outfile = "./myReports/FWReport.pdf")
 
 ## ----geAmmi-----------------------------------------------------------------------------
 ## Run gxeAmmi with default settings.
@@ -99,21 +92,6 @@ summary(dropsGGE)
 ## Create an GGE1 and GGE2 biplot.
 plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 
-## ----geFW-------------------------------------------------------------------------------
-## Perform a Finlay-Wilkinson analysis for all trials.
-dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")
-summary(dropsFW)
-
-## ----plotFW,fig.width=5,fig.height=5,fig.show="hold"------------------------------------
-## Create three types of plots for Finlay Wilkinson analysis.
-## Restrict trellis plot to first 5 genotypes.
-plot(dropsFW, plotType = "scatter")
-plot(dropsFW, plotType = "line")
-plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347", "A374"))
-
-## ----geFWRep, eval=FALSE----------------------------------------------------------------
-#  report(dropsFW, outfile = "./myReports/FWReport.pdf")
-
 ## ----geMegaEnv--------------------------------------------------------------------------
 ## Compute mega environments.
 dropsMegaEnv <- gxeMegaEnv(TD = dropsTD, trait = "grain.yield")
@@ -143,4 +121,26 @@ plot(dropsStab)
 ## previous paragraph.
 dropsStabME <- gxeStability(TD = dropsMegaEnv, trait = "grain.yield", useMegaEnv = TRUE)
 summary(dropsStabME, pctGeno = 2)
+
+## ----geVClme----------------------------------------------------------------------------
+## Use lme4 for fitting the models - only compound symmetry.
+dropsVC <- gxeVarComp(TD = dropsTD, trait = "grain.yield")
+summary(dropsVC)
+
+## ----geVCasreml-------------------------------------------------------------------------
+## Use asreml for fitting the models - eight models fitted. 
+## Use AIC as criterion for determining the best model.
+if (requireNamespace("asreml", quietly = TRUE)) {
+  dropsVC2 <- gxeVarComp(TD = dropsTD, trait = "grain.yield", engine = "asreml",
+                         criterion = "AIC")
+  summary(dropsVC2)
+}
+
+## ----geVCPlot---------------------------------------------------------------------------
+if (requireNamespace("asreml", quietly = TRUE)) {
+  plot(dropsVC2)
+}
+
+## ----geVCRep, eval=FALSE----------------------------------------------------------------
+#  report(dropsVC2, outfile = "./myReports/varCompReport.pdf")
 
