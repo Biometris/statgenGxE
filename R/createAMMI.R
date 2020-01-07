@@ -77,11 +77,11 @@ print.AMMI <- function(x,
     if (x$byYear) {
       for (year in years) {
         cat(paste(year, "\n"))
-        printCoefmat(x$anova[[year]], na.print = "")
+        print(x$anova[[year]])
         cat("\n")
       }
     } else {
-      printCoefmat(x$anova, na.print = "")
+      print(x$anova)
     }
   }
   cat("\nEnvironment scores",

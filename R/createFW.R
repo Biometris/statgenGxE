@@ -62,7 +62,7 @@ print.FW <- function(x, ...) {
   print(x$envEffs)
   cat("\nAnova",
       "\n=====\n")
-  printCoefmat(x$anova, na.print = "")
+  print(x$anova)
   if (all(x$estimates[["rank"]] == 1:nrow(x$estimates))) {
     cat("\nMost sensitive genotypes")
   } else if (all(x$estimates[["rank"]] == nrow(x$estimates):1)) {
