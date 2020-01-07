@@ -226,9 +226,9 @@ plot.FW <- function(x,
     trellisDat <- trellisDat[order(trellisDat[["genotype"]],
                                    trellisDat[["xEff"]]), ]
     p <- ggplot(data = trellisDat,
-                aes_string(x = "xEff", y = "trait + fitted")) +
+                aes_string(x = "xEff", y = "trait")) +
       geom_point() +
-      geom_path() +
+      geom_line(data = trellisDat, aes_string(x = "xEff", y = "fitted")) +
       facet_wrap(facets = "genotype") +
       labs(x = "Environment", y = x$trait) +
       ggtitle(plotTitle) +
