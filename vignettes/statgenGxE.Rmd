@@ -22,7 +22,7 @@ fig.dim = c(7, 4)
 library(statgenGxE)
 ## Call requireNamespace here to prevent license output in first call in vignette.
 requireNamespace("asreml", quietly = TRUE)
-options(width = 90) #, digits = 3)
+options(width = 90) 
 ```
 
 # The statgenGxE package
@@ -38,7 +38,7 @@ The following types of analysis can be done using statgenGxE:
 * [GGE Analysis](#gge)
 * [Identification of mega environments](#me)
 * [Computation of stability measures](#st)
-* [Mixed model Analysis](#vc)
+* [Mixed model analysis of two-way GxE tables](#vc)
 
 ---
 
@@ -73,7 +73,10 @@ From the plot it is clear that the trials in the hot, water deficit environments
 
 ## Finlay-Wilkinson Analysis {#fw}
 
-With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank genotypes based on phenotypic stability for each individual trait.  
+With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank genotypes based on phenotypic stability for each individual trait.
+
+The model fitted in the analysis is 
+$y_{ij} = \mu + g_i + \Sigma_k\delta_{ik}\gamma_{j} + \epsilon_{ij}; \epsilon_{ij} \sim N(0, \sigma^2_\epsilon)$.
 
 In the statgenGxE package this analysis can be done using the `gxeFW` function. By default all trials in the `TD` object are used in the analysis, but this can be restricted using the parameter `trials`. The genotypes included in the analysis can be restricted using `genotypes`.
 ```{r geFW}
@@ -81,12 +84,18 @@ In the statgenGxE package this analysis can be done using the `gxeFW` function. 
 dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")
 summary(dropsFW)
 ```
-Three types of plots can be made to investigate the output of the analysis. `plotType = "scatter"` creates three scatter plots where genotypic mean, mean squared deviation and sensitivity are plotted against each other. `plotType = "line"` creates a plot with fitted lines for all genotypes in the analysis. `plotType = "trellis"` creates a trellis plot with individual slopes per genotype. At most 64 genotypes are plotted. It is possible to select genotypes using the parameter `genotypes`.
-```{r plotFW,fig.width=5,fig.height=5,fig.show="hold"}
-## Create three types of plots for Finlay Wilkinson analysis.
-## Restrict trellis plot to first 5 genotypes.
+Three types of plots can be made to investigate the output from the analysis. `plotType = "scatter"` creates three scatter plots where genotypic mean, mean squared deviation and sensitivity are plotted against each other. `plotType = "line"` creates a plot with fitted lines for all genotypes in the analysis. `plotType = "trellis"` creates a trellis plot with individual slopes per genotype. At most 64 genotypes are plotted. It is possible to select genotypes using the parameter `genotypes`.
+```{r plotFWScatter, fig.width=5, fig.height=5, fig.show="hold"}
+## Create scatter plot for Finlay Wilkinson analysis.
 plot(dropsFW, plotType = "scatter")
+```
+```{r plotFWLine, fig.width=5, fig.height=5, fig.show="hold"}
+## Create line plot for Finlay Wilkinson analysis.
 plot(dropsFW, plotType = "line")
+```
+```{r plotFWTrellis, fig.width=5, fig.height=5, fig.show="hold"}
+## Create trellis plot for Finlay Wilkinson analysis.
+## Restrict to first 5 genotypes.
 plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347", "A374"))
 ```
   
@@ -99,13 +108,16 @@ report(dropsFW, outfile = "./myReports/FWReport.pdf")
 
 The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with the Multiplicative Interaction effects. Then a principal component analysis is done on the residuals (multiplicative interaction). This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials.  
 
+The model fitted in the AMMI analysis is 
+$y_{ij} = \mu + g_i + e_j \Sigma_k\delta_{ik}\gamma_{jk} + \epsilon_{ij}; \epsilon_{ij} \sim N(0, \sigma^2_\epsilon)$.
+
 The AMMI analysis can be performed with the statgenGxE package using the function `gxeAmmi`. 
 ```{r geAmmi}
 ## Run gxeAmmi with default settings.
 dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield")
 summary(dropsAm)
 ```
-With the default settings in the principal components analysis a maximum of two principal components are used. This can be changed using the parameter `nPC` in the function. The number of principal components can never be larger than the number of environments and the number of genotypes in the data. By specifying `nPC = NULL` the algorithm will determine the number of principal components by a method of forward selection.
+With the default settings in the principal components analysis a maximum of two principal components are used. This can be changed using the parameter `nPC` in the function. The number of principal components can never be larger than the number of environments and the number of genotypes in the data -1. By specifying `nPC = NULL` the algorithm will determine the number of principal components by a method of forward selection.
 ```{r geAmmi2}
 ## Run gxeAmmi. Let algorithm determine number of principal components.
 dropsAm2 <- gxeAmmi(TD = dropsTD, trait = "grain.yield", nPC = NULL)
@@ -127,7 +139,7 @@ If the data contains a column year, it is possible to fit a separate AMMI model 
 dropsAmYear <- gxeAmmi(TD = dropsTD, trait = "grain.yield", byYear = TRUE)
 ```
 
-The results of an AMMI analysis can be displayed in a biplot. Two types of biplot are available. "AMMI1" plots the main effects against the first principal component. "AMMI2" plots the first against the second principal component.
+The results of an AMMI analysis can be displayed in a biplot. Two types of biplot are available. "AMMI1" plots the first principal component against the main effects. "AMMI2" plots the second against the first principal component.
 ```{r plotAmmi1, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI1 and AMMI2 biplot.
 plot(dropsAm, scale = 0.5, plotType = "AMMI1")
@@ -149,11 +161,10 @@ plot(dropsAm, scale = 0.4, plotType = "AMMI2",
 
 ```
 
-A convex hull can be plotted around the genotypes in an AMMI2 biplot with lines from the origin perpendicular to the edges of the hull. This is useful for identifying mega environments. 
+A convex hull can be plotted around the genotypes in an AMMI2 biplot with lines from the origin perpendicular to the edges of the hull. 
 ```{r plotAmmiConvHull, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI2 biplot with convex hull around the genotypes.
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy = "scenarioFull")
-
 ```
 
 Genotypes can be left out of the plot completely by setting `plotGeno = FALSE` and similarly `plotEnv = FALSE` assures no environments are plotted. For displaying genotypes by their names instead of points, use `sizeGeno` with a size larger than zero to indicate their text size. `envFactor` can be used to blow up the environmental scores in the plot. A value for `envFactor` between zero and one effectively blows up the genotypic scores. See `help(plot.AMMI)` for full details on all plotting options.
@@ -165,19 +176,23 @@ report(dropsAm, outfile = "./myReports/AMMIReport.pdf")
 
 ## GGE Analysis {#gge}
 
-A Genotype plus Genotype by Environment analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. Therefore, the principal component analysis is performed on the genotype main effect and the interaction jointly. The GGE analysis is done in statgenGxE by running the function `gxeAmmi` with parameter
-`GGE = TRUE`.
+A Genotype plus Genotype by Environment analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. Therefore, the principal component analysis is performed on the genotype main effect and the interaction jointly. 
+
+The model fitted in the GGE analysis is 
+$y_{ij} = \mu + e_j \Sigma_k\delta_{ik}\gamma_{jk} + \epsilon_{ij}; \epsilon_{ij} \sim N(0, \sigma^2_\epsilon)$.
+
+The GGE analysis is done in statgenGxE by running the function `gxeGGE` which has identical options as the `gxeAmmi` function.
 
 ```{r geGGE}
 ## Run gxeAmmi with default settings.
-dropsGGE <- gxeAmmi(TD = dropsTD, trait = "grain.yield", GGE = TRUE)
+dropsGGE <- gxeGGE(TD = dropsTD, trait = "grain.yield")
 summary(dropsGGE)
 ```
 
 Options for plotting results of a GGE analysis are identical to those for an AMMI analysis.
 `plotType` "GGE1" and "GGE2" may be used as substitutes for "AMMI1" and "AMMI2", but the latter are valid options as well.
 ```{r plotGGE, fig.width=5, fig.height=5, out.width="75%"}
-## Create an GGE1 and GGE2 biplot.
+## Create a GGE2 biplot.
 plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 ```
 
@@ -185,8 +200,8 @@ plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 ## Computation of mega environments {#me}
 
 For the computation of mega environments, an AMMI model is fitted and then, using the fitted values from this model, the environments are clustered.
-Mega environments are created by grouping environments based on their best performing genotype. Environments that share the same best genotype belong to the same mega environment, regardless whether environments correspond to years or locations.  
-```{r geMegaEnv}
+Mega environments are created by grouping environments based on their best performing genotype. Environments that share the same best genotype belong to the same mega environment.  
+```{r geMegaEnv, R.options=list(digits=3)}
 ## Compute mega environments.
 dropsMegaEnv <- gxeMegaEnv(TD = dropsTD, trait = "grain.yield")
 ```
@@ -194,12 +209,14 @@ As can be seen in the column Mega factor in the output, four mega environments h
 
 The values for the Best Linear Unbiased Predictors (BLUPs) and associated standard errors for the genotypes based on the calculated mega environments, can be computed using the function `gxeTable`. This can be done using either "asreml" or "lme4" as an engine for fitting the model.
 
-```{r geMegaEnvPred}
+```{r geMegaEnvPred, R.options=list(digits=3)}
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Compute BLUPs.
   ## Use asreml as engine for fitting model.
   geMegaEnvPred <- gxeTable(TD = dropsMegaEnv, trait = "grain.yield", engine = "asreml")
-  head(geMegaEnvPred$predictedValue)
+  ## Display BLUPs and associated standard errors.
+  print(head(geMegaEnvPred$predictedValue))
+  print(head(geMegaEnvPred$standardError))
 }
 ```
 
@@ -215,7 +232,7 @@ Wricke's Ecovalence Stability Coefficient is the contribution of each genotype t
 
 To compute the stabibility measures use `gxeStability`. This will compute all three stability measures described above. This can be restricted by specifying one or more measure in `method`.
 
-```{r geStab}
+```{r geStab, R.options=list(digits=3)}
 ## Compute stability measures for dropsTD.
 dropsStab <- gxeStability(TD = dropsTD, trait = "grain.yield")
 ## In the summary print the top two percent of the genotypes.
@@ -232,16 +249,17 @@ report(dropsStab, outfile = "./myReports/stabReport.pdf")
 ```
 
 It is possible to calculate the stability measures based on mega environments instead of regular environments. To do so the parameter `useMegaEnv` has to be set to `TRUE`.
-```{r geStabMegaEnv}
+```{r geStabMegaEnv, R.options=list(digits=3)}
 ## Compute stability measures based on mega environments computed in the 
 ## previous paragraph.
 dropsStabME <- gxeStability(TD = dropsMegaEnv, trait = "grain.yield", useMegaEnv = TRUE)
 summary(dropsStabME, pctGeno = 2)
 ```
 
-## Mixed model analysis {#vc}
+## Mixed model analysis of two-way GxE tables{#vc}
 
-The function `gxeVarComp` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 [@Bates2015] or asreml [@Gilmour2017] as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequencially to the genotype by environment data. The best fitting model is then identified. The selection of the best variance-covariance model considers the following variance-covariance structures:
+The function `gxeVarComp` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 [@Bates2015] or asreml [@Gilmour2017] as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequencially to the genotype by environment data. The best fitting model is then identified.    
+The models fitted are of the form $y_{ij} = \mu_{i} + \epsilon_{ij}$, where the variance of $\epsilon_{ij}$ is modeled in the follwing ways:
 
 * identity
 * compound symmetry (cs)
@@ -281,7 +299,7 @@ if (requireNamespace("asreml", quietly = TRUE)) {
 }
 ```
   
-The upper left of the plot displays the covariance between environments. Larger values are displayed in a bigger font. In the lower right of the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue color a strong negative correlation. Environments are clustered by their correlations and ordered according to the results of the clustering.
+In the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue color a strong negative correlation. Environments are clustered by their correlations and ordered according to the results of the clustering.
 
 A pdf report containing the most important results of the analysis can be made using the `report` function.
 ```{r geVCRep, eval=FALSE}

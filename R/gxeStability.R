@@ -97,7 +97,7 @@ gxeStability <- function(TD,
     trials <- levels(TDTot[[trCol]])
   }
   nTr <- length(trials)
-  ## Compute the centered trait mean per enviroment.
+  ## Compute the centered trait mean per environment.
   Ej <- tapply(X = TDTot[[trait]], INDEX = TDTot[[trCol]], FUN = mean,
                na.rm = TRUE)
   ## Compute the max or min trait mean among all genotypes per trial.

@@ -158,19 +158,20 @@ plot.FW <- function(x,
       labs(x = "Mean Squared Deviation")
     ## Create empty plot for top right grid position.
     pEmpty <- ggplot() + theme(panel.background = element_blank())
-    ## Convert to Grobs to make alignment of axis possible.
+    # Convert to Grobs to make alignment of axis possible.
     p1Gr <- ggplotGrob(p1)
     p2Gr <- ggplotGrob(p2)
     p3Gr <- ggplotGrob(p3)
     pEmpty <- ggplotGrob(pEmpty)
-    ## Create grid by first binding rows to assure axis alignment and then
-    ## by columns.
+    # Create grid by first binding rows to assure axis alignment and then
+    # by columns.
     c1 <- gridExtra::gtable_rbind(p1Gr, p2Gr)
     c2 <- gridExtra::gtable_rbind(pEmpty, p3Gr)
     tot <- gridExtra::gtable_cbind(c1, c2)
-    ## grid.arrange automatically plots the results.
     if (output) {
-      tot <- gridExtra::grid.arrange(tot, top = plotTitle)
+      # grid.arrange automatically plots the results.
+      # Assign to variable to avoid double output plot.
+      p <- gridExtra::grid.arrange(tot, top = plotTitle)
     }
     invisible(list(p1 = p1, p2 = p2, p3 = p3))
     ## Set arguments for plot.

@@ -7,7 +7,7 @@ fig.dim = c(7, 4)
 library(statgenGxE)
 ## Call requireNamespace here to prevent license output in first call in vignette.
 requireNamespace("asreml", quietly = TRUE)
-options(width = 90) #, digits = 3)
+options(width = 90) 
 
 ## ----loadData---------------------------------------------------------------------------
 data(dropsPheno)
@@ -28,11 +28,17 @@ plot(dropsTD, plotType = "box", traits = "grain.yield", colorBy = "scenarioFull"
 dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")
 summary(dropsFW)
 
-## ----plotFW,fig.width=5,fig.height=5,fig.show="hold"------------------------------------
-## Create three types of plots for Finlay Wilkinson analysis.
-## Restrict trellis plot to first 5 genotypes.
+## ----plotFWScatter, fig.width=5, fig.height=5, fig.show="hold"--------------------------
+## Create scatter plot for Finlay Wilkinson analysis.
 plot(dropsFW, plotType = "scatter")
+
+## ----plotFWLine, fig.width=5, fig.height=5, fig.show="hold"-----------------------------
+## Create line plot for Finlay Wilkinson analysis.
 plot(dropsFW, plotType = "line")
+
+## ----plotFWTrellis, fig.width=5, fig.height=5, fig.show="hold"--------------------------
+## Create trellis plot for Finlay Wilkinson analysis.
+## Restrict to first 5 genotypes.
 plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347", "A374"))
 
 ## ----geFWRep, eval=FALSE----------------------------------------------------------------
@@ -79,32 +85,33 @@ plot(dropsAm, scale = 0.4, plotType = "AMMI2",
 ## Create an AMMI2 biplot with convex hull around the genotypes.
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy = "scenarioFull")
 
-
 ## ----geAMMIRep, eval=FALSE--------------------------------------------------------------
 #  report(dropsAm, outfile = "./myReports/AMMIReport.pdf")
 
 ## ----geGGE------------------------------------------------------------------------------
 ## Run gxeAmmi with default settings.
-dropsGGE <- gxeAmmi(TD = dropsTD, trait = "grain.yield", GGE = TRUE)
+dropsGGE <- gxeGGE(TD = dropsTD, trait = "grain.yield")
 summary(dropsGGE)
 
 ## ----plotGGE, fig.width=5, fig.height=5, out.width="75%"--------------------------------
-## Create an GGE1 and GGE2 biplot.
+## Create a GGE2 biplot.
 plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 
-## ----geMegaEnv--------------------------------------------------------------------------
+## ----geMegaEnv, R.options=list(digits=3)------------------------------------------------
 ## Compute mega environments.
 dropsMegaEnv <- gxeMegaEnv(TD = dropsTD, trait = "grain.yield")
 
-## ----geMegaEnvPred----------------------------------------------------------------------
+## ----geMegaEnvPred, R.options=list(digits=3)--------------------------------------------
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Compute BLUPs.
   ## Use asreml as engine for fitting model.
   geMegaEnvPred <- gxeTable(TD = dropsMegaEnv, trait = "grain.yield", engine = "asreml")
-  head(geMegaEnvPred$predictedValue)
+  ## Display BLUPs and associated standard errors.
+  print(head(geMegaEnvPred$predictedValue))
+  print(head(geMegaEnvPred$standardError))
 }
 
-## ----geStab-----------------------------------------------------------------------------
+## ----geStab, R.options=list(digits=3)---------------------------------------------------
 ## Compute stability measures for dropsTD.
 dropsStab <- gxeStability(TD = dropsTD, trait = "grain.yield")
 ## In the summary print the top two percent of the genotypes.
@@ -116,7 +123,7 @@ plot(dropsStab)
 ## ----geStabRep, eval=FALSE--------------------------------------------------------------
 #  report(dropsStab, outfile = "./myReports/stabReport.pdf")
 
-## ----geStabMegaEnv----------------------------------------------------------------------
+## ----geStabMegaEnv, R.options=list(digits=3)--------------------------------------------
 ## Compute stability measures based on mega environments computed in the 
 ## previous paragraph.
 dropsStabME <- gxeStability(TD = dropsMegaEnv, trait = "grain.yield", useMegaEnv = TRUE)

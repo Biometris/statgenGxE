@@ -89,19 +89,19 @@ plot.stability <- function(x,
     ## Create superiority plot.
     plots$p1 <- ggplot(data = x$superiority, aes_string(x = "mean",
                                                         y = "superiority")) +
-      geom_point(col = "blue", shape = 1) +
+      geom_point() +
       labs(x = "Mean", y = "Cultivar superiority")
   }
   if (!is.null(x$static)) {
     ## Create static plot.
     plots$p2 <- ggplot(data = x$static, aes_string(x = "mean", y = "static")) +
-      geom_point(col = "blue", shape = 1) +
+      geom_point() +
       labs(x = "Mean", y = "Static stability")
   }
   if (!is.null(x$wricke)) {
     ## Create Wricke plot.
     plots$p3 <- ggplot(data = x$wricke, aes_string(x = "mean", y = "wricke")) +
-      geom_point(col = "blue", shape = 1) +
+      geom_point() +
       labs(x = "Mean", y = "Wricke's ecovalence")
   }
   if (length(plots) == 3) {
