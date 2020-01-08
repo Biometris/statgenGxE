@@ -129,32 +129,33 @@ plot.FW <- function(x,
   envEffs <- x$envEffs[c("trial", "envEff")]
   TDTot <- Reduce(f = rbind, x = x$TD)
   plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
-                      paste0("Finlay & Wilkinson analysis for ",
-                             x$trait))
+                      paste0("Finlay & Wilkinson analysis for ", x$trait))
   if ("scatter" %in% plotType) {
     selCols = c(1:2, if (!all(is.na(x$estimates$MSdeviation))) 3, 4)
     scatterDat <- setNames(x$estimates[, c("genotype", "genMean",
                                            "MSdeviation", "sens")[selCols]],
-                           c("genotype", "Mean", "m.s.deviation",
+                           c("genotype", "Mean", "MSDeviation",
                              "Sensitivity")[selCols])
     scatterDat <- remove_missing(scatterDat, na.rm = TRUE)
     ## Create plot of mean x mse. No x axis because of position in grid.
     p1 <- ggplot(data = scatterDat,
-                 aes_string(x = "Mean", y = "m.s.deviation")) +
+                 aes_string(x = "Mean", y = "MSDeviation")) +
       geom_point() +
       theme(axis.title.x = element_blank(),
             axis.text.x = element_blank(),
-            axis.ticks.x = element_blank())
+            axis.ticks.x = element_blank()) +
+      labs(y = "Mean Squared Deviation")
     ## Create plot of mean x sensitivity.
     p2 <- ggplot(data = scatterDat, aes_string(x = "Mean", y = "Sensitivity")) +
       geom_point()
     ## Create plot of mse x sensitivity. No y axis because of position in grid.
-    p3 <- ggplot(data = scatterDat, aes_string(x = "m.s.deviation",
+    p3 <- ggplot(data = scatterDat, aes_string(x = "MSDeviation",
                                                y = "Sensitivity")) +
       geom_point() +
       theme(axis.title.y = element_blank(),
             axis.text.y = element_blank(),
-            axis.ticks.y = element_blank())
+            axis.ticks.y = element_blank()) +
+      labs(x = "Mean Squared Deviation")
     ## Create empty plot for top right grid position.
     pEmpty <- ggplot() + theme(panel.background = element_blank())
     ## Convert to Grobs to make alignment of axis possible.
