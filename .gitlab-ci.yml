@@ -8,20 +8,10 @@ variables:
   R_LIBS_USER: "$CI_PROJECT_DIR/ci/lib"
 
 before_script:
-  ## cache apt.
-  - export APT_DIR=$CI_PROJECT_DIR/.apt && export APT_STATE_LISTS=$APT_DIR/lists && export APT_CACHE_ARCHIVES=$APT_DIR/archives
-  - printf "dir::state::lists    ${APT_STATE_LISTS};\ndir::cache::archives    ${APT_CACHE_ARCHIVES};\n" > /etc/apt/apt.conf
-  - mkdir -p "${APT_STATE_LISTS}/partial" && mkdir -p "${APT_CACHE_ARCHIVES}/partial"
-  ## install apt dependencies for packages.
-  - apt-get update -qq
-  ## Install git - needed for installing dependency statgenSSA.
-  - apt-get update && apt-get install -y git
   ## Create directory for caching R packages.
   - mkdir -p $R_LIBS_USER
   ## Add R_LIBS_USER to libpaths.
   - echo '.libPaths("'${R_LIBS_USER}'")' > .Rprofile
-  ## set GITLAB_PAT.
-  - echo 'GITLAB_PAT='$GITLAB_PAT > .Renviron
 
 R-release:
   stage: build
@@ -29,12 +19,11 @@ R-release:
   script:
     - Rscript -e 'sessionInfo()'
     # install missing and outdated packages
-    - Rscript -e 'remotes::install_gitlab(repo = "statistical-genetic-pipeline/statgenSSA", host = "git.wur.nl")'
     - Rscript -e 'source(".gitlab-ci.R"); pkgsUpdate()'
     # build package
     - R CMD build .  --no-manual
     - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
-    - R CMD check "${PKG_FILE_NAME}" --no-build-vignettes --no-manual --as-cran
+    - R CMD check "${PKG_FILE_NAME}" --no-manual --as-cran
   artifacts:
     when: always
     paths:
@@ -44,7 +33,6 @@ R-release:
     key: release-cache
     paths:
       - $R_LIBS_USER
-      - $CI_PROJECT_DIR/.apt
 
 R-devel:
   stage: build
@@ -53,7 +41,6 @@ R-devel:
   script:
     - Rscriptdevel -e 'sessionInfo()'
     ## Install missing and outdated packages.
-    - Rscriptdevel -e 'remotes::install_gitlab(repo = "statistical-genetic-pipeline/statgenSSA", host = "git.wur.nl")'
     - Rscriptdevel -e 'source(".gitlab-ci.R"); pkgsUpdate()'
     ## Build package.
     - Rdevel CMD build . --no-manual
@@ -68,7 +55,6 @@ R-devel:
     key: devel-cache
     paths:
       - $R_LIBS_USER
-      - $CI_PROJECT_DIR/.apt
 
 coverage:
   stage: test
