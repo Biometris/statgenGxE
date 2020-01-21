@@ -136,5 +136,9 @@ plot.varComp <- function(x,
 report.varComp <- function(x,
                            ...,
                            outfile = NULL) {
+  ## Checks.
+  if (nchar(Sys.which("pdflatex")) == 0) {
+    stop("An installation of LaTeX is required to create a pdf report.\n")
+  }
   createReport(x = x, reportName = "varCompReport.Rnw", outfile = outfile, ...)
 }

@@ -272,6 +272,10 @@ report.FW <- function(x,
                       sortBy = c("sens", "genMean", "mse"),
                       ...,
                       outfile = NULL) {
+  ## Checks.
+  if (nchar(Sys.which("pdflatex")) == 0) {
+    stop("An installation of LaTeX is required to create a pdf report.\n")
+  }
   sortBy <- match.arg(arg = sortBy)
   createReport(x = x, reportName = "FWReport.Rnw", outfile = outfile, ...,
                sortBy = sortBy)

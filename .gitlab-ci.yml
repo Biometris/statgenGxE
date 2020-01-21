@@ -12,6 +12,9 @@ before_script:
   - mkdir -p $R_LIBS_USER
   ## Add R_LIBS_USER to libpaths.
   - echo '.libPaths("'${R_LIBS_USER}'")' > .Rprofile
+  ## Set NOT_CRAN to true to enable test under skip_on_cran.
+  - echo 'Sys.setenv(NOT_CRAN="true")' >> .Rprofile
+  - echo 'tinytex:::tweak_path()' >> .Rprofile
 
 R-release:
   stage: build
@@ -70,10 +73,6 @@ coverage:
   only:
     - develop
     - master
-  before_script:
-    ## Add R_LIBS_USER to libpaths.
-    - echo '.libPaths("'${R_LIBS_USER}'")' > .Rprofile
-    - echo 'Sys.setenv(NOT_CRAN="true")' >> .Rprofile
   script:
     - Rscript -e 'covr::package_coverage()'
   coverage: '/Coverage:\s*(\d+.\d+\%)/'

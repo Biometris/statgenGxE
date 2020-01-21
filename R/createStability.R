@@ -160,6 +160,10 @@ plot.stability <- function(x,
 report.stability <- function(x,
                              ...,
                              outfile = NULL) {
+  ## Checks.
+  if (nchar(Sys.which("pdflatex")) == 0) {
+    stop("An installation of LaTeX is required to create a pdf report.\n")
+  }
   createReport(x = x, reportName = "stabilityReport.Rnw",
                outfile = outfile, ...)
 }

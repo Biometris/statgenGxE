@@ -71,4 +71,5 @@ Imports: emmeans,
 Suggests: asreml(>= 3.0),
     rmarkdown,
     testthat
+SystemRequirements: pdflatex    
 VignetteBuilder: knitr
