@@ -4,15 +4,14 @@
 \name{statgenGxE-package}
 \alias{statgenGxE}
 \alias{statgenGxE-package}
-\title{statgenGxE: Genotype by Environment Analysis (GxE)}
+\title{statgenGxE: Genotype-by-Environment (GxE) Analysis}
 \description{
-The statgen packages, developed by Biometris, have been developed 
-    to streamline the analysis of typical plant breeding experiments, including
-    both phenotypic analysis of field trials and genotype-by-environment 
-    analysis. statgenGxE can be used for genotype by environment analysis.
+Genotype-by-environment (GxE) analysis of field trials. One of a
+    series of statistical genetic packages for streamlining the analysis of 
+    typical plant breeding experiments developed by Biometris.
     Some functions have been created to be used in conjunction with the R 
     package 'asreml' for the 'ASReml' software, which can be obtained upon 
-    purchase from 'VSN' international (<http://www.vsni.co.uk/software/asreml>).
+    purchase from 'VSN' international (<http://www.vsni.co.uk/software/asreml-r>).
 }
 \author{
 \strong{Maintainer}: Bart-Jan van Rossum \email{bart-jan.vanrossum@wur.nl}
