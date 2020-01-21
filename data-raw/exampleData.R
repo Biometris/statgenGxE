@@ -10,8 +10,7 @@ TDMaize <- createTD(data = F2Maize, genotype = "genotype.", trial = "env.")
 usethis::use_data(TDMaize, overwrite = TRUE)
 
 ## Create a dataset for unit testing.
-RNGversion("3.5.3")
-set.seed(123)
+set.seed(1)
 testData <- data.frame(seed = rep(x = paste0("G", rep(x = 1:15, times = 2)),
                                   times = 3),
                        family = rep(x = paste0("F", rep(x = 1:3, each = 5)),
@@ -21,13 +20,13 @@ testData <- data.frame(seed = rep(x = paste0("G", rep(x = 1:15, times = 2)),
                        rep = rep(x = c(1, 2), each = 15),
                        checkId = sample.int(n = 2, size = 90, replace = TRUE),
                        X = rep(x = rep(x = 1:3, each = 10), times = 3),
-                       Y = as.numeric(replicate(n = 9, expr = sample.int(n = 10))),
+                       Y = as.numeric(replicate(n = 9,
+                                                expr = sample.int(n = 10))),
                        block = rep(x = 1:5, times = 18),
                        t1 = rnorm(n = 90, mean = 80, sd = 25),
                        t2 = rnorm(n = 90, mean = 3, sd = 0.5),
                        t3 = rnorm(n = 90, mean = 60, sd = 10),
-                       t4 = rnorm(n = 90, mean = 80, sd = 25)
-)
+                       t4 = rnorm(n = 90, mean = 80, sd = 25))
 ## Add some random NAs to traits t3 and t4.
 testData[sample.int(n = 90, size = 15), "t3"] <- NA
 testData[sample.int(n = 90, size = 15), "t4"] <- NA
@@ -55,5 +54,5 @@ modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
 BLUEsYear <- STAtoTD(modelSpYear, what = "BLUEs", keep = "year")
 
 ## Export all internal data in one go to package.
-usethis::use_data(testTD, testTDYear, BLUEs, BLUEsYear,
-                  overwrite = TRUE, internal = TRUE)
+usethis::use_data(testTD, testTDYear, BLUEs, BLUEsYear, overwrite = TRUE,
+                  internal = TRUE)

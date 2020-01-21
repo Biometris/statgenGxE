@@ -26,19 +26,9 @@ test_that("output is of the right class for lme4", {
   expect_is(geVCLm$engine, "character")
 })
 
-test_that("varComp models are fitted correctly", {
-  skip_on_cran()
-  expect_warning(gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml"),
-                 "No convergence for outside")
-  expect_warning(capture_output(gxeVarComp(TD = BLUEsYear, trait = "t1",
-                                           engine = "asreml")),
-                 "Asreml gave the following error for outside")
-})
-
 test_that("output is of the right class for asreml", {
   skip_on_cran()
-  expect_warning(geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1",
-                                      engine = "asreml"))
+  geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   expect_is(geVCAs, "varComp")
   expect_is(geVCAs$STA, "STA")
   expect_is(geVCAs$choice, "character")
@@ -50,54 +40,56 @@ test_that("output is of the right class for asreml", {
 
 test_that("asreml model gives correct output", {
   skip_on_cran()
-  expect_warning(geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1",
-                                      engine = "asreml"))
+  geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   summAs <- geVCAs$summary
   expect_equal(geVCAs$choice, "identity")
   expect_equal(rownames(summAs),
-               c("identity", "cs", "diagonal", "hcs", "unstructured", "outside",
+               c("identity", "cs", "diagonal", "hcs", "outside", "unstructured",
                  "fa", "fa2"))
   expect_equivalent(summAs[, "AIC"],
-                    c(316.133524782187, 317.509091360399, 319.974782019118,
-                      321.400028597069, 324.919296781454, Inf, NA, NA))
+                    c(302.538128471826, 302.958375388098, 306.507199541997,
+                      306.866481338154, 308.538032578925, 308.417501699175,
+                      NA, NA))
   expect_equivalent(summAs[, "BIC"],
-                    c(317.534722163849, 320.311486123591, 324.178374126547,
-                      327.00481737066, 333.326473596634, Inf, NA, NA))
+                    c(303.939325853488, 305.760770151422, 310.710791686983,
+                      312.471270864803, 314.142822105573, 316.824685989148,
+                      NA, NA))
   expect_equivalent(summAs[, "Deviance"],
-                    c(314.133524782187, 313.509091360267, 313.974781981561,
-                      313.400027844011, 312.919289306661, Inf, NA, NA))
-  expect_equivalent(summAs[, "NParameters"], c(1, 2, 3, 4, 6, 4, NA, NA))
-  expect_equivalent(geVCAs$vcov, c(35.7978300824404, 0, 0, 0, 35.7978300824404,
-                                   0, 0, 0, 35.7978300824404))
+                    c(300.538128471826, 298.958375388098, 300.507199541997,
+                      298.866481338154, 300.538032578925, 296.417501699175,
+                      NA, NA))
+  expect_equivalent(summAs[, "NParameters"], c(1, 2, 3, 4, 4, 6, NA, NA))
+  expect_equivalent(geVCAs$vcov, c(25.8985599609355, 0, 0, 0, 25.8985599609355,
+                                   0, 0, 0, 25.8985599609355))
 })
 
 test_that("lme4 model gives correct output", {
   summLm <- geVCLm$summary
   expect_equal(geVCLm$choice, "cs")
   expect_equal(rownames(summLm), "cs")
-  expect_equivalent(summLm[, "AIC"], 394.699928149459)
-  expect_equivalent(summLm[, "BIC"], 398.313253129)
-  expect_equivalent(summLm[, "Deviance"], 390.699928149459)
+  expect_equivalent(summLm[, "AIC"], 380.14921134723)
+  expect_equivalent(summLm[, "BIC"], 383.762536326771)
+  expect_equivalent(summLm[, "Deviance"], 376.14921134723)
   expect_equivalent(summLm[, "NParameters"], 2)
   ## This test works fine in RStudio but gives an error when testing on CRAN.
   ## Therefore added a lower tolerance
   expect_equivalent(geVCLm$vcov,
-                    c(35.7978169002067, 4.5102010045834, 4.5102010045834,
-                      4.5102010045834, 35.7978169002067, 4.5102010045834,
-                      4.5102010045834, 4.5102010045834, 35.7978169002067),
-                    tolerance = 1e-6)
+                    c(25.8985599502474, 5.25233386534017, 5.25233386534018,
+                      5.25233386534017, 25.8985599502474, 5.25233386534018,
+                      5.25233386534018, 5.25233386534018, 25.8985599502474))
+  #,
+  #                  tolerance = 1e-6)
 })
 
 test_that("option criterion works properly", {
   skip_on_cran()
-  expect_warning(geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1",
-                                      engine = "asreml"))
-  expect_warning(geVCAsA <- gxeVarComp(TD = BLUEs, trait = "t1",
-                                       engine = "asreml",criterion = "AIC"))
-  expect_identical(geVCAs$summary[, "BIC"],
-                   geVCAs$summary[, "BIC"][order(geVCAs$summary[, "BIC"])])
-  expect_identical(geVCAsA$summary[, "AIC"],
-                   geVCAsA$summary[, "AIC"][order(geVCAsA$summary[, "AIC"])])
+  geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
+  geVCAsA <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml",
+                        criterion = "AIC")
+  expect_equal(geVCAs$summary[, "BIC"],
+               geVCAs$summary[, "BIC"][order(geVCAs$summary[, "BIC"])])
+  expect_equal(geVCAsA$summary[, "AIC"],
+               geVCAsA$summary[, "AIC"][order(geVCAsA$summary[, "AIC"])])
 })
 
 test_that("models for fa and fa2 are fitted when #trials >= 5", {

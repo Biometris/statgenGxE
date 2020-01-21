@@ -18,16 +18,16 @@ test_that("mega environments are computed correctly", {
   expect_is(geMegaEnv, "TD")
   expect_equal(dim(geMegaEnvTot), c(45, 4))
   expect_equal(as.numeric(geMegaEnvTot[["megaEnv"]]),
-               rep(x = c(3, 2, 1), each = 15))
-  expect_equal(levels(geMegaEnvTot[["megaEnv"]]), c("1", "2", "3"))
+               rep(x = c(2, 1, 1), each = 15))
+  expect_equal(levels(geMegaEnvTot[["megaEnv"]]), c("1", "2"))
 })
 
 summ <- attr(x = geMegaEnv, which = "sumTab")
 test_that("summary is computed correctly", {
   expect_is(summ, "data.frame")
-  expect_equal(as.character(summ[["Winning genotype"]]), c("G14", "G4", "G5"))
+  expect_equal(as.character(summ[["Winning genotype"]]), c("G2", "G2", "G9"))
   expect_equal(summ[["AMMI estimates"]],
-               c(137.826424971715, 109.450972152511, 127.386419996042))
+               c(111.48629093387, 119.206304548313, 126.941193543844))
 })
 
 geMegaEnvMin <- gxeMegaEnv(TD = BLUEs, trait = "t1", method = "min",
@@ -35,13 +35,13 @@ geMegaEnvMin <- gxeMegaEnv(TD = BLUEs, trait = "t1", method = "min",
 geMegaEnvMinTot <- Reduce(f = rbind, x = geMegaEnvMin)
 test_that("option method functions properly", {
   expect_equal(as.numeric(geMegaEnvMinTot[["megaEnv"]]),
-               rep(x = c(3, 2, 1), each = 15))
+               rep(x = c(3, 1, 2), each = 15))
   expect_equal(levels(geMegaEnvMinTot[["megaEnv"]]), c("1", "2", "3"))
   expect_equal(as.character(attr(x = geMegaEnvMin,
                                  which = "sumTab")[["Winning genotype"]]),
-               c("G12", "G15", "G6"))
+               c("G10", "G6", "G7"))
   expect_equal(attr(x = geMegaEnvMin, which = "sumTab")[["AMMI estimates"]],
-               c(55.0432001091191, 40.7120064386264, 35.3752613055704))
+               c(46.7063274979725, 53.6811189560119, 49.8026925088618))
 })
 
 test_that("existing megaEnv in TD is overwritten", {
@@ -64,14 +64,11 @@ test_that("general checks in gxeTable function properly", {
                "year has to be a column in TD")
 })
 
-## Manipulate geMegaEnv to get proper output.
-geMegaEnvNw <- geMegaEnv
-geMegaEnvNw[["E3"]][["megaEnv"]] <- 2
 test_that("gxeTable functions correctly", {
   ## More random effects than observations, so empty data.frame returned.
-  expect_warning(gxeTable(TD = geMegaEnv, trait = "t1"),
+  expect_warning(gxeTable(TD = geMegaEnvMin, trait = "t1"),
                  "Empty data.frame returned")
-  expect_warning(geTabLm <- gxeTable(TD = geMegaEnvNw, trait = "t1"),
+  expect_warning(geTabLm <- gxeTable(TD = geMegaEnv, trait = "t1"),
                  "mega environments that are based on less than 10 trials")
   expect_is(geTabLm, "list")
   expect_length(geTabLm, 2)
@@ -79,23 +76,23 @@ test_that("gxeTable functions correctly", {
   expect_is(geTabLm$predictedValue, "data.frame")
   expect_is(geTabLm$standardError, "data.frame")
   expect_equivalent(geTabLm$predictedValue[1, ],
-                    c(80.0426463992245, 80.4692101166694))
+                    c(79.2416561439773, 79.4864396648177))
   ## This test works fine in RStudio but gives an error when testing on CRAN.
   ## Therefore added a lower tolerance
   expect_equivalent(geTabLm$standardError[1, ],
-                    c(5.93814290627681, 9.51137000477223), tolerance = 1e-7)
+                    c(6.83020114988906, 6.38884520952826), tolerance = 1e-7)
   skip_on_cran()
-  expect_warning(geTabAs <- gxeTable(TD = geMegaEnvNw, trait = "t1",
+  expect_warning(geTabAs <- gxeTable(TD = geMegaEnv, trait = "t1",
                                      engine = "asreml"),
                  "mega environments that are based on less than 10 trials")
   expect_equivalent(geTabAs$predictedValue[1, ],
-                    c(80.0424619340827, 80.4703103942952))
+                    c(79.2091290087036, 79.4263169941458))
   expect_equivalent(geTabAs$standardError[1, ],
-                    c(6.58334962888207, 9.77290639163001))
+                    c(7.20520150684489, 6.96252065379726))
 })
 
 ## Modify data so it contains a year variable.
-geMegaEnvNw2 <- c(geMegaEnvNw, geMegaEnvNw)
+geMegaEnvNw2 <- c(geMegaEnv, geMegaEnv)
 names(geMegaEnvNw2) <- paste0("E", 1:6)
 class(geMegaEnvNw2) <- "TD"
 geMegaEnvNw2[["E1"]]$year <- geMegaEnvNw2[["E2"]]$year <-
@@ -108,9 +105,9 @@ test_that("option year in gxeTable functions properly", {
                                    useYear = TRUE),
                  "mega environments that are based on less than 10 trials")
   expect_equivalent(geTab$predictedValue[1, ],
-                    c(85.7139211061344, 76.5897665641836))
+                    c(75.7340703018517, 72.8306094617738))
   expect_equivalent(geTab$standardError[1, ],
-                    c(6.72132965673734, 9.57033282833413))
+                    c(5.69945316015176, 7.83060677272676))
 })
 
 test_that("option year in gxeTable functions properly for asreml", {
@@ -119,7 +116,7 @@ test_that("option year in gxeTable functions properly for asreml", {
                                    useYear = TRUE, engine = "asreml"),
                  "mega environments that are based on less than 10 trials")
   expect_equivalent(geTab$predictedValue[1, ],
-                    c(86.5858674442788, 77.4617649806083))
+                    c(76.634397082771, 73.7311917123637))
   expect_equivalent(geTab$standardError[1, ],
-                    c(6.98377813814263, 10.2119509172305))
+                    c(5.87848501191572, 8.30017045501152))
 })
