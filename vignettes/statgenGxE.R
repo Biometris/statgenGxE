@@ -13,33 +13,42 @@ options(width = 90)
 data(dropsPheno)
 
 ## ----createTD---------------------------------------------------------------------------
-## Create a TD object from dropsPheno
+## Create a TD object from dropsPheno.
 dropsTD <- createTD(data = dropsPheno, genotype = "Variety_ID", trial = "Experiment")
 
 ## ----TDbox------------------------------------------------------------------------------
-## Create a box plot of dropsTD
+## Create a box plot of dropsTD.
 ## Color the boxes based on the variable scenarioFull.
 ## Plot in  descending order.
 plot(dropsTD, plotType = "box", traits = "grain.yield", colorBy = "scenarioFull", 
      orderBy = "descending")
+
+## ----TDscatter, fig.dim = c(7, 7)-------------------------------------------------------
+## Create a scatter plot of dropsTD.
+## Color the genotypes based on the variable genetic_group.
+plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorBy = "genetic_group")
 
 ## ----geFW-------------------------------------------------------------------------------
 ## Perform a Finlay-Wilkinson analysis for all trials.
 dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")
 summary(dropsFW)
 
-## ----plotFWScatter, fig.width=5, fig.height=5, fig.show="hold"--------------------------
+## ----plotFWScatter, fig.width=5, fig.height=4-------------------------------------------
 ## Create scatter plot for Finlay Wilkinson analysis.
 plot(dropsFW, plotType = "scatter")
 
-## ----plotFWLine, fig.width=5, fig.height=5, fig.show="hold"-----------------------------
+## ----plotFWLine, fig.width=5, fig.height=4----------------------------------------------
 ## Create line plot for Finlay Wilkinson analysis.
 plot(dropsFW, plotType = "line")
 
-## ----plotFWTrellis, fig.width=5, fig.height=5, fig.show="hold"--------------------------
+## ----plotFWTrellis, fig.width=5, fig.height=4-------------------------------------------
 ## Create trellis plot for Finlay Wilkinson analysis.
 ## Restrict to first 5 genotypes.
 plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347", "A374"))
+
+## ----plotFWScatterFit, fig.width=5, fig.height=4----------------------------------------
+## Create scatter plot of fitted values for Finlay Wilkinson analysis.
+plot(dropsFW, plotType = "scatterFit")
 
 ## ----geFWRep, eval=FALSE----------------------------------------------------------------
 #  report(dropsFW, outfile = "./myReports/FWReport.pdf")
@@ -65,17 +74,17 @@ dropsAm3 <- gxeAmmi(TD = dropsTD, trait = "grain.yield", nPC = 3,
 dropsAmYear <- gxeAmmi(TD = dropsTD, trait = "grain.yield", byYear = TRUE)
 
 ## ----plotAmmi1, fig.width=5, fig.height=5, out.width="75%"------------------------------
-## Create an AMMI1 and AMMI2 biplot.
+## Create an AMMI1 biplot.
 plot(dropsAm, scale = 0.5, plotType = "AMMI1")
 
 ## ----plotAmmi2, fig.width=5, fig.height=5, out.width="75%"------------------------------
-## Create an AMMI1 and AMMI2 biplot.
+## Create an AMMI2 biplot.
 plot(dropsAm, scale = 0.5, plotType = "AMMI2")
 
 ## ----plotAmmiCol, fig.width=5, fig.height=5, out.width="75%"----------------------------
 ## Create an AMMI2 biplot.
 ## Color genotypes based on variable genetic_group. Use custom colors.
-## Color environments base on variable scenarioFull
+## Color environments based on variable scenarioFull
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", 
      colorGenoBy = "genetic_group", colGeno = c("red", "blue", "green", "yellow"),
      colorEnvBy = "scenarioFull")
@@ -101,15 +110,15 @@ plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 ## Compute mega environments.
 dropsMegaEnv <- gxeMegaEnv(TD = dropsTD, trait = "grain.yield")
 
-## ----geMegaEnvPred, R.options=list(digits=3)--------------------------------------------
-if (requireNamespace(package = "asreml", quietly = TRUE)) {
-  ## Compute BLUPs.
-  ## Use asreml as engine for fitting model.
-  geMegaEnvPred <- gxeTable(TD = dropsMegaEnv, trait = "grain.yield", engine = "asreml")
-  ## Display BLUPs and associated standard errors.
-  print(head(geMegaEnvPred$predictedValue))
-  print(head(geMegaEnvPred$standardError))
-}
+## ----geMegaEnvPred, R.options=list(digits=3), eval = FALSE------------------------------
+#  if (requireNamespace(package = "asreml", quietly = TRUE)) {
+#    ## Compute BLUPs.
+#    ## Use asreml as engine for fitting model.
+#    geMegaEnvPred <- gxeTable(TD = dropsMegaEnv, trait = "grain.yield", engine = "asreml")
+#    ## Display BLUPs and associated standard errors.
+#    print(head(geMegaEnvPred$predictedValue))
+#    print(head(geMegaEnvPred$standardError))
+#  }
 
 ## ----geStab, R.options=list(digits=3)---------------------------------------------------
 ## Compute stability measures for dropsTD.
@@ -123,11 +132,11 @@ plot(dropsStab)
 ## ----geStabRep, eval=FALSE--------------------------------------------------------------
 #  report(dropsStab, outfile = "./myReports/stabReport.pdf")
 
-## ----geStabMegaEnv, R.options=list(digits=3)--------------------------------------------
-## Compute stability measures based on mega environments computed in the 
-## previous paragraph.
-dropsStabME <- gxeStability(TD = dropsMegaEnv, trait = "grain.yield", useMegaEnv = TRUE)
-summary(dropsStabME, pctGeno = 2)
+## ----geStabMegaEnv, R.options=list(digits=3), eval = FALSE------------------------------
+#  ## Compute stability measures based on mega environments computed in the
+#  ## previous paragraph.
+#  dropsStabME <- gxeStability(TD = dropsMegaEnv, trait = "grain.yield", useMegaEnv = TRUE)
+#  summary(dropsStabME, pctGeno = 2)
 
 ## ----geVClme----------------------------------------------------------------------------
 ## Use lme4 for fitting the models - only compound symmetry.
