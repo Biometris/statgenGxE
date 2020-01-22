@@ -4,9 +4,9 @@
 \name{statgenGxE-package}
 \alias{statgenGxE}
 \alias{statgenGxE-package}
-\title{statgenGxE: Genotype-by-Environment (GxE) Analysis}
+\title{statgenGxE: Genotype by Environment (GxE) Analysis}
 \description{
-Genotype-by-environment (GxE) analysis of field trials. One of a
+Genotype by environment (GxE) analysis of field trials. One of a
     series of statistical genetic packages for streamlining the analysis of 
     typical plant breeding experiments developed by Biometris.
     Some functions have been created to be used in conjunction with the R 

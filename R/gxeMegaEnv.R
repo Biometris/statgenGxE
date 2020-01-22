@@ -6,25 +6,29 @@
 #' overwritten with a warning.\cr\
 #' Mega environments are created by grouping
 #' environments based on their best performing genotype; i.e. environments that
-#' share the same best genotype belong to the same mega environment, regardless
-#' whether environments correspond to years or locations.
+#' share the same best genotype belong to the same mega environment.
 #'
 #' @inheritParams gxeAmmi
 #'
 #' @param method A character string indicating the criterion to determine
 #' the best genotype per environment, either \code{"max"} or \code{"min"}.
-#' @param sumTab Should a summary table be printed?
 #'
-#' @return The input object of class \code{\link{TD}} with an added extra
-#' column megaEnv.
+#' @return An object of class megaEnv, a list consisting of
+#' \describe{
+#' \item{TD}{An object of class TD, the TD object used as input to the function
+#' with an extra column megaEnv.}
+#' \item{summTab}{A data.frame, a summary table containing information on the
+#' trials in each mega environment.}
+#' \item{trait}{The trait used for calculating the mega environments.}
+#' }
 #'
 #' @examples
-#' ## Calculate mega environments for TDMaize and print a summary of the results.
-#' TDmegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
+#' ## Calculate mega environments for TDMaize.
+#' gemegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
 #'
 #' ## Calculate new mega environments based on the genotypes with the lowest
 #' ## value per environment.
-#' TDmegaEnv2 <- gxeMegaEnv(TD = TDmegaEnv, trait = "yld", method = "min")
+#' gemegaEnv2 <- gxeMegaEnv(TD = TDMaize, trait = "yld", method = "min")
 #'
 #' @references Atlin, G. N., R. J. Baker, K. B. McRae, and X. Lu. 2000.
 #' Selection Response in Subdivided Target Regions. Crop Sci. 40:7-13.
@@ -35,8 +39,7 @@ gxeMegaEnv <- function(TD,
                        trials = names(TD),
                        trait,
                        method = c("max", "min"),
-                       byYear = FALSE,
-                       sumTab = TRUE) {
+                       byYear = FALSE) {
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
@@ -101,9 +104,5 @@ gxeMegaEnv <- function(TD,
                         "AMMI estimates" = as.numeric(winGenoVal),
                         check.names = FALSE)
   summTab <- summTab[order(megaFactor), ]
-  attr(TDOut, "sumTab") <- summTab
-  if (sumTab) {
-    print(summTab, row.names = FALSE)
-  }
-  return(TDOut)
+  return(createMegaEnv(TD = TDOut, summTab = summTab, trait = trait))
 }

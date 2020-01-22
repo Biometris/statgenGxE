@@ -52,7 +52,4 @@ Function for creating objects of S3 class AMMI.\cr
 \seealso{
 \code{\link{plot.AMMI}}, \code{\link{report.AMMI}}
 }
-\author{
-Bart-Jan van Rossum
-}
 \keyword{internal}

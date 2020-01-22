@@ -10,8 +10,6 @@
 #' @param wricke A data.frame containing values for Wricke's ecovalence.
 #' @param trait A character string indicating the trait that has been analyzed.
 #'
-#' @author Bart-Jan van Rossum
-#'
 #' @seealso \code{\link{plot.stability}}, \code{\link{report.stability}}
 #'
 #' @name stability

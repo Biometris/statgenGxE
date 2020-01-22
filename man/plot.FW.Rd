@@ -7,7 +7,7 @@
 \method{plot}{FW}(
   x,
   ...,
-  plotType = c("scatter", "line", "trellis"),
+  plotType = c("scatter", "line", "trellis", "scatterFit"),
   order = c("ascending", "descending"),
   genotypes = NULL,
   output = TRUE
@@ -39,21 +39,28 @@ If more than 64 genotypes are selected, only the first 64 are plotted.}
 A plot depending on \code{plotType}.
 }
 \description{
-Three types of plot can be made. A scatter plot for genotypic mean,
+Four types of plot can be made. A scatter plot for genotypic mean,
 mean squared deviation and sensitivity, a line plot with fitted lines for
-each genotype and a trellis plot with individual slopes per genotype
-(for max 64 genotypes). It is possible to select genotypes for the trellis
-plot using the \code{genotypes} parameter. If there are more than 64
-genotypes, only the first 64 are plotted in the trellis plot.
+each genotype, a trellis plot with individual slopes per genotype and a
+scatter plot of fitted values in the worst and best trial.\cr
+It is possible to select genotypes for the trellis plot using the
+\code{genotypes} parameter. If there are more than 64 genotypes, only the
+first 64 are plotted in the trellis plot.
 }
 \examples{
 ## Run Finlay-Wilkinson analysis.
 geFW <- gxeFw(TD = TDMaize, trait = "yld")
+
 ## Create a scatter plot.
 plot(geFW)
+
 ## Create a line plot.
 plot(geFW, plotType = "line")
-## Create a line plot.
+
+## Create a trellis plot.
 plot(geFW, plotType = "trellis")
+
+## Create a scatter plot of fitted values for the worst and best trials.
+plot(geFW, plotType = "scatterFit")
 
 }

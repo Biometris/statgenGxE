@@ -9,8 +9,7 @@ gxeMegaEnv(
   trials = names(TD),
   trait,
   method = c("max", "min"),
-  byYear = FALSE,
-  sumTab = TRUE
+  byYear = FALSE
 )
 }
 \arguments{
@@ -27,12 +26,16 @@ the best genotype per environment, either \code{"max"} or \code{"min"}.}
 \item{byYear}{Should the analysis be done by year? If \code{TRUE} the data
 is split by the variable year, analysis is performed and the results are
 merged together and returned.}
-
-\item{sumTab}{Should a summary table be printed?}
 }
 \value{
-The input object of class \code{\link{TD}} with an added extra
-column megaEnv.
+An object of class megaEnv, a list consisting of
+\describe{
+\item{TD}{An object of class TD, the TD object used as input to the function
+with an extra column megaEnv.}
+\item{summTab}{A data.frame, a summary table containing information on the
+trials in each mega environment.}
+\item{trait}{The trait used for calculating the mega environments.}
+}
 }
 \description{
 This function fits an AMMI model and then using the fitted values produces
@@ -41,16 +44,15 @@ to the input data. If a column megaEnv already exists this column is
 overwritten with a warning.\cr\
 Mega environments are created by grouping
 environments based on their best performing genotype; i.e. environments that
-share the same best genotype belong to the same mega environment, regardless
-whether environments correspond to years or locations.
+share the same best genotype belong to the same mega environment.
 }
 \examples{
-## Calculate mega environments for TDMaize and print a summary of the results.
-TDmegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
+## Calculate mega environments for TDMaize.
+gemegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
 
 ## Calculate new mega environments based on the genotypes with the lowest
 ## value per environment.
-TDmegaEnv2 <- gxeMegaEnv(TD = TDmegaEnv, trait = "yld", method = "min")
+gemegaEnv2 <- gxeMegaEnv(TD = TDMaize, trait = "yld", method = "min")
 
 }
 \references{

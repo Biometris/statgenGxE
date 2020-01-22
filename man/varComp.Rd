@@ -29,7 +29,4 @@ Function for creating objects of S3 class varComp.\cr
 \seealso{
 \code{\link{plot.varComp}}, \code{\link{report.varComp}}
 }
-\author{
-Bart-Jan van Rossum
-}
 \keyword{internal}

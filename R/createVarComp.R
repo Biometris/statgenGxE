@@ -12,8 +12,6 @@
 #' used for determinening the best model.
 #' @param engine A character string containing the engine used for the analysis.
 #'
-#' @author Bart-Jan van Rossum
-#'
 #' @seealso \code{\link{plot.varComp}}, \code{\link{report.varComp}}
 #'
 #' @name varComp

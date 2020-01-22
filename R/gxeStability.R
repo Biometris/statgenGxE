@@ -54,7 +54,7 @@
 #'                        bestMethod = "min", sorted = "ascending")
 #' summary(geStab2)
 #'
-#' @importFrom  methods getFunction
+#' @importFrom methods getFunction
 #' @export
 gxeStability <- function(TD,
                          trials = names(TD),
@@ -108,11 +108,11 @@ gxeStability <- function(TD,
                           FUN = mean, na.rm = TRUE))
   ## Compute the grand mean.
   E <- mean(TDTot[, trait], na.rm = TRUE)
-  ## Create empty vectors for storing output
+  ## Create empty vectors for storing output.
   LB <- S <- W <- rep(NA, nGeno)
   for (i in seq_along(lab)) {
-    ## Observed genotype field response in the trial j
-    ## (averaged across experiment replicates)
+    ## Observed genotype field response in the trial j.
+    ## (averaged across experiment replicates).
     Rij <- sapply(X = trials, FUN = function(x) {
       mean(TDTot[TDTot[["genotype"]] == lab[i] & TDTot[[trCol]] == x, trait],
            na.rm = TRUE)

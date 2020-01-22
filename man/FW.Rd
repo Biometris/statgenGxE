@@ -52,7 +52,4 @@ Function for creating objects of S3 class FW (Finlay-Wilkinson).\cr
 \seealso{
 \code{\link{plot.FW}}, \code{\link{report.FW}}
 }
-\author{
-Bart-Jan van Rossum
-}
 \keyword{internal}

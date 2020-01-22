@@ -25,7 +25,4 @@ Function for creating objects of S3 class stability.\cr
 \seealso{
 \code{\link{plot.stability}}, \code{\link{report.stability}}
 }
-\author{
-Bart-Jan van Rossum
-}
 \keyword{internal}

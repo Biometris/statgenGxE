@@ -20,8 +20,6 @@
 #' @param iter A numerical value containing the number of iterations for the
 #' analysis to converge.
 #'
-#' @author Bart-Jan van Rossum
-#'
 #' @seealso \code{\link{plot.FW}}, \code{\link{report.FW}}
 #'
 #' @name FW
@@ -58,19 +56,21 @@ createFW <- function(estimates,
 #' @export
 print.FW <- function(x, ...) {
   cat("Environmental effects",
-      "\n===================\n")
+      "\n=====================\n")
   print(x$envEffs)
   cat("\nAnova",
       "\n=====\n")
   print(x$anova)
   if (all(x$estimates[["rank"]] == 1:nrow(x$estimates))) {
     cat("\nMost sensitive genotypes")
+    cat("\n========================\n")
   } else if (all(x$estimates[["rank"]] == nrow(x$estimates):1)) {
     cat("\nLeast sensitive genotypes")
+    cat("\n=========================\n")
   } else {
     cat("\nFirst five genotypes")
+    cat("\n====================\n")
   }
-  cat("\n=========\n")
   print(head(x$estimates, 5),  ..., row.names = FALSE)
 }
 
@@ -81,12 +81,13 @@ summary.FW <- function(object, ...) {
 
 #' Plot function for class FW
 #'
-#' Three types of plot can be made. A scatter plot for genotypic mean,
+#' Four types of plot can be made. A scatter plot for genotypic mean,
 #' mean squared deviation and sensitivity, a line plot with fitted lines for
-#' each genotype and a trellis plot with individual slopes per genotype
-#' (for max 64 genotypes). It is possible to select genotypes for the trellis
-#' plot using the \code{genotypes} parameter. If there are more than 64
-#' genotypes, only the first 64 are plotted in the trellis plot.
+#' each genotype, a trellis plot with individual slopes per genotype and a
+#' scatter plot of fitted values in the worst and best trial.\cr
+#' It is possible to select genotypes for the trellis plot using the
+#' \code{genotypes} parameter. If there are more than 64 genotypes, only the
+#' first 64 are plotted in the trellis plot.
 #'
 #' @param x An object of class FW.
 #' @param ... Further graphical parameters passed on to actual plot function.
@@ -109,28 +110,34 @@ summary.FW <- function(object, ...) {
 #' @examples
 #' ## Run Finlay-Wilkinson analysis.
 #' geFW <- gxeFw(TD = TDMaize, trait = "yld")
+#'
 #' ## Create a scatter plot.
 #' plot(geFW)
+#'
 #' ## Create a line plot.
 #' plot(geFW, plotType = "line")
-#' ## Create a line plot.
+#'
+#' ## Create a trellis plot.
 #' plot(geFW, plotType = "trellis")
+#'
+#' ## Create a scatter plot of fitted values for the worst and best trials.
+#' plot(geFW, plotType = "scatterFit")
 #'
 #' @export
 plot.FW <- function(x,
                     ...,
-                    plotType = c("scatter", "line", "trellis"),
+                    plotType = c("scatter", "line", "trellis", "scatterFit"),
                     order = c("ascending", "descending"),
                     genotypes = NULL,
                     output = TRUE) {
-  plotType <- match.arg(plotType, several.ok = TRUE)
+  plotType <- match.arg(plotType)
   order <- match.arg(order)
   dotArgs <- list(...)
   envEffs <- x$envEffs[c("trial", "envEff")]
   TDTot <- Reduce(f = rbind, x = x$TD)
   plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
                       paste0("Finlay & Wilkinson analysis for ", x$trait))
-  if ("scatter" %in% plotType) {
+  if (plotType == "scatter") {
     selCols = c(1:2, if (!all(is.na(x$estimates$MSdeviation))) 3, 4)
     scatterDat <- setNames(x$estimates[, c("genotype", "genMean",
                                            "MSdeviation", "sens")[selCols]],
@@ -175,7 +182,7 @@ plot.FW <- function(x,
     }
     invisible(list(p1 = p1, p2 = p2, p3 = p3))
     ## Set arguments for plot.
-  } else if ("line" %in% plotType) {
+  } else if (plotType == "line") {
     fVal <- tapply(X = x$fittedGeno, INDEX = TDTot[, c("trial", "genotype")],
                    FUN = mean, na.rm = TRUE)
     if (order == "descending") {
@@ -206,13 +213,13 @@ plot.FW <- function(x,
       plot(p)
     }
     invisible(p)
-  } else if ("trellis" %in% plotType) {
+  } else if (plotType == "trellis") {
     if (!is.null(genotypes) && !all(genotypes %in% TDTot[["genotype"]])) {
       stop("All genotypes should be in TD.\n")
     }
     trellisDat <- data.frame(genotype = TDTot[["genotype"]],
                              trait = TDTot[[x$trait]],
-                             fitted = x$fittedGen,
+                             fitted = x$fittedGeno,
                              xEff = rep(x = envEffs$envEff, each = x$nGeno))
     if (!is.null(genotypes)) {
       trellisDat <- trellisDat[trellisDat[["genotype"]] %in% genotypes, ]
@@ -238,6 +245,27 @@ plot.FW <- function(x,
             plot.title = element_text(hjust = 0.5),
             panel.spacing = unit(.2, "cm"),
             axis.text = element_text(size = 6))
+    if (output) {
+      plot(p)
+    }
+    invisible(p)
+  } else if (plotType == "scatterFit") {
+    ## Get worst and best trials.
+    trialMin <- as.character(envEffs[which.min(envEffs[["envEff"]]), "trial"])
+    trialMax <- as.character(envEffs[which.max(envEffs[["envEff"]]), "trial"])
+    ## Construct plot data, fitted values for worst and best trials.
+    plotDat <- data.frame(trial = TDTot[["trial"]], fitted = x$fittedGeno)
+    plotDat <- data.frame(genotype = TDTot[["genotype"]],
+                          trMin = plotDat[plotDat[["trial"]] == trialMin, "fitted"],
+                          trMax = plotDat[plotDat[["trial"]] == trialMax, "fitted"])
+    ## Create scatter plot of fitted values.
+    p <- ggplot(data = plotDat,
+                aes_string(x = "trMin", y = "trMax")) +
+      geom_point() +
+      labs(x = paste("Fitted values for worst trial:", trialMin),
+           y = paste("Fitted values for best trial:", trialMax)) +
+      ggtitle(plotTitle) +
+      theme(plot.title = element_text(hjust = 0.5))
     if (output) {
       plot(p)
     }
@@ -280,5 +308,3 @@ report.FW <- function(x,
   createReport(x = x, reportName = "FWReport.Rnw", outfile = outfile, ...,
                sortBy = sortBy)
 }
-
-

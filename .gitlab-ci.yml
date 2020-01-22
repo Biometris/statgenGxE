@@ -14,13 +14,13 @@ before_script:
   - echo '.libPaths("'${R_LIBS_USER}'")' > .Rprofile
   ## Set NOT_CRAN to true to enable test under skip_on_cran.
   - echo 'Sys.setenv(NOT_CRAN="true")' >> .Rprofile
+  ## Make sure pdflatex is on the system path.
   - echo 'tinytex:::tweak_path()' >> .Rprofile
 
 R-release:
   stage: build
   allow_failure: false
   script:
-    - Rscript -e 'sessionInfo()'
     # install missing and outdated packages
     - Rscript -e 'source(".gitlab-ci.R"); pkgsUpdate()'
     # build package
@@ -42,7 +42,6 @@ R-devel:
   image: docker-registry.wur.nl/rossu027/r-develasreml:latest
   allow_failure: true
   script:
-    - Rscriptdevel -e 'sessionInfo()'
     ## Install missing and outdated packages.
     - Rscriptdevel -e 'source(".gitlab-ci.R"); pkgsUpdate()'
     ## Build package.

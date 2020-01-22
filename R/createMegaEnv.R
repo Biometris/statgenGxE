@@ -1,3 +1,45 @@
+#' S3 class megaEnv
+#'
+#' Function for creating objects of S3 class megaEnv.\cr
+#' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
+#' \code{\link{report}} methods are available.
+#'
+#' @param TD A data.frame containing values for the
+#' cultivar-superiority measure of Lin and Binns.
+#' @param summTab A data.frame containing values for Shukla's stability variance.
+#' @param trait A character string indicating the trait that has been analyzed.
+#'
+#' @seealso \code{\link{predict.megaEnv}}
+#'
+#' @name megaEnv
+NULL
+
+#' @rdname megaEnv
+#' @keywords internal
+createMegaEnv <- function(TD,
+                          summTab,
+                          trait) {
+  megaEnv <- structure(list(TD = TD,
+                            summTab = summTab,
+                            trait = trait),
+                       class = "megaEnv")
+  attr(megaEnv, which = "timestamp") <- Sys.time()
+  return(megaEnv)
+}
+
+#' @export
+print.megaEnv <- function(x,
+                          ...) {
+  cat("Mega environments based on", x$trait, "\n\n")
+  print(x$summTab, row.names = FALSE)
+}
+
+#' @export
+summary.megaEnv <- function(object,
+                            ...) {
+  print(object, ...)
+}
+
 #' Compute BLUPS based on a set of mega environments
 #'
 #' This function calculates Best Lineair Unbiased Predictors (BLUPS) and
@@ -5,6 +47,7 @@
 #'
 #' @inheritParams gxeAmmi
 #'
+#' @param object An object of class megaEnv.
 #' @param useYear Should year be used for modeling (as years within
 #' trials). If \code{TRUE}, \code{TD} should contain a column "year".
 #' @param engine A character string specifying the engine used for modeling.
@@ -17,28 +60,22 @@
 #'
 #' @examples
 #' ## Compute mega environments for TDMaize.
-#' TDMegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld", sumTab = FALSE)
+#' geMegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
 #'
 #' ## Compute BLUPS and standard errors for those mega environments.
-#' geTab <- gxeTable(TD = TDMegaEnv, trait = "yld")
+#' megaEnvPred <- predict(geMegaEnv)
 #'
 #' @export
-gxeTable <- function(TD,
-                     trials = names(TD),
-                     trait,
-                     useYear = FALSE,
-                     engine = c("lme4", "asreml"),
-                     ...) {
+predict.megaEnv <- function(object,
+                            ...,
+                            trials = names(object$TD),
+                            useYear = FALSE,
+                            engine = c("lme4", "asreml")) {
   ## Checks.
-  if (missing(TD) || !inherits(TD, "TD")) {
-    stop("TD should be a valid object of class TD.\n")
-  }
+  TD <- object$TD
+  trait <- object$trait
   trials <- chkTrials(trials, TD)
   TDTot <- Reduce(f = rbind, x = TD[trials])
-  chkCol(trait, TDTot)
-  chkCol("trial", TDTot)
-  chkCol("genotype", TDTot)
-  chkCol("megaEnv", TDTot)
   if (useYear) {
     chkCol("year", TDTot)
   }
@@ -86,17 +123,16 @@ gxeTable <- function(TD,
         ## If megaEnv consists of numerical values megaEnv will be a numerical
         ## column in pVal instead of the expected factor. This causes a
         ## shift in column order. Therefore set it back to factor.
-        pVal$megaEnv <- factor(pVal[["megaEnv"]],
-                               levels = levels(TDTot[["megaEnv"]]))
+        pVal[["megaEnv"]] <- factor(pVal[["megaEnv"]],
+                                    levels = levels(TDTot[["megaEnv"]]))
         ## Reshape to a data.frame with genotypes in rows and megaEnv in cols.
         predVals <-
           as.data.frame(tapply(X = pVal[["predicted.value"]],
                                INDEX = pVal[, c("genotype", "megaEnv")],
                                FUN = I))
-        se <-
-          as.data.frame(tapply(X = pVal[[if (asreml4()) "std.error" else
-            "standard.error"]], INDEX = pVal[, c("genotype", "megaEnv")],
-            FUN = identity))
+        se <- as.data.frame(tapply(X = pVal[[if (asreml4()) "std.error" else
+          "standard.error"]], INDEX = pVal[, c("genotype", "megaEnv")],
+          FUN = I))
       }
     } else {
       stop("Failed to load asreml.\n")

@@ -17,7 +17,6 @@
 #' @param GGE Has a GGE analysis been performed?
 #' @param byYear Has the analysis been performed by year?
 #'
-#' @author Bart-Jan van Rossum
 #' @seealso \code{\link{plot.AMMI}}, \code{\link{report.AMMI}}
 #'
 #' @name AMMI
