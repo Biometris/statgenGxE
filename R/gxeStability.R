@@ -167,7 +167,7 @@ gxeStability <- function(TD,
     WOut <- setNames(data.frame(lab, W, Ei, row.names = 1:nGeno)[orderW, ],
                      c("genotype", "wricke", "mean"))
   }
-  res <- createstability(superiority = if ("superiority" %in% method) LBOut,
+  res <- createStability(superiority = if ("superiority" %in% method) LBOut,
                          static = if ("static" %in% method) SOut,
                          wricke = if ("wricke" %in% method) WOut,
                          trait = trait)

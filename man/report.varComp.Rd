@@ -4,7 +4,7 @@
 \alias{report.varComp}
 \title{Report method for class varComp}
 \usage{
-report.varComp(x, ..., outfile = NULL)
+\method{report}{varComp}(x, ..., outfile = NULL)
 }
 \arguments{
 \item{x}{An object of class varComp.}

@@ -4,7 +4,7 @@
 \alias{report.FW}
 \title{Report method for class FW}
 \usage{
-report.FW(x, sortBy = c("sens", "genMean", "mse"), ..., outfile = NULL)
+\method{report}{FW}(x, sortBy = c("sens", "genMean", "mse"), ..., outfile = NULL)
 }
 \arguments{
 \item{x}{An object of class FW.}

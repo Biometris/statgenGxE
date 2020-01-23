@@ -17,7 +17,7 @@ NULL
 
 #' @rdname stability
 #' @keywords internal
-createstability <- function(superiority = NULL,
+createStability <- function(superiority = NULL,
                             static = NULL,
                             wricke = NULL,
                             trait) {

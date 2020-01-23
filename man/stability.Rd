@@ -2,10 +2,10 @@
 % Please edit documentation in R/createStability.R
 \name{stability}
 \alias{stability}
-\alias{createstability}
+\alias{createStability}
 \title{S3 class stability}
 \usage{
-createstability(superiority = NULL, static = NULL, wricke = NULL, trait)
+createStability(superiority = NULL, static = NULL, wricke = NULL, trait)
 }
 \arguments{
 \item{superiority}{A data.frame containing values for the
