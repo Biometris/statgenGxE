@@ -2,6 +2,7 @@
 
 S3method(plot,AMMI)
 S3method(plot,FW)
+S3method(plot,megaEnv)
 S3method(plot,stability)
 S3method(plot,varComp)
 S3method(predict,megaEnv)

@@ -40,6 +40,30 @@ summary.megaEnv <- function(object,
   print(object, ...)
 }
 
+#' Plot function for class megaEnv
+#'
+#' Function for creating scatter plots of predicted values in computed mega
+#' environments.
+#'
+#' @param x An object of class megaEnv.
+#' @param ... Further arguments to be passed on to underlying plot functions.
+#' @param output Should the plot be output to the current device? If
+#' \code{FALSE} only a ggplot object is invisibly returned.
+#'
+#' @export
+plot.megaEnv <- function(x,
+                         ...,
+                         output = TRUE) {
+  pred <- predict(x)$predictedValue
+  predLong <- reshape(pred, direction = "long",
+                      varying = list(megaEnv = colnames(pred)),
+                      ids = rownames(pred), idvar = "genotype",
+                      timevar = "megaEnv", v.names = "pred")
+  predTD <- createTD(predLong, genotype = "genotype", trial = "megaEnv")
+  plot(predTD, plotType = "scatter", traits = "pred",
+       title = paste("Scatterplots of mega environments for", x$trait))
+}
+
 #' Compute BLUPS based on a set of mega environments
 #'
 #' This function calculates Best Lineair Unbiased Predictors (BLUPS) and
