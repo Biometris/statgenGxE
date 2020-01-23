@@ -233,11 +233,11 @@ gxeAmmiHelp <- function(TD,
     }
     datTot[[year]] <- TDYear
     ## Add combinations of trial and genotype currently not in TD to TD.
-    TDYear <- reshape2::melt(data = reshape2::dcast(data = TDYear,
-                                                    formula = trial ~ genotype,
-                                                    value.var = trait),
-                             id.vars = "trial", variable.name = "genotype",
-                             value.name = trait)
+    ## Reshape adds missing combinations to its output.
+    ## Reshaping to wide and then back to long retains those missings.
+    TDYear <- reshape(reshape(TDYear[c("trial", "genotype", trait)],
+                              direction = "wide", timevar = "genotype",
+                              idvar = "trial", v.names = trait))
     ## Impute missing values.
     if (any(is.na(TDYear[[trait]]))) {
       ## Transform data to genotype x trial matrix.
@@ -342,8 +342,14 @@ gxeAmmiHelp <- function(TD,
     genoMeanTot[[year]] <- genoMean
     ovMeanTot[[year]] <- overallMean
   } # End loop over years.
-  fitTot <- reshape2::melt(fitTot, id.vars = "genotype",
-                           variable.name = "trial", value.name = "fittedValue")
+  if (ncol(fitTot) > 1) {
+    fitTot <- reshape(fitTot, direction = "long",
+                      varying = list(genotype = colnames(fitTot)[-1]),
+                      ids = fitTot[["genotype"]], idvar = "genotype",
+                      times = colnames(fitTot)[-1], timevar = "trial",
+                      v.names = "fittedValue")
+    rownames(fitTot) <- NULL
+  }
   if (!byYear) {
     loadTot <- loadTot[[1]]
     scoreTot <- scoreTot[[1]]

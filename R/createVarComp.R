@@ -74,21 +74,25 @@ plot.varComp <- function(x,
   PC1 <- princomp(corMat)$loadings[, 1]
   orderPC1 <- order(PC1)
   corMat <- corMat[orderPC1, orderPC1]
-  ## Melt correlation matrix to get proper shape for ggplot.
-  meltedCorMat <- reshape2::melt(corMat)
-  ## If trial names consist of only numbers melt converts them to numeric.
+  ## Convert corMat to data.frame to prevent crash when reshaping.
+  corMat <- as.data.frame(corMat)
+  ## Convert correlation matrix to long format for ggplot.
+  meltedCorMat <- reshape(corMat, direction = "long",
+                          varying = list(genotype = colnames(corMat)),
+                          ids = rownames(corMat), idvar = "trial1",
+                          times = colnames(corMat), timevar = "trial2",
+                          v.names = "cor")
+  ## Reshape converts trial columns to character.
   ## This gives problems with plotting, so reconvert them to factor.
-  if (is.numeric(meltedCorMat[["Var1"]])) {
-    meltedCorMat[["Var1"]] <- factor(meltedCorMat[["Var1"]],
+  meltedCorMat[["trial1"]] <- factor(meltedCorMat[["trial1"]],
                                      levels = rownames(corMat))
-    meltedCorMat[["Var2"]] <- factor(meltedCorMat[["Var2"]],
+  meltedCorMat[["trial2"]] <- factor(meltedCorMat[["trial2"]],
                                      levels = rownames(corMat))
-  }
-  ## Select bottom triangle for correlations and top for variances.
-  meltedCorMatLow <- meltedCorMat[as.numeric(meltedCorMat$Var1) >
-                                    as.numeric(meltedCorMat$Var2), ]
+  ## Select bottom right triangle for correlations and top for variances.
+  meltedCorMatLow <- meltedCorMat[as.numeric(meltedCorMat[["trial1"]]) >
+                                    as.numeric(meltedCorMat[["trial2"]]), ]
   p <- ggplot(data = meltedCorMatLow,
-              aes_string("Var1", "Var2", fill = "value")) +
+              aes_string("trial1", "trial2", fill = "cor")) +
     geom_tile(color = "white") +
     scale_y_discrete(position = "right") +
     ## Create a gradient scale.

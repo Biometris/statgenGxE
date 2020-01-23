@@ -58,16 +58,16 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
 Depends: R (>= 3.3)
-Imports: emmeans,
+Imports: 
+    emmeans,
     ggplot2 (>= 3.0),
+    gridExtra,
     knitr,
     lme4,
     methods,
-    reshape2,
-    xtable,
-    gridExtra,
     scales,
-    statgenSTA
+    statgenSTA,
+    xtable
 Suggests: asreml(>= 3.0),
     rmarkdown,
     testthat

@@ -190,11 +190,17 @@ plot.FW <- function(x,
     } else {
       xTrans <- "identity"
     }
-    lineDat <- reshape2::melt(fVal)
-    lineDat <- merge(x = lineDat, y = envEffs)
+    ## Convert to data.frame to prevent crash in reshape.
+    fVal <- as.data.frame(fVal)
+    lineDat <- reshape(fVal, direction = "long",
+                       varying = list(genotype = colnames(fVal)),
+                       ids = rownames(fVal), idvar = "trial",
+                       times = colnames(fVal), timevar = "genotype",
+                       v.names = "fitVal")
+    lineDat <- merge(x = envEffs, y = lineDat)
     lineDat <- remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
-    aesArgs <- list(x = "envEff", y = "value", color = "genotype")
+    aesArgs <- list(x = "envEff", y = "fitVal", color = "genotype")
     fixedArgs <- c("x", "y", "color", "title")
     ## Add and overwrite args with custom args from ...
     aesArgs <- utils::modifyList(aesArgs,
