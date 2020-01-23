@@ -40,9 +40,11 @@ The following types of analysis can be done using statgenGxE:
 * [Computation of stability measures](#st)
 * [Mixed model analysis of two-way GxE tables](#vc)
 
+For most of the analyses a pdf report can be created automatically, see [Reporting](#rep).
+
 ---
 
-## Data preparation
+# Data preparation
 
 The use of the package is demonstrated using maize data from the European Union project DROPS. The data is available from https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN [@Millet2019] and the relevant data set is included as data.frame in the statgenGxE package.
 
@@ -79,7 +81,9 @@ For further insight a scatter plot of the trials against each other can be made.
 plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorBy = "genetic_group")
 ```
 
-## Finlay-Wilkinson Analysis {#fw}
+---
+
+# Finlay-Wilkinson Analysis {#fw}
 
 With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank genotypes based on phenotypic stability for each individual trait.
 
@@ -120,13 +124,9 @@ plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347",
 plot(dropsFW, plotType = "scatterFit")
 ```
 
-  
-A pdf report can be made as well containing a summary of the analysis.
-```{r geFWRep, eval=FALSE}
-report(dropsFW, outfile = "./myReports/FWReport.pdf")
-```
+---
 
-## AMMI Analysis {#am}
+# AMMI Analysis {#am}
 
 The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with the Multiplicative Interaction effects. Then a principal component analysis is done on the residuals (multiplicative interaction). This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials.  
 
@@ -191,12 +191,9 @@ plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy =
 
 Genotypes can be left out of the plot completely by setting `plotGeno = FALSE` and similarly `plotEnv = FALSE` assures no environments are plotted. For displaying genotypes by their names instead of points, use `sizeGeno` with a size larger than zero to indicate their text size. `envFactor` can be used to blow up the environmental scores in the plot. A value for `envFactor` between zero and one effectively blows up the genotypic scores. See `help(plot.AMMI)` for full details on all plotting options.
 
-For the AMMI analysis a pdf report can be made using the `report` function.
-```{r geAMMIRep, eval=FALSE}
-report(dropsAm, outfile = "./myReports/AMMIReport.pdf")
-```
+---
 
-## GGE Analysis {#gge}
+# GGE Analysis {#gge}
 
 A Genotype plus Genotype by Environment analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. Therefore, the principal component analysis is performed on the genotype main effect and the interaction jointly. 
 
@@ -218,31 +215,36 @@ Options for plotting results of a GGE analysis are identical to those for an AMM
 plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 ```
 
+---
 
-## Computation of mega environments {#me}
+# Computation of mega environments {#me}
 
 For the computation of mega environments, an AMMI model is fitted and then, using the fitted values from this model, the environments are clustered.
 Mega environments are created by grouping environments based on their best performing genotype. Environments that share the same best genotype belong to the same mega environment.  
 ```{r geMegaEnv, R.options=list(digits=3)}
 ## Compute mega environments.
 dropsMegaEnv <- gxeMegaEnv(TD = dropsTD, trait = "grain.yield")
+## Summarize results.
+summary(dropsMegaEnv)
 ```
-As can be seen in the column Mega factor in the output, four mega environments have been created, one for each of the winning genotypes "Lo1087", "Lo1251", "Lo1270" and "PHG35".
+As can be seen in the column Mega factor in the summary, four mega environments have been created, one for each of the winning genotypes "Lo1087", "Lo1251", "Lo1270" and "PHG35".
 
-The values for the Best Linear Unbiased Predictors (BLUPs) and associated standard errors for the genotypes based on the calculated mega environments, can be computed using the function `gxeTable`. This can be done using either lme4 [@Bates2015] or asreml [@Gilmour2017] as an engine for fitting the model.
+The values for the Best Linear Unbiased Predictors (BLUPs) and associated standard errors for the genotypes based on the calculated mega environments, can be computed using the function `predict` on the output. This can be done using either lme4 [@Bates2015] or asreml [@Gilmour2017] as an engine for fitting the model.
 
-```{r geMegaEnvPred, R.options=list(digits=3), eval = FALSE}
+```{r geMegaEnvPred, R.options=list(digits=3)}
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Compute BLUPs.
   ## Use asreml as engine for fitting model.
-  geMegaEnvPred <- gxeTable(TD = dropsMegaEnv, trait = "grain.yield", engine = "asreml")
+  geMegaEnvPred <- predict(dropsMegaEnv, engine = "asreml")
   ## Display BLUPs and associated standard errors.
   print(head(geMegaEnvPred$predictedValue))
   print(head(geMegaEnvPred$standardError))
 }
 ```
 
-## Computation of stability measures {#st}
+---
+
+# Computation of stability measures {#st}
 
 Different measures of stability can be calculated using the statgenGxE package, the cultivar-superiority measure of Lin & Binns [@Lin1988], Shukla's stability variance [@Shukla1972] and Wricke's ecovalence [@Wricke1962].
 
@@ -265,11 +267,6 @@ Plotting the results yields a scatter plot for each stability measure, plotted a
 plot(dropsStab)
 ```
 
-For the computation of stability measures a summary report can be made.
-```{r geStabRep, eval=FALSE}
-report(dropsStab, outfile = "./myReports/stabReport.pdf")
-```
-
 It is possible to calculate the stability measures based on mega environments instead of regular environments. To do so the parameter `useMegaEnv` has to be set to `TRUE`.
 ```{r geStabMegaEnv, R.options=list(digits=3), eval = FALSE}
 ## Compute stability measures based on mega environments computed in the 
@@ -278,9 +275,11 @@ dropsStabME <- gxeStability(TD = dropsMegaEnv, trait = "grain.yield", useMegaEnv
 summary(dropsStabME, pctGeno = 2)
 ```
 
-## Mixed model analysis of two-way GxE tables{#vc}
+---
 
-The function `gxeVarComp` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequencially to the genotype by environment data. The best fitting model is then identified.    
+# Mixed model analysis of two-way GxE tables{#vc}
+
+The function `gxeVarComp` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequentially to the genotype by environment data. The best fitting model is then identified.    
 The models fitted are of the form $y_{ij} = \mu_{i} + \epsilon_{ij}$, where the variance of $\epsilon_{ij}$ is modeled in the following ways:
 
 * identity
@@ -321,10 +320,32 @@ if (requireNamespace("asreml", quietly = TRUE)) {
 }
 ```
   
-In the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue color a strong negative correlation. Environments are clustered by their correlations and ordered according to the results of the clustering.
+In the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue color a strong negative correlation. Environments are clustered by their correlations and ordered according to the results of the clustering. 
 
-A pdf report containing the most important results of the analysis can be made using the `report` function.
-```{r geVCRep, eval=FALSE}
+---
+
+# Reporting{#rep}
+
+For most of the analyses described in this vignette a pdf report can be made using the `report` function. Such a report typically consists of an overview of the analysis and parameters used and the most interesting results and plots for the analysis. Except for this pdf report also the .tex file used to generate this report and a folder containing the figures in the report, are generated. This makes it possible to easily adapt the report to ones needs.
+
+*Note that all reports are created using pdflatex. If no installation is found by `Sys.which("pdflatex")` the report function will generate an error.*
+
+For the analysis done in the vignette the reports below can be made. Specify a file with .pdf extension as `outfile` to set the location where the report is written. 
+
+```{r reports, eval=FALSE}
+## Create a report for the Finlay Wilkinson analysis.
+report(dropsFW, outfile = "./myReports/FWReport.pdf")
+
+## Create a report for the AMMI analysis.
+report(dropsAm, outfile = "./myReports/AMMIReport.pdf")
+
+## Create a report for the GGE analysis.
+report(dropsGGE, outfile = "./myReports/GGEReport.pdf")
+
+## Create a report for the stability analysis.
+report(dropsStab, outfile = "./myReports/stabReport.pdf")
+
+## Create a report for the analysis of two-way GxE tables.
 report(dropsVC2, outfile = "./myReports/varCompReport.pdf")
 ```
 

@@ -50,9 +50,6 @@ plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347",
 ## Create scatter plot of fitted values for Finlay Wilkinson analysis.
 plot(dropsFW, plotType = "scatterFit")
 
-## ----geFWRep, eval=FALSE----------------------------------------------------------------
-#  report(dropsFW, outfile = "./myReports/FWReport.pdf")
-
 ## ----geAmmi-----------------------------------------------------------------------------
 ## Run gxeAmmi with default settings.
 dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield")
@@ -94,9 +91,6 @@ plot(dropsAm, scale = 0.4, plotType = "AMMI2",
 ## Create an AMMI2 biplot with convex hull around the genotypes.
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy = "scenarioFull")
 
-## ----geAMMIRep, eval=FALSE--------------------------------------------------------------
-#  report(dropsAm, outfile = "./myReports/AMMIReport.pdf")
-
 ## ----geGGE------------------------------------------------------------------------------
 ## Run gxeAmmi with default settings.
 dropsGGE <- gxeGGE(TD = dropsTD, trait = "grain.yield")
@@ -109,16 +103,18 @@ plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 ## ----geMegaEnv, R.options=list(digits=3)------------------------------------------------
 ## Compute mega environments.
 dropsMegaEnv <- gxeMegaEnv(TD = dropsTD, trait = "grain.yield")
+## Summarize results.
+summary(dropsMegaEnv)
 
-## ----geMegaEnvPred, R.options=list(digits=3), eval = FALSE------------------------------
-#  if (requireNamespace(package = "asreml", quietly = TRUE)) {
-#    ## Compute BLUPs.
-#    ## Use asreml as engine for fitting model.
-#    geMegaEnvPred <- gxeTable(TD = dropsMegaEnv, trait = "grain.yield", engine = "asreml")
-#    ## Display BLUPs and associated standard errors.
-#    print(head(geMegaEnvPred$predictedValue))
-#    print(head(geMegaEnvPred$standardError))
-#  }
+## ----geMegaEnvPred, R.options=list(digits=3)--------------------------------------------
+if (requireNamespace(package = "asreml", quietly = TRUE)) {
+  ## Compute BLUPs.
+  ## Use asreml as engine for fitting model.
+  geMegaEnvPred <- predict(dropsMegaEnv, engine = "asreml")
+  ## Display BLUPs and associated standard errors.
+  print(head(geMegaEnvPred$predictedValue))
+  print(head(geMegaEnvPred$standardError))
+}
 
 ## ----geStab, R.options=list(digits=3)---------------------------------------------------
 ## Compute stability measures for dropsTD.
@@ -128,9 +124,6 @@ summary(dropsStab, pctGeno = 2)
 
 ## ----plotStab---------------------------------------------------------------------------
 plot(dropsStab)
-
-## ----geStabRep, eval=FALSE--------------------------------------------------------------
-#  report(dropsStab, outfile = "./myReports/stabReport.pdf")
 
 ## ----geStabMegaEnv, R.options=list(digits=3), eval = FALSE------------------------------
 #  ## Compute stability measures based on mega environments computed in the
@@ -157,6 +150,19 @@ if (requireNamespace("asreml", quietly = TRUE)) {
   plot(dropsVC2)
 }
 
-## ----geVCRep, eval=FALSE----------------------------------------------------------------
+## ----reports, eval=FALSE----------------------------------------------------------------
+#  ## Create a report for the Finlay Wilkinson analysis.
+#  report(dropsFW, outfile = "./myReports/FWReport.pdf")
+#  
+#  ## Create a report for the AMMI analysis.
+#  report(dropsAm, outfile = "./myReports/AMMIReport.pdf")
+#  
+#  ## Create a report for the GGE analysis.
+#  report(dropsGGE, outfile = "./myReports/GGEReport.pdf")
+#  
+#  ## Create a report for the stability analysis.
+#  report(dropsStab, outfile = "./myReports/stabReport.pdf")
+#  
+#  ## Create a report for the analysis of two-way GxE tables.
 #  report(dropsVC2, outfile = "./myReports/varCompReport.pdf")
 
