@@ -14,7 +14,7 @@ data(dropsPheno)
 
 ## ----createTD---------------------------------------------------------------------------
 ## Create a TD object from dropsPheno.
-dropsTD <- createTD(data = dropsPheno, genotype = "Variety_ID", trial = "Experiment")
+dropsTD <- statgenSTA::createTD(data = dropsPheno, genotype = "Variety_ID", trial = "Experiment")
 
 ## ----TDbox------------------------------------------------------------------------------
 ## Create a box plot of dropsTD.
@@ -114,6 +114,12 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Display BLUPs and associated standard errors.
   print(head(geMegaEnvPred$predictedValue))
   print(head(geMegaEnvPred$standardError))
+}
+
+## ----scatterMegaEnv---------------------------------------------------------------------
+if (requireNamespace(package = "asreml", quietly = TRUE)) {
+  ## Create a scatter plot of predictions in mega environments.
+  plot(dropsMegaEnv, engine = "asreml")
 }
 
 ## ----geStab, R.options=list(digits=3)---------------------------------------------------

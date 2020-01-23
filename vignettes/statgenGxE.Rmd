@@ -44,7 +44,7 @@ For most of the analyses a pdf report can be created automatically, see [Reporti
 
 ---
 
-# Data preparation
+# Data preparation {#dp}
 
 The use of the package is demonstrated using maize data from the European Union project DROPS. The data is available from https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN [@Millet2019] and the relevant data set is included as data.frame in the statgenGxE package.
 
@@ -58,7 +58,7 @@ The input for GxE analysis in the statgenGxE package is an object of class TD (T
 
 ```{r createTD}
 ## Create a TD object from dropsPheno.
-dropsTD <- createTD(data = dropsPheno, genotype = "Variety_ID", trial = "Experiment")
+dropsTD <- statgenSTA::createTD(data = dropsPheno, genotype = "Variety_ID", trial = "Experiment")
 ```
 
 Before doing any analysis, we can first have a look at the contents of the data. To do this a box plot can be made. Coloring the boxes by scenario will provide valuable extra information.
@@ -239,6 +239,15 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Display BLUPs and associated standard errors.
   print(head(geMegaEnvPred$predictedValue))
   print(head(geMegaEnvPred$standardError))
+}
+```
+
+The results of the predictions can be visualized in a scatterplot using the `plot` functions. This creates a similar plot to the one described in the [data preparation](#dp) section earlier in the vignette. However, now the predicted values for the genotypes in the different mega environments are displayed. The predictions are calculated inside the plot functions. By default lme4 is used for this. To change to asreml specify `engine = asreml`.
+
+```{r scatterMegaEnv}
+if (requireNamespace(package = "asreml", quietly = TRUE)) {
+  ## Create a scatter plot of predictions in mega environments.
+  plot(dropsMegaEnv, engine = "asreml")
 }
 ```
 
