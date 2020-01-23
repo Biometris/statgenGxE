@@ -23,8 +23,7 @@ not supplied, all trials are used in the analysis.}
 \item{useYear}{Should year be used for modeling (as years within
 trials). If \code{TRUE}, \code{TD} should contain a column "year".}
 
-\item{engine}{A character string specifying the engine used for modeling.
-Either "lme4" or "asreml".}
+\item{engine}{A character string specifying the engine used for modeling.}
 }
 \value{
 A list consisting of two data.frames, \code{predictedValue}

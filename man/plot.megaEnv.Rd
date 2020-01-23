@@ -4,17 +4,32 @@
 \alias{plot.megaEnv}
 \title{Plot function for class megaEnv}
 \usage{
-\method{plot}{megaEnv}(x, ..., output = TRUE)
+\method{plot}{megaEnv}(x, ..., engine = c("lme4", "asreml"), colorBy = NULL, output = TRUE)
 }
 \arguments{
 \item{x}{An object of class megaEnv.}
 
 \item{...}{Further arguments to be passed on to underlying plot functions.}
 
+\item{engine}{A character string specifying the engine used for making the
+predictions on which the plots are based.}
+
+\item{colorBy}{A character string indicating a column in \code{TD} by which
+the genotypes in the scatter plots are colored. If \code{NULL} all genotypes
+are displayed in black.}
+
 \item{output}{Should the plot be output to the current device? If
-\code{FALSE} only a ggplot object is invisibly returned.}
+\code{FALSE} only a ggtable object is invisibly returned.}
 }
 \description{
 Function for creating scatter plots of predicted values in computed mega
 environments.
+}
+\examples{
+## Compute mega environments for TDMaize.
+geMegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
+
+## Create a scatter plot of predicted values.
+plot(geMegaEnv)
+
 }

@@ -47,20 +47,42 @@ summary.megaEnv <- function(object,
 #'
 #' @param x An object of class megaEnv.
 #' @param ... Further arguments to be passed on to underlying plot functions.
+#' @param engine A character string specifying the engine used for making the
+#' predictions on which the plots are based.
+#' @param colorBy A character string indicating a column in \code{TD} by which
+#' the genotypes in the scatter plots are colored. If \code{NULL} all genotypes
+#' are displayed in black.
 #' @param output Should the plot be output to the current device? If
-#' \code{FALSE} only a ggplot object is invisibly returned.
+#' \code{FALSE} only a ggtable object is invisibly returned.
+#'
+#' @examples
+#' ## Compute mega environments for TDMaize.
+#' geMegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
+#'
+#' ## Create a scatter plot of predicted values.
+#' plot(geMegaEnv)
 #'
 #' @export
 plot.megaEnv <- function(x,
                          ...,
+                         engine = c("lme4", "asreml"),
+                         colorBy = NULL,
                          output = TRUE) {
-  pred <- predict(x)$predictedValue
+  engine <- match.arg(engine)
+  if (!is.null(colorBy)) {
+    TDTot <- Reduce(f = rbind, x = x$TD)
+    chkCol(column = colorBy, obj = TDTot)
+  }
+  pred <- predict(x, engine = engine)$predictedValue
   predLong <- reshape(pred, direction = "long",
                       varying = list(megaEnv = colnames(pred)),
                       ids = rownames(pred), idvar = "genotype",
                       timevar = "megaEnv", v.names = "pred")
+  if (!is.null(colorBy)) {
+    predLong <- merge(predLong, TDTot[c("genotype", colorBy)])
+  }
   predTD <- createTD(predLong, genotype = "genotype", trial = "megaEnv")
-  plot(predTD, plotType = "scatter", traits = "pred",
+  plot(predTD, plotType = "scatter", traits = "pred", colorBy = colorBy,
        title = paste("Scatterplots of mega environments for", x$trait))
 }
 
@@ -75,7 +97,6 @@ plot.megaEnv <- function(x,
 #' @param useYear Should year be used for modeling (as years within
 #' trials). If \code{TRUE}, \code{TD} should contain a column "year".
 #' @param engine A character string specifying the engine used for modeling.
-#' Either "lme4" or "asreml".
 #' @param ... Further parameters passed to either \code{asreml} or \code{lmer}.
 #'
 #' @return A list consisting of two data.frames, \code{predictedValue}
