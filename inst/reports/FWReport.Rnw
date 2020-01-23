@@ -119,14 +119,14 @@ print(xtable::xtable(x = estimates[1:10, ],
                      caption = paste("Top 10 genotypes by", sortName),
                      label = "topEstimates",
                      align = c("l", "l", "r", "r", "r", "r", "r", "r"),
-                     digits = c(0, 0, 0, 2, 2, 2, 2, 2)),
+                     digits = c(0, 0, 2, 2, 2, 2, 2, 2)),
       caption.placement = "top", latex.environments = "flushleft",
       include.rownames = FALSE, include.colnames = TRUE)
 print(xtable::xtable(x = estimates[(nrow(estimates) - 10):nrow(estimates), ],
                      caption = paste("Bottom 10 genotypes by", sortName),
                      label = "bottomEstimates",
                      align = c("l", "l", "r", "r", "r", "r", "r", "r"),
-                     digits = c(0, 0, 0, 2, 2, 2, 2, 2)),
+                     digits = c(0, 0, 2, 2, 2, 2, 2, 2)),
       caption.placement = "top", latex.environments = "flushleft",
       include.rownames = FALSE, include.colnames = TRUE)
 @
