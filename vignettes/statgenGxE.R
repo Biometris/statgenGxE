@@ -51,8 +51,9 @@ plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347",
 plot(dropsFW, plotType = "scatterFit")
 
 ## ----geAmmi-----------------------------------------------------------------------------
-## Run gxeAmmi with default settings.
-dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield")
+## Run gxeAmmi for grain.yield.
+## Scale the residuals before running the principal component analysis.
+dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield", scale = TRUE)
 summary(dropsAm)
 
 ## ----geAmmi2----------------------------------------------------------------------------
@@ -72,7 +73,7 @@ dropsAmYear <- gxeAmmi(TD = dropsTD, trait = "grain.yield", byYear = TRUE)
 
 ## ----plotAmmi1, fig.width=5, fig.height=5, out.width="75%"------------------------------
 ## Create an AMMI1 biplot.
-plot(dropsAm, scale = 0.5, plotType = "AMMI1")
+plot(dropsAm, plotType = "AMMI1")
 
 ## ----plotAmmi2, fig.width=5, fig.height=5, out.width="75%"------------------------------
 ## Create an AMMI2 biplot.
@@ -119,7 +120,8 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
 ## ----scatterMegaEnv---------------------------------------------------------------------
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Create a scatter plot of predictions in mega environments.
-  plot(dropsMegaEnv, engine = "asreml")
+  ## Color genotypes based on genetic_group.
+  plot(dropsMegaEnv, engine = "asreml", colorBy = "genetic_group")
 }
 
 ## ----geStab, R.options=list(digits=3)---------------------------------------------------

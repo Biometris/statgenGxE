@@ -87,8 +87,7 @@ plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorBy = "genetic_g
 
 With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank genotypes based on phenotypic stability for each individual trait.
 
-The model fitted in the analysis is 
-$y_{ijk} = \mu + g_i + \Sigma_k\delta_{ik}\gamma_{jk} + \epsilon_{ijk}; \epsilon_{ijk} \sim N(0, \sigma^2_\epsilon)$.
+The model fitted in the analysis is $y_{ij} = \mu + G_i + \beta_iE_j + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic mean, $\beta_i$ the sensitivity parameters, $E_j$ the environment effects and $\epsilon_{ij}$ the error.
 
 In the statgenGxE package this analysis can be done using the `gxeFW` function. By default all trials in the `TD` object are used in the analysis, but this can be restricted using the parameter `trials`. The genotypes included in the analysis can be restricted using `genotypes`.
 ```{r geFW}
@@ -130,13 +129,13 @@ plot(dropsFW, plotType = "scatterFit")
 
 The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with the Multiplicative Interaction effects. Then a principal component analysis is done on the residuals (multiplicative interaction). This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials.  
 
-The model fitted in the AMMI analysis is 
-$y_{ijk} = \mu + g_i + e_j + \Sigma_k\delta_{ik}\gamma_{jk} + \epsilon_{ijk}; \epsilon_{ijk} \sim N(0, \sigma^2_\epsilon)$.
+The model fitted in the analysis is $y_{ij} = \mu + G_i + E_j + \delta_i\gamma_j + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic mean, $E_j$ the environmental mean, $\delta_i$ the environmental scores, $\gamma_j$ the genotypic scores and $\epsilon_{ij}$ the error.
 
-The AMMI analysis can be performed with the statgenGxE package using the function `gxeAmmi`. 
+The AMMI analysis can be performed with the statgenGxE package using the function `gxeAmmi`. By default the residuals are not scaled when performing the principal component analysis. Scaling them can be done by setting `scale = TRUE` when calling `gxeAmmi`.
 ```{r geAmmi}
-## Run gxeAmmi with default settings.
-dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield")
+## Run gxeAmmi for grain.yield.
+## Scale the residuals before running the principal component analysis.
+dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield", scale = TRUE)
 summary(dropsAm)
 ```
 With the default settings in the principal components analysis a maximum of two principal components are used. This can be changed using the parameter `nPC` in the function. The number of principal components can never be larger than the number of environments and the number of genotypes in the data -1. By specifying `nPC = NULL` the algorithm will determine the number of principal components by a method of forward selection.
@@ -161,18 +160,21 @@ If the data contains a column year, it is possible to fit a separate AMMI model 
 dropsAmYear <- gxeAmmi(TD = dropsTD, trait = "grain.yield", byYear = TRUE)
 ```
 
-The results of an AMMI analysis can be displayed in a biplot. Two types of biplot are available. "AMMI1" plots the first principal component against the main effects. "AMMI2" plots the second against the first principal component.
+The results of an AMMI analysis can be displayed in a biplot. Two types of biplot are available. "AMMI1" plots the first principal component against the main effects. "AMMI2" plots the second against the first principal component. 
 ```{r plotAmmi1, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI1 biplot.
-plot(dropsAm, scale = 0.5, plotType = "AMMI1")
+plot(dropsAm, plotType = "AMMI1")
 ```
+
+In AMMI2 biplots the parameter `scale`, a value between 0 and 1, can be used for changing the ratio between environmental scores and genotypic scores. A scale value of 0 stands for genotype scaling, i.e. all weight on the genotypic scores and the environments contracted towards the center. A scale value of 1 stands for environment scaling, i.e. all weight on the environment scores and the genotypes contracted towards the center. Symmetric scaling, using a scale value of 0.5, applies equal weights to environment and genotypic scores.  
+
 ```{r plotAmmi2, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI2 biplot.
 plot(dropsAm, scale = 0.5, plotType = "AMMI2")
 ```
-
-The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axes specifying `primAxis` and `secAxis`.  
-Genotypes can be grouped and colored by a variable in the data using `colorGenoBy`. Specify custom colors in `colGeno`. Similarly for coloring environments use `colorEnvBy` and `colEnv`.
+the axes specifying `primAxis` and `secAxis`.  
+Genotypes can be grouped and colored by a variable in the data using `colorGenoBy`. Specify custom colors i
+The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on n `colGeno`. Similarly for coloring environments use `colorEnvBy` and `colEnv`.
 ```{r plotAmmiCol, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI2 biplot.
 ## Color genotypes based on variable genetic_group. Use custom colors.
@@ -197,8 +199,7 @@ Genotypes can be left out of the plot completely by setting `plotGeno = FALSE` a
 
 A Genotype plus Genotype by Environment analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. Therefore, the principal component analysis is performed on the genotype main effect and the interaction jointly. 
 
-The model fitted in the GGE analysis is 
-$y_{ijk} = \mu + e_j + \Sigma_k\delta_{ik}\gamma_{jk} + \epsilon_{ijk}; \epsilon_{ijk} \sim N(0, \sigma^2_\epsilon)$.
+The model fitted in the GGE analysis is $y_{ij} = \mu + E_j + \delta_i\gamma_j + \epsilon_{ij}$, where the parameters are as described in the AMMI analysis.
 
 The GGE analysis is done in statgenGxE by running the function `gxeGGE` which has identical options as the `gxeAmmi` function.
 
@@ -242,12 +243,13 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
 }
 ```
 
-The results of the predictions can be visualized in a scatterplot using the `plot` functions. This creates a similar plot to the one described in the [data preparation](#dp) section earlier in the vignette. However, now the predicted values for the genotypes in the different mega environments are displayed. The predictions are calculated inside the plot functions. By default lme4 is used for this. To change to asreml specify `engine = asreml`.
+The results of the predictions can be visualized in a scatterplot using the `plot` functions. This creates a similar plot to the one described in the [data preparation](#dp) section earlier in the vignette. However, now the predicted values for the genotypes in the different mega environments are displayed. The predictions are calculated inside the plot functions. By default lme4 is used for this. To change to asreml specify `engine = asreml`. Genotypes can be colored by the value of a variable in the TD object used for calculating the mega environments by specifying `colorBy`.
 
 ```{r scatterMegaEnv}
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Create a scatter plot of predictions in mega environments.
-  plot(dropsMegaEnv, engine = "asreml")
+  ## Color genotypes based on genetic_group.
+  plot(dropsMegaEnv, engine = "asreml", colorBy = "genetic_group")
 }
 ```
 
@@ -289,16 +291,21 @@ summary(dropsStabME, pctGeno = 2)
 # Mixed model analysis of two-way GxE tables{#vc}
 
 The function `gxeVarComp` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequentially to the genotype by environment data. The best fitting model is then identified.    
-The models fitted are of the form $y_{ij} = \mu_{i} + \epsilon_{ij}$, where the variance of $\epsilon_{ij}$ is modeled in the following ways:
+The models fitted are of the form $y_{ij} = \mu_i + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu_i$ is the genotypic mean and $\epsilon_{ij}$ the residual genetic variation. This residual genetic variation is modeled in eight ways as described in the table below (see [@Boer2007]).
 
-* identity
-* compound symmetry (cs)
-* diagonal
-* heterogeneous compound symmetry (hcs)
-* simple correlation with heterogeneous variance (outside)
-* first order factor analytic (fa)
-* second order factor analytic (fa2)
-* unstructured
+|model | description | var($g_{ij}$) | cov($g_{ij}$;$g_{ik}$) | number of parameters|
+|:-----------|:-------------------|:------------|:------------|:-----------------|
+| identity | identity | $\sigma_G^2$ | 0 | 1 |
+| cs | compound symmetry | $\sigma_G^2 + \sigma_{GE}^2$ | $\sigma_{GE}^2$ | 2 |
+| diagonal | diagonal matrix (heteroscedastic) | $\sigma_{GE_j}^2$ | 0 | $J$ |
+| hcs | heterogeneous compound symmetry | $\sigma_G^2+\sigma_{GE_j}^2$ | $\sigma_G^2$ | $J+1$ |
+| outside | heterogeneity outside | $\sigma_{G_j}^2$ | $\theta$ | $J+1$ |
+| fa | first order factor analytic | $\lambda_{1j}^2+\sigma_{GE_j}^2$ | $\lambda_{1j}\lambda_{1k}$ | $2J$ |
+| fa2 | second order factor analytic | $\lambda_{1j}^2+\lambda_{2j}^2+\sigma_{GE_j}^2$ | $\lambda_{1j}\lambda_{1k}+\lambda_{2j}\lambda_{2k}$ | $3J-1$ |
+| unstructured | unstructured | $\sigma_{G_j}^2$ | $\sigma_{G_{j,k}}^2$ | $J(J+1)/2$ |
+
+In this table $J$ is the number of environments, $\sigma_G^2$ the variance component for the genotype main effects, $\sigma_{GE}^2$ the variance component for GxE interactions. $\sigma_{G_j}^2$ and $\sigma_{GE_j}^2$ are the environment specific variance components for the genotype main effects and GxE interaction in environment $j$. $\sigma_{G_{j,k}}^2$ is the genetic covariance between environments $j$ and $k$. $\theta$ is the common correlation between environments and $\lambda_{1j}$ and $\lambda_{2j}$ are environment specific multiplicative
+parameters.
 
 The best model for the data is selected based on either the Akaike Information Criterion (AIC [@Akaike1974]) or the Baysian Information Criterion (BIC [@Schwarz1978]). Which criterion is used is determined by the parameter `criterion` in the function `gxeVarComp`.  
 
