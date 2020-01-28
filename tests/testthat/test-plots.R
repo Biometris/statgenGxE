@@ -353,3 +353,26 @@ test_that("varComp plot gives correct output types when trials are numerical", {
   geVarComp <- gxeVarComp(TD = testTD, trait = "t1")
   expect_silent(p <- plot(geVarComp))
 })
+
+geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1")
+test_that("megaEnv plot gives correct output types", {
+  expect_warning(p <- plot(geMegaEnv),
+                 "One should be cautious with the interpretation")
+  expect_is(p, "list")
+  expect_length(p, 1)
+  expect_named(p, "pred")
+  expect_is(p[[1]], "gtable")
+  ## There should be 2 mega environments, so 2 x 2 panes in the plot layout.
+  layout <- p[[1]]$layout
+  expect_equal(nrow(layout[grepl(pattern  = "pane", x = layout[["name"]]), ]), 4)
+})
+
+test_that("option colorBy in megaEnv plot functions correctly", {
+  expect_warning(p0 <- plot(geMegaEnv))
+  expect_warning(p <- plot(geMegaEnv, colorBy = "family"),
+                 "One should be cautious with the interpretation")
+  ## New guide-box panel added.
+  layout0 <- p0[[1]]$layout
+  layout <- p[[1]]$layout
+  expect_equal(setdiff(layout[["name"]], layout0[["name"]]), "guide-box")
+})

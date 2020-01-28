@@ -30,7 +30,7 @@ createMegaEnv <- function(TD,
 #' @export
 print.megaEnv <- function(x,
                           ...) {
-  cat("Mega environments based on", x$trait, "\n\n")
+  cat("Mega environments based on ", x$trait, "\n\n", sep = "")
   print(x$summTab, row.names = FALSE)
 }
 

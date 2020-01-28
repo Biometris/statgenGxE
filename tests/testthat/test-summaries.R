@@ -62,3 +62,11 @@ test_that("Stability summary produces correct output", {
                     "Wricke's ecovalence (Top 10 % genotypes)") %in% sumStab))
   expect_equal(length(sumStab2), length(sumStab) + 3)
 })
+
+test_that("megaEnv summary produces correct output", {
+  geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1")
+  sumMegaEnv <- capture.output(summary(geMegaEnv))
+  expect_true("Mega environments based on t1" %in% sumMegaEnv)
+  expect_true(" Mega factor Trial Winning genotype AMMI estimates" %in% sumMegaEnv)
+})
+
