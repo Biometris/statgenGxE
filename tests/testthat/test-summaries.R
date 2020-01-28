@@ -1,12 +1,5 @@
 context("Summaries")
 
-modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
-BLUEs <- STAtoTD(modelSp, what = "BLUEs")
-
-modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
-BLUEsYear <- STAtoTD(modelSpYear, what = "BLUEs",
-                     keep = c("year", "family", "regime"))
-
 test_that("AMMI summary produces correct output", {
   geAmmi <- gxeAmmi(TD = BLUEs, trait = "t1")
   geGGE <- gxeGGE(TD = BLUEs, trait = "t1")

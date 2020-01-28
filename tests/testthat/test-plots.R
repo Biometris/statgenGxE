@@ -4,10 +4,7 @@ context("Plots")
 ## objects on which the plots are based are invisibly returned at least some
 ## checking can be done.
 
-modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
-BLUEs <- STAtoTD(modelSp, what = "BLUEs", keep = c("family", "regime"))
 geAmmi <- gxeAmmi(BLUEs, trait = "t1")
-
 test_that("general checks in ammi plot function properly", {
   expect_error(plot(geAmmi, scale = 2),
                "a single numerical value between 0 and 1")
@@ -264,9 +261,6 @@ test_that("AMMI plot plotConvHull functions properly", {
                   c("GeomPolygon", "GeomSegment"))
 })
 
-modelSp <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
-BLUEsYear <- STAtoTD(modelSp, what = "BLUEs",
-                     keep = c("year", "family", "regime"))
 geAmmiYear <- gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE)
 test_that("AMMI plot gives correct output types when byYear = TRUE", {
   ## Year specific errors.

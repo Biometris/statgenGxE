@@ -47,11 +47,14 @@ testTDYear <- createTD(data = testDataYear, genotype = "seed",
                        trial = "field", rowCoord = "Y", colCoord = "X")
 
 ## Fit models on testTD and testTDYear and extract BLUEs
-modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
-BLUEs <- STAtoTD(modelSp, what = "BLUEs")
+modelSp <- statgenSTA::fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
+BLUEs <- statgenSTA::STAtoTD(modelSp, what = "BLUEs",
+                             keep = c("family", "regime"))
 
-modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = c("t1", "t2"))
-BLUEsYear <- STAtoTD(modelSpYear, what = "BLUEs", keep = "year")
+modelSpYear <- statgenSTA::fitTD(testTDYear, design = "rowcol",
+                                 traits = c("t1", "t2"))
+BLUEsYear <- statgenSTA::STAtoTD(modelSpYear, what = "BLUEs",
+                                 keep = c("family", "regime", "year"))
 
 ## Export all internal data in one go to package.
 usethis::use_data(testTD, testTDYear, BLUEs, BLUEsYear, overwrite = TRUE,

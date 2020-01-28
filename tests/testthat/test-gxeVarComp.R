@@ -1,11 +1,5 @@
 context("gxeVarComp")
 
-modelSp <- fitTD(testTD, design = "rowcol", traits = "t1")
-BLUEs <- STAtoTD(modelSp, what = "BLUEs")
-
-modelSpYear <- fitTD(testTDYear, design = "rowcol", traits = "t1")
-BLUEsYear <- STAtoTD(modelSpYear, what = "BLUEs")
-
 test_that("general checks in gxeAmmi function properly", {
   expect_error(gxeVarComp(1, trait = "t1"),
                "TD should be a valid object of class TD")
@@ -71,14 +65,10 @@ test_that("lme4 model gives correct output", {
   expect_equivalent(summLm[, "BIC"], 383.762536326771)
   expect_equivalent(summLm[, "Deviance"], 376.14921134723)
   expect_equivalent(summLm[, "NParameters"], 2)
-  ## This test works fine in RStudio but gives an error when testing on CRAN.
-  ## Therefore added a lower tolerance
   expect_equivalent(geVCLm$vcov,
                     c(25.8985599502474, 5.25233386534017, 5.25233386534018,
                       5.25233386534017, 25.8985599502474, 5.25233386534018,
                       5.25233386534018, 5.25233386534018, 25.8985599502474))
-  #,
-  #                  tolerance = 1e-6)
 })
 
 test_that("option criterion works properly", {

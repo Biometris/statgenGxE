@@ -1,7 +1,5 @@
 context("Report")
 
-modelSp <- fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))
-BLUEs <- STAtoTD(modelSp, what = "BLUEs")
 geAmmi <- gxeAmmi(TD = BLUEs, trait = "t1")
 test_that("Test that createReport function only accepts corretly named output", {
   ## Reporting requires pdflatex which isn't available on cran.

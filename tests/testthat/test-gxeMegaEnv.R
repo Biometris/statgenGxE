@@ -1,8 +1,5 @@
 context("gxeMegaEnv")
 
-modelSp <- fitTD(testTD, design = "rowcol", traits = "t1")
-BLUEs <- STAtoTD(modelSp, what = "BLUEs")
-
 test_that("general checks in gxeMegaEnv function properly", {
   expect_error(gxeMegaEnv(1, trait = "t1"),
                "TD should be a valid object of class TD")
@@ -19,7 +16,7 @@ test_that("mega environments are computed correctly", {
   expect_is(geMegaEnv$TD, "TD")
   expect_is(geMegaEnv$summTab, "data.frame")
   expect_is(geMegaEnv$trait, "character")
-  expect_equal(dim(geMegaEnvTot), c(45, 4))
+  expect_equal(dim(geMegaEnvTot), c(45, 7))
   expect_equal(as.numeric(geMegaEnvTot[["megaEnv"]]),
                rep(x = c(2, 1, 1), each = 15))
   expect_equal(levels(geMegaEnvTot[["megaEnv"]]), c("1", "2"))
@@ -67,8 +64,6 @@ test_that("predict.megaEnv functions correctly", {
   expect_is(geTabLm$standardError, "data.frame")
   expect_equivalent(geTabLm$predictedValue[1, ],
                     c(79.2416561439773, 79.4864396648177))
-  ## This test works fine in RStudio but gives an error when testing on CRAN.
-  ## Therefore added a lower tolerance
   expect_equivalent(geTabLm$standardError[1, ],
                     c(6.83020114988906, 6.38884520952826))
   skip_on_cran()

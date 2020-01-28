@@ -5,5 +5,5 @@
 #' @importFrom graphics plot
 #' @importFrom xtable xtable
 #' @importFrom utils hasName
-#' @importFrom statgenSTA createTD fitTD STAtoTD
+#' @importFrom statgenSTA createTD
 NULL
