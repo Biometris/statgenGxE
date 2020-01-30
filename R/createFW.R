@@ -98,7 +98,10 @@ summary.FW <- function(object, ...) {
 #' respectively.
 #' @param order A character string specifying whether the results in the line
 #' plot should be ordered in an increasing (or decreasing) order of
-#' sensitivities.
+#' sensitivities. Ignored if \code{plotType} is not "line".
+#' @param lineTrait A character string specifying whether in the line plot the
+#' "fitted" or the "raw" data should be plotted. Ignored if \code{plotType} is
+#' not "line".
 #' @param genotypes An optional character string containing the genotypes to
 #' be plotted in the trellis plot. If \code{NULL} all genotypes are plotted.
 #' If more than 64 genotypes are selected, only the first 64 are plotted.
@@ -117,6 +120,10 @@ summary.FW <- function(object, ...) {
 #' ## Create a line plot.
 #' plot(geFW, plotType = "line")
 #'
+#' ## Create a line plot showing raw data value for genotypes and fitted lines.
+#' ## Display trials in descending order.
+#' plot(geFW, plotType = "line", order = "descending", lineTrait = "raw")
+#'
 #' ## Create a trellis plot.
 #' plot(geFW, plotType = "trellis")
 #'
@@ -128,10 +135,10 @@ plot.FW <- function(x,
                     ...,
                     plotType = c("scatter", "line", "trellis", "scatterFit"),
                     order = c("ascending", "descending"),
+                    lineTrait = c("fitted", "raw"),
                     genotypes = NULL,
                     output = TRUE) {
   plotType <- match.arg(plotType)
-  order <- match.arg(order)
   dotArgs <- list(...)
   envEffs <- x$envEffs[c("trial", "envEff")]
   TDTot <- Reduce(f = rbind, x = x$TD)
@@ -183,34 +190,33 @@ plot.FW <- function(x,
     invisible(list(p1 = p1, p2 = p2, p3 = p3))
     ## Set arguments for plot.
   } else if (plotType == "line") {
-    fVal <- tapply(X = x$fittedGeno, INDEX = TDTot[, c("trial", "genotype")],
-                   FUN = mean, na.rm = TRUE)
+    order <- match.arg(order)
+    lineTrait <- match.arg(lineTrait)
+    lineDat <- data.frame(genotype = TDTot[["genotype"]],
+                          trait = TDTot[[x$trait]],
+                          trial = rep(x = envEffs[["trial"]], each = x$nGeno),
+                          fitted = x$fittedGeno,
+                          envEff = rep(x = envEffs[["envEff"]], each = x$nGeno))
+    lineDat <- remove_missing(lineDat, na.rm = TRUE)
+    ## Set arguments for plot aesthetics.
+    yVar <- ifelse(lineTrait == "raw", "trait", "fitted")
+    aesArgs <- list(x = "envEff", y = yVar, color = "genotype")
+    fixedArgs <- c("x", "y", "color", "title")
+    ## Add and overwrite args with custom args from ...
+    aesArgs <- utils::modifyList(aesArgs,
+                                 dotArgs[!names(dotArgs) %in% fixedArgs])
+    ## Order descending can be achieved by reversing the x-axis.
     if (order == "descending") {
       xTrans <- "reverse"
     } else {
       xTrans <- "identity"
     }
-    ## Convert to data.frame to prevent crash in reshape.
-    fVal <- as.data.frame(fVal)
-    lineDat <- reshape(fVal, direction = "long",
-                       varying = list(genotype = colnames(fVal)),
-                       ids = rownames(fVal), idvar = "trial",
-                       times = colnames(fVal), timevar = "genotype",
-                       v.names = "fitVal")
-    lineDat <- merge(x = envEffs, y = lineDat)
-    lineDat <- remove_missing(lineDat, na.rm = TRUE)
-    ## Set arguments for plot aesthetics.
-    aesArgs <- list(x = "envEff", y = "fitVal", color = "genotype")
-    fixedArgs <- c("x", "y", "color", "title")
-    ## Add and overwrite args with custom args from ...
-    aesArgs <- utils::modifyList(aesArgs,
-                                 dotArgs[!names(dotArgs) %in% fixedArgs])
     ## Create plot.
     p <- ggplot(data = lineDat, do.call(aes_string, args = aesArgs)) +
-      geom_point() + geom_line(size = 0.5, alpha = 0.7) +
-      scale_x_continuous(breaks = envEffs$envEff, minor_breaks = NULL,
-                         labels = levels(lineDat$trial),
-                         trans = xTrans) +
+      geom_point() +
+      geom_line(aes_string(y = "fitted"), size = 0.5, alpha = 0.7) +
+      scale_x_continuous(breaks = envEffs[["envEff"]], minor_breaks = NULL,
+                         labels = envEffs[["trial"]], trans = xTrans) +
       theme(legend.position = "none",
             plot.title = element_text(hjust = 0.5),
             axis.text.x = element_text(angle = 90, hjust = 1)) +
@@ -226,7 +232,7 @@ plot.FW <- function(x,
     trellisDat <- data.frame(genotype = TDTot[["genotype"]],
                              trait = TDTot[[x$trait]],
                              fitted = x$fittedGeno,
-                             xEff = rep(x = envEffs$envEff, each = x$nGeno))
+                             envEff = rep(x = envEffs$envEff, each = x$nGeno))
     if (!is.null(genotypes)) {
       trellisDat <- trellisDat[trellisDat[["genotype"]] %in% genotypes, ]
       trellisDat <- droplevels(trellisDat)
@@ -239,11 +245,11 @@ plot.FW <- function(x,
     trellisDat <- remove_missing(trellisDat, na.rm = TRUE)
     ## The data needs to be ordered for the lines to be drawn properly.
     trellisDat <- trellisDat[order(trellisDat[["genotype"]],
-                                   trellisDat[["xEff"]]), ]
+                                   trellisDat[["envEff"]]), ]
     p <- ggplot(data = trellisDat,
-                aes_string(x = "xEff", y = "trait")) +
+                aes_string(x = "envEff", y = "trait")) +
       geom_point() +
-      geom_line(data = trellisDat, aes_string(x = "xEff", y = "fitted")) +
+      geom_line(data = trellisDat, aes_string(x = "envEff", y = "fitted")) +
       facet_wrap(facets = "genotype") +
       labs(x = "Environment", y = x$trait) +
       ggtitle(plotTitle) +

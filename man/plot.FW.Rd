@@ -9,6 +9,7 @@
   ...,
   plotType = c("scatter", "line", "trellis", "scatterFit"),
   order = c("ascending", "descending"),
+  lineTrait = c("fitted", "raw"),
   genotypes = NULL,
   output = TRUE
 )
@@ -26,7 +27,11 @@ respectively.}
 
 \item{order}{A character string specifying whether the results in the line
 plot should be ordered in an increasing (or decreasing) order of
-sensitivities.}
+sensitivities. Ignored if \code{plotType} is not "line".}
+
+\item{lineTrait}{A character string specifying whether in the line plot the
+"fitted" or the "raw" data should be plotted. Ignored if \code{plotType} is
+not "line".}
 
 \item{genotypes}{An optional character string containing the genotypes to
 be plotted in the trellis plot. If \code{NULL} all genotypes are plotted.
@@ -56,6 +61,10 @@ plot(geFW)
 
 ## Create a line plot.
 plot(geFW, plotType = "line")
+
+## Create a line plot showing raw data value for genotypes and fitted lines.
+## Display trials in descending order.
+plot(geFW, plotType = "line", order = "descending", lineTrait = "raw")
 
 ## Create a trellis plot.
 plot(geFW, plotType = "trellis")
