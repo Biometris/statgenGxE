@@ -43,8 +43,9 @@ testDataYear[["year"]] <- rep(c(1, 2), each = 90)
 testDataYear[91:180, "t1"] <- runif(90) * mean(testDataYear[["t1"]])
 
 ## Create TD object from testDataYear.
-testTDYear <- createTD(data = testDataYear, genotype = "seed",
-                       trial = "field", rowCoord = "Y", colCoord = "X")
+testTDYear <- statgenSTA::createTD(data = testDataYear, genotype = "seed",
+                                   trial = "field", rowCoord = "Y",
+                                   colCoord = "X")
 
 ## Fit models on testTD and testTDYear and extract BLUEs
 modelSp <- statgenSTA::fitTD(testTD, design = "rowcol", traits = c("t1", "t2"))

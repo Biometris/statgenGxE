@@ -65,7 +65,6 @@ Imports:
     knitr,
     lme4,
     methods,
-    scales,
     statgenSTA,
     xtable
 Suggests: asreml(>= 3.0),

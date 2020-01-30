@@ -70,27 +70,9 @@ print(xtable::xtable(x = data.frame(bgItems), label = "general",
 %-------------------------------------------------------------------------------
 
 <<label=anova, echo=FALSE, results="asis">>=
-anovaTab <- x$anova
-## Add significance stars
-anovaTab[, ncol(anovaTab) + 1] <- symnum(x = anovaTab[, ncol(anovaTab)],
-                                         corr = FALSE, na = FALSE,
-                                         cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
-                                         symbols = c("***", "**", "*", ".", " "))
-colnames(anovaTab)[ncol(anovaTab)] <- ""
-rownames(anovaTab)[which(rownames(anovaTab) %in% c("genotype", "trial"))] <-
-  c("Genotype", "Environment")
-legendText <- "Significance codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1} \\\\"
-print(xtable::xtable(x = anovaTab, label = "anova",
-                     align = c("l", "r", "r", "r", "r", "r", "l"),
-                     digits = c(0, 0, 0, 0, 2, -2, 0),
-                     display = c("s", "f", "f", "f", "f", "e", "s")),
-      latex.environments = "flushleft", include.rownames = TRUE,
-      include.colnames = TRUE,
-      add.to.row = list(pos = list(nrow(anovaTab)),
-                        command = paste0("\\hline  \\multicolumn{",
-                                         ncol(anovaTab), "}{c}{",
-                                         legendText)))
+statgenGxE:::printAnova(x$anova)
 @
+
 \clearpage
 %-------------------------------------------------------------------------------
 \section{Diagnostic plots}

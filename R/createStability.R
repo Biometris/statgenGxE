@@ -163,5 +163,5 @@ report.stability <- function(x,
     stop("An installation of LaTeX is required to create a pdf report.\n")
   }
   createReport(x = x, reportName = "stabilityReport.Rnw",
-               outfile = outfile, ...)
+               reportPackage = "statgenGxE", outfile = outfile, ...)
 }

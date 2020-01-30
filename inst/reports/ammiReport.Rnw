@@ -78,10 +78,10 @@ print(xtable::xtable(x = data.frame(bgItems), label = "general",
 if (x$byYear) {
   years <- names(x$anova)
   for (year in years) {
-    printAnova(aovTab = x$anova[[year]], title = year)
+    statgenGxE:::printAnova(aovTab = x$anova[[year]], title = year)
   }
 } else {
-  printAnova(aovTab = x$anova)
+  statgenGxE:::printAnova(aovTab = x$anova)
 }
 @
 \clearpage

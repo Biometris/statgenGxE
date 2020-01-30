@@ -142,5 +142,6 @@ report.varComp <- function(x,
   if (nchar(Sys.which("pdflatex")) == 0) {
     stop("An installation of LaTeX is required to create a pdf report.\n")
   }
-  createReport(x = x, reportName = "varCompReport.Rnw", outfile = outfile, ...)
+  createReport(x = x, reportName = "varCompReport.Rnw", outfile = outfile,
+               reportPackage = "statgenGxE", ...)
 }
