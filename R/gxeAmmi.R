@@ -235,74 +235,146 @@ gxeAmmiHelp <- function(TD,
     ## Add combinations of trial and genotype currently not in TD to TD.
     ## Reshape adds missing combinations to its output.
     ## Reshaping to wide and then back to long retains those missings.
-    TDYear <- reshape(reshape(TDYear[c("trial", "genotype", trait)],
-                              direction = "wide", timevar = "genotype",
-                              idvar = "trial", v.names = trait))
-    ## Impute missing values.
-    if (any(is.na(TDYear[[trait]]))) {
-      ## Transform data to genotype x trial matrix.
-      y0 <- tapply(X = TDYear[[trait]],
-                   INDEX = TDYear[, c("genotype", "trial")], FUN = I)
-      if (sum(is.na(y0)) / length(y0) > 0.3) {
-        if (byYear) {
-          warning("More than 30% missing values for ", year, ".\n",
-                  "Year ", year, "skipped.\n", call. =  FALSE)
-          next
-        } else {
-          stop("More than 30% missing values.\n")
-        }
-      }
-      ## Actual imputation.
-      y1 <- multMissing(y0, maxIter = 50)
-      ## Insert imputed values back into original data.
-      TDYear[is.na(TDYear[[trait]]), trait] <- y1[is.na(y0)]
+    TDYear <- reshape(reshape(TDYear[c("trial", "genotype", trait, if (useWt) "wt")],
+                               direction = "wide", timevar = "genotype",
+                               idvar = "trial", v.names = c(trait, if (useWt) "wt")))
+    TDYear[is.na(TDYear$wt), "wt"] <- 0
+
+    maxiter <- 1000
+    n <- nPC
+    ct <- 1e-12
+
+    envMeans <- tapply(TDYear[[trait]], TDYear$trial, mean, na.rm = TRUE)
+    TDYear <- TDYear[order(TDYear$trial, TDYear$genotype), ]
+
+
+    theta_hat <- matrix(TDYear[[trait]], nrow = nrow(TDYear))
+
+    ## For now set M to Identity matrix.
+    M <- diag(as.numeric(!is.na(theta_hat)))
+    if (useWt) {
+      M <- diag(TDYear$wt)
     }
-    ## Set wt to 1 if no weighting is used.
-    if (!useWt) {
-      TDYear[["wt"]] <- 1
-    }
-    ## Fit linear model.
-    modForm <- formula(paste0("`", trait, "`~",
-                              if (!GGE) "genotype +", "trial"))
-    model <- lm(modForm, data = TDYear, weights = TDYear[["wt"]])
-    ## Calculate residuals and fitted values of the linear model.
-    resids <- tapply(X = resid(model), INDEX = TDYear[, c("genotype", "trial")],
-                     FUN = I)
-    fittedVals <- tapply(X = fitted(model),
-                         INDEX = TDYear[, c("genotype", "trial")], FUN = I)
-    ## Extract ANOVA table for linear model.
-    aov <- anova(model)
-    rownames(aov)[rownames(aov) == "genotype"] <- "Genotype"
-    rownames(aov)[rownames(aov) == "trial"] <- "Environment"
-    rownames(aov)[rownames(aov) == "Residuals"] <- "Interactions"
-    ## Compute principal components.
-    if (!is.null(nPC)) {
-      ## nPC is given. Use this in principal components analysis.
-      pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
-                    scale. = scale, rank. = nPC)
-      nPCYear <- nPC
+    M <- 1 / max(M) * M
+
+    theta_hat[is.na(theta_hat)] <- envMeans[TDYear[is.na(theta_hat), "trial"]]
+
+    # design matrices
+    Xm <- matrix(data = 1, nrow = nEnv * nGeno, ncol = 1)
+    Xg <- matrix(data = 1, nrow = nEnv, ncol = 1) %x% diag(x = nGeno)
+    Xe <- diag(x = nEnv) %x% matrix(data = 1, nrow = nGeno, ncol = 1)
+
+    # Initialize g,e, and W
+    g <- matrix(data = 0, nrow = nGeno, ncol = 1)
+    e <- matrix(data = 0, nrow = nEnv, ncol = 1)
+    vecW <- matrix(data = 0, nrow = nEnv * nGeno, ncol = 1)
+
+    # matrices containing coefficients for linear constraints
+    Pe <- matrix(data = 1, nrow = nEnv, ncol = 1)
+    Pg <- matrix(data = 1, nrow = nGeno, ncol = 1)
+
+    # container for genotype-environment mean estimates
+    theta_i <- matrix(data = 0, nrow = nEnv * nGeno, ncol = 1)
+
+
+    if (!GGE) {
+      mu0 <- solve(t(Xm) %*% M %*% Xm) %*% t(Xm) %*% M %*% (theta_hat - Xe %*% e)
+      g0 <- (diag(nGeno) - solve(t(Xg) %*% M %*% Xg) %*% Pg %*%
+               solve(t(Pg) %*% solve(t(Xg) %*% M %*% Xg) %*% Pg) %*% t(Pg)) %*%
+        solve(t(Xg) %*% M %*% Xg) %*% t(Xg) %*% M %*%
+        (theta_hat - Xm %*% mu0 - Xe %*% e)
+      e0 <- (diag(nEnv) - solve(t(Xe) %*% M %*% Xe) %*% Pe %*%
+               solve(t(Pe) %*% solve(t(Xe) %*% M %*% Xe) %*% Pe) %*% t(Pe)) %*%
+        solve(t(Xe) %*% M %*% Xe) %*% t(Xe) %*% M %*%
+        (theta_hat - Xm %*% mu0 - Xg %*% g0)
+      theta0 <- Xm %*% mu0 + Xe %*% e0 + Xg %*% g0
     } else {
-      ## nPC is not supplied. Do principal component analyses as long as
-      ## when adding an extra component this new component is significant.
-      pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
-                    scale. = scale, rank. = 2)
-      if (nEnv > 4) {
-        for (i in 3:max(3, (nEnv - 2))) {
-          pcaOrig <- pca
-          pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
-                        scale. = scale, rank. = i)
-          pcaAov <- pcaToAov(pca = pca, aov = aov)
-          ## When there are no degrees of freedom left for the residual variance
-          ## Pr(>F) will be nan. In this case revert to the previous number of
-          ## components as well.
-          if (is.nan(pcaAov[i, "Pr(>F)"]) || pcaAov[i, "Pr(>F)"] > 0.001) {
-            pca <- pcaOrig
-            break
-          }
-        }
-      }
-      nPCYear <- ncol(pca$rotation)
+      mu0 <- solve(t(Xm) %*% M %*% Xm) %*% t(Xm) %*% M %*% (theta_hat - Xe %*% e)
+      e0 <- (diag(nEnv) - solve(t(Xe) %*% M %*% Xe) %*% Pe %*%
+               solve(t(Pe) %*% solve(t(Xe) %*% M %*% Xe) %*% Pe) %*% t(Pe)) %*%
+        solve(t(Xe) %*% M %*% Xe) %*% t(Xe) %*% M %*% (theta_hat - Xm %*% mu0)
+      theta0 <- Xm %*% mu0 + Xe %*% e0
+      g0 <- 0
     }
+    for (z in 1:maxiter) {
+      if (!GGE) {
+        mu <- solve(t(Xm) %*% M %*% Xm) %*% t(Xm) %*% M %*%
+          (theta_hat - Xe %*% e - Xg %*% g - vecW)
+        g <- (diag(x = nGeno) - solve(t(Xg) %*% M %*% Xg) %*% Pg %*%
+                solve(t(Pg) %*% solve(t(Xg) %*% M %*% Xg) %*% Pg) %*% t(Pg)) %*%
+          solve(t(Xg) %*% M %*% Xg) %*% t(Xg) %*% M %*%
+          (theta_hat - Xm %*% mu - Xe %*% e - vecW)
+        e <- (diag(x = nEnv) - solve(t(Xe) %*% M %*% Xe) %*% Pe %*%
+                solve(t(Pe) %*% solve(t(Xe) %*% M %*% Xe) %*% Pe) %*% t(Pe)) %*%
+          solve(t(Xe) %*% M %*% Xe) %*% t(Xe) %*% M %*%
+          (theta_hat - Xm %*% mu - Xg %*% g - vecW)
+        wsvdARG <- matrix(data = M %*% (theta_hat - Xm %*% mu - Xe %*% e - Xg %*% g) +
+                            (diag(x = nEnv * nGeno) - M) %*% vecW, nrow = nGeno, ncol = nEnv)
+        wsvd <- svd(wsvdARG)
+        U <- wsvd$u[, 1:n]
+        U <- U - matrix(data = 1 / nGeno, nrow = nGeno, ncol = nGeno) %*% U
+        V <- wsvd$v[, 1:n]
+        V <- V - matrix(data = 1 / nEnv, nEnv, nEnv) %*% V
+
+        vecW <- matrix(data = U %*% diag(x = wsvd$d[1:n]) %*% t(V), nrow = nEnv * nGeno, ncol = 1)
+
+        theta <- Xm %*% mu + Xe %*% e + Xg %*% g + vecW
+      } else {
+        mu <- solve(t(Xm) %*% M %*% Xm) %*% t(Xm) %*% M %*%
+          (theta_hat - Xe %*% e - vecW)
+        e <- (diag(nEnv) - solve(t(Xe) %*% M %*% Xe) %*% Pe %*%
+                solve(t(Pe) %*% solve(t(Xe) %*% M %*% Xe) %*% Pe) %*% t(Pe)) %*%
+          solve(t(Xe) %*% M %*% Xe) %*% t(Xe) %*% M %*% (theta_hat - Xm %*% mu - vecW)
+        wsvdARG <- matrix(M %*% (theta_hat - Xm %*% mu - Xe %*% e) +
+                            (diag(x = nEnv * nGeno) - M) %*% vecW, nrow = nGeno, ncol = nEnv)
+        wsvd <- svd(wsvdARG)
+        U <- wsvd$u[, 1:n]
+        U <- U - matrix(data = 1 / nGeno, nrow = nGeno, ncol = nGeno) %*% U
+        V <- wsvd$v[, 1:n]
+
+        vecW <- matrix(data = U %*% diag(x = wsvd$d[1:n]) %*% t(V), nrow = nEnv * nGeno, ncol = 1)
+
+        theta <- Xm %*% mu + Xe %*% e + vecW
+      }
+
+      if (sum((theta_i - theta) ^ 2) / abs(mean(theta)) < ct) {
+        break
+      } else {
+        cat("iteration ", z, " ct = ",
+            sum((theta_i - theta) ^ 2) / abs(mean(theta)), "\n")
+        theta_i <- theta}
+    }#z
+
+    W <- matrix(data = vecW, nrow = nGeno, ncol = nEnv)
+    svdW <- svd(W)
+    U <- svdW$u
+    D <- svdW$d
+    V <- svdW$v
+
+
+    return(list(genoscores = U[, 1:n], D = D, envscores = V[, 1:n], e = e,
+                g = g, mu = mu, theta = theta,
+                e0 = e0, g0 = g0, theta0 = theta0,
+                theta_hat = theta_hat))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     ## Compute anova part for pca components.
     pcaAov <- pcaToAov(pca = pca, aov = aov)
     ## Create complete ANOVA table.
