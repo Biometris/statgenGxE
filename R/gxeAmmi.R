@@ -236,24 +236,21 @@ gxeAmmiHelp <- function(TD,
     ## Reshape adds missing combinations to its output.
     ## Reshaping to wide and then back to long retains those missings.
     TDYear <- reshape(reshape(TDYear[c("trial", "genotype", trait, if (useWt) "wt")],
-                               direction = "wide", timevar = "genotype",
-                               idvar = "trial", v.names = c(trait, if (useWt) "wt")))
-    TDYear[is.na(TDYear$wt), "wt"] <- 0
+                              direction = "wide", timevar = "genotype",
+                              idvar = "trial", v.names = c(trait, if (useWt) "wt")))
+    TDYear[is.na(TDYear[["wt"]]), "wt"] <- 0
 
-    maxiter <- 1000
-    n <- nPC
+    maxiter <- 10000
     ct <- 1e-12
 
     envMeans <- tapply(TDYear[[trait]], TDYear$trial, mean, na.rm = TRUE)
     TDYear <- TDYear[order(TDYear$trial, TDYear$genotype), ]
 
-
     theta_hat <- matrix(TDYear[[trait]], nrow = nrow(TDYear))
 
-    ## For now set M to Identity matrix.
     M <- diag(as.numeric(!is.na(theta_hat)))
     if (useWt) {
-      M <- diag(TDYear$wt)
+      M <- diag(TDYear[["wt"]])
     }
     M <- 1 / max(M) * M
 
@@ -276,63 +273,62 @@ gxeAmmiHelp <- function(TD,
     # container for genotype-environment mean estimates
     theta_i <- matrix(data = 0, nrow = nEnv * nGeno, ncol = 1)
 
+    #muBase <- solve(t(Xm) %*% M %*% Xm) %*% t(Xm) %*% M
+    muBase <- diag(M)/sum(diag(M))
+
+    tXgMXgInv <- solve(t(Xg) %*% M %*% Xg)
+    tXeMXeInv <- solve(t(Xe) %*% M %*% Xe)
+
+    gBase <- (diag(nGeno) - tXgMXgInv %*% Pg %*%
+                solve(t(Pg) %*% tXgMXgInv %*% Pg) %*% t(Pg)) %*%
+      tXgMXgInv %*% t(Xg) %*% M
+
+    eBase <- (diag(nEnv) - tXeMXeInv %*% Pe %*%
+                solve(t(Pe) %*% tXeMXeInv %*% Pe) %*% t(Pe)) %*%
+      tXeMXeInv %*% t(Xe) %*% M
+
+    fullMat <- diag(x = nEnv * nGeno) - M
+    envMat <- matrix(data = 1 / nEnv, nrow = nEnv, ncol = nEnv)
+    genoMat <- matrix(data = 1 / nGeno, nrow = nGeno, ncol = nGeno)
 
     if (!GGE) {
-      mu0 <- solve(t(Xm) %*% M %*% Xm) %*% t(Xm) %*% M %*% (theta_hat - Xe %*% e)
-      g0 <- (diag(nGeno) - solve(t(Xg) %*% M %*% Xg) %*% Pg %*%
-               solve(t(Pg) %*% solve(t(Xg) %*% M %*% Xg) %*% Pg) %*% t(Pg)) %*%
-        solve(t(Xg) %*% M %*% Xg) %*% t(Xg) %*% M %*%
-        (theta_hat - Xm %*% mu0 - Xe %*% e)
-      e0 <- (diag(nEnv) - solve(t(Xe) %*% M %*% Xe) %*% Pe %*%
-               solve(t(Pe) %*% solve(t(Xe) %*% M %*% Xe) %*% Pe) %*% t(Pe)) %*%
-        solve(t(Xe) %*% M %*% Xe) %*% t(Xe) %*% M %*%
-        (theta_hat - Xm %*% mu0 - Xg %*% g0)
+      mu0 <- muBase %*% (theta_hat - Xe %*% e)
+      g0 <- gBase %*% (theta_hat - Xm %*% mu0 - Xe %*% e)
+      e0 <- eBase %*% (theta_hat - Xm %*% mu0 - Xg %*% g0)
       theta0 <- Xm %*% mu0 + Xe %*% e0 + Xg %*% g0
     } else {
-      mu0 <- solve(t(Xm) %*% M %*% Xm) %*% t(Xm) %*% M %*% (theta_hat - Xe %*% e)
-      e0 <- (diag(nEnv) - solve(t(Xe) %*% M %*% Xe) %*% Pe %*%
-               solve(t(Pe) %*% solve(t(Xe) %*% M %*% Xe) %*% Pe) %*% t(Pe)) %*%
-        solve(t(Xe) %*% M %*% Xe) %*% t(Xe) %*% M %*% (theta_hat - Xm %*% mu0)
+      mu0 <- muBase %*% (theta_hat - Xe %*% e)
+      e0 <- eBase %*% (theta_hat - Xm %*% mu0)
       theta0 <- Xm %*% mu0 + Xe %*% e0
       g0 <- 0
     }
     for (z in 1:maxiter) {
       if (!GGE) {
-        mu <- solve(t(Xm) %*% M %*% Xm) %*% t(Xm) %*% M %*%
-          (theta_hat - Xe %*% e - Xg %*% g - vecW)
-        g <- (diag(x = nGeno) - solve(t(Xg) %*% M %*% Xg) %*% Pg %*%
-                solve(t(Pg) %*% solve(t(Xg) %*% M %*% Xg) %*% Pg) %*% t(Pg)) %*%
-          solve(t(Xg) %*% M %*% Xg) %*% t(Xg) %*% M %*%
-          (theta_hat - Xm %*% mu - Xe %*% e - vecW)
-        e <- (diag(x = nEnv) - solve(t(Xe) %*% M %*% Xe) %*% Pe %*%
-                solve(t(Pe) %*% solve(t(Xe) %*% M %*% Xe) %*% Pe) %*% t(Pe)) %*%
-          solve(t(Xe) %*% M %*% Xe) %*% t(Xe) %*% M %*%
-          (theta_hat - Xm %*% mu - Xg %*% g - vecW)
+        mu <- muBase %*% (theta_hat - Xe %*% e - Xg %*% g - vecW)
+        g <- gBase %*% (theta_hat - Xm %*% mu - Xe %*% e - vecW)
+        e <- eBase %*% (theta_hat - Xm %*% mu - Xg %*% g - vecW)
         wsvdARG <- matrix(data = M %*% (theta_hat - Xm %*% mu - Xe %*% e - Xg %*% g) +
-                            (diag(x = nEnv * nGeno) - M) %*% vecW, nrow = nGeno, ncol = nEnv)
+                            fullMat %*% vecW, nrow = nGeno, ncol = nEnv)
         wsvd <- svd(wsvdARG)
-        U <- wsvd$u[, 1:n]
-        U <- U - matrix(data = 1 / nGeno, nrow = nGeno, ncol = nGeno) %*% U
-        V <- wsvd$v[, 1:n]
-        V <- V - matrix(data = 1 / nEnv, nEnv, nEnv) %*% V
+        U <- wsvd$u[, 1:nPC]
+        U <- U - genoMat %*% U
+        V <- wsvd$v[, 1:nPC]
+        V <- V - envMat %*% V
 
-        vecW <- matrix(data = U %*% diag(x = wsvd$d[1:n]) %*% t(V), nrow = nEnv * nGeno, ncol = 1)
+        vecW <- as.vector(U %*% diag(x = wsvd$d[1:nPC]) %*% t(V))
 
         theta <- Xm %*% mu + Xe %*% e + Xg %*% g + vecW
       } else {
-        mu <- solve(t(Xm) %*% M %*% Xm) %*% t(Xm) %*% M %*%
-          (theta_hat - Xe %*% e - vecW)
-        e <- (diag(nEnv) - solve(t(Xe) %*% M %*% Xe) %*% Pe %*%
-                solve(t(Pe) %*% solve(t(Xe) %*% M %*% Xe) %*% Pe) %*% t(Pe)) %*%
-          solve(t(Xe) %*% M %*% Xe) %*% t(Xe) %*% M %*% (theta_hat - Xm %*% mu - vecW)
+        mu <- muBase %*% (theta_hat - Xe %*% e - vecW)
+        e <- eBase %*% (theta_hat - Xm %*% mu - vecW)
         wsvdARG <- matrix(M %*% (theta_hat - Xm %*% mu - Xe %*% e) +
-                            (diag(x = nEnv * nGeno) - M) %*% vecW, nrow = nGeno, ncol = nEnv)
+                            fullMat %*% vecW, nrow = nGeno, ncol = nEnv)
         wsvd <- svd(wsvdARG)
-        U <- wsvd$u[, 1:n]
-        U <- U - matrix(data = 1 / nGeno, nrow = nGeno, ncol = nGeno) %*% U
-        V <- wsvd$v[, 1:n]
+        U <- wsvd$u[, 1:nPC]
+        U <- U - genoMat %*% U
+        V <- wsvd$v[, 1:nPC]
 
-        vecW <- matrix(data = U %*% diag(x = wsvd$d[1:n]) %*% t(V), nrow = nEnv * nGeno, ncol = 1)
+        vecW <- as.vector(U %*% diag(x = wsvd$d[1:nPC]) %*% t(V))
 
         theta <- Xm %*% mu + Xe %*% e + vecW
       }
@@ -342,145 +338,144 @@ gxeAmmiHelp <- function(TD,
       } else {
         cat("iteration ", z, " ct = ",
             sum((theta_i - theta) ^ 2) / abs(mean(theta)), "\n")
-        theta_i <- theta}
-    }#z
+        theta_i <- theta
+        }
+    }
 
     W <- matrix(data = vecW, nrow = nGeno, ncol = nEnv)
     svdW <- svd(W)
-    U <- svdW$u
+    U <- svdW$u[, 1:nPC]
     D <- svdW$d
-    V <- svdW$v
+    V <- svdW$v[, 1:nPC]
 
 
-    return(list(genoscores = U[, 1:n], D = D, envscores = V[, 1:n], e = e,
-                g = g, mu = mu, theta = theta,
-                e0 = e0, g0 = g0, theta0 = theta0,
-                theta_hat = theta_hat))
+    aovAmmi <- data.frame(Df = c(nGeno - 1, nEnv - 1, (nGeno - 1) * (nEnv - 1),
+                                 nGeno + nEnv - 1 - 2 * 1:nPC),
+                          "Sum Sq" = c(nEnv * sum(g0 ^ 2), nGeno * sum(e0 ^ 2),
+                                       sum((theta_hat - theta0) ^ 2),
+                                       D[1:nPC] ^ 2),
+                          row.names = c("Genotype", "Environment",
+                                        "Interactions", paste0("PC", 1:nPC)),
+                          check.names = FALSE)
+    aovAmmi["Residuals", c("Df", "Sum Sq")] <-
+      aovAmmi["Interactions", c("Df", "Sum Sq")] -
+      colSums(aovAmmi[paste0("PC", 1:nPC), c("Df", "Sum Sq")])
+    aovAmmi[["Mean Sq"]] <- aovAmmi[["Sum Sq"]] / aovAmmi[["Df"]]
+    aovAmmi[c("Genotype", "Environment"), "F value"] <-
+      aovAmmi[c("Genotype", "Environment"), "Mean Sq"] /
+      aovAmmi["Interactions", "Mean Sq"]
+    aovAmmi[paste0("PC", 1:nPC), "F value"] <-
+      aovAmmi[paste0("PC", 1:nPC), "Mean Sq"] / aovAmmi["Residuals", "Mean Sq"]
+    aovAmmi[c("Genotype", "Environment"), "Pr(>F)"] <-
+      1 - pf(q = aovAmmi[c("Genotype", "Environment"), "F value"],
+             df1 = aovAmmi[c("Genotype", "Environment"), "Df"],
+             df2 = aovAmmi["Interactions", "Df"])
+    aovAmmi[paste0("PC", 1:nPC), "Pr(>F)"] <-
+      1 - pf(q = aovAmmi[paste0("PC", 1:nPC), "F value"],
+             df1 = aovAmmi[paste0("PC", 1:nPC), "Df"],
+             df2 = aovAmmi["Residuals", "Df"])
+    class(aovAmmi) <- c("anova", "data.frame")
+
+    UD <- U %*% diag(x = D[1:nPC])
+    importance <- rbind(sqrt(apply(X = UD, MARGIN = 2, FUN = var)),
+                        aovAmmi[paste0("PC", 1:nPC), "Sum Sq"] /
+                          aovAmmi["Interactions", "Sum Sq"])
+    importance <- rbind(importance, cumsum(importance[2,]))
+    colnames(importance) <- paste0("PC", 1:nPC)
+    rownames(importance) <- c("Standard deviation", "Proportion of Variance",
+                              "Cumulative Proportion")
+
+    envScores <- V
+    genoScores <- U
+    colnames(envScores) <- colnames(genoScores) <- paste0("PC", 1:nPC)
+    rownames(envScores) <- levels(TDYear[["trial"]])
+    rownames(genoScores) <- levels(TDYear[["genotype"]])
+    fitted <- data.frame(trial = TDYear[["trial"]],
+                         genotype = TDYear[["genotype"]],
+                         fittedValue = theta)
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    ## Compute anova part for pca components.
-    pcaAov <- pcaToAov(pca = pca, aov = aov)
-    ## Create complete ANOVA table.
-    aov <- rbind(aov, pcaAov)
-    ## Extract loadings and scores from pca.
-    loadings <- pca$rotation
-    scores <- pca$x
-    ## For GGE assure loadings for PC1 are positive to assure proper plotting.
-    if (GGE && all(loadings[, "PC1"] < 0)) {
-      loadings[, "PC1"] <- -loadings[, "PC1"]
-      scores[, "PC1"] <- -scores[, "PC1"]
-    }
-    ## Compute AMMI-estimates per genotype per trial.
-    mTerms <- matrix(data = 0, nrow = nGeno, ncol = nEnv)
-    for (i in 1:nPCYear) {
-      mTerms <- mTerms + outer(scores[, i], loadings[, i])
-    }
-    fitted <- fittedVals + mTerms
-    ## Extract importance from pca.
-    importance <- as.data.frame(summary(pca)$importance)
-    colnames(importance) <- paste0("PC", 1:ncol(importance))
-    ## Compute means.
-    envMean <- tapply(X = TDYear[[trait]], INDEX = TDYear[["trial"]],
-                      FUN = mean)
-    envMean <- setNames(as.numeric(envMean), names(envMean))
-    genoMean <- tapply(X = TDYear[[trait]], INDEX = TDYear[["genotype"]],
-                       FUN = mean)
-    genoMean <- setNames(as.numeric(genoMean), names(genoMean))
-    overallMean <- mean(TDYear[[trait]])
-    fitTot <- merge(fitTot, fitted, by.x = "genotype", by.y = "row.names",
-                    all.x = TRUE)
-    loadTot[[year]] <- loadings
-    scoreTot[[year]] <- scores
-    impTot[[year]] <- importance
-    aovTot[[year]] <- aov
-    envMeanTot[[year]] <- envMean
-    genoMeanTot[[year]] <- genoMean
-    ovMeanTot[[year]] <- overallMean
-  } # End loop over years.
-  if (ncol(fitTot) > 1) {
-    fitTot <- reshape(fitTot, direction = "long",
-                      varying = list(genotype = colnames(fitTot)[-1]),
-                      ids = fitTot[["genotype"]], idvar = "genotype",
-                      times = colnames(fitTot)[-1], timevar = "trial",
-                      v.names = "fittedValue")
-    rownames(fitTot) <- NULL
+    #     ## Compute anova part for pca components.
+    #     pcaAov <- pcaToAov(pca = pca, aov = aov)
+    #     ## Create complete ANOVA table.
+    #     aov <- rbind(aov, pcaAov)
+    #     ## Extract loadings and scores from pca.
+    #     loadings <- pca$rotation
+    #     scores <- pca$x
+    #     ## For GGE assure loadings for PC1 are positive to assure proper plotting.
+    #     if (GGE && all(loadings[, "PC1"] < 0)) {
+    #       loadings[, "PC1"] <- -loadings[, "PC1"]
+    #       scores[, "PC1"] <- -scores[, "PC1"]
+    #     }
+    #     ## Compute AMMI-estimates per genotype per trial.
+    #     mTerms <- matrix(data = 0, nrow = nGeno, ncol = nEnv)
+    #     for (i in 1:nPCYear) {
+    #       mTerms <- mTerms + outer(scores[, i], loadings[, i])
+    #     }
+    #     fitted <- fittedVals + mTerms
+    #     ## Extract importance from pca.
+    #     importance <- as.data.frame(summary(pca)$importance)
+    #     colnames(importance) <- paste0("PC", 1:ncol(importance))
+    #     ## Compute means.
+    #     envMean <- tapply(X = TDYear[[trait]], INDEX = TDYear[["trial"]],
+    #                       FUN = mean)
+    #     envMean <- setNames(as.numeric(envMean), names(envMean))
+    #     genoMean <- tapply(X = TDYear[[trait]], INDEX = TDYear[["genotype"]],
+    #                        FUN = mean)
+    #     genoMean <- setNames(as.numeric(genoMean), names(genoMean))
+    #     overallMean <- mean(TDYear[[trait]])
+    #     fitTot <- merge(fitTot, fitted, by.x = "genotype", by.y = "row.names",
+    #                     all.x = TRUE)
+    #     loadTot[[year]] <- loadings
+    #     scoreTot[[year]] <- scores
+    #     impTot[[year]] <- importance
+    #     aovTot[[year]] <- aov
+    #     envMeanTot[[year]] <- envMean
+    #     genoMeanTot[[year]] <- genoMean
+    #     ovMeanTot[[year]] <- overallMean
+    #   } # End loop over years.
+    #   if (ncol(fitTot) > 1) {
+    #     fitTot <- reshape(fitTot, direction = "long",
+    #                       varying = list(genotype = colnames(fitTot)[-1]),
+    #                       ids = fitTot[["genotype"]], idvar = "genotype",
+    #                       times = colnames(fitTot)[-1], timevar = "trial",
+    #                       v.names = "fittedValue")
+    #     rownames(fitTot) <- NULL
   }
-  if (!byYear) {
-    loadTot <- loadTot[[1]]
-    scoreTot <- scoreTot[[1]]
-    impTot <- impTot[[1]]
-    aovTot <- aovTot[[1]]
-    envMeanTot <- envMeanTot[[1]]
-    genoMeanTot <- genoMeanTot[[1]]
-    ovMeanTot <- ovMeanTot[[1]]
-    datTot <- datTot[[1]]
-  } else {
-    loadTot <- Filter(f = Negate(f = is.null), x = loadTot)
-    scoreTot <- Filter(f = Negate(f = is.null), x = scoreTot)
-    impTot <- Filter(f = Negate(f = is.null), x = impTot)
-    aovTot <- Filter(f = Negate(f = is.null), x = aovTot)
-    envMeanTot <- Filter(f = Negate(f = is.null), x = envMeanTot)
-    genoMeanTot <- Filter(f = Negate(f = is.null), x = genoMeanTot)
-    ovMeanTot <- Filter(f = Negate(f = is.null), x = ovMeanTot)
-    datTot <- Filter(f = Negate(f = is.null), x = datTot)
-    if (length(loadTot) == 0) {
-      stop("All years were skipped.\n")
-    }
-  }
-  return(createAMMI(envScores = loadTot, genoScores = scoreTot,
-                    importance = impTot, anova = aovTot, fitted = fitTot,
-                    trait = trait, envMean = envMeanTot, genoMean = genoMeanTot,
-                    overallMean = ovMeanTot, dat = datTot, GGE = GGE,
+  #   if (!byYear) {
+  #     loadTot <- loadTot[[1]]
+  #     scoreTot <- scoreTot[[1]]
+  #     impTot <- impTot[[1]]
+  #     aovTot <- aovTot[[1]]
+  #     envMeanTot <- envMeanTot[[1]]
+  #     genoMeanTot <- genoMeanTot[[1]]
+  #     ovMeanTot <- ovMeanTot[[1]]
+  #     datTot <- datTot[[1]]
+  #   } else {
+  #     loadTot <- Filter(f = Negate(f = is.null), x = loadTot)
+  #     scoreTot <- Filter(f = Negate(f = is.null), x = scoreTot)
+  #     impTot <- Filter(f = Negate(f = is.null), x = impTot)
+  #     aovTot <- Filter(f = Negate(f = is.null), x = aovTot)
+  #     envMeanTot <- Filter(f = Negate(f = is.null), x = envMeanTot)
+  #     genoMeanTot <- Filter(f = Negate(f = is.null), x = genoMeanTot)
+  #     ovMeanTot <- Filter(f = Negate(f = is.null), x = ovMeanTot)
+  #     datTot <- Filter(f = Negate(f = is.null), x = datTot)
+  #     if (length(loadTot) == 0) {
+  #       stop("All years were skipped.\n")
+  #     }
+  #   }
+
+
+  return(createAMMI(envScores = envScores, genoScores = genoScores,
+                    importance = importance, anova = aovAmmi, fitted = fitted,
+                    trait = trait, envMean = as.numeric(e) + as.numeric(mu),
+                    genoMean = as.numeric(g) + as.numeric(mu),
+                    overallMean = mu, dat = datTot, GGE = GGE,
                     byYear = byYear))
 }
 
-#' @keywords internal
-pcaToAov <- function(pca,
-                     aov) {
-  nPC <- ncol(pca$rotation)
-  nEnv <- nrow(pca$rotation)
-  nGeno <- nrow(pca$x)
-  pcaAov <- matrix(data = NA, nrow = nPC + 1, ncol = 5,
-                   dimnames = list(c(paste0("PC", 1:nPC), "Residuals"),
-                                   colnames(aov)))
-  ## Compute degrees of freedom and add to table.
-  dfPC <- nGeno + nEnv - 3 - (2 * (1:nPC - 1))
-  dfResid <- aov["Interactions", "Df"] - sum(dfPC)
-  pcaAov[, "Df"] <- c(dfPC, dfResid)
-  ## Compute sum of squares for PC and residuals and add to table.
-  PCAVar <- pca$sdev ^ 2
-  propVar <- PCAVar / sum(PCAVar)
-  ssPC <- aov["Interactions", "Sum Sq"] * propVar[1:nPC]
-  ssResid <- aov["Interactions", "Sum Sq"] - sum(ssPC)
-  pcaAov[, "Sum Sq"] <- c(ssPC, ssResid)
-  ## Compute mean squares for PC scores and residuals and add to table.
-  pcaAov[, "Mean Sq"] <- pcaAov[, "Sum Sq"] / pcaAov[, "Df"]
-  ## Convert infinite values to NA.
-  pcaAov[, "Mean Sq"][is.infinite(pcaAov[, "Mean Sq"])] <- NA
-  ## Add the F-values for PC scores.
-  pcaAov[1:nPC, "F value"] <- pcaAov[1:nPC, "Mean Sq"] /
-    pcaAov["Residuals", "Mean Sq"]
-  ## Add the p-values for PC scores.
-  pcaAov[1:nPC, "Pr(>F)"] <- 1 - pf(q = pcaAov[1:nPC, "F value"],
-                                    df1 = dfPC, df2 = dfResid)
-  return(pcaAov)
-}
 
 
