@@ -90,10 +90,13 @@ gxeAmmi <- function(TD,
                     center = TRUE,
                     scale = FALSE,
                     excludeGeno = NULL,
-                    useWt = FALSE) {
+                    useWt = FALSE,
+                    maxIter = 10000,
+                    tolerance = 1e-9) {
   return(gxeAmmiHelp(TD = TD, trials = trials, trait = trait, nPC = nPC,
                      byYear = byYear, center = center, scale = scale,
-                     excludeGeno = excludeGeno, useWt = useWt, GGE = FALSE))
+                     excludeGeno = excludeGeno, useWt = useWt,
+                     maxIter = maxIter, tolerance = tolerance, GGE = FALSE))
 }
 
 #' GGE analysis
@@ -134,10 +137,13 @@ gxeGGE <- function(TD,
                    center = TRUE,
                    scale = FALSE,
                    excludeGeno = NULL,
-                   useWt = FALSE) {
+                   useWt = FALSE,
+                   maxIter = 10000,
+                   tolerance = 1e-9) {
   return(gxeAmmiHelp(TD = TD, trials = trials, trait = trait, nPC = nPC,
                      byYear = byYear, center = center, scale = scale,
-                     excludeGeno = excludeGeno, useWt = useWt, GGE = TRUE))
+                     excludeGeno = excludeGeno, useWt = useWt,
+                     maxIter = maxIter, tolerance = tolerance, GGE = TRUE))
 }
 
 gxeAmmiHelp <- function(TD,
@@ -149,7 +155,9 @@ gxeAmmiHelp <- function(TD,
                         scale = FALSE,
                         GGE = FALSE,
                         excludeGeno = NULL,
-                        useWt = FALSE) {
+                        useWt = FALSE,
+                        maxIter = 10000,
+                        tolerance = 1e-9) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -195,7 +203,7 @@ gxeAmmiHelp <- function(TD,
       all(is.na(x[trait]))
     })
     TDYear <- TDYear[!TDYear[["genotype"]] %in% names(allNA[allNA]), ]
-    ## Drop levels to make sure prcomp doesn't crash.
+    ## Drop levels.
     TDYear <- droplevels(TDYear)
     ## Count number of genotypes, environments and traits.
     nGeno <- nlevels(TDYear[["genotype"]])
@@ -235,159 +243,159 @@ gxeAmmiHelp <- function(TD,
     ## Add combinations of trial and genotype currently not in TD to TD.
     ## Reshape adds missing combinations to its output.
     ## Reshaping to wide and then back to long retains those missings.
-    TDYear <- reshape(reshape(TDYear[c("trial", "genotype", trait, if (useWt) "wt")],
+    TDYear <- reshape(reshape(TDYear[c("trial", "genotype", trait,
+                                       if (useWt) "wt")],
                               direction = "wide", timevar = "genotype",
-                              idvar = "trial", v.names = c(trait, if (useWt) "wt")))
-    TDYear[is.na(TDYear[["wt"]]), "wt"] <- 0
-
-    maxiter <- 10000
-    ct <- 1e-12
-
-    envMeans <- tapply(TDYear[[trait]], TDYear$trial, mean, na.rm = TRUE)
-    TDYear <- TDYear[order(TDYear$trial, TDYear$genotype), ]
-
-    theta_hat <- matrix(TDYear[[trait]], nrow = nrow(TDYear))
-
-    M <- diag(as.numeric(!is.na(theta_hat)))
+                              idvar = "trial",
+                              v.names = c(trait, if (useWt) "wt")))
     if (useWt) {
-      M <- diag(TDYear[["wt"]])
+      envMeans <- tapply(X = TDYear[[trait]] * TDYear[["wt"]],
+                         INDEX = TDYear[["trial"]], FUN = mean, na.rm = TRUE)
+      TDYear[is.na(TDYear[["wt"]]), "wt"] <- 0
+    } else {
+      envMeans <- tapply(X = TDYear[[trait]], INDEX = TDYear[["trial"]],
+                         FUN = mean, na.rm = TRUE)
     }
-    M <- 1 / max(M) * M
-
-    theta_hat[is.na(theta_hat)] <- envMeans[TDYear[is.na(theta_hat), "trial"]]
-
-    # design matrices
-    Xm <- matrix(data = 1, nrow = nEnv * nGeno, ncol = 1)
-    Xg <- matrix(data = 1, nrow = nEnv, ncol = 1) %x% diag(x = nGeno)
-    Xe <- diag(x = nEnv) %x% matrix(data = 1, nrow = nGeno, ncol = 1)
-
-    # Initialize g,e, and W
-    g <- matrix(data = 0, nrow = nGeno, ncol = 1)
-    e <- matrix(data = 0, nrow = nEnv, ncol = 1)
-    vecW <- matrix(data = 0, nrow = nEnv * nGeno, ncol = 1)
-
-    # matrices containing coefficients for linear constraints
-    Pe <- matrix(data = 1, nrow = nEnv, ncol = 1)
-    Pg <- matrix(data = 1, nrow = nGeno, ncol = 1)
-
-    # container for genotype-environment mean estimates
-    theta_i <- matrix(data = 0, nrow = nEnv * nGeno, ncol = 1)
-
-    #muBase <- solve(t(Xm) %*% M %*% Xm) %*% t(Xm) %*% M
-    muBase <- diag(M)/sum(diag(M))
-
+    TDYear <- TDYear[order(TDYear[["trial"]], TDYear[["genotype"]]), ]
+    ## Create matrix of observed phenotype.
+    thetaHat <- matrix(TDYear[[trait]], nrow = nrow(TDYear))
+    ## Construct weight matrix M.
+    M <- diag(as.numeric(!is.na(thetaHat)))
+    if (useWt) {
+      M <- diag(x = TDYear[["wt"]])
+    }
+    ## Assure all values of M are between 0 and 1.
+    M <- M / max(M)
+    ## Replace missing values in thetaHat by (weighted) environment mean.
+    thetaHat[is.na(thetaHat)] <- envMeans[TDYear[is.na(thetaHat), "trial"]]
+    ## Construct design matrices.
+    Xm <- matrix(data = 1, nrow = nEnv * nGeno)
+    Xg <- matrix(data = 1, nrow = nEnv) %x% diag(x = nGeno)
+    Xe <- diag(x = nEnv) %x% matrix(data = 1, nrow = nGeno)
+    ## Initialize g, e and vecW.
+    g <- matrix(data = 0, nrow = nGeno)
+    e <- matrix(data = 0, nrow = nEnv)
+    vecW <- matrix(data = 0, nrow = nEnv * nGeno)
+    ## Create matrices containing coefficients for linear constraints.
+    Pe <- matrix(data = 1, nrow = nEnv)
+    Pg <- matrix(data = 1, nrow = nGeno)
+    ## Pre compute inverses to speed up computations later on.
     tXgMXgInv <- solve(t(Xg) %*% M %*% Xg)
     tXeMXeInv <- solve(t(Xe) %*% M %*% Xe)
-
+    ## Compute 'base' parts for mu, g and e that don't change across iterations.
+    muBase <- diag(M) / sum(diag(M))
     gBase <- (diag(nGeno) - tXgMXgInv %*% Pg %*%
                 solve(t(Pg) %*% tXgMXgInv %*% Pg) %*% t(Pg)) %*%
       tXgMXgInv %*% t(Xg) %*% M
-
     eBase <- (diag(nEnv) - tXeMXeInv %*% Pe %*%
                 solve(t(Pe) %*% tXeMXeInv %*% Pe) %*% t(Pe)) %*%
       tXeMXeInv %*% t(Xe) %*% M
-
+    ## Construct square matrices used later in the algorithm.
     fullMat <- diag(x = nEnv * nGeno) - M
     envMat <- matrix(data = 1 / nEnv, nrow = nEnv, ncol = nEnv)
     genoMat <- matrix(data = 1 / nGeno, nrow = nGeno, ncol = nGeno)
-
     if (!GGE) {
-      mu0 <- muBase %*% (theta_hat - Xe %*% e)
-      g0 <- gBase %*% (theta_hat - Xm %*% mu0 - Xe %*% e)
-      e0 <- eBase %*% (theta_hat - Xm %*% mu0 - Xg %*% g0)
+      mu0 <- muBase %*% thetaHat
+      g0 <- gBase %*% (thetaHat - Xm %*% mu0)
+      e0 <- eBase %*% (thetaHat - Xm %*% mu0)
       theta0 <- Xm %*% mu0 + Xe %*% e0 + Xg %*% g0
     } else {
-      mu0 <- muBase %*% (theta_hat - Xe %*% e)
-      e0 <- eBase %*% (theta_hat - Xm %*% mu0)
+      mu0 <- muBase %*% thetaHat
+      e0 <- eBase %*% (thetaHat - Xm %*% mu0)
       theta0 <- Xm %*% mu0 + Xe %*% e0
-      g0 <- 0
     }
-    for (z in 1:maxiter) {
+    ## Initialize loop parameters.
+    i <- 1
+    itDiff <- Inf
+    thetaIter <- matrix(data = 0, nrow = nEnv * nGeno)
+    while (i < maxIter && itDiff > tolerance) {
       if (!GGE) {
-        mu <- muBase %*% (theta_hat - Xe %*% e - Xg %*% g - vecW)
-        g <- gBase %*% (theta_hat - Xm %*% mu - Xe %*% e - vecW)
-        e <- eBase %*% (theta_hat - Xm %*% mu - Xg %*% g - vecW)
-        wsvdARG <- matrix(data = M %*% (theta_hat - Xm %*% mu - Xe %*% e - Xg %*% g) +
-                            fullMat %*% vecW, nrow = nGeno, ncol = nEnv)
-        wsvd <- svd(wsvdARG)
-        U <- wsvd$u[, 1:nPC]
+        ## Update mu, g and e.
+        mu <- muBase %*% (thetaHat - Xe %*% e - Xg %*% g - vecW)
+        g <- gBase %*% (thetaHat - Xm %*% mu - Xe %*% e - vecW)
+        e <- eBase %*% (thetaHat - Xm %*% mu - Xg %*% g - vecW)
+        ## Compute weighted residuals.
+        wRes <- matrix(data = M %*% (thetaHat - Xm %*% mu - Xe %*% e - Xg %*% g) +
+                        fullMat %*% vecW, nrow = nGeno, ncol = nEnv)
+        ## Compute svd of weighted residuals.
+        wSvd <- svd(wRes)
+        ## Extract and reparameterize U and V from computed svd.
+        U <- wSvd$u[, 1:nPC]
         U <- U - genoMat %*% U
-        V <- wsvd$v[, 1:nPC]
+        V <- wSvd$v[, 1:nPC]
         V <- V - envMat %*% V
-
-        vecW <- as.vector(U %*% diag(x = wsvd$d[1:nPC]) %*% t(V))
-
+        ## Compute vectorized version of W.
+        vecW <- as.vector(U %*% diag(x = wSvd$d[1:nPC]) %*% t(V))
+        ## Update theta.
         theta <- Xm %*% mu + Xe %*% e + Xg %*% g + vecW
       } else {
-        mu <- muBase %*% (theta_hat - Xe %*% e - vecW)
-        e <- eBase %*% (theta_hat - Xm %*% mu - vecW)
-        wsvdARG <- matrix(M %*% (theta_hat - Xm %*% mu - Xe %*% e) +
-                            fullMat %*% vecW, nrow = nGeno, ncol = nEnv)
-        wsvd <- svd(wsvdARG)
-        U <- wsvd$u[, 1:nPC]
+        ## Update mu and e.
+        mu <- muBase %*% (thetaHat - Xe %*% e - vecW)
+        e <- eBase %*% (thetaHat - Xm %*% mu - vecW)
+        ## Compute weighted residuals.
+        wRes <- matrix(M %*% (thetaHat - Xm %*% mu - Xe %*% e) +
+                         fullMat %*% vecW, nrow = nGeno, ncol = nEnv)
+        ## Extract and reparameterize U and V from computed svd.
+        wSvd <- svd(wRes)
+        U <- wSvd$u[, 1:nPC]
         U <- U - genoMat %*% U
-        V <- wsvd$v[, 1:nPC]
-
-        vecW <- as.vector(U %*% diag(x = wsvd$d[1:nPC]) %*% t(V))
-
+        V <- wSvd$v[, 1:nPC]
+        ## Compute vectorized version of W.
+        vecW <- as.vector(U %*% diag(x = wSvd$d[1:nPC]) %*% t(V))
+        ## Update theta.
         theta <- Xm %*% mu + Xe %*% e + vecW
       }
-
-      if (sum((theta_i - theta) ^ 2) / abs(mean(theta)) < ct) {
-        break
-      } else {
-        cat("iteration ", z, " ct = ",
-            sum((theta_i - theta) ^ 2) / abs(mean(theta)), "\n")
-        theta_i <- theta
-        }
+      itDiff <- sum((thetaIter - theta) ^ 2) / abs(mean(theta))
+      cat("iteration", i, "ct =", itDiff , "\n")
+      i <- i + 1
+      thetaIter <- theta
     }
-
+    ## Convert final vecW to a nGeno x nEnv matrix for a final svd computation.
     W <- matrix(data = vecW, nrow = nGeno, ncol = nEnv)
-    svdW <- svd(W)
-    U <- svdW$u[, 1:nPC]
-    D <- svdW$d
-    V <- svdW$v[, 1:nPC]
-
-
+    ## Compute svd and extract U, V and D.
+    wSvd <- svd(W)
+    U <- wSvd$u[, 1:nPC]
+    D <- wSvd$d[1:nPC]
+    V <- wSvd$v[, 1:nPC]
+    ## Construct ammi table.
+    pcNames <- paste0("PC", 1:nPC)
+    geNames <- c("Genotype", "Environment")
     aovAmmi <- data.frame(Df = c(nGeno - 1, nEnv - 1, (nGeno - 1) * (nEnv - 1),
                                  nGeno + nEnv - 1 - 2 * 1:nPC),
                           "Sum Sq" = c(nEnv * sum(g0 ^ 2), nGeno * sum(e0 ^ 2),
-                                       sum((theta_hat - theta0) ^ 2),
-                                       D[1:nPC] ^ 2),
-                          row.names = c("Genotype", "Environment",
-                                        "Interactions", paste0("PC", 1:nPC)),
+                                       sum((thetaHat - theta0) ^ 2), D ^ 2),
+                          row.names = c(geNames, "Interactions", pcNames),
                           check.names = FALSE)
     aovAmmi["Residuals", c("Df", "Sum Sq")] <-
       aovAmmi["Interactions", c("Df", "Sum Sq")] -
-      colSums(aovAmmi[paste0("PC", 1:nPC), c("Df", "Sum Sq")])
+      colSums(aovAmmi[pcNames, c("Df", "Sum Sq")])
     aovAmmi[["Mean Sq"]] <- aovAmmi[["Sum Sq"]] / aovAmmi[["Df"]]
-    aovAmmi[c("Genotype", "Environment"), "F value"] <-
-      aovAmmi[c("Genotype", "Environment"), "Mean Sq"] /
+    ## Convert infinite values to NA.
+    aovAmmi[, "Mean Sq"][is.infinite(aovAmmi[, "Mean Sq"])] <- NA
+    aovAmmi[geNames, "F value"] <- aovAmmi[geNames, "Mean Sq"] /
       aovAmmi["Interactions", "Mean Sq"]
-    aovAmmi[paste0("PC", 1:nPC), "F value"] <-
-      aovAmmi[paste0("PC", 1:nPC), "Mean Sq"] / aovAmmi["Residuals", "Mean Sq"]
-    aovAmmi[c("Genotype", "Environment"), "Pr(>F)"] <-
-      1 - pf(q = aovAmmi[c("Genotype", "Environment"), "F value"],
-             df1 = aovAmmi[c("Genotype", "Environment"), "Df"],
-             df2 = aovAmmi["Interactions", "Df"])
-    aovAmmi[paste0("PC", 1:nPC), "Pr(>F)"] <-
-      1 - pf(q = aovAmmi[paste0("PC", 1:nPC), "F value"],
-             df1 = aovAmmi[paste0("PC", 1:nPC), "Df"],
-             df2 = aovAmmi["Residuals", "Df"])
+    aovAmmi[pcNames, "F value"] <- aovAmmi[pcNames, "Mean Sq"] /
+      aovAmmi["Residuals", "Mean Sq"]
+    aovAmmi[geNames, "Pr(>F)"] <- 1 - pf(q = aovAmmi[geNames, "F value"],
+                                         df1 = aovAmmi[geNames, "Df"],
+                                         df2 = aovAmmi["Interactions", "Df"])
+    aovAmmi[pcNames, "Pr(>F)"] <- 1 - pf(q = aovAmmi[pcNames, "F value"],
+                                         df1 = aovAmmi[pcNames, "Df"],
+                                         df2 = aovAmmi["Residuals", "Df"])
     class(aovAmmi) <- c("anova", "data.frame")
-
-    UD <- U %*% diag(x = D[1:nPC])
+    ## Construct importance.
+    UD <- U %*% diag(x = D)
     importance <- rbind(sqrt(apply(X = UD, MARGIN = 2, FUN = var)),
-                        aovAmmi[paste0("PC", 1:nPC), "Sum Sq"] /
+                        aovAmmi[pcNames, "Sum Sq"] /
                           aovAmmi["Interactions", "Sum Sq"])
-    importance <- rbind(importance, cumsum(importance[2,]))
-    colnames(importance) <- paste0("PC", 1:nPC)
+    importance <- rbind(importance, cumsum(importance[2, ]))
+    colnames(importance) <- pcNames
     rownames(importance) <- c("Standard deviation", "Proportion of Variance",
                               "Cumulative Proportion")
-
+    ## Assign/Compute other return variables.
     envScores <- V
     genoScores <- U
-    colnames(envScores) <- colnames(genoScores) <- paste0("PC", 1:nPC)
+    colnames(envScores) <- colnames(genoScores) <- pcNames
     rownames(envScores) <- levels(TDYear[["trial"]])
     rownames(genoScores) <- levels(TDYear[["genotype"]])
     fitted <- data.frame(trial = TDYear[["trial"]],
