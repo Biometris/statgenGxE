@@ -242,7 +242,7 @@ gxeAmmiHelp <- function(TD,
     datTot[[year]] <- TDYear
     ## Add combinations of trial and genotype currently not in TD to TD.
     ## Reshape adds missing combinations to its output.
-    ## Reshaping to wide and then back to long retains those missings.
+    ## Reshaping to wide and then back to long retains those missing values.
     TDYear <- reshape(reshape(TDYear[c("trial", "genotype", trait,
                                        if (useWt) "wt")],
                               direction = "wide", timevar = "genotype",
@@ -316,7 +316,7 @@ gxeAmmiHelp <- function(TD,
         e <- eBase %*% (thetaHat - Xm %*% mu - Xg %*% g - vecW)
         ## Compute weighted residuals.
         wRes <- matrix(data = M %*% (thetaHat - Xm %*% mu - Xe %*% e - Xg %*% g) +
-                        fullMat %*% vecW, nrow = nGeno, ncol = nEnv)
+                         fullMat %*% vecW, nrow = nGeno, ncol = nEnv)
         ## Compute svd of weighted residuals.
         wSvd <- svd(wRes)
         ## Extract and reparameterize U and V from computed svd.
@@ -485,5 +485,48 @@ gxeAmmiHelp <- function(TD,
                     byYear = byYear))
 }
 
+#' @keywords internal
+testPPB <- function(theta,
+                    nBoot = 1000,
+                    GGE = FALSE)  {
+  nGeno <- nrow(theta)
+  nEnv <- ncol(theta)
+  KMax <- if (!GGE) min(nGeno - 1, nEnv - 1) else min(nGeno, nEnv - 1)
+  E <- sweep(x = theta, MARGIN = 1, STATS = rowMeans(theta))
+  E <- sweep(x = E, MARGIN = 2, STATS = colMeans(theta))
+  E <- E + mean(theta)
+  ESvd <- svd(E)
+  U <- ESvd$u[, 1:KMax, drop = FALSE]
+  V <- ESvd$v[, 1:KMax, drop = FALSE]
+  lam <- ESvd$d[1:KMax]
+  k <- 0
+  pValue <- 0
+  while (k < KMax && pValue < 0.05) {
+    TObs <- lam[k + 1] ^ 2 / sum(lam[(k + 1):KMax] ^ 2)
+    if (k > 0) {
+      thetaK <- U[, 1:k, drop = FALSE] %*%
+        diag(x = lam[1:k], nrow = k, ncol = k) %*% t(V[, 1:k, drop = FALSE])
+    } else {
+      thetaK <- matrix(data = 0, nrow = nGeno, ncol = nEnv)
+    }
+    RB <- U[, (k + 1):KMax, drop = FALSE] %*%
+      diag(x = lam[(k+1):KMax], nrow = KMax - k, ncol = KMax - k) %*%
+      t(V[, (k + 1):KMax, drop = FALSE])
+    TBoot <- sapply(1:nBoot, FUN = function(i) {
+      Rb <- sample(RB, nGeno * nEnv, replace = FALSE)
+      Eb <- thetaK + Rb
+      Ebb <- sweep(x = Eb, MARGIN = 1, STATS = rowMeans(Eb))
+      Ebb <- sweep(x = Ebb, MARGIN = 2, STATS = colMeans(Eb))
+      Ebb <- Ebb + mean(Eb)
+      lamb <- svd(Ebb)$d
+      lamb[k + 1] ^ 2 / sum(lamb[(k + 1):KMax] ^ 2)
+    })
+    pValue <- mean(TBoot > TObs)
+
+    cat(k, pValue, "\n")
+    k <- k + 1
+  }
+  return(list(K = if (pValue < 0.05) k else k - 1, pValue = pValue))
+}
 
 
