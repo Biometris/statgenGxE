@@ -243,31 +243,30 @@ gxeAmmiHelp <- function(TD,
     ## Add combinations of trial and genotype currently not in TD to TD.
     ## Reshape adds missing combinations to its output.
     ## Reshaping to wide and then back to long retains those missing values.
-    TDYear <- reshape(reshape(TDYear[c("trial", "genotype", trait,
+    TDYear <- reshape(reshape(TDYear[c("genotype", "trial", trait,
                                        if (useWt) "wt")],
-                              direction = "wide", timevar = "genotype",
-                              idvar = "trial",
+                              direction = "wide", timevar = "trial",
+                              idvar = "genotype",
                               v.names = c(trait, if (useWt) "wt")))
     if (useWt) {
-      envMeans <- tapply(X = TDYear[[trait]] * TDYear[["wt"]],
-                         INDEX = TDYear[["trial"]], FUN = mean, na.rm = TRUE)
-      TDYear[is.na(TDYear[["wt"]]), "wt"] <- 0
+      TDYear[is.na(TDYear[["wt"]]), "wt"] <- 0 #1e-5
+      ## Divide by max value to get all values in 0 to 1 range.
+      TDYear[["wt"]] <- TDYear[["wt"]] / max(TDYear[["wt"]])
     } else {
-      envMeans <- tapply(X = TDYear[[trait]], INDEX = TDYear[["trial"]],
-                         FUN = mean, na.rm = TRUE)
+      ## 1 for non-missing trait values, 0 for missing trait values.
+      TDYear[["wt"]] <- as.numeric(!is.na(TDYear[[trait]]))
     }
-    TDYear <- TDYear[order(TDYear[["trial"]], TDYear[["genotype"]]), ]
+    ## Fit a base additive model and get predictions.
+    ## These are used a initial values for missing trait values.
+    baseFit <- lm(formula(paste(trait, "~ genotype + trial")), data = TDYear,
+                  weights = TDYear[["wt"]])
+    basePred <- predict(baseFit, newdata = TDYear)
     ## Create matrix of observed phenotype.
     thetaHat <- matrix(TDYear[[trait]], nrow = nrow(TDYear))
-    ## Construct weight matrix M.
-    M <- diag(as.numeric(!is.na(thetaHat)))
-    if (useWt) {
-      M <- diag(x = TDYear[["wt"]])
-    }
-    ## Assure all values of M are between 0 and 1.
-    M <- M / max(M)
-    ## Replace missing values in thetaHat by (weighted) environment mean.
-    thetaHat[is.na(thetaHat)] <- envMeans[TDYear[is.na(thetaHat), "trial"]]
+    ## Replace missing values in thetaHat by predictions from additive model.
+    thetaHat[is.na(thetaHat)] <- basePred[is.na(thetaHat)]
+    ## Construct weight matrix M from wt column in data.
+    M <- diag(x = TDYear[["wt"]])
     ## Construct design matrices.
     Xm <- matrix(data = 1, nrow = nEnv * nGeno)
     Xg <- matrix(data = 1, nrow = nEnv) %x% diag(x = nGeno)
@@ -325,7 +324,8 @@ gxeAmmiHelp <- function(TD,
         V <- wSvd$v[, 1:nPC]
         V <- V - envMat %*% V
         ## Compute vectorized version of W.
-        vecW <- as.vector(U %*% diag(x = wSvd$d[1:nPC]) %*% t(V))
+        vecW <- as.vector(U %*% diag(x = wSvd$d[1:nPC],
+                                     nrow = nPC, ncol = nPC) %*% t(V))
         ## Update theta.
         theta <- Xm %*% mu + Xe %*% e + Xg %*% g + vecW
       } else {
@@ -341,7 +341,8 @@ gxeAmmiHelp <- function(TD,
         U <- U - genoMat %*% U
         V <- wSvd$v[, 1:nPC]
         ## Compute vectorized version of W.
-        vecW <- as.vector(U %*% diag(x = wSvd$d[1:nPC]) %*% t(V))
+        vecW <- as.vector(U %*% diag(x = wSvd$d[1:nPC],
+                                     nrow = nPC, ncol = nPC) %*% t(V))
         ## Update theta.
         theta <- Xm %*% mu + Xe %*% e + vecW
       }
@@ -354,9 +355,9 @@ gxeAmmiHelp <- function(TD,
     W <- matrix(data = vecW, nrow = nGeno, ncol = nEnv)
     ## Compute svd and extract U, V and D.
     wSvd <- svd(W)
-    U <- wSvd$u[, 1:nPC]
+    U <- wSvd$u[, 1:nPC, drop = FALSE]
     D <- wSvd$d[1:nPC]
-    V <- wSvd$v[, 1:nPC]
+    V <- wSvd$v[, 1:nPC, drop = FALSE]
     ## Construct ammi table.
     pcNames <- paste0("PC", 1:nPC)
     geNames <- c("Genotype", "Environment")
@@ -384,7 +385,7 @@ gxeAmmiHelp <- function(TD,
                                          df2 = aovAmmi["Residuals", "Df"])
     class(aovAmmi) <- c("anova", "data.frame")
     ## Construct importance.
-    UD <- U %*% diag(x = D)
+    UD <- U %*% diag(x = D, nrow = nPC, ncol = nPC)
     importance <- rbind(sqrt(apply(X = UD, MARGIN = 2, FUN = var)),
                         aovAmmi[pcNames, "Sum Sq"] /
                           aovAmmi["Interactions", "Sum Sq"])
