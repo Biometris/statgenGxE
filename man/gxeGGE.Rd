@@ -13,7 +13,9 @@ gxeGGE(
   center = TRUE,
   scale = FALSE,
   excludeGeno = NULL,
-  useWt = FALSE
+  useWt = FALSE,
+  maxIter = 10000,
+  tolerance = 1e-09
 )
 }
 \arguments{
@@ -42,6 +44,12 @@ be excluded from the analysis. If \code{NULL}, all genotypes are used.}
 
 \item{useWt}{Should weighting be used when modeling? Requires a column
 \code{wt} in \code{TD}.}
+
+\item{maxIter}{An integer specifying the maximum number of iterations in the
+algorithm.}
+
+\item{tolerance}{A numeric value indicating the tolerance for convergence in
+the algorithm.}
 }
 \description{
 The Genotype plus Genotype by Environment interaction (GGE) model fits

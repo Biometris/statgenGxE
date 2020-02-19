@@ -43,6 +43,10 @@
 #' be excluded from the analysis. If \code{NULL}, all genotypes are used.
 #' @param useWt Should weighting be used when modeling? Requires a column
 #' \code{wt} in \code{TD}.
+#' @param maxIter An integer specifying the maximum number of iterations in the
+#' algorithm.
+#' @param tolerance A numeric value indicating the tolerance for convergence in
+#' the algorithm.
 #'
 #' @return An object of class \code{\link{AMMI}}, a list containing:
 #' \item{envScores}{A matrix with environmental scores.}
