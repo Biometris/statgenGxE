@@ -249,7 +249,7 @@ gxeAmmiHelp <- function(TD,
                               idvar = "genotype",
                               v.names = c(trait, if (useWt) "wt")))
     if (useWt) {
-      TDYear[is.na(TDYear[["wt"]]), "wt"] <- 0 #1e-5
+      TDYear[is.na(TDYear[["BLUEs_yield"]]), "wt"] <- 0 #1e-5
       ## Divide by max value to get all values in 0 to 1 range.
       TDYear[["wt"]] <- TDYear[["wt"]] / max(TDYear[["wt"]])
     } else {
@@ -264,7 +264,7 @@ gxeAmmiHelp <- function(TD,
     ## Create matrix of observed phenotype.
     thetaHat <- matrix(TDYear[[trait]], nrow = nrow(TDYear))
     ## Replace missing values in thetaHat by predictions from additive model.
-    thetaHat[is.na(thetaHat)] <- basePred[is.na(thetaHat)]
+    thetaHat[is.na(thetaHat)] <- 0 # basePred[is.na(thetaHat)]
     ## Construct weight matrix M from wt column in data.
     M <- diag(x = TDYear[["wt"]])
     ## Construct design matrices.
@@ -293,21 +293,15 @@ gxeAmmiHelp <- function(TD,
     fullMat <- diag(x = nEnv * nGeno) - M
     envMat <- matrix(data = 1 / nEnv, nrow = nEnv, ncol = nEnv)
     genoMat <- matrix(data = 1 / nGeno, nrow = nGeno, ncol = nGeno)
-    if (!GGE) {
-      mu0 <- muBase %*% thetaHat
-      g0 <- gBase %*% (thetaHat - Xm %*% mu0)
-      e0 <- eBase %*% (thetaHat - Xm %*% mu0)
-      theta0 <- Xm %*% mu0 + Xe %*% e0 + Xg %*% g0
-    } else {
-      mu0 <- muBase %*% thetaHat
-      e0 <- eBase %*% (thetaHat - Xm %*% mu0)
-      theta0 <- Xm %*% mu0 + Xe %*% e0
-    }
     ## Initialize loop parameters.
     i <- 1
     itDiff <- Inf
     thetaIter <- matrix(data = 0, nrow = nEnv * nGeno)
+    nPC0 <- min(nEnv, nGeno)
     while (i < maxIter && itDiff > tolerance) {
+      if (nPC0 > nPC) {
+        nPC0 <- nPC0 - 1
+      }
       if (!GGE) {
         ## Update mu, g and e.
         mu <- muBase %*% (thetaHat - Xe %*% e - Xg %*% g - vecW)
@@ -319,13 +313,13 @@ gxeAmmiHelp <- function(TD,
         ## Compute svd of weighted residuals.
         wSvd <- svd(wRes)
         ## Extract and reparameterize U and V from computed svd.
-        U <- wSvd$u[, 1:nPC]
+        U <- wSvd$u[, 1:nPC0]
         U <- U - genoMat %*% U
-        V <- wSvd$v[, 1:nPC]
+        V <- wSvd$v[, 1:nPC0]
         V <- V - envMat %*% V
         ## Compute vectorized version of W.
-        vecW <- as.vector(U %*% diag(x = wSvd$d[1:nPC],
-                                     nrow = nPC, ncol = nPC) %*% t(V))
+        vecW <- as.vector(U %*% diag(x = wSvd$d[1:nPC0],
+                                     nrow = nPC0, ncol = nPC0) %*% t(V))
         ## Update theta.
         theta <- Xm %*% mu + Xe %*% e + Xg %*% g + vecW
       } else {
@@ -337,12 +331,12 @@ gxeAmmiHelp <- function(TD,
                          fullMat %*% vecW, nrow = nGeno, ncol = nEnv)
         ## Extract and reparameterize U and V from computed svd.
         wSvd <- svd(wRes)
-        U <- wSvd$u[, 1:nPC]
+        U <- wSvd$u[, 1:nPC0]
         U <- U - genoMat %*% U
-        V <- wSvd$v[, 1:nPC]
+        V <- wSvd$v[, 1:nPC0]
         ## Compute vectorized version of W.
-        vecW <- as.vector(U %*% diag(x = wSvd$d[1:nPC],
-                                     nrow = nPC, ncol = nPC) %*% t(V))
+        vecW <- as.vector(U %*% diag(x = wSvd$d[1:nPC0],
+                                     nrow = nPC0, ncol = nPC0) %*% t(V))
         ## Update theta.
         theta <- Xm %*% mu + Xe %*% e + vecW
       }
@@ -364,7 +358,7 @@ gxeAmmiHelp <- function(TD,
     aovAmmi <- data.frame(Df = c(nGeno - 1, nEnv - 1, (nGeno - 1) * (nEnv - 1),
                                  nGeno + nEnv - 1 - 2 * 1:nPC),
                           "Sum Sq" = c(nEnv * sum(g0 ^ 2), nGeno * sum(e0 ^ 2),
-                                       sum((thetaHat - theta0) ^ 2), D ^ 2),
+                                       sum(residuals(baseFit) ^ 2), D ^ 2),
                           row.names = c(geNames, "Interactions", pcNames),
                           check.names = FALSE)
     aovAmmi["Residuals", c("Df", "Sum Sq")] <-
