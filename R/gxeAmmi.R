@@ -259,7 +259,7 @@ gxeAmmiHelp <- function(TD,
                               idvar = "genotype",
                               v.names = c(trait, if (useWt) "wt")))
     if (useWt) {
-      TDYear[is.na(TDYear[["BLUEs_yield"]]), "wt"] <- 0 #1e-5
+      TDYear[is.na(TDYear[[trait]]), "wt"] <- 0 #1e-5
       ## Divide by max value to get all values in 0 to 1 range.
       TDYear[["wt"]] <- TDYear[["wt"]] / max(TDYear[["wt"]])
     } else {
