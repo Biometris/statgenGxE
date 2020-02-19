@@ -174,6 +174,12 @@ gxeAmmiHelp <- function(TD,
     chkCol("year", TDTot)
   }
   chkNum(nPC, min = 1, incl = TRUE)
+
+
+  ### TO BE REMOVED
+  if (is.null(nPC)) nPC <- 2
+
+
   chkChar(excludeGeno)
   if (!is.null(excludeGeno) && !all(excludeGeno %in% TDTot[["genotype"]])) {
     stop("All genotypes to exclude should be in TD.\n")
@@ -302,6 +308,7 @@ gxeAmmiHelp <- function(TD,
       mu0 <- muBase %*% thetaHat
       e0 <- eBase %*% (thetaHat - Xm %*% mu0)
       theta0 <- Xm %*% mu0 + Xe %*% e0
+      g0 <- 0
     }
     ## Initialize loop parameters.
     i <- 1
@@ -406,88 +413,49 @@ gxeAmmiHelp <- function(TD,
     fitted <- data.frame(trial = TDYear[["trial"]],
                          genotype = TDYear[["genotype"]],
                          fittedValue = theta)
-
-
-
-
-
-    #     ## Compute anova part for pca components.
-    #     pcaAov <- pcaToAov(pca = pca, aov = aov)
-    #     ## Create complete ANOVA table.
-    #     aov <- rbind(aov, pcaAov)
-    #     ## Extract loadings and scores from pca.
-    #     loadings <- pca$rotation
-    #     scores <- pca$x
-    #     ## For GGE assure loadings for PC1 are positive to assure proper plotting.
-    #     if (GGE && all(loadings[, "PC1"] < 0)) {
-    #       loadings[, "PC1"] <- -loadings[, "PC1"]
-    #       scores[, "PC1"] <- -scores[, "PC1"]
-    #     }
-    #     ## Compute AMMI-estimates per genotype per trial.
-    #     mTerms <- matrix(data = 0, nrow = nGeno, ncol = nEnv)
-    #     for (i in 1:nPCYear) {
-    #       mTerms <- mTerms + outer(scores[, i], loadings[, i])
-    #     }
-    #     fitted <- fittedVals + mTerms
-    #     ## Extract importance from pca.
-    #     importance <- as.data.frame(summary(pca)$importance)
-    #     colnames(importance) <- paste0("PC", 1:ncol(importance))
-    #     ## Compute means.
-    #     envMean <- tapply(X = TDYear[[trait]], INDEX = TDYear[["trial"]],
-    #                       FUN = mean)
-    #     envMean <- setNames(as.numeric(envMean), names(envMean))
-    #     genoMean <- tapply(X = TDYear[[trait]], INDEX = TDYear[["genotype"]],
-    #                        FUN = mean)
-    #     genoMean <- setNames(as.numeric(genoMean), names(genoMean))
-    #     overallMean <- mean(TDYear[[trait]])
-    #     fitTot <- merge(fitTot, fitted, by.x = "genotype", by.y = "row.names",
-    #                     all.x = TRUE)
-    #     loadTot[[year]] <- loadings
-    #     scoreTot[[year]] <- scores
-    #     impTot[[year]] <- importance
-    #     aovTot[[year]] <- aov
-    #     envMeanTot[[year]] <- envMean
-    #     genoMeanTot[[year]] <- genoMean
-    #     ovMeanTot[[year]] <- overallMean
-    #   } # End loop over years.
-    #   if (ncol(fitTot) > 1) {
-    #     fitTot <- reshape(fitTot, direction = "long",
-    #                       varying = list(genotype = colnames(fitTot)[-1]),
-    #                       ids = fitTot[["genotype"]], idvar = "genotype",
-    #                       times = colnames(fitTot)[-1], timevar = "trial",
-    #                       v.names = "fittedValue")
-    #     rownames(fitTot) <- NULL
+    ## For GGE assure loadings for PC1 are positive to assure proper plotting.
+    if (GGE && all(envScores[, "PC1"] < 0)) {
+      envScores[, "PC1"] <- -envScores[, "PC1"]
+      genoScores[, "PC1"] <- -genoScores[, "PC1"]
+    }
+    # fitTot <- merge(fitTot, fitted, by.x = "genotype", by.y = "row.names",
+    #                 all.x = TRUE)
+    fitTot <- fitted
+    loadTot[[year]] <- envScores
+    scoreTot[[year]] <- genoScores
+    impTot[[year]] <- importance
+    aovTot[[year]] <- aovAmmi
+    envMeanTot[[year]] <- as.numeric(e) + as.numeric(mu)
+    genoMeanTot[[year]] <- as.numeric(g) + as.numeric(mu)
+    ovMeanTot[[year]] <- as.numeric(mu)
+  } # End loop over years.
+  if (!byYear) {
+    loadTot <- loadTot[[1]]
+    scoreTot <- scoreTot[[1]]
+    impTot <- impTot[[1]]
+    aovTot <- aovTot[[1]]
+    envMeanTot <- envMeanTot[[1]]
+    genoMeanTot <- genoMeanTot[[1]]
+    ovMeanTot <- ovMeanTot[[1]]
+    datTot <- datTot[[1]]
+  } else {
+    loadTot <- Filter(f = Negate(f = is.null), x = loadTot)
+    scoreTot <- Filter(f = Negate(f = is.null), x = scoreTot)
+    impTot <- Filter(f = Negate(f = is.null), x = impTot)
+    aovTot <- Filter(f = Negate(f = is.null), x = aovTot)
+    envMeanTot <- Filter(f = Negate(f = is.null), x = envMeanTot)
+    genoMeanTot <- Filter(f = Negate(f = is.null), x = genoMeanTot)
+    ovMeanTot <- Filter(f = Negate(f = is.null), x = ovMeanTot)
+    datTot <- Filter(f = Negate(f = is.null), x = datTot)
+    if (length(loadTot) == 0) {
+      stop("All years were skipped.\n")
+    }
   }
-  #   if (!byYear) {
-  #     loadTot <- loadTot[[1]]
-  #     scoreTot <- scoreTot[[1]]
-  #     impTot <- impTot[[1]]
-  #     aovTot <- aovTot[[1]]
-  #     envMeanTot <- envMeanTot[[1]]
-  #     genoMeanTot <- genoMeanTot[[1]]
-  #     ovMeanTot <- ovMeanTot[[1]]
-  #     datTot <- datTot[[1]]
-  #   } else {
-  #     loadTot <- Filter(f = Negate(f = is.null), x = loadTot)
-  #     scoreTot <- Filter(f = Negate(f = is.null), x = scoreTot)
-  #     impTot <- Filter(f = Negate(f = is.null), x = impTot)
-  #     aovTot <- Filter(f = Negate(f = is.null), x = aovTot)
-  #     envMeanTot <- Filter(f = Negate(f = is.null), x = envMeanTot)
-  #     genoMeanTot <- Filter(f = Negate(f = is.null), x = genoMeanTot)
-  #     ovMeanTot <- Filter(f = Negate(f = is.null), x = ovMeanTot)
-  #     datTot <- Filter(f = Negate(f = is.null), x = datTot)
-  #     if (length(loadTot) == 0) {
-  #       stop("All years were skipped.\n")
-  #     }
-  #   }
-
-
-  return(createAMMI(envScores = envScores, genoScores = genoScores,
-                    importance = importance, anova = aovAmmi, fitted = fitted,
-                    trait = trait, envMean = as.numeric(e) + as.numeric(mu),
-                    genoMean = as.numeric(g) + as.numeric(mu),
-                    overallMean = mu, dat = datTot, GGE = GGE,
-                    byYear = byYear))
+  return(createAMMI(envScores = loadTot, genoScores = scoreTot,
+                    importance = impTot, anova = aovTot, fitted = fitTot,
+                    trait = trait, envMean = envMeanTot,
+                    genoMean = genoMeanTot, overallMean = ovMeanTot,
+                    dat = datTot, GGE = GGE, byYear = byYear))
 }
 
 #' @keywords internal
