@@ -293,6 +293,16 @@ gxeAmmiHelp <- function(TD,
     fullMat <- diag(x = nEnv * nGeno) - M
     envMat <- matrix(data = 1 / nEnv, nrow = nEnv, ncol = nEnv)
     genoMat <- matrix(data = 1 / nGeno, nrow = nGeno, ncol = nGeno)
+    if (!GGE) {
+      mu0 <- muBase %*% thetaHat
+      g0 <- gBase %*% (thetaHat - Xm %*% mu0)
+      e0 <- eBase %*% (thetaHat - Xm %*% mu0)
+      theta0 <- Xm %*% mu0 + Xe %*% e0 + Xg %*% g0
+    } else {
+      mu0 <- muBase %*% thetaHat
+      e0 <- eBase %*% (thetaHat - Xm %*% mu0)
+      theta0 <- Xm %*% mu0 + Xe %*% e0
+    }
     ## Initialize loop parameters.
     i <- 1
     itDiff <- Inf
