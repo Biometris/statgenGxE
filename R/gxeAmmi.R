@@ -278,7 +278,6 @@ gxeAmmiHelp <- function(TD,
     ## Construct weight matrix M from wt column in data.
     M <- diag(x = TDYear[["wt"]])
     ## Construct design matrices.
-    Xm <- matrix(data = 1, nrow = nEnv * nGeno)
     Xg <- matrix(data = 1, nrow = nEnv) %x% diag(x = nGeno)
     Xe <- diag(x = nEnv) %x% matrix(data = 1, nrow = nGeno)
     ## Initialize g, e and vecW.
@@ -304,14 +303,14 @@ gxeAmmiHelp <- function(TD,
     envMat <- matrix(data = 1 / nEnv, nrow = nEnv, ncol = nEnv)
     genoMat <- matrix(data = 1 / nGeno, nrow = nGeno, ncol = nGeno)
     if (!GGE) {
-      mu0 <- muBase %*% thetaHat
-      g0 <- gBase %*% (thetaHat - Xm %*% mu0)
-      e0 <- eBase %*% (thetaHat - Xm %*% mu0)
-      theta0 <- Xm %*% mu0 + Xe %*% e0 + Xg %*% g0
+      mu0 <- as.numeric(muBase %*% thetaHat)
+      g0 <- gBase %*% (thetaHat - mu0)
+      e0 <- eBase %*% (thetaHat - mu0)
+      theta0 <- mu0 + Xe %*% e0 + Xg %*% g0
     } else {
       mu0 <- muBase %*% thetaHat
-      e0 <- eBase %*% (thetaHat - Xm %*% mu0)
-      theta0 <- Xm %*% mu0 + Xe %*% e0
+      e0 <- eBase %*% (thetaHat - mu0)
+      theta0 <- mu0 + Xe %*% e0
       g0 <- 0
     }
     ## Initialize loop parameters.
@@ -325,41 +324,41 @@ gxeAmmiHelp <- function(TD,
       }
       if (!GGE) {
         ## Update mu, g and e.
-        mu <- muBase %*% (thetaHat - Xe %*% e - Xg %*% g - vecW)
-        g <- gBase %*% (thetaHat - Xm %*% mu - Xe %*% e - vecW)
-        e <- eBase %*% (thetaHat - Xm %*% mu - Xg %*% g - vecW)
+        mu <- as.numeric(muBase %*% (thetaHat - Xe %*% e - Xg %*% g - vecW))
+        g <- gBase %*% (thetaHat - mu - Xe %*% e - vecW)
+        e <- eBase %*% (thetaHat - mu - Xg %*% g - vecW)
         ## Compute weighted residuals.
-        wRes <- matrix(data = M %*% (thetaHat - Xm %*% mu - Xe %*% e - Xg %*% g) +
+        wRes <- matrix(data = M %*% (thetaHat - mu - Xe %*% e - Xg %*% g) +
                          fullMat %*% vecW, nrow = nGeno, ncol = nEnv)
         ## Compute svd of weighted residuals.
-        wSvd <- svd(wRes)
+        wSvd <- La.svd(wRes)
         ## Extract and reparameterize U and V from computed svd.
         U <- wSvd$u[, 1:nPC0]
         U <- U - genoMat %*% U
-        V <- wSvd$v[, 1:nPC0]
-        V <- V - envMat %*% V
+        Vt <- wSvd$vt[1:nPC0, ]
+        Vt <- Vt - Vt %*% envMat
         ## Compute vectorized version of W.
         vecW <- as.vector(U %*% diag(x = wSvd$d[1:nPC0],
-                                     nrow = nPC0, ncol = nPC0) %*% t(V))
+                                     nrow = nPC0, ncol = nPC0) %*% Vt)
         ## Update theta.
-        theta <- Xm %*% mu + Xe %*% e + Xg %*% g + vecW
+        theta <- mu + Xe %*% e + Xg %*% g + vecW
       } else {
         ## Update mu and e.
-        mu <- muBase %*% (thetaHat - Xe %*% e - vecW)
-        e <- eBase %*% (thetaHat - Xm %*% mu - vecW)
+        mu <- as.numeric(muBase %*% (thetaHat - Xe %*% e - vecW))
+        e <- eBase %*% (thetaHat - mu - vecW)
         ## Compute weighted residuals.
-        wRes <- matrix(M %*% (thetaHat - Xm %*% mu - Xe %*% e) +
+        wRes <- matrix(M %*% (thetaHat - mu - Xe %*% e) +
                          fullMat %*% vecW, nrow = nGeno, ncol = nEnv)
         ## Extract and reparameterize U and V from computed svd.
-        wSvd <- svd(wRes)
+        wSvd <- La.svd(wRes)
         U <- wSvd$u[, 1:nPC0]
         U <- U - genoMat %*% U
-        V <- wSvd$v[, 1:nPC0]
+        Vt <- wSvd$vt[1:nPC0, ]
         ## Compute vectorized version of W.
         vecW <- as.vector(U %*% diag(x = wSvd$d[1:nPC0],
-                                     nrow = nPC0, ncol = nPC0) %*% t(V))
+                                     nrow = nPC0, ncol = nPC0) %*% Vt)
         ## Update theta.
-        theta <- Xm %*% mu + Xe %*% e + vecW
+        theta <- mu + Xe %*% e + vecW
       }
       itDiff <- sum((thetaIter - theta) ^ 2) / abs(mean(theta))
       cat("iteration", i, "ct =", itDiff , "\n")
@@ -429,9 +428,9 @@ gxeAmmiHelp <- function(TD,
     scoreTot[[year]] <- genoScores
     impTot[[year]] <- importance
     aovTot[[year]] <- aovAmmi
-    envMeanTot[[year]] <- as.numeric(e) + as.numeric(mu)
-    genoMeanTot[[year]] <- as.numeric(g) + as.numeric(mu)
-    ovMeanTot[[year]] <- as.numeric(mu)
+    envMeanTot[[year]] <- as.numeric(e) + mu
+    genoMeanTot[[year]] <- as.numeric(g) + mu
+    ovMeanTot[[year]] <- mu
   } # End loop over years.
   if (!byYear) {
     loadTot <- loadTot[[1]]
