@@ -139,11 +139,15 @@ plot.FW <- function(x,
                     genotypes = NULL,
                     output = TRUE) {
   plotType <- match.arg(plotType)
+  trait <- x$trait
   dotArgs <- list(...)
   envEffs <- x$envEffs[c("trial", "envEff")]
   TDTot <- Reduce(f = rbind, x = x$TD)
+  TDTot[["genoMean"]] <- ave(x = TDTot[[trait]], TDTot[["trial"]],
+                             TDTot[["genotype"]], FUN = mean)
+  genoMeans <- unique(TDTot[c("trial", "genotype", "genoMean")])
   plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
-                      paste0("Finlay & Wilkinson analysis for ", x$trait))
+                      paste0("Finlay & Wilkinson analysis for ", trait))
   if (plotType == "scatter") {
     selCols = c(1:2, if (!all(is.na(x$estimates$MSdeviation))) 3, 4)
     scatterDat <- setNames(x$estimates[, c("genotype", "genMean",
@@ -192,8 +196,8 @@ plot.FW <- function(x,
   } else if (plotType == "line") {
     order <- match.arg(order)
     lineTrait <- match.arg(lineTrait)
-    lineDat <- data.frame(genotype = TDTot[["genotype"]],
-                          trait = TDTot[[x$trait]],
+    lineDat <- data.frame(genotype = genoMeans[["genotype"]],
+                          trait = genoMeans[["genoMean"]],
                           trial = rep(x = envEffs[["trial"]], each = x$nGeno),
                           fitted = x$fittedGeno,
                           envEff = rep(x = envEffs[["envEff"]], each = x$nGeno))
@@ -220,7 +224,7 @@ plot.FW <- function(x,
       theme(legend.position = "none",
             plot.title = element_text(hjust = 0.5),
             axis.text.x = element_text(angle = 90, hjust = 1)) +
-      labs(title = plotTitle, x = "Environment", y = x$trait)
+      labs(title = plotTitle, x = "Environment", y = trait)
     if (output) {
       plot(p)
     }
@@ -229,8 +233,8 @@ plot.FW <- function(x,
     if (!is.null(genotypes) && !all(genotypes %in% TDTot[["genotype"]])) {
       stop("All genotypes should be in TD.\n")
     }
-    trellisDat <- data.frame(genotype = TDTot[["genotype"]],
-                             trait = TDTot[[x$trait]],
+    trellisDat <- data.frame(genotype = genoMeans[["genotype"]],
+                             trait = genoMeans[["genoMean"]],
                              fitted = x$fittedGeno,
                              envEff = rep(x = envEffs$envEff, each = x$nGeno))
     if (!is.null(genotypes)) {
@@ -251,7 +255,7 @@ plot.FW <- function(x,
       geom_point() +
       geom_line(data = trellisDat, aes_string(x = "envEff", y = "fitted")) +
       facet_wrap(facets = "genotype") +
-      labs(x = "Environment", y = x$trait) +
+      labs(x = "Environment", y = trait) +
       ggtitle(plotTitle) +
       theme(legend.position = "none",
             plot.title = element_text(hjust = 0.5),
