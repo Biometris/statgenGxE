@@ -178,12 +178,6 @@ gxeAmmiHelp <- function(TD,
     chkCol("year", TDTot)
   }
   chkNum(nPC, min = 1, incl = TRUE)
-
-
-  ### TO BE REMOVED
-  if (is.null(nPC)) nPC <- 2
-
-
   chkChar(excludeGeno)
   if (!is.null(excludeGeno) && !all(excludeGeno %in% TDTot[["genotype"]])) {
     stop("All genotypes to exclude should be in TD.\n")
@@ -308,25 +302,36 @@ gxeAmmiHelp <- function(TD,
       e0 <- eBase %*% (thetaHat - mu0)
       theta0 <- mu0 + Xe %*% e0 + Xg %*% g0
     } else {
-      mu0 <- muBase %*% thetaHat
+      mu0 <- as.numeric(muBase %*% thetaHat)
       e0 <- eBase %*% (thetaHat - mu0)
       theta0 <- mu0 + Xe %*% e0
       g0 <- 0
     }
     ## Initialize loop parameters.
     i <- 1
-    itDiff <- Inf
+    itDiff <- scoreDiffE <- scoreDiffG <- Inf
     thetaIter <- matrix(data = 0, nrow = nEnv * nGeno)
+    eIter <- e
+    gIter <- g
+    theta <- theta0
     nPC0 <- min(nEnv, nGeno)
-    while (i < maxIter && itDiff > tolerance) {
-      if (nPC0 > nPC) {
+    decrease <- FALSE
+    while ((i < maxIter && itDiff > tolerance &&
+            (scoreDiffE > tolerance || scoreDiffG > tolerance)) ||
+           is.null(nPC)) {
+      if (is.null(nPC) && (nPC0 == 5 ||
+                           (nPC0 < 5 && nPC0 == min(nEnv - 1, nGeno - 1)))) {
+        nPC0 <- nPC <- testPPB(theta = matrix(theta, nrow = nGeno, ncol = nEnv),
+                               GGE = GGE)$K
+      }
+      if (decrease && (is.null(nPC) || nPC0 > nPC)) {
         nPC0 <- nPC0 - 1
       }
       if (!GGE) {
         ## Update mu, g and e.
         mu <- as.numeric(muBase %*% (thetaHat - Xe %*% e - Xg %*% g - vecW))
-        g <- gBase %*% (thetaHat - mu - Xe %*% e - vecW)
         e <- eBase %*% (thetaHat - mu - Xg %*% g - vecW)
+        g <- gBase %*% (thetaHat - mu - Xe %*% e - vecW)
         ## Compute weighted residuals.
         wRes <- matrix(data = M %*% (thetaHat - mu - Xe %*% e - Xg %*% g) +
                          fullMat %*% vecW, nrow = nGeno, ncol = nEnv)
@@ -361,9 +366,17 @@ gxeAmmiHelp <- function(TD,
         theta <- mu + Xe %*% e + vecW
       }
       itDiff <- sum((thetaIter - theta) ^ 2) / abs(mean(theta))
-      cat("iteration", i, "ct =", itDiff , "\n")
+      scoreDiffE <- sum((eIter - e) ^ 2) / mean(abs(e))
+      scoreDiffG <- sum((gIter - g) ^ 2) / mean(abs(g))
+      cat("iteration", i, "ct =", itDiff , "scoreDiffE =", scoreDiffE,
+          "scoreDiffG =", scoreDiffG, "\n")
       i <- i + 1
       thetaIter <- theta
+      eIter <- e
+      gIter <- g
+      if (!decrease && itDiff < 1e-2) {
+        decrease <- TRUE
+      }
     }
     ## Convert final vecW to a nGeno x nEnv matrix for a final svd computation.
     W <- matrix(data = vecW, nrow = nGeno, ncol = nEnv)
