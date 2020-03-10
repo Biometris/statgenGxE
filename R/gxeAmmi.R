@@ -249,20 +249,24 @@ gxeAmmiHelp <- function(TD,
                        genotype = levels(TDYear[["genotype"]]))
     TDYear <- merge(TD0, TDYear, all.x = TRUE)
     if (useWt) {
-      TDYear[is.na(TDYear[[trait]]), "wt"] <- 0 #1e-5
+      TDYear[is.na(TDYear[[trait]]), "wt"] <- 0
       ## Divide by max value to get all values in 0 to 1 range.
-      TDYear[["wt"]] <- TDYear[["wt"]] / max(TDYear[["wt"]])
+      TDYear[["wt"]] <- TDYear[["wt"]] / mean(TDYear[["wt"]]) #max(TDYear[["wt"]])
     } else {
       ## 1 for non-missing trait values, 0 for missing trait values.
       TDYear[["wt"]] <- as.numeric(!is.na(TDYear[[trait]]))
     }
+
+    TDYear$wt <- TDYear$wt
+
     ## Fit a base additive model and get predictions.
     baseFit <- lm(formula(paste(trait, "~ genotype + trial")), data = TDYear,
                   weights = TDYear[["wt"]])
-    basePred <- predict(baseFit, newdata = TDYear)
     ## Create matrix of observed phenotype.
     thetaHat <- matrix(TDYear[[trait]], nrow = nrow(TDYear))
-    ## Replace missing values in thetaHat by predictions from additive model.
+    ## Replace missing values in thetaHat by 0.
+    ## The actual replacement value doesn't matter since these observations
+    ## get weight 0 and thus won't be used in the algoritm.
     thetaHat[is.na(thetaHat)] <- 0
     ## Construct weight matrix M from wt column in data.
     M <- diag(x = TDYear[["wt"]])
@@ -308,7 +312,7 @@ gxeAmmiHelp <- function(TD,
     thetaIter <- matrix(data = 0, nrow = nEnv * nGeno)
     eIter <- e
     gIter <- g
-    theta <- theta0
+    theta <- thetaHat
     nPC0 <- min(nEnv, nGeno)
     decrease <- FALSE
     while ((i < maxIter && itDiff > tolerance &&
@@ -379,19 +383,28 @@ gxeAmmiHelp <- function(TD,
     wSvd <- svd(W)
     U <- wSvd$u[, 1:nPC, drop = FALSE]
     D <- wSvd$d[1:nPC]
+    cat(D)
     V <- wSvd$v[, 1:nPC, drop = FALSE]
     ## Construct ammi table.
     pcNames <- paste0("PC", 1:nPC)
     geNames <- c("Genotype", "Environment")
-    aovAmmi <- data.frame(Df = c(nGeno - 1, nEnv - 1, (nGeno - 1) * (nEnv - 1),
-                                 nGeno + nEnv - 1 - 2 * 1:nPC),
-                          "Sum Sq" = c(nEnv * sum(g0 ^ 2), nGeno * sum(e0 ^ 2),
-                                       sum(residuals(baseFit) ^ 2), D ^ 2),
-                          row.names = c(geNames, "Interactions", pcNames),
-                          check.names = FALSE)
-    aovAmmi["Residuals", c("Df", "Sum Sq")] <-
-      aovAmmi["Interactions", c("Df", "Sum Sq")] -
-      colSums(aovAmmi[pcNames, c("Df", "Sum Sq")])
+    # aovAmmi <- data.frame(Df = c(nGeno - 1, nEnv - 1, (nGeno - 1) * (nEnv - 1),
+    #                              nGeno + nEnv - 1 - 2 * 1:nPC),
+    #                       "Sum Sq" = c(nEnv * sum(g ^ 2), nGeno * sum(e ^ 2),
+    #                                    sum(residuals(baseFit) ^ 2), D ^ 2),
+    #                       row.names = c(geNames, "Interactions", pcNames),
+    #                       check.names = FALSE)
+
+    aovAmmi <- anova(baseFit)
+    aovAmmi$`Sum Sq` <- aovAmmi$`Sum Sq` * length(diag(M)) / sum(diag(M))
+    rownames(aovAmmi) <- c("Genotype", "Environment", "Interactions")
+    aovAmmi[pcNames, "Df"] <- nGeno + nEnv - 1 - 2 * 1:nPC
+    aovAmmi[pcNames, "Sum Sq"] <- D ^ 2
+
+
+    #aovAmmi["Residuals", c("Df", "Sum Sq")] <-
+    #  aovAmmi["Interactions", c("Df", "Sum Sq")] -
+    #  colSums(aovAmmi[pcNames, c("Df", "Sum Sq")])
     aovAmmi[["Mean Sq"]] <- aovAmmi[["Sum Sq"]] / aovAmmi[["Df"]]
     ## Convert infinite values to NA.
     aovAmmi[, "Mean Sq"][is.infinite(aovAmmi[, "Mean Sq"])] <- NA
