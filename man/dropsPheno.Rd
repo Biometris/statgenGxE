@@ -4,7 +4,9 @@
 \name{dropsPheno}
 \alias{dropsPheno}
 \title{DROPS data sets}
-\format{An object of class \code{data.frame} with 2460 rows and 19 columns.}
+\format{
+An object of class \code{data.frame} with 2460 rows and 19 columns.
+}
 \source{
 \url{https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN}
 }
