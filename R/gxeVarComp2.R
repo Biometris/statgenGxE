@@ -86,27 +86,32 @@ gxeVarComp2 <- function(TD,
   TD0 <- expand.grid(genotype = levels(TDTot[["genotype"]]),
                      trial = levels(TDTot[["trial"]]))
   TDTot <- merge(TD0, TDTot, all.x = TRUE)
+  TDTot[is.na(TDTot[["wt"]]), "wt"] <- 0
   ## Main procedure to fit mixed models.
   modCols <- c(group, if (hasYear) "year", "trial")
   if (engine == "lme4") {
     ## Just the basic model.
     mr <- lme4::lmer(formula(paste0("`", trait, "`~ (",
-                                   paste(modCols, collapse = "+"), ")^2",
-                             "+ (1|genotype) + (scenarioTemp|genotype)")),
+                                    paste(modCols, collapse = "+"), ")^2",
+                                    "+ (1|genotype)",
+                                    if (!is.null(group)) {
+                                      paste(" + (", group, "|genotype)")
+                                    })),
                     data = TDTot, weights = TDTot[["wt"]], ...)
     ## Construct STA object.
   } else if (engine == "asreml") {
     if (requireNamespace("asreml", quietly = TRUE)) {
-      nTr <- nlevels(TDTot[["trial"]])
-      fixedForm <- formula(paste0("`", trait, "`~ trial"))
+      fixedForm <- formula(paste0("`", trait, "`~ (",
+                                  paste(modCols, collapse = "+"), ")^2"))
+      randForm <- formula(paste0("~genotype"))
       ## Put arguments for models in a list to make it easier to switch
       ## between asreml3 and asreml4. Usually only one or two arguments differ.
       ## Also some arguments are identical for all models
-      modArgs0 <- list(fixed = fixedForm, data = TDTot, maxiter = maxIter,
-                       trace = FALSE)
+      modArgs0 <- list(fixed = fixedForm, random = randForm, data = TDTot,
+                       weights = "wt", maxiter = maxIter, trace = TRUE)
       modArgs <- modArgs0
-      modArgs[[ifelse(asreml4(), "residual", "rcov")]] <-
-        formula("~genotype:trial")
+      # modArgs[[ifelse(asreml4(), "residual", "rcov")]] <-
+      #   formula("~genotype:trial")
       mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
       if (!is.null(mr$warning)) {
         ## Check if param 1% increase is significant. Remove warning if not.
