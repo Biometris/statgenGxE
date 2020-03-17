@@ -245,13 +245,9 @@ gxeAmmiHelp <- function(TD,
     }
     datTot[[year]] <- TDYear
     ## Add combinations of trial and genotype currently not in TD to TD.
-    ## Reshape adds missing combinations to its output.
-    ## Reshaping to wide and then back to long retains those missing values.
-    TDYear <- reshape(reshape(TDYear[c("genotype", "trial", trait,
-                                       if (useWt) "wt")],
-                              direction = "wide", timevar = "trial",
-                              idvar = "genotype",
-                              v.names = c(trait, if (useWt) "wt")))
+    TD0 <- expand.grid(trial = levels(TDYear[["trial"]]),
+                       genotype = levels(TDYear[["genotype"]]))
+    TDYear <- merge(TD0, TDYear, all.x = TRUE)
     if (useWt) {
       TDYear[is.na(TDYear[[trait]]), "wt"] <- 0 #1e-5
       ## Divide by max value to get all values in 0 to 1 range.
@@ -261,14 +257,13 @@ gxeAmmiHelp <- function(TD,
       TDYear[["wt"]] <- as.numeric(!is.na(TDYear[[trait]]))
     }
     ## Fit a base additive model and get predictions.
-    ## These are used a initial values for missing trait values.
     baseFit <- lm(formula(paste(trait, "~ genotype + trial")), data = TDYear,
                   weights = TDYear[["wt"]])
     basePred <- predict(baseFit, newdata = TDYear)
     ## Create matrix of observed phenotype.
     thetaHat <- matrix(TDYear[[trait]], nrow = nrow(TDYear))
     ## Replace missing values in thetaHat by predictions from additive model.
-    thetaHat[is.na(thetaHat)] <- 0 # basePred[is.na(thetaHat)]
+    thetaHat[is.na(thetaHat)] <- 0
     ## Construct weight matrix M from wt column in data.
     M <- diag(x = TDYear[["wt"]])
     ## Construct design matrices.
