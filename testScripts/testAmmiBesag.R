@@ -1,5 +1,6 @@
 library(agridat)
 library(statgenSTA)
+library(statgenGxE)
 
 ## Compute BLUEs and wt for besag.met data from agridat.
 ## 64 genotypes - 6 environments.
