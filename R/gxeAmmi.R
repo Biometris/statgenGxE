@@ -251,7 +251,7 @@ gxeAmmiHelp <- function(TD,
     if (useWt) {
       TDYear[is.na(TDYear[[trait]]), "wt"] <- 0
       ## Divide by max value to get all values in 0 to 1 range.
-      TDYear[["wt"]] <- TDYear[["wt"]] / mean(TDYear[["wt"]]) #max(TDYear[["wt"]])
+      TDYear[["wt"]] <- TDYear[["wt"]] / max(TDYear[["wt"]])
     } else {
       ## 1 for non-missing trait values, 0 for missing trait values.
       TDYear[["wt"]] <- as.numeric(!is.na(TDYear[[trait]]))
@@ -383,7 +383,6 @@ gxeAmmiHelp <- function(TD,
     wSvd <- svd(W)
     U <- wSvd$u[, 1:nPC, drop = FALSE]
     D <- wSvd$d[1:nPC]
-    cat(D)
     V <- wSvd$v[, 1:nPC, drop = FALSE]
     ## Construct ammi table.
     pcNames <- paste0("PC", 1:nPC)
@@ -400,11 +399,9 @@ gxeAmmiHelp <- function(TD,
     rownames(aovAmmi) <- c("Genotype", "Environment", "Interactions")
     aovAmmi[pcNames, "Df"] <- nGeno + nEnv - 1 - 2 * 1:nPC
     aovAmmi[pcNames, "Sum Sq"] <- D ^ 2
-
-
-    #aovAmmi["Residuals", c("Df", "Sum Sq")] <-
-    #  aovAmmi["Interactions", c("Df", "Sum Sq")] -
-    #  colSums(aovAmmi[pcNames, c("Df", "Sum Sq")])
+    aovAmmi["Residuals", c("Df", "Sum Sq")] <-
+      aovAmmi["Interactions", c("Df", "Sum Sq")] -
+      colSums(aovAmmi[pcNames, c("Df", "Sum Sq")])
     aovAmmi[["Mean Sq"]] <- aovAmmi[["Sum Sq"]] / aovAmmi[["Df"]]
     ## Convert infinite values to NA.
     aovAmmi[, "Mean Sq"][is.infinite(aovAmmi[, "Mean Sq"])] <- NA
