@@ -4,14 +4,16 @@
 \name{TDMaize}
 \alias{TDMaize}
 \title{Field data for a maize experiment in Tlaltizapan, Mexico.}
-\format{A TD object, a list containing 8 data.frames, each with the following
+\format{
+A TD object, a list containing 8 data.frames, each with the following
 columns:
 \describe{
   \item{trial}{trial, a combination of watering regime, year and nitrogen
   treatment}
   \item{genotype}{genotype}
   \item{yld}{grain yield in tons}
-}}
+}
+}
 \source{
 \url{https://link.springer.com/article/10.1007/BF00221905}
 }
