@@ -76,7 +76,10 @@ gxeVarComp2 <- function(TD,
   TDTot <- droplevels(TDTot)
   hasYear <- hasName(TDTot, "year")
 
+
+  ## Set to FALSE for developing purposes.
   hasYear <- FALSE
+
 
   ## Increase maximum number of iterations for asreml. Needed for more complex
   ## designs to converge.
@@ -86,7 +89,17 @@ gxeVarComp2 <- function(TD,
   TD0 <- expand.grid(genotype = levels(TDTot[["genotype"]]),
                      trial = levels(TDTot[["trial"]]))
   TDTot <- merge(TD0, TDTot, all.x = TRUE)
+  ## Asreml can't handle missing weights, so set them to 0 for added combinations.
   TDTot[is.na(TDTot[["wt"]]), "wt"] <- 0
+  ## Check if the trial is nested within the group.
+  hasGroup <- !is.null(group)
+  if (hasGroup) {
+    groupTab <- table(TDTot[["trial"]], TDTot[[group]])
+    isNestedTrialGroup <- sum(groupTab > 0) == nlevels(TDTot[["trial"]])
+  }
+  ## Check if the data contains replicates.
+  repTab <- table(TDTot[["trial"]], TDTot[["genotype"]])
+  hasReps <- any(repTab > 1)
   ## Main procedure to fit mixed models.
   modCols <- c(group, if (hasYear) "year", "trial")
   if (engine == "lme4") {
@@ -101,14 +114,26 @@ gxeVarComp2 <- function(TD,
     ## Construct STA object.
   } else if (engine == "asreml") {
     if (requireNamespace("asreml", quietly = TRUE)) {
-      fixedForm <- formula(paste0("`", trait, "`~ (",
-                                  paste(modCols, collapse = "+"), ")^2"))
-      randForm <- formula(paste0("~genotype"))
+      ## Construct formula for fixed past - first as text.
+      ## Trying to fit this in something 'smart' actually makes it unreadable.
+      ## First create a vector with the separate terms.
+      ## This avoids difficult constructions to get the +-es correct.
+      fixedTerms <- c(if (!isNestedTrialGroup) "trial",
+                      if (hasYear) "year",
+                      if (hasGroup) paste0(group, "+ trial:", group))
+      fixedTxt <- paste0("`", trait, "`~",
+                         paste(fixedTerms, collapse = "+"))
+      ## Construct formula for random part in a similar way.
+      randTerms <- c("genotype",
+                     if (hasGroup) paste0("genotype:", group),
+                     if (hasReps) "genotype:trial")
+      randTxt <- paste("~ ", paste(randTerms, collapse = "+"))
       ## Put arguments for models in a list to make it easier to switch
       ## between asreml3 and asreml4. Usually only one or two arguments differ.
       ## Also some arguments are identical for all models
-      modArgs0 <- list(fixed = fixedForm, random = randForm, data = TDTot,
-                       weights = "wt", maxiter = maxIter, trace = TRUE)
+      modArgs0 <- list(fixed = formula(fixedTxt), random = formula(randTxt),
+                       data = TDTot, weights = "wt", maxiter = maxIter,
+                       trace = TRUE)
       modArgs <- modArgs0
       # modArgs[[ifelse(asreml4(), "residual", "rcov")]] <-
       #   formula("~genotype:trial")
