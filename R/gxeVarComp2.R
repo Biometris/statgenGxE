@@ -96,6 +96,8 @@ gxeVarComp2 <- function(TD,
   if (hasGroup) {
     groupTab <- table(TDTot[["trial"]], TDTot[[group]])
     isNestedTrialGroup <- sum(groupTab > 0) == nlevels(TDTot[["trial"]])
+  } else {
+    isNestedTrialGroup <- FALSE
   }
   ## Check if the data contains replicates.
   repTab <- table(TDTot[["trial"]], TDTot[["genotype"]])
