@@ -11,3 +11,4 @@ R/redundant
 ^installed_deps$
 ^.apt$
 ^ci
+testScripts
