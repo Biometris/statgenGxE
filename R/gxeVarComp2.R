@@ -128,7 +128,9 @@ gxeVarComp2 <- function(TD,
       ## Construct formula for random part in a similar way.
       randTerms <- c("genotype",
                      if (hasGroup) paste0("genotype:", group),
-                     if (hasReps) "genotype:trial")
+                     if (hasReps) "genotype:trial",
+                     if (hasGroup && !isNestedTrialGroup && (hasReps || useWt))
+                       paste0("genotype:", group, ":trial"))
       randTxt <- paste("~ ", paste(randTerms, collapse = "+"))
       ## Put arguments for models in a list to make it easier to switch
       ## between asreml3 and asreml4. Usually only one or two arguments differ.
@@ -137,8 +139,6 @@ gxeVarComp2 <- function(TD,
                        data = TDTot, weights = "wt", maxiter = maxIter,
                        trace = TRUE)
       modArgs <- modArgs0
-      # modArgs[[ifelse(asreml4(), "residual", "rcov")]] <-
-      #   formula("~genotype:trial")
       mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
       if (!is.null(mr$warning)) {
         ## Check if param 1% increase is significant. Remove warning if not.
