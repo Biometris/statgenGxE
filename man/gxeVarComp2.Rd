@@ -9,7 +9,7 @@ gxeVarComp2(
   trials = names(TD),
   trait,
   engine = c("lme4", "asreml"),
-  group = NULL,
+  trialGroup = NULL,
   useWt = FALSE,
   ...
 )
@@ -25,7 +25,7 @@ not supplied, all trials are used in the analysis.}
 \item{engine}{A character string specifying the engine used for modeling.
 Either "lme4" or "asreml".}
 
-\item{group}{A character string specifying a column in TD.......}
+\item{trialGroup}{A character string specifying a column in TD.......}
 
 \item{useWt}{Should weighting be used when modeling? Requires a column
 \code{wt} in \code{TD}.}

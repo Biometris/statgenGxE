@@ -11,7 +11,7 @@
 #'
 #' @param engine A character string specifying the engine used for modeling.
 #' Either "lme4" or "asreml".
-#' @param group A character string specifying a column in TD.......
+#' @param trialGroup A character string specifying a column in TD.......
 #' @param ... Further arguments to be passed to \code{asreml}.
 #'
 #' @note If \code{engine = "lme4"}, only the compound symmetry model can be
@@ -52,7 +52,7 @@ gxeVarComp2 <- function(TD,
                         trials = names(TD),
                         trait,
                         engine = c("lme4", "asreml"),
-                        group = NULL,
+                        trialGroup = NULL,
                         useWt = FALSE,
                         ...) {
   ## Checks.
@@ -64,8 +64,8 @@ gxeVarComp2 <- function(TD,
   chkCol(trait, TDTot)
   chkCol("trial", TDTot)
   chkCol("genotype", TDTot)
-  if (!is.null(group)) {
-    chkCol(group, TDTot)
+  if (!is.null(trialGroup)) {
+    chkCol(trialGroup, TDTot)
   }
   if (useWt) {
     chkCol("wt", TDTot)
@@ -75,7 +75,8 @@ gxeVarComp2 <- function(TD,
   engine <- match.arg(engine)
   TDTot <- droplevels(TDTot)
   hasYear <- hasName(TDTot, "year")
-
+  useLocYear <- hasYear & hasName(TDTot, "loc")
+  envVar <- ifelse(useLocYear, "loc", "trial")
 
   ## Set to FALSE for developing purposes.
   hasYear <- FALSE
@@ -86,16 +87,18 @@ gxeVarComp2 <- function(TD,
   maxIter <- 200
   ## Add combinations of trial and genotype currently not in TD to TD.
   ## No missing combinations are allowed when fitting asreml models.
-  TD0 <- expand.grid(genotype = levels(TDTot[["genotype"]]),
-                     trial = levels(TDTot[["trial"]]))
-  TDTot <- merge(TD0, TDTot, all.x = TRUE)
+  # fullModLevs <- list(genotype = levels(TDTot[["genotype"]]))
+  # fullModLevs[[envVar]] <- levels(TDTot[[envVar]])
+  # if (useLocYear) fullModLevs[["year"]] <- levels(TDTot[["year"]])
+  # TD0 <- expand.grid(fullModLevs)
+  # TDTot <- merge(TD0, TDTot, all.x = TRUE)
   ## Asreml can't handle missing weights, so set them to 0 for added combinations.
   TDTot[is.na(TDTot[["wt"]]), "wt"] <- 0
-  ## Check if the trial is nested within the group.
-  hasGroup <- !is.null(group)
+  ## Check if the trial is nested within the trialGroup.
+  hasGroup <- !is.null(trialGroup)
   if (hasGroup) {
-    groupTab <- table(TDTot[["trial"]], TDTot[[group]])
-    isNestedTrialGroup <- sum(groupTab > 0) == nlevels(TDTot[["trial"]])
+    groupTab <- table(TDTot[[envVar]], TDTot[[trialGroup]])
+    isNestedTrialGroup <- sum(groupTab > 0) == nlevels(TDTot[[envVar]])
   } else {
     isNestedTrialGroup <- FALSE
   }
@@ -103,14 +106,14 @@ gxeVarComp2 <- function(TD,
   repTab <- table(TDTot[["trial"]], TDTot[["genotype"]])
   hasReps <- any(repTab > 1)
   ## Main procedure to fit mixed models.
-  modCols <- c(group, if (hasYear) "year", "trial")
+  modCols <- c(trialGroup, if (hasYear) "year", envVar)
   if (engine == "lme4") {
     ## Just the basic model.
     mr <- lme4::lmer(formula(paste0("`", trait, "`~ (",
                                     paste(modCols, collapse = "+"), ")^2",
                                     "+ (1|genotype)",
-                                    if (!is.null(group)) {
-                                      paste(" + (", group, "|genotype)")
+                                    if (!is.null(trialGroup)) {
+                                      paste(" + (", trialGroup, "|genotype)")
                                     })),
                     data = TDTot, weights = TDTot[["wt"]], ...)
     ## Construct STA object.
@@ -120,17 +123,19 @@ gxeVarComp2 <- function(TD,
       ## Trying to fit this in something 'smart' actually makes it unreadable.
       ## First create a vector with the separate terms.
       ## This avoids difficult constructions to get the +-es correct.
-      fixedTerms <- c(if (!isNestedTrialGroup) "trial",
-                      if (hasYear) "year",
-                      if (hasGroup) paste0(group, "+ trial:", group))
+      fixedTerms <- c(if (!isNestedTrialGroup) envVar,
+                      if (useLocYear) "year + year:loc",
+                      if (hasGroup) paste0(trialGroup, "+", envVar, ":", trialGroup),
+                      if (hasGroup & useLocYear) paste0(trialGroup, ":year"))
       fixedTxt <- paste0("`", trait, "`~",
                          paste(fixedTerms, collapse = "+"))
       ## Construct formula for random part in a similar way.
       randTerms <- c("genotype",
-                     if (hasGroup) paste0("genotype:", group),
-                     if (hasReps) "genotype:trial",
+                     if (hasGroup) paste0("genotype:", trialGroup),
+                     if (hasReps) paste0("genotype:", envVar),
                      if (hasGroup && !isNestedTrialGroup && (hasReps || useWt))
-                       paste0("genotype:", group, ":trial"))
+                       paste0("genotype:", trialGroup, ":", envVar),
+                     if (useLocYear) "genotype:year:loc")
       randTxt <- paste("~ ", paste(randTerms, collapse = "+"))
       ## Put arguments for models in a list to make it easier to switch
       ## between asreml3 and asreml4. Usually only one or two arguments differ.
