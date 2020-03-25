@@ -17,7 +17,7 @@ dropsPheno[["year"]] <- paste0("20", substring(dropsPheno[["Experiment"]],
                                                first = 4, last = 5))
 ## Add scenario columns.
 scenario <- data.frame(Experiment = exps,
-                       scenarioWater = c("WD", "WD", "WW", "WW", "WW",
+                       scenarioWater = c("WD", "WD", "WW", "WW", "WD",
                                          "WW", "WD", "WW", "WW", "WD"),
                        scenarioTemp = c("Hot", "Hot", "Cool", "Cool",
                                         "Hot(Day)", "Hot(Day)", "Hot(Day)",
