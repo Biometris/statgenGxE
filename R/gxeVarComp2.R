@@ -78,6 +78,7 @@ gxeVarComp2 <- function(TD,
   useLocYear <- hasYear & hasName(TDTot, "loc")
   envVar <- ifelse(useLocYear, "loc", "trial")
 
+
   ## Set to FALSE for developing purposes.
   hasYear <- FALSE
 
@@ -123,19 +124,21 @@ gxeVarComp2 <- function(TD,
       ## Trying to fit this in something 'smart' actually makes it unreadable.
       ## First create a vector with the separate terms.
       ## This avoids difficult constructions to get the +-es correct.
-      fixedTerms <- c(if (!isNestedTrialGroup) envVar,
-                      if (useLocYear) "year + year:loc",
-                      if (hasGroup) paste0(trialGroup, "+", envVar, ":", trialGroup),
-                      if (hasGroup & useLocYear) paste0(trialGroup, ":year"))
+      fixedTerms <- c(if (!isNestedTrialGroup) "trial",
+                      if (useLocYear && FALSE) "year + year:loc",
+                      if (hasGroup && !useLocYear) paste0(trialGroup, "+", envVar, ":", trialGroup),
+                      if (hasGroup & useLocYear && FALSE) paste0(trialGroup, ":year"))
       fixedTxt <- paste0("`", trait, "`~",
                          paste(fixedTerms, collapse = "+"))
       ## Construct formula for random part in a similar way.
       randTerms <- c("genotype",
                      if (hasGroup) paste0("genotype:", trialGroup),
-                     if (hasReps) paste0("genotype:", envVar),
+                     if (useLocYear || hasReps) paste0("genotype:", envVar),
+                     if (useLocYear) "genotype:year",
+                     if (hasGroup && useLocYear) paste0("genotype:loc:", trialGroup),
                      if (hasGroup && !isNestedTrialGroup && (hasReps || useWt))
                        paste0("genotype:", trialGroup, ":", envVar),
-                     if (useLocYear) "genotype:year:loc")
+                     if (useLocYear && (hasReps || useWt)) "genotype:year:loc")
       randTxt <- paste("~ ", paste(randTerms, collapse = "+"))
       ## Put arguments for models in a list to make it easier to switch
       ## between asreml3 and asreml4. Usually only one or two arguments differ.
