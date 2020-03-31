@@ -330,9 +330,9 @@ test_that("title argument functions correctly in stability plot", {
   expect_silent(plot(geStab, title = "Test"))
 })
 
-test_that("varComp plot gives correct output types", {
-  geVarComp <- gxeVarComp(TD = testTD, trait = "t1")
-  p <- plot(geVarComp)
+test_that("VarCov plot gives correct output types", {
+  geVarCov <- gxeVarCov(TD = testTD, trait = "t1")
+  p <- plot(geVarCov)
   geoms <- sapply(p$layers, function(x) class(x$geom)[1])
   expect_is(p, "ggplot")
   expect_equal(geoms, "GeomTile")
@@ -340,12 +340,12 @@ test_that("varComp plot gives correct output types", {
 
 ## melting data in the plot function caused an error when trials have a
 ## numerical value. This should not be the case.
-test_that("varComp plot gives correct output types when trials are numerical", {
+test_that("VarCov plot gives correct output types when trials are numerical", {
   for (trial in seq_along(testTD)) {
     levels(testTD[[trial]][["trial"]]) <- 1:3
   }
-  geVarComp <- gxeVarComp(TD = testTD, trait = "t1")
-  expect_silent(p <- plot(geVarComp))
+  geVarCov <- gxeVarCov(TD = testTD, trait = "t1")
+  expect_silent(p <- plot(geVarCov))
 })
 
 geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1")
