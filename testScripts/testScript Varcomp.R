@@ -22,6 +22,7 @@
 library(statgenSTA)
 library(statgenGxE)
 library(asreml)
+library(lme4)
 
 ## Read data from statgenSTA - 4 trials, 169 genotypes.
 SB_Yield <- read.csv(system.file("extdata", "SB_yield.csv",
@@ -54,8 +55,11 @@ dropsTD2 <- statgenSTA::createTD(data = dropsPheno, genotype = "Variety_ID",
 dropsTD3 <- statgenSTA::createTD(data = dropsPhenoTot, genotype = "Variety_ID",
                                  trial = "Experiment", loc = "location")
 
-
 ## Basic model, just genotype and trial - drops data.
+vc0 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "lme4")
+vc0@call$formula
+as.data.frame(VarCorr(vc0))
+
 vc1 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "asreml")
 vc1$call$fixed
 vc1$call$random

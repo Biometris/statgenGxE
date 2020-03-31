@@ -108,37 +108,35 @@ gxeVarComp <- function(TD,
   hasReps <- any(repTab > 1)
   ## Main procedure to fit mixed models.
   modCols <- c(trialGroup, if (hasYear) "year", envVar)
+
+  ## Construct formula for fixed part - first as text.
+  ## Trying to fit this in something 'smart' actually makes it unreadable.
+  ## First create a vector with the separate terms.
+  ## This avoids difficult constructions to get the +-es correct.
+  fixedTerms <- c(if (!isNestedTrialGroup) "trial",
+                  if (useLocYear && FALSE) "year + year:loc",
+                  if (hasGroup && !useLocYear) paste0(trialGroup, "+", envVar, ":", trialGroup),
+                  if (hasGroup & useLocYear && FALSE) paste0(trialGroup, ":year"))
+  fixedTxt <- paste0("`", trait, "`~",
+                     paste(fixedTerms, collapse = "+"))
+  ## Construct formula for random part in a similar way.
+  randTerms <- c("genotype",
+                 if (hasGroup) paste0("genotype:", trialGroup),
+                 if (useLocYear || hasReps) paste0("genotype:", envVar),
+                 if (useLocYear) "genotype:year",
+                 if (hasGroup && useLocYear) paste0("genotype:loc:", trialGroup),
+                 if (hasGroup && !isNestedTrialGroup && (hasReps || useWt))
+                   paste0("genotype:", trialGroup, ":", envVar),
+                 if (useLocYear && (hasReps || useWt)) "genotype:year:loc")
   if (engine == "lme4") {
-    ## Just the basic model.
-    mr <- lme4::lmer(formula(paste0("`", trait, "`~ (",
-                                    paste(modCols, collapse = "+"), ")^2",
-                                    "+ (1|genotype)",
-                                    if (!is.null(trialGroup)) {
-                                      paste(" + (", trialGroup, "|genotype)")
-                                    })),
-                     data = TDTot, weights = TDTot[["wt"]], ...)
+    randTxt <- paste(paste0("(1|", randTerms, ")"), collapse = "+")
+    formTxt <- paste(fixedTxt, "+", randTxt)
+    ## Fit the actual model.
+    mr <- lme4::lmer(formula(formTxt), data = TDTot,  weights = TDTot[["wt"]],
+                     ...)
     ## Construct STA object.
   } else if (engine == "asreml") {
     if (requireNamespace("asreml", quietly = TRUE)) {
-      ## Construct formula for fixed past - first as text.
-      ## Trying to fit this in something 'smart' actually makes it unreadable.
-      ## First create a vector with the separate terms.
-      ## This avoids difficult constructions to get the +-es correct.
-      fixedTerms <- c(if (!isNestedTrialGroup) "trial",
-                      if (useLocYear && FALSE) "year + year:loc",
-                      if (hasGroup && !useLocYear) paste0(trialGroup, "+", envVar, ":", trialGroup),
-                      if (hasGroup & useLocYear && FALSE) paste0(trialGroup, ":year"))
-      fixedTxt <- paste0("`", trait, "`~",
-                         paste(fixedTerms, collapse = "+"))
-      ## Construct formula for random part in a similar way.
-      randTerms <- c("genotype",
-                     if (hasGroup) paste0("genotype:", trialGroup),
-                     if (useLocYear || hasReps) paste0("genotype:", envVar),
-                     if (useLocYear) "genotype:year",
-                     if (hasGroup && useLocYear) paste0("genotype:loc:", trialGroup),
-                     if (hasGroup && !isNestedTrialGroup && (hasReps || useWt))
-                       paste0("genotype:", trialGroup, ":", envVar),
-                     if (useLocYear && (hasReps || useWt)) "genotype:year:loc")
       randTxt <- paste("~ ", paste(randTerms, collapse = "+"))
       ## Put arguments for models in a list to make it easier to switch
       ## between asreml3 and asreml4. Usually only one or two arguments differ.
@@ -147,6 +145,7 @@ gxeVarComp <- function(TD,
                        data = TDTot, weights = "wt", maxiter = maxIter,
                        trace = TRUE)
       modArgs <- modArgs0
+      ## Fit the actual model.
       mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
       if (!is.null(mr$warning)) {
         ## Check if param 1% increase is significant. Remove warning if not.
