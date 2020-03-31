@@ -40,8 +40,8 @@ test_that("FW summary produces correct output", {
   expect_true("First five genotypes" %in% sumFW3)
 })
 
-test_that("varComp summary produces correct output", {
-  geVC <- gxeVarComp(TD = BLUEs, trait = "t1")
+test_that("varCov summary produces correct output", {
+  geVC <- gxeVarCov(TD = BLUEs, trait = "t1")
   sumVC <- capture.output(summary(geVC))
   expect_true("Best model: cs, based on BIC." %in% sumVC)
 })

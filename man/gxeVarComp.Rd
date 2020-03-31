@@ -9,7 +9,8 @@ gxeVarComp(
   trials = names(TD),
   trait,
   engine = c("lme4", "asreml"),
-  criterion = c("BIC", "AIC"),
+  trialGroup = NULL,
+  useWt = FALSE,
   ...
 )
 }
@@ -24,8 +25,10 @@ not supplied, all trials are used in the analysis.}
 \item{engine}{A character string specifying the engine used for modeling.
 Either "lme4" or "asreml".}
 
-\item{criterion}{A string specifying a goodness-of-fit criterion. Either
-"AIC" or "BIC".}
+\item{trialGroup}{A character string specifying a column in TD.......}
+
+\item{useWt}{Should weighting be used when modeling? Requires a column
+\code{wt} in \code{TD}.}
 
 \item{...}{Further arguments to be passed to \code{asreml}.}
 }
@@ -34,9 +37,6 @@ An object of class \code{\link{varComp}}, a list object containing:
 \item{STA}{An object of class STA containing the best fitted model.}
 \item{choice}{A character string indicating the best fitted model.}
 \item{summary}{A data.frame with a summary of the fitted models.}
-\item{vcov}{The covariance matrix of the best fitted model.}
-\item{criterion}{A character string indicating the goodness-of-fit criterion
-used for determinening the best model, either "AIC" or "BIC".}
 \item{engine}{A character string containing the engine used for
 the analysis.}
 }
