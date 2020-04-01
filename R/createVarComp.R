@@ -80,6 +80,35 @@ report.varComp <- function(x,
                reportPackage = "statgenGxE", ...)
 }
 
+## @importFrom stats predict
+
+#' @export
+predict.varComp <- function(object,
+                            ...,
+                            predLevels = "genotype") {
+  fitMod <- object$fitMod
+  modDat <- object$modDat
+  if (object$engine == "lme4") {
+    # gridLevels <- sapply(X = predLevels, FUN = function(predLevel) {
+    #   levels(modDat[[predLevel]])
+    # }, simplify = FALSE)
+    # newDat <- do.call(expand.grid, gridLevels)
+    # intercept <- mean(c(0, lme4::fixef(fitMod)[-1])) + lme4::fixef(fitMod)[1]
+    # predicted.value <- predict(fitMod, newdata = newDat, random.only = TRUE) +
+    #   intercept
+    # preds <- cbind(newDat, predicted.value)
+    preds <- NULL
+  } else if (object$engine == "asreml") {
+    classForm <- paste0(predLevels, collapse = ":")
+    preds <- predictAsreml(model = fitMod, classify = classForm,
+                           present = predLevels, TD = object$modDat,
+                           aliased = TRUE, vcov = FALSE)$pvals
+  }
+  return(preds)
+}
+
+
+
 #' @export
 vc <- function(varComp) {
   if (varComp$engine == "lme4") {

@@ -47,7 +47,7 @@ testBLUEs <- STAtoTD(testSTA, what = c("BLUEs", "seBLUEs"), addWt = TRUE,
 dropsPheno$location = substr(dropsPheno$Experiment, 1, 3)
 ## First one without location.
 dropsTD1 <- statgenSTA::createTD(data = dropsPheno, genotype = "Variety_ID",
-                                trial = "Experiment")
+                                 trial = "Experiment")
 ## Second one with location so year x location can be used.
 dropsTD2 <- statgenSTA::createTD(data = dropsPheno, genotype = "Variety_ID",
                                  trial = "Experiment", loc = "location")
@@ -60,6 +60,7 @@ vc0 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "lme4")
 vc0$fitMod@call$formula
 vc(vc0)
 herit(vc0)
+p0 <- predict(vc0)
 
 vc1 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "asreml")
 vc1$fitMod$call$fixed
@@ -67,20 +68,24 @@ vc1$fitMod$call$random
 wald(vc1$fitMod)
 vc(vc1)
 herit(vc1)
+p1 <- predict(vc1)
 
 ## Add a group variable to the model.
 vc20 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "lme4",
                    trialGroup = "scenarioWater")
 vc(vc20)
 herit(vc20)
+p20 <- predict(vc20)
 
 vc2 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "asreml",
-                   trialGroup = "scenarioWater")
+                  trialGroup = "scenarioWater")
 vc2$fitMod$call$fixed
 vc2$fitMod$call$random
 wald(vc2$fitMod)
 vc(vc2)
 herit(vc2)
+p2 <- predict(vc2)
+p2_1 <- predict(vc2, predLevels = c("genotype", "scenarioWater"))
 
 ## Basic model, just genotype and loc x year - drops data.
 vc1a0 <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "lme4")
@@ -93,6 +98,7 @@ vc1a$fitMod$call$random
 wald(vc1a$fitMod)
 vc(vc1a)
 herit(vc1a)
+p1a <- predict(vc1a)
 
 ## Add a group variable to the model - for loc x year.
 vc2a0 <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "lme4",
@@ -101,17 +107,19 @@ vc(vc2a0)
 herit(vc2a0)
 
 vc2a <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "asreml",
-                    trialGroup = "scenarioWater")
+                   trialGroup = "scenarioWater")
 vc2a$fitMod$call$fixed
 vc2a$fitMod$call$random
 wald(vc2a$fitMod)
 vc(vc2a)
 herit(vc2a)
+p2a <- predict(vc2a)
 
 ## Basic model, just genotype and loc x year - complete data set.
 vc1b0 <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "lme4")
 vc(vc1b0)
 herit(vc1b0)
+p1b0 <- predict(vc1b0)
 
 vc1b <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "asreml")
 vc1b$fitMod$call$fixed
@@ -119,6 +127,7 @@ vc1b$fitMod$call$random
 wald(vc1b$fitMod)
 vc(vc1b)
 herit(vc1b)
+p1b <- predict(vc1b)
 
 ## Add a group variable to the model - for loc x year.
 vc2b0 <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "lme4",
@@ -127,12 +136,13 @@ vc(vc2b0)
 herit(vc2b0)
 
 vc2b <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "asreml",
-                    trialGroup = "scenarioWater")
+                   trialGroup = "scenarioWater")
 vc2b$fitMod$call$fixed
 vc2b$fitMod$call$random
 wald(vc2b$fitMod)
 vc(vc2b)
 herit(vc2b)
+p2b <- predict(vc2b)
 
 ## Basic model for replicated data.
 vc30 <- gxeVarComp(TD = testTD, trait = "yield", engine = "lme4")
@@ -145,6 +155,7 @@ vc3$fitMod$call$random
 wald(vc3$fitMod)
 vc(vc3)
 herit(vc3)
+p3 <- predict(vc3)
 
 ## Add a group variable - using year as group here.
 vc40 <- gxeVarComp(TD = testTD, trialGroup = "year", trait = "yield",
@@ -153,10 +164,11 @@ vc(vc40)
 herit(vc40)
 
 vc4 <- gxeVarComp(TD = testTD, trialGroup = "year", trait = "yield",
-                   engine = "asreml")
+                  engine = "asreml")
 vc4$fitMod$call$fixed
 vc4$fitMod$call$random
 wald(vc4$fitMod)
 vc(vc4)
 herit(vc4)
+p4 <- predict(vc4)
 
