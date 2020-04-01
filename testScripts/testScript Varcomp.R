@@ -57,65 +57,86 @@ dropsTD3 <- statgenSTA::createTD(data = dropsPhenoTot, genotype = "Variety_ID",
 
 ## Basic model, just genotype and trial - drops data.
 vc0 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "lme4")
-vc0@call$formula
-as.data.frame(VarCorr(vc0))
+vc0$fitMod@call$formula
+vc(vc0)
 
 vc1 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "asreml")
-vc1$call$fixed
-vc1$call$random
-wald(vc1)
-summary(vc1)$varcomp
+vc1$fitMod$call$fixed
+vc1$fitMod$call$random
+wald(vc1$fitMod)
+vc(vc1)
 
 ## Add a group variable to the model.
+vc20 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "lme4",
+                   trialGroup = "scenarioWater")
+vc(vc20)
+
 vc2 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "asreml",
                    trialGroup = "scenarioWater")
-vc2$call$fixed
-vc2$call$random
-wald(vc2)
-summary(vc2)$varcomp
+vc2$fitMod$call$fixed
+vc2$fitMod$call$random
+wald(vc2$fitMod)
+vc(vc2)
 
 ## Basic model, just genotype and loc x year - drops data.
+vc1a0 <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "lme4")
+vc(vc1a0)
+
 vc1a <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "asreml")
-vc1a$call$fixed
-vc1a$call$random
-wald(vc1a)
-summary(vc1a)$varcomp
+vc1a$fitMod$call$fixed
+vc1a$fitMod$call$random
+wald(vc1a$fitMod)
+vc(vc1a)
 
 ## Add a group variable to the model - for loc x year.
 vc2a <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "asreml",
                     trialGroup = "scenarioWater")
-vc2a$call$fixed
-vc2a$call$random
-wald(vc2a)
-summary(vc2a)$varcomp
+vc2a$fitMod$call$fixed
+vc2a$fitMod$call$random
+wald(vc2a$fitMod)
+vc(vc2a)
 
 ## Basic model, just genotype and loc x year - complete data set.
+vc1b0 <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "lme4")
+vc(vc1b0)
+
 vc1b <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "asreml")
-vc1b$call$fixed
-vc1b$call$random
-wald(vc1b)
-summary(vc1b)$varcomp
+vc1b$fitMod$call$fixed
+vc1b$fitMod$call$random
+wald(vc1b$fitMod)
+vc(vc1b)
 
 ## Add a group variable to the model - for loc x year.
+vc2b0 <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "lme4",
+                    trialGroup = "scenarioWater")
+vc(vc2b0)
+
 vc2b <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "asreml",
                     trialGroup = "scenarioWater")
-vc2b$call$fixed
-vc2b$call$random
-wald(vc2b)
-summary(vc2b)$varcomp
+vc2b$fitMod$call$fixed
+vc2b$fitMod$call$random
+wald(vc2b$fitMod)
+vc(vc2b)
 
 ## Basic model for replicated data.
+vc30 <- gxeVarComp(TD = testTD, trait = "yield", engine = "lme4")
+vc(vc30)
+
 vc3 <- gxeVarComp(TD = testTD, trait = "yield", engine = "asreml")
-vc3$call$fixed
-vc3$call$random
-wald(vc3)
-summary(vc3)$varcomp
+vc3$fitMod$call$fixed
+vc3$fitMod$call$random
+wald(vc3$fitMod)
+vc(vc3)
 
 ## Add a group variable - using year as group here.
+vc40 <- gxeVarComp(TD = testTD, trialGroup = "year", trait = "yield",
+                   engine = "lme4")
+vc(vc40)
+
 vc4 <- gxeVarComp(TD = testTD, trialGroup = "year", trait = "yield",
                    engine = "asreml")
-vc4$call$fixed
-vc4$call$random
-wald(vc4)
-summary(vc4)$varcomp
+vc4$fitMod$call$fixed
+vc4$fitMod$call$random
+wald(vc4$fitMod)
+vc(vc4)
 

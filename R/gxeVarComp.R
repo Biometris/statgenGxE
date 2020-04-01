@@ -175,17 +175,8 @@ gxeVarComp <- function(TD,
     }
   }
   ## Create output.
-  # model <- setNames(list(list(mRand = NULL,
-  #                             mFix = setNames(list(mr), trait),
-  #                             TD = createTD(TDTot), traits = trait,
-  #                             engine = engine, predicted = "trial")),
-  #                   rownames(bestTab)[1])
-  # STA <- createSTA(models = model)
-  # res <- createVarComp(STA = STA, choice = rownames(bestTab)[1],
-  #                      summary = bestTab, vcov = vcovBest,
-  #                      criterion = criterion, engine = engine)
-  return(mr)
+  res <- createVarComp(fitMod = mr, modDat = TDTot, engine = engine)
+  return(res)
 }
-
 
 

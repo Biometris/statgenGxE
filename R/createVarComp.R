@@ -9,15 +9,13 @@
 #'
 #' @seealso \code{\link{plot.varComp}}, \code{\link{report.varComp}}
 #'
-#' @name varComp
-NULL
-
-#' @rdname varComp
 #' @keywords internal
 createVarComp <- function(fitMod,
-                          modDat) {
+                          modDat,
+                          engine) {
   varComp <- structure(list(fitMod = fitMod,
-                            modDat = modDat),
+                            modDat = modDat,
+                            engine = engine),
                        class = "varComp")
   attr(varComp, which = "timestamp") <- Sys.time()
   return(varComp)
@@ -80,4 +78,19 @@ report.varComp <- function(x,
   }
   createReport(x = x, reportName = "varCompReport.Rnw", outfile = outfile,
                reportPackage = "statgenGxE", ...)
+}
+
+#' @export
+vc <- function(varComp) {
+  if (varComp$engine == "lme4") {
+    varcomps <- as.data.frame(lme4::VarCorr(varComp$fitMod))
+    rownames(varcomps) <- varcomps[["grp"]]
+    varcomps <- varcomps[, "vcov", drop = FALSE]
+    colnames(varcomps) <- "component"
+  } else if (varComp$engine == "asreml") {
+    varcomps <- summary(varComp$fitMod)$varcomp
+    rownames(varcomps)[nrow(varcomps)] <- "Residual"
+    varcomps <- varcomps[, "component", drop = FALSE]
+  }
+  return(varcomps)
 }
