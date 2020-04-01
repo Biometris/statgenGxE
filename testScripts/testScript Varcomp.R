@@ -59,6 +59,7 @@ dropsTD3 <- statgenSTA::createTD(data = dropsPhenoTot, genotype = "Variety_ID",
 vc0 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "lme4")
 vc0$fitMod@call$formula
 vc(vc0)
+herit(vc0)
 
 vc1 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "asreml")
 vc1$fitMod$call$fixed
@@ -71,6 +72,7 @@ herit(vc1)
 vc20 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "lme4",
                    trialGroup = "scenarioWater")
 vc(vc20)
+herit(vc20)
 
 vc2 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "asreml",
                    trialGroup = "scenarioWater")
@@ -83,6 +85,7 @@ herit(vc2)
 ## Basic model, just genotype and loc x year - drops data.
 vc1a0 <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "lme4")
 vc(vc1a0)
+herit(vc1a0)
 
 vc1a <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "asreml")
 vc1a$fitMod$call$fixed
@@ -95,6 +98,7 @@ herit(vc1a)
 vc2a0 <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "lme4",
                     trialGroup = "scenarioWater")
 vc(vc2a0)
+herit(vc2a0)
 
 vc2a <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "asreml",
                     trialGroup = "scenarioWater")
@@ -107,6 +111,7 @@ herit(vc2a)
 ## Basic model, just genotype and loc x year - complete data set.
 vc1b0 <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "lme4")
 vc(vc1b0)
+herit(vc1b0)
 
 vc1b <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "asreml")
 vc1b$fitMod$call$fixed
@@ -119,6 +124,7 @@ herit(vc1b)
 vc2b0 <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "lme4",
                     trialGroup = "scenarioWater")
 vc(vc2b0)
+herit(vc2b0)
 
 vc2b <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "asreml",
                     trialGroup = "scenarioWater")
@@ -131,6 +137,7 @@ herit(vc2b)
 ## Basic model for replicated data.
 vc30 <- gxeVarComp(TD = testTD, trait = "yield", engine = "lme4")
 vc(vc30)
+herit(vc30)
 
 vc3 <- gxeVarComp(TD = testTD, trait = "yield", engine = "asreml")
 vc3$fitMod$call$fixed
@@ -143,6 +150,7 @@ herit(vc3)
 vc40 <- gxeVarComp(TD = testTD, trialGroup = "year", trait = "yield",
                    engine = "lme4")
 vc(vc40)
+herit(vc40)
 
 vc4 <- gxeVarComp(TD = testTD, trialGroup = "year", trait = "yield",
                    engine = "asreml")
