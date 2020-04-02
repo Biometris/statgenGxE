@@ -103,6 +103,7 @@ gxeVarComp <- function(TD,
   } else {
     isNestedTrialGroup <- FALSE
   }
+  isNestedTrialGroup <- FALSE
   ## Check if the data contains replicates.
   repTab <- table(TDTot[["trial"]], TDTot[["genotype"]])
   hasReps <- any(repTab > 1)
@@ -113,10 +114,10 @@ gxeVarComp <- function(TD,
   ## Trying to fit this in something 'smart' actually makes it unreadable.
   ## First create a vector with the separate terms.
   ## This avoids difficult constructions to get the +-es correct.
-  fixedTerms <- c(if (!isNestedTrialGroup) "trial",
-                  if (useLocYear && FALSE) "year + year:loc",
+  fixedTerms <- c(if (!useLocYear && (!hasGroup || (hasReps && useWt))) "trial",
+                  if (useLocYear) "loc + year + year:loc",
                   if (hasGroup && !useLocYear) paste0(trialGroup, "+", envVar, ":", trialGroup),
-                  if (hasGroup & useLocYear && FALSE) paste0(trialGroup, ":year"))
+                  if (hasGroup && useLocYear) (trialGroup))
   fixedTxt <- paste0("`", trait, "`~",
                      paste(fixedTerms, collapse = "+"))
   ## Construct formula for random part in a similar way.
@@ -124,8 +125,8 @@ gxeVarComp <- function(TD,
                  if (hasGroup) paste0("genotype:", trialGroup),
                  if (useLocYear || hasReps) paste0("genotype:", envVar),
                  if (useLocYear) "genotype:year",
-                 if (hasGroup && !isNestedTrialGroup && (hasReps || useWt))
-                   paste0("genotype:", trialGroup, ":", envVar),
+                 # if (hasGroup && !isNestedTrialGroup && (hasReps || useWt))
+                   # paste0("genotype:", trialGroup, ":", envVar),
                  if (useLocYear && (hasReps || useWt)) "genotype:year:loc")
   if (engine == "lme4") {
     randTxt <- paste(paste0("(1|", randTerms, ")"), collapse = "+")

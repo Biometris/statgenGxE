@@ -73,6 +73,10 @@ p1 <- predict(vc1)
 ## Add a group variable to the model.
 vc20 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "lme4",
                    trialGroup = "scenarioWater")
+
+attr(getME(vc20$fitMod,"X"),"col.dropped")
+
+vc20$fitMod@call$formula
 vc(vc20)
 herit(vc20)
 p20 <- predict(vc20)
@@ -89,6 +93,10 @@ p2_1 <- predict(vc2, groupLevel = TRUE)
 
 ## Basic model, just genotype and loc x year - drops data.
 vc1a0 <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "lme4")
+
+attr(getME(vc1a0$fitMod,"X"),"col.dropped")
+
+vc1a0$fitMod@call$formula
 vc(vc1a0)
 herit(vc1a0)
 
@@ -133,6 +141,7 @@ p1b <- predict(vc1b)
 ## Add a group variable to the model - for loc x year.
 vc2b0 <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "lme4",
                     trialGroup = "scenarioWater")
+vc2b0$fitMod@call$formula
 vc(vc2b0)
 herit(vc2b0)
 
