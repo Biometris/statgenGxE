@@ -124,7 +124,6 @@ gxeVarComp <- function(TD,
                  if (hasGroup) paste0("genotype:", trialGroup),
                  if (useLocYear || hasReps) paste0("genotype:", envVar),
                  if (useLocYear) "genotype:year",
-                 if (hasGroup && useLocYear) paste0("genotype:loc:", trialGroup),
                  if (hasGroup && !isNestedTrialGroup && (hasReps || useWt))
                    paste0("genotype:", trialGroup, ":", envVar),
                  if (useLocYear && (hasReps || useWt)) "genotype:year:loc")
@@ -175,7 +174,8 @@ gxeVarComp <- function(TD,
     }
   }
   ## Create output.
-  res <- createVarComp(fitMod = mr, modDat = TDTot, engine = engine)
+  res <- createVarComp(fitMod = mr, modDat = TDTot, trialGroup = trialGroup,
+                       useLocYear = useLocYear, engine = engine)
   return(res)
 }
 

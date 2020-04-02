@@ -4,7 +4,7 @@
 \alias{createVarComp}
 \title{S3 class varComp}
 \usage{
-createVarComp(fitMod, modDat, engine)
+createVarComp(fitMod, modDat, trialGroup, useLocYear, engine)
 }
 \arguments{
 \item{fitMod}{A fitted variance components model.}

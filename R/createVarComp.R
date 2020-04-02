@@ -12,9 +12,13 @@
 #' @keywords internal
 createVarComp <- function(fitMod,
                           modDat,
+                          trialGroup,
+                          useLocYear,
                           engine) {
   varComp <- structure(list(fitMod = fitMod,
                             modDat = modDat,
+                            trialGroup = trialGroup,
+                            useLocYear = useLocYear,
                             engine = engine),
                        class = "varComp")
   attr(varComp, which = "timestamp") <- Sys.time()
@@ -85,7 +89,7 @@ report.varComp <- function(x,
 #' @export
 predict.varComp <- function(object,
                             ...,
-                            predLevels = "genotype") {
+                            groupLevel = FALSE) {
   fitMod <- object$fitMod
   modDat <- object$modDat
   if (object$engine == "lme4") {
@@ -99,6 +103,11 @@ predict.varComp <- function(object,
     # preds <- cbind(newDat, predicted.value)
     preds <- NULL
   } else if (object$engine == "asreml") {
+    if (groupLevel) {
+      predLevels <- c("genotype", object$trialGroup)
+    } else {
+      predLevels <- c("genotype", "trial")
+    }
     classForm <- paste0(predLevels, collapse = ":")
     preds <- predictAsreml(model = fitMod, classify = classForm,
                            present = predLevels, TD = object$modDat,
