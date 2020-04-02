@@ -85,7 +85,7 @@ wald(vc2$fitMod)
 vc(vc2)
 herit(vc2)
 p2 <- predict(vc2)
-p2_1 <- predict(vc2, predLevels = c("genotype", "scenarioWater"))
+p2_1 <- predict(vc2, groupLevel = TRUE)
 
 ## Basic model, just genotype and loc x year - drops data.
 vc1a0 <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "lme4")
@@ -114,6 +114,7 @@ wald(vc2a$fitMod)
 vc(vc2a)
 herit(vc2a)
 p2a <- predict(vc2a)
+p2a_1 <- predict(vc2a, groupLevel = TRUE)
 
 ## Basic model, just genotype and loc x year - complete data set.
 vc1b0 <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "lme4")
@@ -143,6 +144,7 @@ wald(vc2b$fitMod)
 vc(vc2b)
 herit(vc2b)
 p2b <- predict(vc2b)
+p2b_1 <- predict(vc2b, groupLevel = TRUE)
 
 ## Basic model for replicated data.
 vc30 <- gxeVarComp(TD = testTD, trait = "yield", engine = "lme4")
@@ -171,4 +173,5 @@ wald(vc4$fitMod)
 vc(vc4)
 herit(vc4)
 p4 <- predict(vc4)
+p4_1 <- predict(vc4, groupLevel = TRUE)
 
