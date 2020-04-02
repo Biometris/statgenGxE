@@ -92,6 +92,11 @@ predict.varComp <- function(object,
                             groupLevel = FALSE) {
   fitMod <- object$fitMod
   modDat <- object$modDat
+  if (object$useLocYear) {
+    envVars <- c("loc", "year")
+  } else {
+    envVars <- "trial"
+  }
   if (object$engine == "lme4") {
     # gridLevels <- sapply(X = predLevels, FUN = function(predLevel) {
     #   levels(modDat[[predLevel]])
@@ -106,12 +111,13 @@ predict.varComp <- function(object,
     if (groupLevel) {
       predLevels <- c("genotype", object$trialGroup)
     } else {
-      predLevels <- c("genotype", "trial")
+      predLevels <- c("genotype", envVars)
     }
     classForm <- paste0(predLevels, collapse = ":")
     preds <- predictAsreml(model = fitMod, classify = classForm,
-                           present = predLevels, TD = object$modDat,
+                           TD = object$modDat,
                            aliased = TRUE, vcov = FALSE)$pvals
+
   }
   return(preds)
 }
