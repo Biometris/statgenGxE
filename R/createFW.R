@@ -271,13 +271,13 @@ plot.FW <- function(x,
     trialMax <- as.character(envEffs[which.max(envEffs[["envEff"]]), "trial"])
     ## Construct plot data, fitted values for worst and best trials.
     plotDat <- data.frame(trial = TDTot[["trial"]], fitted = x$fittedGeno)
-    plotDat <- data.frame(genotype = TDTot[["genotype"]],
+    plotDat <- data.frame(genotype = levels(TDTot[["genotype"]]),
                           trMin = plotDat[plotDat[["trial"]] == trialMin, "fitted"],
                           trMax = plotDat[plotDat[["trial"]] == trialMax, "fitted"])
     ## Create scatter plot of fitted values.
     p <- ggplot(data = plotDat,
                 aes_string(x = "trMin", y = "trMax")) +
-      geom_point() +
+      geom_point(na.rm = TRUE) +
       labs(x = paste("Fitted values for worst trial:", trialMin),
            y = paste("Fitted values for best trial:", trialMax)) +
       ggtitle(plotTitle) +
