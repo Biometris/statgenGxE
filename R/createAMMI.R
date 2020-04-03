@@ -228,14 +228,20 @@ plot.AMMI <- function(x,
         chkCol(colorGenoBy, dat)
         colTab <- unique(dat[c("genotype", colorGenoBy)])
         if (nrow(colTab) != nlevels(droplevels(dat[["genotype"]]))) {
-          stop("colorGenoBy should have exactly one value per genotype")
+          stop("colorGenoBy should have exactly one value per genotype.\n")
+        }
+        if (any(is.na(dat[[colorGenoBy]]))) {
+          stop("Missing values in ", colorGenoBy, ".\n")
         }
       }
     } else {
       chkCol(colorGenoBy, x$dat)
       colTab <- unique(x$dat[c("genotype", colorGenoBy)])
+      if (any(is.na(x$dat[[colorGenoBy]]))) {
+        stop("Missing values in ", colorGenoBy, ".\n")
+      }
       if (nrow(colTab) != nlevels(droplevels(x$dat[["genotype"]]))) {
-        stop("colorGenoBy should have exactly one value per genotype")
+        stop("colorGenoBy should have exactly one value per genotype.\n")
       }
     }
   }
@@ -248,12 +254,18 @@ plot.AMMI <- function(x,
         if (nrow(colTab) != nlevels(droplevels(dat[["trial"]]))) {
           stop("colorEnvBy should have exactly one value per environment.\n")
         }
+        if (any(is.na(dat[[colorEnvBy]]))) {
+          stop("Missing values in ", colorEnvBy, ".\n")
+        }
       }
     } else {
       chkCol(colorEnvBy, x$dat)
       colTab <- unique(x$dat[c("trial", colorEnvBy)])
       if (nrow(colTab) != nlevels(droplevels(x$dat[["trial"]]))) {
         stop("colorEnvBy should have exactly one value per environment.\n")
+      }
+      if (any(is.na(x$dat[[colorEnvBy]]))) {
+        stop("Missing values in ", colorEnvBy, ".\n")
       }
     }
   }
