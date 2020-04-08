@@ -152,8 +152,8 @@ plot.FW <- function(x,
   }
   TDTot[["fitted"]] <- x$fittedGeno
   TDTot <- merge(expand.grid(trial = levels(TDTot[["trial"]]),
-                              genotype = levels(TDTot[["genotype"]])),
-                  TDTot, all.x = TRUE)
+                             genotype = levels(TDTot[["genotype"]])),
+                 TDTot, all.x = TRUE)
   TDTot[["genoMean"]] <- ave(x = TDTot[[trait]], TDTot[["trial"]],
                              TDTot[["genotype"]], FUN = mean)
   genoVals <- unique(TDTot[c("trial", "genotype", "genoMean", "fitted",
@@ -166,23 +166,44 @@ plot.FW <- function(x,
                                            "MSdeviation", "sens")[selCols]],
                            c("genotype", "Mean", "MSDeviation",
                              "Sensitivity")[selCols])
+    if (!is.null(colorBy)) {
+      scatterDat <- merge(scatterDat,
+                          unique(TDTot[!is.na(TDTot[[colorBy]]),
+                                       c("genotype", colorBy)]))
+    }
     scatterDat <- remove_missing(scatterDat, na.rm = TRUE)
     ## Create plot of mean x mse. No x axis because of position in grid.
-    p1 <- ggplot(data = scatterDat,
-                 aes_string(x = "Mean", y = "MSDeviation")) +
+    aesArgs1 <- list(x = "Mean", y = "MSDeviation",
+                     color = if (is.null(colorBy)) NULL else colorBy)
+    p1 <- ggplot(data = scatterDat, do.call(aes_string, args = aesArgs1)) +
       geom_point() +
       theme(axis.title.x = element_blank(),
             axis.text.x = element_blank(),
             axis.ticks.x = element_blank()) +
       labs(y = "Mean Squared Deviation")
+    if (!is.null(colorBy)) {
+      ## Build plot to extract legend.
+      p1Gtable <- ggplot_gtable(ggplot_build(p1))
+      legendPos <- sapply(X = p1Gtable$grobs, FUN = `[[`, "name") == "guide-box"
+      legend <- p1Gtable$grobs[[which(legendPos)]]
+      ## Now remove the legend from the plot.
+      p1 <- p1 + theme(legend.position = "none")
+    } else {
+      legend <- NULL
+    }
     ## Create plot of mean x sensitivity.
-    p2 <- ggplot(data = scatterDat, aes_string(x = "Mean", y = "Sensitivity")) +
-      geom_point()
-    ## Create plot of mse x sensitivity. No y axis because of position in grid.
-    p3 <- ggplot(data = scatterDat, aes_string(x = "MSDeviation",
-                                               y = "Sensitivity")) +
+    aesArgs2 <- list(x = "Mean", y = "Sensitivity",
+                     color = if (is.null(colorBy)) NULL else colorBy)
+    p2 <- ggplot(data = scatterDat, do.call(aes_string, args = aesArgs2)) +
       geom_point() +
-      theme(axis.title.y = element_blank(),
+      theme(legend.position = "none")
+    ## Create plot of mse x sensitivity. No y axis because of position in grid.
+    aesArgs3 <- list(x = "MSDeviation", y = "Sensitivity",
+                     color = if (is.null(colorBy)) NULL else colorBy)
+    p3 <- ggplot(data = scatterDat, do.call(aes_string, args = aesArgs3)) +
+      geom_point() +
+      theme(legend.position = "none",
+            axis.title.y = element_blank(),
             axis.text.y = element_blank(),
             axis.ticks.y = element_blank()) +
       labs(x = "Mean Squared Deviation")
@@ -201,7 +222,7 @@ plot.FW <- function(x,
     if (output) {
       # grid.arrange automatically plots the results.
       # Assign to variable to avoid double output plot.
-      p <- gridExtra::grid.arrange(tot, top = plotTitle)
+      p <- gridExtra::grid.arrange(tot, right = legend, top = plotTitle)
     }
     invisible(list(p1 = p1, p2 = p2, p3 = p3))
     ## Set arguments for plot.
