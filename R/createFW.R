@@ -167,9 +167,8 @@ plot.FW <- function(x,
                            c("genotype", "Mean", "MSDeviation",
                              "Sensitivity")[selCols])
     if (!is.null(colorBy)) {
-      scatterDat <- merge(scatterDat,
-                          unique(TDTot[!is.na(TDTot[[colorBy]]),
-                                       c("genotype", colorBy)]))
+      scatterDat <- merge(scatterDat, unique(TDTot[!is.na(TDTot[[colorBy]]),
+                                                   c("genotype", colorBy)]))
     }
     scatterDat <- remove_missing(scatterDat, na.rm = TRUE)
     ## Create plot of mean x mse. No x axis because of position in grid.
@@ -311,9 +310,14 @@ plot.FW <- function(x,
     plotDat <- data.frame(genotype = levels(TDTot[["genotype"]]),
                           trMin = plotDat[plotDat[["trial"]] == trialMin, "fitted"],
                           trMax = plotDat[plotDat[["trial"]] == trialMax, "fitted"])
+    if (!is.null(colorBy)) {
+      plotDat <- merge(plotDat, unique(TDTot[!is.na(TDTot[[colorBy]]),
+                                             c("genotype", colorBy)]))
+    }
     ## Create scatter plot of fitted values.
-    p <- ggplot(data = plotDat,
-                aes_string(x = "trMin", y = "trMax")) +
+    aesArgs <- list(x = "trMin", y = "trMax",
+                    color = if (is.null(colorBy)) NULL else colorBy)
+    p <- ggplot(data = plotDat, do.call(aes_string, aesArgs)) +
       geom_point(na.rm = TRUE) +
       labs(x = paste("Fitted values for worst trial:", trialMin),
            y = paste("Fitted values for best trial:", trialMax)) +
