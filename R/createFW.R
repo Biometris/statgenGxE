@@ -143,9 +143,13 @@ plot.FW <- function(x,
   dotArgs <- list(...)
   envEffs <- x$envEffs[c("trial", "envEff")]
   TDTot <- Reduce(f = rbind, x = x$TD)
+  TDTot[["fitted"]] <- x$fittedGeno
+  TDTot <- merge(expand.grid(trial = levels(TDTot[["trial"]]),
+                              genotype = levels(TDTot[["genotype"]])),
+                  TDTot, all.x = TRUE)
   TDTot[["genoMean"]] <- ave(x = TDTot[[trait]], TDTot[["trial"]],
                              TDTot[["genotype"]], FUN = mean)
-  genoMeans <- unique(TDTot[c("trial", "genotype", "genoMean")])
+  genoVals <- unique(TDTot[c("trial", "genotype", "genoMean", "fitted")])
   plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
                       paste0("Finlay & Wilkinson analysis for ", trait))
   if (plotType == "scatter") {
@@ -196,10 +200,10 @@ plot.FW <- function(x,
   } else if (plotType == "line") {
     order <- match.arg(order)
     lineTrait <- match.arg(lineTrait)
-    lineDat <- data.frame(genotype = genoMeans[["genotype"]],
-                          trait = genoMeans[["genoMean"]],
+    lineDat <- data.frame(genotype = genoVals[["genotype"]],
+                          trait = genoVals[["genoMean"]],
                           trial = rep(x = envEffs[["trial"]], each = x$nGeno),
-                          fitted = x$fittedGeno,
+                          fitted = genoVals[["fitted"]],
                           envEff = rep(x = envEffs[["envEff"]], each = x$nGeno))
     lineDat <- remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
@@ -233,9 +237,9 @@ plot.FW <- function(x,
     if (!is.null(genotypes) && !all(genotypes %in% TDTot[["genotype"]])) {
       stop("All genotypes should be in TD.\n")
     }
-    trellisDat <- data.frame(genotype = genoMeans[["genotype"]],
-                             trait = genoMeans[["genoMean"]],
-                             fitted = x$fittedGeno,
+    trellisDat <- data.frame(genotype = genoVals[["genotype"]],
+                             trait = genoVals[["genoMean"]],
+                             fitted = genoVals[["fitted"]],
                              envEff = rep(x = envEffs$envEff, each = x$nGeno))
     if (!is.null(genotypes)) {
       trellisDat <- trellisDat[trellisDat[["genotype"]] %in% genotypes, ]
@@ -270,7 +274,7 @@ plot.FW <- function(x,
     trialMin <- as.character(envEffs[which.min(envEffs[["envEff"]]), "trial"])
     trialMax <- as.character(envEffs[which.max(envEffs[["envEff"]]), "trial"])
     ## Construct plot data, fitted values for worst and best trials.
-    plotDat <- data.frame(trial = TDTot[["trial"]], fitted = x$fittedGeno)
+    plotDat <- TDTot[c("trial", "fitted")]
     plotDat <- data.frame(genotype = levels(TDTot[["genotype"]]),
                           trMin = plotDat[plotDat[["trial"]] == trialMin, "fitted"],
                           trMax = plotDat[plotDat[["trial"]] == trialMax, "fitted"])
