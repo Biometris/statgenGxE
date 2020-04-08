@@ -255,7 +255,7 @@ gxeAmmiHelp <- function(TD,
       ## Actual imputation.
       y1 <- multMissing(y0, maxIter = 50)
       ## Insert imputed values back into original data.
-      TDYear[is.na(TDYear[[trait]]), trait] <- y1[is.na(y0)]
+      TDYear[is.na(TDYear[[trait]]), trait] <- t(y1)[is.na(t(y0))]
     }
     ## Set wt to 1 if no weighting is used.
     if (!useWt) {
