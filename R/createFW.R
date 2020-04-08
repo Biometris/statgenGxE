@@ -102,6 +102,9 @@ summary.FW <- function(object, ...) {
 #' @param lineTrait A character string specifying whether in the line plot the
 #' "fitted" or the "raw" data should be plotted. Ignored if \code{plotType} is
 #' not "line".
+#' @param colorBy A character string indicating a column in the \code{TD} used
+#' as input for the Finlay Wilkinson analysis by which the genotypes should be
+#' colored. If \code{NULL} all genotypes will be colored differently.
 #' @param genotypes An optional character string containing the genotypes to
 #' be plotted in the trellis plot. If \code{NULL} all genotypes are plotted.
 #' If more than 64 genotypes are selected, only the first 64 are plotted.
@@ -136,6 +139,7 @@ plot.FW <- function(x,
                     plotType = c("scatter", "line", "trellis", "scatterFit"),
                     order = c("ascending", "descending"),
                     lineTrait = c("fitted", "raw"),
+                    colorBy = NULL,
                     genotypes = NULL,
                     output = TRUE) {
   plotType <- match.arg(plotType)
@@ -143,13 +147,17 @@ plot.FW <- function(x,
   dotArgs <- list(...)
   envEffs <- x$envEffs[c("trial", "envEff")]
   TDTot <- Reduce(f = rbind, x = x$TD)
+  if (!is.null(colorBy)) {
+    chkCol(colorBy, TDTot)
+  }
   TDTot[["fitted"]] <- x$fittedGeno
   TDTot <- merge(expand.grid(trial = levels(TDTot[["trial"]]),
                               genotype = levels(TDTot[["genotype"]])),
                   TDTot, all.x = TRUE)
   TDTot[["genoMean"]] <- ave(x = TDTot[[trait]], TDTot[["trial"]],
                              TDTot[["genotype"]], FUN = mean)
-  genoVals <- unique(TDTot[c("trial", "genotype", "genoMean", "fitted")])
+  genoVals <- unique(TDTot[c("trial", "genotype", "genoMean", "fitted",
+                             colorBy)])
   plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
                       paste0("Finlay & Wilkinson analysis for ", trait))
   if (plotType == "scatter") {
@@ -205,10 +213,14 @@ plot.FW <- function(x,
                           trial = rep(x = envEffs[["trial"]], each = x$nGeno),
                           fitted = genoVals[["fitted"]],
                           envEff = rep(x = envEffs[["envEff"]], each = x$nGeno))
+    if (!is.null(colorBy)) {
+      lineDat[[colorBy]] <- genoVals[[colorBy]]
+    }
     lineDat <- remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
     yVar <- ifelse(lineTrait == "raw", "trait", "fitted")
-    aesArgs <- list(x = "envEff", y = yVar, color = "genotype")
+    aesArgs <- list(x = "envEff", y = yVar, group = "genotype",
+                    color = if (is.null(colorBy)) "genotype" else enquote(colorBy))
     fixedArgs <- c("x", "y", "color", "title")
     ## Add and overwrite args with custom args from ...
     aesArgs <- utils::modifyList(aesArgs,
@@ -225,7 +237,7 @@ plot.FW <- function(x,
       geom_line(aes_string(y = "fitted"), size = 0.5, alpha = 0.7) +
       scale_x_continuous(breaks = envEffs[["envEff"]], minor_breaks = NULL,
                          labels = envEffs[["trial"]], trans = xTrans) +
-      theme(legend.position = "none",
+      theme(legend.position = if (is.null(colorBy)) "none" else "right",
             plot.title = element_text(hjust = 0.5),
             axis.text.x = element_text(angle = 90, hjust = 1)) +
       labs(title = plotTitle, x = "Environment", y = trait)

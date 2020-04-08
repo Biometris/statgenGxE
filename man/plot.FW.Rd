@@ -10,6 +10,7 @@
   plotType = c("scatter", "line", "trellis", "scatterFit"),
   order = c("ascending", "descending"),
   lineTrait = c("fitted", "raw"),
+  colorBy = NULL,
   genotypes = NULL,
   output = TRUE
 )
@@ -32,6 +33,10 @@ sensitivities. Ignored if \code{plotType} is not "line".}
 \item{lineTrait}{A character string specifying whether in the line plot the
 "fitted" or the "raw" data should be plotted. Ignored if \code{plotType} is
 not "line".}
+
+\item{colorBy}{A character string indicating a column in the \code{TD} used
+as input for the Finlay Wilkinson analysis by which the genotypes should be
+colored. If \code{NULL} all genotypes will be colored differently.}
 
 \item{genotypes}{An optional character string containing the genotypes to
 be plotted in the trellis plot. If \code{NULL} all genotypes are plotted.
