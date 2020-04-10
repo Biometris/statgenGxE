@@ -114,20 +114,46 @@ gxeVarComp <- function(TD,
   ## Trying to fit this in something 'smart' actually makes it unreadable.
   ## First create a vector with the separate terms.
   ## This avoids difficult constructions to get the +-es correct.
-  fixedTerms <- c(if (!useLocYear && (!hasGroup || (hasReps && useWt))) "trial",
-                  if (useLocYear) "loc + year + year:loc",
-                  if (hasGroup && !useLocYear) paste0(trialGroup, "+", envVar, ":", trialGroup),
-                  if (hasGroup && useLocYear) (trialGroup))
+  # fixedTerms <- c(if (!useLocYear && (!hasGroup || (hasReps && useWt))) "trial",
+  #                 if (useLocYear) "loc + year + year:loc",
+  #                 if (hasGroup && !useLocYear) paste0(trialGroup, "+", envVar, ":", trialGroup),
+  #                 if (hasGroup && useLocYear) (trialGroup))
+
+  fixedTerms <- c(if (!useLocYear && !hasGroup) "trial",
+                  if (hasGroup) trialGroup,
+                  if (!useLocYear && hasGroup) paste0(trialGroup, ":trial"),
+                  if (useLocYear && !hasGroup) "loc",
+                  if (useLocYear) "year",
+                  if (useLocYear && !hasGroup) "loc:year",
+                  if (useLocYear && hasGroup) paste0(trialGroup, ":year"),
+                  if (useLocYear && hasGroup) paste0(trialGroup, ":loc:year"))
+
+
+
   fixedTxt <- paste0("`", trait, "`~",
                      paste(fixedTerms, collapse = "+"))
   ## Construct formula for random part in a similar way.
+  # randTerms <- c("genotype",
+  #                if (hasGroup) paste0("genotype:", trialGroup),
+  #                if (useLocYear || hasReps) paste0("genotype:", envVar),
+  #                if (useLocYear) "genotype:year",
+  #                # if (hasGroup && !isNestedTrialGroup && (hasReps || useWt))
+  #                  # paste0("genotype:", trialGroup, ":", envVar),
+  #                if (useLocYear && (hasReps || useWt)) "genotype:year:loc")
+
   randTerms <- c("genotype",
+                 if (!useLocYear && !hasGroup) "genotype:trial",
                  if (hasGroup) paste0("genotype:", trialGroup),
-                 if (useLocYear || hasReps) paste0("genotype:", envVar),
+                 if (!useLocYear && hasGroup && (hasReps || useWt))
+                   paste0("genotype:", trialGroup, ":trial"),
+                 if (useLocYear && !hasGroup) "genotype:loc",
                  if (useLocYear) "genotype:year",
-                 # if (hasGroup && !isNestedTrialGroup && (hasReps || useWt))
-                   # paste0("genotype:", trialGroup, ":", envVar),
-                 if (useLocYear && (hasReps || useWt)) "genotype:year:loc")
+                 if (useLocYear && !hasGroup) "genotype:loc:year",
+                 if (useLocYear && hasGroup) paste0("genotype:", trialGroup, ":year"),
+                 if (useLocYear && hasGroup  && (hasReps || useWt))
+                   paste0("genotype:", trialGroup, ":loc:year"))
+
+
   if (engine == "lme4") {
     randTxt <- paste(paste0("(1|", randTerms, ")"), collapse = "+")
     formTxt <- paste(fixedTxt, "+", randTxt)
