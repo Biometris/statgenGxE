@@ -114,46 +114,66 @@ gxeVarComp <- function(TD,
   ## Trying to fit this in something 'smart' actually makes it unreadable.
   ## First create a vector with the separate terms.
   ## This avoids difficult constructions to get the +-es correct.
-  # fixedTerms <- c(if (!useLocYear && (!hasGroup || (hasReps && useWt))) "trial",
-  #                 if (useLocYear) "loc + year + year:loc",
-  #                 if (hasGroup && !useLocYear) paste0(trialGroup, "+", envVar, ":", trialGroup),
-  #                 if (hasGroup && useLocYear) (trialGroup))
-
   fixedTerms <- c(if (!useLocYear && !hasGroup) "trial",
                   if (hasGroup) trialGroup,
                   if (!useLocYear && hasGroup) paste0(trialGroup, ":trial"),
-                  if (useLocYear && !hasGroup) "loc",
                   if (useLocYear) "year",
+                  if (useLocYear && !hasGroup) "loc",
                   if (useLocYear && !hasGroup) "loc:year",
                   if (useLocYear && hasGroup) paste0(trialGroup, ":year"),
                   if (useLocYear && hasGroup) paste0(trialGroup, ":loc:year"))
 
-
-
-  fixedTxt <- paste0("`", trait, "`~",
-                     paste(fixedTerms, collapse = "+"))
   ## Construct formula for random part in a similar way.
-  # randTerms <- c("genotype",
-  #                if (hasGroup) paste0("genotype:", trialGroup),
-  #                if (useLocYear || hasReps) paste0("genotype:", envVar),
-  #                if (useLocYear) "genotype:year",
-  #                # if (hasGroup && !isNestedTrialGroup && (hasReps || useWt))
-  #                  # paste0("genotype:", trialGroup, ":", envVar),
-  #                if (useLocYear && (hasReps || useWt)) "genotype:year:loc")
-
   randTerms <- c("genotype",
-                 if (!useLocYear && !hasGroup) "genotype:trial",
+                 if (!useLocYear && !hasGroup && (hasReps || useWt)) "genotype:trial",
                  if (hasGroup) paste0("genotype:", trialGroup),
                  if (!useLocYear && hasGroup && (hasReps || useWt))
                    paste0("genotype:", trialGroup, ":trial"),
-                 if (useLocYear && !hasGroup) "genotype:loc",
                  if (useLocYear) "genotype:year",
-                 if (useLocYear && !hasGroup) "genotype:loc:year",
+                 if (useLocYear && !hasGroup) "genotype:loc",
+                 if (useLocYear && !hasGroup && (hasReps || useWt)) "genotype:loc:year",
                  if (useLocYear && hasGroup) paste0("genotype:", trialGroup, ":year"),
                  if (useLocYear && hasGroup  && (hasReps || useWt))
                    paste0("genotype:", trialGroup, ":loc:year"))
 
-
+  ## First fit a model with all terms fixed to determine:
+  ## - should all terms in the fixed part really be present.
+  ## - Predict which terms in the random part of the model will probably
+  ##   have a zero variance component.
+  fullFixedTxt <- paste0("`", trait, "`~",
+                         paste(c(fixedTerms, randTerms), collapse = "+"))
+  fullFixedMod <- lm(formula(fullFixedTxt), data = TDTot)
+  aovFullFixedMod <- anova(fullFixedMod)
+  ## Get all model terms as used by lm (might involve reordered terms).
+  fullFixedLabs <- attr(x = terms(fullFixedMod), which = "term.labels")
+  if (!all(fullFixedLabs %in% rownames(aovFullFixedMod))) {
+    ## At least one terms missing from anova.
+    ## If this is a fixed term romove it from fixed.
+    missTerms <- fullFixedLabs[!fullFixedLabs %in% rownames(aovFullFixedMod)]
+    for (missTerm in missTerms) {
+      fixedTermSets <- strsplit(x = fixedTerms, split = ":")
+      missTermSet <- unlist(strsplit(x = missTerm, split = ":"))
+      remPos <- !sapply(X = fixedTermSets, FUN = setequal, missTermSet)
+      fixedTerms <- fixedTerms[remPos]
+    }
+  }
+  ## Get rand terms that indicate zero variance components.
+  aovTermSets <- strsplit(x = rownames(aovFullFixedMod), split = ":")
+  MSSRes <- aovFullFixedMod["Residuals", "Mean Sq"]
+  for (randTerm in randTerms) {
+    randTermSet <- unlist(strsplit(x = randTerm, split = ":"))
+    randTermPos <- sapply(X = aovTermSets, FUN = setequal, randTermSet)
+    MSSRandTerm <- aovFullFixedMod[randTermPos, "Mean Sq"]
+    for (i in seq_along(aovTermSets)) {
+      if ((all(randTermSet %in% aovTermSets[i]) || i == nrow(aovFullFixedMod)) &&
+          aovFullFixedMod[i, "Mean Sq"] > MSSRandTerm) {
+        warning("Mean Sum of Squares for ", randTerm, " smaller than Mean ",
+                "Sum of Squares for ", rownames(aovFullFixedMod)[i], ".\n",
+                "Possible zero variance components.\n", call. = FALSE)
+      }
+    }
+  }
+  fixedTxt <- paste0("`", trait, "`~", paste(fixedTerms, collapse = "+"))
   if (engine == "lme4") {
     randTxt <- paste(paste0("(1|", randTerms, ")"), collapse = "+")
     formTxt <- paste(fixedTxt, "+", randTxt)
