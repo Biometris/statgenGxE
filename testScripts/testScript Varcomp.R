@@ -69,6 +69,7 @@ wald(vc1$fitMod)
 vc(vc1)
 herit(vc1)
 p1 <- predict(vc1)
+p1_1 <- predict(vc1, predictLevel = "trial")
 
 ## Add a group variable to the model.
 vc20 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "lme4",
@@ -89,7 +90,8 @@ wald(vc2$fitMod)
 vc(vc2)
 herit(vc2)
 p2 <- predict(vc2)
-p2_1 <- predict(vc2, groupLevel = TRUE)
+p2_1 <- predict(vc2, predictLevel = "trial")
+p2_2 <- predict(vc2, predictLevel = "trialGroup")
 
 ## Basic model, just genotype and loc x year - drops data.
 vc1a0 <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "lme4")
@@ -104,6 +106,7 @@ wald(vc1a$fitMod)
 vc(vc1a)
 herit(vc1a)
 p1a <- predict(vc1a)
+p1a_1 <- predict(vc1a, predictLevel = "trial")
 
 ## Add a group variable to the model - for loc x year.
 vc2a0 <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "lme4",
@@ -122,7 +125,8 @@ wald(vc2a$fitMod)
 vc(vc2a)
 herit(vc2a)
 p2a <- predict(vc2a)
-p2a_1 <- predict(vc2a, groupLevel = TRUE)
+p2a_1 <- predict(vc2a, predictLevel = "trial")
+p2a_2 <- predict(vc2a, predictLevel = "trialGroup")
 
 ## Basic model, just genotype and loc x year - complete data set.
 vc1b0 <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "lme4")
@@ -137,6 +141,7 @@ wald(vc1b$fitMod)
 vc(vc1b)
 herit(vc1b)
 p1b <- predict(vc1b)
+p1b_1 <- predict(vc1b, predictLevel = "trial")
 
 ## Add a group variable to the model - for loc x year.
 vc2b0 <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "lme4",
@@ -153,7 +158,8 @@ wald(vc2b$fitMod)
 vc(vc2b)
 herit(vc2b)
 p2b <- predict(vc2b)
-p2b_1 <- predict(vc2b, groupLevel = TRUE)
+p2b_1 <- predict(vc2b, predictLevel = "trial")
+p2b_2 <- predict(vc2b, predictLevel = "trialGroup")
 
 ## Basic model for replicated data.
 vc30 <- gxeVarComp(TD = testTD, trait = "yield", engine = "lme4")
@@ -167,6 +173,7 @@ wald(vc3$fitMod)
 vc(vc3)
 herit(vc3)
 p3 <- predict(vc3)
+p3_1 <- predict(vc3, predictLevel = "trial")
 
 ## Add a group variable - using year as group here.
 vc40 <- gxeVarComp(TD = testTD, trialGroup = "year", trait = "yield",
@@ -182,5 +189,6 @@ wald(vc4$fitMod)
 vc(vc4)
 herit(vc4)
 p4 <- predict(vc4)
-p4_1 <- predict(vc4, groupLevel = TRUE)
+p4_1 <- predict(vc4, predictLevel = "trial")
+p4_2 <- predict(vc4, predictLevel = "trialGroup")
 
