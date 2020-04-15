@@ -74,42 +74,18 @@ gxeVarComp <- function(TD,
   }
   engine <- match.arg(engine)
   TDTot <- droplevels(TDTot)
-  hasYear <- hasName(TDTot, "year")
-  useLocYear <- hasYear & hasName(TDTot, "loc")
-  envVar <- ifelse(useLocYear, "loc", "trial")
-
-
-  ## Set to FALSE for developing purposes.
-  hasYear <- FALSE
-
-
-  ## Increase maximum number of iterations for asreml. Needed for more complex
-  ## designs to converge.
+  useLocYear <- hasName(TDTot, "year") & hasName(TDTot, "loc")
+  ## Increase maximum number of iterations for asreml.
   maxIter <- 200
   ## Add combinations of trial and genotype currently not in TD to TD.
   ## No missing combinations are allowed when fitting asreml models.
-  # fullModLevs <- list(genotype = levels(TDTot[["genotype"]]))
-  # fullModLevs[[envVar]] <- levels(TDTot[[envVar]])
-  # if (useLocYear) fullModLevs[["year"]] <- levels(TDTot[["year"]])
-  # TD0 <- expand.grid(fullModLevs)
-  # TDTot <- merge(TD0, TDTot, all.x = TRUE)
-  ## Asreml can't handle missing weights, so set them to 0 for added combinations.
+  ## Asreml can't handle missing weights, so set them to 0 when missing.
   TDTot[is.na(TDTot[["wt"]]), "wt"] <- 0
   ## Check if the trial is nested within the trialGroup.
   hasGroup <- !is.null(trialGroup)
-  if (hasGroup) {
-    groupTab <- table(TDTot[[envVar]], TDTot[[trialGroup]])
-    isNestedTrialGroup <- sum(groupTab > 0) == nlevels(TDTot[[envVar]])
-  } else {
-    isNestedTrialGroup <- FALSE
-  }
-  isNestedTrialGroup <- FALSE
   ## Check if the data contains replicates.
   repTab <- table(TDTot[["trial"]], TDTot[["genotype"]])
   hasReps <- any(repTab > 1)
-  ## Main procedure to fit mixed models.
-  modCols <- c(trialGroup, if (hasYear) "year", envVar)
-
   ## Construct formula for fixed part - first as text.
   ## Trying to fit this in something 'smart' actually makes it unreadable.
   ## First create a vector with the separate terms.
@@ -122,7 +98,6 @@ gxeVarComp <- function(TD,
                   if (useLocYear && !hasGroup) "loc:year",
                   if (useLocYear && hasGroup) paste0(trialGroup, ":year"),
                   if (useLocYear && hasGroup) paste0(trialGroup, ":loc:year"))
-
   ## Construct formula for random part in a similar way.
   randTerms <- c("genotype",
                  if (!useLocYear && !hasGroup && (hasReps || useWt)) "genotype:trial",
@@ -135,7 +110,6 @@ gxeVarComp <- function(TD,
                  if (useLocYear && hasGroup) paste0("genotype:", trialGroup, ":year"),
                  if (useLocYear && hasGroup  && (hasReps || useWt))
                    paste0("genotype:", trialGroup, ":loc:year"))
-
   ## First fit a model with all terms fixed to determine:
   ## - should all terms in the fixed part really be present.
   ## - Predict which terms in the random part of the model will probably
@@ -148,7 +122,7 @@ gxeVarComp <- function(TD,
   fullFixedLabs <- attr(x = terms(fullFixedMod), which = "term.labels")
   if (!all(fullFixedLabs %in% rownames(aovFullFixedMod))) {
     ## At least one terms missing from anova.
-    ## If this is a fixed term romove it from fixed.
+    ## If this is a fixed term remove it from fixed.
     missTerms <- fullFixedLabs[!fullFixedLabs %in% rownames(aovFullFixedMod)]
     for (missTerm in missTerms) {
       fixedTermSets <- strsplit(x = fixedTerms, split = ":")
@@ -158,14 +132,23 @@ gxeVarComp <- function(TD,
     }
   }
   ## Get rand terms that indicate zero variance components.
+  ## Lme4 reorders variables in model terms.
+  ## use sets of variables in terms to compare them.
   aovTermSets <- strsplit(x = rownames(aovFullFixedMod), split = ":")
-  MSSRes <- aovFullFixedMod["Residuals", "Mean Sq"]
   for (randTerm in randTerms) {
+    ## Convert term to set of variables in term.
     randTermSet <- unlist(strsplit(x = randTerm, split = ":"))
+    ## Get position of term in anova table by comparing sets.
     randTermPos <- sapply(X = aovTermSets, FUN = setequal, randTermSet)
+    ## Get MSS for current term.
     MSSRandTerm <- aovFullFixedMod[randTermPos, "Mean Sq"]
+    ## For all other terms in the anova table that have the current term
+    ## as a subset the MSS cannot be higher.
+    ## If it is the corresponding variance component is possibly zero.
     for (i in seq_along(aovTermSets)) {
-      if ((all(randTermSet %in% aovTermSets[i]) || i == nrow(aovFullFixedMod)) &&
+      if ((all(randTermSet %in% aovTermSets[i]) ||
+           ## Always include the residual term for comparison.
+           i == nrow(aovFullFixedMod)) &&
           aovFullFixedMod[i, "Mean Sq"] > MSSRandTerm) {
         warning("Mean Sum of Squares for ", randTerm, " smaller than Mean ",
                 "Sum of Squares for ", rownames(aovFullFixedMod)[i], ".\n",
@@ -173,6 +156,8 @@ gxeVarComp <- function(TD,
       }
     }
   }
+  ## Create the full fixed part of the model as a character.
+  ## This is identical for lme4 and asreml so only needs to be done once.
   fixedTxt <- paste0("`", trait, "`~", paste(fixedTerms, collapse = "+"))
   if (engine == "lme4") {
     randTxt <- paste(paste0("(1|", randTerms, ")"), collapse = "+")
@@ -189,7 +174,7 @@ gxeVarComp <- function(TD,
       ## Also some arguments are identical for all models
       modArgs0 <- list(fixed = formula(fixedTxt), random = formula(randTxt),
                        data = TDTot, weights = "wt", maxiter = maxIter,
-                       trace = TRUE)
+                       trace = FALSE)
       modArgs <- modArgs0
       ## Fit the actual model.
       mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
