@@ -89,9 +89,10 @@ report.varComp <- function(x,
 #' @export
 predict.varComp <- function(object,
                             ...,
-                            groupLevel = FALSE) {
+                            predictLevel = c("genotype", "trial", "trialGroup")) {
   fitMod <- object$fitMod
   modDat <- object$modDat
+  predictLevel <- match.arg(predictLevel)
   if (object$useLocYear) {
     envVars <- c("loc", "year")
   } else {
@@ -108,10 +109,11 @@ predict.varComp <- function(object,
     # preds <- cbind(newDat, predicted.value)
     preds <- NULL
   } else if (object$engine == "asreml") {
-    if (groupLevel) {
+    predLevels <- "genotype"
+    if (predictLevel == "trial") {
+      predLevels <- c(predLevels, envVars)
+    } else if (predictLevel == "trialGroup") {
       predLevels <- c("genotype", object$trialGroup)
-    } else {
-      predLevels <- c("genotype", envVars)
     }
     classForm <- paste0(predLevels, collapse = ":")
     preds <- predictAsreml(model = fitMod, classify = classForm,
