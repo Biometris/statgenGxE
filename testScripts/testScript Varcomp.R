@@ -30,11 +30,12 @@ SB_Yield <- read.csv(system.file("extdata", "SB_yield.csv",
                      stringsAsFactors = FALSE, na.strings = c("NA", "*"))
 ## Add a year variable.
 SB_Yield$year <- as.factor(substring(SB_Yield$Env, 6))
+SB_Yield$location <- as.factor(substring(SB_Yield$Env, 1, 4))
 ## Genotype 200 only appears in one trial - remove it.
 SB_Yield <- SB_Yield[SB_Yield$Genotype != "200",]
 
 # Create object of class TD
-testTD <- createTD(data = SB_Yield, genotype = "Genotype", trial = "Env",
+testTD <- createTD(data = SB_Yield, genotype = "Genotype", trial = "location",
                    repId = "Rep", subBlock = "Subblock", rowCoord = "Row",
                    colCoord = "Column", year = "year")
 ## Fit models en compute BLUEs.
@@ -61,6 +62,7 @@ vc0$fitMod@call$formula
 vc(vc0)
 herit(vc0)
 p0 <- predict(vc0)
+p0_1 <- predict(vc0, predictLevel = "trial")
 
 vc1 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "asreml")
 vc1$fitMod$call$fixed
@@ -73,7 +75,7 @@ p1_1 <- predict(vc1, predictLevel = "trial")
 
 ## Add a group variable to the model.
 vc20 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "lme4",
-                   trialGroup = "scenarioWater")
+                   nesting = "scenarioWater")
 
 attr(getME(vc20$fitMod,"X"),"col.dropped")
 
@@ -81,6 +83,7 @@ vc20$fitMod@call$formula
 vc(vc20)
 herit(vc20)
 p20 <- predict(vc20)
+p20 <- predict(vc20, predictLevel = "trial")
 
 vc2 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "asreml",
                   trialGroup = "scenarioWater")
@@ -94,12 +97,14 @@ p2_1 <- predict(vc2, predictLevel = "trial")
 p2_2 <- predict(vc2, predictLevel = "trialGroup")
 
 ## Basic model, just genotype and loc x year - drops data.
-vc1a0 <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "lme4")
+vc1a0 <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "lme4",
+                    locationYear = TRUE)
 vc1a0$fitMod@call$formula
 vc(vc1a0)
 herit(vc1a0)
 
-vc1a <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "asreml")
+vc1a <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "asreml",
+                   locationYear = TRUE)
 vc1a$fitMod$call$fixed
 vc1a$fitMod$call$random
 wald(vc1a$fitMod)
@@ -110,7 +115,7 @@ p1a_1 <- predict(vc1a, predictLevel = "trial")
 
 ## Add a group variable to the model - for loc x year.
 vc2a0 <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "lme4",
-                    trialGroup = "scenarioWater")
+                    nesting = "scenarioWater")
 
 attr(getME(vc2a0$fitMod,"X"),"col.dropped")
 
@@ -163,6 +168,7 @@ p2b_2 <- predict(vc2b, predictLevel = "trialGroup")
 
 ## Basic model for replicated data.
 vc30 <- gxeVarComp(TD = testTD, trait = "yield", engine = "lme4")
+vc30$fitMod@call
 vc(vc30)
 herit(vc30)
 
@@ -176,12 +182,13 @@ p3 <- predict(vc3)
 p3_1 <- predict(vc3, predictLevel = "trial")
 
 ## Add a group variable - using year as group here.
-vc40 <- gxeVarComp(TD = testTD, trialGroup = "year", trait = "yield",
+vc40 <- gxeVarComp(TD = testTD, nesting = "year", trait = "yield",
                    engine = "lme4")
+vc40$fitMod@call
 vc(vc40)
 herit(vc40)
 
-vc4 <- gxeVarComp(TD = testTD, trialGroup = "year", trait = "yield",
+vc4 <- gxeVarComp(TD = testTD, nesting = "year", trait = "yield",
                   engine = "asreml")
 vc4$fitMod$call$fixed
 vc4$fitMod$call$random

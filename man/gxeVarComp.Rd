@@ -9,7 +9,9 @@ gxeVarComp(
   trials = names(TD),
   trait,
   engine = c("lme4", "asreml"),
-  trialGroup = NULL,
+  locationYear = FALSE,
+  nesting = NULL,
+  regionLocationYear = FALSE,
   useWt = FALSE,
   ...
 )
@@ -25,12 +27,12 @@ not supplied, all trials are used in the analysis.}
 \item{engine}{A character string specifying the engine used for modeling.
 Either "lme4" or "asreml".}
 
-\item{trialGroup}{A character string specifying a column in TD.......}
-
 \item{useWt}{Should weighting be used when modeling? Requires a column
 \code{wt} in \code{TD}.}
 
 \item{...}{Further arguments to be passed to \code{asreml}.}
+
+\item{trialGroup}{A character string specifying a column in TD.......}
 }
 \value{
 An object of class \code{\link{varComp}}, a list object containing:

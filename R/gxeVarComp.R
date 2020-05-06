@@ -52,7 +52,10 @@ gxeVarComp <- function(TD,
                        trials = names(TD),
                        trait,
                        engine = c("lme4", "asreml"),
-                       trialGroup = NULL,
+                       #trialGroup = NULL,
+                       locationYear = FALSE,
+                       nesting = NULL,
+                       regionLocationYear = FALSE,
                        useWt = FALSE,
                        ...) {
   ## Checks.
@@ -64,8 +67,20 @@ gxeVarComp <- function(TD,
   chkCol(trait, TDTot)
   chkCol("trial", TDTot)
   chkCol("genotype", TDTot)
-  if (!is.null(trialGroup)) {
-    chkCol(trialGroup, TDTot)
+  if (locationYear) {
+    chkCol("loc", TDTot)
+    chkCol("year", TDTot)
+    ## Check whether year x locations are crossed or nested.
+    locYearTab <- table(TDTot[["year"]], TDTot[["loc"]])
+    locYearCrossed <- all(locYearTab > 0)
+  }
+  if (!is.null(nesting)) {
+    chkCol(nesting, TDTot)
+  }
+  if (regionLocationYear) {
+    chkCol("loc", TDTot)
+    chkCol("year", TDTot)
+    chkCol("region", TDTot)
   }
   if (useWt) {
     chkCol("wt", TDTot)
@@ -74,7 +89,7 @@ gxeVarComp <- function(TD,
   }
   engine <- match.arg(engine)
   TDTot <- droplevels(TDTot)
-  useLocYear <- hasName(TDTot, "year") & hasName(TDTot, "loc")
+  #useLocYear <- hasName(TDTot, "year") & hasName(TDTot, "loc")
   ## Increase maximum number of iterations for asreml.
   maxIter <- 200
   ## Add combinations of trial and genotype currently not in TD to TD.
@@ -82,7 +97,7 @@ gxeVarComp <- function(TD,
   ## Asreml can't handle missing weights, so set them to 0 when missing.
   TDTot[is.na(TDTot[["wt"]]), "wt"] <- 0
   ## Check if the trial is nested within the trialGroup.
-  hasGroup <- !is.null(trialGroup)
+  #hasGroup <- !is.null(trialGroup)
   ## Check if the data contains replicates.
   repTab <- table(TDTot[["trial"]], TDTot[["genotype"]])
   hasReps <- any(repTab > 1)
@@ -90,32 +105,62 @@ gxeVarComp <- function(TD,
   ## Trying to fit this in something 'smart' actually makes it unreadable.
   ## First create a vector with the separate terms.
   ## This avoids difficult constructions to get the +-es correct.
-  fixedTerms <- c(if (!useLocYear && !hasGroup) "trial",
-                  if (hasGroup) trialGroup,
-                  if (!useLocYear && hasGroup) paste0(trialGroup, ":trial"),
-                  if (useLocYear) "year",
-                  if (useLocYear && !hasGroup) "loc",
-                  if (useLocYear && !hasGroup) "loc:year",
-                  if (useLocYear && hasGroup) paste0(trialGroup, ":year"),
-                  if (useLocYear && hasGroup) paste0(trialGroup, ":loc:year"))
+  # fixedTerms <- c(if (!useLocYear && !hasGroup) "trial",
+  #                 if (hasGroup) trialGroup,
+  #                 if (!useLocYear && hasGroup) paste0(trialGroup, ":trial"),
+  #                 if (useLocYear) "year",
+  #                 if (useLocYear && !hasGroup) "loc",
+  #                 if (useLocYear && !hasGroup) "loc:year",
+  #                 if (useLocYear && hasGroup) paste0(trialGroup, ":year"),
+  #                 if (useLocYear && hasGroup) paste0(trialGroup, ":loc:year"))
+
+  fixedTerms <- c(if (!locationYear && is.null(nesting) &&
+                      !regionLocationYear) "trial",
+                  if (locationYear) c("year", if (locYearCrossed) "loc",
+                                      "year:loc"),
+                  if (!is.null(nesting)) c(nesting, paste0(nesting, ":trial")),
+                  if (regionLocationYear) c("region", "region:loc", "year",
+                                            "region:year", "region:loc",
+                                            "region:loc:year"))
+
   ## Construct formula for random part in a similar way.
+  # randTerms <- c("genotype",
+  #                if (!useLocYear && !hasGroup && (hasReps || useWt)) "genotype:trial",
+  #                if (hasGroup) paste0("genotype:", trialGroup),
+  #                if (!useLocYear && hasGroup && (hasReps || useWt))
+  #                  paste0("genotype:", trialGroup, ":trial"),
+  #                if (useLocYear) "genotype:year",
+  #                if (useLocYear && !hasGroup) "genotype:loc",
+  #                if (useLocYear && !hasGroup && (hasReps || useWt)) "genotype:loc:year",
+  #                if (useLocYear && hasGroup) paste0("genotype:", trialGroup, ":year"),
+  #                if (useLocYear && hasGroup  && (hasReps || useWt))
+  #                  paste0("genotype:", trialGroup, ":loc:year"))
+
+  if (hasReps || useWt) {
+    randTermIncl <- fixedTerms
+  } else {
+    randTermIncl <- fixedTerms[-length(fixedTerms)]
+  }
   randTerms <- c("genotype",
-                 if (!useLocYear && !hasGroup && (hasReps || useWt)) "genotype:trial",
-                 if (hasGroup) paste0("genotype:", trialGroup),
-                 if (!useLocYear && hasGroup && (hasReps || useWt))
-                   paste0("genotype:", trialGroup, ":trial"),
-                 if (useLocYear) "genotype:year",
-                 if (useLocYear && !hasGroup) "genotype:loc",
-                 if (useLocYear && !hasGroup && (hasReps || useWt)) "genotype:loc:year",
-                 if (useLocYear && hasGroup) paste0("genotype:", trialGroup, ":year"),
-                 if (useLocYear && hasGroup  && (hasReps || useWt))
-                   paste0("genotype:", trialGroup, ":loc:year"))
+                 if (length(randTermIncl) > 0) paste0("genotype:", randTermIncl))
+
   ## First fit a model with all terms fixed to determine:
   ## - should all terms in the fixed part really be present.
   ## - Predict which terms in the random part of the model will probably
   ##   have a zero variance component.
   fullFixedTxt <- paste0("`", trait, "`~",
                          paste(c(fixedTerms, randTerms), collapse = "+"))
+
+  ## Construct input for full random model.
+  if (engine == "lme4") {
+    fullRandTxt <- paste0("`", trait, "`~",
+                          paste(paste0("(1|", c(fixedTerms, randTerms), ")"),
+                                collapse = "+"))
+  } else if (engine == "asreml") {
+    fullRandTxt <- paste("~", paste(c(fixedTerms, randTerms), collapse = "+"))
+  }
+
+
   fullFixedMod <- lm(formula(fullFixedTxt), data = TDTot)
   aovFullFixedMod <- anova(fullFixedMod)
   ## Get all model terms as used by lm (might involve reordered terms).
@@ -132,7 +177,7 @@ gxeVarComp <- function(TD,
     }
   }
   ## Get rand terms that indicate zero variance components.
-  ## Lme4 reorders variables in model terms.
+  ## lm reorders variables in model terms.
   ## use sets of variables in terms to compare them.
   aovTermSets <- strsplit(x = rownames(aovFullFixedMod), split = ":")
   for (randTerm in randTerms) {
@@ -156,6 +201,28 @@ gxeVarComp <- function(TD,
       }
     }
   }
+
+  if (engine == "lme4") {
+    fullRandMod <- lme4::lmer(formula(fullRandTxt), data = TDTot)
+  } else if (engine == "asreml") {
+    fullRandMod <- tryCatchExt(asreml::asreml(fixed = formula(paste0("`", trait, "`~ 1")),
+                                  random = formula(fullRandTxt), data = TDTot,
+                                  trace = TRUE))
+    if (!is.null(fullRandMod$warning)) {
+      ## Check if param 1% increase is significant. Remove warning if not.
+      fullRandMod <- chkLastIter(fullRandMod)
+    }
+    if (length(fullRandMod$warning) != 0) {
+      warning(fullRandMod$warning, "\n", call. = FALSE)
+    }
+    if (!is.null(fullRandMod$error)) {
+      stop(fullRandMod$error)
+    } else {
+      fullRandMod <- fullRandMod$value
+    }
+  }
+
+
   ## Create the full fixed part of the model as a character.
   ## This is identical for lme4 and asreml so only needs to be done once.
   fixedTxt <- paste0("`", trait, "`~", paste(fixedTerms, collapse = "+"))
@@ -163,7 +230,7 @@ gxeVarComp <- function(TD,
     randTxt <- paste(paste0("(1|", randTerms, ")"), collapse = "+")
     formTxt <- paste(fixedTxt, "+", randTxt)
     ## Fit the actual model.
-    mr <- lme4::lmer(formula(formTxt), data = TDTot,  weights = TDTot[["wt"]],
+    mr <- lme4::lmer(formula(formTxt), data = TDTot, weights = TDTot[["wt"]],
                      ...)
     ## Construct STA object.
   } else if (engine == "asreml") {
@@ -174,7 +241,7 @@ gxeVarComp <- function(TD,
       ## Also some arguments are identical for all models
       modArgs0 <- list(fixed = formula(fixedTxt), random = formula(randTxt),
                        data = TDTot, weights = "wt", maxiter = maxIter,
-                       trace = FALSE)
+                       trace = TRUE)
       modArgs <- modArgs0
       ## Fit the actual model.
       mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
@@ -206,8 +273,8 @@ gxeVarComp <- function(TD,
     }
   }
   ## Create output.
-  res <- createVarComp(fitMod = mr, modDat = TDTot, trialGroup = trialGroup,
-                       useLocYear = useLocYear, engine = engine)
+  res <- createVarComp(fitMod = mr, modDat = TDTot, trialGroup = nesting,
+                       useLocYear = locationYear, engine = engine)
   return(res)
 }
 
