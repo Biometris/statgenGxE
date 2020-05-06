@@ -40,11 +40,19 @@ supprWarn <- function(expression,
 chkLastIter <- function(model) {
   wrnMsg <- "changed by more than 1%"
   if (any(grepl(pattern = wrnMsg, x = model$warning))) {
-    ## EXtract monitor df from model object.
-    mon <- model$value$monitor
-    ## Extract values for parameters for last 2 iterations.
-    ## First 3 rows give general model info. Last col a summary.
-    lastIt <- mon[-(1:3), c(ncol(mon) - 2, ncol(mon) - 1)]
+    if (asreml4()) {
+      ## EXtract trace df from model object.
+      mon <- model$value$trace
+      ## Extract values for parameters for last 2 iterations.
+      ## First 3 rows give general model info.
+      lastIt <- mon[-(1:3), c(ncol(mon) - 1, ncol(mon))]
+    } else {
+      ## EXtract monitor df from model object.
+      mon <- model$value$monitor
+      ## Extract values for parameters for last 2 iterations.
+      ## First 3 rows give general model info. Last col a summary.
+      lastIt <- mon[-(1:3), c(ncol(mon) - 2, ncol(mon) - 1)]
+    }
     ## Compute change of parameters in last iteration.
     change <- ifelse(lastIt[, 1] == 0, 0, abs((lastIt[, 2] - lastIt[, 1]) /
                                                 lastIt[, 1]) * 100)
