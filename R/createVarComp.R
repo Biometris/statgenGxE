@@ -14,12 +14,14 @@ createVarComp <- function(fitMod,
                           modDat,
                           trialGroup,
                           useLocYear,
-                          engine) {
+                          engine,
+                          diagTabs) {
   varComp <- structure(list(fitMod = fitMod,
                             modDat = modDat,
                             trialGroup = trialGroup,
                             useLocYear = useLocYear,
-                            engine = engine),
+                            engine = engine,
+                            diagTabs = diagTabs),
                        class = "varComp")
   attr(varComp, which = "timestamp") <- Sys.time()
   return(varComp)
@@ -169,4 +171,23 @@ herit <- function(varComp) {
     numerator <- numerator + sigmaRes
   }
   return(sigmaG / numerator)
+}
+
+#' @export
+diagnostics <- function(varComp) {
+  if (!inherits(varComp, "varComp")) {
+    stop(varComp, "should be an object of class varComp.\n")
+  }
+  diagTabs <- varComp$diagTabs
+  for (diagTab in diagTabs) {
+    if (nrow(diagTab) > 0) {
+      cat(nrow(diagTab), " missing combinations for ",
+          paste(colnames(diagTab), collapse = " x "), ".\n", sep = "")
+      print(diagTab, row.names = FALSE)
+      cat("\n\n")
+    } else {
+      cat("No missing combinations for ",
+          paste(colnames(diagTab), collapse = " x "), ".\n\n", sep = "")
+    }
+  }
 }

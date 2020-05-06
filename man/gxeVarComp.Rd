@@ -13,7 +13,7 @@ gxeVarComp(
   nesting = NULL,
   regionLocationYear = FALSE,
   useWt = FALSE,
-  ...
+  diagnostics = FALSE
 )
 }
 \arguments{
@@ -29,8 +29,6 @@ Either "lme4" or "asreml".}
 
 \item{useWt}{Should weighting be used when modeling? Requires a column
 \code{wt} in \code{TD}.}
-
-\item{...}{Further arguments to be passed to \code{asreml}.}
 
 \item{trialGroup}{A character string specifying a column in TD.......}
 }
