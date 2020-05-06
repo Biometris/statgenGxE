@@ -123,7 +123,7 @@ vc(vc2a0)
 herit(vc2a0)
 
 vc2a <- gxeVarComp(TD = dropsTD2, trait = "grain.yield", engine = "asreml",
-                   trialGroup = "scenarioWater")
+                   nesting = "scenarioWater")
 vc2a$fitMod$call$fixed
 vc2a$fitMod$call$random
 wald(vc2a$fitMod)

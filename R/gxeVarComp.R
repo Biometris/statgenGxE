@@ -12,7 +12,6 @@
 #' @param engine A character string specifying the engine used for modeling.
 #' Either "lme4" or "asreml".
 #' @param trialGroup A character string specifying a column in TD.......
-#' @param ... Further arguments to be passed to \code{asreml}.
 #'
 #' @note If \code{engine = "lme4"}, only the compound symmetry model can be
 #' fitted.
@@ -57,7 +56,7 @@ gxeVarComp <- function(TD,
                        nesting = NULL,
                        regionLocationYear = FALSE,
                        useWt = FALSE,
-                       ...) {
+                       diagnostics = FALSE) {
   ## Checks.
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
@@ -206,8 +205,8 @@ gxeVarComp <- function(TD,
     fullRandMod <- lme4::lmer(formula(fullRandTxt), data = TDTot)
   } else if (engine == "asreml") {
     fullRandMod <- tryCatchExt(asreml::asreml(fixed = formula(paste0("`", trait, "`~ 1")),
-                                  random = formula(fullRandTxt), data = TDTot,
-                                  trace = TRUE))
+                                              random = formula(fullRandTxt), data = TDTot,
+                                              trace = TRUE))
     if (!is.null(fullRandMod$warning)) {
       ## Check if param 1% increase is significant. Remove warning if not.
       fullRandMod <- chkLastIter(fullRandMod)
@@ -222,6 +221,19 @@ gxeVarComp <- function(TD,
     }
   }
 
+  ## Create tables for diagnostics.
+  diagTabs <- lapply(X = fixedTerms, FUN = function(fixedTerm) {
+    fixedVars <- unlist(strsplit(x = fixedTerm, split = ":"))
+    fixedVarLevs <- lapply(X = fixedVars, FUN = function(fixedVar) {
+      unique(TDTot[[fixedVar]])
+    })
+    fullTab <- expand.grid(c(list(unique(TDTot[["genotype"]])), fixedVarLevs),
+                           KEEP.OUT.ATTRS = FALSE)
+    missTab <- fullTab[!interaction(fullTab) %in%
+                         interaction(TDTot[c("genotype", fixedVars)]), ]
+    colnames(missTab) <- c("genotype", fixedVars)
+    return(missTab)
+  })
 
   ## Create the full fixed part of the model as a character.
   ## This is identical for lme4 and asreml so only needs to be done once.
@@ -230,8 +242,7 @@ gxeVarComp <- function(TD,
     randTxt <- paste(paste0("(1|", randTerms, ")"), collapse = "+")
     formTxt <- paste(fixedTxt, "+", randTxt)
     ## Fit the actual model.
-    mr <- lme4::lmer(formula(formTxt), data = TDTot, weights = TDTot[["wt"]],
-                     ...)
+    mr <- lme4::lmer(formula(formTxt), data = TDTot, weights = TDTot[["wt"]])
     ## Construct STA object.
   } else if (engine == "asreml") {
     if (requireNamespace("asreml", quietly = TRUE)) {
@@ -272,9 +283,29 @@ gxeVarComp <- function(TD,
       stop("Failed to load 'asreml'.\n")
     }
   }
+
+  if (diagnostics) {
+    for (diagTab in diagTabs) {
+      if (nrow(diagTab) > 0) {
+        cat(nrow(diagTab), " missing combinations for ",
+            paste(colnames(diagTab), collapse = " x "), ".\n", sep = "")
+        if (nrow(diagTab) > 10) {
+          cat("Printing first 10 missing combinations.\n",
+              "Use diagnostics() on the result for the full data.frame.\n")
+        }
+        print(head(diagTab, 10), row.names = FALSE)
+        cat("\n\n")
+      } else {
+        cat("No missing combinations for ",
+            paste(colnames(diagTab), collapse = " x "), ".\n\n", sep = "")
+      }
+    }
+  }
+
   ## Create output.
   res <- createVarComp(fitMod = mr, modDat = TDTot, trialGroup = nesting,
-                       useLocYear = locationYear, engine = engine)
+                       useLocYear = locationYear, engine = engine,
+                       diagTabs = diagTabs)
   return(res)
 }
 
