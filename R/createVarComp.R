@@ -29,7 +29,7 @@ createVarComp <- function(fitMod,
 
 #' @export
 print.varComp <- function(x, ...) {
-  summary(object$fitmod)
+  summary(x$fitmod)
 }
 
 #' @export
@@ -45,11 +45,6 @@ summary.varComp <- function(object, ...) {
 #' @param ... Not used
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
-#'
-#' @examples
-#' \dontrun{
-#'
-#' }
 #'
 #' @export
 plot.varComp <- function(x,
@@ -70,10 +65,6 @@ plot.varComp <- function(x,
 #'
 #' @return A pdf and tex report.
 #'
-#' @examples
-#' \dontrun{
-
-#' }
 #' @export
 report.varComp <- function(x,
                            ...,
@@ -122,8 +113,15 @@ predict.varComp <- function(object,
   return(preds)
 }
 
-
-
+#' Extract variance components
+#'
+#' Extract variance components from an object of class varComp.
+#'
+#' @param varComp An object of class varComp.
+#'
+#' @return A data.frame with variance components and standard errors for
+#' the random components in the fitted model.#'
+#'
 #' @export
 vc <- function(varComp) {
   if (varComp$engine == "lme4") {
@@ -140,6 +138,12 @@ vc <- function(varComp) {
   return(varcomps)
 }
 
+#' Compute heritability
+#'
+#' Compute the heritability based on the fitted model.
+#'
+#' @param varComp An object of class varComp.
+#'
 #' @export
 herit <- function(varComp) {
   fitMod <- varComp$fitMod
@@ -173,6 +177,16 @@ herit <- function(varComp) {
   return(sigmaG / numerator)
 }
 
+#' Get diagnostics for an object of class varComp
+#'
+#' Get the diagnostics for the model fitted. This will print a table of
+#' combinations missing in the data. For each random factor in the model a
+#' table is printed.
+#'
+#' @param varComp An object of class varComp.
+#'
+#' @return A list of tables is invisibly returned
+#'
 #' @export
 diagnostics <- function(varComp) {
   if (!inherits(varComp, "varComp")) {
@@ -190,4 +204,5 @@ diagnostics <- function(varComp) {
           paste(colnames(diagTab), collapse = " x "), ".\n\n", sep = "")
     }
   }
+  invisible(diagTabs)
 }

@@ -23,7 +23,3 @@ A pdf report will be created containing a summary of an object of class
 varComp. Simultaneously the same report will be created as a tex
 file.
 }
-\examples{
-\dontrun{
-}
-}

@@ -11,12 +11,20 @@
 #'
 #' @param engine A character string specifying the engine used for modeling.
 #' Either "lme4" or "asreml".
-#' @param trialGroup A character string specifying a column in TD.......
+#' @param locationYear Should a model be fitted assuming a factorial structure of
+#' locations x years?
+#' @param nesting A character string specifying a column in TD.......
+#' @param regionLocationYear Should a model be fitted assuming locations within
+#' regions across years?
+#' @param useWt Should the model be fitted using weights? Doing so requieres a
+#' column wt in the data.
+#' @param diagnostics Should diagnostics on missing combinations of model
+#' variables be printed?
 #'
 #' @note If \code{engine = "lme4"}, only the compound symmetry model can be
 #' fitted.
 #'
-#' @return An object of class \code{\link{varComp}}, a list object containing:
+#' @return An object of class \code{varComp}, a list object containing:
 #' \item{STA}{An object of class STA containing the best fitted model.}
 #' \item{choice}{A character string indicating the best fitted model.}
 #' \item{summary}{A data.frame with a summary of the fitted models.}

@@ -290,7 +290,7 @@ summary(dropsStabME, pctGeno = 2)
 
 # Mixed model analysis of two-way GxE tables{#vc}
 
-The function `gxeVarComp` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequentially to the genotype by environment data. The best fitting model is then identified.    
+The function `gxeVarCov` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequentially to the genotype by environment data. The best fitting model is then identified.    
 The models fitted are of the form $y_{ij} = \mu_i + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu_i$ is the genotypic mean and $\epsilon_{ij}$ the residual genetic variation. This residual genetic variation is modeled in eight ways as described in the table below (see [@Boer2007]).
 
 |model | description | var($g_{ij}$) | cov($g_{ij}$;$g_{ik}$) | number of parameters|
@@ -307,11 +307,11 @@ The models fitted are of the form $y_{ij} = \mu_i + \epsilon_{ij}$, where $y_{ij
 In this table $J$ is the number of environments, $\sigma_G^2$ the variance component for the genotype main effects, $\sigma_{GE}^2$ the variance component for GxE interactions. $\sigma_{G_j}^2$ and $\sigma_{GE_j}^2$ are the environment specific variance components for the genotype main effects and GxE interaction in environment $j$. $\sigma_{G_{j,k}}^2$ is the genetic covariance between environments $j$ and $k$. $\theta$ is the common correlation between environments and $\lambda_{1j}$ and $\lambda_{2j}$ are environment specific multiplicative
 parameters.
 
-The best model for the data is selected based on either the Akaike Information Criterion (AIC [@Akaike1974]) or the Baysian Information Criterion (BIC [@Schwarz1978]). Which criterion is used is determined by the parameter `criterion` in the function `gxeVarComp`.  
+The best model for the data is selected based on either the Akaike Information Criterion (AIC [@Akaike1974]) or the Baysian Information Criterion (BIC [@Schwarz1978]). Which criterion is used is determined by the parameter `criterion` in the function `gxeVarCov`.  
 
 ```{r geVClme}
 ## Use lme4 for fitting the models - only compound symmetry.
-dropsVC <- gxeVarComp(TD = dropsTD, trait = "grain.yield")
+dropsVC <- gxeVarCov(TD = dropsTD, trait = "grain.yield")
 summary(dropsVC)
 ```
 
@@ -319,8 +319,7 @@ summary(dropsVC)
 ## Use asreml for fitting the models - eight models fitted. 
 ## Use AIC as criterion for determining the best model.
 if (requireNamespace("asreml", quietly = TRUE)) {
-  dropsVC2 <- gxeVarComp(TD = dropsTD, trait = "grain.yield", engine = "asreml",
-                         criterion = "AIC")
+  dropsVC2 <- gxeVarCov(TD = dropsTD, trait = "grain.yield", engine = "asreml", criterion = "AIC")
   summary(dropsVC2)
 }
 ```

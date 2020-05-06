@@ -17,9 +17,3 @@
 \description{
 Plot function for class varComp.
 }
-\examples{
-\dontrun{
-
-}
-
-}
