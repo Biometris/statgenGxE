@@ -98,28 +98,24 @@ predict.varComp <- function(object,
   } else {
     envVars <- "trial"
   }
+  predLevels <- "genotype"
+  if (predictLevel == "trial") {
+    predLevels <- c(predLevels, envVars)
+  } else if (predictLevel == "trialGroup") {
+    predLevels <- c("genotype", object$trialGroup)
+  }
   if (object$engine == "lme4") {
-    # gridLevels <- sapply(X = predLevels, FUN = function(predLevel) {
-    #   levels(modDat[[predLevel]])
-    # }, simplify = FALSE)
-    # newDat <- do.call(expand.grid, gridLevels)
-    # intercept <- mean(c(0, lme4::fixef(fitMod)[-1])) + lme4::fixef(fitMod)[1]
-    # predicted.value <- predict(fitMod, newdata = newDat, random.only = TRUE) +
-    #   intercept
-    # preds <- cbind(newDat, predicted.value)
-    preds <- NULL
+    gridLevels <- sapply(X = predLevels, FUN = function(predLevel) {
+      levels(modDat[[predLevel]])
+    }, simplify = FALSE)
+    newDat <- do.call(expand.grid, gridLevels)
+    predicted.value <- predict(fitMod, newdata = newDat)
+    preds <- cbind(newDat, predicted.value)
   } else if (object$engine == "asreml") {
-    predLevels <- "genotype"
-    if (predictLevel == "trial") {
-      predLevels <- c(predLevels, envVars)
-    } else if (predictLevel == "trialGroup") {
-      predLevels <- c("genotype", object$trialGroup)
-    }
     classForm <- paste0(predLevels, collapse = ":")
     preds <- predictAsreml(model = fitMod, classify = classForm,
                            TD = object$modDat,
                            aliased = TRUE, vcov = FALSE)$pvals
-
   }
   return(preds)
 }
