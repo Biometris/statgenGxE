@@ -141,15 +141,14 @@ plot(dropsStab)
 
 ## ----geVClme----------------------------------------------------------------------------
 ## Use lme4 for fitting the models - only compound symmetry.
-dropsVC <- gxeVarComp(TD = dropsTD, trait = "grain.yield")
+dropsVC <- gxeVarCov(TD = dropsTD, trait = "grain.yield")
 summary(dropsVC)
 
 ## ----geVCasreml-------------------------------------------------------------------------
 ## Use asreml for fitting the models - eight models fitted. 
 ## Use AIC as criterion for determining the best model.
 if (requireNamespace("asreml", quietly = TRUE)) {
-  dropsVC2 <- gxeVarComp(TD = dropsTD, trait = "grain.yield", engine = "asreml",
-                         criterion = "AIC")
+  dropsVC2 <- gxeVarCov(TD = dropsTD, trait = "grain.yield", engine = "asreml", criterion = "AIC")
   summary(dropsVC2)
 }
 

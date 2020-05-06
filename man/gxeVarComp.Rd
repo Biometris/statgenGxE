@@ -27,13 +27,22 @@ not supplied, all trials are used in the analysis.}
 \item{engine}{A character string specifying the engine used for modeling.
 Either "lme4" or "asreml".}
 
-\item{useWt}{Should weighting be used when modeling? Requires a column
-\code{wt} in \code{TD}.}
+\item{locationYear}{Should a model be fitted assuming a factorial structure of
+locations x years?}
 
-\item{trialGroup}{A character string specifying a column in TD.......}
+\item{nesting}{A character string specifying a column in TD.......}
+
+\item{regionLocationYear}{Should a model be fitted assuming locations within
+regions across years?}
+
+\item{useWt}{Should the model be fitted using weights? Doing so requieres a
+column wt in the data.}
+
+\item{diagnostics}{Should diagnostics on missing combinations of model
+variables be printed?}
 }
 \value{
-An object of class \code{\link{varComp}}, a list object containing:
+An object of class \code{varComp}, a list object containing:
 \item{STA}{An object of class STA containing the best fitted model.}
 \item{choice}{A character string indicating the best fitted model.}
 \item{summary}{A data.frame with a summary of the fitted models.}
