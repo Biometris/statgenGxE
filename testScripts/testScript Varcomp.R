@@ -35,7 +35,7 @@ SB_Yield$location <- as.factor(substring(SB_Yield$Env, 1, 4))
 SB_Yield <- SB_Yield[SB_Yield$Genotype != "200",]
 
 # Create object of class TD
-testTD <- createTD(data = SB_Yield, genotype = "Genotype", trial = "location",
+testTD <- createTD(data = SB_Yield, genotype = "Genotype", trial = "Env",
                    repId = "Rep", subBlock = "Subblock", rowCoord = "Row",
                    colCoord = "Column", year = "year")
 ## Fit models en compute BLUEs.
@@ -86,7 +86,7 @@ p20 <- predict(vc20)
 p20 <- predict(vc20, predictLevel = "trial")
 
 vc2 <- gxeVarComp(TD = dropsTD1, trait = "grain.yield", engine = "asreml",
-                  trialGroup = "scenarioWater")
+                  nesting = "scenarioWater")
 vc2$fitMod$call$fixed
 vc2$fitMod$call$random
 wald(vc2$fitMod)
@@ -150,13 +150,13 @@ p1b_1 <- predict(vc1b, predictLevel = "trial")
 
 ## Add a group variable to the model - for loc x year.
 vc2b0 <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "lme4",
-                    trialGroup = "scenarioWater")
+                    nesting = "scenarioWater")
 vc2b0$fitMod@call$formula
 vc(vc2b0)
 herit(vc2b0)
 
 vc2b <- gxeVarComp(TD = dropsTD3, trait = "grain.yield", engine = "asreml",
-                   trialGroup = "scenarioWater")
+                   nesting = "scenarioWater")
 vc2b$fitMod$call$fixed
 vc2b$fitMod$call$random
 wald(vc2b$fitMod)
