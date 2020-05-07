@@ -211,10 +211,16 @@ gxeVarComp <- function(TD,
 
   if (engine == "lme4") {
     fullRandMod <- lme4::lmer(formula(fullRandTxt), data = TDTot)
+    fullRandVC <- as.data.frame(lme4::VarCorr(fullRandMod))
+    rownames(fullRandVC) <- fullRandVC[["grp"]]
+    vcovTot <- sum(fullRandVC[["vcov"]])
+    fullRandVC[["vcovPerc"]] <- round(100 * fullRandVC[["vcov"]] / vcovTot, 2)
+    fullRandVC <- fullRandVC[c((nrow(fullRandVC)-1):1, nrow(fullRandVC)),
+                             "vcovPerc", drop = FALSE]
   } else if (engine == "asreml") {
     fullRandMod <- tryCatchExt(asreml::asreml(fixed = formula(paste0("`", trait, "`~ 1")),
                                               random = formula(fullRandTxt), data = TDTot,
-                                              trace = TRUE))
+                                              trace = FALSE))
     if (!is.null(fullRandMod$warning)) {
       ## Check if param 1% increase is significant. Remove warning if not.
       fullRandMod <- chkLastIter(fullRandMod)
@@ -227,8 +233,12 @@ gxeVarComp <- function(TD,
     } else {
       fullRandMod <- fullRandMod$value
     }
+    fullRandVC <- summary(fullRandMod)$varcomp
+    rownames(fullRandVC)[nrow(fullRandVC)] <- "Residual"
+    vcovTot <- sum(fullRandVC[["component"]])
+    fullRandVC[["vcovPerc"]] <- round(100 * fullRandVC[["component"]] / vcovTot, 2)
+    fullRandVC <- fullRandVC[, "vcovPerc", drop = FALSE]
   }
-
   ## Create tables for diagnostics.
   diagTabs <- lapply(X = fixedTerms, FUN = function(fixedTerm) {
     fixedVars <- unlist(strsplit(x = fixedTerm, split = ":"))
@@ -242,7 +252,6 @@ gxeVarComp <- function(TD,
     colnames(missTab) <- c("genotype", fixedVars)
     return(missTab)
   })
-
   ## Create the full fixed part of the model as a character.
   ## This is identical for lme4 and asreml so only needs to be done once.
   fixedTxt <- paste0("`", trait, "`~", paste(fixedTerms, collapse = "+"))
@@ -260,7 +269,7 @@ gxeVarComp <- function(TD,
       ## Also some arguments are identical for all models
       modArgs0 <- list(fixed = formula(fixedTxt), random = formula(randTxt),
                        data = TDTot, weights = "wt", maxiter = maxIter,
-                       trace = TRUE)
+                       trace = FALSE)
       modArgs <- modArgs0
       ## Fit the actual model.
       mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
@@ -291,7 +300,6 @@ gxeVarComp <- function(TD,
       stop("Failed to load 'asreml'.\n")
     }
   }
-
   if (diagnostics) {
     for (diagTab in diagTabs) {
       if (nrow(diagTab) > 0) {
@@ -309,11 +317,10 @@ gxeVarComp <- function(TD,
       }
     }
   }
-
   ## Create output.
   res <- createVarComp(fitMod = mr, modDat = TDTot, trialGroup = nesting,
-                       useLocYear = locationYear, engine = engine,
-                       diagTabs = diagTabs)
+                       useLocYear = locationYear, fullRandVC = fullRandVC,
+                       engine = engine, diagTabs = diagTabs)
   return(res)
 }
 
