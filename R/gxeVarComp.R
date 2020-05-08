@@ -105,9 +105,7 @@ gxeVarComp <- function(TD,
   TDTot[is.na(TDTot[["wt"]]), "wt"] <- 0
   ## Check if the trial is nested within the trialGroup.
   #hasGroup <- !is.null(trialGroup)
-  ## Check if the data contains replicates.
-  repTab <- table(TDTot[["trial"]], TDTot[["genotype"]])
-  hasReps <- any(repTab > 1)
+
   ## Construct formula for fixed part - first as text.
   ## Trying to fit this in something 'smart' actually makes it unreadable.
   ## First create a vector with the separate terms.
@@ -129,7 +127,10 @@ gxeVarComp <- function(TD,
                   if (regionLocationYear) c("region", "region:loc", "year",
                                             "region:year", "region:loc",
                                             "region:loc:year"))
-
+  ## Check if the data contains replicates.
+  repTab <- table(TDTot[c("genotype",
+                          unlist(strsplit(x = tail(fixedTerms, 1), split = ":")))])
+  hasReps <- any(repTab > 1)
   ## Construct formula for random part in a similar way.
   # randTerms <- c("genotype",
   #                if (!useLocYear && !hasGroup && (hasReps || useWt)) "genotype:trial",
@@ -201,6 +202,7 @@ gxeVarComp <- function(TD,
       if ((all(randTermSet %in% aovTermSets[i]) ||
            ## Always include the residual term for comparison.
            i == nrow(aovFullFixedMod)) &&
+          !is.nan(aovFullFixedMod[i, "Mean Sq"]) &&
           aovFullFixedMod[i, "Mean Sq"] > MSSRandTerm) {
         warning("Mean Sum of Squares for ", randTerm, " smaller than Mean ",
                 "Sum of Squares for ", rownames(aovFullFixedMod)[i], ".\n",
