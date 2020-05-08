@@ -110,15 +110,6 @@ gxeVarComp <- function(TD,
   ## Trying to fit this in something 'smart' actually makes it unreadable.
   ## First create a vector with the separate terms.
   ## This avoids difficult constructions to get the +-es correct.
-  # fixedTerms <- c(if (!useLocYear && !hasGroup) "trial",
-  #                 if (hasGroup) trialGroup,
-  #                 if (!useLocYear && hasGroup) paste0(trialGroup, ":trial"),
-  #                 if (useLocYear) "year",
-  #                 if (useLocYear && !hasGroup) "loc",
-  #                 if (useLocYear && !hasGroup) "loc:year",
-  #                 if (useLocYear && hasGroup) paste0(trialGroup, ":year"),
-  #                 if (useLocYear && hasGroup) paste0(trialGroup, ":loc:year"))
-
   fixedTerms <- c(if (!locationYear && is.null(nesting) &&
                       !regionLocationYear) "trial",
                   if (locationYear) c("year", if (locYearCrossed) "loc",
@@ -131,19 +122,9 @@ gxeVarComp <- function(TD,
   repTab <- table(TDTot[c("genotype",
                           unlist(strsplit(x = tail(fixedTerms, 1), split = ":")))])
   hasReps <- any(repTab > 1)
-  ## Construct formula for random part in a similar way.
-  # randTerms <- c("genotype",
-  #                if (!useLocYear && !hasGroup && (hasReps || useWt)) "genotype:trial",
-  #                if (hasGroup) paste0("genotype:", trialGroup),
-  #                if (!useLocYear && hasGroup && (hasReps || useWt))
-  #                  paste0("genotype:", trialGroup, ":trial"),
-  #                if (useLocYear) "genotype:year",
-  #                if (useLocYear && !hasGroup) "genotype:loc",
-  #                if (useLocYear && !hasGroup && (hasReps || useWt)) "genotype:loc:year",
-  #                if (useLocYear && hasGroup) paste0("genotype:", trialGroup, ":year"),
-  #                if (useLocYear && hasGroup  && (hasReps || useWt))
-  #                  paste0("genotype:", trialGroup, ":loc:year"))
-
+  ## Random terms are genotype x fixedTerms.
+  ## If there are no replicates or weights the final random term is the actual
+  ## residual and therefore left out of the model.
   if (hasReps || useWt) {
     randTermIncl <- fixedTerms
   } else {
@@ -151,15 +132,16 @@ gxeVarComp <- function(TD,
   }
   randTerms <- c("genotype",
                  if (length(randTermIncl) > 0) paste0("genotype:", randTermIncl))
-
   ## First fit a model with all terms fixed to determine:
   ## - should all terms in the fixed part really be present.
   ## - Predict which terms in the random part of the model will probably
   ##   have a zero variance component.
   fullFixedTxt <- paste0("`", trait, "`~",
                          paste(c(fixedTerms, randTerms), collapse = "+"))
-
   ## Construct input for full random model.
+  ## This has to be done before fitting the fully fixed model and
+  ## removing terms from the fixed part to ensure all terms are still
+  ## in the random part.
   if (engine == "lme4") {
     fullRandTxt <- paste0("`", trait, "`~",
                           paste(paste0("(1|", c(fixedTerms, randTerms), ")"),
@@ -167,8 +149,7 @@ gxeVarComp <- function(TD,
   } else if (engine == "asreml") {
     fullRandTxt <- paste("~", paste(c(fixedTerms, randTerms), collapse = "+"))
   }
-
-
+  ## Fit the fully fixed model.
   fullFixedMod <- lm(formula(fullFixedTxt), data = TDTot)
   aovFullFixedMod <- anova(fullFixedMod)
   ## Get all model terms as used by lm (might involve reordered terms).
@@ -210,7 +191,10 @@ gxeVarComp <- function(TD,
       }
     }
   }
-
+  ## Fit the fully random model and compute how much variation
+  ## is explained by each of the model terms.
+  ## This is stored as fullRandVC and included in the output to create
+  ## a nice summary.
   if (engine == "lme4") {
     fullRandMod <- lme4::lmer(formula(fullRandTxt), data = TDTot)
     fullRandVC <- as.data.frame(lme4::VarCorr(fullRandMod))
@@ -303,6 +287,7 @@ gxeVarComp <- function(TD,
     }
   }
   if (diagnostics) {
+    ## Print diagnostics.
     for (diagTab in diagTabs) {
       if (nrow(diagTab) > 0) {
         cat(nrow(diagTab), " missing combinations for ",
