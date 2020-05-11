@@ -195,7 +195,7 @@ gxeVarComp <- function(TD,
     vcovTot <- sum(fullRandVC[["vcov"]])
     fullRandVC[["vcovPerc"]] <- fullRandVC[["vcov"]] / vcovTot
     fullRandVC <- fullRandVC[c((nrow(fullRandVC)-1):1, nrow(fullRandVC)),
-                             "vcovPerc", drop = FALSE]
+                             c("vcov", "vcovPerc")]
   } else if (engine == "asreml") {
     ## Construct input for full random model.
     fullRandTxt <- paste("~", paste(c(fixedTerms, randTerms), collapse = "+"))
@@ -218,7 +218,8 @@ gxeVarComp <- function(TD,
     rownames(fullRandVC)[nrow(fullRandVC)] <- "Residual"
     vcovTot <- sum(fullRandVC[["component"]])
     fullRandVC[["vcovPerc"]] <- fullRandVC[["component"]] / vcovTot
-    fullRandVC <- fullRandVC[, "vcovPerc", drop = FALSE]
+    colnames(fullRandVC)[colnames(fullRandVC) == "component"] <- "vcov"
+    fullRandVC <- fullRandVC[, c("vcov", "vcovPerc")]
   }
   ## Create tables for diagnostics.
   diagTabs <- lapply(X = fixedTerms, FUN = function(fixedTerm) {
