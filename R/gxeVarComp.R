@@ -138,17 +138,6 @@ gxeVarComp <- function(TD,
   ##   have a zero variance component.
   fullFixedTxt <- paste0("`", trait, "`~",
                          paste(c(fixedTerms, randTerms), collapse = "+"))
-  ## Construct input for full random model.
-  ## This has to be done before fitting the fully fixed model and
-  ## removing terms from the fixed part to ensure all terms are still
-  ## in the random part.
-  if (engine == "lme4") {
-    fullRandTxt <- paste0("`", trait, "`~",
-                          paste(paste0("(1|", c(fixedTerms, randTerms), ")"),
-                                collapse = "+"))
-  } else if (engine == "asreml") {
-    fullRandTxt <- paste("~", paste(c(fixedTerms, randTerms), collapse = "+"))
-  }
   ## Fit the fully fixed model.
   fullFixedMod <- lm(formula(fullFixedTxt), data = TDTot)
   aovFullFixedMod <- anova(fullFixedMod)
@@ -196,6 +185,10 @@ gxeVarComp <- function(TD,
   ## This is stored as fullRandVC and included in the output to create
   ## a nice summary.
   if (engine == "lme4") {
+    ## Construct input for full random model.
+    fullRandTxt <- paste0("`", trait, "`~",
+                          paste(paste0("(1|", c(fixedTerms, randTerms), ")"),
+                                collapse = "+"))
     fullRandMod <- lme4::lmer(formula(fullRandTxt), data = TDTot)
     fullRandVC <- as.data.frame(lme4::VarCorr(fullRandMod))
     rownames(fullRandVC) <- fullRandVC[["grp"]]
@@ -204,6 +197,8 @@ gxeVarComp <- function(TD,
     fullRandVC <- fullRandVC[c((nrow(fullRandVC)-1):1, nrow(fullRandVC)),
                              "vcovPerc", drop = FALSE]
   } else if (engine == "asreml") {
+    ## Construct input for full random model.
+    fullRandTxt <- paste("~", paste(c(fixedTerms, randTerms), collapse = "+"))
     fullRandMod <- tryCatchExt(asreml::asreml(fixed = formula(paste0("`", trait, "`~ 1")),
                                               random = formula(fullRandTxt), data = TDTot,
                                               trace = FALSE))
