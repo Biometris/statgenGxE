@@ -56,7 +56,7 @@ summary.varComp <- function(object,
   cat("Fitted model formula\n")
   cat(fitModCall, "\n\n")
   cat("Sources of variation\n")
-  print(setNames(object$fullRandVC, NULL))
+  print(setNames(object$fullRandVC[, "vcovPerc", drop = FALSE], NULL))
 }
 
 #' Plot function for class varComp
@@ -72,8 +72,17 @@ summary.varComp <- function(object,
 plot.varComp <- function(x,
                          ...,
                          output = TRUE) {
-  NULL
+  fullRandVC <- x$fullRandVC
+  fullRandVC[["term"]] <- factor(rownames(fullRandVC),
+                                 levels = rev(rownames(fullRandVC)))
+  p <- ggplot(fullRandVC, aes_string(x = "vcov", y = "term")) +
+    geom_point()
+  if (output) {
+    plot(p)
+  }
+  invisible(p)
 }
+
 
 #' Report method for class varComp
 #'
