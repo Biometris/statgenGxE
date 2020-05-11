@@ -30,13 +30,27 @@ createVarComp <- function(fitMod,
 }
 
 #' @export
-print.varComp <- function(x, ...) {
+print.varComp <- function(x,
+                          ...) {
   summary(x$fitmod)
 }
 
 #' @export
-summary.varComp <- function(object, ...) {
-  summary(object$fitMod)
+summary.varComp <- function(object,
+                            ...) {
+  if (object$engine == "lme4") {
+    fitModCall <- deparse(formula(getCall(object$fitMod)), width.cutoff = 500)
+
+  } else if (object$engine == "asreml") {
+    fitModCallFixed <- deparse(object$fitMod$call$fixed, width.cutoff = 500)
+    fitModCallRandTerms <- attr(x = terms(object$fitMod$call$random),
+                                which = "term.labels")
+    fitModCallRand <- paste0("(1 | ", fitModCallRandTerms, ")",
+                             collapse = " + ")
+    fitModCall <- paste(fitModCallFixed, "+", fitModCallRand)
+  }
+  cat("Fitted model formula\n")
+  cat(fitModCall, "\n")
 }
 
 #' Plot function for class varComp
