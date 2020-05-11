@@ -200,7 +200,7 @@ gxeVarComp <- function(TD,
     fullRandVC <- as.data.frame(lme4::VarCorr(fullRandMod))
     rownames(fullRandVC) <- fullRandVC[["grp"]]
     vcovTot <- sum(fullRandVC[["vcov"]])
-    fullRandVC[["vcovPerc"]] <- round(100 * fullRandVC[["vcov"]] / vcovTot, 2)
+    fullRandVC[["vcovPerc"]] <- fullRandVC[["vcov"]] / vcovTot
     fullRandVC <- fullRandVC[c((nrow(fullRandVC)-1):1, nrow(fullRandVC)),
                              "vcovPerc", drop = FALSE]
   } else if (engine == "asreml") {
@@ -222,7 +222,7 @@ gxeVarComp <- function(TD,
     fullRandVC <- summary(fullRandMod)$varcomp
     rownames(fullRandVC)[nrow(fullRandVC)] <- "Residual"
     vcovTot <- sum(fullRandVC[["component"]])
-    fullRandVC[["vcovPerc"]] <- round(100 * fullRandVC[["component"]] / vcovTot, 2)
+    fullRandVC[["vcovPerc"]] <- fullRandVC[["component"]] / vcovTot
     fullRandVC <- fullRandVC[, "vcovPerc", drop = FALSE]
   }
   ## Create tables for diagnostics.

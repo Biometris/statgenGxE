@@ -8,14 +8,12 @@ TDCM <- createTD(datCM, genotype = "gen", trial = "env")
 vcCMlme <- gxeVarComp(TDCM, trait = "yield")
 diagnostics(vcCMlme)
 summary(vcCMlme)
-vcCMlme$fullRandVC
 vc(vcCMlme)
 herit(vcCMlme)
 
 vcCMasr <- gxeVarComp(TDCM, trait = "yield", engine = "asreml")
 diagnostics(vcCMasr)
 summary(vcCMasr)
-vcCMasr$fullRandVC
 vc(vcCMasr)
 herit(vcCMasr)
 
@@ -26,14 +24,12 @@ TDDM <- createTD(datDM, genotype = "gen", trial = "env")
 vcDMlme <- gxeVarComp(TDDM, trait = "yield")
 diagnostics(vcDMlme)
 summary(vcDMlme)
-vcDMlme$fullRandVC
 vc(vcDMlme)
 herit(vcDMlme)
 
 vcDMasr <- gxeVarComp(TDDM, trait = "yield", engine = "asreml")
 diagnostics(vcDMasr)
 summary(vcDMasr)
-vcDMasr$fullRandVC
 vc(vcDMasr)
 herit(vcDMasr)
 
@@ -51,14 +47,12 @@ TDAS <- createTD(datAS, genotype = "gen", trial = "env", loc = "loc",
 vcASlme <- gxeVarComp(TDAS, trait = "yield", locationYear = TRUE)
 diagnostics(vcASlme)
 summary(vcASlme)
-vcASlme$fullRandVC
 vc(vcASlme)
 herit(vcASlme)
 
 vcASasr <- gxeVarComp(TDAS, trait = "yield", locationYear = TRUE, engine = "asreml")
 diagnostics(vcASasr)
 summary(vcASasr)
-vcASasr$fullRandVC
 vc(vcASasr)
 herit(vcASasr)
 
@@ -73,14 +67,12 @@ TDAS2 <- createTD(datAS2, genotype = "gen", trial = "env", loc = "loc",
 vcAS2lme <- gxeVarComp(TDAS2, trait = "yield", locationYear = TRUE)
 diagnostics(vcAS2lme)
 summary(vcAS2lme)
-vcAS2lme$fullRandVC
 vc(vcAS2lme)
 herit(vcAS2lme)
 
 vcAS2asr <- gxeVarComp(TDAS2, trait = "yield", locationYear = TRUE, engine = "asreml")
 diagnostics(vcAS2asr)
 summary(vcAS2asr)
-vcAS2asr$fullRandVC
 vc(vcAS2asr)
 herit(vcAS2asr)
 
@@ -96,14 +88,12 @@ TDSR <- createTD(datSR, genotype = "gen", trial = "trial", loc = "loc",
 vcSRlme <- gxeVarComp(TDSR, trait = "yield", locationYear = TRUE)
 diagnostics(vcSRlme)
 summary(vcSRlme)
-vcSRlme$fullRandVC
 vc(vcSRlme)
 herit(vcSRlme)
 
 vcSRasr <- gxeVarComp(TDSR, trait = "yield", locationYear = TRUE, engine = "asreml")
 diagnostics(vcSRasr)
 summary(vcSRasr)
-vcSRasr$fullRandVC
 vc(vcSRasr)
 herit(vcSRasr)
 
@@ -114,7 +104,6 @@ TDBW <- createTD(datBW, genotype = "gen", trial = "loc")
 vcBWlme <- gxeVarComp(TDBW, trait = "yield", nesting = "nitro")
 diagnostics(vcBWlme)
 summary(vcBWlme)
-vcBWlme$fullRandVC
 vc(vcBWlme)
 herit(vcBWlme)
 
@@ -124,7 +113,4 @@ summary(vcBWasr)
 vcBWasr$fullRandVC
 vc(vcBWasr)
 herit(vcBWasr)
-
-
-
 

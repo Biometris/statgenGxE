@@ -49,8 +49,14 @@ summary.varComp <- function(object,
                              collapse = " + ")
     fitModCall <- paste(fitModCallFixed, "+", fitModCallRand)
   }
+  ## Print source of variation as percentage.
+  object$fullRandVC[["vcovPerc"]] <-
+    sprintf("%1.2f %%", 100 * object$fullRandVC[["vcovPerc"]])
+  ## Print output
   cat("Fitted model formula\n")
-  cat(fitModCall, "\n")
+  cat(fitModCall, "\n\n")
+  cat("Sources of variation\n")
+  print(setNames(object$fullRandVC, NULL))
 }
 
 #' Plot function for class varComp
