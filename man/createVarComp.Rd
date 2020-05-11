@@ -10,6 +10,7 @@ createVarComp(
   trialGroup,
   useLocYear,
   fullRandVC,
+  aovFullFixedMod,
   engine,
   diagTabs
 )

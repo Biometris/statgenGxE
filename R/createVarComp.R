@@ -15,6 +15,7 @@ createVarComp <- function(fitMod,
                           trialGroup,
                           useLocYear,
                           fullRandVC,
+                          aovFullFixedMod,
                           engine,
                           diagTabs) {
   varComp <- structure(list(fitMod = fitMod,
@@ -22,6 +23,7 @@ createVarComp <- function(fitMod,
                             trialGroup = trialGroup,
                             useLocYear = useLocYear,
                             fullRandVC = fullRandVC,
+                            aovFullFixedMod = aovFullFixedMod,
                             engine = engine,
                             diagTabs = diagTabs),
                        class = "varComp")
@@ -73,16 +75,41 @@ plot.varComp <- function(x,
                          ...,
                          output = TRUE) {
   fullRandVC <- x$fullRandVC
-  fullRandVC[["term"]] <- factor(rownames(fullRandVC),
-                                 levels = rev(rownames(fullRandVC)))
+  aovFullFixedMod <- x$aovFullFixedMod
+  fullRandVC[["vars"]] <- sapply(X = strsplit(x = rownames(fullRandVC),
+                                              split = ":"),
+                                 FUN = function(var) {
+                                   paste0(sort(var), collapse = "_")
+                                 })
+  aovFullFixedMod[["vars"]] <- sapply(X = strsplit(x = rownames(aovFullFixedMod),
+                                                   split = ":"),
+                                      FUN = function(var) {
+                                        paste0(sort(var), collapse = "_")
+                                      })
+  fullRandVC[["Df"]] <- aovFullFixedMod[["Df"]][match(aovFullFixedMod[["vars"]],
+                                                fullRandVC[["vars"]])]
+  fullRandVC[["term"]] <- paste(rownames(fullRandVC), "\t\t", fullRandVC[["Df"]])
+  fullRandVC[["term"]] <- factor(fullRandVC[["term"]],
+                                 levels = rev(fullRandVC[["term"]]))
   p <- ggplot(fullRandVC, aes_string(x = "vcov", y = "term")) +
-    geom_point()
+    geom_point(na.rm = TRUE) +
+    scale_x_continuous(expand = expansion(mult = c(0, 0.05))) +
+    coord_cartesian(clip = "off") +
+    theme(panel.background = element_blank(),
+          axis.line = element_line(),
+          panel.grid.major = element_line(color = "grey50"),
+          axis.title.y = element_blank(),
+          axis.ticks.length.y = grid::unit(0, "mm"),
+          plot.title = element_text(hjust = 0.5)) +
+    annotation_custom(grid::textGrob("source \t\t df", just = "left"),
+                      xmin = -Inf, xmax = -Inf,
+                      ymin = Inf, ymax = Inf) +
+    labs(title = "Variance components")
   if (output) {
     plot(p)
   }
   invisible(p)
 }
-
 
 #' Report method for class varComp
 #'
