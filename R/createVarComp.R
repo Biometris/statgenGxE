@@ -68,14 +68,20 @@ summary.varComp <- function(object,
 #' Plot function for class varComp.
 #'
 #' @param x An object of class varComp
+#' @param plotType A character string. Either "sd" to plot the standard
+#' deviation of the variance components, or percVar to plot the percentage of
+#' variance explained by each variance component.
 #' @param ... Not used
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
 #' @export
 plot.varComp <- function(x,
+                         plotType = c("sd", "percVar"),
                          ...,
                          output = TRUE) {
+  plotType <- match.arg(plotType)
+  plotVar <- if (plotType == "sd") "sd" else "vcovPerc"
   fullRandVC <- x$fullRandVC
   aovFullFixedMod <- x$aovFullFixedMod
   fullRandVC[["vars"]] <- sapply(X = strsplit(x = rownames(fullRandVC),
@@ -94,10 +100,10 @@ plot.varComp <- function(x,
   fullRandVC[["term"]] <- factor(fullRandVC[["term"]],
                                  levels = rev(fullRandVC[["term"]]))
   fullRandVC[["sd"]] <- sqrt(fullRandVC[["vcov"]])
-  annoPosX <- -max(fullRandVC[["sd"]]) / 5e5
-  p <- ggplot(fullRandVC, aes_string(x = "sd", y = "term")) +
+  annoPosX <- -max(fullRandVC[[plotVar]]) / 5e5
+  p <- ggplot(fullRandVC, aes_string(x = plotVar, y = "term")) +
     geom_point(na.rm = TRUE, size = 2) +
-    geom_segment(aes_string(xend = "sd", yend = "term"), x = 0) +
+    geom_segment(aes_string(xend = plotVar, yend = "term"), x = 0) +
     scale_x_continuous(expand = expansion(mult = c(0, 0.05))) +
     coord_cartesian(xlim = c(0, NA), clip = "off") +
     theme(panel.background = element_blank(),
@@ -110,8 +116,14 @@ plot.varComp <- function(x,
     annotation_custom(grid::textGrob("source \t\t df", just = "right",
                                      gp = grid::gpar(size = 14)),
                       xmin = annoPosX, xmax = annoPosX,
-                      ymin = Inf, ymax = Inf) +
-    labs(title = "Standard deviations", x = "Standard deviation estimate")
+                      ymin = Inf, ymax = Inf)
+  if (plotType == "sd") {
+    p <- p + labs(title = "Standard deviations",
+                  x = "Standard deviation estimate")
+  } else if (plotType == "percVar") {
+    p <- p + labs(title = "Percentage of variance explained",
+                  x = "Percentage of variance explained")
+  }
   if (output) {
     plot(p)
   }
