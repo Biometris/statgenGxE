@@ -89,24 +89,27 @@ plot.varComp <- function(x,
                                         paste0(sort(var), collapse = "_")
                                       })
   fullRandVC[["Df"]] <- aovFullFixedMod[["Df"]][match(aovFullFixedMod[["vars"]],
-                                                fullRandVC[["vars"]])]
+                                                      fullRandVC[["vars"]])]
   fullRandVC[["term"]] <- paste(rownames(fullRandVC), "\t\t", fullRandVC[["Df"]])
   fullRandVC[["term"]] <- factor(fullRandVC[["term"]],
                                  levels = rev(fullRandVC[["term"]]))
+  annoPosX <- -max(fullRandVC[["vcov"]]) / 5e5
   p <- ggplot(fullRandVC, aes_string(x = "vcov", y = "term")) +
-    geom_point(na.rm = TRUE) +
+    geom_point(na.rm = TRUE, size = 2) +
     scale_x_continuous(expand = expansion(mult = c(0, 0.05))) +
-    coord_cartesian(clip = "off") +
+    coord_cartesian(xlim = c(0, NA), clip = "off") +
     theme(panel.background = element_blank(),
-          axis.line = element_line(),
           panel.grid.major = element_line(color = "grey50"),
+          axis.line = element_line(),
           axis.title.y = element_blank(),
           axis.ticks.length.y = grid::unit(0, "mm"),
+          axis.text = element_text(size = 12),
           plot.title = element_text(hjust = 0.5)) +
-    annotation_custom(grid::textGrob("source \t\t df", just = "left"),
-                      xmin = -Inf, xmax = -Inf,
+    annotation_custom(grid::textGrob("source \t\t df", just = "right",
+                                     gp = grid::gpar(size = 14)),
+                      xmin = annoPosX, xmax = annoPosX,
                       ymin = Inf, ymax = Inf) +
-    labs(title = "Variance components")
+    labs(title = "Variance components", x = "Variance component estimate")
   if (output) {
     plot(p)
   }
