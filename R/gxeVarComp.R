@@ -141,6 +141,7 @@ gxeVarComp <- function(TD,
   ## Fit the fully fixed model.
   fullFixedMod <- lm(formula(fullFixedTxt), data = TDTot)
   aovFullFixedMod <- anova(fullFixedMod)
+  rownames(aovFullFixedMod)[nrow(aovFullFixedMod)] <- "residuals"
   ## Get all model terms as used by lm (might involve reordered terms).
   fullFixedLabs <- attr(x = terms(fullFixedMod), which = "term.labels")
   if (!all(fullFixedLabs %in% rownames(aovFullFixedMod))) {
@@ -192,7 +193,7 @@ gxeVarComp <- function(TD,
     fullRandMod <- lme4::lmer(formula(fullRandTxt), data = TDTot)
     fullRandVC <- as.data.frame(lme4::VarCorr(fullRandMod))
     rownames(fullRandVC) <- fullRandVC[["grp"]]
-    rownames(fullRandVC)[nrow(fullRandVC)] <- "Residuals"
+    rownames(fullRandVC)[nrow(fullRandVC)] <- "residuals"
     vcovTot <- sum(fullRandVC[["vcov"]])
     fullRandVC[["vcovPerc"]] <- fullRandVC[["vcov"]] / vcovTot
     fullRandVC <- fullRandVC[c((nrow(fullRandVC)-1):1, nrow(fullRandVC)),
@@ -216,7 +217,7 @@ gxeVarComp <- function(TD,
       fullRandMod <- fullRandMod$value
     }
     fullRandVC <- summary(fullRandMod)$varcomp
-    rownames(fullRandVC)[nrow(fullRandVC)] <- "Residuals"
+    rownames(fullRandVC)[nrow(fullRandVC)] <- "residuals"
     vcovTot <- sum(fullRandVC[["component"]])
     fullRandVC[["vcovPerc"]] <- fullRandVC[["component"]] / vcovTot
     colnames(fullRandVC)[colnames(fullRandVC) == "component"] <- "vcov"

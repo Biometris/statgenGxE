@@ -93,13 +93,15 @@ plot.varComp <- function(x,
   fullRandVC[["term"]] <- paste(rownames(fullRandVC), "\t\t", fullRandVC[["Df"]])
   fullRandVC[["term"]] <- factor(fullRandVC[["term"]],
                                  levels = rev(fullRandVC[["term"]]))
-  annoPosX <- -max(fullRandVC[["vcov"]]) / 5e5
-  p <- ggplot(fullRandVC, aes_string(x = "vcov", y = "term")) +
+  fullRandVC[["sd"]] <- sqrt(fullRandVC[["vcov"]])
+  annoPosX <- -max(fullRandVC[["sd"]]) / 5e5
+  p <- ggplot(fullRandVC, aes_string(x = "sd", y = "term")) +
     geom_point(na.rm = TRUE, size = 2) +
+    geom_segment(aes_string(xend = "sd", yend = "term"), x = 0) +
     scale_x_continuous(expand = expansion(mult = c(0, 0.05))) +
     coord_cartesian(xlim = c(0, NA), clip = "off") +
     theme(panel.background = element_blank(),
-          panel.grid.major = element_line(color = "grey50"),
+          panel.grid.major.x = element_line(color = "grey50"),
           axis.line = element_line(),
           axis.title.y = element_blank(),
           axis.ticks.length.y = grid::unit(0, "mm"),
@@ -109,7 +111,7 @@ plot.varComp <- function(x,
                                      gp = grid::gpar(size = 14)),
                       xmin = annoPosX, xmax = annoPosX,
                       ymin = Inf, ymax = Inf) +
-    labs(title = "Variance components", x = "Variance component estimate")
+    labs(title = "Standard deviations", x = "Standard deviation estimate")
   if (output) {
     plot(p)
   }
