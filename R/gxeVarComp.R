@@ -302,7 +302,7 @@ gxeVarComp <- function(TD,
     }
   }
   ## Create output.
-  res <- createVarComp(fitMod = mr, modDat = TDTot, trialGroup = nesting,
+  res <- createVarComp(fitMod = mr, modDat = TDTot, nesting = nesting,
                        useLocYear = locationYear, fullRandVC = fullRandVC,
                        aovFullFixedMod = aovFullFixedMod, engine = engine,
                        diagTabs = diagTabs)

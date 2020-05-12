@@ -7,7 +7,7 @@
 createVarComp(
   fitMod,
   modDat,
-  trialGroup,
+  nesting,
   useLocYear,
   fullRandVC,
   aovFullFixedMod,

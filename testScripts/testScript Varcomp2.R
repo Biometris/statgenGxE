@@ -12,6 +12,7 @@ summary(vcCMlme)
 plot(vcCMlme)
 vc(vcCMlme)
 herit(vcCMlme)
+predict(vcCMlme)
 
 vcCMasr <- gxeVarComp(TDCM, trait = "yield", engine = "asreml")
 diagnostics(vcCMasr)
@@ -19,6 +20,7 @@ summary(vcCMasr)
 plot(vcCMasr)
 vc(vcCMasr)
 herit(vcCMasr)
+predict(vcCMasr)
 
 ## dasilva.maize - 9 trial, 3 replicates.
 datDM <- dasilva.maize
@@ -30,6 +32,7 @@ summary(vcDMlme)
 plot(vcDMlme)
 vc(vcDMlme)
 herit(vcDMlme)
+predict(vcDMlme)
 
 vcDMasr <- gxeVarComp(TDDM, trait = "yield", engine = "asreml")
 diagnostics(vcDMasr)
@@ -37,6 +40,7 @@ summary(vcDMasr)
 plot(vcDMasr)
 vc(vcDMasr)
 herit(vcDMasr)
+predict(vcDMasr)
 
 ## adugna.sorghum - 3 locations, 5 years - nested
 table(adugna.sorghum$year, adugna.sorghum$loc)
@@ -55,6 +59,7 @@ summary(vcASlme)
 plot(vcASlme)
 vc(vcASlme)
 herit(vcASlme)
+predict(vcASlme)
 
 vcASasr <- gxeVarComp(TDAS, trait = "yield", locationYear = TRUE, engine = "asreml")
 diagnostics(vcASasr)
@@ -62,6 +67,7 @@ summary(vcASasr)
 plot(vcASasr)
 vc(vcASasr)
 herit(vcASasr)
+predict(vcASasr)
 
 ## australia.soybean - 4 locations, 2 years - crossed
 table(australia.soybean$year, australia.soybean$loc)
@@ -77,6 +83,7 @@ summary(vcAS2lme)
 plot(vcAS2lme)
 vc(vcAS2lme)
 herit(vcAS2lme)
+predict(vcAS2lme)
 
 vcAS2asr <- gxeVarComp(TDAS2, trait = "yield", locationYear = TRUE, engine = "asreml")
 diagnostics(vcAS2asr)
@@ -84,6 +91,7 @@ summary(vcAS2asr)
 plot(vcAS2asr)
 vc(vcAS2asr)
 herit(vcAS2asr)
+predict(vcAS2asr)
 
 ## shafii.rapeseed - 14 locations, 3 years, 3 replicates
 datSR <- shafii.rapeseed
@@ -100,6 +108,7 @@ summary(vcSRlme)
 plot(vcSRlme)
 vc(vcSRlme)
 herit(vcSRlme)
+predict(vcSRlme)
 
 vcSRasr <- gxeVarComp(TDSR, trait = "yield", locationYear = TRUE, engine = "asreml")
 diagnostics(vcSRasr)
@@ -107,6 +116,7 @@ summary(vcSRasr)
 plot(vcSRasr)
 vc(vcSRasr)
 herit(vcSRasr)
+predict(vcSRasr)
 
 ## blackman.wheat - 7 trials, 2 treatment levels.
 datBW <- blackman.wheat
@@ -118,6 +128,7 @@ summary(vcBWlme)
 plot(vcBWlme)
 vc(vcBWlme)
 herit(vcBWlme)
+predict(vcBWlme)
 
 vcBWasr <- gxeVarComp(TDBW, trait = "yield", nesting = "nitro", engine = "asreml")
 diagnostics(vcBWasr)
@@ -126,4 +137,5 @@ plot(vcBWasr)
 vcBWasr$fullRandVC
 vc(vcBWasr)
 herit(vcBWasr)
+predict(vcBWasr)
 
