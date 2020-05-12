@@ -175,30 +175,21 @@ predict.varComp <- function(object,
     predLevels <- c("genotype", object$nesting)
   }
   if (object$engine == "lme4") {
-    predLevels <- 1
-
-
-    gridLevels <- sapply(X = predLevels, FUN = function(predLevel) {
-      levels(modDat[[predLevel]])
-    }, simplify = FALSE)
-    newDat <- do.call(expand.grid, gridLevels)
-    # predicted.value <- predict(fitMod, newdata = newDat)
-    # preds <- cbind(newDat, predicted.value)
-
-
-    preds <- lme4::ranef(fitMod)$genotype + intercept
-
-
-
+    modDat[["preds"]] <- predict(fitMod)
+    preds <- aggregate(x = modDat[["preds"]], by = modDat[predLevels],
+                       FUN = mean, na.rm = TRUE)
+    colnames(preds)[ncol(preds)] <- "predictedValue"
   } else if (object$engine == "asreml") {
     classForm <- paste0(predLevels, collapse = ":")
+    presVars <- union(rownames(attr(terms(update(fitMod$call$fixed, "NULL ~ .")),
+                                          "factors")),
+                      rownames(attr(terms(fitMod$call$random), "factors")))
     preds <- predictAsreml(model = fitMod, classify = classForm,
-                           TD = object$modDat,
-                           aliased = TRUE, vcov = FALSE)$pvals
-    presVars <- rownames(attr(terms(fitMod$call$random), "factors"))
-
-    predictAsreml(model = fitMod, classify = classForm,
-                  TD = object$modDat, present = presVars, vcov = FALSE)$pvals
+                           TD = modDat, present = presVars,
+                           vcov = FALSE)$pvals
+    preds <- preds[preds[["status"]] == "Estimable", ]
+    preds <- as.data.frame(preds[, 1:(ncol(preds) - 2)])
+    colnames(preds)[ncol(preds)] <- "predictedValue"
   }
   return(preds)
 }

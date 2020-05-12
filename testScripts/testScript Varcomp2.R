@@ -60,6 +60,7 @@ plot(vcASlme)
 vc(vcASlme)
 herit(vcASlme)
 predict(vcASlme)
+predict(vcASlme, predictLevel = "trial")
 
 vcASasr <- gxeVarComp(TDAS, trait = "yield", locationYear = TRUE, engine = "asreml")
 diagnostics(vcASasr)
@@ -117,6 +118,7 @@ plot(vcSRasr)
 vc(vcSRasr)
 herit(vcSRasr)
 predict(vcSRasr)
+predict(vcSRasr, predictLevel = "trial")
 
 ## blackman.wheat - 7 trials, 2 treatment levels.
 datBW <- blackman.wheat
