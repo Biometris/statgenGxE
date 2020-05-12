@@ -4,10 +4,14 @@
 \alias{plot.varComp}
 \title{Plot function for class varComp}
 \usage{
-\method{plot}{varComp}(x, ..., output = TRUE)
+\method{plot}{varComp}(x, plotType = c("sd", "percVar"), ..., output = TRUE)
 }
 \arguments{
 \item{x}{An object of class varComp}
+
+\item{plotType}{A character string. Either "sd" to plot the standard
+deviation of the variance components, or percVar to plot the percentage of
+variance explained by each variance component.}
 
 \item{...}{Not used}
 
