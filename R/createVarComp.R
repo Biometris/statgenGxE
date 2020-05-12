@@ -12,7 +12,7 @@
 #' @keywords internal
 createVarComp <- function(fitMod,
                           modDat,
-                          trialGroup,
+                          nesting,
                           useLocYear,
                           fullRandVC,
                           aovFullFixedMod,
@@ -20,7 +20,7 @@ createVarComp <- function(fitMod,
                           diagTabs) {
   varComp <- structure(list(fitMod = fitMod,
                             modDat = modDat,
-                            trialGroup = trialGroup,
+                            nesting = nesting,
                             useLocYear = useLocYear,
                             fullRandVC = fullRandVC,
                             aovFullFixedMod = aovFullFixedMod,
@@ -52,13 +52,15 @@ summary.varComp <- function(object,
     fitModCall <- paste(fitModCallFixed, "+", fitModCallRand)
   }
   ## Print source of variation as percentage.
-  object$fullRandVC[["vcovPerc"]] <-
-    sprintf("%1.2f %%", 100 * object$fullRandVC[["vcovPerc"]])
+  fullRandVC <- object$fullRandVC
+  fullRandVC[["vcov"]] <- sprintf("%1.2f", fullRandVC[["vcov"]])
+  fullRandVC[["vcovPerc"]] <- sprintf("%1.2f %%", 100 * fullRandVC[["vcovPerc"]])
+  colnames(fullRandVC) <- c("component", "% variance expl.")
   ## Print output
   cat("Fitted model formula\n")
   cat(fitModCall, "\n\n")
   cat("Sources of variation\n")
-  print(setNames(object$fullRandVC[, "vcovPerc", drop = FALSE], NULL))
+  print(fullRandVC)
 }
 
 #' Plot function for class varComp
@@ -140,7 +142,7 @@ report.varComp <- function(x,
 #' @export
 predict.varComp <- function(object,
                             ...,
-                            predictLevel = c("genotype", "trial", "trialGroup")) {
+                            predictLevel = c("genotype", "trial", "nesting")) {
   fitMod <- object$fitMod
   modDat <- object$modDat
   predictLevel <- match.arg(predictLevel)
@@ -152,21 +154,34 @@ predict.varComp <- function(object,
   predLevels <- "genotype"
   if (predictLevel == "trial") {
     predLevels <- c(predLevels, envVars)
-  } else if (predictLevel == "trialGroup") {
-    predLevels <- c("genotype", object$trialGroup)
+  } else if (predictLevel == "nesting") {
+    predLevels <- c("genotype", object$nesting)
   }
   if (object$engine == "lme4") {
+    predLevels <- 1
+
+
     gridLevels <- sapply(X = predLevels, FUN = function(predLevel) {
       levels(modDat[[predLevel]])
     }, simplify = FALSE)
     newDat <- do.call(expand.grid, gridLevels)
-    predicted.value <- predict(fitMod, newdata = newDat)
-    preds <- cbind(newDat, predicted.value)
+    # predicted.value <- predict(fitMod, newdata = newDat)
+    # preds <- cbind(newDat, predicted.value)
+
+
+    preds <- lme4::ranef(fitMod)$genotype + intercept
+
+
+
   } else if (object$engine == "asreml") {
     classForm <- paste0(predLevels, collapse = ":")
     preds <- predictAsreml(model = fitMod, classify = classForm,
                            TD = object$modDat,
                            aliased = TRUE, vcov = FALSE)$pvals
+    presVars <- rownames(attr(terms(fitMod$call$random), "factors"))
+
+    predictAsreml(model = fitMod, classify = classForm,
+                  TD = object$modDat, present = presVars, vcov = FALSE)$pvals
   }
   return(preds)
 }

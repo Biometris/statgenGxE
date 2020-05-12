@@ -60,7 +60,7 @@ RoxygenNote: 7.1.0
 Depends: R (>= 3.3)
 Imports: 
     emmeans,
-    ggplot2 (>= 3.0),
+    ggplot2 (>= 3.3.0),
     gridExtra,
     knitr,
     lme4,
