@@ -84,4 +84,5 @@ summary(geVarComp2)
 ## Plot a heatmap of the correlation matrix for the best model.
 plot(geVarComp2)
 }
+
 }

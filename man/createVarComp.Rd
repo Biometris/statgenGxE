@@ -26,6 +26,6 @@ Function for creating objects of S3 class varComp.\cr
 \code{\link{report}} methods are available.
 }
 \seealso{
-\code{\link{plot.varComp}}, \code{\link{report.varComp}}
+\code{\link{plot.varComp}}
 }
 \keyword{internal}
