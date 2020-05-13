@@ -1,19 +1,63 @@
-#' Selects the best variance-covariance model for a set of trials
+#' Fits a mixed model.
 #'
-#' This function selects the best covariance structure for genetic correlations
-#' between trials. It fits a range of variance-covariance models (identity,
-#' compound symmetry (cs), diagonal, simple correlation with heterogeneous
-#' variance (outside), heterogeneous compound symmetry (hcs),
-#' first order factor analytic (fa), second order factor analytic (fa2) and
-#' unstructured), and selects the best one using a goodness-of-fit criterion.
+#' This function fits a mixed model best fitting to the data in a TD object.
+#' The exact model fitted is determined by both the data and the chosen
+#' parameters.\cr\cr
+#' Six different types of models can be fitted depending on the environmental
+#' dimension of the data. The enviromental demensions are described below
+#' together with their corresponding models and which parameters to specify to
+#' fit them.
+#' \itemize{
+#' \item{environments correspond to trials\cr
+#' trait = trial + \strong{genotype + genotype:trial}\cr
+#' no extra parameters}
+#' \item{trials form a factorial structure of locations x years\cr
+#' trait = year + location + year:location + \strong{genotype + genotype:year +
+#' genotype:location + genotype:year:location}\cr
+#' set \code{locationYear = TRUE}}
+#' \item{trials are nested within year\cr
+#' trait = year + year:trial + \strong{genotype + genotype:year +
+#' genotype:year:trial}\cr
+#' set \code{nesting = "year"}}
+#' \item{trials are nested within locations\cr
+#' trait = location + location:trial + \strong{genotype + genotype:location +
+#' genotype:location:trial}\cr
+#' set \code{nesting = "loc"}}
+#' \item{trials correspond to locations within regions across years\cr
+#' trait = region + region:location + year + region:year + region:location:year +
+#' \strong{genotype + genotype:region:location + genotype:year +
+#' genotype:region:year + genotype:region:location:year}\cr
+#' set \code{regionLocatoinYear = TRUE}}
+#' \item{trials are nested within scenarios\cr
+#' trait = scenario + scenario:trial + \strong{genotype + genotype:scenario +
+#' genotype:scenario:trial}\cr
+#' set \code{nesting = "scenario"}}
+#' }
+#' In the models above the random part of the model is printed bold.\cr
+#' Note that the final random term is only fitted if the data contains
+#' replicates or weights are applied (using the option \code{useWt}).\cr\cr
+#' The function first fits a model where all model terms are included as fixed
+#' terms. Based on the anova table of this model, terms in the fixed part of the
+#' model that are likely to give a problem when fitting the mixed model are
+#' removed. Also a warning is printed if the mean sum of squares for a model
+#' term points to a possible zero variance component in the mixed model.\cr\cr
+#' Then a model is fitted where all model terms are included as random terms.
+#' Based on the variance components in this model the percentage of variance
+#' explainded by each of the model components is determined. This is printed in
+#' the model summary.\cr\cr
+#' Finally a mixed model is fitted as specified in the overview above. Based on
+#' this mixed model variance components can be computed using \code{\link{vc}},
+#' heritabilies can be computed using \code{\link{herit}} and predictions can be
+#' made using \code{\link{predict.varComp}}.
 #'
 #' @inheritParams gxeAmmi
 #'
 #' @param engine A character string specifying the engine used for modeling.
 #' Either "lme4" or "asreml".
-#' @param locationYear Should a model be fitted assuming a factorial structure of
-#' locations x years?
-#' @param nesting A character string specifying a column in TD.......
+#' @param locationYear Should a model be fitted assuming a factorial structure
+#' of locations x years?
+#' @param nesting A character string specifying a column in TD specifying the
+#' nesting structure of the trials.
 #' @param regionLocationYear Should a model be fitted assuming locations within
 #' regions across years?
 #' @param useWt Should the model be fitted using weights? Doing so requieres a
@@ -21,39 +65,29 @@
 #' @param diagnostics Should diagnostics on missing combinations of model
 #' variables be printed?
 #'
-#' @note If \code{engine = "lme4"}, only the compound symmetry model can be
-#' fitted.
-#'
-#' @return An object of class \code{varComp}, a list object containing:
-#' \item{STA}{An object of class STA containing the best fitted model.}
-#' \item{choice}{A character string indicating the best fitted model.}
-#' \item{summary}{A data.frame with a summary of the fitted models.}
-#' \item{engine}{A character string containing the engine used for
-#' the analysis.}
+#' @return An object of class \code{varComp}, a list containing:
+#' \item{fitMod}{The fitted model.}
+#' \item{modDat}{A data.frame containing the data used when fitting the model.}
+#' \item{nesting}{A name of the variable used as nesting variable in the model.}
+#' \item{useLocYear}{A boolean specifying if a model containing location x year
+#' interaction was fitted.}
+#' \item{fullRandVC}{A data.frame containing the variance components for the
+#' fully random model.}
+#' \item{aovFullMixedMod}{A data.frame containing the anova table for the fully
+#' fixed model.}
+#' \item{engine}{The engine used for fitting the model.}
+#' \item{diagTabs}{A list of data.frame, one for each random model term,
+#' containing the missing combinations in the data for that term.}
 #'
 #' @examples
-#' ## Select the best variance-covariance model using lme4 for modeling.
+#' ## Fit a mixed model.
 #' geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
 #'
 #' ## Summarize results.
 #' summary(geVarComp)
 #'
-#' \dontrun{
-#' ## Create a pdf report summarizing the results.
-#' report(geVarComp, outfile = "./testReports/reportVarComp.pdf")
-#' }
-#'
-#' \dontrun{
-#' ## Select the best variance-covariance model using asreml for modeling.
-#' ## Use BIC as a goodness-of-fit criterion.
-#' geVarComp2 <- gxeVarComp(TD = TDMaize, trait = "yld", engine = "asreml",
-#'                         criterion = "BIC")
-#'
-#' summary(geVarComp2)
-#'
-#' ## Plot a heatmap of the correlation matrix for the best model.
-#' plot(geVarComp2)
-#' }
+#' ## Plot the standard deviations.
+#' plot(geVarComp)
 #'
 #' @importFrom utils tail
 #' @export
@@ -97,16 +131,10 @@ gxeVarComp <- function(TD,
   }
   engine <- match.arg(engine)
   TDTot <- droplevels(TDTot)
-  #useLocYear <- hasName(TDTot, "year") & hasName(TDTot, "loc")
   ## Increase maximum number of iterations for asreml.
   maxIter <- 200
-  ## Add combinations of trial and genotype currently not in TD to TD.
-  ## No missing combinations are allowed when fitting asreml models.
   ## Asreml can't handle missing weights, so set them to 0 when missing.
   TDTot[is.na(TDTot[["wt"]]), "wt"] <- 0
-  ## Check if the trial is nested within the trialGroup.
-  #hasGroup <- !is.null(trialGroup)
-
   ## Construct formula for fixed part - first as text.
   ## Trying to fit this in something 'smart' actually makes it unreadable.
   ## First create a vector with the separate terms.
@@ -140,7 +168,7 @@ gxeVarComp <- function(TD,
   fullFixedTxt <- paste0("`", trait, "`~",
                          paste(c(fixedTerms, randTerms), collapse = "+"))
   ## Fit the fully fixed model.
-  fullFixedMod <- lm(formula(fullFixedTxt), data = TDTot)
+  fullFixedMod <- suppressWarnings(lm(formula(fullFixedTxt), data = TDTot))
   aovFullFixedMod <- anova(fullFixedMod)
   rownames(aovFullFixedMod)[nrow(aovFullFixedMod)] <- "residuals"
   ## Get all model terms as used by lm (might involve reordered terms).
@@ -268,18 +296,10 @@ gxeVarComp <- function(TD,
       }
       if (!is.null(mr$error)) {
         warning("Asreml gave the following error:\n", mr$error, call. = FALSE)
-        mr <- list(loglik = -Inf)
       } else {
         mr <- mr$value
         mr$call$fixed <- eval(mr$call$fixed)
         mr$call$random <- eval(mr$call$random)
-        mr$call$rcov <- eval(mr$call$rcov)
-        mr$call$G.param <- eval(mr$call$G.param)
-        mr$call$R.param <- eval(mr$call$R.param)
-        if (!mr$converge) {
-          warning("No convergence.\n", call. = FALSE)
-          mr$loglik <- -Inf
-        }
       }
     } else {
       stop("Failed to load 'asreml'.\n")

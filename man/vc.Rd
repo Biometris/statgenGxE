@@ -11,7 +11,7 @@ vc(varComp)
 }
 \value{
 A data.frame with variance components and standard errors for
-the random components in the fitted model.#'
+the random components in the fitted model.
 }
 \description{
 Extract variance components from an object of class varComp.
