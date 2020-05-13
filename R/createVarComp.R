@@ -7,7 +7,7 @@
 #' @param fitMod A fitted variance components model.
 #' @param modDat A data.frame containing the data used in fitting the model.
 #'
-#' @seealso \code{\link{plot.varComp}}, \code{\link{report.varComp}}
+#' @seealso \code{\link{plot.varComp}}
 #'
 #' @keywords internal
 createVarComp <- function(fitMod,
@@ -34,29 +34,38 @@ createVarComp <- function(fitMod,
 #' @export
 print.varComp <- function(x,
                           ...) {
-  summary(x$fitmod)
+  summary(x)
 }
 
 #' @export
 summary.varComp <- function(object,
                             ...) {
   if (object$engine == "lme4") {
+    ## Display model formula in text form.
+    ## This might cut off the formula if it is longer than 500 character.
+    ## This is however highly unlikely given the fixed structure of the models.
     fitModCall <- deparse(formula(getCall(object$fitMod)), width.cutoff = 500)
 
   } else if (object$engine == "asreml") {
+    ## For asreml, rewrite the formula to match the display of formulas
+    ## from lme4,
+    ## No changes needed in the fixed part.
     fitModCallFixed <- deparse(object$fitMod$call$fixed, width.cutoff = 500)
+    ## The terms in the random part need to be surrounded by (1 | ...).
     fitModCallRandTerms <- attr(x = terms(object$fitMod$call$random),
                                 which = "term.labels")
     fitModCallRand <- paste0("(1 | ", fitModCallRandTerms, ")",
                              collapse = " + ")
+    ## Concatenate fixed and random part to form the full formula.
     fitModCall <- paste(fitModCallFixed, "+", fitModCallRand)
   }
   ## Print source of variation as percentage.
   fullRandVC <- object$fullRandVC
+  ## Prevent scientific notation in variance component.
   fullRandVC[["vcov"]] <- sprintf("%1.2f", fullRandVC[["vcov"]])
   fullRandVC[["vcovPerc"]] <- sprintf("%1.2f %%", 100 * fullRandVC[["vcovPerc"]])
   colnames(fullRandVC) <- c("component", "% variance expl.")
-  ## Print output
+  ## Print output.
   cat("Fitted model formula\n")
   cat(fitModCall, "\n\n")
   cat("Sources of variation\n")
@@ -81,9 +90,16 @@ plot.varComp <- function(x,
                          ...,
                          output = TRUE) {
   plotType <- match.arg(plotType)
+  ## The actual variable to plot depends on the plotType.
   plotVar <- if (plotType == "sd") "sd" else "vcovPerc"
+  ## Extract var comps for random model and anova for fixed model.
   fullRandVC <- x$fullRandVC
   aovFullFixedMod <- x$aovFullFixedMod
+  ## Degrees of freedom in the plot come from the anova for the fixed model.
+  ## These need to be merged to the random model.
+  ## lm (used for the anova) orders interaction terms alphabetically.
+  ## To merge these interactions need to be split into their terms and
+  ## matching can be done on the terms.
   fullRandVC[["vars"]] <- sapply(X = strsplit(x = rownames(fullRandVC),
                                               split = ":"),
                                  FUN = function(var) {
@@ -96,15 +112,23 @@ plot.varComp <- function(x,
                                       })
   fullRandVC[["Df"]] <- aovFullFixedMod[["Df"]][match(aovFullFixedMod[["vars"]],
                                                       fullRandVC[["vars"]])]
+  ## term will be used as y-axis label. It consists of term + df
   fullRandVC[["term"]] <- paste(rownames(fullRandVC), "\t\t", fullRandVC[["Df"]])
+  ## Revert levels term to get a nice ordering on the y-axis.
   fullRandVC[["term"]] <- factor(fullRandVC[["term"]],
                                  levels = rev(fullRandVC[["term"]]))
+  ## Compute standard deviations.
   fullRandVC[["sd"]] <- sqrt(fullRandVC[["vcov"]])
+  ## Compute position for annotation. 5e5 is found empirically.
+  ## The idea is to annotate the y-axis just left of the x = 0.
   annoPosX <- -max(fullRandVC[[plotVar]]) / 5e5
   p <- ggplot(fullRandVC, aes_string(x = plotVar, y = "term")) +
     geom_point(na.rm = TRUE, size = 2) +
+    ## Add line from y-axis to points.
     geom_segment(aes_string(xend = plotVar, yend = "term"), x = 0) +
     scale_x_continuous(expand = expansion(mult = c(0, 0.05))) +
+    ## Set lower xlim to 0. This assures 0 is always displayed on the x-axis
+    ## even if the lowest variance component is e.g. 1e-8.
     coord_cartesian(xlim = c(0, NA), clip = "off") +
     theme(panel.background = element_blank(),
           panel.grid.major.x = element_line(color = "grey50"),
@@ -130,65 +154,59 @@ plot.varComp <- function(x,
   invisible(p)
 }
 
-#' Report method for class varComp
-#'
-#' A pdf report will be created containing a summary of an object of class
-#' varComp. Simultaneously the same report will be created as a tex
-#' file.
-#'
-#' @inheritParams report.AMMI
-#'
-#' @param x An object of class varComp.
-#'
-#' @return A pdf and tex report.
-#'
-#' @export
-report.varComp <- function(x,
-                           ...,
-                           outfile = NULL) {
-  ## Checks.
-  if (nchar(Sys.which("pdflatex")) == 0) {
-    stop("An installation of LaTeX is required to create a pdf report.\n")
-  }
-  createReport(x = x, reportName = "varCompReport.Rnw", outfile = outfile,
-               reportPackage = "statgenGxE", ...)
-}
-
 ## @importFrom stats predict
 
 #' @export
 predict.varComp <- function(object,
                             ...,
                             predictLevel = c("genotype", "trial", "nesting")) {
+  predictLevel <- match.arg(predictLevel)
+  ## Extract fitted model and model data from object.
   fitMod <- object$fitMod
   modDat <- object$modDat
-  predictLevel <- match.arg(predictLevel)
+  ## Variables for enironment depend on the fitted model.
+  ## Either trial or location x year.
   if (object$useLocYear) {
     envVars <- c("loc", "year")
   } else {
     envVars <- "trial"
   }
+  ## Construct vector of levels on which predictions should be made.
+  ## Always include genotype.
   predLevels <- "genotype"
   if (predictLevel == "trial") {
+    ## For predictLevel trial predict genotype x envVars.
     predLevels <- c(predLevels, envVars)
   } else if (predictLevel == "nesting") {
+    ## For predictLevel trial predict genotype x nesting variable.
     predLevels <- c("genotype", object$nesting)
   }
   if (object$engine == "lme4") {
+    ## Make predictions for all observations in the data.
     modDat[["preds"]] <- predict(fitMod)
+    ## Compute means per predict level.
     preds <- aggregate(x = modDat[["preds"]], by = modDat[predLevels],
                        FUN = mean, na.rm = TRUE)
+    ## Rename column to match asreml output.
     colnames(preds)[ncol(preds)] <- "predictedValue"
   } else if (object$engine == "asreml") {
+    ## Construct formula for classify used in predict.
     classForm <- paste0(predLevels, collapse = ":")
+    ## Only use observations that where present in the input data for making
+    ## predictions. All variables used in the model need to be included here.
     presVars <- union(rownames(attr(terms(update(fitMod$call$fixed, "NULL ~ .")),
                                           "factors")),
                       rownames(attr(terms(fitMod$call$random), "factors")))
     preds <- predictAsreml(model = fitMod, classify = classForm,
                            TD = modDat, present = presVars,
                            vcov = FALSE)$pvals
+    ## In some cases NA predictions are returned for Estimable combinations.
+    ## Remove those.
     preds <- preds[preds[["status"]] == "Estimable", ]
+    ## Convert to data.frame to get rid of attributes.
+    ## Only include actual predictions (since lme4 doesn't provide SE).
     preds <- as.data.frame(preds[, 1:(ncol(preds) - 2)])
+    ## Rename column to match lme4 output.
     colnames(preds)[ncol(preds)] <- "predictedValue"
   }
   return(preds)
@@ -205,15 +223,21 @@ predict.varComp <- function(object,
 #'
 #' @export
 vc <- function(varComp) {
+  if (!inherits(varComp, "varComp")) {
+    stop(varComp, "should be an object of class varComp.\n")
+  }
+  ## Extract variance component and rename so rows/columns to assure
+  ## matching outputs for lme4/asreml.
   if (varComp$engine == "lme4") {
     varcomps <- as.data.frame(lme4::VarCorr(varComp$fitMod))
     rownames(varcomps) <- varcomps[["grp"]]
+    rownames(varcomps)[nrow(varcomps)] <- "residual"
     varcomps <- varcomps[c((nrow(varcomps)-1):1, nrow(varcomps)),
                          "vcov", drop = FALSE]
     colnames(varcomps) <- "component"
   } else if (varComp$engine == "asreml") {
     varcomps <- summary(varComp$fitMod)$varcomp
-    rownames(varcomps)[nrow(varcomps)] <- "Residual"
+    rownames(varcomps)[nrow(varcomps)] <- "residual"
     varcomps <- varcomps[, "component", drop = FALSE]
   }
   return(varcomps)
@@ -227,32 +251,52 @@ vc <- function(varComp) {
 #'
 #' @export
 herit <- function(varComp) {
+  if (!inherits(varComp, "varComp")) {
+    stop(varComp, "should be an object of class varComp.\n")
+  }
+  ## Extract fitted model and model data.
   fitMod <- varComp$fitMod
   modDat <- varComp$modDat
+  ## Compute variance components.
   varcomps <- vc(varComp)
+  ## Extract variance components for genotype and residual.
   sigmaG <- varcomps["genotype", "component"]
-  sigmaRes <- varcomps["Residual", "component"]
+  sigmaRes <- varcomps["residual", "component"]
+  ## Numerator is constructed by looping over all random model terms and
+  ## Adding their share. It always includes sigmaG.
   numerator <- sigmaG
+  ## Get the terms used in the random part of the model.
   modTerms <- rownames(varcomps)
+  ## Extract all variables used in the random part of the model.
+  ## The are needed for computing the contribution of the residual variance.
   if (varComp$engine == "lme4") {
     modVars <- rownames(attr(x = terms(fitMod, random.only = TRUE),
                              which = "factors"))[-c(1, 2)]
 
   } else if (varComp$engine == "asreml") {
-    modVars <- rownames(attr(x = terms(fitMod$call$random), which = "factors"))[-1]
+    modVars <- rownames(attr(x = terms(fitMod$call$random),
+                             which = "factors"))[-1]
   }
+
   for (term in modTerms[-c(1, length(modTerms))]) {
+    ## Get variance for current term.
     sigmaTerm <- varcomps[term, "component"]
+    ## Get variables in current term, exclude gentype (always the first var).
     termVars <- unlist(strsplit(x = term, split = ":"))[-1]
+    ## Divide variance by product of #levels for all variables in current term.
+    ## Add that to numberator.
     numerator <- numerator + sigmaTerm /
       prod(sapply(X = termVars, FUN = function(termVar) {
         nlevels(modDat[[termVar]])}))
   }
   if (length(modVars) > 0) {
+    ## Contribution for residual variance is computed by dividing sigmaRes by
+    ## product of #levels of all variables in random part of model.
     numerator <- numerator + sigmaRes /
       prod(sapply(X = modVars, FUN = function(modVar) {
         nlevels(modDat[[modVar]])}))
   } else {
+    ## No other variables in random part. Just add sigmaRes to numerator.
     numerator <- numerator + sigmaRes
   }
   return(sigmaG / numerator)
@@ -273,7 +317,10 @@ diagnostics <- function(varComp) {
   if (!inherits(varComp, "varComp")) {
     stop(varComp, "should be an object of class varComp.\n")
   }
+  ## Get diagTabs from varComp.
   diagTabs <- varComp$diagTabs
+  ## For each diagTab print either its content or display a messeage that
+  ## it has no content.
   for (diagTab in diagTabs) {
     if (nrow(diagTab) > 0) {
       cat(nrow(diagTab), " missing combinations for ",

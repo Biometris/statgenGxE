@@ -54,12 +54,13 @@
 #' ## Plot a heatmap of the correlation matrix for the best model.
 #' plot(geVarComp2)
 #' }
+#'
+#' @importFrom utils tail
 #' @export
 gxeVarComp <- function(TD,
                        trials = names(TD),
                        trait,
                        engine = c("lme4", "asreml"),
-                       #trialGroup = NULL,
                        locationYear = FALSE,
                        nesting = NULL,
                        regionLocationYear = FALSE,
