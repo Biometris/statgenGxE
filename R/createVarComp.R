@@ -219,7 +219,7 @@ predict.varComp <- function(object,
 #' @param varComp An object of class varComp.
 #'
 #' @return A data.frame with variance components and standard errors for
-#' the random components in the fitted model.#'
+#' the random components in the fitted model.
 #'
 #' @export
 vc <- function(varComp) {
