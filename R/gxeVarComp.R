@@ -1,4 +1,4 @@
-#' Fits a mixed model.
+#' Fits a mixed model
 #'
 #' This function fits a mixed model best fitting to the data in a TD object.
 #' The exact model fitted is determined by both the data and the chosen

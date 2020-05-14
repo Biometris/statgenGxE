@@ -2,7 +2,7 @@
 % Please edit documentation in R/gxeVarComp.R
 \name{gxeVarComp}
 \alias{gxeVarComp}
-\title{Fits a mixed model.}
+\title{Fits a mixed model}
 \usage{
 gxeVarComp(
   TD,
