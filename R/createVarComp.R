@@ -89,6 +89,15 @@ summary.varComp <- function(object,
 #'
 #' @return A ggplot object is invisibly returned.
 #'
+#' @examples
+#' ## Fit a mixed model.
+#' geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+#'
+#' ## Plot the standard deviations.
+#' plot(geVarComp)
+#' ## Plot the percentage of variance explained.
+#' plot(geVarComp, plotType = "percVar")
+#'
 #' @export
 plot.varComp <- function(x,
                          plotType = c("sd", "percVar"),
@@ -273,11 +282,27 @@ vc <- function(varComp) {
   return(varcomps)
 }
 
-#' Compute heritability
+#' Calculate heritability
 #'
-#' Compute the heritability based on the fitted model.
+#' Calculate the heritability based on the fitted model. The heritability is
+#' calculated as described by Atlin et al. E.g. for a model with trials nested
+#' within locations, which has a random part that looks like this: genotype +
+#' genotype:location + genotype:location:trial the heritability is computed
+#' as\cr\cr
+#' \deqn{\sigma_G^2 / (\sigma_G^2 + \sigma_L^2 / l + \sigma_{LT}^2 / lt +
+#' \sigma_E^2 / ltr)}
+#' In this formula the \eqn{\sigma} terms stand for the standard deviations of the
+#' respective model terms, and the lower case letters for the number of levels
+#' for the respective model terms. So \eqn{\sigma_L} is the standard deviation for
+#' the location term in the model and \eqn{l} is the number of locations.
+#' \eqn{\sigma_E} corresponds to the residual standard deviation and \eqn{r} to the
+#' number of replicates.
 #'
 #' @param varComp An object of class varComp.
+#'
+#' @references Atlin, G. N., Baker, R. J., McRae, K. B., & Lu, X. (2000).
+#' Selection response in subdivided target regions. Crop Science, 40(1), 7–13.
+#' \url{https://doi.org/10.2135/cropsci2000.4017}
 #'
 #' @export
 herit <- function(varComp) {
@@ -349,7 +374,7 @@ diagnostics <- function(varComp) {
   }
   ## Get diagTabs from varComp.
   diagTabs <- varComp$diagTabs
-  ## For each diagTab print either its content or display a messeage that
+  ## For each diagTab print either its content or display a message that
   ## it has no content.
   for (diagTab in diagTabs) {
     if (nrow(diagTab) > 0) {

@@ -2,7 +2,7 @@
 % Please edit documentation in R/createVarComp.R
 \name{herit}
 \alias{herit}
-\title{Compute heritability}
+\title{Calculate heritability}
 \usage{
 herit(varComp)
 }
@@ -10,5 +10,22 @@ herit(varComp)
 \item{varComp}{An object of class varComp.}
 }
 \description{
-Compute the heritability based on the fitted model.
+Calculate the heritability based on the fitted model. The heritability is
+calculated as described by Atlin et al. E.g. for a model with trials nested
+within locations, which has a random part that looks like this: genotype +
+genotype:location + genotype:location:trial the heritability is computed
+as\cr\cr
+\deqn{\sigma_G^2 / (\sigma_G^2 + \sigma_L^2 / l + \sigma_{LT}^2 / lt +
+\sigma_E^2 / ltr)}
+In this formula the \eqn{\sigma} terms stand for the standard deviations of the
+respective model terms, and the lower case letters for the number of levels
+for the respective model terms. So \eqn{\sigma_L} is the standard deviation for
+the location term in the model and \eqn{l} is the number of locations.
+\eqn{\sigma_E} corresponds to the residual standard deviation and \eqn{r} to the
+number of replicates.
+}
+\references{
+Atlin, G. N., Baker, R. J., McRae, K. B., & Lu, X. (2000).
+Selection response in subdivided target regions. Crop Science, 40(1), 7–13.
+\url{https://doi.org/10.2135/cropsci2000.4017}
 }
