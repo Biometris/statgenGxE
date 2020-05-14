@@ -27,3 +27,13 @@ the fitted model or the percentage of variance explained by each of the
 terms in the fitted model. Also the degrees of freedom for each of the
 terms is shown in the plot.
 }
+\examples{
+## Fit a mixed model.
+geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+
+## Plot the standard deviations.
+plot(geVarComp)
+## Plot the percentage of variance explained.
+plot(geVarComp, plotType = "percVar")
+
+}
