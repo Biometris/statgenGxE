@@ -63,9 +63,9 @@ test_that("predict.megaEnv functions correctly", {
   expect_is(geTabLm$predictedValue, "data.frame")
   expect_is(geTabLm$standardError, "data.frame")
   expect_equivalent(geTabLm$predictedValue[1, ],
-                    c(79.2416561439773, 79.4864396648177))
+                    c(79.2407761061078, 79.4858110738655))
   expect_equivalent(geTabLm$standardError[1, ],
-                    c(6.83020114988906, 6.38884520952826))
+                    c(6.83087991095342, 6.38912904851271))
   skip_on_cran()
   expect_warning(geTabAs <- predict(geMegaEnv, engine = "asreml"),
                  "mega environments that are based on less than 10 trials")
@@ -90,9 +90,9 @@ test_that("option year in gxeTable functions properly", {
   expect_warning(megaEnvPred <- predict(geMegaEnvNw, useYear = TRUE),
                  "mega environments that are based on less than 10 trials")
   expect_equivalent(megaEnvPred$predictedValue[1, ],
-                    c(75.7340703018517, 72.8306094617738))
+                    c(75.7340426279225, 72.8307799806527))
   expect_equivalent(megaEnvPred$standardError[1, ],
-                    c(5.69945316015176, 7.83060677272676))
+                    c(5.69948967193805, 7.83055991157765))
 })
 
 test_that("option year in gxeTable functions properly for asreml", {

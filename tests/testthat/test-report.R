@@ -1,7 +1,7 @@
 context("Report")
 
 geAmmi <- gxeAmmi(TD = BLUEs, trait = "t1")
-test_that("Test that createReport function only accepts corretly named output", {
+test_that("Test that createReport function only accepts correctly named output", {
   ## Reporting requires pdflatex which isn't available on cran.
   skip_on_cran()
   expect_error(report(geAmmi, outfile = tempfile(fileext = ".pd")),
