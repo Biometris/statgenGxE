@@ -74,15 +74,20 @@ summary.varComp <- function(object,
 
 #' Plot function for class varComp
 #'
-#' Plot function for class varComp.
+#' A plot is created of either the standard deviations of each of the terms in
+#' the fitted model or the percentage of variance explained by each of the
+#' terms in the fitted model. Also the degrees of freedom for each of the
+#' terms is shown in the plot.
 #'
 #' @param x An object of class varComp
 #' @param plotType A character string. Either "sd" to plot the standard
-#' deviation of the variance components, or percVar to plot the percentage of
+#' deviation of the variance components, or "percVar" to plot the percentage of
 #' variance explained by each variance component.
 #' @param ... Not used
 #' @param output Should the plot be output to the current device? If
-#' \code{FALSE} only a list of ggplot objects is invisibly returned.
+#' \code{FALSE} only a ggplot object is invisibly returned.
+#'
+#' @return A ggplot object is invisibly returned.
 #'
 #' @export
 plot.varComp <- function(x,
@@ -189,7 +194,7 @@ predict.varComp <- function(object,
   ## Extract fitted model and model data from object.
   fitMod <- object$fitMod
   modDat <- object$modDat
-  ## Variables for enironment depend on the fitted model.
+  ## Variables for environment depend on the fitted model.
   ## Either trial or location x year.
   if (object$useLocYear) {
     envVars <- c("loc", "year")
@@ -335,7 +340,7 @@ herit <- function(varComp) {
 #'
 #' @param varComp An object of class varComp.
 #'
-#' @return A list of tables is invisibly returned
+#' @return A list of tables is invisibly returned.
 #'
 #' @export
 diagnostics <- function(varComp) {

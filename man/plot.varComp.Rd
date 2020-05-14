@@ -10,14 +10,20 @@
 \item{x}{An object of class varComp}
 
 \item{plotType}{A character string. Either "sd" to plot the standard
-deviation of the variance components, or percVar to plot the percentage of
+deviation of the variance components, or "percVar" to plot the percentage of
 variance explained by each variance component.}
 
 \item{...}{Not used}
 
 \item{output}{Should the plot be output to the current device? If
-\code{FALSE} only a list of ggplot objects is invisibly returned.}
+\code{FALSE} only a ggplot object is invisibly returned.}
+}
+\value{
+A ggplot object is invisibly returned.
 }
 \description{
-Plot function for class varComp.
+A plot is created of either the standard deviations of each of the terms in
+the fitted model or the percentage of variance explained by each of the
+terms in the fitted model. Also the degrees of freedom for each of the
+terms is shown in the plot.
 }
