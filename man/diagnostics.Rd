@@ -10,7 +10,7 @@ diagnostics(varComp)
 \item{varComp}{An object of class varComp.}
 }
 \value{
-A list of tables is invisibly returned
+A list of tables is invisibly returned.
 }
 \description{
 Get the diagnostics for the model fitted. This will print a table of
