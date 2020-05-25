@@ -2,7 +2,9 @@
 % Please edit documentation in R/gxeVarComp.R
 \name{gxeVarComp}
 \alias{gxeVarComp}
-\title{Fits a mixed model}
+\title{Fits a mixed model to multi-environment data that can be structured as by
+year-location combinations, and/or grouped by regions or environment
+scenarios}
 \usage{
 gxeVarComp(
   TD,
@@ -36,8 +38,10 @@ nesting structure of the trials.}
 \item{regionLocationYear}{Should a model be fitted assuming locations within
 regions across years?}
 
-\item{useWt}{Should the model be fitted using weights? Doing so requieres a
-column wt in the data.}
+\item{useWt}{Should the model be fitted using weights? Doing so requires a
+column wt in the data. If \code{useWt = FALSE}, the default, and the data
+contains no replicates, the last model term will be dropped and used as
+homogeneous residual.}
 
 \item{diagnostics}{Should diagnostics on missing combinations of model
 variables be printed?}
@@ -59,10 +63,10 @@ containing the missing combinations in the data for that term.}
 }
 \description{
 This function fits a mixed model best fitting to the data in a TD object.
-The exact model fitted is determined by both the data and the chosen
-parameters.\cr\cr
+The exact model fitted is determined by both the structure of the genotype by
+environment table of observations  and the chosen parameters.\cr\cr
 Six different types of models can be fitted depending on the environmental
-dimension of the data. The enviromental demensions are described below
+dimension of the data. The environmental dimensions are described below
 together with their corresponding models and which parameters to specify to
 fit them.
 \itemize{
@@ -85,28 +89,33 @@ set \code{nesting = "loc"}}
 trait = region + region:location + year + region:year + region:location:year +
 \strong{genotype + genotype:region:location + genotype:year +
 genotype:region:year + genotype:region:location:year}\cr
-set \code{regionLocatoinYear = TRUE}}
+set \code{regionLocationYear = TRUE}}
 \item{trials are nested within scenarios\cr
 trait = scenario + scenario:trial + \strong{genotype + genotype:scenario +
 genotype:scenario:trial}\cr
 set \code{nesting = "scenario"}}
 }
 In the models above the random part of the model is printed bold.\cr
-Note that the final random term is only fitted if the data contains
-replicates or weights are applied (using the option \code{useWt}).\cr\cr
+Note that if the data contains replicates or weights are applied (using the
+option \code{useWt}) the last model term will be dropped, and estimated as
+a homogeneous residual.\cr\cr
 The function first fits a model where all model terms are included as fixed
-terms. Based on the anova table of this model, terms in the fixed part of the
+terms. Based on the ANOVA table of this model, terms in the fixed part of the
 model that are likely to give a problem when fitting the mixed model are
-removed. Also a warning is printed if the mean sum of squares for a model
-term points to a possible zero variance component in the mixed model.\cr\cr
+removed because of the reduced connectivity and number of available
+observations to estimate that model term. Also a warning is printed if the
+mean sum of squares for a model term points to a possible zero variance
+component in the mixed model.\cr\cr
 Then a model is fitted where all model terms are included as random terms.
 Based on the variance components in this model the percentage of variance
-explainded by each of the model components is determined. This is printed in
-the model summary.\cr\cr
+explained by each of the model components is determined. This is printed in
+the model summary and plotted as standard deviations of the estimate.\cr\cr
 Finally a mixed model is fitted as specified in the overview above. Based on
 this mixed model variance components can be computed using \code{\link{vc}},
 heritabilies can be computed using \code{\link{herit}} and predictions can be
-made using \code{\link{predict.varComp}}.
+made using \code{\link{predict.varComp}}. Predictions of genotypic
+performance can be made at the level of individual trials, or for groups of
+trials by using \code{predictLevel}.
 }
 \examples{
 ## Fit a mixed model.
@@ -118,4 +127,12 @@ summary(geVarComp)
 ## Plot the standard deviations.
 plot(geVarComp)
 
+## Generate predictions
+predict(geVarComp, predictLevel = "trial")
+
+}
+\seealso{
+\code{\link{vc}}, \code{\link{herit}},
+\code{\link{predict.varComp}}, \code{\link{plot.varComp},
+\code{\link{diagnostics}}}
 }
