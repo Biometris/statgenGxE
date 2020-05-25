@@ -1,18 +1,15 @@
-#' Fits a mixed model to multi-environment data that can be structured as by
-#' year-location combinations, and/or grouped by regions or environment
-#' scenarios
+#' Fit multi-environment mixed models to grouped or ungrouped sets of trials
 #'
 #' This function fits a mixed model best fitting to the data in a TD object.
 #' The exact model fitted is determined by both the structure of the genotype by
-#' environment table of observations  and the chosen parameters.\cr\cr
+#' environment table of observations and the chosen parameters.\cr\cr
 #' Six different types of models can be fitted depending on the environmental
-#' dimension of the data. The environmental dimensions are described below
+#' dimensions of the data. The environmental dimensions are described below
 #' together with their corresponding models and which parameters to specify to
 #' fit them.
 #' \itemize{
 #' \item{environments correspond to trials\cr
-#' trait = trial + \strong{genotype + genotype:trial}\cr
-#' no extra parameters}
+#' trait = trial + \strong{genotype + genotype:trial}}
 #' \item{trials form a factorial structure of locations x years\cr
 #' trait = year + location + year:location + \strong{genotype + genotype:year +
 #' genotype:location + genotype:year:location}\cr
@@ -82,7 +79,7 @@
 #' interaction was fitted.}
 #' \item{fullRandVC}{A data.frame containing the variance components for the
 #' fully random model.}
-#' \item{aovFullMixedMod}{A data.frame containing the anova table for the fully
+#' \item{aovFullMixedMod}{A data.frame containing the ANOVA table for the fully
 #' fixed model.}
 #' \item{engine}{The engine used for fitting the model.}
 #' \item{diagTabs}{A list of data.frame, one for each random model term,
@@ -190,7 +187,7 @@ gxeVarComp <- function(TD,
   ## Get all model terms as used by lm (might involve reordered terms).
   fullFixedLabs <- attr(x = terms(fullFixedMod), which = "term.labels")
   if (!all(fullFixedLabs %in% rownames(aovFullFixedMod))) {
-    ## At least one terms missing from anova.
+    ## At least one terms missing from ANOVA.
     ## If this is a fixed term remove it from fixed.
     missTerms <- fullFixedLabs[!fullFixedLabs %in% rownames(aovFullFixedMod)]
     for (missTerm in missTerms) {
@@ -207,11 +204,11 @@ gxeVarComp <- function(TD,
   for (randTerm in randTerms) {
     ## Convert term to set of variables in term.
     randTermSet <- unlist(strsplit(x = randTerm, split = ":"))
-    ## Get position of term in anova table by comparing sets.
+    ## Get position of term in ANOVA table by comparing sets.
     randTermPos <- sapply(X = aovTermSets, FUN = setequal, randTermSet)
     ## Get MSS for current term.
     MSSRandTerm <- aovFullFixedMod[randTermPos, "Mean Sq"]
-    ## For all other terms in the anova table that have the current term
+    ## For all other terms in the ANOVA table that have the current term
     ## as a subset the MSS cannot be higher.
     ## If it is the corresponding variance component is possibly zero.
     for (i in seq_along(aovTermSets)) {

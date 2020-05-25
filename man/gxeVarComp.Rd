@@ -2,9 +2,7 @@
 % Please edit documentation in R/gxeVarComp.R
 \name{gxeVarComp}
 \alias{gxeVarComp}
-\title{Fits a mixed model to multi-environment data that can be structured as by
-year-location combinations, and/or grouped by regions or environment
-scenarios}
+\title{Fit multi-environment mixed models to grouped or ungrouped sets of trials}
 \usage{
 gxeVarComp(
   TD,
@@ -64,15 +62,14 @@ containing the missing combinations in the data for that term.}
 \description{
 This function fits a mixed model best fitting to the data in a TD object.
 The exact model fitted is determined by both the structure of the genotype by
-environment table of observations  and the chosen parameters.\cr\cr
+environment table of observations and the chosen parameters.\cr\cr
 Six different types of models can be fitted depending on the environmental
-dimension of the data. The environmental dimensions are described below
+dimensions of the data. The environmental dimensions are described below
 together with their corresponding models and which parameters to specify to
 fit them.
 \itemize{
 \item{environments correspond to trials\cr
-trait = trial + \strong{genotype + genotype:trial}\cr
-no extra parameters}
+trait = trial + \strong{genotype + genotype:trial}}
 \item{trials form a factorial structure of locations x years\cr
 trait = year + location + year:location + \strong{genotype + genotype:year +
 genotype:location + genotype:year:location}\cr
