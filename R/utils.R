@@ -163,6 +163,23 @@ printAnova <- function(aovTab,
                                            ncol(aovTab), "}{c}{", legendText)))
 }
 
+#' Function for escaping special LaTeX characters
+#'
+#' Taken from knitr package. Copied since it is an internal knitr function.
+#'
+#' @noRd
+#' @keywords internal
+escapeLatex = function(x, newlines = FALSE, spaces = FALSE) {
+  x = gsub('\\\\', '\\\\textbackslash', x)
+  x = gsub('([#$%&_{}])', '\\\\\\1', x)
+  x = gsub('\\\\textbackslash', '\\\\textbackslash{}', x)
+  x = gsub('~', '\\\\textasciitilde{}', x)
+  x = gsub('\\^', '\\\\textasciicircum{}', x)
+  if (newlines) x = gsub('(?<!\n)\n(?!\n)', '\\\\\\\\', x, perl = TRUE)
+  if (spaces) x = gsub('  ', '\\\\ \\\\ ', x)
+  x
+}
+
 #' Helper function for detecting the version of asreml installed.
 #' This is used wherever the syntax for asreml4 differs from asreml3.
 #'
