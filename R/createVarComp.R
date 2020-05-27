@@ -104,6 +104,8 @@ plot.varComp <- function(x,
                          ...,
                          output = TRUE) {
   plotType <- match.arg(plotType)
+  ## Extract mu from the fitted model.
+  mu <- round(mean(fitted(x$fitMod)))
   ## The actual variable to plot depends on the plotType.
   plotVar <- if (plotType == "sd") "sd" else "vcovPerc"
   ## Extract var comps for random model and anova for fixed model.
@@ -156,10 +158,12 @@ plot.varComp <- function(x,
                       xmin = annoPosX, xmax = annoPosX,
                       ymin = Inf, ymax = Inf)
   if (plotType == "sd") {
-    p <- p + labs(title = "Standard deviations",
+    p <- p + labs(title = paste0("Standard deviations (general mean = ",
+                                 mu, ")"),
                   x = "Square root of variance estimate")
   } else if (plotType == "percVar") {
-    p <- p + labs(title = "Percentage of variance explained",
+    p <- p + labs(title = paste0("Percentage of variance explained ",
+                                 "(general mean = ", mu, ")"),
                   x = "Percentage of variance explained")
   }
   if (output) {

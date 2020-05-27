@@ -133,7 +133,7 @@ herit(vcBWlme)
 predict(vcBWlme)
 predict(vcBWlme, predictLevel = "nitro")
 
-vcBWasr <- gxeVarComp(TDBW, trait = "yield", nesting = "nitro", engine = "asreml")
+vcBWasr <- gxeVarComp(TDBW, trait = "yield", nestingFactor = "nitro", engine = "asreml")
 diagnostics(vcBWasr)
 summary(vcBWasr)
 plot(vcBWasr)
