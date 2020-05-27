@@ -87,8 +87,8 @@
 #' containing the missing combinations in the data for that term.}
 #'
 #' @seealso \code{\link{vc}}, \code{\link{herit}},
-#' \code{\link{predict.varComp}}, \code{\link{plot.varComp},
-#' \code{\link{diagnostics}}}
+#' \code{\link{predict.varComp}}, \code{\link{plot.varComp}},
+#' \code{\link{diagnostics}}
 #'
 #' @examples
 #' ## Fit a mixed model.

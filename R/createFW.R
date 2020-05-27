@@ -99,9 +99,9 @@ summary.FW <- function(object, ...) {
 #' @param order A character string specifying whether the results in the line
 #' plot should be ordered in an increasing (or decreasing) order of
 #' sensitivities. Ignored if \code{plotType} is not "line".
-#' @param lineTrait A character string specifying whether in the line plot the
-#' "fitted" or the "raw" data should be plotted. Ignored if \code{plotType} is
-#' not "line".
+#' @param response A character string specifying whether in the line plot the
+#' "predicted" or the "observed" data should be plotted. Ignored if
+#' \code{plotType} is not "line".
 #' @param colorBy A character string indicating a column in the \code{TD} used
 #' as input for the Finlay Wilkinson analysis by which the genotypes should be
 #' colored. If \code{NULL} all genotypes will be colored differently.
@@ -123,9 +123,9 @@ summary.FW <- function(object, ...) {
 #' ## Create a line plot.
 #' plot(geFW, plotType = "line")
 #'
-#' ## Create a line plot showing raw data value for genotypes and fitted lines.
+#' ## Create a line plot showing observed data value for genotypes and fitted lines.
 #' ## Display trials in descending order.
-#' plot(geFW, plotType = "line", order = "descending", lineTrait = "raw")
+#' plot(geFW, plotType = "line", order = "descending", response = "observed")
 #'
 #' ## Create a trellis plot.
 #' plot(geFW, plotType = "trellis")
@@ -138,7 +138,7 @@ plot.FW <- function(x,
                     ...,
                     plotType = c("scatter", "line", "trellis", "scatterFit"),
                     order = c("ascending", "descending"),
-                    lineTrait = c("fitted", "raw"),
+                    response = c("predicted", "observed"),
                     colorBy = NULL,
                     genotypes = NULL,
                     output = TRUE) {
@@ -227,7 +227,7 @@ plot.FW <- function(x,
     ## Set arguments for plot.
   } else if (plotType == "line") {
     order <- match.arg(order)
-    lineTrait <- match.arg(lineTrait)
+    response <- match.arg(response)
     lineDat <- data.frame(genotype = genoVals[["genotype"]],
                           trait = genoVals[["genoMean"]],
                           trial = rep(x = envEffs[["trial"]], each = x$nGeno),
@@ -238,7 +238,7 @@ plot.FW <- function(x,
     }
     lineDat <- remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
-    yVar <- ifelse(lineTrait == "raw", "trait", "fitted")
+    yVar <- ifelse(response == "observed", "trait", "fitted")
     aesArgs <- list(x = "envEff", y = yVar, group = "genotype",
                     color = if (is.null(colorBy)) "genotype" else enquote(colorBy))
     fixedArgs <- c("x", "y", "color", "title")

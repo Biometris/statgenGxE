@@ -131,6 +131,6 @@ predict(geVarComp, predictLevel = "trial")
 }
 \seealso{
 \code{\link{vc}}, \code{\link{herit}},
-\code{\link{predict.varComp}}, \code{\link{plot.varComp},
-\code{\link{diagnostics}}}
+\code{\link{predict.varComp}}, \code{\link{plot.varComp}},
+\code{\link{diagnostics}}
 }

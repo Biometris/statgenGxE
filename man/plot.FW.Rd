@@ -9,7 +9,7 @@
   ...,
   plotType = c("scatter", "line", "trellis", "scatterFit"),
   order = c("ascending", "descending"),
-  lineTrait = c("fitted", "raw"),
+  response = c("predicted", "observed"),
   colorBy = NULL,
   genotypes = NULL,
   output = TRUE
@@ -30,9 +30,9 @@ respectively.}
 plot should be ordered in an increasing (or decreasing) order of
 sensitivities. Ignored if \code{plotType} is not "line".}
 
-\item{lineTrait}{A character string specifying whether in the line plot the
-"fitted" or the "raw" data should be plotted. Ignored if \code{plotType} is
-not "line".}
+\item{response}{A character string specifying whether in the line plot the
+"predicted" or the "observed" data should be plotted. Ignored if
+\code{plotType} is not "line".}
 
 \item{colorBy}{A character string indicating a column in the \code{TD} used
 as input for the Finlay Wilkinson analysis by which the genotypes should be
@@ -67,9 +67,9 @@ plot(geFW)
 ## Create a line plot.
 plot(geFW, plotType = "line")
 
-## Create a line plot showing raw data value for genotypes and fitted lines.
+## Create a line plot showing observed data value for genotypes and fitted lines.
 ## Display trials in descending order.
-plot(geFW, plotType = "line", order = "descending", lineTrait = "raw")
+plot(geFW, plotType = "line", order = "descending", response = "observed")
 
 ## Create a trellis plot.
 plot(geFW, plotType = "trellis")
