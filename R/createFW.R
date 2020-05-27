@@ -145,7 +145,7 @@ plot.FW <- function(x,
   plotType <- match.arg(plotType)
   trait <- x$trait
   dotArgs <- list(...)
-  envEffs <- x$envEffs[c("trial", "envEff")]
+  envEffs <- x$envEffs[c("trial", "envMean")]
   TDTot <- Reduce(f = rbind, x = x$TD)
   if (!is.null(colorBy)) {
     chkCol(colorBy, TDTot)
@@ -232,14 +232,14 @@ plot.FW <- function(x,
                           trait = genoVals[["genoMean"]],
                           trial = rep(x = envEffs[["trial"]], each = x$nGeno),
                           fitted = genoVals[["fitted"]],
-                          envEff = rep(x = envEffs[["envEff"]], each = x$nGeno))
+                          envMean = rep(x = envEffs[["envMean"]], each = x$nGeno))
     if (!is.null(colorBy)) {
       lineDat[[colorBy]] <- genoVals[[colorBy]]
     }
     lineDat <- remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
     yVar <- ifelse(response == "observed", "trait", "fitted")
-    aesArgs <- list(x = "envEff", y = yVar, group = "genotype",
+    aesArgs <- list(x = "envMean", y = yVar, group = "genotype",
                     color = if (is.null(colorBy)) "genotype" else enquote(colorBy))
     fixedArgs <- c("x", "y", "color", "title")
     ## Add and overwrite args with custom args from ...
@@ -251,16 +251,20 @@ plot.FW <- function(x,
     } else {
       xTrans <- "identity"
     }
+    plotLims <- range(c(lineDat[["envMean"]], lineDat[[yVar]]))
     ## Create plot.
     p <- ggplot(data = lineDat, do.call(aes_string, args = aesArgs)) +
       geom_point() +
       geom_line(aes_string(y = "fitted"), size = 0.5, alpha = 0.7) +
-      scale_x_continuous(breaks = envEffs[["envEff"]], minor_breaks = NULL,
-                         labels = envEffs[["trial"]], trans = xTrans) +
+      scale_x_continuous(trans = xTrans,
+                         sec.axis = dup_axis(name = "Environment",
+                                             breaks = envEffs[["envMean"]],
+                                             labels = envEffs[["trial"]])) +
+      coord_equal(xlim = plotLims, ylim = plotLims) +
       theme(legend.position = if (is.null(colorBy)) "none" else "right",
             plot.title = element_text(hjust = 0.5),
             axis.text.x = element_text(angle = 90, hjust = 1)) +
-      labs(title = plotTitle, x = "Environment", y = trait)
+      labs(title = plotTitle, x = NULL, y = trait)
     if (output) {
       plot(p)
     }
@@ -272,7 +276,8 @@ plot.FW <- function(x,
     trellisDat <- data.frame(genotype = genoVals[["genotype"]],
                              trait = genoVals[["genoMean"]],
                              fitted = genoVals[["fitted"]],
-                             envEff = rep(x = envEffs$envEff, each = x$nGeno))
+                             envMean = rep(x = envEffs[["envMean"]],
+                                           each = x$nGeno))
     if (!is.null(genotypes)) {
       trellisDat <- trellisDat[trellisDat[["genotype"]] %in% genotypes, ]
       trellisDat <- droplevels(trellisDat)
@@ -285,11 +290,11 @@ plot.FW <- function(x,
     trellisDat <- remove_missing(trellisDat, na.rm = TRUE)
     ## The data needs to be ordered for the lines to be drawn properly.
     trellisDat <- trellisDat[order(trellisDat[["genotype"]],
-                                   trellisDat[["envEff"]]), ]
+                                   trellisDat[["envMean"]]), ]
     p <- ggplot(data = trellisDat,
-                aes_string(x = "envEff", y = "trait")) +
+                aes_string(x = "envMean", y = "trait")) +
       geom_point() +
-      geom_line(data = trellisDat, aes_string(x = "envEff", y = "fitted")) +
+      geom_line(data = trellisDat, aes_string(x = "envMean", y = "fitted")) +
       facet_wrap(facets = "genotype") +
       labs(x = "Environment", y = trait) +
       ggtitle(plotTitle) +
@@ -303,8 +308,8 @@ plot.FW <- function(x,
     invisible(p)
   } else if (plotType == "scatterFit") {
     ## Get worst and best trials.
-    trialMin <- as.character(envEffs[which.min(envEffs[["envEff"]]), "trial"])
-    trialMax <- as.character(envEffs[which.max(envEffs[["envEff"]]), "trial"])
+    trialMin <- as.character(envEffs[which.min(envEffs[["envMean"]]), "trial"])
+    trialMax <- as.character(envEffs[which.max(envEffs[["envMean"]]), "trial"])
     ## Construct plot data, fitted values for worst and best trials.
     plotDat <- TDTot[c("trial", "fitted")]
     plotDat <- data.frame(genotype = levels(TDTot[["genotype"]]),
