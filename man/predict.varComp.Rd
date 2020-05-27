@@ -4,7 +4,11 @@
 \alias{predict.varComp}
 \title{Predictions based on a fitted varComp model.}
 \usage{
-\method{predict}{varComp}(object, ..., predictLevel = c("genotype", "trial", "nesting"))
+\method{predict}{varComp}(
+  object,
+  ...,
+  predictLevel = c("genotype", "trial", object$nestingFactor)
+)
 }
 \arguments{
 \item{object}{An object of class varComp.}
@@ -13,8 +17,8 @@
 
 \item{predictLevel}{A character string, the level at which prediction should
 be made. Either "genotype" for prediction at genotype level, "trial" for
-predictions at genotype x trial level or nesting for predictions at genotype
-x nesting level.}
+predictions at genotype x trial level or the variable used as nesting factor
+for predictions at the level of genotype x nestingFactor level.}
 }
 \value{
 A data.frame with predictions.
@@ -22,8 +26,8 @@ A data.frame with predictions.
 \description{
 Predictions are made based on the fitted model in the varComp object.
 These predictions can be at genotype level, at genotype x trial level or at
-genotype x nesting level. If the model was fitted with trial as year x
-location then genotype x trial level becomes genotype x year x location.
+the level of genotype x nestingFactor. If the model was fitted with trial as
+year x location then genotype x trial level becomes genotype x year x location.
 }
 \examples{
 ## Fit a mixed model.

@@ -12,7 +12,7 @@
 #' @keywords internal
 createVarComp <- function(fitMod,
                           modDat,
-                          nesting,
+                          nestingFactor,
                           useLocYear,
                           fullRandVC,
                           aovFullFixedMod,
@@ -20,7 +20,7 @@ createVarComp <- function(fitMod,
                           diagTabs) {
   varComp <- structure(list(fitMod = fitMod,
                             modDat = modDat,
-                            nesting = nesting,
+                            nestingFactor = nestingFactor,
                             useLocYear = useLocYear,
                             fullRandVC = fullRandVC,
                             aovFullFixedMod = aovFullFixedMod,
@@ -157,7 +157,7 @@ plot.varComp <- function(x,
                       ymin = Inf, ymax = Inf)
   if (plotType == "sd") {
     p <- p + labs(title = "Standard deviations",
-                  x = "Standard deviation estimate")
+                  x = "Square root of variance estimate")
   } else if (plotType == "percVar") {
     p <- p + labs(title = "Percentage of variance explained",
                   x = "Percentage of variance explained")
@@ -172,15 +172,15 @@ plot.varComp <- function(x,
 #'
 #' Predictions are made based on the fitted model in the varComp object.
 #' These predictions can be at genotype level, at genotype x trial level or at
-#' genotype x nesting level. If the model was fitted with trial as year x
-#' location then genotype x trial level becomes genotype x year x location.
+#' the level of genotype x nestingFactor. If the model was fitted with trial as
+#' year x location then genotype x trial level becomes genotype x year x location.
 #'
 #' @param object An object of class varComp.
 #' @param ... Not used.
 #' @param predictLevel A character string, the level at which prediction should
 #' be made. Either "genotype" for prediction at genotype level, "trial" for
-#' predictions at genotype x trial level or nesting for predictions at genotype
-#' x nesting level.
+#' predictions at genotype x trial level or the variable used as nesting factor
+#' for predictions at the level of genotype x nestingFactor level.
 #'
 #' @return A data.frame with predictions.
 #'
@@ -198,7 +198,8 @@ plot.varComp <- function(x,
 #' @export
 predict.varComp <- function(object,
                             ...,
-                            predictLevel = c("genotype", "trial", "nesting")) {
+                            predictLevel = c("genotype", "trial",
+                                             object$nestingFactor)) {
   predictLevel <- match.arg(predictLevel)
   ## Extract fitted model and model data from object.
   fitMod <- object$fitMod
@@ -216,9 +217,10 @@ predict.varComp <- function(object,
   if (predictLevel == "trial") {
     ## For predictLevel trial predict genotype x envVars.
     predLevels <- c(predLevels, envVars)
-  } else if (predictLevel == "nesting") {
-    ## For predictLevel trial predict genotype x nesting variable.
-    predLevels <- c("genotype", object$nesting)
+  } else if (!is.null(object$nestingFactor) &&
+             predictLevel == object$nestingFactor) {
+    ## For predictLevel nestingFactor predict genotype x nestingFactor variable.
+    predLevels <- c("genotype", object$nestingFactor)
   }
   if (object$engine == "lme4") {
     ## Make predictions for all observations in the data.

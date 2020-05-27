@@ -124,13 +124,14 @@ predict(vcSRasr, predictLevel = "trial")
 datBW <- blackman.wheat
 TDBW <- createTD(datBW, genotype = "gen", trial = "loc")
 
-vcBWlme <- gxeVarComp(TDBW, trait = "yield", nesting = "nitro")
+vcBWlme <- gxeVarComp(TDBW, trait = "yield", nestingFactor = "nitro")
 diagnostics(vcBWlme)
 summary(vcBWlme)
 plot(vcBWlme)
 vc(vcBWlme)
 herit(vcBWlme)
 predict(vcBWlme)
+predict(vcBWlme, predictLevel = "nitro")
 
 vcBWasr <- gxeVarComp(TDBW, trait = "yield", nesting = "nitro", engine = "asreml")
 diagnostics(vcBWasr)
@@ -140,4 +141,5 @@ vcBWasr$fullRandVC
 vc(vcBWasr)
 herit(vcBWasr)
 predict(vcBWasr)
+predict(vcBWasr, predictLevel = "nitro")
 

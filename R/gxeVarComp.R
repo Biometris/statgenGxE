@@ -17,11 +17,11 @@
 #' \item{trials are nested within year\cr
 #' trait = year + year:trial + \strong{genotype + genotype:year +
 #' genotype:year:trial}\cr
-#' set \code{nesting = "year"}}
+#' set \code{nestingFactor = "year"}}
 #' \item{trials are nested within locations\cr
 #' trait = location + location:trial + \strong{genotype + genotype:location +
 #' genotype:location:trial}\cr
-#' set \code{nesting = "loc"}}
+#' set \code{nestingFactor = "loc"}}
 #' \item{trials correspond to locations within regions across years\cr
 #' trait = region + region:location + year + region:year + region:location:year +
 #' \strong{genotype + genotype:region:location + genotype:year +
@@ -30,7 +30,7 @@
 #' \item{trials are nested within scenarios\cr
 #' trait = scenario + scenario:trial + \strong{genotype + genotype:scenario +
 #' genotype:scenario:trial}\cr
-#' set \code{nesting = "scenario"}}
+#' set \code{nestingFactor = "scenario"}}
 #' }
 #' In the models above the random part of the model is printed bold.\cr
 #' Note that if the data contains replicates or weights are applied (using the
@@ -60,8 +60,8 @@
 #' Either "lme4" or "asreml".
 #' @param locationYear Should a model be fitted assuming a factorial structure
 #' of locations x years?
-#' @param nesting A character string specifying a column in TD specifying the
-#' nesting structure of the trials.
+#' @param nestingFactor A character string specifying a column in TD specifying
+#' the nesting structure of the trials.
 #' @param regionLocationYear Should a model be fitted assuming locations within
 #' regions across years?
 #' @param useWt Should the model be fitted using weights? Doing so requires a
@@ -74,7 +74,8 @@
 #' @return An object of class \code{varComp}, a list containing:
 #' \item{fitMod}{The fitted model.}
 #' \item{modDat}{A data.frame containing the data used when fitting the model.}
-#' \item{nesting}{A name of the variable used as nesting variable in the model.}
+#' \item{nestingFactor}{A name of the variable used as nesting variable in the
+#' model.}
 #' \item{useLocYear}{A boolean specifying if a model containing location x year
 #' interaction was fitted.}
 #' \item{fullRandVC}{A data.frame containing the variance components for the
@@ -109,7 +110,7 @@ gxeVarComp <- function(TD,
                        trait,
                        engine = c("lme4", "asreml"),
                        locationYear = FALSE,
-                       nesting = NULL,
+                       nestingFactor = NULL,
                        regionLocationYear = FALSE,
                        useWt = FALSE,
                        diagnostics = FALSE) {
@@ -129,8 +130,8 @@ gxeVarComp <- function(TD,
     locYearTab <- table(TDTot[["year"]], TDTot[["loc"]])
     locYearCrossed <- all(locYearTab > 0)
   }
-  if (!is.null(nesting)) {
-    chkCol(nesting, TDTot)
+  if (!is.null(nestingFactor)) {
+    chkCol(nestingFactor, TDTot)
   }
   if (regionLocationYear) {
     chkCol("loc", TDTot)
@@ -152,11 +153,12 @@ gxeVarComp <- function(TD,
   ## Trying to fit this in something 'smart' actually makes it unreadable.
   ## First create a vector with the separate terms.
   ## This avoids difficult constructions to get the +-es correct.
-  fixedTerms <- c(if (!locationYear && is.null(nesting) &&
+  fixedTerms <- c(if (!locationYear && is.null(nestingFactor) &&
                       !regionLocationYear) "trial",
                   if (locationYear) c("year", if (locYearCrossed) "loc",
                                       "year:loc"),
-                  if (!is.null(nesting)) c(nesting, paste0(nesting, ":trial")),
+                  if (!is.null(nestingFactor)) c(nestingFactor,
+                                                 paste0(nestingFactor, ":trial")),
                   if (regionLocationYear) c("region", "region:loc", "year",
                                             "region:year", "region:loc",
                                             "region:loc:year"))
@@ -244,8 +246,8 @@ gxeVarComp <- function(TD,
     ## Construct input for full random model.
     fullRandTxt <- paste("~", paste(c(fixedTerms, randTerms), collapse = "+"))
     fullRandMod <- tryCatchExt(asreml::asreml(fixed = formula(paste0("`", trait, "`~ 1")),
-                                              random = formula(fullRandTxt), data = TDTot,
-                                              trace = FALSE))
+                                              random = formula(fullRandTxt),
+                                              data = TDTot, trace = FALSE))
     if (!is.null(fullRandMod$warning)) {
       ## Check if param 1% increase is significant. Remove warning if not.
       fullRandMod <- chkLastIter(fullRandMod)
@@ -337,7 +339,7 @@ gxeVarComp <- function(TD,
     }
   }
   ## Create output.
-  res <- createVarComp(fitMod = mr, modDat = TDTot, nesting = nesting,
+  res <- createVarComp(fitMod = mr, modDat = TDTot, nestingFactor = nestingFactor,
                        useLocYear = locationYear, fullRandVC = fullRandVC,
                        aovFullFixedMod = aovFullFixedMod, engine = engine,
                        diagTabs = diagTabs)

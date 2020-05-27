@@ -10,7 +10,7 @@ gxeVarComp(
   trait,
   engine = c("lme4", "asreml"),
   locationYear = FALSE,
-  nesting = NULL,
+  nestingFactor = NULL,
   regionLocationYear = FALSE,
   useWt = FALSE,
   diagnostics = FALSE
@@ -30,8 +30,8 @@ Either "lme4" or "asreml".}
 \item{locationYear}{Should a model be fitted assuming a factorial structure
 of locations x years?}
 
-\item{nesting}{A character string specifying a column in TD specifying the
-nesting structure of the trials.}
+\item{nestingFactor}{A character string specifying a column in TD specifying
+the nesting structure of the trials.}
 
 \item{regionLocationYear}{Should a model be fitted assuming locations within
 regions across years?}
@@ -48,12 +48,13 @@ variables be printed?}
 An object of class \code{varComp}, a list containing:
 \item{fitMod}{The fitted model.}
 \item{modDat}{A data.frame containing the data used when fitting the model.}
-\item{nesting}{A name of the variable used as nesting variable in the model.}
+\item{nestingFactor}{A name of the variable used as nesting variable in the
+model.}
 \item{useLocYear}{A boolean specifying if a model containing location x year
 interaction was fitted.}
 \item{fullRandVC}{A data.frame containing the variance components for the
 fully random model.}
-\item{aovFullMixedMod}{A data.frame containing the anova table for the fully
+\item{aovFullMixedMod}{A data.frame containing the ANOVA table for the fully
 fixed model.}
 \item{engine}{The engine used for fitting the model.}
 \item{diagTabs}{A list of data.frame, one for each random model term,
@@ -77,11 +78,11 @@ set \code{locationYear = TRUE}}
 \item{trials are nested within year\cr
 trait = year + year:trial + \strong{genotype + genotype:year +
 genotype:year:trial}\cr
-set \code{nesting = "year"}}
+set \code{nestingFactor = "year"}}
 \item{trials are nested within locations\cr
 trait = location + location:trial + \strong{genotype + genotype:location +
 genotype:location:trial}\cr
-set \code{nesting = "loc"}}
+set \code{nestingFactor = "loc"}}
 \item{trials correspond to locations within regions across years\cr
 trait = region + region:location + year + region:year + region:location:year +
 \strong{genotype + genotype:region:location + genotype:year +
@@ -90,7 +91,7 @@ set \code{regionLocationYear = TRUE}}
 \item{trials are nested within scenarios\cr
 trait = scenario + scenario:trial + \strong{genotype + genotype:scenario +
 genotype:scenario:trial}\cr
-set \code{nesting = "scenario"}}
+set \code{nestingFactor = "scenario"}}
 }
 In the models above the random part of the model is printed bold.\cr
 Note that if the data contains replicates or weights are applied (using the
