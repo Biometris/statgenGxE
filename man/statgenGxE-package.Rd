@@ -22,7 +22,7 @@ Other contributors:
   \item Martin Boer [contributor]
   \item Marcos Malosetti (\href{https://orcid.org/0000-0002-8150-1397}{ORCID}) [contributor]
   \item Daniela Bustos-Korts (\href{https://orcid.org/0000-0003-3827-6726}{ORCID}) [contributor]
-  \item Emilie Millet (\href{https://orcid.org/0000-0002-2913-4892}{ORCID}) [contributor]
+  \item Emilie J Millet (\href{https://orcid.org/0000-0002-2913-4892}{ORCID}) [contributor]
   \item Joao Paulo (\href{https://orcid.org/0000-0002-4180-0763}{ORCID}) [contributor]
   \item Maikel Verouden (\href{https://orcid.org/0000-0002-4893-3323}{ORCID}) [contributor]
   \item Willem Kruijer (\href{https://orcid.org/0000-0001-7179-1733}{ORCID}) [contributor]

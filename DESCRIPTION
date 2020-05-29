@@ -2,7 +2,7 @@ Package: statgenGxE
 Type: Package
 Title: Genotype by Environment (GxE) Analysis
 Version: 1.0.0
-Date: 2020-01-21
+Date: 2020-05-29
 Authors@R: c(person(given = "Bart-Jan", 
                     family = "van Rossum", 
                     email = "bart-jan.vanrossum@wur.nl", 
@@ -22,7 +22,7 @@ Authors@R: c(person(given = "Bart-Jan",
                     family = "Bustos-Korts",
                     role = "ctb",
                     comment = c(ORCID = "0000-0003-3827-6726")),
-             person(given = "Emilie", 
+             person(given = "Emilie J", 
                     family = "Millet",
                     role = "ctb",
                     comment = c(ORCID = "0000-0002-2913-4892")),
