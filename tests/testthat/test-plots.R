@@ -143,6 +143,9 @@ test_that("AMMI plot colEnv functions properly", {
 })
 
 test_that("AMMI plot colorEnvBy functions properly", {
+  geAmmi1 <- geAmmi
+  ## Add missing values.
+  geAmmi1$dat[geAmmi1$dat[["regime"]] == "W", "regime"] <- NA
   expect_error(plot(geAmmi, colorEnvBy = 1),
                "NULL or a character vector")
   expect_error(plot(geAmmi, colorEnvBy = "col"),
@@ -150,6 +153,8 @@ test_that("AMMI plot colorEnvBy functions properly", {
   expect_error(plot(geAmmi, colorEnvBy = "family"),
                "exactly one value per environment")
   expect_error(plot(geAmmi, colorEnvBy = "regime", colEnv = "blue"))
+  expect_error(plot(geAmmi1, colorEnvBy = "regime"),
+               "Missing values in regime")
 
   ## AMMI1
   p1_1 <- plot(geAmmi, colorEnvBy = "regime")
@@ -178,6 +183,9 @@ test_that("AMMI plot colorEnvBy functions properly", {
 })
 
 test_that("AMMI plot colorGenoBy functions properly", {
+  geAmmi1 <- geAmmi
+  ## Add missing values.
+  geAmmi1$dat[geAmmi1$dat[["family"]] == "F1", "family"] <- NA
   expect_error(plot(geAmmi, colorGenoBy = 1),
                "NULL or a character vector")
   expect_error(plot(geAmmi, colorGenoBy = "col"),
@@ -185,6 +193,8 @@ test_that("AMMI plot colorGenoBy functions properly", {
   expect_error(plot(geAmmi, colorGenoBy = "regime"),
                "exactly one value per genotype")
   expect_error(plot(geAmmi, colorGenoBy = "family", colGeno = "blue"))
+  expect_error(plot(geAmmi1, colorGenoBy = "family"),
+               "Missing values in family")
 
   ## AMMI1
   p1_1 <- plot(geAmmi, colorGenoBy = "family")
@@ -263,11 +273,21 @@ test_that("AMMI plot plotConvHull functions properly", {
 
 geAmmiYear <- gxeAmmi(BLUEsYear, trait = "t1", byYear = TRUE)
 test_that("AMMI plot gives correct output types when byYear = TRUE", {
+  geAmmiYear1 <- geAmmiYear2 <- geAmmiYear
+  ## Add missing values.
+  geAmmiYear1$dat[[1]][geAmmiYear1$dat[[1]][["regime"]] == "W", "regime"] <- NA
+  geAmmiYear1$dat[[2]][geAmmiYear1$dat[[2]][["regime"]] == "W", "regime"] <- NA
+  geAmmiYear2$dat[[1]][geAmmiYear2$dat[[1]][["family"]] == "F1", "family"] <- NA
+  geAmmiYear2$dat[[2]][geAmmiYear2$dat[[2]][["family"]] == "F1", "family"] <- NA
   ## Year specific errors.
   expect_error(plot(geAmmiYear, colorGenoBy = "regime"),
                "exactly one value per genotype")
   expect_error(plot(geAmmiYear, colorEnvBy = "family"),
                "exactly one value per environment")
+  expect_error(plot(geAmmiYear1, colorEnvBy = "regime"),
+               "Missing values in regime")
+  expect_error(plot(geAmmiYear2, colorGenoBy = "family"),
+               "Missing values in family")
   expect_error(plot(geAmmiYear, plotType = "AMMI2", primAxis = "PC3"),
                "Highest number of principal components is 2")
   expect_error(plot(geAmmiYear, plotType = "AMMI2", secAxis = "PC3"),
