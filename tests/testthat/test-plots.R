@@ -4,6 +4,8 @@ context("Plots")
 ## objects on which the plots are based are invisibly returned at least some
 ## checking can be done.
 
+## AMMI
+
 geAmmi <- gxeAmmi(BLUEs, trait = "t1")
 test_that("general checks in ammi plot function properly", {
   expect_error(plot(geAmmi, scale = 2),
@@ -307,21 +309,49 @@ test_that("AMMI plot gives correct output types when byYear = TRUE", {
   expect_is(p2[[2]], "ggplot")
 })
 
+## Finlay Wilkinson
+
 geFw <- gxeFw(TD = testTD, trait = "t1", maxIter = 30)
+
+test_that("general check in FW plot function properly", {
+  expect_error(plot(geFw, colorBy = "col"), "col has to be a column")
+})
+
 test_that("FW plot gives correct output types", {
   p1 <- plot(geFw)
   p2 <- plot(geFw, plotType = "line")
   p3 <- plot(geFw, plotType = "trellis")
+  p4 <- plot(geFw, plotType = "scatterFit")
   expect_is(p1, "list")
   expect_length(p1, 3)
   lapply(X = p1, FUN = expect_is, "ggplot")
   expect_is(p2, "ggplot")
   expect_is(p3, "ggplot")
+  expect_is(p4, "ggplot")
 })
 
-test_that("option order in FW plot functions properly", {
+test_that("Option colorBy in scatter plot functions correctly", {
+  p1 <- plot(geFw, colorBy = "family")
+  expect_equal(p1[[1]]$labels$colour, "family")
+  expect_equal(p1[[2]]$labels$colour, "family")
+  expect_equal(p1[[3]]$labels$colour, "family")
+})
+
+test_that("Option colorBy in line plot functions correctly", {
+  p1 <- plot(geFw, plotType = "line", colorBy = "family")
+  expect_equal(p1$labels$colour, "family")
+  ## With coloring plot should have a legend explicitly defined.
+  expect_equal(p1$theme$legend.position, "right")
+})
+
+test_that("Option colorBy in scatterFit plot functions correctly", {
+  p1 <- plot(geFw, plotType = "scatterFit", colorBy = "family")
+  expect_equal(p1$labels$colour, "family")
+})
+
+test_that("option order in FW line plot functions properly", {
   p <- plot(geFw, plotType = "line", order = "descending")
-  expect_equal(p$plot_env$xTrans, "reverse" )
+  expect_equal(p$plot_env$xTrans, "reverse")
 })
 
 test_that("option genotypes in FW plot functions properly", {
@@ -330,6 +360,8 @@ test_that("option genotypes in FW plot functions properly", {
   p <- plot(geFw, plotType = "trellis", genotypes = paste0("G", 1:9))
   expect_equal(nlevels(p$data[["genotype"]]), 9)
 })
+
+## Stability
 
 test_that("stability plot gives correct output types", {
   geStab <- gxeStability(TD = testTD, trait = "t1")
@@ -350,6 +382,8 @@ test_that("title argument functions correctly in stability plot", {
   expect_silent(plot(geStab, title = "Test"))
 })
 
+## varCov
+
 test_that("VarCov plot gives correct output types", {
   geVarCov <- gxeVarCov(TD = testTD, trait = "t1")
   p <- plot(geVarCov)
@@ -367,6 +401,8 @@ test_that("VarCov plot gives correct output types when trials are numerical", {
   geVarCov <- gxeVarCov(TD = testTD, trait = "t1")
   expect_silent(p <- plot(geVarCov))
 })
+
+## Mega environments.
 
 geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1")
 test_that("megaEnv plot gives correct output types", {
