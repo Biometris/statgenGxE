@@ -1,6 +1,6 @@
 context("gxeVarCov")
 
-test_that("general checks in gxeAmmi function properly", {
+test_that("general checks in gxeVarCov function properly", {
   expect_error(gxeVarCov(1, trait = "t1"),
                "TD should be a valid object of class TD")
   expect_error(gxeVarCov(BLUEs, trait = "t5"),

@@ -224,7 +224,7 @@ predict.varComp <- function(object,
   } else if (!is.null(object$nestingFactor) &&
              predictLevel == object$nestingFactor) {
     ## For predictLevel nestingFactor predict genotype x nestingFactor variable.
-    predLevels <- c("genotype", object$nestingFactor)
+    predLevels <- c(predLevels, object$nestingFactor)
   }
   if (object$engine == "lme4") {
     ## Make predictions for all observations in the data.
@@ -269,7 +269,7 @@ predict.varComp <- function(object,
 #' @export
 vc <- function(varComp) {
   if (!inherits(varComp, "varComp")) {
-    stop(varComp, "should be an object of class varComp.\n")
+    stop(varComp, " should be an object of class varComp.\n")
   }
   ## Extract variance component and rename so rows/columns to assure
   ## matching outputs for lme4/asreml.
@@ -313,7 +313,7 @@ vc <- function(varComp) {
 #' @export
 herit <- function(varComp) {
   if (!inherits(varComp, "varComp")) {
-    stop(varComp, "should be an object of class varComp.\n")
+    stop(varComp, " should be an object of class varComp.\n")
   }
   ## Extract fitted model and model data.
   fitMod <- varComp$fitMod
@@ -376,7 +376,7 @@ herit <- function(varComp) {
 #' @export
 diagnostics <- function(varComp) {
   if (!inherits(varComp, "varComp")) {
-    stop(varComp, "should be an object of class varComp.\n")
+    stop(varComp, " should be an object of class varComp.\n")
   }
   ## Get diagTabs from varComp.
   diagTabs <- varComp$diagTabs

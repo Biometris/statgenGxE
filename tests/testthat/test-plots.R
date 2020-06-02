@@ -426,3 +426,21 @@ test_that("option colorBy in megaEnv plot functions correctly", {
   layout <- p[[1]]$layout
   expect_equal(setdiff(layout[["name"]], layout0[["name"]]), "guide-box")
 })
+
+## varComp
+
+geVCLm <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "lme4")
+test_that("varComp plot gives correct output types", {
+  p <- plot(geVCLm)
+  expect_is(p, "ggplot")
+})
+
+test_that("option plotType in varComp plot functions correctly", {
+  p0 <- plot(geVCLm)
+  p1 <- plot(geVCLm, plotType = "percVar")
+  expect_equal(p0$labels$x, "Square root of variance estimate")
+  expect_equal(p1$labels$x, "Percentage of variance explained")
+  expect_equal(p0$labels$title, "Standard deviations (general mean = 83)")
+  expect_equal(p1$labels$title,
+               "Percentage of variance explained (general mean = 83)")
+})

@@ -63,3 +63,16 @@ test_that("megaEnv summary produces correct output", {
   expect_true(" Mega factor Trial Winning genotype AMMI estimates" %in% sumMegaEnv)
 })
 
+test_that("varComp summary produces correct output", {
+  geVCLm <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "lme4")
+  sumVCLm <- capture.output(summary(geVCLm))
+  expect_true("t1 ~ trial + (1 | genotype) " %in% sumVCLm)
+  expect_true("Sources of variation" %in% sumVCLm)
+
+  skip_on_cran()
+  geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
+  sumVCAs <- capture.output(summary(geVCAs))
+  expect_true("t1 ~ trial + (1 | genotype) " %in% sumVCAs)
+  expect_true("Sources of variation" %in% sumVCAs)
+})
+
