@@ -5,10 +5,10 @@
 \alias{dropsPheno}
 \title{DROPS data sets}
 \format{
-An object of class \code{data.frame} with 2460 rows and 19 columns.
+An object of class \code{data.frame} with 2460 rows and 20 columns.
 }
 \source{
-\url{https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN}
+\url{https://data.inrae.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN}
 }
 \usage{
 dropsPheno
@@ -58,6 +58,8 @@ ground level to the highest point of the tassel in centimeter (cm)}
 \item{ear.height}{genotypic mean for ear insertion height, from ground level
 to ligule of the highest ear leaf in centimeter (cm)}
 \item{year}{year in which the experiment was performed}
+\item{loc}{location where the experiment was performed, a three letter
+abbreviation}
 \item{scenarioWater}{water scenario for the experiment, well watered (WW) or
 water deficit (WD)}
 \item{scenarioTemp}{temperature scenario for the experiment, Cool, Hot or

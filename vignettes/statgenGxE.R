@@ -28,6 +28,34 @@ plot(dropsTD, plotType = "box", traits = "grain.yield", colorBy = "scenarioFull"
 ## Color the genotypes based on the variable genetic_group.
 plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorBy = "genetic_group")
 
+## ----geVarComp--------------------------------------------------------------------------
+## Fit a model where trials are nested within locations
+dropsVarComp <- gxeVarComp(TD = dropsTD, trait = "grain.yield", nestingFactor = "loc")
+summary(dropsVarComp)
+
+
+## ----diag, eval=FALSE-------------------------------------------------------------------
+#  ## Print diagnostics - output suppressed because of the large number of rows.
+#  diagnostics(dropsVarComp)
+
+## ----vcHerit----------------------------------------------------------------------------
+## Extract variance components.
+vc(dropsVarComp)
+## Compute heritability.
+herit(dropsVarComp)
+
+## ----VarCompPlot------------------------------------------------------------------------
+## Plot the results of the fitted model.
+plot(dropsVarComp)
+
+## ----predict----------------------------------------------------------------------------
+## Predictions at a level of the genotypes.
+predGeno <- predict(dropsVarComp)
+head(predGeno)
+## predictions at the level of genotype x location.
+predGenoLoc <- predict(dropsVarComp, predictLevel = "loc")
+head(predGenoLoc)
+
 ## ----geFW-------------------------------------------------------------------------------
 ## Perform a Finlay-Wilkinson analysis for all trials.
 dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")

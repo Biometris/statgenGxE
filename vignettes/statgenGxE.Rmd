@@ -33,12 +33,13 @@ This vignette describes in detail how to perform the different types of analysis
 
 The following types of analysis can be done using statgenGxE:
 
+* [Mixed model analysis of two-way GxE tables](#vcomp)
 * [Finlay-Wilkinson Analysis](#fw)
 * [AMMI Analysis](#am)
 * [GGE Analysis](#gge)
 * [Identification of mega environments](#me)
 * [Computation of stability measures](#st)
-* [Mixed model analysis of two-way GxE tables](#vc)
+* [Select the best variance-covariance model for a set of trials](#vcov)
 
 For most of the analyses a pdf report can be created automatically, see [Reporting](#rep).
 
@@ -46,7 +47,7 @@ For most of the analyses a pdf report can be created automatically, see [Reporti
 
 # Data preparation {#dp}
 
-The use of the package is demonstrated using maize data from the European Union project DROPS. The data is available from https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN [@Millet2019] and the relevant data set is included as data.frame in the statgenGxE package.
+The use of the package is demonstrated using maize data from the European Union project DROPS. The data is available from https://datae.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN [@Millet2019] and the relevant data set is included as data.frame in the statgenGxE package.
 
 The first step is loading the data into R. 
 ```{r loadData} 
@@ -79,6 +80,71 @@ For further insight a scatter plot of the trials against each other can be made.
 ## Create a scatter plot of dropsTD.
 ## Color the genotypes based on the variable genetic_group.
 plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorBy = "genetic_group")
+```
+
+---
+
+# Mixed model analysis of two-way GxE tables {#vcomp}
+
+To get a first idea of the structure of the genotype by environment data, a mixed model can be fitted. In the statgenGxE package this can be done using the `gxeVarComp` function. Based on the structure of the genotype by environment table of observations and the chosen parameters this function will fit a model best fitting to the data.    
+
+Six different types of models can be fitted depending on the environmental dimensions of the data. These models are described in the table below, together with the parameters used in `gxeVarComp` to fit the model.
+
+| environmental dimensions | model | parameters |
+|:-----------|:-------------------|:------------|
+| environments correspond to trials | trait = trial + **genotype + genotype:trial** | | trials form a factorial structure of locations x years | trait = year + location + year:location + **genotype + genotype:year + genotype:location + genotype:year:location** | `locationYear = TRUE` |
+| trials are nested within year | trait = year + year:trial + **genotype + genotype:year + genotype:year:trial** | `nestingFactor = "year"` |
+| trials are nested within locations | trait = location + location:trial + **genotype + genotype:location + genotype:location:trial** | `nestingFactor = "loc"` |
+| trials correspond to locations within regions across years | trait = region + region:location + year + region:year + region:location:year + **genotype + genotype:region:location + genotype:year + genotype:region:year + genotype:region:location:year** | `regionLocationYear = TRUE` |
+| trials are nested within scenarios | trait = scenario + scenario:trial + **genotype + genotype:scenario + genotype:scenario:trial** | `nestingFactor = "scenario"` |
+
+In all models the random part of the model is printed **bold**.     
+*Note that if the data contains replicates or weights are applied (using the option `useWt`) the last model term will be dropped, and estimated as a homogeneous residual.*    
+ 
+All models can be fitted using either `lme4` or `asreml`.    
+
+The function first fits a model where all model terms are included as fixed terms. Based on the ANOVA table of this model, terms in the fixed part of the model that are likely to give a problem when fitting the mixed model are removed because of the reduced connectivity and number of available observations to estimate that model term. Also a warning is printed if the mean sum of squares for a model term points to a possible zero variance component in the mixed model.    
+
+Then a model is fitted where all model terms are included as random terms. Based on the variance components in this model the percentage of variance explained by each of the model components is determined. This is printed in the model summary and plotted as standard deviations of the estimate.    
+
+Finally a mixed model is fitted as specified in the table above. Based on these model variance components can be extracted, heritabilities can be computed and predictions can be made. It is also possible to plot the results.
+
+```{r geVarComp} 
+## Fit a model where trials are nested within locations
+dropsVarComp <- gxeVarComp(TD = dropsTD, trait = "grain.yield", nestingFactor = "loc")
+summary(dropsVarComp)
+
+```
+The diagnostics for the fitted model can be printed using the `diagnostics` function. This will print a table of missing values for each of the terms in the random part of the fitted model.
+
+```{r diag, eval=FALSE}
+## Print diagnostics - output suppressed because of the large number of rows.
+diagnostics(dropsVarComp)
+```
+
+Extracting the variance components from the fitted model can be done using the `vc` function. The heritability is computed using `herit`.
+
+```{r vcHerit}
+## Extract variance components.
+vc(dropsVarComp)
+## Compute heritability.
+herit(dropsVarComp)
+```
+
+A plot can be made of the square roots of the variance estimates. These are based on the fully random model.
+```{r VarCompPlot}
+## Plot the results of the fitted model.
+plot(dropsVarComp)
+```
+It is possible to make predictions based on the fitted model using the `predict` function. Predictions can be made on different levels, specified by the parameter `predictLevel`.
+
+```{r predict}
+## Predictions at a level of the genotypes.
+predGeno <- predict(dropsVarComp)
+head(predGeno)
+## predictions at the level of genotype x location.
+predGenoLoc <- predict(dropsVarComp, predictLevel = "loc")
+head(predGenoLoc)
 ```
 
 ---
@@ -172,9 +238,10 @@ In AMMI2 biplots the parameter `scale`, a value between 0 and 1, can be used for
 ## Create an AMMI2 biplot.
 plot(dropsAm, scale = 0.5, plotType = "AMMI2")
 ```
-the axes specifying `primAxis` and `secAxis`.  
-Genotypes can be grouped and colored by a variable in the data using `colorGenoBy`. Specify custom colors i
-The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on n `colGeno`. Similarly for coloring environments use `colorEnvBy` and `colEnv`.
+
+The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axes specifying `primAxis` and `secAxis`
+Genotypes can be grouped and colored by a variable in the data using `colorGenoBy`. Specify custom colors in `colGeno`. Similarly for coloring environments use `colorEnvBy` and `colEnv`.
+.  
 ```{r plotAmmiCol, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI2 biplot.
 ## Color genotypes based on variable genetic_group. Use custom colors.
@@ -288,7 +355,7 @@ summary(dropsStabME, pctGeno = 2)
 
 ---
 
-# Mixed model analysis of two-way GxE tables{#vc}
+# Select the best variance-covariance model for a set of trials{#vcov}
 
 The function `gxeVarCov` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequentially to the genotype by environment data. The best fitting model is then identified.    
 The models fitted are of the form $y_{ij} = \mu_i + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu_i$ is the genotypic mean and $\epsilon_{ij}$ the residual genetic variation. This residual genetic variation is modeled in eight ways as described in the table below (see [@Boer2007]).

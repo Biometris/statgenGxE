@@ -43,6 +43,8 @@
 #' \item{ear.height}{genotypic mean for ear insertion height, from ground level
 #' to ligule of the highest ear leaf in centimeter (cm)}
 #' \item{year}{year in which the experiment was performed}
+#' \item{loc}{location where the experiment was performed, a three letter
+#' abbreviation}
 #' \item{scenarioWater}{water scenario for the experiment, well watered (WW) or
 #' water deficit (WD)}
 #' \item{scenarioTemp}{temperature scenario for the experiment, Cool, Hot or
@@ -52,7 +54,7 @@
 #' \item{genetic_group}{the genetic group to which the genotype belongs}
 #' }
 #'
-#' @source \url{https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN}
+#' @source \url{https://data.inrae.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN}
 #'
 #' @references Millet, E. J., Pommier, C., et al. (2019). A multi-site
 #' experiment in a network of European fields for assessing the maize yield

@@ -413,6 +413,7 @@ plotAMMI1 <- function(loadings,
       ## Merge the colorGenoBy column to the data.
       genoDat <- merge(genoDat, unique(dat[c("genotype", colorGenoBy)]),
                        by.x = "row.names", by.y = "genotype")
+      genoDat[[colorGenoBy]] <- as.factor(genoDat[[colorGenoBy]])
       if (length(colGeno) == 0) {
         ## Get number of colors.
         ## Defaults to black for one color for genotypes and
@@ -582,6 +583,7 @@ plotAMMI2 <- function(loadings,
       ## Merge the colorGenoBy column to the data.
       genoDat <- merge(genoDat, unique(dat[c("genotype", colorGenoBy)]),
                        by.x = "row.names", by.y = "genotype")
+      genoDat[[colorGenoBy]] <- as.factor(genoDat[[colorGenoBy]])
       if (length(colGeno) == 0) {
         ## Get number of colors.
         ## Defaults to black for one color for genotypes and

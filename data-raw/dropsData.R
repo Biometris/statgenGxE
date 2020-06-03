@@ -15,6 +15,10 @@ dropsPheno <- dropsPheno[dropsPheno[["Experiment"]] %in% exps, ]
 ## Add year column.
 dropsPheno[["year"]] <- paste0("20", substring(dropsPheno[["Experiment"]],
                                                first = 4, last = 5))
+## Add location column.
+dropsPheno[["loc"]] <- substring(dropsPheno[["Experiment"]],
+                                 first = 1, last = 3)
+
 ## Add scenario columns.
 scenario <- data.frame(Experiment = exps,
                        scenarioWater = c("WD", "WD", "WW", "WW", "WD",
