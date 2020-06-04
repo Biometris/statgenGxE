@@ -5,7 +5,7 @@
 \alias{createStability}
 \title{S3 class stability}
 \usage{
-createStability(superiority = NULL, static = NULL, wricke = NULL, trait)
+createStability(superiority = NULL, static = NULL, wricke = NULL, TD, trait)
 }
 \arguments{
 \item{superiority}{A data.frame containing values for the

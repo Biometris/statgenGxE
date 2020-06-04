@@ -170,6 +170,6 @@ gxeStability <- function(TD,
   res <- createStability(superiority = if ("superiority" %in% method) LBOut,
                          static = if ("static" %in% method) SOut,
                          wricke = if ("wricke" %in% method) WOut,
-                         trait = trait)
+                         TD = TD, trait = trait)
   return(res)
 }

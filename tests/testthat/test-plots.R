@@ -367,19 +367,27 @@ test_that("stability plot gives correct output types", {
   geStab <- gxeStability(TD = testTD, trait = "t1")
   p1 <- plot(geStab)
   expect_is(p1, "list")
-  expect_length(p1, 4)
+  expect_length(p1, 5)
   lapply(X = p1, FUN = expect_is, "ggplot")
   geStab2 <- gxeStability(TD = testTD, trait = "t1", method = "superiority")
   p2 <- plot(geStab2)
   expect_length(p2, 1)
 })
 
-test_that("title argument functions correctly in stability plot", {
+test_that("title functions correctly in stability plot", {
   geStab <- gxeStability(TD = testTD, trait = "t1")
   ## Actually just testing that it doesn't crash.
   ## Plots are returned as a list of plots,
-  ## actual plotting, including title, is done by grid.arrange.s
+  ## actual plotting, including title, is done by grid.arrange.
   expect_silent(plot(geStab, title = "Test"))
+})
+
+test_that("colorBy functions correctly in stability plot", {
+  geStab <- gxeStability(TD = testTD, trait = "t1")
+  ## Actually just testing that it doesn't crash.
+  ## Plots are returned as a list of plots,
+  ## actual plotting, including legend, is done by grid.arrange
+  expect_silent(plot(geStab, colorBy = "family"))
 })
 
 ## varCov

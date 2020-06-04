@@ -20,10 +20,12 @@ NULL
 createStability <- function(superiority = NULL,
                             static = NULL,
                             wricke = NULL,
+                            TD,
                             trait) {
   stability <- structure(list(superiority = superiority,
                               static = static,
                               wricke = wricke,
+                              TD = TD,
                               trait = trait),
                          class = "stability")
   attr(stability, which = "timestamp") <- Sys.time()
@@ -78,29 +80,55 @@ summary.stability <- function(object,
 #' @export
 plot.stability <- function(x,
                            ...,
+                           colorBy = NULL,
                            output = TRUE) {
   dotArgs <- list(...)
-  ## Add and overwrite args with custom args from ...
-  fixedArgs <- c("x", "y", "xlab", "ylab", "main")
+  TDTot <- do.call(rbind, x$TD)
+  if (!is.null(colorBy)) {
+    chkCol(colorBy, TDTot)
+  }
+  genoVals <- unique(TDTot[c("genotype", colorBy)])
   plots <- vector(mode = "list")
   if (!is.null(x$superiority)) {
     ## Create superiority plot.
-    plots$p1 <- ggplot(data = x$superiority, aes_string(x = "mean",
-                                                        y = "superiority")) +
+    supDat <- merge(x$superiority, genoVals, by = "genotype")
+    aesArgs1 <- list(x = "mean", y = "superiority",
+                     color = if (is.null(colorBy)) NULL else colorBy)
+    plots$p1 <- ggplot(data = supDat, do.call(aes_string, args = aesArgs1)) +
       geom_point() +
       labs(x = "Mean", y = "Cultivar superiority")
   }
   if (!is.null(x$static)) {
     ## Create static plot.
-    plots$p2 <- ggplot(data = x$static, aes_string(x = "mean", y = "static")) +
+    statDat <- merge(x$static, genoVals, by = "genotype")
+    aesArgs2 <- list(x = "mean", y = "static",
+                     color = if (is.null(colorBy)) NULL else colorBy)
+    plots$p2 <- ggplot(data = statDat, do.call(aes_string, args = aesArgs2)) +
       geom_point() +
       labs(x = "Mean", y = "Static stability")
   }
   if (!is.null(x$wricke)) {
     ## Create Wricke plot.
-    plots$p3 <- ggplot(data = x$wricke, aes_string(x = "mean", y = "wricke")) +
+    wrickeDat <- merge(x$wricke, genoVals, by = "genotype")
+    aesArgs3 <- list(x = "mean", y = "wricke",
+                     color = if (is.null(colorBy)) NULL else colorBy)
+    plots$p3 <- ggplot(data = wrickeDat, do.call(aes_string, args = aesArgs3)) +
       geom_point() +
       labs(x = "Mean", y = "Wricke's ecovalence")
+  }
+  ## Construct legend.
+  if (!is.null(colorBy)) {
+    ## Build plot to extract legend.
+    ## Legend is always the same for all plots, take it from the first plot.
+    p1Gtable <- ggplot_gtable(ggplot_build(plots[[1]]))
+    legendPos <- sapply(X = p1Gtable$grobs, FUN = `[[`, "name") == "guide-box"
+    legend <- p1Gtable$grobs[[which(legendPos)]]
+    ## Now remove the legend from all the plots.
+    for (i in seq_along(plots)) {
+      plots[[i]] <- plots[[i]] + theme(legend.position = "none")
+    }
+  } else {
+    legend <- NULL
   }
   if (length(plots) == 3) {
     ## Create empty plot for bottom right grid position.
@@ -130,7 +158,7 @@ plot.stability <- function(x,
   }
   if (output) {
     ## grid.arrange automatically plots the results.
-    tot <- gridExtra::grid.arrange(tot, top = title)
+    tot <- gridExtra::grid.arrange(tot, right = legend, top = title)
   }
   invisible(plots)
 }

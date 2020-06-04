@@ -146,7 +146,7 @@ plot.FW <- function(x,
   trait <- x$trait
   dotArgs <- list(...)
   envEffs <- x$envEffs[c("trial", "envMean")]
-  TDTot <- Reduce(f = rbind, x = x$TD)
+  TDTot <- do.call(rbind, x$TD)
   if (!is.null(colorBy)) {
     chkCol(colorBy, TDTot)
   }

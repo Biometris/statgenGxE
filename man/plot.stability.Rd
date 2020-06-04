@@ -4,7 +4,7 @@
 \alias{plot.stability}
 \title{Plot function for class stability}
 \usage{
-\method{plot}{stability}(x, ..., output = TRUE)
+\method{plot}{stability}(x, ..., colorBy = NULL, output = TRUE)
 }
 \arguments{
 \item{x}{An object of class stability.}
