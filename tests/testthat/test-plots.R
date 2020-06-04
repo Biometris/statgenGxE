@@ -165,7 +165,7 @@ test_that("AMMI plot colorEnvBy functions properly", {
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
   dat1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
   expect_equal(as.character(dat1_1[[".color"]]),
-               c("#4C00FFFF", "#4C00FFFF", "#00E5FFFF"))
+               c("#4C00FF", "#4C00FF", "#00E5FF"))
   dat1_2 <- p1_2$layers[geoms1_2 == "GeomText"][[1]]$data
   expect_equal(as.character(dat1_2[[".color"]]),
                c("green", "green", "blue"))
@@ -178,7 +178,7 @@ test_that("AMMI plot colorEnvBy functions properly", {
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
   dat1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
   expect_equal(as.character(dat1_1[[".color"]]),
-               c("#4C00FFFF", "#4C00FFFF", "#00E5FFFF"))
+               c("#4C00FF", "#4C00FF", "#00E5FF"))
   dat1_2 <- p1_2$layers[geoms1_2 == "GeomText"][[1]]$data
   expect_equal(as.character(dat1_2[[".color"]]),
                c("green", "green", "blue"))
@@ -206,10 +206,9 @@ test_that("AMMI plot colorGenoBy functions properly", {
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
   dat1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
   expect_equal(as.character(dat1_1[[".color"]]),
-               c("#4C00FFFF", "#00FF4DFF", "#FFFF00FF", "#FFFF00FF",
-                 "#FFFF00FF", "#FFFF00FF", "#FFFF00FF", "#4C00FFFF",
-                 "#4C00FFFF", "#4C00FFFF", "#4C00FFFF", "#00FF4DFF",
-                 "#00FF4DFF", "#00FF4DFF", "#00FF4DFF"))
+               c("#4C00FF", "#00FF4D", "#FFFF00", "#FFFF00", "#FFFF00",
+                 "#FFFF00", "#FFFF00", "#4C00FF", "#4C00FF", "#4C00FF",
+                 "#4C00FF", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D"))
   dat1_2 <- p1_2$layers[geoms1_2 == "GeomPoint"][[1]]$data
   expect_equal(as.character(dat1_2[[".color"]]),
                c("green", "blue", "red", "red", "red", "red", "red", "green",
@@ -223,10 +222,9 @@ test_that("AMMI plot colorGenoBy functions properly", {
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
   dat1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
   expect_equal(as.character(dat1_1[[".color"]]),
-               c("#4C00FFFF", "#00FF4DFF", "#FFFF00FF", "#FFFF00FF",
-                 "#FFFF00FF", "#FFFF00FF", "#FFFF00FF", "#4C00FFFF",
-                 "#4C00FFFF", "#4C00FFFF", "#4C00FFFF", "#00FF4DFF",
-                 "#00FF4DFF", "#00FF4DFF", "#00FF4DFF"))
+               c("#4C00FF", "#00FF4D", "#FFFF00", "#FFFF00", "#FFFF00",
+                 "#FFFF00", "#FFFF00", "#4C00FF", "#4C00FF", "#4C00FF",
+                 "#4C00FF", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D"))
   dat1_2 <- p1_2$layers[geoms1_2 == "GeomPoint"][[1]]$data
   expect_equal(as.character(dat1_2[[".color"]]),
                c("green", "blue", "red", "red", "red", "red", "red", "green",
@@ -240,12 +238,11 @@ test_that("colorEnvBy combined with colorGenoBy functions properly", {
   datG1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
   datE1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
   expect_equal(as.character(datG1_1[[".color"]]),
-               c("#4C00FFFF", "#00FF4DFF", "#FFFF00FF", "#FFFF00FF",
-                 "#FFFF00FF", "#FFFF00FF", "#FFFF00FF", "#4C00FFFF",
-                 "#4C00FFFF", "#4C00FFFF", "#4C00FFFF", "#00FF4DFF",
-                 "#00FF4DFF", "#00FF4DFF", "#00FF4DFF"))
+               c("#4C00FF", "#00FF4D", "#FFFF00", "#FFFF00", "#FFFF00",
+                 "#FFFF00", "#FFFF00", "#4C00FF", "#4C00FF", "#4C00FF",
+                 "#4C00FF", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D"))
   expect_equal(as.character(datE1_1[[".color"]]),
-               c("#4C00FFFF", "#4C00FFFF", "#00E5FFFF"))
+               c("#4C00FF", "#4C00FF", "#00E5FF"))
 
   ## AMMI2
   p1_1 <- plot(geAmmi, plotType = "AMMI2", colorGenoBy = "family",
@@ -254,12 +251,11 @@ test_that("colorEnvBy combined with colorGenoBy functions properly", {
   datG1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
   datE1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
   expect_equal(as.character(datG1_1[[".color"]]),
-               c("#4C00FFFF", "#00FF4DFF", "#FFFF00FF", "#FFFF00FF",
-                 "#FFFF00FF", "#FFFF00FF", "#FFFF00FF", "#4C00FFFF",
-                 "#4C00FFFF", "#4C00FFFF", "#4C00FFFF", "#00FF4DFF",
-                 "#00FF4DFF", "#00FF4DFF", "#00FF4DFF"))
+               c("#4C00FF", "#00FF4D", "#FFFF00", "#FFFF00", "#FFFF00",
+                 "#FFFF00", "#FFFF00", "#4C00FF", "#4C00FF", "#4C00FF",
+                 "#4C00FF", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D"))
   expect_equal(as.character(datE1_1[[".color"]]),
-               c("#4C00FFFF", "#4C00FFFF", "#00E5FFFF"))
+               c("#4C00FF", "#4C00FF", "#00E5FF"))
 })
 
 test_that("AMMI plot plotConvHull functions properly", {
@@ -367,7 +363,7 @@ test_that("stability plot gives correct output types", {
   geStab <- gxeStability(TD = testTD, trait = "t1")
   p1 <- plot(geStab)
   expect_is(p1, "list")
-  expect_length(p1, 5)
+  expect_length(p1, 4)
   lapply(X = p1, FUN = expect_is, "ggplot")
   geStab2 <- gxeStability(TD = testTD, trait = "t1", method = "superiority")
   p2 <- plot(geStab2)

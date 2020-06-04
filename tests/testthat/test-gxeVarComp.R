@@ -12,8 +12,9 @@ test_that("general checks in gxeVarComp function properly", {
 geVCLm <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "lme4")
 test_that("output structure is of the right class for lme4", {
   expect_is(geVCLm, "varComp")
-  expect_named(geVCLm, c("fitMod", "modDat", "nestingFactor", "useLocYear",
-                         "fullRandVC", "aovFullFixedMod", "engine", "diagTabs"))
+  expect_named(geVCLm, c("fitMod", "modDat", "trait", "nestingFactor",
+                         "useLocYear", "fullRandVC", "aovFullFixedMod",
+                         "engine", "diagTabs"))
   expect_is(geVCLm$fitMod, "merMod")
   expect_is(geVCLm$modDat, "data.frame")
   expect_null(geVCLm$nestingFactor)

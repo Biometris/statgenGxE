@@ -65,7 +65,10 @@ summary.stability <- function(object,
 #' the means.
 #'
 #' @param x An object of class stability.
-#' @param ... Further arguments to be passed on to underlying plot functions.
+#' @param ... Further arguments - not used.
+#' @param colorBy A character string indicating a column in the \code{TD} used
+#' as input for the stability analysis by which the genotypes should be
+#' colored. If \code{NULL} all genotypes will be colored black.
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'

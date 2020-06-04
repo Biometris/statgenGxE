@@ -9,7 +9,11 @@
 \arguments{
 \item{x}{An object of class stability.}
 
-\item{...}{Further arguments to be passed on to underlying plot functions.}
+\item{...}{Further arguments - not used.}
+
+\item{colorBy}{A character string indicating a column in the \code{TD} used
+as input for the stability analysis by which the genotypes should be
+colored. If \code{NULL} all genotypes will be colored black.}
 
 \item{output}{Should the plot be output to the current device? If
 \code{FALSE} only a list of ggplot objects is invisibly returned.}
