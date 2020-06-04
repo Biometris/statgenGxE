@@ -1,8 +1,8 @@
 #' S3 class varComp
 #'
 #' Function for creating objects of S3 class varComp.\cr
-#' \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
-#' \code{\link{report}} methods are available.
+#' \code{\link{print}}, \code{\link{summary}}, and \code{\link{plot}} methods
+#' are available.
 #'
 #' @param fitMod A fitted variance components model.
 #' @param modDat A data.frame containing the data used in fitting the model.
@@ -12,6 +12,7 @@
 #' @keywords internal
 createVarComp <- function(fitMod,
                           modDat,
+                          trait,
                           nestingFactor,
                           useLocYear,
                           fullRandVC,
@@ -20,6 +21,7 @@ createVarComp <- function(fitMod,
                           diagTabs) {
   varComp <- structure(list(fitMod = fitMod,
                             modDat = modDat,
+                            trait = trait,
                             nestingFactor = nestingFactor,
                             useLocYear = useLocYear,
                             fullRandVC = fullRandVC,
@@ -228,7 +230,7 @@ predict.varComp <- function(object,
   }
   if (object$engine == "lme4") {
     ## Make predictions for all observations in the data.
-    modDat[["preds"]] <- predict(fitMod)
+    modDat[!is.na(modDat[[object$trait]]), "preds"] <- predict(fitMod)
     ## Compute means per predict level.
     preds <- aggregate(x = modDat[["preds"]], by = modDat[predLevels],
                        FUN = mean, na.rm = TRUE)

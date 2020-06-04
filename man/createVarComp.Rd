@@ -7,6 +7,7 @@
 createVarComp(
   fitMod,
   modDat,
+  trait,
   nestingFactor,
   useLocYear,
   fullRandVC,
@@ -22,8 +23,8 @@ createVarComp(
 }
 \description{
 Function for creating objects of S3 class varComp.\cr
-\code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
-\code{\link{report}} methods are available.
+\code{\link{print}}, \code{\link{summary}}, and \code{\link{plot}} methods
+are available.
 }
 \seealso{
 \code{\link{plot.varComp}}

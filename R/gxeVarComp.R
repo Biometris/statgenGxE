@@ -247,7 +247,8 @@ gxeVarComp <- function(TD,
     fullRandTxt <- paste("~", paste(c(fixedTerms, randTerms), collapse = "+"))
     fullRandMod <- tryCatchExt(asreml::asreml(fixed = formula(paste0("`", trait, "`~ 1")),
                                               random = formula(fullRandTxt),
-                                              data = TDTot, trace = FALSE))
+                                              data = TDTot, maxiter = maxIter,
+                                              trace = FALSE))
     if (!is.null(fullRandMod$warning)) {
       ## Check if param 1% increase is significant. Remove warning if not.
       fullRandMod <- chkLastIter(fullRandMod)
@@ -339,8 +340,9 @@ gxeVarComp <- function(TD,
     }
   }
   ## Create output.
-  res <- createVarComp(fitMod = mr, modDat = TDTot, nestingFactor = nestingFactor,
-                       useLocYear = locationYear, fullRandVC = fullRandVC,
+  res <- createVarComp(fitMod = mr, modDat = TDTot, trait = trait,
+                       nestingFactor = nestingFactor, useLocYear = locationYear,
+                       fullRandVC = fullRandVC,
                        aovFullFixedMod = aovFullFixedMod, engine = engine,
                        diagTabs = diagTabs)
   return(res)
