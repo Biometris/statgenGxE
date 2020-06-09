@@ -20,13 +20,15 @@ dropsTD <- statgenSTA::createTD(data = dropsPheno, genotype = "Variety_ID", tria
 ## Create a box plot of dropsTD.
 ## Color the boxes based on the variable scenarioFull.
 ## Plot in  descending order.
-plot(dropsTD, plotType = "box", traits = "grain.yield", colorBy = "scenarioFull", 
+plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull", 
      orderBy = "descending")
 
-## ----TDscatter, fig.dim = c(7, 7)-------------------------------------------------------
+## ----TDscatter, fig.dim = c(9, 9)-------------------------------------------------------
 ## Create a scatter plot of dropsTD.
 ## Color the genotypes based on the variable genetic_group.
-plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorBy = "genetic_group")
+## Color the histograms for trials based on the variable scenarioFull.
+plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "genetic_group", 
+     colorTrialBy = "scenarioFull")
 
 ## ----geVarComp--------------------------------------------------------------------------
 ## Fit a model where trials are nested within locations
@@ -49,9 +51,12 @@ herit(dropsVarComp)
 plot(dropsVarComp)
 
 ## ----predict----------------------------------------------------------------------------
-## Predictions at a level of the genotypes.
+## Predictions of the genotype main effect.
 predGeno <- predict(dropsVarComp)
 head(predGeno)
+## predictions at the level of genotype x trial.
+predGenoTrial <- predict(dropsVarComp, predictLevel = "trial")
+head(predGenoTrial)
 ## predictions at the level of genotype x location.
 predGenoLoc <- predict(dropsVarComp, predictLevel = "loc")
 head(predGenoLoc)
@@ -63,11 +68,13 @@ summary(dropsFW)
 
 ## ----plotFWScatter, fig.width=5, fig.height=4-------------------------------------------
 ## Create scatter plot for Finlay Wilkinson analysis.
-plot(dropsFW, plotType = "scatter")
+## Color genotypes by genetic_group.
+plot(dropsFW, plotType = "scatter", colorBy = "genetic_group")
 
 ## ----plotFWLine, fig.width=5, fig.height=4----------------------------------------------
 ## Create line plot for Finlay Wilkinson analysis.
-plot(dropsFW, plotType = "line")
+## Color genotypes by genetic_group.
+plot(dropsFW, plotType = "line", colorBy = "genetic_group")
 
 ## ----plotFWTrellis, fig.width=5, fig.height=4-------------------------------------------
 ## Create trellis plot for Finlay Wilkinson analysis.
@@ -76,7 +83,8 @@ plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347",
 
 ## ----plotFWScatterFit, fig.width=5, fig.height=4----------------------------------------
 ## Create scatter plot of fitted values for Finlay Wilkinson analysis.
-plot(dropsFW, plotType = "scatterFit")
+## Color genotypes by genetic_group.
+plot(dropsFW, plotType = "scatterFit", colorBy = "genetic_group")
 
 ## ----geAmmi-----------------------------------------------------------------------------
 ## Run gxeAmmi for grain.yield.
@@ -159,7 +167,9 @@ dropsStab <- gxeStability(TD = dropsTD, trait = "grain.yield")
 summary(dropsStab, pctGeno = 2)
 
 ## ----plotStab---------------------------------------------------------------------------
-plot(dropsStab)
+## Create plots for the different stability measures.
+## Color genotypes by genetic_group.
+plot(dropsStab, colorBy = "genetic_group")
 
 ## ----geStabMegaEnv, R.options=list(digits=3), eval = FALSE------------------------------
 #  ## Compute stability measures based on mega environments computed in the

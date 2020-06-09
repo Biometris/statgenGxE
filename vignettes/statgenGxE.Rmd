@@ -68,7 +68,7 @@ Before doing any analysis, we can first have a look at the contents of the data.
 ## Create a box plot of dropsTD.
 ## Color the boxes based on the variable scenarioFull.
 ## Plot in  descending order.
-plot(dropsTD, plotType = "box", traits = "grain.yield", colorBy = "scenarioFull", 
+plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull", 
      orderBy = "descending")
 ```
 
@@ -76,10 +76,12 @@ From the plot it is clear that the trials in the hot, water deficit environments
 
 For further insight a scatter plot of the trials against each other can be made. 
 
-```{r TDscatter, fig.dim = c(7, 7)} 
+```{r TDscatter, fig.dim = c(9, 9)} 
 ## Create a scatter plot of dropsTD.
 ## Color the genotypes based on the variable genetic_group.
-plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorBy = "genetic_group")
+## Color the histograms for trials based on the variable scenarioFull.
+plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "genetic_group", 
+     colorTrialBy = "scenarioFull")
 ```
 
 ---
@@ -90,23 +92,31 @@ To get a first idea of the structure of the genotype by environment data, a mixe
 
 Six different types of models can be fitted depending on the environmental dimensions of the data. These models are described in the table below, together with the parameters used in `gxeVarComp` to fit the model.
 
-| environmental dimensions | model | parameters |
+| environmental dimensions | model | function parameters |
 |:-----------|:-------------------|:------------|
-| environments correspond to trials | trait = trial + **genotype + genotype:trial** | | trials form a factorial structure of locations x years | trait = year + location + year:location + **genotype + genotype:year + genotype:location + genotype:year:location** | `locationYear = TRUE` |
-| trials are nested within year | trait = year + year:trial + **genotype + genotype:year + genotype:year:trial** | `nestingFactor = "year"` |
-| trials are nested within locations | trait = location + location:trial + **genotype + genotype:location + genotype:location:trial** | `nestingFactor = "loc"` |
-| trials correspond to locations within regions across years | trait = region + region:location + year + region:year + region:location:year + **genotype + genotype:region:location + genotype:year + genotype:region:year + genotype:region:location:year** | `regionLocationYear = TRUE` |
-| trials are nested within scenarios | trait = scenario + scenario:trial + **genotype + genotype:scenario + genotype:scenario:trial** | `nestingFactor = "scenario"` |
+| environments correspond to trials | **trait** = trial + **genotype + genotype:trial** | | trials form a factorial structure of locations x years | **trait** = year + location + year:location + **genotype + genotype:year + genotype:location + genotype:year:location** | `locationYear = TRUE` |
+| trials are nested within year | **trait** = year + year:trial + **genotype + genotype:year + genotype:year:trial** | `nestingFactor = "year"` |
+| trials are nested within locations | **trait** = location + location:trial + **genotype + genotype:location + genotype:location:trial** | `nestingFactor = "loc"` |
+| trials correspond to locations within regions across years | **trait** = region + region:location + year + region:year + region:location:year + **genotype + genotype:region:location + genotype:year + genotype:region:year + genotype:region:location:year** | `regionLocationYear = TRUE` |
+| trials are nested within scenarios | **trait** = scenario + scenario:trial + **genotype + genotype:scenario + genotype:scenario:trial** | `nestingFactor = "scenario"` |
 
-In all models the random part of the model is printed **bold**.     
 *Note that if the data contains replicates or weights are applied (using the option `useWt`) the last model term will be dropped, and estimated as a homogeneous residual.*    
  
-All models can be fitted using either `lme4` or `asreml`.    
+All models can be fitted using either `lme4` or `asreml`.  
 
+For diagnostics purposes and to identify the main sources of variation, all models are fitted three times:      
+
+1. with all terms fixed 
+2. with all terms random
+3. as a mixed model, with the **bold** terms as random and the others as fixed
+
+### Model fitted with all terms as fixed {-}
 The function first fits a model where all model terms are included as fixed terms. Based on the ANOVA table of this model, terms in the fixed part of the model that are likely to give a problem when fitting the mixed model are removed because of the reduced connectivity and number of available observations to estimate that model term. Also a warning is printed if the mean sum of squares for a model term points to a possible zero variance component in the mixed model.    
 
+### Model fitted with all terms as random {-}
 Then a model is fitted where all model terms are included as random terms. Based on the variance components in this model the percentage of variance explained by each of the model components is determined. This is printed in the model summary and plotted as standard deviations of the estimate.    
 
+### Mixed model {-}
 Finally a mixed model is fitted as specified in the table above. Based on these model variance components can be extracted, heritabilities can be computed and predictions can be made. It is also possible to plot the results.
 
 ```{r geVarComp} 
@@ -136,12 +146,15 @@ A plot can be made of the square roots of the variance estimates. These are base
 ## Plot the results of the fitted model.
 plot(dropsVarComp)
 ```
-It is possible to make predictions based on the fitted model using the `predict` function. Predictions can be made on different levels, specified by the parameter `predictLevel`.
+Predictions can be made for model terms that represent different levels of data aggregation; for the genotype main effect or for genotypic performance in grouped environments, or for genotypic performance in individual trials. These levels can be specified by the parameter `predictLevel`.
 
 ```{r predict}
-## Predictions at a level of the genotypes.
+## Predictions of the genotype main effect.
 predGeno <- predict(dropsVarComp)
 head(predGeno)
+## predictions at the level of genotype x trial.
+predGenoTrial <- predict(dropsVarComp, predictLevel = "trial")
+head(predGenoTrial)
 ## predictions at the level of genotype x location.
 predGenoLoc <- predict(dropsVarComp, predictLevel = "loc")
 head(predGenoLoc)
@@ -164,14 +177,16 @@ summary(dropsFW)
 Three types of plots can be made to investigate the output from the analysis. `plotType = "scatter"` creates three scatter plots where genotypic mean, mean squared deviation and sensitivity are plotted against each other. 
 ```{r plotFWScatter, fig.width=5, fig.height=4}
 ## Create scatter plot for Finlay Wilkinson analysis.
-plot(dropsFW, plotType = "scatter")
+## Color genotypes by genetic_group.
+plot(dropsFW, plotType = "scatter", colorBy = "genetic_group")
 ```
 
 With `plotType = "line"` a plot with slopes for all genotypes in the analysis is created. 
 
 ```{r plotFWLine, fig.width=5, fig.height=4}
 ## Create line plot for Finlay Wilkinson analysis.
-plot(dropsFW, plotType = "line")
+## Color genotypes by genetic_group.
+plot(dropsFW, plotType = "line", colorBy = "genetic_group")
 ```
 
 `plotType = "trellis"` creates a trellis plot with observations and slopes per genotype. At most 64 genotypes are plotted. It is possible to select a subset of genotypes for plotting using the parameter `genotypes`.
@@ -186,7 +201,8 @@ plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347",
 
 ```{r plotFWScatterFit, fig.width=5, fig.height=4}
 ## Create scatter plot of fitted values for Finlay Wilkinson analysis.
-plot(dropsFW, plotType = "scatterFit")
+## Color genotypes by genetic_group.
+plot(dropsFW, plotType = "scatterFit", colorBy = "genetic_group")
 ```
 
 ---
@@ -342,7 +358,9 @@ summary(dropsStab, pctGeno = 2)
 ```
 Plotting the results yields a scatter plot for each stability measure, plotted against the genotypic mean.
 ```{r plotStab}
-plot(dropsStab)
+## Create plots for the different stability measures.
+## Color genotypes by genetic_group.
+plot(dropsStab, colorBy = "genetic_group")
 ```
 
 It is possible to calculate the stability measures based on mega environments instead of regular environments. To do so the parameter `useMegaEnv` has to be set to `TRUE`.
