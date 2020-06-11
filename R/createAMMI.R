@@ -445,6 +445,7 @@ plotAMMI1 <- function(loadings,
     if (!is.null(colorEnvBy)) {
       envDat <- merge(envDat, unique(dat[c("trial", colorEnvBy)]),
                       by.x = "row.names", by.y = "trial")
+      envDat[[colorEnvBy]] <- as.factor(envDat[[colorEnvBy]])
       if (length(colEnv) == 0) {
         ## Get number of colors.
         ## Defaults to black for one color for environments and
@@ -617,6 +618,7 @@ plotAMMI2 <- function(loadings,
     if (!is.null(colorEnvBy)) {
       envDat <- merge(envDat, unique(dat[c("trial", colorEnvBy)]),
                       by.x = "row.names", by.y = "trial")
+      envDat[[colorEnvBy]] <- as.factor(envDat[[colorEnvBy]])
       if (length(colEnv) == 0) {
         ## Get number of colors.
         ## Defaults to black for one color for environments and
