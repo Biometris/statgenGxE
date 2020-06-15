@@ -10,6 +10,7 @@ createVarComp(
   trait,
   nestingFactor,
   useLocYear,
+  useRegionLocYear,
   fullRandVC,
   aovFullFixedMod,
   engine,

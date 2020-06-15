@@ -183,7 +183,8 @@ gxeVarComp <- function(TD,
   fullFixedTxt <- paste0("`", trait, "`~",
                          paste(c(fixedTerms, randTerms), collapse = "+"))
   ## Fit the fully fixed model.
-  fullFixedMod <- suppressWarnings(lm(formula(fullFixedTxt), data = TDTot))
+  fullFixedMod <- suppressWarnings(lm(formula(fullFixedTxt), data = TDTot,
+                                      weights = if (useWt) TDTot[["wt"]]))
   aovFullFixedMod <- anova(fullFixedMod)
   rownames(aovFullFixedMod)[nrow(aovFullFixedMod)] <- "residuals"
   ## Get all model terms as used by lm (might involve reordered terms).
@@ -234,7 +235,8 @@ gxeVarComp <- function(TD,
     fullRandTxt <- paste0("`", trait, "`~",
                           paste(paste0("(1|", c(fixedTerms, randTerms), ")"),
                                 collapse = "+"))
-    fullRandMod <- lme4::lmer(formula(fullRandTxt), data = TDTot)
+    fullRandMod <- lme4::lmer(formula(fullRandTxt), data = TDTot,
+                              weights = if (useWt) TDTot[["wt"]])
     fullRandVC <- as.data.frame(lme4::VarCorr(fullRandMod))
     rownames(fullRandVC) <- fullRandVC[["grp"]]
     rownames(fullRandVC)[nrow(fullRandVC)] <- "residuals"
@@ -247,8 +249,8 @@ gxeVarComp <- function(TD,
     fullRandTxt <- paste("~", paste(c(fixedTerms, randTerms), collapse = "+"))
     fullRandMod <- tryCatchExt(asreml::asreml(fixed = formula(paste0("`", trait, "`~ 1")),
                                               random = formula(fullRandTxt),
-                                              data = TDTot, maxiter = maxIter,
-                                              trace = FALSE))
+                                              data = TDTot, weights = "wt",
+                                              maxiter = maxIter, trace = FALSE))
     if (!is.null(fullRandMod$warning)) {
       ## Check if param 1% increase is significant. Remove warning if not.
       fullRandMod <- chkLastIter(fullRandMod)
@@ -342,6 +344,7 @@ gxeVarComp <- function(TD,
   ## Create output.
   res <- createVarComp(fitMod = mr, modDat = TDTot, trait = trait,
                        nestingFactor = nestingFactor, useLocYear = locationYear,
+                       useRegionLocYear = regionLocationYear,
                        fullRandVC = fullRandVC,
                        aovFullFixedMod = aovFullFixedMod, engine = engine,
                        diagTabs = diagTabs)

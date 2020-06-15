@@ -15,6 +15,7 @@ createVarComp <- function(fitMod,
                           trait,
                           nestingFactor,
                           useLocYear,
+                          useRegionLocYear,
                           fullRandVC,
                           aovFullFixedMod,
                           engine,
@@ -24,6 +25,7 @@ createVarComp <- function(fitMod,
                             trait = trait,
                             nestingFactor = nestingFactor,
                             useLocYear = useLocYear,
+                            useRegionLocYear = useRegionLocYear,
                             fullRandVC = fullRandVC,
                             aovFullFixedMod = aovFullFixedMod,
                             engine = engine,
@@ -214,6 +216,8 @@ predict.varComp <- function(object,
   ## Either trial or location x year.
   if (object$useLocYear) {
     envVars <- c("loc", "year")
+  } else if (object$useRegionLocYear) {
+    envVars <- c("region", "loc", "year")
   } else {
     envVars <- "trial"
   }
