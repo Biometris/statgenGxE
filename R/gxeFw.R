@@ -89,7 +89,7 @@ gxeFw <- function(TD,
     stop("TD should be a valid object of class TD.\n")
   }
   trials <- chkTrials(trials, TD)
-  TDTot <- Reduce(f = rbind, x = TD[trials])
+  TDTot <- do.call(rbind, args = TD[trials])
   chkCol(trait, TDTot)
   chkCol("trial", TDTot)
   chkCol("genotype", TDTot)
@@ -134,7 +134,8 @@ gxeFw <- function(TD,
   ## Remove 'trial' from rownames and add column name.
   rownames(envEffs0) <- substring(rownames(envEffs0), first = 6)
   colnames(envEffs0) <- "envEffs"
-  TDTot <- merge(x = TDTot, y = envEffs0, by.x = "trial", by.y = "row.names")
+  TDTot <- merge(x = TDTot, y = envEffs0, by.x = "trial", by.y = "row.names",
+                 sort = FALSE)
   ## Set initial values for sensitivity beta.
   TDTot[["beta"]] <- 1
   ## Set a relative difference to be large.

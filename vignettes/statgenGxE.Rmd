@@ -17,7 +17,8 @@ vignette: >
 knitr::opts_chunk$set(
 collapse = TRUE,
 comment = "#>",
-fig.dim = c(7, 4)
+fig.dim = c(7, 4),
+R.options=list(digits = 3) 
 )
 library(statgenGxE)
 ## Call requireNamespace here to prevent license output in first call in vignette.
@@ -39,7 +40,7 @@ The following types of analysis can be done using statgenGxE:
 * [GGE Analysis](#gge)
 * [Identification of mega environments](#me)
 * [Computation of stability measures](#st)
-* [Select the best variance-covariance model for a set of trials](#vcov)
+* [Modelling of heterogeneity of genetic variances and correlations](#vcov)
 
 For most of the analyses a pdf report can be created automatically, see [Reporting](#rep).
 
@@ -211,7 +212,7 @@ plot(dropsFW, plotType = "scatterFit", colorBy = "genetic_group")
 
 The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with the Multiplicative Interaction effects. Then a principal component analysis is done on the residuals (multiplicative interaction). This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials.  
 
-The model fitted in the analysis is $y_{ij} = \mu + G_i + E_j + \delta_i\gamma_j + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic mean, $E_j$ the environmental mean, $\delta_i$ the environmental scores, $\gamma_j$ the genotypic scores and $\epsilon_{ij}$ the error.
+The model fitted in the analysis is $y_{ij} = \mu + G_i + E_j + \Sigma_{m =1}^M\delta_{mi}\gamma_{mj} + \epsilon_{ij}$, where $M$ is the number of principal components, $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic mean, $E_j$ the environmental mean, $\delta_{mi}$ the environmental scores, $\gamma_{mj}$ the genotypic scores and $\epsilon_{ij}$ the error.
 
 The AMMI analysis can be performed with the statgenGxE package using the function `gxeAmmi`. By default the residuals are not scaled when performing the principal component analysis. Scaling them can be done by setting `scale = TRUE` when calling `gxeAmmi`.
 ```{r geAmmi}
@@ -242,9 +243,9 @@ If the data contains a column year, it is possible to fit a separate AMMI model 
 dropsAmYear <- gxeAmmi(TD = dropsTD, trait = "grain.yield", byYear = TRUE)
 ```
 
-The results of an AMMI analysis can be displayed in a biplot. Two types of biplot are available. "AMMI1" plots the first principal component against the main effects. "AMMI2" plots the second against the first principal component. 
+The results of an AMMI analysis can be displayed in a two types of plot are available. "AMMI1" plots the first principal component against the main effects. "AMMI2" plots the second against the first principal component. 
 ```{r plotAmmi1, fig.width=5, fig.height=5, out.width="75%"}
-## Create an AMMI1 biplot.
+## Create an AMMI1 plot.
 plot(dropsAm, plotType = "AMMI1")
 ```
 
@@ -282,7 +283,7 @@ Genotypes can be left out of the plot completely by setting `plotGeno = FALSE` a
 
 A Genotype plus Genotype by Environment analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. Therefore, the principal component analysis is performed on the genotype main effect and the interaction jointly. 
 
-The model fitted in the GGE analysis is $y_{ij} = \mu + E_j + \delta_i\gamma_j + \epsilon_{ij}$, where the parameters are as described in the AMMI analysis.
+The model fitted in the GGE analysis is $y_{ij} = \mu + E_j + \delta_{1i}\gamma_{1j} + \delta_{2i}\gamma_{2j} + \epsilon_{ij}$, where the parameters are as described in the AMMI analysis.
 
 The GGE analysis is done in statgenGxE by running the function `gxeGGE` which has identical options as the `gxeAmmi` function.
 
@@ -373,7 +374,7 @@ summary(dropsStabME, pctGeno = 2)
 
 ---
 
-# Select the best variance-covariance model for a set of trials{#vcov}
+# Modelling of heterogeneity of genetic variances and correlations{#vcov}
 
 The function `gxeVarCov` allows to fit linear mixed models of diverse complexity. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequentially to the genotype by environment data. The best fitting model is then identified.    
 The models fitted are of the form $y_{ij} = \mu_i + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu_i$ is the genotypic mean and $\epsilon_{ij}$ the residual genetic variation. This residual genetic variation is modeled in eight ways as described in the table below (see [@Boer2007]).

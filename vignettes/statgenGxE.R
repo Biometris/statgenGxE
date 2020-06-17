@@ -2,7 +2,8 @@
 knitr::opts_chunk$set(
 collapse = TRUE,
 comment = "#>",
-fig.dim = c(7, 4)
+fig.dim = c(7, 4),
+R.options=list(digits = 3) 
 )
 library(statgenGxE)
 ## Call requireNamespace here to prevent license output in first call in vignette.
@@ -108,7 +109,7 @@ dropsAm3 <- gxeAmmi(TD = dropsTD, trait = "grain.yield", nPC = 3,
 dropsAmYear <- gxeAmmi(TD = dropsTD, trait = "grain.yield", byYear = TRUE)
 
 ## ----plotAmmi1, fig.width=5, fig.height=5, out.width="75%"------------------------------
-## Create an AMMI1 biplot.
+## Create an AMMI1 plot.
 plot(dropsAm, plotType = "AMMI1")
 
 ## ----plotAmmi2, fig.width=5, fig.height=5, out.width="75%"------------------------------

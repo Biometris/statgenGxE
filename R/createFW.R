@@ -228,17 +228,13 @@ plot.FW <- function(x,
   } else if (plotType == "line") {
     order <- match.arg(order)
     response <- match.arg(response)
-    lineDat <- data.frame(genotype = genoVals[["genotype"]],
-                          trait = genoVals[["genoMean"]],
-                          trial = rep(x = envEffs[["trial"]], each = x$nGeno),
-                          fitted = genoVals[["fitted"]],
-                          envMean = rep(x = envEffs[["envMean"]], each = x$nGeno))
+    lineDat <- merge(genoVals, envEffs, by = "trial")
     if (!is.null(colorBy)) {
       lineDat[[colorBy]] <- genoVals[[colorBy]]
     }
     lineDat <- remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
-    yVar <- ifelse(response == "observed", "trait", "fitted")
+    yVar <- ifelse(response == "observed", "genoMean", "fitted")
     aesArgs <- list(x = "envMean", y = yVar, group = "genotype",
                     color = if (is.null(colorBy)) "genotype" else enquote(colorBy))
     fixedArgs <- c("x", "y", "color", "title")
@@ -273,11 +269,7 @@ plot.FW <- function(x,
     if (!is.null(genotypes) && !all(genotypes %in% TDTot[["genotype"]])) {
       stop("All genotypes should be in TD.\n")
     }
-    trellisDat <- data.frame(genotype = genoVals[["genotype"]],
-                             trait = genoVals[["genoMean"]],
-                             fitted = genoVals[["fitted"]],
-                             envMean = rep(x = envEffs[["envMean"]],
-                                           each = x$nGeno))
+    trellisDat <- merge(genoVals, envEffs, by = "trial")
     if (!is.null(genotypes)) {
       trellisDat <- trellisDat[trellisDat[["genotype"]] %in% genotypes, ]
       trellisDat <- droplevels(trellisDat)
@@ -292,7 +284,7 @@ plot.FW <- function(x,
     trellisDat <- trellisDat[order(trellisDat[["genotype"]],
                                    trellisDat[["envMean"]]), ]
     p <- ggplot(data = trellisDat,
-                aes_string(x = "envMean", y = "trait")) +
+                aes_string(x = "envMean", y = "genoMean")) +
       geom_point() +
       geom_line(data = trellisDat, aes_string(x = "envMean", y = "fitted")) +
       facet_wrap(facets = "genotype") +
