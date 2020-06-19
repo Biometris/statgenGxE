@@ -24,7 +24,7 @@ dropsTD <- statgenSTA::createTD(data = dropsPheno, genotype = "Variety_ID", tria
 plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull", 
      orderBy = "descending")
 
-## ----TDscatter, fig.dim = c(9, 9)-------------------------------------------------------
+## ----TDscatter, fig.dim = c(8.5, 8.5)---------------------------------------------------
 ## Create a scatter plot of dropsTD.
 ## Color the genotypes based on the variable genetic_group.
 ## Color the histograms for trials based on the variable scenarioFull.
@@ -89,8 +89,7 @@ plot(dropsFW, plotType = "scatterFit", colorBy = "genetic_group")
 
 ## ----geAmmi-----------------------------------------------------------------------------
 ## Run gxeAmmi for grain.yield.
-## Scale the residuals before running the principal component analysis.
-dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield", scale = TRUE)
+dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield")
 summary(dropsAm)
 
 ## ----geAmmi2----------------------------------------------------------------------------
@@ -113,7 +112,7 @@ dropsAmYear <- gxeAmmi(TD = dropsTD, trait = "grain.yield", byYear = TRUE)
 plot(dropsAm, plotType = "AMMI1")
 
 ## ----plotAmmi2, fig.width=5, fig.height=5, out.width="75%"------------------------------
-## Create an AMMI2 biplot.
+## Create an AMMI2 biplot with symmetric scaling.
 plot(dropsAm, scale = 0.5, plotType = "AMMI2")
 
 ## ----plotAmmiCol, fig.width=5, fig.height=5, out.width="75%"----------------------------

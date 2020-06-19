@@ -28,18 +28,18 @@ options(width = 90)
 
 # The statgenGxE package {-}
 
-The statgenGxE package is developed as an easy-to-use package for Genotype by Environment (GxE) analysis of data of plant breeding experiments with many options for plotting and reporting the results of the analyses.  
+The statgenGxE package is developed as an easy-to-use package for Genotype by Environment (GxE) analysis for data of plant breeding experiments with many options for plotting and reporting the results of the analyses.  
 
-This vignette describes in detail how to perform the different types of analysis that are available in the package. The availability of functions in the package is mainly based on the analyses described in @vanEeuwijk2016.
+This vignette describes how to perform the different types of analysis that are available in the package. The availability of functions in the package is based on the analyses described in @Malosetti2013.
 
 The following types of analysis can be done using statgenGxE:
 
-* [Mixed model analysis of two-way GxE tables](#vcomp)
+* [Mixed model analysis of GxE tables of means](#vcomp)
 * [Finlay-Wilkinson Analysis](#fw)
 * [AMMI Analysis](#am)
 * [GGE Analysis](#gge)
-* [Identification of mega environments](#me)
-* [Computation of stability measures](#st)
+* [Identifying mega environments](#me)
+* [Stability measures](#st)
 * [Modelling of heterogeneity of genetic variances and correlations](#vcov)
 
 For most of the analyses a pdf report can be created automatically, see [Reporting](#rep).
@@ -48,22 +48,22 @@ For most of the analyses a pdf report can be created automatically, see [Reporti
 
 # Data preparation {#dp}
 
-The use of the package is demonstrated using maize data from the European Union project DROPS. The data is available from https://datae.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN [@Millet2019] and the relevant data set is included as data.frame in the statgenGxE package.
+The use of the package is demonstrated using maize data from the European Union project DROPS (https://cordis.europa.eu/project/id/244374). The data is available from https://datae.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN [@Millet2019] and the relevant data set is included as data.frame in the statgenGxE package.
 
 The first step is loading the data into R. 
 ```{r loadData} 
 data(dropsPheno)
 ```
-dropsPheno contains data for the genotypic means (Best Linear Unbiased Estimators, BLUEs), with one value per experiment per genotype, for a selection of 10 experiments from the full data set and eight traits. These 10 experiments form a good representation of the full set of experiments covering the five scenarios described in @Millet2016. For a more detailed description of the contents of the data see `help(dropsData)`.
+dropsPheno contains data for the genotypic means (Best Linear Unbiased Estimators, BLUEs), with one value per genotype per experiment, for a selection of 10 experiments from the full data set and eight traits. These 10 experiments form a good representation of the full set of experiments covering the five scenarios described in @Millet2016. For a more detailed description of the contents of the data see `help(dropsData)`.
 
-The input for GxE analysis in the statgenGxE package is an object of class TD (Trial Data). For a detailed description on how to construct such an object see the vignette of the statgenSTA package (`vignette("Modeling field trials using statgenSTA")`). For GxE analysis, only specifying the columns in the data containing genotype and trial is usually enough. This is also the case for dropsPheno.
+The input for GxE analysis in the statgenGxE package is an object of class TD (Trial Data). For a detailed description on how to construct such an object see the vignette of the statgenSTA package (`vignette("Modeling field trials using statgenSTA")`). For GxE analysis it is enough to specify the genotype and trial option of the createTD function.
 
 ```{r createTD}
 ## Create a TD object from dropsPheno.
 dropsTD <- statgenSTA::createTD(data = dropsPheno, genotype = "Variety_ID", trial = "Experiment")
 ```
 
-Before doing any analysis, we can first have a look at the contents of the data. To do this a box plot can be made. Coloring the boxes by scenario will provide valuable extra information.
+Before doing any analysis, we can first have a look at the contents of the data. To do this a box plot can be made. Coloring the boxes by environmental scenario will provide valuable extra information.
 
 ```{r TDbox}
 ## Create a box plot of dropsTD.
@@ -73,11 +73,11 @@ plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenario
      orderBy = "descending")
 ```
 
-From the plot it is clear that the trials in the hot, water deficit environments have a lower mean and variance than the other trials.
+From the plot it is clear that the trials in the hot, water deficient environments have a lower median and range than the other trials.
 
 For further insight a scatter plot of the trials against each other can be made. 
 
-```{r TDscatter, fig.dim = c(9, 9)} 
+```{r TDscatter, fig.dim = c(8.5, 8.5)} 
 ## Create a scatter plot of dropsTD.
 ## Color the genotypes based on the variable genetic_group.
 ## Color the histograms for trials based on the variable scenarioFull.
@@ -87,13 +87,13 @@ plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "genet
 
 ---
 
-# Mixed model analysis of two-way GxE tables {#vcomp}
+# Mixed model analysis of GxE tables of means {#vcomp}
 
-To get a first idea of the structure of the genotype by environment data, a mixed model can be fitted. In the statgenGxE package this can be done using the `gxeVarComp` function. Based on the structure of the genotype by environment table of observations and the chosen parameters this function will fit a model best fitting to the data.    
+To get a first idea of the structure of the genotype by environment data, a mixed model can be fitted. In the statgenGxE package this can be done using the `gxeVarComp` function. 
 
-Six different types of models can be fitted depending on the environmental dimensions of the data. These models are described in the table below, together with the parameters used in `gxeVarComp` to fit the model.
+Six different types of models can be fitted depending on the structure of the environments in the data. These models are described in the table below, together with the parameters used in `gxeVarComp` to fit the model.
 
-| environmental dimensions | model | function parameters |
+| structure of environments | model | function parameters |
 |:-----------|:-------------------|:------------|
 | environments correspond to trials | **trait** = trial + **genotype + genotype:trial** | | trials form a factorial structure of locations x years | **trait** = year + location + year:location + **genotype + genotype:year + genotype:location + genotype:year:location** | `locationYear = TRUE` |
 | trials are nested within year | **trait** = year + year:trial + **genotype + genotype:year + genotype:year:trial** | `nestingFactor = "year"` |
@@ -101,9 +101,9 @@ Six different types of models can be fitted depending on the environmental dimen
 | trials correspond to locations within regions across years | **trait** = region + region:location + year + region:year + region:location:year + **genotype + genotype:region:location + genotype:year + genotype:region:year + genotype:region:location:year** | `regionLocationYear = TRUE` |
 | trials are nested within scenarios | **trait** = scenario + scenario:trial + **genotype + genotype:scenario + genotype:scenario:trial** | `nestingFactor = "scenario"` |
 
-*Note that if the data contains replicates or weights are applied (using the option `useWt`) the last model term will be dropped, and estimated as a homogeneous residual.*    
+*Note that if the data contains replicates or weights are applied (using the option `useWt`) the last term for each model will be dropped, and replaced by a homogeneous residual.*    
  
-All models can be fitted using either `lme4` or `asreml`.  
+All models can be fitted using either `lme4` or `asreml`. This can be specified using the `engine` parameter.   
 
 For diagnostics purposes and to identify the main sources of variation, all models are fitted three times:      
 
@@ -115,10 +115,10 @@ For diagnostics purposes and to identify the main sources of variation, all mode
 The function first fits a model where all model terms are included as fixed terms. Based on the ANOVA table of this model, terms in the fixed part of the model that are likely to give a problem when fitting the mixed model are removed because of the reduced connectivity and number of available observations to estimate that model term. Also a warning is printed if the mean sum of squares for a model term points to a possible zero variance component in the mixed model.    
 
 ### Model fitted with all terms as random {-}
-Then a model is fitted where all model terms are included as random terms. Based on the variance components in this model the percentage of variance explained by each of the model components is determined. This is printed in the model summary and plotted as standard deviations of the estimate.    
+Then a model is fitted where all model terms are included as random terms. Based on the variance components in this model the percentage of variance explained by each of the model components is determined. This is printed in the model summary and plotted as standard deviations.    
 
 ### Mixed model {-}
-Finally a mixed model is fitted as specified in the table above. Based on these model variance components can be extracted, heritabilities can be computed and predictions can be made. It is also possible to plot the results.
+Finally a mixed model is fitted as specified in the table above. Based on this model variance components can be extracted, heritabilities can be computed and predictions can be made. It is also possible to plot the results.
 
 ```{r geVarComp} 
 ## Fit a model where trials are nested within locations
@@ -126,14 +126,14 @@ dropsVarComp <- gxeVarComp(TD = dropsTD, trait = "grain.yield", nestingFactor = 
 summary(dropsVarComp)
 
 ```
-The diagnostics for the fitted model can be printed using the `diagnostics` function. This will print a table of missing values for each of the terms in the random part of the fitted model.
+The diagnostics for the fitted model can be printed using the `diagnostics` function. This will print an incidence matrix of missing values for each of the terms in the random part of the fitted model.
 
 ```{r diag, eval=FALSE}
 ## Print diagnostics - output suppressed because of the large number of rows.
 diagnostics(dropsVarComp)
 ```
 
-Extracting the variance components from the fitted model can be done using the `vc` function. The heritability is computed using `herit`.
+Extracting the variance components from the fitted model can be done using the `vc` function. The heritability (across trials) is computed using `herit`.
 
 ```{r vcHerit}
 ## Extract variance components.
@@ -147,7 +147,7 @@ A plot can be made of the square roots of the variance estimates. These are base
 ## Plot the results of the fitted model.
 plot(dropsVarComp)
 ```
-Predictions can be made for model terms that represent different levels of data aggregation; for the genotype main effect or for genotypic performance in grouped environments, or for genotypic performance in individual trials. These levels can be specified by the parameter `predictLevel`.
+Predictions for the mixed model can be made for model terms that represent different levels of data aggregation; for the genotype main effect or for genotypic performance in grouped environments, or for genotypic performance in individual trials. These levels can be specified by the parameter `predictLevel`.
 
 ```{r predict}
 ## Predictions of the genotype main effect.
@@ -165,9 +165,9 @@ head(predGenoLoc)
 
 # Finlay-Wilkinson Analysis {#fw}
 
-With the Finlay-Wilkinson Analysis [@Finlay1963] a modified joint regression analysis is used to rank genotypes based on phenotypic stability for each individual trait.
+With the Finlay-Wilkinson Analysis [@Finlay1963] we describe genotype by environment interaction by the heterogeneity of the slopes of a regression of individual genotypic performance on an environmental index. The environmental index is the average of all genotypes in an environment. The intercept expresses general performance across all environments, the slope represents adaptability, and the residuals may indicate a measure for stability.
 
-The model fitted in the analysis is $y_{ij} = \mu + G_i + \beta_iE_j + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic mean, $\beta_i$ the sensitivity parameters, $E_j$ the environment effects and $\epsilon_{ij}$ the error.
+The model fitted in the analysis is $y_{ij} = \mu + G_i + \beta_iE_j + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic effect, $\beta_i$ a sensitivity parameters, $E_j$ the environment effect and $\epsilon_{ij}$ a residual.
 
 In the statgenGxE package this analysis can be done using the `gxeFW` function. By default all trials in the `TD` object are used in the analysis, but this can be restricted using the parameter `trials`. The genotypes included in the analysis can be restricted using `genotypes`.
 ```{r geFW}
@@ -175,14 +175,14 @@ In the statgenGxE package this analysis can be done using the `gxeFW` function. 
 dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")
 summary(dropsFW)
 ```
-Three types of plots can be made to investigate the output from the analysis. `plotType = "scatter"` creates three scatter plots where genotypic mean, mean squared deviation and sensitivity are plotted against each other. 
+Three types of plots can be made to investigate the output from the analysis. `plotType = "scatter"` creates three scatter plots where genotypic mean, square root of the mean squared deviation and sensitivity are plotted against each other. 
 ```{r plotFWScatter, fig.width=5, fig.height=4}
 ## Create scatter plot for Finlay Wilkinson analysis.
 ## Color genotypes by genetic_group.
 plot(dropsFW, plotType = "scatter", colorBy = "genetic_group")
 ```
 
-With `plotType = "line"` a plot with slopes for all genotypes in the analysis is created. 
+With `plotType = "line"` a plot with fitted lines for all genotypes in the analysis is created. 
 
 ```{r plotFWLine, fig.width=5, fig.height=4}
 ## Create line plot for Finlay Wilkinson analysis.
@@ -210,24 +210,23 @@ plot(dropsFW, plotType = "scatterFit", colorBy = "genetic_group")
 
 # AMMI Analysis {#am}
 
-The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with the Multiplicative Interaction effects. Then a principal component analysis is done on the residuals (multiplicative interaction). This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials.  
+The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with Multiplicative Interaction effects. The additive effects are the classical ANOVA main effects for genotype and environment, the multiplicative effects follow from a principal component analysis on the interaction residuals (=genotype by environment means after adjustment for additive genotype and environment effects. This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials.  
 
-The model fitted in the analysis is $y_{ij} = \mu + G_i + E_j + \Sigma_{m =1}^M\delta_{mi}\gamma_{mj} + \epsilon_{ij}$, where $M$ is the number of principal components, $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic mean, $E_j$ the environmental mean, $\delta_{mi}$ the environmental scores, $\gamma_{mj}$ the genotypic scores and $\epsilon_{ij}$ the error.
+The model fitted in the analysis is $y_{ij} = \mu + G_i + E_j + \Sigma_{m =1}^M\gamma_{mi}\delta_{mj} + \epsilon_{ij}$, where $M$ is the number of principal components, $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic effect, $E_j$ the environmental effect, $\gamma_{mi}$ the genotypic scores, $\delta_{mj}$ the environmental scores, and $\epsilon_{ij}$ a residual.
 
-The AMMI analysis can be performed with the statgenGxE package using the function `gxeAmmi`. By default the residuals are not scaled when performing the principal component analysis. Scaling them can be done by setting `scale = TRUE` when calling `gxeAmmi`.
+The AMMI analysis can be performed with the statgenGxE package using the function `gxeAmmi`. 
 ```{r geAmmi}
 ## Run gxeAmmi for grain.yield.
-## Scale the residuals before running the principal component analysis.
-dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield", scale = TRUE)
+dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield")
 summary(dropsAm)
 ```
-With the default settings in the principal components analysis a maximum of two principal components are used. This can be changed using the parameter `nPC` in the function. The number of principal components can never be larger than the number of environments and the number of genotypes in the data -1. By specifying `nPC = NULL` the algorithm will determine the number of principal components by a method of forward selection.
+With the default settings in the AMMI analysis a maximum of two principal components are used. This can be changed using the parameter `nPC` in the function. The number of principal components should be lower than the smallest of the number of genotypes or environments minus one. By specifying `nPC = NULL` the algorithm will determine the number of principal components by a method of forward selection.
 ```{r geAmmi2}
 ## Run gxeAmmi. Let algorithm determine number of principal components.
 dropsAm2 <- gxeAmmi(TD = dropsTD, trait = "grain.yield", nPC = NULL)
 summary(dropsAm2)
 ```
-From the summary it is clear that the final number of principal components, determined by forward selection, is 7.
+From the summary it is clear that the final number of principal components, determined by forward selection, is seven.
 
 It is possible to exclude certain genotypes, e.g. outliers, from the analysis using the parameter `excludeGeno`.
 
@@ -249,10 +248,14 @@ The results of an AMMI analysis can be displayed in a two types of plot are avai
 plot(dropsAm, plotType = "AMMI1")
 ```
 
-In AMMI2 biplots the parameter `scale`, a value between 0 and 1, can be used for changing the ratio between environmental scores and genotypic scores. A scale value of 0 stands for genotype scaling, i.e. all weight on the genotypic scores and the environments contracted towards the center. A scale value of 1 stands for environment scaling, i.e. all weight on the environment scores and the genotypes contracted towards the center. Symmetric scaling, using a scale value of 0.5, applies equal weights to environment and genotypic scores.  
+AMMI biplots appear in three forms [@Gower1996]: 
+
+1) genotype scaling, with emphasis on approximation of relations between genotypes (scale = 0)
+2) environment scaling, with emphasis on approximation of relations between environments (scale = 1)
+3) symmetric scaling, a compromise (scale = 0.5)
 
 ```{r plotAmmi2, fig.width=5, fig.height=5, out.width="75%"}
-## Create an AMMI2 biplot.
+## Create an AMMI2 biplot with symmetric scaling.
 plot(dropsAm, scale = 0.5, plotType = "AMMI2")
 ```
 
@@ -281,9 +284,9 @@ Genotypes can be left out of the plot completely by setting `plotGeno = FALSE` a
 
 # GGE Analysis {#gge}
 
-A Genotype plus Genotype by Environment analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. Therefore, the principal component analysis is performed on the genotype main effect and the interaction jointly. 
+A Genotype plus Genotype by Environment analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. Therefore, the principal component analysis is performed on the genotype main effect and the interaction jointly. In essence, the GGE analysis fit a principal components model with two components to the two-way genotype by environment table with data centred per environment.
 
-The model fitted in the GGE analysis is $y_{ij} = \mu + E_j + \delta_{1i}\gamma_{1j} + \delta_{2i}\gamma_{2j} + \epsilon_{ij}$, where the parameters are as described in the AMMI analysis.
+The model fitted in the GGE analysis is $y_{ij} = \mu + E_j + \gamma_{1i}\delta_{1j} + \gamma_{2i}\delta_{2j} + \epsilon_{ij}$, where the parameters are as described in the AMMI analysis.
 
 The GGE analysis is done in statgenGxE by running the function `gxeGGE` which has identical options as the `gxeAmmi` function.
 
@@ -294,7 +297,6 @@ summary(dropsGGE)
 ```
 
 Options for plotting results of a GGE analysis are identical to those for an AMMI analysis.
-`plotType` "GGE1" and "GGE2" may be used as substitutes for "AMMI1" and "AMMI2", but the latter are valid options as well.
 ```{r plotGGE, fig.width=5, fig.height=5, out.width="75%"}
 ## Create a GGE2 biplot.
 plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
@@ -302,7 +304,7 @@ plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 
 ---
 
-# Computation of mega environments {#me}
+# Identifying mega environments {#me}
 
 For the computation of mega environments, an AMMI model is fitted and then, using the fitted values from this model, the environments are clustered.
 Mega environments are created by grouping environments based on their best performing genotype. Environments that share the same best genotype belong to the same mega environment.  
@@ -339,7 +341,7 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
 
 ---
 
-# Computation of stability measures {#st}
+# Stability measures {#st}
 
 Different measures of stability can be calculated using the statgenGxE package, the cultivar-superiority measure of Lin & Binns [@Lin1988], Shukla's stability variance [@Shukla1972] and Wricke's ecovalence [@Wricke1962].
 
@@ -409,7 +411,7 @@ if (requireNamespace("asreml", quietly = TRUE)) {
   summary(dropsVC2)
 }
 ```
-`r if (exists("dropsVC2")) {"As becomes clear from the summary, the best model based on AIC is the model with an unstructured variance-covariance structure. This indicates the presence of GxE in the data."  }` 
+`r if (exists("dropsVC2")) {"As becomes clear from the summary, the best model based on AIC is the model with an unstructured variance-covariance structure. This indicates that GxE is present in the form of heterogeneity of genetic variances and correlations.."  }` 
 
 *Note that for both factor analytic models to be fitted a minimum of five environments is needed. If the data contains less environments, those two models are skipped.*
 
