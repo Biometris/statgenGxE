@@ -259,7 +259,7 @@ plot.FW <- function(x,
       coord_equal(xlim = plotLims, ylim = plotLims) +
       theme(legend.position = if (is.null(colorBy)) "none" else "right",
             plot.title = element_text(hjust = 0.5),
-            axis.text.x = element_text(angle = 90, hjust = 1)) +
+            axis.text.x.top = element_text(angle = 90, hjust = 1)) +
       labs(title = plotTitle, x = NULL, y = trait)
     if (output) {
       plot(p)
