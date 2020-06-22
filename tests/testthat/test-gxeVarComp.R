@@ -114,7 +114,7 @@ test_that("predict function functions correctly", {
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   predVCAs <- predict(geVCAs)
   expect_is(predVCAs, "data.frame")
-  expect_named(predVCAs, c("genotype", "predictedValue"))
+  expect_named(predVCAs, c("genotype", "predictedValue", "stdError"))
   expect_equal(predVCAs[["predictedValue"]],
                c(79.2972526743991, 76.7659940829781, 92.0192766258885,
                  82.2722003237363, 79.6753627428021, 88.8005912968726,
@@ -148,7 +148,7 @@ test_that("option predictLevel in predict function functions correctly", {
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   predVCAsTr <- predict(geVCAs, predictLevel = "trial")
   expect_is(predVCAsTr, "data.frame")
-  expect_named(predVCAsTr, c("genotype", "trial", "predictedValue"))
+  expect_named(predVCAsTr, c("genotype", "trial", "predictedValue", "stdError"))
   expect_equal(predVCAsTr[["predictedValue"]],
                c(77.4966006205341, 76.3673421371746, 84.0278152200104,
                  74.9653420188325, 73.8360835354731, 81.4965566183088,

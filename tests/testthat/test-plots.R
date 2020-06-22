@@ -49,7 +49,7 @@ test_that("AMMI plot plotType options function properly", {
   p1b <- plot(geAmmi, plotType = "GGE2")
   p2 <- plot(geGGE)
   expect_equal(p1a, p1b)
-  expect_equal(p2$labels$title, "GGE biplot for t1 ")
+  expect_equal(p2$labels$title, "GGE biplot for t1 (environment scaling) ")
 })
 
 test_that("AMMI plot scale option functions properly", {
@@ -261,11 +261,21 @@ test_that("colorEnvBy combined with colorGenoBy functions properly", {
 test_that("AMMI plot plotConvHull functions properly", {
   ## plotConvHull should be ignored for AMMI1.
   expect_equal(p0_1, plot(geAmmi, plotConvHull = TRUE))
-  ## For AMMI2 there should be two extra layers.
+  ## For AMMI2 there should be an extra layers.
   p1_2 <- plot(geAmmi, plotType = "AMMI2", plotConvHull = TRUE)
   geoms0_2 <- sapply(p0_2$layers, function(x) class(x$geom)[1])
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
-  expect_setequal(geoms1_2[-match(geoms0_2, geoms1_2)],
+  expect_setequal(geoms1_2[-match(geoms0_2, geoms1_2)], "GeomPolygon")
+})
+
+test_that("GGE plot plotConvHull functions properly", {
+  geGGE <- gxeGGE(TD = BLUEs, trait = "t1")
+  ## For GGE2 there should be two extra layers.
+  p_1 <- plot(geGGE, plotType = "GGE2")
+  p_2 <- plot(geGGE, plotType = "GGE2", plotConvHull = TRUE)
+  geoms_1 <- sapply(p_1$layers, function(x) class(x$geom)[1])
+  geoms_2 <- sapply(p_2$layers, function(x) class(x$geom)[1])
+  expect_setequal(geoms_2[-match(geoms_1, geoms_2)],
                   c("GeomPolygon", "GeomSegment"))
 })
 
@@ -389,7 +399,7 @@ test_that("colorBy functions correctly in stability plot", {
 ## varCov
 
 test_that("VarCov plot gives correct output types", {
-  geVarCov <- gxeVarCov(TD = testTD, trait = "t1")
+  geVarCov <- gxeVarCov(TD = BLUEs, trait = "t1")
   p <- plot(geVarCov)
   geoms <- sapply(p$layers, function(x) class(x$geom)[1])
   expect_is(p, "ggplot")
@@ -399,10 +409,10 @@ test_that("VarCov plot gives correct output types", {
 ## melting data in the plot function caused an error when trials have a
 ## numerical value. This should not be the case.
 test_that("VarCov plot gives correct output types when trials are numerical", {
-  for (trial in seq_along(testTD)) {
-    levels(testTD[[trial]][["trial"]]) <- 1:3
+  for (trial in seq_along(BLUEs)) {
+    levels(BLUEs[[trial]][["trial"]]) <- trial
   }
-  geVarCov <- gxeVarCov(TD = testTD, trait = "t1")
+  geVarCov <- gxeVarCov(TD = BLUEs, trait = "t1")
   expect_silent(p <- plot(geVarCov))
 })
 
