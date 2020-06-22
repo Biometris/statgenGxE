@@ -79,9 +79,9 @@ For further insight a scatter plot of the trials against each other can be made.
 
 ```{r TDscatter, fig.dim = c(8.5, 8.5)} 
 ## Create a scatter plot of dropsTD.
-## Color the genotypes based on the variable genetic_group.
+## Color the genotypes based on the variable geneticGroup.
 ## Color the histograms for trials based on the variable scenarioFull.
-plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "genetic_group", 
+plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "geneticGroup", 
      colorTrialBy = "scenarioFull")
 ```
 
@@ -178,16 +178,16 @@ summary(dropsFW)
 Three types of plots can be made to investigate the output from the analysis. `plotType = "scatter"` creates three scatter plots where genotypic mean, square root of the mean squared deviation and sensitivity are plotted against each other. 
 ```{r plotFWScatter, fig.width=5, fig.height=4}
 ## Create scatter plot for Finlay Wilkinson analysis.
-## Color genotypes by genetic_group.
-plot(dropsFW, plotType = "scatter", colorBy = "genetic_group")
+## Color genotypes by geneticGroup.
+plot(dropsFW, plotType = "scatter", colorBy = "geneticGroup")
 ```
 
 With `plotType = "line"` a plot with fitted lines for all genotypes in the analysis is created. 
 
 ```{r plotFWLine, fig.width=5, fig.height=4}
 ## Create line plot for Finlay Wilkinson analysis.
-## Color genotypes by genetic_group.
-plot(dropsFW, plotType = "line", colorBy = "genetic_group")
+## Color genotypes by geneticGroup.
+plot(dropsFW, plotType = "line", colorBy = "geneticGroup")
 ```
 
 `plotType = "trellis"` creates a trellis plot with observations and slopes per genotype. At most 64 genotypes are plotted. It is possible to select a subset of genotypes for plotting using the parameter `genotypes`.
@@ -202,8 +202,8 @@ plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347",
 
 ```{r plotFWScatterFit, fig.width=5, fig.height=4}
 ## Create scatter plot of fitted values for Finlay Wilkinson analysis.
-## Color genotypes by genetic_group.
-plot(dropsFW, plotType = "scatterFit", colorBy = "genetic_group")
+## Color genotypes by geneticGroup.
+plot(dropsFW, plotType = "scatterFit", colorBy = "geneticGroup")
 ```
 
 ---
@@ -264,10 +264,10 @@ Genotypes can be grouped and colored by a variable in the data using `colorGenoB
 .  
 ```{r plotAmmiCol, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI2 biplot.
-## Color genotypes based on variable genetic_group. Use custom colors.
+## Color genotypes based on variable geneticGroup. Use custom colors.
 ## Color environments based on variable scenarioFull
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", 
-     colorGenoBy = "genetic_group", colGeno = c("red", "blue", "green", "yellow"),
+     colorGenoBy = "geneticGroup", colGeno = c("red", "blue", "green", "yellow"),
      colorEnvBy = "scenarioFull")
 
 ```
@@ -334,8 +334,8 @@ The results of the predictions can be visualized in a scatterplot using the `plo
 ```{r scatterMegaEnv}
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Create a scatter plot of predictions in mega environments.
-  ## Color genotypes based on genetic_group.
-  plot(dropsMegaEnv, engine = "asreml", colorBy = "genetic_group")
+  ## Color genotypes based on geneticGroup.
+  plot(dropsMegaEnv, engine = "asreml", colorBy = "geneticGroup")
 }
 ```
 
@@ -362,8 +362,8 @@ summary(dropsStab, pctGeno = 2)
 Plotting the results yields a scatter plot for each stability measure, plotted against the genotypic mean.
 ```{r plotStab}
 ## Create plots for the different stability measures.
-## Color genotypes by genetic_group.
-plot(dropsStab, colorBy = "genetic_group")
+## Color genotypes by geneticGroup.
+plot(dropsStab, colorBy = "geneticGroup")
 ```
 
 It is possible to calculate the stability measures based on mega environments instead of regular environments. To do so the parameter `useMegaEnv` has to be set to `TRUE`.

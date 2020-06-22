@@ -6,6 +6,8 @@ dropsPheno <- read.csv(unz(description = phenoFile,
 ## Load genotype meta data.
 genoMeta <- read.csv(system.file("extdata", "8-Info_Maize_variety.csv",
                                  package = "statgenGxE"))
+## Rename genetic_group geneticGroup for consistency.
+colnames(genoMeta)[colnames(genoMeta) == "genetic_group"] <- "geneticGroup"
 
 ## Restrict to 10 relevant environments.
 exps <- c("Cam12R", "Cra12R", "Gai12W", "Kar12W", "Kar13R", "Kar13W",
@@ -33,7 +35,7 @@ dropsPheno[["scenarioFull"]] <- interaction(dropsPheno[c("scenarioWater",
                                             drop = TRUE)
 
 ## Add genetic groups.
-dropsPheno <- merge(dropsPheno, genoMeta[c("Variety_ID", "genetic_group")])
+dropsPheno <- merge(dropsPheno, genoMeta[c("Variety_ID", "geneticGroup")])
 
 dropsPheno <- droplevels(dropsPheno)
 

@@ -51,7 +51,7 @@
 #' Hot(Day)}
 #' \item{scenarioFull}{the full scenario for the experiment, a combination of
 #' scenarioWater and scenarioTemp}
-#' \item{genetic_group}{the genetic group to which the genotype belongs}
+#' \item{geneticGroup}{the genetic group to which the genotype belongs}
 #' }
 #'
 #' @source \url{https://data.inrae.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN}

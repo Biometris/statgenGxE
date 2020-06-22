@@ -26,9 +26,9 @@ plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenario
 
 ## ----TDscatter, fig.dim = c(8.5, 8.5)---------------------------------------------------
 ## Create a scatter plot of dropsTD.
-## Color the genotypes based on the variable genetic_group.
+## Color the genotypes based on the variable geneticGroup.
 ## Color the histograms for trials based on the variable scenarioFull.
-plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "genetic_group", 
+plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "geneticGroup", 
      colorTrialBy = "scenarioFull")
 
 ## ----geVarComp--------------------------------------------------------------------------
@@ -69,13 +69,13 @@ summary(dropsFW)
 
 ## ----plotFWScatter, fig.width=5, fig.height=4-------------------------------------------
 ## Create scatter plot for Finlay Wilkinson analysis.
-## Color genotypes by genetic_group.
-plot(dropsFW, plotType = "scatter", colorBy = "genetic_group")
+## Color genotypes by geneticGroup.
+plot(dropsFW, plotType = "scatter", colorBy = "geneticGroup")
 
 ## ----plotFWLine, fig.width=5, fig.height=4----------------------------------------------
 ## Create line plot for Finlay Wilkinson analysis.
-## Color genotypes by genetic_group.
-plot(dropsFW, plotType = "line", colorBy = "genetic_group")
+## Color genotypes by geneticGroup.
+plot(dropsFW, plotType = "line", colorBy = "geneticGroup")
 
 ## ----plotFWTrellis, fig.width=5, fig.height=4-------------------------------------------
 ## Create trellis plot for Finlay Wilkinson analysis.
@@ -84,8 +84,8 @@ plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347",
 
 ## ----plotFWScatterFit, fig.width=5, fig.height=4----------------------------------------
 ## Create scatter plot of fitted values for Finlay Wilkinson analysis.
-## Color genotypes by genetic_group.
-plot(dropsFW, plotType = "scatterFit", colorBy = "genetic_group")
+## Color genotypes by geneticGroup.
+plot(dropsFW, plotType = "scatterFit", colorBy = "geneticGroup")
 
 ## ----geAmmi-----------------------------------------------------------------------------
 ## Run gxeAmmi for grain.yield.
@@ -117,10 +117,10 @@ plot(dropsAm, scale = 0.5, plotType = "AMMI2")
 
 ## ----plotAmmiCol, fig.width=5, fig.height=5, out.width="75%"----------------------------
 ## Create an AMMI2 biplot.
-## Color genotypes based on variable genetic_group. Use custom colors.
+## Color genotypes based on variable geneticGroup. Use custom colors.
 ## Color environments based on variable scenarioFull
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", 
-     colorGenoBy = "genetic_group", colGeno = c("red", "blue", "green", "yellow"),
+     colorGenoBy = "geneticGroup", colGeno = c("red", "blue", "green", "yellow"),
      colorEnvBy = "scenarioFull")
 
 
@@ -156,8 +156,8 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
 ## ----scatterMegaEnv---------------------------------------------------------------------
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Create a scatter plot of predictions in mega environments.
-  ## Color genotypes based on genetic_group.
-  plot(dropsMegaEnv, engine = "asreml", colorBy = "genetic_group")
+  ## Color genotypes based on geneticGroup.
+  plot(dropsMegaEnv, engine = "asreml", colorBy = "geneticGroup")
 }
 
 ## ----geStab, R.options=list(digits=3)---------------------------------------------------
@@ -168,8 +168,8 @@ summary(dropsStab, pctGeno = 2)
 
 ## ----plotStab---------------------------------------------------------------------------
 ## Create plots for the different stability measures.
-## Color genotypes by genetic_group.
-plot(dropsStab, colorBy = "genetic_group")
+## Color genotypes by geneticGroup.
+plot(dropsStab, colorBy = "geneticGroup")
 
 ## ----geStabMegaEnv, R.options=list(digits=3), eval = FALSE------------------------------
 #  ## Compute stability measures based on mega environments computed in the
