@@ -353,8 +353,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">## Create a box plot of dropsTD.</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="co">## Color the boxes based on the variable scenarioFull.</span></span>
 <span id="cb3-3"><a href="#cb3-3"></a><span class="co">## Plot in  descending order.</span></span>
-<span id="cb3-4"><a href="#cb3-4"></a><span class="kw">plot</span>(dropsTD, <span class="dt">plotType =</span> <span class="st">&quot;box&quot;</span>, <span class="dt">traits =</span> <span class="st">&quot;grain.yield&quot;</span>, <span class="dt">colorTrialBy =</span> <span class="st">&quot;scenarioFull&quot;</span>, </span>
-<span id="cb3-5"><a href="#cb3-5"></a>     <span class="dt">orderBy =</span> <span class="st">&quot;descending&quot;</span>)</span></code></pre></div>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="kw">plot</span>(dropsTD, <span class="dt">plotType =</span> <span class="st">&quot;box&quot;</span>, <span class="dt">traits =</span> <span class="st">&quot;grain.yield&quot;</span>, <span class="dt">colorTrialBy =</span> <span class="st">&quot;scenarioFull&quot;</span>,      <span class="dt">orderBy =</span> <span class="st">&quot;descending&quot;</span>)</span></code></pre></div>
 <p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqAAAAGACAMAAABFpiBcAAAA/1BMVEUAAAAAADoAAGYAOmYAOpAAZrYAsPYAv30zMzM6AAA6ADo6AGY6OmY6OpA6ZrY6kNtNTU1NTW5NTY5Nbm5NbqtNjshmAABmADpmAGZmOgBmOjpmOpBmZmZmtrZmtv9uTU1uTW5uTY5ubqtuq+SOTU2OTW6OTY6OyP+QOgCQOjqQOmaQkDqQtpCQ27aQ2/+jpQCrbk2rbm6rbo6rq+SryKur5P+2ZgC2Zjq225C22/+2///Ijk3Ijo7I/8jI///bkDrb/7bb/9vb///kq27k/8jk///na/Py8vL4dm3/tmb/yI7/25D/27b/29v/5Kv/5OT//7b//8j//9v//+T///+5bMhNAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAUW0lEQVR4nO2dC1/cyJVHsXfY2DO7oe21ndeGeeAZe5IM40likoUsnZg4CU3C8tD3/yyrUvUL+qG6V/W4Euf8bGjov8vVrdOlKqlK2qkADLNTugIA20BQMA2CgmkQFEyzVdDLL0+r6mw0Gj0/zVUfgDtsE3TSiHnyJltlAO6zRdCTZ7+vW9DbH94vx+EhkFy7cFp38dev611804g+qbFUdUiFpa3cKujlF++XWlFLVYdUWNrK7YMkx7wfaqnqkApLWxlBYQVLW7lV0MmLj9Xtb09D4jAQLG3loOOgz94HxWEgWNrKwrpYqjqkwtJWRlBYwdJWRlBYwdJWRlBYwdJWjijokydPOlUFrDBMQd2ZUAwdBAgKpkFQMM0wBaUPOhgGKigMBUtbGUFhBUtbGUFhBUtbGUFhBUtbGUFhBUtbOaagDOIHAoKCaRBUE4dsIKgmDtlAUE0csoGgmjhkA0E1ccgGgmrikA0E1cQhGwiqiUM2EFQTh2wgqCYO2UBQTRyygaCaOGQDQTVxyAaCauIInQ0E1cQRNBsIqokjaDYQVBNH0GwgqCaOoNlAUE1cmOc6J3oQVBOX5blSVAcQVBNH0GwgqCaOoNlAUE2cPmg2EFQTZxSfDQTVxBE0GwiqiSNoNhBUE0fQbCCoJo6g2UBQTRxBs4GgmjiCZgNBNXEEzQaCauIImg0E1cQRNBsIqomzJi8bwxD0SQBby0JQqwxE0H+0gqD9BEF9AcKqImguENQXIKwqguYCQX0BwqoiaC4Q1BcgrCqC5gJBfQHCqiJoLhDUFyCsKoLmAkF9AcKqphWUNUwLENQXIKxqUkFZBboEgvoChFVF0FwgqC9AWFVjgg5YZwT1BQiraqwPiqBZYLKIFgTNAoJqQdAssIvXgqBZQFAtCJoFBNWCoFlAUC0ImoVsgoaMqaIKnXpNHoJmIZ+g/94OgtoAQRHUNAiKoKZBUAQ1DYIGCNp5UIWgahA0RND24rcfxkJQNREEvfj0cPbw5u1Ow/7Sc0tPx60LgqrzPSJuC3rzdu/uLxDUFyB7ZX0/bxATBEVQ02yQ4uKp31G7ffZu5b8/Pq59+83T5vfN83vVxWe/3nn8x9rAaW4uaGOltzOLoLJBDIL2h/VSeL+e7t+83a2uXu1X7ns1/uTDxdNPPlTjx8fud+77xdPdJuye93/LCLrKdl8QtDdsEPSzY/99Ktd53Xo6U2tnm1/+64N/cvZz83z9ZTpI2kNQQW3y5/svaHXk9+yNeDVjPzjfm3lXP1P/+Ohw9vN53bD6lpQWVFyb/PkBCOray7rTORfUCVgtvLt69ehwPgBCUARNx5at7Hbps138I//9jpDnSy2oe77ZxSOouDb58/0XtGk57wx+aiPvCXnxdPHzyiDp6tVe/cOjiIJefnlaVdevRy8+BsURNGLxJdmwlX0X8+5hJr9X961j3Ud99N20hb1Yc5ipOQ71y5/EE3Qyen5a3b57U529DIkjaMziS9KTc/Enz35ft6DX35z6lrQtjqBRiy9JTwT1u/jLrz5W11+/r/yReQTV5hFUR6ugkxczQVvjcQUd2HQ7BNUhaEFb49t9kZ4aRdBi9ErQaH1QqaDs4ovRK0Fv3x0wio+QR1AdHAfNlO+/oH9fT5G66OIIGrH4kiAogpoGQRHUNK2CPkFQBC0IgiKoaRAUQU2zSdA1R64RFEHzs1HQ1S2AoAiaHwRFUNNoBD3adzOa3ZfdpYfNU26i83T90oLZGlFdXXRxBI1YfEk0go736r//7b7sLT1snnFLRY7uG/rgBO06+QlBF2gEvfjPDzff/sZ9OVx6WD9x9RP39ebtvl8TOl0a+gAF/VsrCBqIZhR/9dPjq1/85VfH7vviYf3E+bztPNprfvDfEBRB1WhaUNdy/rjuidZflh5W845oo7BrTqffEBRB1ahG8eP98X517jugi4fNvt8HnJLO3cU3UV3qnsGMx5v/KYJq84MX9Hz3D4fVxY//cHjn4VIfNEILOp5eDkpa9SkIGrH4kqgEvfp53VTefPsfx3ceVkuj+M590Kma5zZaUOkSEQSNhkrQ5mqM1dHunYeNhrPjoJ1H8aYEFRaPoBExey5+uovf2xRGUH1+CIKWn810fuduDK3xe2wXNPGRdASNh11Bu8UTb7Kogqb+vHSNFwVBNfHIgibucXSNF8XkmqTUx0E7xxE0GyYFjRAfsqC5ewRFQVBNvLCgP2oFQdPXZVyP4ccrc0s3xu+BoBFfbUnMDpKOPvnzq31/GiAkfh8EjfhqS2JV0KtX++5kkvZMUlsvbCUvSiNoPoYpaPs44f4/kIRb8wgaD7unOt0uXnuqE0GjvtqSbBT0+/vkXtV57m+qGBq/A4JGfbUlsStolziCRn21JdEIurTWuLkt93RKh59Vt5hbFzrLrqUuqnjhQZLsSDqCbkEj6NJa40bC6dzNeII2I6RupzqFIKhVNIIuLzv2UjZrkRaCNvOUp3OWO9dFFecw01Jc+HmxRcdlx15KvxZpIahspUdLXTTxnvVBpS2uUND2eEuLWxJNC7q01thL6C/b4Pujru2UrZVbW5fmht+aqjcgqCw+MEGX1hqvbUGFq4031OVozVWeAqre0DNBE+/iH56gi7XGXkJ/RZG5oDFaUIcbKCnXJEl7VQhqFZWgi7XG60fx0fqgTtGNIy0ERdANgi6tNZ4dB53u2ZdG8XWq4yh+3NyDfuViedur3jDwXXz0LmsfBV0l75mkm7fTEwAb54sg6EMWtPxsptbm9+EKKhMOQdPWRRWnDyqKI6i2LupL3whBUKvYXZMUO74VBLUKgjYgqFUQtAFBrWJW0PmZ/bB4RxDUKlYHSVsXHK/Gu4KgMd+dmFgVdOvFv1fjXRnyhGUETVEXd7MlQbwrcQUVxkN8Ljph2aKga15D3j7otiOga+IdKSqoNI+gTtDV15x5F9/jNUmJi2cXb0DQ+PGtIGjM6sdEI+jGux13XNeJoGF5BG0RdOPdjmMJ2vdlx4mLR9AWQTfe7bjjwmNa0LA8gmrvdtxx0QeChuURtKUF3Xi3444Lj3t0qjNx8Qg6RzWK33i3424Lj+8eqN9zN6VV30xWCILGrH5MVIJuuttxx4XH9091Tu9IK6u6DgSNWf2YqATddLfjiH1QJ+h41+yM+sTFI+gclaCb7nbcceHx3ZsoNHZuu83HwxVUdupyoIKWPhdfd0Kro51tF2h6sIIK88MUtPRspvjxrSBozOrExKqgxqfbJS4eQedYFdT4hOXExSPoHLNrkrbeBXE13hHpmaGi14UQ5hE0RV1MTxZpn+LbqXgEXcKqoPHjW0HQmNWJCYI2IGjM6sTE7iBpZ8rG5ccIGpYf5pqk0oJW48fNtZv3Ni+QR1BtPnV1YmJV0OlhpvPHx5oL2IpB0Jj5mFg91Wla0H4dZspefFQ2Crp6bYsyu/jNB0RjCpoYBFVjVlB/O+79arxxvgiCavNDF1Ryt+Px3nJkjr+7Z1BdhFXPArv4bGgEFdztuBZxObJgvOYOXb0RlEFSPjSCCu52XDe2i4hrS/dd+1v/4JeBhtRFWPUcIGg+Oi47brnbsdNwHnGp+ofz+sk9308Iqouw6jkYtqDdD+zHRNOCht/tuGk3lyLe7Q9uid2afXxvBB12H1R6udK0qEbxwXc7dosylyJHTt+bb7/7xYeeCyoFQdWoBA2+2/GiBa0jbqDkfmjGVzpBz0aj0fPT4LgZEFSNStDgux3P+6AzOS8+PWz+KvugJ29EcTMgqBqVoOF3O3ZD9vlx0PHOzr/9bL+6+dVx0xkNrMsStz+8l8TtgKDb/r+tHfrE5+LXHZBvruOkOg56/brexTeNqKsPgmrzaQWVHuHYflAg9WymVRGbc5e6M0mXX7xfakURVJtPKqj0KFRhQSWEGTfvhyKoNo+gOhA0U96UoMo+6Fok/62CVuMmLz5Wt7/lMFPXvKk+aAu9EtQdB302H8gjqDY/hFOdNgXtEi8JgqpB0Bz0S9B+7eLNDZK08ZI8JEFzD5IQNAKp94h9FnRwh5m08ZIgqDpvddlx/HhJHpKgmU51PvnbfRBUz4MSNO5FBhA0BwiqRiOo7G7H4QuPETRT+UMXVHS3Y8HCYwTNVP7QBRXd7Viw8BhBM5U/CEG3jOIldzuWLDxG0EzlD0LQLS2o5G7HkoXHwxU0NQh6dxQvuNuxZOExgmrptaAJDjMJ7nYsWXiMoFpszWaS1SbFgXrB3Y4lC48RVEtUQTMXn0JQyd2OBQuPEXSKeMLaQxQ01rl4wcJjBPXIZwT3WdDi0+3CFx4jqAdBl2C6nT0elqDMB+0f9EEXsCZpCCAogpqmz4Kq+qBlQFAtvRZ0O5a2MoJqSTwZBUE9CKoFQbOAoEZBUA+CGqVkF9fSVkZQoyCoB0GNgqAeBDUKgnoQ1CgI6kFQoyCoB0GNgqAeBDUKgnoQ1CgI6kFQoyCoB0GNgqAeBDUKgnoQ1CgI6kFQo3S/Eom+eEtbGUGN0uLX960gKKQEQT0IahQE9SCoURDUg6BGQVAPghoFQT0ImofIV9ZB0DhxmBL72mQIGicOU+SCtpSHoFHiMAVBtSBoHuL6KRU05MzoUt7SVkbQXiI8Fx/g8/cICvFA0DhxSIR0F4+gkBUEjROHRCBonDgkAkHjxCERCBonDolA0DhxSASCxolDIjiTFCcOiUDQOHFIBGeS4sQhF52njyIopARBVXHIBYKq4pALBFXFIRcIqopDLhBUFYdcIKgqDrlAUFUcctH9cqIICgnhCsuqOOQCQVVxyAWCquKQCwRVxSEXCKqKQy4QVBWHXCCoKg65QFBVHKyCoGAaBAXTICiYZkCCXr8evfgYHodeMBxBb9+9qc5eBsehHwxH0OtvTqvLL09D4zAALG3l1rpcfvWxuv76feUnFVqqOqTC0lZurcvkxUzQoDgMAEtbWdCCBsVhAFjayvRBYQVLWzlgFH/AKP6BYWkrcxwUVrC0lTmTBCtY2soICitY2soICitY2soICitY2soICitY2soICitY2spSQbfxZOuzXePGijdWnbjFp3FNRcy6CBduRV3nlb14Y9VJ/WqLgaCZ8v0uvhwIminf7+LLYam7AbACgoJpEBRME0vQ69ejN5p/938f2zPy4rW1SVQdafHafOLiixCxBT0ZjZYm5rVw+fno+Wl1++75aXtWUbw0nrg60uKF+cTFFyXyLn4yCnvRfhr0RGKcpHhpPHF1pMUL84mLL0tMQesdX+iezy0kke4nBcVL44mrIy1emE9cfFmiCVq/4mfv22OztHuPvg7PC4sXx9NWR1q8MJ+4+LJEGyTJXnDzHn0TvruWFi98+1NXR1q8LJ+4+LJEa0Fv341GB8Fp8XskK14aT1wdBNUTdZB0FjywdR24BsmgJ7x4aTxxdaTFC/OJiy9LoVF8nuIT1yZ5+RBV0En9mXzZHstUfOLaJC8fPBHPJIk21+Xno4OT8J2MsHhpbRJXR1q8y7uDBKEdRWFcnC9JoXPx7qqjJ/X2cld+MkDi6kiLd3l3ND3QIGFcnC9KNEFln0oXmxyk+9BLW0RFdQTlS4v3uZOXgjdTEBfnixJLUMWH3pGwTZE2WdLqCMrXFF9z9l9fSt7M0Lg4X5RofVDpp/i1e5POJE2csE0RtYiK6oiaRFnxdb45yBr6D4Rxcb4kMVvQKt2nUtemJOvipi4f5kQ8F5/0UyluU2RNlrw6acuHGcyoB9MgKJimkKDGTgcnrg7n4vWUakHdMSNDJK6OtHhhPnHxRYl4qlP2qZRNqUzcpiSujmKCauL5r32Zrhx1PqilNih1G9GnNqjfxNvFK2aZpyxeMac+ZXWkxQvzk970KaUUG8Xf/mBqL5O4OtLihXnxLvusN0IXE3TajQvvJMraFHGTlbg60uJleUX7P3m5dPsrw8Q7F/+/wm0gRNimpG6gje0AzmRd4lpo/ydRdSLSmwP10jYl7ccleflChLvs+uNV/7l8SLOZ5BjrBqWtjtjn23ejF38N7lmK+6C1mxPRutdiRBRUtomNdYOyVCd8R3z77uDyq4+T4FWpfdhZ64h6mEmyicXdIGETJ4xLq6PaxQuK/+a0FjQ8L++DivIFiSiobBNLu0FS/4Utoq5XJvRiEt5JbFrQM+G6fkkfNDBZnHiCSjexsBsk9F/cQKt6ZYIZ+41B4dfrcpcuSXf5OWNDvG1E7IOm7XgL/c8zTg1vEkFJqel2v5s++FOqJi7xOFXcJKbF2CGRiBSbD3rgvw3xPe2MZrKUqMd98nK2asU88QSt354zyYH0AzfFIbSFE7a40ga66fGla4OUxZ9JLmEr6XH7wde0kTBONEHdiz47EAyzXx+chF8DVtjiihvos7RHrTXFS/Yush737LB+L9akRr2AbS2o4LjRa9nVlmQtrizucN240LyiSZQU7/OStKjHPWtpe3E0NO6FG0QvWtYJkrW40viUk7QtbnDxaTvns1X9wSeqShL5wg2hL1qxbkvW4krj/r4ykk+MsEkUFS9r+8VcfuE+upef92GUFK0POmne/om81QpGOOwUxc90R4xCm0Rh8eKPr3RU3vwH/TiAEvFM0rv0s4FSLZrTDLMFTWLigwS9GpVL6c18UFsoW9w09GpULgVBNaRuEmX0alQuBUH7T69G5VIQdAD0aVQuBUGHQI9G5VIQFEyDoGAaBAXTICiYBkHBNAgKpkFQMA2CruWf/+O/X3x6OPvV0kPIB4KuY52MCFoEBF0HgpoBQddw8XRnZ+/is1/vPP5jbaX7aWcPQcuAoOu4aLzcbR5cvdqvqvHjYwQtAoKuwwu63zz41wf/CwQtAoKuoxHUCdl8Oa938Y8QtAwIuo5lQa9ePTqkBS0Ggq5jWdDzT+p9/DktaCEQdB1uYDQX1DWgTxG0EAi6lqOd3Xkf9KjugX73ah9Bi4CgYBoEBdMgKJgGQcE0CAqmQVAwDYKCaRAUTIOgYBoEBdP8P5TgdOhsY3OrAAAAAElFTkSuQmCC" /><!-- --></p>
 <p>From the plot it is clear that the trials in the hot, water deficient environments have a lower median and range than the other trials.</p>
 <p>For further insight a scatter plot of the trials against each other can be made.</p>
@@ -445,12 +444,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb5-13"><a href="#cb5-13"></a><span class="co">#&gt; residuals         0.59           3.91 %</span></span>
 <span id="cb5-14"><a href="#cb5-14"></a><span class="co">#&gt; </span></span>
 <span id="cb5-15"><a href="#cb5-15"></a><span class="co">#&gt; Analysis of Variance Table for fully fixed model</span></span>
-<span id="cb5-16"><a href="#cb5-16"></a><span class="co">#&gt;                Df Sum Sq Mean Sq F value  Pr(&gt;F)    </span></span>
-<span id="cb5-17"><a href="#cb5-17"></a><span class="co">#&gt; loc             6  23111    3852 5936.44 &lt; 2e-16 ***</span></span>
-<span id="cb5-18"><a href="#cb5-18"></a><span class="co">#&gt; genotype      245   2321       9   14.60 &lt; 2e-16 ***</span></span>
-<span id="cb5-19"><a href="#cb5-19"></a><span class="co">#&gt; loc:trial       3    566     189  290.81 &lt; 2e-16 ***</span></span>
-<span id="cb5-20"><a href="#cb5-20"></a><span class="co">#&gt; loc:genotype 1470   1476       1    1.55 1.5e-11 ***</span></span>
-<span id="cb5-21"><a href="#cb5-21"></a><span class="co">#&gt; residuals     735    477       1                    </span></span>
+<span id="cb5-16"><a href="#cb5-16"></a><span class="co">#&gt;                Df  Sum Sq Mean Sq   F value    Pr(&gt;F)    </span></span>
+<span id="cb5-17"><a href="#cb5-17"></a><span class="co">#&gt; loc             6 23111.2  3851.9 5936.4367 &lt; 2.2e-16 ***</span></span>
+<span id="cb5-18"><a href="#cb5-18"></a><span class="co">#&gt; genotype      245  2320.6     9.5   14.5977 &lt; 2.2e-16 ***</span></span>
+<span id="cb5-19"><a href="#cb5-19"></a><span class="co">#&gt; loc:trial       3   566.1   188.7  290.8132 &lt; 2.2e-16 ***</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a><span class="co">#&gt; loc:genotype 1470  1476.1     1.0    1.5476 1.533e-11 ***</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a><span class="co">#&gt; residuals     735   476.9     0.6                        </span></span>
 <span id="cb5-22"><a href="#cb5-22"></a><span class="co">#&gt; ---</span></span>
 <span id="cb5-23"><a href="#cb5-23"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span></code></pre></div>
 <p>The diagnostics for the fitted model can be printed using the <code>diagnostics</code> function. This will print an incidence matrix of missing values for each of the terms in the random part of the fitted model.</p>
@@ -460,12 +459,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co">## Extract variance components.</span></span>
 <span id="cb7-2"><a href="#cb7-2"></a><span class="kw">vc</span>(dropsVarComp)</span>
 <span id="cb7-3"><a href="#cb7-3"></a><span class="co">#&gt;              component</span></span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="co">#&gt; genotype         0.719</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a><span class="co">#&gt; genotype:loc     0.333</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a><span class="co">#&gt; residual         0.585</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="co">#&gt; genotype        0.7190</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="co">#&gt; genotype:loc    0.3335</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="co">#&gt; residual        0.5854</span></span>
 <span id="cb7-7"><a href="#cb7-7"></a><span class="co">## Compute heritability.</span></span>
 <span id="cb7-8"><a href="#cb7-8"></a><span class="kw">herit</span>(dropsVarComp)</span>
-<span id="cb7-9"><a href="#cb7-9"></a><span class="co">#&gt; [1] 0.846</span></span></code></pre></div>
+<span id="cb7-9"><a href="#cb7-9"></a><span class="co">#&gt; [1] 0.8456</span></span></code></pre></div>
 <p>A plot can be made of the square roots of the variance estimates. These are based on the fully random model.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co">## Plot the results of the fitted model.</span></span>
 <span id="cb8-2"><a href="#cb8-2"></a><span class="kw">plot</span>(dropsVarComp)</span></code></pre></div>
@@ -474,32 +473,32 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb9-2"><a href="#cb9-2"></a>predGeno &lt;-<span class="st"> </span><span class="kw">predict</span>(dropsVarComp)</span>
 <span id="cb9-3"><a href="#cb9-3"></a><span class="kw">head</span>(predGeno)</span>
 <span id="cb9-4"><a href="#cb9-4"></a><span class="co">#&gt;   genotype predictedValue</span></span>
-<span id="cb9-5"><a href="#cb9-5"></a><span class="co">#&gt; 1    11430           6.73</span></span>
-<span id="cb9-6"><a href="#cb9-6"></a><span class="co">#&gt; 2       A3           6.33</span></span>
-<span id="cb9-7"><a href="#cb9-7"></a><span class="co">#&gt; 3     A310           5.72</span></span>
-<span id="cb9-8"><a href="#cb9-8"></a><span class="co">#&gt; 4     A347           5.58</span></span>
-<span id="cb9-9"><a href="#cb9-9"></a><span class="co">#&gt; 5     A374           7.46</span></span>
-<span id="cb9-10"><a href="#cb9-10"></a><span class="co">#&gt; 6     A375           6.65</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="co">#&gt; 1    11430          6.729</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="co">#&gt; 2       A3          6.326</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a><span class="co">#&gt; 3     A310          5.718</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a><span class="co">#&gt; 4     A347          5.578</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a><span class="co">#&gt; 5     A374          7.463</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a><span class="co">#&gt; 6     A375          6.648</span></span>
 <span id="cb9-11"><a href="#cb9-11"></a><span class="co">## predictions at the level of genotype x trial.</span></span>
 <span id="cb9-12"><a href="#cb9-12"></a>predGenoTrial &lt;-<span class="st"> </span><span class="kw">predict</span>(dropsVarComp, <span class="dt">predictLevel =</span> <span class="st">&quot;trial&quot;</span>)</span>
 <span id="cb9-13"><a href="#cb9-13"></a><span class="kw">head</span>(predGenoTrial)</span>
 <span id="cb9-14"><a href="#cb9-14"></a><span class="co">#&gt;   genotype  trial predictedValue</span></span>
-<span id="cb9-15"><a href="#cb9-15"></a><span class="co">#&gt; 1    11430 Cam12R           1.62</span></span>
-<span id="cb9-16"><a href="#cb9-16"></a><span class="co">#&gt; 2       A3 Cam12R           1.48</span></span>
-<span id="cb9-17"><a href="#cb9-17"></a><span class="co">#&gt; 3     A310 Cam12R           1.72</span></span>
-<span id="cb9-18"><a href="#cb9-18"></a><span class="co">#&gt; 4     A347 Cam12R           1.26</span></span>
-<span id="cb9-19"><a href="#cb9-19"></a><span class="co">#&gt; 5     A374 Cam12R           2.64</span></span>
-<span id="cb9-20"><a href="#cb9-20"></a><span class="co">#&gt; 6     A375 Cam12R           2.19</span></span>
+<span id="cb9-15"><a href="#cb9-15"></a><span class="co">#&gt; 1    11430 Cam12R          1.623</span></span>
+<span id="cb9-16"><a href="#cb9-16"></a><span class="co">#&gt; 2       A3 Cam12R          1.477</span></span>
+<span id="cb9-17"><a href="#cb9-17"></a><span class="co">#&gt; 3     A310 Cam12R          1.724</span></span>
+<span id="cb9-18"><a href="#cb9-18"></a><span class="co">#&gt; 4     A347 Cam12R          1.263</span></span>
+<span id="cb9-19"><a href="#cb9-19"></a><span class="co">#&gt; 5     A374 Cam12R          2.637</span></span>
+<span id="cb9-20"><a href="#cb9-20"></a><span class="co">#&gt; 6     A375 Cam12R          2.190</span></span>
 <span id="cb9-21"><a href="#cb9-21"></a><span class="co">## predictions at the level of genotype x location.</span></span>
 <span id="cb9-22"><a href="#cb9-22"></a>predGenoLoc &lt;-<span class="st"> </span><span class="kw">predict</span>(dropsVarComp, <span class="dt">predictLevel =</span> <span class="st">&quot;loc&quot;</span>)</span>
 <span id="cb9-23"><a href="#cb9-23"></a><span class="kw">head</span>(predGenoLoc)</span>
 <span id="cb9-24"><a href="#cb9-24"></a><span class="co">#&gt;   genotype loc predictedValue</span></span>
-<span id="cb9-25"><a href="#cb9-25"></a><span class="co">#&gt; 1    11430 Cam           1.62</span></span>
-<span id="cb9-26"><a href="#cb9-26"></a><span class="co">#&gt; 2       A3 Cam           1.48</span></span>
-<span id="cb9-27"><a href="#cb9-27"></a><span class="co">#&gt; 3     A310 Cam           1.72</span></span>
-<span id="cb9-28"><a href="#cb9-28"></a><span class="co">#&gt; 4     A347 Cam           1.26</span></span>
-<span id="cb9-29"><a href="#cb9-29"></a><span class="co">#&gt; 5     A374 Cam           2.64</span></span>
-<span id="cb9-30"><a href="#cb9-30"></a><span class="co">#&gt; 6     A375 Cam           2.19</span></span></code></pre></div>
+<span id="cb9-25"><a href="#cb9-25"></a><span class="co">#&gt; 1    11430 Cam          1.623</span></span>
+<span id="cb9-26"><a href="#cb9-26"></a><span class="co">#&gt; 2       A3 Cam          1.477</span></span>
+<span id="cb9-27"><a href="#cb9-27"></a><span class="co">#&gt; 3     A310 Cam          1.724</span></span>
+<span id="cb9-28"><a href="#cb9-28"></a><span class="co">#&gt; 4     A347 Cam          1.263</span></span>
+<span id="cb9-29"><a href="#cb9-29"></a><span class="co">#&gt; 5     A374 Cam          2.637</span></span>
+<span id="cb9-30"><a href="#cb9-30"></a><span class="co">#&gt; 6     A375 Cam          2.190</span></span></code></pre></div>
 <hr />
 </div>
 </div>
@@ -513,37 +512,37 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb10-3"><a href="#cb10-3"></a><span class="kw">summary</span>(dropsFW)</span>
 <span id="cb10-4"><a href="#cb10-4"></a><span class="co">#&gt; Environmental effects </span></span>
 <span id="cb10-5"><a href="#cb10-5"></a><span class="co">#&gt; =====================</span></span>
-<span id="cb10-6"><a href="#cb10-6"></a><span class="co">#&gt;     trial   envEff se_envEff envMean rank</span></span>
-<span id="cb10-7"><a href="#cb10-7"></a><span class="co">#&gt; 1  Cam12R -4.93017    0.0711    1.97    9</span></span>
-<span id="cb10-8"><a href="#cb10-8"></a><span class="co">#&gt; 2  Cra12R -5.41700    0.0711    1.48   10</span></span>
-<span id="cb10-9"><a href="#cb10-9"></a><span class="co">#&gt; 3  Gai12W  4.29088    0.0711   11.19    1</span></span>
-<span id="cb10-10"><a href="#cb10-10"></a><span class="co">#&gt; 4  Kar12W  2.81602    0.0711    9.72    3</span></span>
-<span id="cb10-11"><a href="#cb10-11"></a><span class="co">#&gt; 5  Kar13R  2.98347    0.0711    9.88    2</span></span>
-<span id="cb10-12"><a href="#cb10-12"></a><span class="co">#&gt; 6  Kar13W  1.14170    0.0711    8.04    4</span></span>
-<span id="cb10-13"><a href="#cb10-13"></a><span class="co">#&gt; 7  Mar13R  0.83533    0.0711    7.74    5</span></span>
-<span id="cb10-14"><a href="#cb10-14"></a><span class="co">#&gt; 8  Mur13R -0.00199    0.0711    6.90    7</span></span>
-<span id="cb10-15"><a href="#cb10-15"></a><span class="co">#&gt; 9  Mur13W  0.53203    0.0711    7.43    6</span></span>
-<span id="cb10-16"><a href="#cb10-16"></a><span class="co">#&gt; 10 Ner12R -2.25028    0.0711    4.65    8</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="co">#&gt;     trial      envEff se_envEff  envMean rank</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="co">#&gt; 1  Cam12R -4.93016532 0.0710838  1.97041    9</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="co">#&gt; 2  Cra12R -5.41700099 0.0710838  1.48357   10</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="co">#&gt; 3  Gai12W  4.29088420 0.0710838 11.19147    1</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a><span class="co">#&gt; 4  Kar12W  2.81602440 0.0710838  9.71660    3</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a><span class="co">#&gt; 5  Kar13R  2.98347060 0.0710838  9.88404    2</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="co">#&gt; 6  Kar13W  1.14169667 0.0710838  8.04226    4</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a><span class="co">#&gt; 7  Mar13R  0.83532848 0.0710838  7.73591    5</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="co">#&gt; 8  Mur13R -0.00198925 0.0710838  6.89857    7</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="co">#&gt; 9  Mur13W  0.53202700 0.0710838  7.43259    6</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a><span class="co">#&gt; 10 Ner12R -2.25027579 0.0710838  4.65031    8</span></span>
 <span id="cb10-17"><a href="#cb10-17"></a><span class="co">#&gt; </span></span>
 <span id="cb10-18"><a href="#cb10-18"></a><span class="co">#&gt; Anova </span></span>
 <span id="cb10-19"><a href="#cb10-19"></a><span class="co">#&gt; =====</span></span>
-<span id="cb10-20"><a href="#cb10-20"></a><span class="co">#&gt;                 Df Sum Sq Mean Sq F value Pr(&gt;F)    </span></span>
-<span id="cb10-21"><a href="#cb10-21"></a><span class="co">#&gt; genotype       245   2321       9   11.99 &lt;2e-16 ***</span></span>
-<span id="cb10-22"><a href="#cb10-22"></a><span class="co">#&gt; trial            9  23677    2631 3329.26 &lt;2e-16 ***</span></span>
-<span id="cb10-23"><a href="#cb10-23"></a><span class="co">#&gt; Sensitivities  245    404       2    2.09 &lt;2e-16 ***</span></span>
-<span id="cb10-24"><a href="#cb10-24"></a><span class="co">#&gt; Residual      1960   1549       1                   </span></span>
-<span id="cb10-25"><a href="#cb10-25"></a><span class="co">#&gt; Total         2459  27951      11                   </span></span>
+<span id="cb10-20"><a href="#cb10-20"></a><span class="co">#&gt;                 Df Sum Sq Mean Sq  F value Pr(&gt;F)    </span></span>
+<span id="cb10-21"><a href="#cb10-21"></a><span class="co">#&gt; genotype       245   2321     9.5   11.986 &lt;2e-16 ***</span></span>
+<span id="cb10-22"><a href="#cb10-22"></a><span class="co">#&gt; trial            9  23677  2630.8 3329.261 &lt;2e-16 ***</span></span>
+<span id="cb10-23"><a href="#cb10-23"></a><span class="co">#&gt; Sensitivities  245    404     1.6    2.088 &lt;2e-16 ***</span></span>
+<span id="cb10-24"><a href="#cb10-24"></a><span class="co">#&gt; Residual      1960   1549     0.8                    </span></span>
+<span id="cb10-25"><a href="#cb10-25"></a><span class="co">#&gt; Total         2459  27951    11.4                    </span></span>
 <span id="cb10-26"><a href="#cb10-26"></a><span class="co">#&gt; ---</span></span>
 <span id="cb10-27"><a href="#cb10-27"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
 <span id="cb10-28"><a href="#cb10-28"></a><span class="co">#&gt; </span></span>
 <span id="cb10-29"><a href="#cb10-29"></a><span class="co">#&gt; Most sensitive genotypes</span></span>
 <span id="cb10-30"><a href="#cb10-30"></a><span class="co">#&gt; ========================</span></span>
-<span id="cb10-31"><a href="#cb10-31"></a><span class="co">#&gt;   genotype sens se_sens genMean se_genMean MSdeviation rank</span></span>
-<span id="cb10-32"><a href="#cb10-32"></a><span class="co">#&gt;     Lo1251 1.35  0.0904    9.03      0.281       1.508    1</span></span>
-<span id="cb10-33"><a href="#cb10-33"></a><span class="co">#&gt;   DK78371A 1.29  0.0904    7.34      0.281       0.314    2</span></span>
-<span id="cb10-34"><a href="#cb10-34"></a><span class="co">#&gt;      PHG83 1.29  0.0904    7.80      0.281       1.447    3</span></span>
-<span id="cb10-35"><a href="#cb10-35"></a><span class="co">#&gt;      FR697 1.27  0.0904    7.49      0.281       0.917    4</span></span>
-<span id="cb10-36"><a href="#cb10-36"></a><span class="co">#&gt;  SC-Malawi 1.26  0.0904    7.13      0.281       1.272    5</span></span></code></pre></div>
+<span id="cb10-31"><a href="#cb10-31"></a><span class="co">#&gt;   genotype    sens   se_sens genMean se_genMean MSdeviation rank</span></span>
+<span id="cb10-32"><a href="#cb10-32"></a><span class="co">#&gt;     Lo1251 1.34779 0.0904284 9.03024   0.280534    1.507974    1</span></span>
+<span id="cb10-33"><a href="#cb10-33"></a><span class="co">#&gt;   DK78371A 1.29340 0.0904284 7.34072   0.280534    0.313889    2</span></span>
+<span id="cb10-34"><a href="#cb10-34"></a><span class="co">#&gt;      PHG83 1.29337 0.0904284 7.79922   0.280534    1.447104    3</span></span>
+<span id="cb10-35"><a href="#cb10-35"></a><span class="co">#&gt;      FR697 1.27416 0.0904284 7.48625   0.280534    0.917458    4</span></span>
+<span id="cb10-36"><a href="#cb10-36"></a><span class="co">#&gt;  SC-Malawi 1.26473 0.0904284 7.12909   0.280534    1.272097    5</span></span></code></pre></div>
 <p>Three types of plots can be made to investigate the output from the analysis. <code>plotType = &quot;scatter&quot;</code> creates three scatter plots where genotypic mean, square root of the mean squared deviation and sensitivity are plotted against each other.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co">## Create scatter plot for Finlay Wilkinson analysis.</span></span>
 <span id="cb11-2"><a href="#cb11-2"></a><span class="co">## Color genotypes by geneticGroup.</span></span>
@@ -576,83 +575,83 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb15-3"><a href="#cb15-3"></a><span class="kw">summary</span>(dropsAm)</span>
 <span id="cb15-4"><a href="#cb15-4"></a><span class="co">#&gt; Principal components </span></span>
 <span id="cb15-5"><a href="#cb15-5"></a><span class="co">#&gt; ====================</span></span>
-<span id="cb15-6"><a href="#cb15-6"></a><span class="co">#&gt;                          PC1   PC2</span></span>
-<span id="cb15-7"><a href="#cb15-7"></a><span class="co">#&gt; Standard deviation     1.594 1.161</span></span>
-<span id="cb15-8"><a href="#cb15-8"></a><span class="co">#&gt; Proportion of Variance 0.319 0.169</span></span>
-<span id="cb15-9"><a href="#cb15-9"></a><span class="co">#&gt; Cumulative Proportion  0.319 0.488</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a><span class="co">#&gt;                            PC1     PC2</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a><span class="co">#&gt; Standard deviation     1.59365 1.16125</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a><span class="co">#&gt; Proportion of Variance 0.31860 0.16916</span></span>
+<span id="cb15-9"><a href="#cb15-9"></a><span class="co">#&gt; Cumulative Proportion  0.31860 0.48776</span></span>
 <span id="cb15-10"><a href="#cb15-10"></a><span class="co">#&gt; </span></span>
 <span id="cb15-11"><a href="#cb15-11"></a><span class="co">#&gt; Anova </span></span>
 <span id="cb15-12"><a href="#cb15-12"></a><span class="co">#&gt; =====</span></span>
 <span id="cb15-13"><a href="#cb15-13"></a><span class="co">#&gt; Analysis of Variance Table</span></span>
 <span id="cb15-14"><a href="#cb15-14"></a><span class="co">#&gt; </span></span>
 <span id="cb15-15"><a href="#cb15-15"></a><span class="co">#&gt; Response: grain.yield</span></span>
-<span id="cb15-16"><a href="#cb15-16"></a><span class="co">#&gt;                Df Sum Sq Mean Sq F value Pr(&gt;F)    </span></span>
-<span id="cb15-17"><a href="#cb15-17"></a><span class="co">#&gt; Genotype      245   2321       9   10.69 &lt;2e-16 ***</span></span>
-<span id="cb15-18"><a href="#cb15-18"></a><span class="co">#&gt; Environment     9  23677    2631 2970.19 &lt;2e-16 ***</span></span>
-<span id="cb15-19"><a href="#cb15-19"></a><span class="co">#&gt; Interactions 2205   1953       1                   </span></span>
-<span id="cb15-20"><a href="#cb15-20"></a><span class="co">#&gt; PC1           253    622       2    4.18 &lt;2e-16 ***</span></span>
-<span id="cb15-21"><a href="#cb15-21"></a><span class="co">#&gt; PC2           251    330       1    2.24 &lt;2e-16 ***</span></span>
-<span id="cb15-22"><a href="#cb15-22"></a><span class="co">#&gt; Residuals    1701   1000       1                   </span></span>
+<span id="cb15-16"><a href="#cb15-16"></a><span class="co">#&gt;                Df Sum Sq Mean Sq  F value Pr(&gt;F)    </span></span>
+<span id="cb15-17"><a href="#cb15-17"></a><span class="co">#&gt; Genotype      245   2321     9.5   10.694 &lt;2e-16 ***</span></span>
+<span id="cb15-18"><a href="#cb15-18"></a><span class="co">#&gt; Environment     9  23677  2630.8 2970.187 &lt;2e-16 ***</span></span>
+<span id="cb15-19"><a href="#cb15-19"></a><span class="co">#&gt; Interactions 2205   1953     0.9                    </span></span>
+<span id="cb15-20"><a href="#cb15-20"></a><span class="co">#&gt; PC1           253    622     2.5    4.182 &lt;2e-16 ***</span></span>
+<span id="cb15-21"><a href="#cb15-21"></a><span class="co">#&gt; PC2           251    330     1.3    2.238 &lt;2e-16 ***</span></span>
+<span id="cb15-22"><a href="#cb15-22"></a><span class="co">#&gt; Residuals    1701   1000     0.6                    </span></span>
 <span id="cb15-23"><a href="#cb15-23"></a><span class="co">#&gt; ---</span></span>
 <span id="cb15-24"><a href="#cb15-24"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
 <span id="cb15-25"><a href="#cb15-25"></a><span class="co">#&gt; </span></span>
 <span id="cb15-26"><a href="#cb15-26"></a><span class="co">#&gt; Environment scores </span></span>
 <span id="cb15-27"><a href="#cb15-27"></a><span class="co">#&gt; ==================</span></span>
-<span id="cb15-28"><a href="#cb15-28"></a><span class="co">#&gt;            PC1     PC2</span></span>
-<span id="cb15-29"><a href="#cb15-29"></a><span class="co">#&gt; Cam12R  0.4422  0.1214</span></span>
-<span id="cb15-30"><a href="#cb15-30"></a><span class="co">#&gt; Cra12R  0.4358  0.0229</span></span>
-<span id="cb15-31"><a href="#cb15-31"></a><span class="co">#&gt; Gai12W  0.0693 -0.4179</span></span>
-<span id="cb15-32"><a href="#cb15-32"></a><span class="co">#&gt; Kar12W -0.0329  0.2499</span></span>
-<span id="cb15-33"><a href="#cb15-33"></a><span class="co">#&gt; Kar13R -0.3649 -0.4133</span></span>
-<span id="cb15-34"><a href="#cb15-34"></a><span class="co">#&gt; Kar13W -0.3620 -0.3925</span></span>
-<span id="cb15-35"><a href="#cb15-35"></a><span class="co">#&gt; Mar13R  0.0925  0.1666</span></span>
-<span id="cb15-36"><a href="#cb15-36"></a><span class="co">#&gt; Mur13R -0.2855  0.3230</span></span>
-<span id="cb15-37"><a href="#cb15-37"></a><span class="co">#&gt; Mur13W -0.3539  0.5112</span></span>
-<span id="cb15-38"><a href="#cb15-38"></a><span class="co">#&gt; Ner12R  0.3594 -0.1715</span></span></code></pre></div>
+<span id="cb15-28"><a href="#cb15-28"></a><span class="co">#&gt;               PC1        PC2</span></span>
+<span id="cb15-29"><a href="#cb15-29"></a><span class="co">#&gt; Cam12R  0.4422147  0.1214471</span></span>
+<span id="cb15-30"><a href="#cb15-30"></a><span class="co">#&gt; Cra12R  0.4357878  0.0228969</span></span>
+<span id="cb15-31"><a href="#cb15-31"></a><span class="co">#&gt; Gai12W  0.0693329 -0.4178891</span></span>
+<span id="cb15-32"><a href="#cb15-32"></a><span class="co">#&gt; Kar12W -0.0329114  0.2499027</span></span>
+<span id="cb15-33"><a href="#cb15-33"></a><span class="co">#&gt; Kar13R -0.3648773 -0.4132687</span></span>
+<span id="cb15-34"><a href="#cb15-34"></a><span class="co">#&gt; Kar13W -0.3620128 -0.3924541</span></span>
+<span id="cb15-35"><a href="#cb15-35"></a><span class="co">#&gt; Mar13R  0.0924811  0.1666174</span></span>
+<span id="cb15-36"><a href="#cb15-36"></a><span class="co">#&gt; Mur13R -0.2854567  0.3230107</span></span>
+<span id="cb15-37"><a href="#cb15-37"></a><span class="co">#&gt; Mur13W -0.3539324  0.5112075</span></span>
+<span id="cb15-38"><a href="#cb15-38"></a><span class="co">#&gt; Ner12R  0.3593742 -0.1714703</span></span></code></pre></div>
 <p>With the default settings in the AMMI analysis a maximum of two principal components are used. This can be changed using the parameter <code>nPC</code> in the function. The number of principal components should be lower than the smallest of the number of genotypes or environments minus one. By specifying <code>nPC = NULL</code> the algorithm will determine the number of principal components by a method of forward selection.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="co">## Run gxeAmmi. Let algorithm determine number of principal components.</span></span>
 <span id="cb16-2"><a href="#cb16-2"></a>dropsAm2 &lt;-<span class="st"> </span><span class="kw">gxeAmmi</span>(<span class="dt">TD =</span> dropsTD, <span class="dt">trait =</span> <span class="st">&quot;grain.yield&quot;</span>, <span class="dt">nPC =</span> <span class="ot">NULL</span>)</span>
 <span id="cb16-3"><a href="#cb16-3"></a><span class="kw">summary</span>(dropsAm2)</span>
 <span id="cb16-4"><a href="#cb16-4"></a><span class="co">#&gt; Principal components </span></span>
 <span id="cb16-5"><a href="#cb16-5"></a><span class="co">#&gt; ====================</span></span>
-<span id="cb16-6"><a href="#cb16-6"></a><span class="co">#&gt;                          PC1   PC2   PC3   PC4    PC5    PC6    PC7</span></span>
-<span id="cb16-7"><a href="#cb16-7"></a><span class="co">#&gt; Standard deviation     1.594 1.161 1.037 0.931 0.8254 0.7117 0.6619</span></span>
-<span id="cb16-8"><a href="#cb16-8"></a><span class="co">#&gt; Proportion of Variance 0.319 0.169 0.135 0.109 0.0855 0.0635 0.0549</span></span>
-<span id="cb16-9"><a href="#cb16-9"></a><span class="co">#&gt; Cumulative Proportion  0.319 0.488 0.623 0.731 0.8169 0.8805 0.9354</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a><span class="co">#&gt;                            PC1     PC2     PC3      PC4      PC5      PC6      PC7</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a><span class="co">#&gt; Standard deviation     1.59365 1.16125 1.03717 0.931089 0.825373 0.711735 0.661859</span></span>
+<span id="cb16-8"><a href="#cb16-8"></a><span class="co">#&gt; Proportion of Variance 0.31860 0.16916 0.13494 0.108750 0.085460 0.063550 0.054950</span></span>
+<span id="cb16-9"><a href="#cb16-9"></a><span class="co">#&gt; Cumulative Proportion  0.31860 0.48776 0.62270 0.731450 0.816910 0.880460 0.935410</span></span>
 <span id="cb16-10"><a href="#cb16-10"></a><span class="co">#&gt; </span></span>
 <span id="cb16-11"><a href="#cb16-11"></a><span class="co">#&gt; Anova </span></span>
 <span id="cb16-12"><a href="#cb16-12"></a><span class="co">#&gt; =====</span></span>
 <span id="cb16-13"><a href="#cb16-13"></a><span class="co">#&gt; Analysis of Variance Table</span></span>
 <span id="cb16-14"><a href="#cb16-14"></a><span class="co">#&gt; </span></span>
 <span id="cb16-15"><a href="#cb16-15"></a><span class="co">#&gt; Response: grain.yield</span></span>
-<span id="cb16-16"><a href="#cb16-16"></a><span class="co">#&gt;                Df Sum Sq Mean Sq F value  Pr(&gt;F)    </span></span>
-<span id="cb16-17"><a href="#cb16-17"></a><span class="co">#&gt; Genotype      245   2321       9   10.69 &lt; 2e-16 ***</span></span>
-<span id="cb16-18"><a href="#cb16-18"></a><span class="co">#&gt; Environment     9  23677    2631 2970.19 &lt; 2e-16 ***</span></span>
-<span id="cb16-19"><a href="#cb16-19"></a><span class="co">#&gt; Interactions 2205   1953       1                    </span></span>
-<span id="cb16-20"><a href="#cb16-20"></a><span class="co">#&gt; PC1           253    622       2    9.28 &lt; 2e-16 ***</span></span>
-<span id="cb16-21"><a href="#cb16-21"></a><span class="co">#&gt; PC2           251    330       1    4.97 &lt; 2e-16 ***</span></span>
-<span id="cb16-22"><a href="#cb16-22"></a><span class="co">#&gt; PC3           249    264       1    3.99 &lt; 2e-16 ***</span></span>
-<span id="cb16-23"><a href="#cb16-23"></a><span class="co">#&gt; PC4           247    212       1    3.24 &lt; 2e-16 ***</span></span>
-<span id="cb16-24"><a href="#cb16-24"></a><span class="co">#&gt; PC5           245    167       1    2.57 &lt; 2e-16 ***</span></span>
-<span id="cb16-25"><a href="#cb16-25"></a><span class="co">#&gt; PC6           243    124       1    1.93 7.0e-10 ***</span></span>
-<span id="cb16-26"><a href="#cb16-26"></a><span class="co">#&gt; PC7           241    107       0    1.68 9.7e-07 ***</span></span>
-<span id="cb16-27"><a href="#cb16-27"></a><span class="co">#&gt; Residuals     476    126       0                    </span></span>
+<span id="cb16-16"><a href="#cb16-16"></a><span class="co">#&gt;                Df Sum Sq Mean Sq  F value   Pr(&gt;F)    </span></span>
+<span id="cb16-17"><a href="#cb16-17"></a><span class="co">#&gt; Genotype      245   2321     9.5   10.694  &lt; 2e-16 ***</span></span>
+<span id="cb16-18"><a href="#cb16-18"></a><span class="co">#&gt; Environment     9  23677  2630.8 2970.187  &lt; 2e-16 ***</span></span>
+<span id="cb16-19"><a href="#cb16-19"></a><span class="co">#&gt; Interactions 2205   1953     0.9                      </span></span>
+<span id="cb16-20"><a href="#cb16-20"></a><span class="co">#&gt; PC1           253    622     2.5    9.280  &lt; 2e-16 ***</span></span>
+<span id="cb16-21"><a href="#cb16-21"></a><span class="co">#&gt; PC2           251    330     1.3    4.967  &lt; 2e-16 ***</span></span>
+<span id="cb16-22"><a href="#cb16-22"></a><span class="co">#&gt; PC3           249    264     1.1    3.994  &lt; 2e-16 ***</span></span>
+<span id="cb16-23"><a href="#cb16-23"></a><span class="co">#&gt; PC4           247    212     0.9    3.245  &lt; 2e-16 ***</span></span>
+<span id="cb16-24"><a href="#cb16-24"></a><span class="co">#&gt; PC5           245    167     0.7    2.570  &lt; 2e-16 ***</span></span>
+<span id="cb16-25"><a href="#cb16-25"></a><span class="co">#&gt; PC6           243    124     0.5    1.927 7.04e-10 ***</span></span>
+<span id="cb16-26"><a href="#cb16-26"></a><span class="co">#&gt; PC7           241    107     0.4    1.680 9.66e-07 ***</span></span>
+<span id="cb16-27"><a href="#cb16-27"></a><span class="co">#&gt; Residuals     476    126     0.3                      </span></span>
 <span id="cb16-28"><a href="#cb16-28"></a><span class="co">#&gt; ---</span></span>
 <span id="cb16-29"><a href="#cb16-29"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
 <span id="cb16-30"><a href="#cb16-30"></a><span class="co">#&gt; </span></span>
 <span id="cb16-31"><a href="#cb16-31"></a><span class="co">#&gt; Environment scores </span></span>
 <span id="cb16-32"><a href="#cb16-32"></a><span class="co">#&gt; ==================</span></span>
-<span id="cb16-33"><a href="#cb16-33"></a><span class="co">#&gt;            PC1     PC2     PC3     PC4     PC5     PC6     PC7</span></span>
-<span id="cb16-34"><a href="#cb16-34"></a><span class="co">#&gt; Cam12R  0.4422  0.1214 -0.2370  0.0931 -0.2552  0.1253  0.1961</span></span>
-<span id="cb16-35"><a href="#cb16-35"></a><span class="co">#&gt; Cra12R  0.4358  0.0229 -0.3241  0.0409 -0.3491  0.1274  0.0138</span></span>
-<span id="cb16-36"><a href="#cb16-36"></a><span class="co">#&gt; Gai12W  0.0693 -0.4179 -0.1744  0.2772  0.6223  0.3705 -0.2763</span></span>
-<span id="cb16-37"><a href="#cb16-37"></a><span class="co">#&gt; Kar12W -0.0329  0.2499  0.7045  0.5170 -0.1714  0.1484 -0.1122</span></span>
-<span id="cb16-38"><a href="#cb16-38"></a><span class="co">#&gt; Kar13R -0.3649 -0.4133  0.0377  0.0680 -0.0676 -0.0332  0.7592</span></span>
-<span id="cb16-39"><a href="#cb16-39"></a><span class="co">#&gt; Kar13W -0.3620 -0.3925 -0.0402 -0.2244 -0.5039 -0.0616 -0.5330</span></span>
-<span id="cb16-40"><a href="#cb16-40"></a><span class="co">#&gt; Mar13R  0.0925  0.1666  0.3375 -0.7635  0.1925  0.3287  0.0749</span></span>
-<span id="cb16-41"><a href="#cb16-41"></a><span class="co">#&gt; Mur13R -0.2855  0.3230 -0.1778  0.0158  0.1311  0.0625 -0.0123</span></span>
-<span id="cb16-42"><a href="#cb16-42"></a><span class="co">#&gt; Mur13W -0.3539  0.5112 -0.3419  0.0475  0.1619 -0.2876 -0.0504</span></span>
-<span id="cb16-43"><a href="#cb16-43"></a><span class="co">#&gt; Ner12R  0.3594 -0.1715  0.2157 -0.0715  0.2394 -0.7805 -0.0599</span></span></code></pre></div>
+<span id="cb16-33"><a href="#cb16-33"></a><span class="co">#&gt;               PC1        PC2        PC3        PC4        PC5        PC6        PC7</span></span>
+<span id="cb16-34"><a href="#cb16-34"></a><span class="co">#&gt; Cam12R  0.4422147  0.1214471 -0.2369571  0.0930633 -0.2551905  0.1253164  0.1961217</span></span>
+<span id="cb16-35"><a href="#cb16-35"></a><span class="co">#&gt; Cra12R  0.4357878  0.0228969 -0.3241345  0.0408753 -0.3491380  0.1273883  0.0138441</span></span>
+<span id="cb16-36"><a href="#cb16-36"></a><span class="co">#&gt; Gai12W  0.0693329 -0.4178891 -0.1744131  0.2772191  0.6223073  0.3705224 -0.2762854</span></span>
+<span id="cb16-37"><a href="#cb16-37"></a><span class="co">#&gt; Kar12W -0.0329114  0.2499027  0.7045194  0.5170036 -0.1714308  0.1483767 -0.1121918</span></span>
+<span id="cb16-38"><a href="#cb16-38"></a><span class="co">#&gt; Kar13R -0.3648773 -0.4132687  0.0376676  0.0679819 -0.0676313 -0.0331790  0.7592167</span></span>
+<span id="cb16-39"><a href="#cb16-39"></a><span class="co">#&gt; Kar13W -0.3620128 -0.3924541 -0.0402238 -0.2244351 -0.5039275 -0.0615522 -0.5330438</span></span>
+<span id="cb16-40"><a href="#cb16-40"></a><span class="co">#&gt; Mar13R  0.0924811  0.1666174  0.3375440 -0.7634903  0.1925495  0.3287360  0.0748694</span></span>
+<span id="cb16-41"><a href="#cb16-41"></a><span class="co">#&gt; Mur13R -0.2854567  0.3230107 -0.1777747  0.0157987  0.1310997  0.0625228 -0.0122844</span></span>
+<span id="cb16-42"><a href="#cb16-42"></a><span class="co">#&gt; Mur13W -0.3539324  0.5112075 -0.3419304  0.0474776  0.1619466 -0.2876442 -0.0503901</span></span>
+<span id="cb16-43"><a href="#cb16-43"></a><span class="co">#&gt; Ner12R  0.3593742 -0.1714703  0.2157025 -0.0714941  0.2394149 -0.7804873 -0.0598564</span></span></code></pre></div>
 <p>From the summary it is clear that the final number of principal components, determined by forward selection, is seven.</p>
 <p>It is possible to exclude certain genotypes, e.g. outliers, from the analysis using the parameter <code>excludeGeno</code>.</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="co">## Run gxeAmmi with three principal components.</span></span>
@@ -700,24 +699,24 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb23-3"><a href="#cb23-3"></a><span class="kw">summary</span>(dropsGGE) </span>
 <span id="cb23-4"><a href="#cb23-4"></a><span class="co">#&gt; Principal components </span></span>
 <span id="cb23-5"><a href="#cb23-5"></a><span class="co">#&gt; ====================</span></span>
-<span id="cb23-6"><a href="#cb23-6"></a><span class="co">#&gt;                          PC1    PC2</span></span>
-<span id="cb23-7"><a href="#cb23-7"></a><span class="co">#&gt; Standard deviation     3.298 1.1685</span></span>
-<span id="cb23-8"><a href="#cb23-8"></a><span class="co">#&gt; Proportion of Variance 0.624 0.0783</span></span>
-<span id="cb23-9"><a href="#cb23-9"></a><span class="co">#&gt; Cumulative Proportion  0.624 0.7019</span></span>
+<span id="cb23-6"><a href="#cb23-6"></a><span class="co">#&gt;                           PC1     PC2</span></span>
+<span id="cb23-7"><a href="#cb23-7"></a><span class="co">#&gt; Standard deviation     3.2981 1.16854</span></span>
+<span id="cb23-8"><a href="#cb23-8"></a><span class="co">#&gt; Proportion of Variance 0.6236 0.07828</span></span>
+<span id="cb23-9"><a href="#cb23-9"></a><span class="co">#&gt; Cumulative Proportion  0.6236 0.70186</span></span>
 <span id="cb23-10"><a href="#cb23-10"></a><span class="co">#&gt; </span></span>
 <span id="cb23-11"><a href="#cb23-11"></a><span class="co">#&gt; Environment scores </span></span>
 <span id="cb23-12"><a href="#cb23-12"></a><span class="co">#&gt; ==================</span></span>
-<span id="cb23-13"><a href="#cb23-13"></a><span class="co">#&gt;          PC1     PC2</span></span>
-<span id="cb23-14"><a href="#cb23-14"></a><span class="co">#&gt; Cam12R 0.129  0.0379</span></span>
-<span id="cb23-15"><a href="#cb23-15"></a><span class="co">#&gt; Cra12R 0.104  0.0936</span></span>
-<span id="cb23-16"><a href="#cb23-16"></a><span class="co">#&gt; Gai12W 0.279  0.4476</span></span>
-<span id="cb23-17"><a href="#cb23-17"></a><span class="co">#&gt; Kar12W 0.307 -0.1771</span></span>
-<span id="cb23-18"><a href="#cb23-18"></a><span class="co">#&gt; Kar13R 0.437  0.3170</span></span>
-<span id="cb23-19"><a href="#cb23-19"></a><span class="co">#&gt; Kar13W 0.430  0.2866</span></span>
-<span id="cb23-20"><a href="#cb23-20"></a><span class="co">#&gt; Mar13R 0.276 -0.0465</span></span>
-<span id="cb23-21"><a href="#cb23-21"></a><span class="co">#&gt; Mur13R 0.395 -0.3668</span></span>
-<span id="cb23-22"><a href="#cb23-22"></a><span class="co">#&gt; Mur13W 0.409 -0.5838</span></span>
-<span id="cb23-23"><a href="#cb23-23"></a><span class="co">#&gt; Ner12R 0.160  0.3129</span></span></code></pre></div>
+<span id="cb23-13"><a href="#cb23-13"></a><span class="co">#&gt;           PC1      PC2</span></span>
+<span id="cb23-14"><a href="#cb23-14"></a><span class="co">#&gt; Cam12R 0.1294  0.03795</span></span>
+<span id="cb23-15"><a href="#cb23-15"></a><span class="co">#&gt; Cra12R 0.1042  0.09359</span></span>
+<span id="cb23-16"><a href="#cb23-16"></a><span class="co">#&gt; Gai12W 0.2786  0.44765</span></span>
+<span id="cb23-17"><a href="#cb23-17"></a><span class="co">#&gt; Kar12W 0.3074 -0.17714</span></span>
+<span id="cb23-18"><a href="#cb23-18"></a><span class="co">#&gt; Kar13R 0.4368  0.31696</span></span>
+<span id="cb23-19"><a href="#cb23-19"></a><span class="co">#&gt; Kar13W 0.4295  0.28661</span></span>
+<span id="cb23-20"><a href="#cb23-20"></a><span class="co">#&gt; Mar13R 0.2757 -0.04652</span></span>
+<span id="cb23-21"><a href="#cb23-21"></a><span class="co">#&gt; Mur13R 0.3951 -0.36678</span></span>
+<span id="cb23-22"><a href="#cb23-22"></a><span class="co">#&gt; Mur13W 0.4090 -0.58382</span></span>
+<span id="cb23-23"><a href="#cb23-23"></a><span class="co">#&gt; Ner12R 0.1599  0.31286</span></span></code></pre></div>
 <p>Options for plotting results of a GGE analysis are identical to those for an AMMI analysis. When a convex hull is plotted, lines from the origin perpendicular to the edges of the hull are added as well.</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="co">## Create a GGE2 biplot.</span></span>
 <span id="cb24-2"><a href="#cb24-2"></a><span class="kw">plot</span>(dropsGGE, <span class="dt">scale =</span> <span class="fl">0.5</span>, <span class="dt">plotType =</span> <span class="st">&quot;GGE2&quot;</span>, <span class="dt">plotConvHull =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
@@ -734,16 +733,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb25-5"><a href="#cb25-5"></a><span class="co">#&gt; Mega environments based on grain.yield</span></span>
 <span id="cb25-6"><a href="#cb25-6"></a><span class="co">#&gt; </span></span>
 <span id="cb25-7"><a href="#cb25-7"></a><span class="co">#&gt;  Mega factor  Trial Winning genotype AMMI estimates</span></span>
-<span id="cb25-8"><a href="#cb25-8"></a><span class="co">#&gt;            1 Kar12W           Lo1087          12.46</span></span>
-<span id="cb25-9"><a href="#cb25-9"></a><span class="co">#&gt;            1 Mar13R           Lo1087          10.03</span></span>
-<span id="cb25-10"><a href="#cb25-10"></a><span class="co">#&gt;            1 Mur13R           Lo1087          10.49</span></span>
-<span id="cb25-11"><a href="#cb25-11"></a><span class="co">#&gt;            1 Mur13W           Lo1087          11.31</span></span>
-<span id="cb25-12"><a href="#cb25-12"></a><span class="co">#&gt;            2 Kar13R           Lo1251          13.66</span></span>
-<span id="cb25-13"><a href="#cb25-13"></a><span class="co">#&gt;            2 Kar13W           Lo1251          11.79</span></span>
-<span id="cb25-14"><a href="#cb25-14"></a><span class="co">#&gt;            3 Gai12W           Lo1270          13.80</span></span>
-<span id="cb25-15"><a href="#cb25-15"></a><span class="co">#&gt;            4 Cam12R            PHG35           4.26</span></span>
-<span id="cb25-16"><a href="#cb25-16"></a><span class="co">#&gt;            4 Cra12R            PHG35           3.85</span></span>
-<span id="cb25-17"><a href="#cb25-17"></a><span class="co">#&gt;            4 Ner12R            PHG35           7.10</span></span></code></pre></div>
+<span id="cb25-8"><a href="#cb25-8"></a><span class="co">#&gt;            1 Kar12W           Lo1087        12.4621</span></span>
+<span id="cb25-9"><a href="#cb25-9"></a><span class="co">#&gt;            1 Mar13R           Lo1087        10.0328</span></span>
+<span id="cb25-10"><a href="#cb25-10"></a><span class="co">#&gt;            1 Mur13R           Lo1087        10.4911</span></span>
+<span id="cb25-11"><a href="#cb25-11"></a><span class="co">#&gt;            1 Mur13W           Lo1087        11.3054</span></span>
+<span id="cb25-12"><a href="#cb25-12"></a><span class="co">#&gt;            2 Kar13R           Lo1251        13.6593</span></span>
+<span id="cb25-13"><a href="#cb25-13"></a><span class="co">#&gt;            2 Kar13W           Lo1251        11.7879</span></span>
+<span id="cb25-14"><a href="#cb25-14"></a><span class="co">#&gt;            3 Gai12W           Lo1270        13.7960</span></span>
+<span id="cb25-15"><a href="#cb25-15"></a><span class="co">#&gt;            4 Cam12R            PHG35         4.2604</span></span>
+<span id="cb25-16"><a href="#cb25-16"></a><span class="co">#&gt;            4 Cra12R            PHG35         3.8492</span></span>
+<span id="cb25-17"><a href="#cb25-17"></a><span class="co">#&gt;            4 Ner12R            PHG35         7.0998</span></span></code></pre></div>
 <p>As can be seen in the column Mega factor in the summary, four mega environments have been created, one for each of the winning genotypes “Lo1087”, “Lo1251”, “Lo1270” and “PHG35”.</p>
 <p>The values for the Best Linear Unbiased Predictors (BLUPs) and associated standard errors for the genotypes based on the calculated mega environments, can be computed using the function <code>predict</code> on the output. This can be done using either lme4 <span class="citation">(Bates et al. 2015)</span> or asreml <span class="citation">(Butler et al. 2017)</span> as an engine for fitting the model.</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="cf">if</span> (<span class="kw">requireNamespace</span>(<span class="dt">package =</span> <span class="st">&quot;asreml&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)) {</span>
@@ -754,21 +753,21 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb26-6"><a href="#cb26-6"></a>  <span class="kw">print</span>(<span class="kw">head</span>(geMegaEnvPred<span class="op">$</span>predictedValue))</span>
 <span id="cb26-7"><a href="#cb26-7"></a>  <span class="kw">print</span>(<span class="kw">head</span>(geMegaEnvPred<span class="op">$</span>standardError))</span>
 <span id="cb26-8"><a href="#cb26-8"></a>}</span>
-<span id="cb26-9"><a href="#cb26-9"></a><span class="co">#&gt; License check Mon Jun 22 13:48:51 2020</span></span>
-<span id="cb26-10"><a href="#cb26-10"></a><span class="co">#&gt;          1    2    3    4</span></span>
-<span id="cb26-11"><a href="#cb26-11"></a><span class="co">#&gt; 11430 6.47 7.20 7.13 6.76</span></span>
-<span id="cb26-12"><a href="#cb26-12"></a><span class="co">#&gt; A3    6.00 6.61 6.75 6.57</span></span>
-<span id="cb26-13"><a href="#cb26-13"></a><span class="co">#&gt; A310  5.09 4.39 5.91 6.83</span></span>
-<span id="cb26-14"><a href="#cb26-14"></a><span class="co">#&gt; A347  5.17 4.70 5.69 6.45</span></span>
-<span id="cb26-15"><a href="#cb26-15"></a><span class="co">#&gt; A374  7.53 7.31 7.31 7.30</span></span>
-<span id="cb26-16"><a href="#cb26-16"></a><span class="co">#&gt; A375  6.40 6.49 6.82 6.89</span></span>
-<span id="cb26-17"><a href="#cb26-17"></a><span class="co">#&gt;           1     2     3     4</span></span>
-<span id="cb26-18"><a href="#cb26-18"></a><span class="co">#&gt; 11430 0.333 0.429 0.373 0.274</span></span>
-<span id="cb26-19"><a href="#cb26-19"></a><span class="co">#&gt; A3    0.333 0.429 0.373 0.274</span></span>
-<span id="cb26-20"><a href="#cb26-20"></a><span class="co">#&gt; A310  0.333 0.429 0.373 0.274</span></span>
-<span id="cb26-21"><a href="#cb26-21"></a><span class="co">#&gt; A347  0.333 0.429 0.373 0.274</span></span>
-<span id="cb26-22"><a href="#cb26-22"></a><span class="co">#&gt; A374  0.333 0.429 0.373 0.274</span></span>
-<span id="cb26-23"><a href="#cb26-23"></a><span class="co">#&gt; A375  0.333 0.429 0.373 0.274</span></span></code></pre></div>
+<span id="cb26-9"><a href="#cb26-9"></a><span class="co">#&gt; License check Mon Jun 22 15:28:53 2020</span></span>
+<span id="cb26-10"><a href="#cb26-10"></a><span class="co">#&gt;            1      2      3      4</span></span>
+<span id="cb26-11"><a href="#cb26-11"></a><span class="co">#&gt; 11430 6.4742 7.2043 7.1343 6.7571</span></span>
+<span id="cb26-12"><a href="#cb26-12"></a><span class="co">#&gt; A3    5.9956 6.6085 6.7493 6.5720</span></span>
+<span id="cb26-13"><a href="#cb26-13"></a><span class="co">#&gt; A310  5.0941 4.3924 5.9140 6.8347</span></span>
+<span id="cb26-14"><a href="#cb26-14"></a><span class="co">#&gt; A347  5.1709 4.7004 5.6903 6.4463</span></span>
+<span id="cb26-15"><a href="#cb26-15"></a><span class="co">#&gt; A374  7.5322 7.3081 7.3062 7.2980</span></span>
+<span id="cb26-16"><a href="#cb26-16"></a><span class="co">#&gt; A375  6.3963 6.4869 6.8184 6.8900</span></span>
+<span id="cb26-17"><a href="#cb26-17"></a><span class="co">#&gt;             1       2      3       4</span></span>
+<span id="cb26-18"><a href="#cb26-18"></a><span class="co">#&gt; 11430 0.33316 0.42862 0.3732 0.27448</span></span>
+<span id="cb26-19"><a href="#cb26-19"></a><span class="co">#&gt; A3    0.33316 0.42862 0.3732 0.27448</span></span>
+<span id="cb26-20"><a href="#cb26-20"></a><span class="co">#&gt; A310  0.33316 0.42862 0.3732 0.27448</span></span>
+<span id="cb26-21"><a href="#cb26-21"></a><span class="co">#&gt; A347  0.33316 0.42862 0.3732 0.27448</span></span>
+<span id="cb26-22"><a href="#cb26-22"></a><span class="co">#&gt; A374  0.33316 0.42862 0.3732 0.27448</span></span>
+<span id="cb26-23"><a href="#cb26-23"></a><span class="co">#&gt; A375  0.33316 0.42862 0.3732 0.27448</span></span></code></pre></div>
 <p>The results of the predictions can be visualized in a scatterplot using the <code>plot</code> functions. This creates a similar plot to the one described in the <a href="#dp">data preparation</a> section earlier in the vignette. However, now the predicted values for the genotypes in the different mega environments are displayed. The predictions are calculated inside the plot functions. By default lme4 is used for this. To change to asreml specify <code>engine = asreml</code>. Genotypes can be colored by the value of a variable in the TD object used for calculating the mega environments by specifying <code>colorBy</code>.</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="cf">if</span> (<span class="kw">requireNamespace</span>(<span class="dt">package =</span> <span class="st">&quot;asreml&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)) {</span>
 <span id="cb27-2"><a href="#cb27-2"></a>  <span class="co">## Create a scatter plot of predictions in mega environments.</span></span>
@@ -791,28 +790,28 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb28-4"><a href="#cb28-4"></a><span class="kw">summary</span>(dropsStab, <span class="dt">pctGeno =</span> <span class="dv">2</span>)</span>
 <span id="cb28-5"><a href="#cb28-5"></a><span class="co">#&gt; </span></span>
 <span id="cb28-6"><a href="#cb28-6"></a><span class="co">#&gt; Cultivar-superiority measure (Top 2 % genotypes)</span></span>
-<span id="cb28-7"><a href="#cb28-7"></a><span class="co">#&gt;  genotype mean superiority</span></span>
-<span id="cb28-8"><a href="#cb28-8"></a><span class="co">#&gt;      Pa36 4.04        21.8</span></span>
-<span id="cb28-9"><a href="#cb28-9"></a><span class="co">#&gt;      F252 4.36        19.9</span></span>
-<span id="cb28-10"><a href="#cb28-10"></a><span class="co">#&gt;     CO109 4.73        17.7</span></span>
-<span id="cb28-11"><a href="#cb28-11"></a><span class="co">#&gt;    EA1163 4.68        17.5</span></span>
-<span id="cb28-12"><a href="#cb28-12"></a><span class="co">#&gt;      EP72 4.83        17.4</span></span>
+<span id="cb28-7"><a href="#cb28-7"></a><span class="co">#&gt;  genotype    mean superiority</span></span>
+<span id="cb28-8"><a href="#cb28-8"></a><span class="co">#&gt;      Pa36 4.03790     21.7865</span></span>
+<span id="cb28-9"><a href="#cb28-9"></a><span class="co">#&gt;      F252 4.35804     19.8752</span></span>
+<span id="cb28-10"><a href="#cb28-10"></a><span class="co">#&gt;     CO109 4.73382     17.6806</span></span>
+<span id="cb28-11"><a href="#cb28-11"></a><span class="co">#&gt;    EA1163 4.68129     17.4563</span></span>
+<span id="cb28-12"><a href="#cb28-12"></a><span class="co">#&gt;      EP72 4.83195     17.3885</span></span>
 <span id="cb28-13"><a href="#cb28-13"></a><span class="co">#&gt; </span></span>
 <span id="cb28-14"><a href="#cb28-14"></a><span class="co">#&gt; Static stability (Top 2 % genotypes)</span></span>
-<span id="cb28-15"><a href="#cb28-15"></a><span class="co">#&gt;   genotype mean static</span></span>
-<span id="cb28-16"><a href="#cb28-16"></a><span class="co">#&gt;     Lo1251 9.03   20.8</span></span>
-<span id="cb28-17"><a href="#cb28-17"></a><span class="co">#&gt;      PHG83 7.80   19.2</span></span>
-<span id="cb28-18"><a href="#cb28-18"></a><span class="co">#&gt;  SC-Malawi 7.13   18.2</span></span>
-<span id="cb28-19"><a href="#cb28-19"></a><span class="co">#&gt;      FR697 7.49   18.2</span></span>
-<span id="cb28-20"><a href="#cb28-20"></a><span class="co">#&gt;   DK78371A 7.34   18.2</span></span>
+<span id="cb28-15"><a href="#cb28-15"></a><span class="co">#&gt;   genotype    mean  static</span></span>
+<span id="cb28-16"><a href="#cb28-16"></a><span class="co">#&gt;     Lo1251 9.03024 20.7656</span></span>
+<span id="cb28-17"><a href="#cb28-17"></a><span class="co">#&gt;      PHG83 7.79922 19.1744</span></span>
+<span id="cb28-18"><a href="#cb28-18"></a><span class="co">#&gt;  SC-Malawi 7.12909 18.2355</span></span>
+<span id="cb28-19"><a href="#cb28-19"></a><span class="co">#&gt;      FR697 7.48625 18.1761</span></span>
+<span id="cb28-20"><a href="#cb28-20"></a><span class="co">#&gt;   DK78371A 7.34072 18.1680</span></span>
 <span id="cb28-21"><a href="#cb28-21"></a><span class="co">#&gt; </span></span>
 <span id="cb28-22"><a href="#cb28-22"></a><span class="co">#&gt; Wricke&#39;s ecovalence (Top 2 % genotypes)</span></span>
-<span id="cb28-23"><a href="#cb28-23"></a><span class="co">#&gt;  genotype mean wricke</span></span>
-<span id="cb28-24"><a href="#cb28-24"></a><span class="co">#&gt;      A310 5.65   26.0</span></span>
-<span id="cb28-25"><a href="#cb28-25"></a><span class="co">#&gt;    Lo1251 9.03   24.2</span></span>
-<span id="cb28-26"><a href="#cb28-26"></a><span class="co">#&gt;   UH_P064 6.81   22.9</span></span>
-<span id="cb28-27"><a href="#cb28-27"></a><span class="co">#&gt;    Lo1270 8.35   22.2</span></span>
-<span id="cb28-28"><a href="#cb28-28"></a><span class="co">#&gt;     PHG83 7.80   20.1</span></span></code></pre></div>
+<span id="cb28-23"><a href="#cb28-23"></a><span class="co">#&gt;  genotype    mean  wricke</span></span>
+<span id="cb28-24"><a href="#cb28-24"></a><span class="co">#&gt;      A310 5.64885 26.0203</span></span>
+<span id="cb28-25"><a href="#cb28-25"></a><span class="co">#&gt;    Lo1251 9.03024 24.1650</span></span>
+<span id="cb28-26"><a href="#cb28-26"></a><span class="co">#&gt;   UH_P064 6.81195 22.9318</span></span>
+<span id="cb28-27"><a href="#cb28-27"></a><span class="co">#&gt;    Lo1270 8.35135 22.2490</span></span>
+<span id="cb28-28"><a href="#cb28-28"></a><span class="co">#&gt;     PHG83 7.79922 20.0827</span></span></code></pre></div>
 <p>Plotting the results yields a scatter plot for the square root of each stability measure, plotted against the genotypic mean.</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="co">## Create plots for the different stability measures.</span></span>
 <span id="cb29-2"><a href="#cb29-2"></a><span class="co">## Color genotypes by geneticGroup.</span></span>
@@ -906,8 +905,8 @@ The models fitted are of the form <span class="math inline">\(y_{ij} = \mu_i + \
 <span id="cb30-2"><a href="#cb30-2"></a>dropsVC &lt;-<span class="st"> </span><span class="kw">gxeVarCov</span>(<span class="dt">TD =</span> dropsTD, <span class="dt">trait =</span> <span class="st">&quot;grain.yield&quot;</span>)</span>
 <span id="cb30-3"><a href="#cb30-3"></a><span class="kw">summary</span>(dropsVC)</span>
 <span id="cb30-4"><a href="#cb30-4"></a><span class="co">#&gt; Best model: cs, based on BIC.</span></span>
-<span id="cb30-5"><a href="#cb30-5"></a><span class="co">#&gt;     AIC  BIC Deviance NParameters</span></span>
-<span id="cb30-6"><a href="#cb30-6"></a><span class="co">#&gt; cs 7295 7307     7291           2</span></span></code></pre></div>
+<span id="cb30-5"><a href="#cb30-5"></a><span class="co">#&gt;         AIC     BIC Deviance NParameters</span></span>
+<span id="cb30-6"><a href="#cb30-6"></a><span class="co">#&gt; cs 7295.144 7306.76 7291.144           2</span></span></code></pre></div>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="co">## Use asreml for fitting the models - eight models fitted. </span></span>
 <span id="cb31-2"><a href="#cb31-2"></a><span class="co">## Use AIC as criterion for determining the best model.</span></span>
 <span id="cb31-3"><a href="#cb31-3"></a><span class="cf">if</span> (<span class="kw">requireNamespace</span>(<span class="st">&quot;asreml&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)) {</span>
@@ -915,15 +914,15 @@ The models fitted are of the form <span class="math inline">\(y_{ij} = \mu_i + \
 <span id="cb31-5"><a href="#cb31-5"></a>  <span class="kw">summary</span>(dropsVC2)</span>
 <span id="cb31-6"><a href="#cb31-6"></a>}</span>
 <span id="cb31-7"><a href="#cb31-7"></a><span class="co">#&gt; Best model: unstructured, based on AIC.</span></span>
-<span id="cb31-8"><a href="#cb31-8"></a><span class="co">#&gt;               AIC  BIC Deviance NParameters</span></span>
-<span id="cb31-9"><a href="#cb31-9"></a><span class="co">#&gt; unstructured 2142 2456     2032          55</span></span>
-<span id="cb31-10"><a href="#cb31-10"></a><span class="co">#&gt; fa2          2296 2462     2238          29</span></span>
-<span id="cb31-11"><a href="#cb31-11"></a><span class="co">#&gt; fa           2410 2524     2370          20</span></span>
-<span id="cb31-12"><a href="#cb31-12"></a><span class="co">#&gt; outside      2416 2478     2394          11</span></span>
-<span id="cb31-13"><a href="#cb31-13"></a><span class="co">#&gt; hcs          2776 2839     2754          11</span></span>
-<span id="cb31-14"><a href="#cb31-14"></a><span class="co">#&gt; cs           2792 2804     2788           2</span></span>
-<span id="cb31-15"><a href="#cb31-15"></a><span class="co">#&gt; diagonal     3638 3695     3618          10</span></span>
-<span id="cb31-16"><a href="#cb31-16"></a><span class="co">#&gt; identity     3870 3876     3868           1</span></span></code></pre></div>
+<span id="cb31-8"><a href="#cb31-8"></a><span class="co">#&gt;                   AIC      BIC Deviance NParameters</span></span>
+<span id="cb31-9"><a href="#cb31-9"></a><span class="co">#&gt; unstructured 2142.065 2455.706 2032.065          55</span></span>
+<span id="cb31-10"><a href="#cb31-10"></a><span class="co">#&gt; fa2          2296.191 2461.565 2238.191          29</span></span>
+<span id="cb31-11"><a href="#cb31-11"></a><span class="co">#&gt; fa           2409.822 2523.873 2369.822          20</span></span>
+<span id="cb31-12"><a href="#cb31-12"></a><span class="co">#&gt; outside      2415.683 2478.411 2393.683          11</span></span>
+<span id="cb31-13"><a href="#cb31-13"></a><span class="co">#&gt; hcs          2775.819 2838.548 2753.819          11</span></span>
+<span id="cb31-14"><a href="#cb31-14"></a><span class="co">#&gt; cs           2792.345 2803.750 2788.345           2</span></span>
+<span id="cb31-15"><a href="#cb31-15"></a><span class="co">#&gt; diagonal     3637.959 3694.985 3617.959          10</span></span>
+<span id="cb31-16"><a href="#cb31-16"></a><span class="co">#&gt; identity     3870.166 3875.869 3868.166           1</span></span></code></pre></div>
 <p>As becomes clear from the summary, the best model based on AIC is the model with an unstructured variance-covariance structure. This indicates that GxE is present in the form of heterogeneity of genetic variances and correlations..</p>
 <p><em>Note that for both factor analytic models to be fitted a minimum of five environments is needed. If the data contains less environments, those two models are skipped.</em></p>
 <p>A heat map of the correlation between the environments based on the best fitted model can be plotted.</p>

@@ -2,8 +2,7 @@
 knitr::opts_chunk$set(
 collapse = TRUE,
 comment = "#>",
-fig.dim = c(7, 4),
-R.options=list(digits = 3) 
+fig.dim = c(7, 4)
 )
 library(statgenGxE)
 ## Call requireNamespace here to prevent license output in first call in vignette.
@@ -21,8 +20,7 @@ dropsTD <- statgenSTA::createTD(data = dropsPheno, genotype = "Variety_ID", tria
 ## Create a box plot of dropsTD.
 ## Color the boxes based on the variable scenarioFull.
 ## Plot in  descending order.
-plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull", 
-     orderBy = "descending")
+plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull",      orderBy = "descending")
 
 ## ----TDscatter, fig.dim = c(8.5, 8.5)---------------------------------------------------
 ## Create a scatter plot of dropsTD.
@@ -40,7 +38,7 @@ summary(dropsVarComp)
 #  ## Print diagnostics - output suppressed because of the large number of rows.
 #  diagnostics(dropsVarComp)
 
-## ----vcHerit----------------------------------------------------------------------------
+## ----vcHerit, R.options=list(digits=4)--------------------------------------------------
 ## Extract variance components.
 vc(dropsVarComp)
 ## Compute heritability.
@@ -50,7 +48,7 @@ herit(dropsVarComp)
 ## Plot the results of the fitted model.
 plot(dropsVarComp)
 
-## ----predict----------------------------------------------------------------------------
+## ----predict, R.options=list(digits=4)--------------------------------------------------
 ## Predictions of the genotype main effect.
 predGeno <- predict(dropsVarComp)
 head(predGeno)
@@ -61,7 +59,7 @@ head(predGenoTrial)
 predGenoLoc <- predict(dropsVarComp, predictLevel = "loc")
 head(predGenoLoc)
 
-## ----geFW-------------------------------------------------------------------------------
+## ----geFW, R.options=list(digits=6)-----------------------------------------------------
 ## Perform a Finlay-Wilkinson analysis for all trials.
 dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")
 summary(dropsFW)
@@ -86,12 +84,12 @@ plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347",
 ## Color genotypes by geneticGroup.
 plot(dropsFW, plotType = "scatterFit", colorBy = "geneticGroup")
 
-## ----geAmmi-----------------------------------------------------------------------------
+## ----geAmmi, R.options=list(digits=6)---------------------------------------------------
 ## Run gxeAmmi for grain.yield.
 dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield")
 summary(dropsAm)
 
-## ----geAmmi2----------------------------------------------------------------------------
+## ----geAmmi2, R.options=list(digits=6)--------------------------------------------------
 ## Run gxeAmmi. Let algorithm determine number of principal components.
 dropsAm2 <- gxeAmmi(TD = dropsTD, trait = "grain.yield", nPC = NULL)
 summary(dropsAm2)
@@ -127,7 +125,7 @@ plot(dropsAm, scale = 0.4, plotType = "AMMI2",
 ## Create an AMMI2 biplot with convex hull around the genotypes.
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy = "scenarioFull")
 
-## ----geGGE------------------------------------------------------------------------------
+## ----geGGE, R.options=list(digits=4)----------------------------------------------------
 ## Run gxeAmmi with default settings.
 dropsGGE <- gxeGGE(TD = dropsTD, trait = "grain.yield")
 summary(dropsGGE) 
@@ -136,13 +134,13 @@ summary(dropsGGE)
 ## Create a GGE2 biplot.
 plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 
-## ----geMegaEnv, R.options=list(digits=3)------------------------------------------------
+## ----geMegaEnv, R.options=list(digits=5)------------------------------------------------
 ## Compute mega environments.
 dropsMegaEnv <- gxeMegaEnv(TD = dropsTD, trait = "grain.yield")
 ## Summarize results.
 summary(dropsMegaEnv)
 
-## ----geMegaEnvPred, R.options=list(digits=3)--------------------------------------------
+## ----geMegaEnvPred, R.options=list(digits=5)--------------------------------------------
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Compute BLUPs.
   ## Use asreml as engine for fitting model.
@@ -159,7 +157,7 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
   plot(dropsMegaEnv, engine = "asreml", colorBy = "geneticGroup")
 }
 
-## ----geStab, R.options=list(digits=3)---------------------------------------------------
+## ----geStab, R.options=list(digits=6)---------------------------------------------------
 ## Compute stability measures for dropsTD.
 dropsStab <- gxeStability(TD = dropsTD, trait = "grain.yield")
 ## In the summary print the top two percent of the genotypes.

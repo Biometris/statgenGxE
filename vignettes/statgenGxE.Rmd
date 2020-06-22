@@ -17,8 +17,7 @@ vignette: >
 knitr::opts_chunk$set(
 collapse = TRUE,
 comment = "#>",
-fig.dim = c(7, 4),
-R.options=list(digits = 3) 
+fig.dim = c(7, 4)
 )
 library(statgenGxE)
 ## Call requireNamespace here to prevent license output in first call in vignette.
@@ -69,8 +68,7 @@ Before doing any analysis, we can first have a look at the contents of the data.
 ## Create a box plot of dropsTD.
 ## Color the boxes based on the variable scenarioFull.
 ## Plot in  descending order.
-plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull", 
-     orderBy = "descending")
+plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull",      orderBy = "descending")
 ```
 
 From the plot it is clear that the trials in the hot, water deficient environments have a lower median and range than the other trials.
@@ -134,7 +132,7 @@ diagnostics(dropsVarComp)
 
 Extracting the variance components from the fitted model can be done using the `vc` function. The heritability (across trials) is computed using `herit`.
 
-```{r vcHerit}
+```{r vcHerit, R.options=list(digits=4)}
 ## Extract variance components.
 vc(dropsVarComp)
 ## Compute heritability.
@@ -148,7 +146,7 @@ plot(dropsVarComp)
 ```
 Predictions for the mixed model can be made for model terms that represent different levels of data aggregation; for the genotype main effect or for genotypic performance in grouped environments, or for genotypic performance in individual trials. These levels can be specified by the parameter `predictLevel`.
 
-```{r predict}
+```{r predict, R.options=list(digits=4)}
 ## Predictions of the genotype main effect.
 predGeno <- predict(dropsVarComp)
 head(predGeno)
@@ -169,7 +167,7 @@ With the Finlay-Wilkinson Analysis [@Finlay1963] we describe genotype by environ
 The model fitted in the analysis is $y_{ij} = \mu + G_i + \beta_iE_j + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic effect, $\beta_i$ a sensitivity parameters, $E_j$ the environment effect and $\epsilon_{ij}$ a residual.
 
 In the statgenGxE package this analysis can be done using the `gxeFW` function. By default all trials in the `TD` object are used in the analysis, but this can be restricted using the parameter `trials`. The genotypes included in the analysis can be restricted using `genotypes`.
-```{r geFW}
+```{r geFW, R.options=list(digits=6)}
 ## Perform a Finlay-Wilkinson analysis for all trials.
 dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")
 summary(dropsFW)
@@ -214,13 +212,13 @@ The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a mod
 The model fitted in the analysis is $y_{ij} = \mu + G_i + E_j + \Sigma_{m =1}^M\gamma_{mi}\delta_{mj} + \epsilon_{ij}$, where $M$ is the number of principal components, $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic effect, $E_j$ the environmental effect, $\gamma_{mi}$ the genotypic scores, $\delta_{mj}$ the environmental scores, and $\epsilon_{ij}$ a residual.
 
 The AMMI analysis can be performed with the statgenGxE package using the function `gxeAmmi`. 
-```{r geAmmi}
+```{r geAmmi, R.options=list(digits=6)}
 ## Run gxeAmmi for grain.yield.
 dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield")
 summary(dropsAm)
 ```
 With the default settings in the AMMI analysis a maximum of two principal components are used. This can be changed using the parameter `nPC` in the function. The number of principal components should be lower than the smallest of the number of genotypes or environments minus one. By specifying `nPC = NULL` the algorithm will determine the number of principal components by a method of forward selection.
-```{r geAmmi2}
+```{r geAmmi2, R.options=list(digits=6)}
 ## Run gxeAmmi. Let algorithm determine number of principal components.
 dropsAm2 <- gxeAmmi(TD = dropsTD, trait = "grain.yield", nPC = NULL)
 summary(dropsAm2)
@@ -289,7 +287,7 @@ The model fitted in the GGE analysis is $y_{ij} = \mu + E_j + \gamma_{1i}\delta_
 
 The GGE analysis is done in statgenGxE by running the function `gxeGGE` which has identical options as the `gxeAmmi` function.
 
-```{r geGGE}
+```{r geGGE, R.options=list(digits=4)}
 ## Run gxeAmmi with default settings.
 dropsGGE <- gxeGGE(TD = dropsTD, trait = "grain.yield")
 summary(dropsGGE) 
@@ -307,7 +305,7 @@ plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
 
 For the computation of mega environments, an AMMI model is fitted and then, using the fitted values from this model, the environments are clustered.
 Mega environments are created by grouping environments based on their best performing genotype. Environments that share the same best genotype belong to the same mega environment.  
-```{r geMegaEnv, R.options=list(digits=3)}
+```{r geMegaEnv, R.options=list(digits=5)}
 ## Compute mega environments.
 dropsMegaEnv <- gxeMegaEnv(TD = dropsTD, trait = "grain.yield")
 ## Summarize results.
@@ -317,7 +315,7 @@ As can be seen in the column Mega factor in the summary, four mega environments 
 
 The values for the Best Linear Unbiased Predictors (BLUPs) and associated standard errors for the genotypes based on the calculated mega environments, can be computed using the function `predict` on the output. This can be done using either lme4 [@Bates2015] or asreml [@Gilmour2017] as an engine for fitting the model.
 
-```{r geMegaEnvPred, R.options=list(digits=3)}
+```{r geMegaEnvPred, R.options=list(digits=5)}
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Compute BLUPs.
   ## Use asreml as engine for fitting model.
@@ -352,7 +350,7 @@ Wricke's Ecovalence Stability Coefficient is the contribution of each genotype t
 
 To compute the stability measures use `gxeStability`. This will compute all three stability measures described above. This can be restricted by specifying one or more measure in `method`.
 
-```{r geStab, R.options=list(digits=3)}
+```{r geStab, R.options=list(digits=6)}
 ## Compute stability measures for dropsTD.
 dropsStab <- gxeStability(TD = dropsTD, trait = "grain.yield")
 ## In the summary print the top two percent of the genotypes.
