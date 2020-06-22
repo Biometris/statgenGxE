@@ -266,10 +266,11 @@ predict.varComp <- function(object,
     ## Remove those.
     preds <- preds[preds[["status"]] == "Estimable", ]
     ## Convert to data.frame to get rid of attributes.
-    ## Only include actual predictions (since lme4 doesn't provide SE).
-    preds <- as.data.frame(preds[, 1:(ncol(preds) - 2)])
+    ## Remove status column.
+    preds <- as.data.frame(preds[, 1:(ncol(preds) - 1)])
     ## Rename column to match lme4 output.
-    colnames(preds)[ncol(preds)] <- "predictedValue"
+    colnames(preds)[colnames(preds) %in% c("predicted.value", "std.error")] <-
+      c("predictedValue", "stdError")
   }
   return(preds)
 }
