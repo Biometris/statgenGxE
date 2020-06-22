@@ -256,6 +256,8 @@ plot.FW <- function(x,
                          sec.axis = dup_axis(name = "Environment",
                                              breaks = envEffs[["envMean"]],
                                              labels = envEffs[["trial"]])) +
+      ggplot2::geom_vline(xintercept = mean(TDTot[[trait]], na.rm = TRUE),
+                          color = "red", linetype = "dashed") +
       coord_equal(xlim = plotLims, ylim = plotLims) +
       theme(legend.position = if (is.null(colorBy)) "none" else "right",
             plot.title = element_text(hjust = 0.5),
