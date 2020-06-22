@@ -50,9 +50,9 @@ A plot depending on \code{plotType}.
 }
 \description{
 Four types of plot can be made. A scatter plot for genotypic mean,
-mean squared deviation and sensitivity, a line plot with fitted lines for
-each genotype, a trellis plot with individual slopes per genotype and a
-scatter plot of fitted values in the worst and best trial.\cr
+square root of mean squared deviation and sensitivity, a line plot with
+fitted lines for each genotype, a trellis plot with individual slopes per
+genotype and a scatter plot of fitted values in the worst and best trial.\cr
 It is possible to select genotypes for the trellis plot using the
 \code{genotypes} parameter. If there are more than 64 genotypes, only the
 first 64 are plotted in the trellis plot.

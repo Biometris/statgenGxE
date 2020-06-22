@@ -82,9 +82,9 @@ summary.FW <- function(object, ...) {
 #' Plot function for class FW
 #'
 #' Four types of plot can be made. A scatter plot for genotypic mean,
-#' mean squared deviation and sensitivity, a line plot with fitted lines for
-#' each genotype, a trellis plot with individual slopes per genotype and a
-#' scatter plot of fitted values in the worst and best trial.\cr
+#' square root of mean squared deviation and sensitivity, a line plot with
+#' fitted lines for each genotype, a trellis plot with individual slopes per
+#' genotype and a scatter plot of fitted values in the worst and best trial.\cr
 #' It is possible to select genotypes for the trellis plot using the
 #' \code{genotypes} parameter. If there are more than 64 genotypes, only the
 #' first 64 are plotted in the trellis plot.
@@ -172,14 +172,14 @@ plot.FW <- function(x,
     }
     scatterDat <- remove_missing(scatterDat, na.rm = TRUE)
     ## Create plot of mean x mse. No x axis because of position in grid.
-    aesArgs1 <- list(x = "Mean", y = "MSDeviation",
+    aesArgs1 <- list(x = "Mean", y = "sqrt(MSDeviation)",
                      color = if (is.null(colorBy)) NULL else colorBy)
     p1 <- ggplot(data = scatterDat, do.call(aes_string, args = aesArgs1)) +
       geom_point() +
       theme(axis.title.x = element_blank(),
             axis.text.x = element_blank(),
             axis.ticks.x = element_blank()) +
-      labs(y = "Mean Squared Deviation")
+      labs(y = "Square root of\n Mean Squared Deviation")
     if (!is.null(colorBy)) {
       ## Build plot to extract legend.
       p1Gtable <- ggplot_gtable(ggplot_build(p1))
@@ -197,7 +197,7 @@ plot.FW <- function(x,
       geom_point() +
       theme(legend.position = "none")
     ## Create plot of mse x sensitivity. No y axis because of position in grid.
-    aesArgs3 <- list(x = "MSDeviation", y = "Sensitivity",
+    aesArgs3 <- list(x = "sqrt(MSDeviation)", y = "Sensitivity",
                      color = if (is.null(colorBy)) NULL else colorBy)
     p3 <- ggplot(data = scatterDat, do.call(aes_string, args = aesArgs3)) +
       geom_point() +
@@ -205,7 +205,7 @@ plot.FW <- function(x,
             axis.title.y = element_blank(),
             axis.text.y = element_blank(),
             axis.ticks.y = element_blank()) +
-      labs(x = "Mean Squared Deviation")
+      labs(x = "Square root of Mean Squared Deviation")
     ## Create empty plot for top right grid position.
     pEmpty <- ggplot() + theme(panel.background = element_blank())
     # Convert to Grobs to make alignment of axis possible.
