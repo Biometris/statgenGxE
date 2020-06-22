@@ -170,12 +170,6 @@ summary(dropsStab, pctGeno = 2)
 ## Color genotypes by geneticGroup.
 plot(dropsStab, colorBy = "geneticGroup")
 
-## ----geStabMegaEnv, R.options=list(digits=3), eval = FALSE------------------------------
-#  ## Compute stability measures based on mega environments computed in the
-#  ## previous paragraph.
-#  dropsStabME <- gxeStability(TD = dropsMegaEnv, trait = "grain.yield", useMegaEnv = TRUE)
-#  summary(dropsStabME, pctGeno = 2)
-
 ## ----geVClme----------------------------------------------------------------------------
 ## Use lme4 for fitting the models - only compound symmetry.
 dropsVC <- gxeVarCov(TD = dropsTD, trait = "grain.yield")

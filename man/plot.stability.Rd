@@ -22,8 +22,8 @@ colored. If \code{NULL} all genotypes will be colored black.}
 Plots of stability measures against means.
 }
 \description{
-Function for creating scatter plots of computed stability measures against
-the means.
+Function for creating scatter plots of the square roots of the computed
+stability measures against the means.
 }
 \examples{
 ## Compute three stability measures for TDMaize.

@@ -143,16 +143,3 @@ test_that("data with missing values is handled correctly", {
   expect_is(stabMiss, "stability")
 })
 
-## Compute mega environments for testData to test option useMegaEnv.
-geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1")
-geStabME <- gxeStability(TD = geMegaEnv$TD, trait = "t1", useMegaEnv = TRUE)
-test_that("option useMegaEnv functions properly", {
-  expect_error(gxeStability(TD = testTD, trait = "t1", useMegaEnv = TRUE),
-               "megaEnv has to be a column in TD")
-  expect_equal(geStabME$superiority[["superiority"]],
-               c(1915.38241267852, 1689.76029442363, 1426.02115562373,
-                 1352.81816876059, 1345.19697643036, 1265.6129390216,
-                 1058.41684656569, 1034.61613606941, 890.809496379823,
-                 710.973788531247, 696.103689137761, 452.91708477817,
-                 400.603208063429, 231.907830331079, 173.987067837816))
-})

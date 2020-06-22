@@ -61,8 +61,8 @@ summary.stability <- function(object,
 
 #' Plot function for class stability
 #'
-#' Function for creating scatter plots of computed stability measures against
-#' the means.
+#' Function for creating scatter plots of the square roots of the computed
+#' stability measures against the means.
 #'
 #' @param x An object of class stability.
 #' @param ... Further arguments - not used.
@@ -95,29 +95,29 @@ plot.stability <- function(x,
   if (!is.null(x$superiority)) {
     ## Create superiority plot.
     supDat <- merge(x$superiority, genoVals, by = "genotype")
-    aesArgs1 <- list(x = "mean", y = "superiority",
+    aesArgs1 <- list(x = "mean", y = "sqrt(superiority)",
                      color = if (is.null(colorBy)) NULL else colorBy)
     plots$p1 <- ggplot(data = supDat, do.call(aes_string, args = aesArgs1)) +
       geom_point() +
-      labs(x = "Mean", y = "Cultivar superiority")
+      labs(x = "Mean", y = "Square root of\n Cultivar superiority")
   }
   if (!is.null(x$static)) {
     ## Create static plot.
     statDat <- merge(x$static, genoVals, by = "genotype")
-    aesArgs2 <- list(x = "mean", y = "static",
+    aesArgs2 <- list(x = "mean", y = "sqrt(static)",
                      color = if (is.null(colorBy)) NULL else colorBy)
     plots$p2 <- ggplot(data = statDat, do.call(aes_string, args = aesArgs2)) +
       geom_point() +
-      labs(x = "Mean", y = "Static stability")
+      labs(x = "Mean", y = "Square root of\n Static stability")
   }
   if (!is.null(x$wricke)) {
     ## Create Wricke plot.
     wrickeDat <- merge(x$wricke, genoVals, by = "genotype")
-    aesArgs3 <- list(x = "mean", y = "wricke",
+    aesArgs3 <- list(x = "mean", y = "sqrt(wricke)",
                      color = if (is.null(colorBy)) NULL else colorBy)
     plots$p3 <- ggplot(data = wrickeDat, do.call(aes_string, args = aesArgs3)) +
       geom_point() +
-      labs(x = "Mean", y = "Wricke's ecovalence")
+      labs(x = "Mean", y = "Square root of\n Wricke's ecovalence")
   }
   ## Construct legend.
   if (!is.null(colorBy)) {

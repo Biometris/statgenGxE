@@ -358,19 +358,11 @@ dropsStab <- gxeStability(TD = dropsTD, trait = "grain.yield")
 ## In the summary print the top two percent of the genotypes.
 summary(dropsStab, pctGeno = 2)
 ```
-Plotting the results yields a scatter plot for each stability measure, plotted against the genotypic mean.
+Plotting the results yields a scatter plot for the square root of each stability measure, plotted against the genotypic mean.
 ```{r plotStab}
 ## Create plots for the different stability measures.
 ## Color genotypes by geneticGroup.
 plot(dropsStab, colorBy = "geneticGroup")
-```
-
-It is possible to calculate the stability measures based on mega environments instead of regular environments. To do so the parameter `useMegaEnv` has to be set to `TRUE`.
-```{r geStabMegaEnv, R.options=list(digits=3), eval = FALSE}
-## Compute stability measures based on mega environments computed in the 
-## previous paragraph.
-dropsStabME <- gxeStability(TD = dropsMegaEnv, trait = "grain.yield", useMegaEnv = TRUE)
-summary(dropsStabME, pctGeno = 2)
 ```
 
 ---

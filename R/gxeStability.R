@@ -12,9 +12,6 @@
 #' @param bestMethod A character string specifying the criterion to define
 #' the best genotype. Either \code{"max"} or \code{"min"}.
 #' @param sorted A character string specifying the sorting order of the results.
-#' @param useMegaEnv Should the calculations be based on megaEnvironments
-#' instead of environments? Only possible if \code{TD} contains a column
-#' megaEnv.
 #'
 #' @return An object of class \code{\link{stability}}, a list containing:
 #' \item{superiority}{A data.frame containing values for the
@@ -61,20 +58,19 @@ gxeStability <- function(TD,
                          trait,
                          method = c("superiority", "static", "wricke"),
                          bestMethod = c("max", "min"),
-                         sorted = c("descending", "ascending", "none"),
-                         useMegaEnv = FALSE) {
+                         sorted = c("descending", "ascending", "none")) {
   if (missing(TD) || !inherits(TD, "TD")) {
     stop("TD should be a valid object of class TD.\n")
   }
   trials <- chkTrials(trials, TD)
-  TDTot <- Reduce(f = rbind, x = TD[trials])
+  TDTot <- do.call(rbind, args = TD[trials])
   TDTot <- droplevels(TDTot)
   chkCol(trait, TDTot)
   chkCol("genotype", TDTot)
   method <- match.arg(method, several.ok = TRUE)
   bestMethod <- match.arg(bestMethod)
   sorted <- match.arg(sorted)
-  trCol <- ifelse(useMegaEnv, "megaEnv", "trial")
+  trCol <- "trial"
   chkCol(trCol, TDTot)
   ## Remove genotypes that contain only NAs
   allNA <- by(TDTot, TDTot[["genotype"]], FUN = function(x) {
@@ -93,9 +89,6 @@ gxeStability <- function(TD,
   }
   lab <- levels(TDTot[["genotype"]])
   nGeno <- length(lab)
-  if (useMegaEnv) {
-    trials <- levels(TDTot[[trCol]])
-  }
   nTr <- length(trials)
   ## Compute the centered trait mean per environment.
   Ej <- tapply(X = TDTot[[trait]], INDEX = TDTot[[trCol]], FUN = mean,
@@ -146,9 +139,9 @@ gxeStability <- function(TD,
     } else {
       orderLB <- order(LB, decreasing = (sorted == "descending"))
     }
-    LBOut <- setNames(data.frame(factor(lab, levels = lab), LB, Ei,
+    LBOut <- setNames(data.frame(factor(lab, levels = lab), Ei, LB,
                                  row.names = 1:nGeno)[orderLB, ],
-                      c("genotype", "superiority", "mean"))
+                      c("genotype", "mean", "superiority"))
   }
   if ("static" %in% method) {
     if (sorted == "none") {
@@ -156,9 +149,9 @@ gxeStability <- function(TD,
     } else {
       orderS <- order(S, decreasing = (sorted == "descending"))
     }
-    SOut <- setNames(data.frame(factor(lab, levels = lab), S, Ei,
+    SOut <- setNames(data.frame(factor(lab, levels = lab), Ei, S,
                                 row.names = 1:nGeno)[orderS, ],
-                     c("genotype", "static", "mean"))
+                     c("genotype", "mean", "static"))
   }
   if ("wricke" %in% method) {
     if (sorted == "none") {
@@ -166,9 +159,9 @@ gxeStability <- function(TD,
     } else {
       orderW <- order(W, decreasing = (sorted == "descending"))
     }
-    WOut <- setNames(data.frame(factor(lab, levels = lab), W, Ei,
+    WOut <- setNames(data.frame(factor(lab, levels = lab), Ei, W,
                                 row.names = 1:nGeno)[orderW, ],
-                     c("genotype", "wricke", "mean"))
+                     c("genotype", "mean", "wricke"))
   }
   res <- createStability(superiority = if ("superiority" %in% method) LBOut,
                          static = if ("static" %in% method) SOut,
