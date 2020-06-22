@@ -130,7 +130,7 @@ plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy =
 ## ----geGGE------------------------------------------------------------------------------
 ## Run gxeAmmi with default settings.
 dropsGGE <- gxeGGE(TD = dropsTD, trait = "grain.yield")
-summary(dropsGGE)
+summary(dropsGGE) 
 
 ## ----plotGGE, fig.width=5, fig.height=5, out.width="75%"--------------------------------
 ## Create a GGE2 biplot.

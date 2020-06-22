@@ -45,8 +45,8 @@ test_that("AMMI plot gives correct output types", {
 
 test_that("AMMI plot plotType options function properly", {
   geGGE <- gxeGGE(TD = BLUEs, trait = "t1")
-  p1a <- plot(geAmmi)
-  p1b <- plot(geAmmi, plotType = "GGE1")
+  p1a <- plot(geAmmi, plotType = "AMMI2")
+  p1b <- plot(geAmmi, plotType = "GGE2")
   p2 <- plot(geGGE)
   expect_equal(p1a, p1b)
   expect_equal(p2$labels$title, "GGE biplot for t1 ")

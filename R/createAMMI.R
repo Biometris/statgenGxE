@@ -118,7 +118,7 @@ summary.AMMI <- function(object,
 
 #' Plot function for class AMMI
 #'
-#' Two types of biplot can be made. A biplot of genotype and environment
+#' Two types of biplot can be made. A plot of genotype and environment
 #' means vs PC1 (AMMI1) or a biplot of genotypes and environment interaction
 #' with PC1 and PC2 (AMMI2).\cr\cr
 #' If the AMMI analysis was done by year, a separate plot will be made for
@@ -130,10 +130,10 @@ summary.AMMI <- function(object,
 #' @param x An object of class AMMI
 #' @param ... Further graphical parameters passed on to actual plot function.
 #' @param plotType A character string indicating which plot should be made.
-#' Either "AMMI1" for an AMMI1 biplot (genotype and
+#' Either "AMMI1" for an AMMI1 plot (genotype and
 #' environment means vs PC1) or "AMMI2" for an AMMI2 biplot (genotypes and
-#' environment interaction with PC1 and PC2) respectively. "GGE1" and "GGE2"
-#' may be used instead of "AMMI1" and "AMMI2".
+#' environment interaction with PC1 and PC2) respectively. For results of a
+#' GGE analysis only an GGE2 biplot can be made and plotType may be ignored.
 #' @param scale A numerical value. The variables are scaled by
 #' \code{lambda ^ scale} and the observations by \code{lambda ^ (1 - scale)}
 #' where \code{lambda} are the singular values computed by
@@ -150,9 +150,9 @@ summary.AMMI <- function(object,
 #' genotypes. Use \code{sizeGeno = 0} for plotting genotypes as points instead
 #' of using their names.
 #' @param plotConvHull Should a convex hull be plotted around the genotypes. If
-#' \code{TRUE} a convex hull is plotted and lines from the origin of the plot
-#' perpendicular to the edges of the hull are added. Only valid for AMMI2
-#' biplots.
+#' \code{TRUE} a convex hull is plotted. For GGE2 biplots lines from the origin
+#' of the plot perpendicular to the edges of the hull are added. Only valid for
+#' AMMI2 and GGE2 biplots.
 #' @param plotEnv Should environments be plotted?
 #' @param colorEnvBy A character string indicating a column in the \code{TD}
 #' used as input for the AMMI analysis by which the environments should be
@@ -187,12 +187,19 @@ summary.AMMI <- function(object,
 #' ## Create an AMMI2 biplot.
 #' plot(geAmmi, plotType = "AMMI2")
 #'
+#' ## Run GGE analysis.#'
+#' geGGE <- gxeGGE(TD = TDMaize, trait = "yld")
+#'
+#' ## Create an GGE2 biplot.
+#' ## Add a convex hull.
+#' plot(geAmmi, plotType = "AMMI2", plotConvHull = TRUE)
+#'
 #' @importFrom grDevices topo.colors
 #'
 #' @export
 plot.AMMI <- function(x,
                       ...,
-                      plotType = c("AMMI1", "AMMI2", "GGE1", "GGE2"),
+                      plotType = c("AMMI1", "AMMI2", "GGE2"),
                       scale = 1,
                       plotGeno = TRUE,
                       colorGenoBy = NULL,
@@ -208,9 +215,13 @@ plot.AMMI <- function(x,
                       secAxis = "PC2",
                       output = TRUE) {
   ## Checks.
-  plotType <- match.arg(plotType)
-  if (plotType %in% c("GGE1", "GGE2")) {
-    plotType <- gsub(pattern = "GGE", replacement = "AMMI", x = plotType)
+  if (missing(plotType) && x$GGE) {
+    plotType <- "AMMI2"
+  } else {
+    plotType <- match.arg(plotType)
+    if (plotType == "GGE2") {
+      plotType <- "AMMI2"
+    }
   }
   chkNum(scale, min = 0, max = 1, null = FALSE, incl = TRUE)
   if (plotGeno) {
@@ -275,10 +286,10 @@ plot.AMMI <- function(x,
       ## Create a list of AMMI1 plots.
       p <- sapply(X = names(x$envScores), FUN = function(year) {
         plotAMMI1(loadings = x$envScores[[year]] * envFactor,
-                  scores = x$genoScores[[year]],
+                  scores = x$genoScores[[year]] / envFactor,
                   importance = x$importance[[year]],
                   overallMean = x$overallMean[[year]] * envFactor,
-                  genoMean = x$genoMean[[year]],
+                  genoMean = x$genoMean[[year]] / envFactor,
                   envMean = x$envMean[[year]] * envFactor,
                   trait = x$trait, dat = x$dat[[year]], GGE = x$GGE, year = year,
                   scale = scale, plotGeno = plotGeno, colGeno = colGeno,
@@ -288,9 +299,11 @@ plot.AMMI <- function(x,
     } else {
       ## Create a single AMMI1 plot.
       p <- plotAMMI1(loadings = x$envScores * envFactor,
-                     scores = x$genoScores, importance = x$importance,
+                     scores = x$genoScores / envFactor,
+                     importance = x$importance,
                      overallMean = x$overallMean * envFactor,
-                     genoMean = x$genoMean, envMean = x$envMean * envFactor,
+                     genoMean = x$genoMean / envFactor,
+                     envMean = x$envMean * envFactor,
                      trait = x$trait, dat = x$dat, GGE = x$GGE, scale = scale,
                      plotGeno = plotGeno, colGeno = colGeno,
                      sizeGeno = sizeGeno, plotEnv = plotEnv,
@@ -521,7 +534,7 @@ plotAMMI1 <- function(loadings,
     ## Add labeling.
     labs(x = "Main Effects", y = paste0("PC1 (", percPC1, "%)")) +
     ggtitle(paste0(ifelse(GGE, "GGE", "AMMI1"),
-                   " biplot for ", trait, " ", year)) +
+                   " plot for ", trait, " ", year)) +
     theme(plot.title = element_text(hjust = 0.5),
           panel.grid = element_blank())
   if (!is.null(pointDat)) {
@@ -686,8 +699,8 @@ plotAMMI2 <- function(loadings,
                 ratio = plotRatio, clip = "off") +
     scale_color_manual(breaks = colGroups, values = colNamed, name = NULL,
                        guide = guide_legend(nrow = nrowGuide,
-                                      override.aes = list(shape = shapesGuide,
-                                                          size = sizesGuide))) +
+                                            override.aes = list(shape = shapesGuide,
+                                                                size = sizesGuide))) +
     ## Add labeling.
     labs(x = paste0(primAxis, " (", percPC1, "%)"),
          y = paste0(secAxis, " (", percPC2, "%)")) +
@@ -710,51 +723,56 @@ plotAMMI2 <- function(loadings,
   if (plotConvHull) {
     ## Compute convex hull for the points.
     convHulls <- genoDat[grDevices::chull(genoDat[, c(primAxis, secAxis)]), ]
-    ## Extract x and y coordinates for points on hull. Add first item to the
-    ## end to include all edges.
-    xConv <- convHulls[[primAxis]]
-    yConv <- convHulls[[secAxis]]
-    xConv <- c(xConv, xConv[1])
-    yConv <- c(yConv, yConv[1])
-    ## Compute slopes per segment of the hull.
-    slopesConv <- diff(yConv) / diff(xConv)
-    ## Compute slopes for the lines perpendicular to the hull.
-    slopesPerp <- -1 / slopesConv
-    ## Compute the coordinates of the points on the hull through which the
-    ## perpendicular lines should go.
-    origConv <- yConv[-1] - slopesConv * xConv[-1]
-    xNew <- -origConv / (slopesConv - slopesPerp)
-    yNew <- slopesPerp * xNew
-    ## Expand the lines outward of the hull.
-    ## Expansion is done in two steps. First in the x-direction with
-    ## computation of the y-coordinate. If this coordinate is outside the
-    ## plot area expansion is repeated but then in the y-direction.
-    for (i in seq_along(xNew)) {
-      if (xNew[i] > 0) {
-        xNewI <- xMax
-        yNewI <- slopesPerp[i] * xMax
-      } else {
-        xNewI <- xMin
-        yNewI <- slopesPerp[i] * xMin
-      }
-      if (yNewI < yMin) {
-        yNewI <- yMin
-        xNewI <- yMin / slopesPerp[i]
-      } else if (yNewI > yMax) {
-        yNewI <- yMax
-        xNewI <- yMax / slopesPerp[i]
-      }
-      xNew[i] <- xNewI
-      yNew[i] <- yNewI
-    }
-    ## Put data for perpendicular lines in a single data set
-    ## for ease of plotting.
-    perpDat <- data.frame(xend = xNew, yend = yNew)
-    ## Add convexhull as a polygon and perpendicular lines as segments.
+    ## Add convex hull to plot as a polygon.
     p <- p + geom_polygon(color = "darkolivegreen3",
-                          data = convHulls, alpha = 0.2) +
-      geom_segment(aes_string(x = 0, y = 0, xend = "xend", yend = "yend"),
-                   data = perpDat, col = "grey50", size = 0.6)
+                          data = convHulls, alpha = 0.2)
+    ## Lines from origin perpendicular to convex hull only for GGE2 plots.
+    if (GGE) {
+      ## Extract x and y coordinates for points on hull. Add first item to the
+      ## end to include all edges.
+      xConv <- convHulls[[primAxis]]
+      yConv <- convHulls[[secAxis]]
+      xConv <- c(xConv, xConv[1])
+      yConv <- c(yConv, yConv[1])
+      ## Compute slopes per segment of the hull.
+      slopesConv <- diff(yConv) / diff(xConv)
+      ## Compute slopes for the lines perpendicular to the hull.
+      slopesPerp <- -1 / slopesConv
+      ## Compute the coordinates of the points on the hull through which the
+      ## perpendicular lines should go.
+      origConv <- yConv[-1] - slopesConv * xConv[-1]
+      xNew <- -origConv / (slopesConv - slopesPerp)
+      yNew <- slopesPerp * xNew
+      ## Expand the lines outward of the hull.
+      ## Expansion is done in two steps. First in the x-direction with
+      ## computation of the y-coordinate. If this coordinate is outside the
+      ## plot area expansion is repeated but then in the y-direction.
+      for (i in seq_along(xNew)) {
+        if (xNew[i] > 0) {
+          xNewI <- xMax
+          yNewI <- slopesPerp[i] * xMax
+        } else {
+          xNewI <- xMin
+          yNewI <- slopesPerp[i] * xMin
+        }
+        if (yNewI < yMin) {
+          yNewI <- yMin
+          xNewI <- yMin / slopesPerp[i]
+        } else if (yNewI > yMax) {
+          yNewI <- yMax
+          xNewI <- yMax / slopesPerp[i]
+        }
+        xNew[i] <- xNewI
+        yNew[i] <- yNewI
+      }
+      ## Put data for perpendicular lines in a single data set
+      ## for ease of plotting.
+      perpDat <- data.frame(xend = xNew, yend = yNew)
+      ## Add perpendicular lines to plot as segments.
+      p <- p + geom_segment(aes_string(x = 0, y = 0, xend = "xend",
+                                       yend = "yend"),
+                            data = perpDat, col = "grey50", size = 0.6)
+    }
   }
   if (plotEnv) {
     ## Add arrows from origin to environments.

@@ -7,7 +7,7 @@
 \method{plot}{AMMI}(
   x,
   ...,
-  plotType = c("AMMI1", "AMMI2", "GGE1", "GGE2"),
+  plotType = c("AMMI1", "AMMI2", "GGE2"),
   scale = 1,
   plotGeno = TRUE,
   colorGenoBy = NULL,
@@ -30,10 +30,10 @@
 \item{...}{Further graphical parameters passed on to actual plot function.}
 
 \item{plotType}{A character string indicating which plot should be made.
-Either "AMMI1" for an AMMI1 biplot (genotype and
+Either "AMMI1" for an AMMI1 plot (genotype and
 environment means vs PC1) or "AMMI2" for an AMMI2 biplot (genotypes and
-environment interaction with PC1 and PC2) respectively. "GGE1" and "GGE2"
-may be used instead of "AMMI1" and "AMMI2".}
+environment interaction with PC1 and PC2) respectively. For results of a
+GGE analysis only an GGE2 biplot can be made and plotType may be ignored.}
 
 \item{scale}{A numerical value. The variables are scaled by
 \code{lambda ^ scale} and the observations by \code{lambda ^ (1 - scale)}
@@ -56,9 +56,9 @@ genotypes. Use \code{sizeGeno = 0} for plotting genotypes as points instead
 of using their names.}
 
 \item{plotConvHull}{Should a convex hull be plotted around the genotypes. If
-\code{TRUE} a convex hull is plotted and lines from the origin of the plot
-perpendicular to the edges of the hull are added. Only valid for AMMI2
-biplots.}
+\code{TRUE} a convex hull is plotted. For GGE2 biplots lines from the origin
+of the plot perpendicular to the edges of the hull are added. Only valid for
+AMMI2 and GGE2 biplots.}
 
 \item{plotEnv}{Should environments be plotted?}
 
@@ -93,7 +93,7 @@ A biplot depending on \code{plotType}. The ggplot object for the
 biplot is returned invisibly.
 }
 \description{
-Two types of biplot can be made. A biplot of genotype and environment
+Two types of biplot can be made. A plot of genotype and environment
 means vs PC1 (AMMI1) or a biplot of genotypes and environment interaction
 with PC1 and PC2 (AMMI2).\cr\cr
 If the AMMI analysis was done by year, a separate plot will be made for
@@ -111,5 +111,12 @@ plot(geAmmi)
 
 ## Create an AMMI2 biplot.
 plot(geAmmi, plotType = "AMMI2")
+
+## Run GGE analysis.#'
+geGGE <- gxeGGE(TD = TDMaize, trait = "yld")
+
+## Create an GGE2 biplot.
+## Add a convex hull.
+plot(geAmmi, plotType = "AMMI2", plotConvHull = TRUE)
 
 }

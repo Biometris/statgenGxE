@@ -271,7 +271,7 @@ plot(dropsAm, scale = 0.4, plotType = "AMMI2",
 
 ```
 
-A convex hull can be plotted around the genotypes in an AMMI2 biplot with lines from the origin perpendicular to the edges of the hull. 
+A convex hull can be plotted around the genotypes in an AMMI2 biplot. 
 ```{r plotAmmiConvHull, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI2 biplot with convex hull around the genotypes.
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy = "scenarioFull")
@@ -292,10 +292,10 @@ The GGE analysis is done in statgenGxE by running the function `gxeGGE` which ha
 ```{r geGGE}
 ## Run gxeAmmi with default settings.
 dropsGGE <- gxeGGE(TD = dropsTD, trait = "grain.yield")
-summary(dropsGGE)
+summary(dropsGGE) 
 ```
 
-Options for plotting results of a GGE analysis are identical to those for an AMMI analysis.
+Options for plotting results of a GGE analysis are identical to those for an AMMI analysis. When a convex hull is plotted, lines from the origin perpendicular to the edges of the hull are added as well.
 ```{r plotGGE, fig.width=5, fig.height=5, out.width="75%"}
 ## Create a GGE2 biplot.
 plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
