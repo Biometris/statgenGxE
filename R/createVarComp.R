@@ -139,7 +139,12 @@ plot.varComp <- function(x,
   fullRandVC[["Df"]] <- aovFullFixedMod[["Df"]][match(aovFullFixedMod[["vars"]],
                                                       fullRandVC[["vars"]])]
   ## term will be used as y-axis label. It consists of term + df
-  fullRandVC[["term"]] <- paste(rownames(fullRandVC), "\t\t", fullRandVC[["Df"]])
+  spaces <- sapply(X = 6 - nchar(fullRandVC[["Df"]]),
+                   FUN = function(i) {
+                     paste0(rep(" ", times = i), collapse = "")
+                   })
+  fullRandVC[["term"]] <- paste(rownames(fullRandVC), spaces,
+                                fullRandVC[["Df"]])
   ## Revert levels term to get a nice ordering on the y-axis.
   fullRandVC[["term"]] <- factor(fullRandVC[["term"]],
                                  levels = rev(fullRandVC[["term"]]))
@@ -163,7 +168,7 @@ plot.varComp <- function(x,
           axis.ticks.length.y = grid::unit(0, "mm"),
           axis.text = element_text(size = 12),
           plot.title = element_text(hjust = 0.5)) +
-    annotation_custom(grid::textGrob("source \t\t df", just = "right",
+    annotation_custom(grid::textGrob("Source      df ", just = "right",
                                      gp = grid::gpar(size = 14)),
                       xmin = annoPosX, xmax = annoPosX,
                       ymin = Inf, ymax = Inf)
@@ -252,7 +257,7 @@ predict.varComp <- function(object,
     ## Only use observations that where present in the input data for making
     ## predictions. All variables used in the model need to be included here.
     presVars <- union(rownames(attr(terms(update(fitMod$call$fixed, "NULL ~ .")),
-                                          "factors")),
+                                    "factors")),
                       rownames(attr(terms(fitMod$call$random), "factors")))
     preds <- predictAsreml(model = fitMod, classify = classForm,
                            TD = modDat, present = presVars,
