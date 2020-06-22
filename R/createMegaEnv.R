@@ -70,7 +70,7 @@ plot.megaEnv <- function(x,
                          output = TRUE) {
   engine <- match.arg(engine)
   if (!is.null(colorBy)) {
-    TDTot <- Reduce(f = rbind, x = x$TD)
+    TDTot <- do.call(rbind, args = x$TD)
     chkCol(column = colorBy, obj = TDTot)
   }
   pred <- predict(x, engine = engine)$predictedValue
@@ -82,7 +82,7 @@ plot.megaEnv <- function(x,
     predLong <- merge(predLong, TDTot[c("genotype", colorBy)])
   }
   predTD <- createTD(predLong, genotype = "genotype", trial = "megaEnv")
-  plot(predTD, plotType = "scatter", traits = "pred", colorBy = colorBy,
+  plot(predTD, plotType = "scatter", traits = "pred", colorGenoBy = colorBy,
        title = paste("Scatterplots of mega environments for", x$trait))
 }
 
