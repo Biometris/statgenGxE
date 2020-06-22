@@ -11,7 +11,6 @@ gxeAmmi(
   nPC = 2,
   byYear = FALSE,
   center = TRUE,
-  scale = FALSE,
   excludeGeno = NULL,
   useWt = FALSE
 )
@@ -34,8 +33,6 @@ is split by the variable year, analysis is performed and the results are
 merged together and returned.}
 
 \item{center}{Should the variables be shifted to be zero centered?}
-
-\item{scale}{Should the variables be scaled to have unit variance?}
 
 \item{excludeGeno}{An optional character vector with names of genotypes to
 be excluded from the analysis. If \code{NULL}, all genotypes are used.}

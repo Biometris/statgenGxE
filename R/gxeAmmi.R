@@ -38,7 +38,6 @@
 #' is split by the variable year, analysis is performed and the results are
 #' merged together and returned.
 #' @param center Should the variables be shifted to be zero centered?
-#' @param scale Should the variables be scaled to have unit variance?
 #' @param excludeGeno An optional character vector with names of genotypes to
 #' be excluded from the analysis. If \code{NULL}, all genotypes are used.
 #' @param useWt Should weighting be used when modeling? Requires a column
@@ -88,11 +87,10 @@ gxeAmmi <- function(TD,
                     nPC = 2,
                     byYear = FALSE,
                     center = TRUE,
-                    scale = FALSE,
                     excludeGeno = NULL,
                     useWt = FALSE) {
   return(gxeAmmiHelp(TD = TD, trials = trials, trait = trait, nPC = nPC,
-                     byYear = byYear, center = center, scale = scale,
+                     byYear = byYear, center = center,
                      excludeGeno = excludeGeno, useWt = useWt, GGE = FALSE))
 }
 
@@ -132,11 +130,10 @@ gxeGGE <- function(TD,
                    nPC = 2,
                    byYear = FALSE,
                    center = TRUE,
-                   scale = FALSE,
                    excludeGeno = NULL,
                    useWt = FALSE) {
   return(gxeAmmiHelp(TD = TD, trials = trials, trait = trait, nPC = nPC,
-                     byYear = byYear, center = center, scale = scale,
+                     byYear = byYear, center = center,
                      excludeGeno = excludeGeno, useWt = useWt, GGE = TRUE))
 }
 
@@ -146,7 +143,6 @@ gxeAmmiHelp <- function(TD,
                         nPC = 2,
                         byYear = FALSE,
                         center = TRUE,
-                        scale = FALSE,
                         GGE = FALSE,
                         excludeGeno = NULL,
                         useWt = FALSE) {
@@ -279,18 +275,18 @@ gxeAmmiHelp <- function(TD,
     if (!is.null(nPC)) {
       ## nPC is given. Use this in principal components analysis.
       pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
-                    scale. = scale, rank. = nPC)
+                    scale. = FALSE, rank. = nPC)
       nPCYear <- nPC
     } else {
       ## nPC is not supplied. Do principal component analyses as long as
       ## when adding an extra component this new component is significant.
       pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
-                    scale. = scale, rank. = 2)
+                    scale. = FALSE, rank. = 2)
       if (nEnv > 4) {
         for (i in 3:max(3, (nEnv - 2))) {
           pcaOrig <- pca
           pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
-                        scale. = scale, rank. = i)
+                        scale. = FALSE, rank. = i)
           pcaAov <- pcaToAov(pca = pca, aov = aov)
           ## When there are no degrees of freedom left for the residual variance
           ## Pr(>F) will be nan. In this case revert to the previous number of
@@ -410,5 +406,4 @@ pcaToAov <- function(pca,
                                     df1 = dfPC, df2 = dfResid)
   return(pcaAov)
 }
-
 

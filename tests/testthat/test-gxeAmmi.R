@@ -150,17 +150,6 @@ test_that("option center functions properly", {
   expect_equal(geAmmiNC$genoScores, geAmmi$genoScores)
 })
 
-test_that("option scale functions properly", {
-  geAmmiSC <- gxeAmmi(BLUEs, trait = "t1", scale = TRUE)
-  expect_equal(as.numeric(geAmmiSC$envScores),
-               c(0.561239884063998, -0.748339231166728, 0.353550827509455,
-                 -0.599891545085534, -0.073509571345187, 0.79669723048065))
-  expect_equal(as.numeric(as.matrix(geAmmiSC$importance)),
-               c(1.33185805922242, 0.59128, 0.59128, 1.10731843210717, 0.40872,
-                 1, 1.03411414208267e-15, 0, 1))
-  expect_equal(geAmmiSC$anova[1:3, ], geAmmi$anova[1:3, ])
-})
-
 test_that("option GGE functions properly", {
   geAmmiGGE <- gxeGGE(BLUEs, trait = "t1")
   expect_equal(dim(geAmmiGGE$anova), c(5, 5))
