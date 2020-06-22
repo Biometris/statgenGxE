@@ -368,7 +368,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="vcomp" class="section level1">
 <h1><span class="header-section-number">2</span> Mixed model analysis of GxE tables of means</h1>
-<p>To get a first idea of the structure of the genotype by environment data, a mixed model can be fitted. In the statgenGxE package this can be done using the <code>gxeVarComp</code> function.</p>
+<p>To investigate the structure of the genotype by environment data, a mixed model can be fitted. In the statgenGxE package this can be done using the <code>gxeVarComp</code> function.</p>
 <p>Six different types of models can be fitted depending on the structure of the environments in the data. These models are described in the table below, together with the parameters used in <code>gxeVarComp</code> to fit the model.</p>
 <table style="width:100%;">
 <colgroup>
@@ -432,18 +432,27 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>Finally a mixed model is fitted as specified in the table above. Based on this model variance components can be extracted, heritabilities can be computed and predictions can be made. It is also possible to plot the results.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">## Fit a model where trials are nested within locations</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a>dropsVarComp &lt;-<span class="st"> </span><span class="kw">gxeVarComp</span>(<span class="dt">TD =</span> dropsTD, <span class="dt">trait =</span> <span class="st">&quot;grain.yield&quot;</span>, <span class="dt">nestingFactor =</span> <span class="st">&quot;loc&quot;</span>)</span>
-<span id="cb5-3"><a href="#cb5-3"></a><span class="co">#&gt; fixed-effect model matrix is rank deficient so dropping 60 columns / coefficients</span></span>
-<span id="cb5-4"><a href="#cb5-4"></a><span class="kw">summary</span>(dropsVarComp)</span>
-<span id="cb5-5"><a href="#cb5-5"></a><span class="co">#&gt; Fitted model formula</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a><span class="co">#&gt; grain.yield ~ loc + loc:trial + (1 | genotype) + (1 | genotype:loc) </span></span>
-<span id="cb5-7"><a href="#cb5-7"></a><span class="co">#&gt; </span></span>
-<span id="cb5-8"><a href="#cb5-8"></a><span class="co">#&gt; Sources of variation</span></span>
-<span id="cb5-9"><a href="#cb5-9"></a><span class="co">#&gt;              component % variance expl.</span></span>
-<span id="cb5-10"><a href="#cb5-10"></a><span class="co">#&gt; loc              12.55          83.89 %</span></span>
-<span id="cb5-11"><a href="#cb5-11"></a><span class="co">#&gt; loc:trial         0.77           5.16 %</span></span>
-<span id="cb5-12"><a href="#cb5-12"></a><span class="co">#&gt; genotype          0.72           4.81 %</span></span>
-<span id="cb5-13"><a href="#cb5-13"></a><span class="co">#&gt; genotype:loc      0.33           2.23 %</span></span>
-<span id="cb5-14"><a href="#cb5-14"></a><span class="co">#&gt; residuals         0.59           3.91 %</span></span></code></pre></div>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="kw">summary</span>(dropsVarComp)</span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="co">#&gt; Fitted model formula</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="co">#&gt; grain.yield ~ loc + loc:trial + (1 | genotype) + (1 | genotype:loc) </span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="co">#&gt; </span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co">#&gt; Sources of variation</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="co">#&gt;              component % variance expl.</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="co">#&gt; loc              12.55          83.89 %</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="co">#&gt; loc:trial         0.77           5.16 %</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="co">#&gt; genotype          0.72           4.81 %</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="co">#&gt; genotype:loc      0.33           2.23 %</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="co">#&gt; residuals         0.59           3.91 %</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a><span class="co">#&gt; </span></span>
+<span id="cb5-15"><a href="#cb5-15"></a><span class="co">#&gt; Analysis of Variance Table for fully fixed model</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a><span class="co">#&gt;                Df Sum Sq Mean Sq F value  Pr(&gt;F)    </span></span>
+<span id="cb5-17"><a href="#cb5-17"></a><span class="co">#&gt; loc             6  23111    3852 5936.44 &lt; 2e-16 ***</span></span>
+<span id="cb5-18"><a href="#cb5-18"></a><span class="co">#&gt; genotype      245   2321       9   14.60 &lt; 2e-16 ***</span></span>
+<span id="cb5-19"><a href="#cb5-19"></a><span class="co">#&gt; loc:trial       3    566     189  290.81 &lt; 2e-16 ***</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a><span class="co">#&gt; loc:genotype 1470   1476       1    1.55 1.5e-11 ***</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a><span class="co">#&gt; residuals     735    477       1                    </span></span>
+<span id="cb5-22"><a href="#cb5-22"></a><span class="co">#&gt; ---</span></span>
+<span id="cb5-23"><a href="#cb5-23"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span></code></pre></div>
 <p>The diagnostics for the fitted model can be printed using the <code>diagnostics</code> function. This will print an incidence matrix of missing values for each of the terms in the random part of the fitted model.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co">## Print diagnostics - output suppressed because of the large number of rows.</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a><span class="kw">diagnostics</span>(dropsVarComp)</span></code></pre></div>
@@ -745,7 +754,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb26-6"><a href="#cb26-6"></a>  <span class="kw">print</span>(<span class="kw">head</span>(geMegaEnvPred<span class="op">$</span>predictedValue))</span>
 <span id="cb26-7"><a href="#cb26-7"></a>  <span class="kw">print</span>(<span class="kw">head</span>(geMegaEnvPred<span class="op">$</span>standardError))</span>
 <span id="cb26-8"><a href="#cb26-8"></a>}</span>
-<span id="cb26-9"><a href="#cb26-9"></a><span class="co">#&gt; License check Mon Jun 22 09:02:35 2020</span></span>
+<span id="cb26-9"><a href="#cb26-9"></a><span class="co">#&gt; License check Mon Jun 22 09:32:01 2020</span></span>
 <span id="cb26-10"><a href="#cb26-10"></a><span class="co">#&gt;          1    2    3    4</span></span>
 <span id="cb26-11"><a href="#cb26-11"></a><span class="co">#&gt; 11430 6.47 7.20 7.13 6.76</span></span>
 <span id="cb26-12"><a href="#cb26-12"></a><span class="co">#&gt; A3    6.00 6.61 6.75 6.57</span></span>

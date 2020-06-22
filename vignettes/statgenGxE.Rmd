@@ -89,7 +89,7 @@ plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "genet
 
 # Mixed model analysis of GxE tables of means {#vcomp}
 
-To get a first idea of the structure of the genotype by environment data, a mixed model can be fitted. In the statgenGxE package this can be done using the `gxeVarComp` function. 
+To investigate the structure of the genotype by environment data, a mixed model can be fitted. In the statgenGxE package this can be done using the `gxeVarComp` function. 
 
 Six different types of models can be fitted depending on the structure of the environments in the data. These models are described in the table below, together with the parameters used in `gxeVarComp` to fit the model.
 
@@ -120,11 +120,10 @@ Then a model is fitted where all model terms are included as random terms. Based
 ### Mixed model {-}
 Finally a mixed model is fitted as specified in the table above. Based on this model variance components can be extracted, heritabilities can be computed and predictions can be made. It is also possible to plot the results.
 
-```{r geVarComp} 
+```{r geVarComp, message=FALSE} 
 ## Fit a model where trials are nested within locations
 dropsVarComp <- gxeVarComp(TD = dropsTD, trait = "grain.yield", nestingFactor = "loc")
 summary(dropsVarComp)
-
 ```
 The diagnostics for the fitted model can be printed using the `diagnostics` function. This will print an incidence matrix of missing values for each of the terms in the random part of the fitted model.
 

@@ -31,11 +31,10 @@ plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenario
 plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "geneticGroup", 
      colorTrialBy = "scenarioFull")
 
-## ----geVarComp--------------------------------------------------------------------------
+## ----geVarComp, message=FALSE-----------------------------------------------------------
 ## Fit a model where trials are nested within locations
 dropsVarComp <- gxeVarComp(TD = dropsTD, trait = "grain.yield", nestingFactor = "loc")
 summary(dropsVarComp)
-
 
 ## ----diag, eval=FALSE-------------------------------------------------------------------
 #  ## Print diagnostics - output suppressed because of the large number of rows.

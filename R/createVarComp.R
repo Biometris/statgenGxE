@@ -69,11 +69,17 @@ summary.varComp <- function(object,
   fullRandVC[["vcov"]] <- sprintf("%1.2f", fullRandVC[["vcov"]])
   fullRandVC[["vcovPerc"]] <- sprintf("%1.2f %%", 100 * fullRandVC[["vcovPerc"]])
   colnames(fullRandVC) <- c("component", "% variance expl.")
+  ## Print ANOVA for fully fixed model with alternative header.
+  aovFullFixedMod <- object$aovFullFixedMod
+  attr(x = aovFullFixedMod, which = "heading") <-
+    "Analysis of Variance Table for fully fixed model"
   ## Print output.
   cat("Fitted model formula\n")
   cat(fitModCall, "\n\n")
   cat("Sources of variation\n")
   print(fullRandVC)
+  cat("\n")
+  print(aovFullFixedMod)
 }
 
 #' Plot function for class varComp
@@ -344,7 +350,6 @@ herit <- function(varComp) {
     modVars <- rownames(attr(x = terms(fitMod$call$random),
                              which = "factors"))[-1]
   }
-
   for (term in modTerms[-c(1, length(modTerms))]) {
     ## Get variance for current term.
     sigmaTerm <- varcomps[term, "component"]
