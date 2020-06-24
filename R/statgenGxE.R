@@ -1,7 +1,7 @@
 #' @keywords internal
 "_PACKAGE"
 #'
-#' @import stats ggplot2
+#' @import stats
 #' @importFrom graphics plot
 #' @importFrom xtable xtable
 #' @importFrom utils hasName

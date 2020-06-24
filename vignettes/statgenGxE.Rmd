@@ -422,7 +422,7 @@ For most of the analyses described in this vignette a pdf report can be made usi
 
 *Note that all reports are created using pdflatex. If no installation is found by `Sys.which("pdflatex")` the report function will generate an error.*
 
-For the analysis done in the vignette the reports below can be made. Specify a file with .pdf extension as `outfile` to set the location where the report is written. 
+For the analysis done in the vignette the reports below can be made. Specify a file with .pdf extension as `outfile` to set the location where the report is written.
 
 ```{r reports, eval=FALSE}
 ## Create a report for the Finlay Wilkinson analysis.

@@ -170,49 +170,53 @@ plot.FW <- function(x,
       scatterDat <- merge(scatterDat, unique(TDTot[!is.na(TDTot[[colorBy]]),
                                                    c("genotype", colorBy)]))
     }
-    scatterDat <- remove_missing(scatterDat, na.rm = TRUE)
+    scatterDat <- ggplot2::remove_missing(scatterDat, na.rm = TRUE)
     ## Create plot of mean x mse. No x axis because of position in grid.
     aesArgs1 <- list(x = "Mean", y = "sqrt(MSDeviation)",
                      color = if (is.null(colorBy)) NULL else colorBy)
-    p1 <- ggplot(data = scatterDat, do.call(aes_string, args = aesArgs1)) +
-      geom_point() +
-      theme(axis.title.x = element_blank(),
-            axis.text.x = element_blank(),
-            axis.ticks.x = element_blank()) +
-      labs(y = "Square root of\n Mean Squared Deviation")
+    p1 <- ggplot2::ggplot(data = scatterDat,
+                          do.call(ggplot2::aes_string, args = aesArgs1)) +
+      ggplot2::geom_point() +
+      ggplot2::theme(axis.title.x = ggplot2::element_blank(),
+                     axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank()) +
+      ggplot2::labs(y = "Square root of\n Mean Squared Deviation")
     if (!is.null(colorBy)) {
       ## Build plot to extract legend.
-      p1Gtable <- ggplot_gtable(ggplot_build(p1))
+      p1Gtable <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(p1))
       legendPos <- sapply(X = p1Gtable$grobs, FUN = `[[`, "name") == "guide-box"
       legend <- p1Gtable$grobs[[which(legendPos)]]
       ## Now remove the legend from the plot.
-      p1 <- p1 + theme(legend.position = "none")
+      p1 <- p1 + ggplot2::theme(legend.position = "none")
     } else {
       legend <- NULL
     }
     ## Create plot of mean x sensitivity.
     aesArgs2 <- list(x = "Mean", y = "Sensitivity",
                      color = if (is.null(colorBy)) NULL else colorBy)
-    p2 <- ggplot(data = scatterDat, do.call(aes_string, args = aesArgs2)) +
-      geom_point() +
-      theme(legend.position = "none")
+    p2 <- ggplot2::ggplot(data = scatterDat,
+                          do.call(ggplot2::aes_string, args = aesArgs2)) +
+      ggplot2::geom_point() +
+      ggplot2::theme(legend.position = "none")
     ## Create plot of mse x sensitivity. No y axis because of position in grid.
     aesArgs3 <- list(x = "sqrt(MSDeviation)", y = "Sensitivity",
                      color = if (is.null(colorBy)) NULL else colorBy)
-    p3 <- ggplot(data = scatterDat, do.call(aes_string, args = aesArgs3)) +
-      geom_point() +
-      theme(legend.position = "none",
-            axis.title.y = element_blank(),
-            axis.text.y = element_blank(),
-            axis.ticks.y = element_blank()) +
-      labs(x = "Square root of Mean Squared Deviation")
+    p3 <- ggplot2::ggplot(data = scatterDat,
+                          do.call(ggplot2::aes_string, args = aesArgs3)) +
+      ggplot2::geom_point() +
+      ggplot2::theme(legend.position = "none",
+                     axis.title.y = ggplot2::element_blank(),
+                     axis.text.y = ggplot2::element_blank(),
+                     axis.ticks.y = ggplot2::element_blank()) +
+      ggplot2::labs(x = "Square root of Mean Squared Deviation")
     ## Create empty plot for top right grid position.
-    pEmpty <- ggplot() + theme(panel.background = element_blank())
+    pEmpty <- ggplot2::ggplot() +
+      ggplot2::theme(panel.background = ggplot2::element_blank())
     # Convert to Grobs to make alignment of axis possible.
-    p1Gr <- ggplotGrob(p1)
-    p2Gr <- ggplotGrob(p2)
-    p3Gr <- ggplotGrob(p3)
-    pEmpty <- ggplotGrob(pEmpty)
+    p1Gr <- ggplot2::ggplotGrob(p1)
+    p2Gr <- ggplot2::ggplotGrob(p2)
+    p3Gr <- ggplot2::ggplotGrob(p3)
+    pEmpty <- ggplot2::ggplotGrob(pEmpty)
     # Create grid by first binding rows to assure axis alignment and then
     # by columns.
     c1 <- gridExtra::gtable_rbind(p1Gr, p2Gr)
@@ -232,7 +236,7 @@ plot.FW <- function(x,
     if (!is.null(colorBy)) {
       lineDat[[colorBy]] <- genoVals[[colorBy]]
     }
-    lineDat <- remove_missing(lineDat, na.rm = TRUE)
+    lineDat <- ggplot2::remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
     yVar <- ifelse(response == "observed", "genoMean", "fitted")
     aesArgs <- list(x = "envMean", y = yVar, group = "genotype",
@@ -249,20 +253,23 @@ plot.FW <- function(x,
     }
     plotLims <- range(c(lineDat[["envMean"]], lineDat[[yVar]]))
     ## Create plot.
-    p <- ggplot(data = lineDat, do.call(aes_string, args = aesArgs)) +
-      geom_point() +
-      geom_line(aes_string(y = "fitted"), size = 0.5, alpha = 0.7) +
-      scale_x_continuous(trans = xTrans,
-                         sec.axis = dup_axis(name = "Environment",
-                                             breaks = envEffs[["envMean"]],
-                                             labels = envEffs[["trial"]])) +
+    p <- ggplot2::ggplot(data = lineDat,
+                         do.call(ggplot2::aes_string, args = aesArgs)) +
+      ggplot2::geom_point() +
+      ggplot2::geom_line(ggplot2::aes_string(y = "fitted"),
+                         size = 0.5, alpha = 0.7) +
+      ggplot2::scale_x_continuous(trans = xTrans,
+                                  sec.axis = ggplot2::dup_axis(name = "Environment",
+                                                               breaks = envEffs[["envMean"]],
+                                                               labels = envEffs[["trial"]])) +
       ggplot2::geom_vline(xintercept = mean(TDTot[[trait]], na.rm = TRUE),
                           color = "red", linetype = "dashed") +
-      coord_equal(xlim = plotLims, ylim = plotLims) +
-      theme(legend.position = if (is.null(colorBy)) "none" else "right",
-            plot.title = element_text(hjust = 0.5),
-            axis.text.x.top = element_text(angle = 90, hjust = 1)) +
-      labs(title = plotTitle, x = NULL, y = trait)
+      ggplot2::coord_equal(xlim = plotLims, ylim = plotLims) +
+      ggplot2::theme(legend.position = if (is.null(colorBy)) "none" else "right",
+                     plot.title = ggplot2::element_text(hjust = 0.5),
+                     axis.text.x.top = ggplot2::element_text(angle = 90,
+                                                             hjust = 1)) +
+      ggplot2::labs(title = plotTitle, x = NULL, y = trait)
     if (output) {
       plot(p)
     }
@@ -281,21 +288,22 @@ plot.FW <- function(x,
       trellisDat <- trellisDat[trellisDat[["genotype"]] %in%
                                  levels(trellisDat[["genotype"]])[1:64], ]
     }
-    trellisDat <- remove_missing(trellisDat, na.rm = TRUE)
+    trellisDat <- ggplot2::remove_missing(trellisDat, na.rm = TRUE)
     ## The data needs to be ordered for the lines to be drawn properly.
     trellisDat <- trellisDat[order(trellisDat[["genotype"]],
                                    trellisDat[["envMean"]]), ]
-    p <- ggplot(data = trellisDat,
-                aes_string(x = "envMean", y = "genoMean")) +
-      geom_point() +
-      geom_line(data = trellisDat, aes_string(x = "envMean", y = "fitted")) +
-      facet_wrap(facets = "genotype") +
-      labs(x = "Environment", y = trait) +
-      ggtitle(plotTitle) +
-      theme(legend.position = "none",
-            plot.title = element_text(hjust = 0.5),
-            panel.spacing = unit(.2, "cm"),
-            axis.text = element_text(size = 6))
+    p <- ggplot2::ggplot(data = trellisDat,
+                         ggplot2::aes_string(x = "envMean", y = "genoMean")) +
+      ggplot2::geom_point() +
+      ggplot2::geom_line(data = trellisDat,
+                         ggplot2::aes_string(x = "envMean", y = "fitted")) +
+      ggplot2::facet_wrap(facets = "genotype") +
+      ggplot2::labs(x = "Environment", y = trait) +
+      ggplot2::ggtitle(plotTitle) +
+      ggplot2::theme(legend.position = "none",
+                     plot.title = ggplot2::element_text(hjust = 0.5),
+                     panel.spacing = ggplot2::unit(.2, "cm"),
+                     axis.text = ggplot2::element_text(size = 6))
     if (output) {
       plot(p)
     }
@@ -316,12 +324,13 @@ plot.FW <- function(x,
     ## Create scatter plot of fitted values.
     aesArgs <- list(x = "trMin", y = "trMax",
                     color = if (is.null(colorBy)) NULL else colorBy)
-    p <- ggplot(data = plotDat, do.call(aes_string, aesArgs)) +
-      geom_point(na.rm = TRUE) +
-      labs(x = paste("Fitted values for worst trial:", trialMin),
-           y = paste("Fitted values for best trial:", trialMax)) +
-      ggtitle(plotTitle) +
-      theme(plot.title = element_text(hjust = 0.5))
+    p <- ggplot2::ggplot(data = plotDat,
+                         do.call(ggplot2::aes_string, aesArgs)) +
+      ggplot2::geom_point(na.rm = TRUE) +
+      ggplot2::labs(x = paste("Fitted values for worst trial:", trialMin),
+                    y = paste("Fitted values for best trial:", trialMax)) +
+      ggplot2::ggtitle(plotTitle) +
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
     if (output) {
       plot(p)
     }

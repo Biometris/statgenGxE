@@ -153,33 +153,35 @@ plot.varComp <- function(x,
   ## Compute position for annotation. 5e5 is found empirically.
   ## The idea is to annotate the y-axis just left of the x = 0.
   annoPosX <- -max(fullRandVC[[plotVar]]) / 5e5
-  p <- ggplot(fullRandVC, aes_string(x = plotVar, y = "term")) +
-    geom_point(na.rm = TRUE, size = 2) +
+  p <- ggplot2::ggplot(fullRandVC,
+                       ggplot2::aes_string(x = plotVar, y = "term")) +
+    ggplot2::geom_point(na.rm = TRUE, size = 2) +
     ## Add line from y-axis to points.
-    geom_segment(aes_string(xend = plotVar, yend = "term"), x = 0) +
-    scale_x_continuous(expand = expansion(mult = c(0, 0.05))) +
+    ggplot2::geom_segment(ggplot2::aes_string(xend = plotVar, yend = "term"),
+                          x = 0) +
+    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0, 0.05))) +
     ## Set lower xlim to 0. This assures 0 is always displayed on the x-axis
     ## even if the lowest variance component is e.g. 1e-8.
-    coord_cartesian(xlim = c(0, NA), clip = "off") +
-    theme(panel.background = element_blank(),
-          panel.grid.major.x = element_line(color = "grey50"),
-          axis.line = element_line(),
-          axis.title.y = element_blank(),
-          axis.ticks.length.y = grid::unit(0, "mm"),
-          axis.text = element_text(size = 12),
-          plot.title = element_text(hjust = 0.5)) +
-    annotation_custom(grid::textGrob("Source      df ", just = "right",
-                                     gp = grid::gpar(size = 14)),
-                      xmin = annoPosX, xmax = annoPosX,
-                      ymin = Inf, ymax = Inf)
+    ggplot2::coord_cartesian(xlim = c(0, NA), clip = "off") +
+    ggplot2::theme(panel.background = ggplot2::element_blank(),
+                   panel.grid.major.x = ggplot2::element_line(color = "grey50"),
+                   axis.line = ggplot2::element_line(),
+                   axis.title.y = ggplot2::element_blank(),
+                   axis.ticks.length.y = grid::unit(0, "mm"),
+                   axis.text = ggplot2::element_text(size = 12),
+                   plot.title = ggplot2::element_text(hjust = 0.5)) +
+    ggplot2::annotation_custom(grid::textGrob("Source      df ", just = "right",
+                                              gp = grid::gpar(size = 14)),
+                               xmin = annoPosX, xmax = annoPosX,
+                               ymin = Inf, ymax = Inf)
   if (plotType == "sd") {
-    p <- p + labs(title = paste0("Standard deviations (general mean = ",
-                                 mu, ")"),
-                  x = "Square root of variance estimate")
+    p <- p + ggplot2::labs(title = paste0("Standard deviations ",
+                                          "(general mean = ", mu, ")"),
+                           x = "Square root of variance estimate")
   } else if (plotType == "percVar") {
-    p <- p + labs(title = paste0("Percentage of variance explained ",
-                                 "(general mean = ", mu, ")"),
-                  x = "Percentage of variance explained")
+    p <- p + ggplot2::labs(title = paste0("Percentage of variance explained ",
+                                          "(general mean = ", mu, ")"),
+                           x = "Percentage of variance explained")
   }
   if (output) {
     plot(p)

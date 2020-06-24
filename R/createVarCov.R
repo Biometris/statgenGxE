@@ -20,18 +20,18 @@ NULL
 #' @rdname varCov
 #' @keywords internal
 createVarCov <- function(STA,
-                          choice,
-                          summary,
-                          vcov,
-                          criterion,
-                          engine) {
+                         choice,
+                         summary,
+                         vcov,
+                         criterion,
+                         engine) {
   varCov <- structure(list(STA = STA,
-                            choice = choice,
-                            summary = summary,
-                            vcov = vcov,
-                            criterion = criterion,
-                            engine = engine),
-                       class = "varCov")
+                           choice = choice,
+                           summary = summary,
+                           vcov = vcov,
+                           criterion = criterion,
+                           engine = engine),
+                      class = "varCov")
   attr(varCov, which = "timestamp") <- Sys.time()
   return(varCov)
 }
@@ -68,8 +68,8 @@ summary.varCov <- function(object, ...) {
 #'
 #' @export
 plot.varCov <- function(x,
-                         ...,
-                         output = TRUE) {
+                        ...,
+                        output = TRUE) {
   corMat <- cov2cor(x$vcov)
   PC1 <- princomp(corMat)$loadings[, 1]
   orderPC1 <- order(PC1)
@@ -91,24 +91,24 @@ plot.varCov <- function(x,
   ## Select bottom right triangle for correlations and top for variances.
   meltedCorMatLow <- meltedCorMat[as.numeric(meltedCorMat[["trial1"]]) >
                                     as.numeric(meltedCorMat[["trial2"]]), ]
-  p <- ggplot(data = meltedCorMatLow,
-              aes_string("trial1", "trial2", fill = "cor")) +
-    geom_tile(color = "white") +
-    scale_y_discrete(position = "right") +
+  p <- ggplot2::ggplot(data = meltedCorMatLow,
+                       ggplot2::aes_string("trial1", "trial2", fill = "cor")) +
+    ggplot2::geom_tile(color = "white") +
+    ggplot2::scale_y_discrete(position = "right") +
     ## Create a gradient scale.
-    scale_fill_gradient2(low = "blue", high = "red", mid = "white",
-                         na.value = "grey", limit = c(-1, 1)) +
-    theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1,
-                                     size = 10, hjust = 1)) +
-    theme(plot.title = element_text(hjust = 0.5)) +
+    ggplot2::scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                                  na.value = "grey", limit = c(-1, 1)) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1,
+                                                       size = 10, hjust = 1)) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
     ## Remove grid behind text output.
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()) +
-    labs(title = paste("Heatmap for model:", x$choice), x = "", y = "",
-         fill = "correlation") +
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
+                   panel.grid.minor = ggplot2::element_blank()) +
+    ggplot2::labs(title = paste("Heatmap for model:", x$choice), x = "", y = "",
+                  fill = "correlation") +
     ## Fix coordinates to get a square sized plot.
-    coord_fixed()
+    ggplot2::coord_fixed()
   if (output) {
     plot(p)
   }
@@ -136,8 +136,8 @@ plot.varCov <- function(x,
 #' }
 #' @export
 report.varCov <- function(x,
-                           ...,
-                           outfile = NULL) {
+                          ...,
+                          outfile = NULL) {
   ## Checks.
   if (nchar(Sys.which("pdflatex")) == 0) {
     stop("An installation of LaTeX is required to create a pdf report.\n")

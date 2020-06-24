@@ -97,49 +97,52 @@ plot.stability <- function(x,
     supDat <- merge(x$superiority, genoVals, by = "genotype")
     aesArgs1 <- list(x = "mean", y = "sqrt(superiority)",
                      color = if (is.null(colorBy)) NULL else colorBy)
-    plots$p1 <- ggplot(data = supDat, do.call(aes_string, args = aesArgs1)) +
-      geom_point() +
-      labs(x = "Mean", y = "Square root of\n Cultivar superiority")
+    plots$p1 <- ggplot2::ggplot(data = supDat,
+                                do.call(ggplot2::aes_string, args = aesArgs1)) +
+      ggplot2::geom_point() +
+      ggplot2::labs(x = "Mean", y = "Square root of\n Cultivar superiority")
   }
   if (!is.null(x$static)) {
     ## Create static plot.
     statDat <- merge(x$static, genoVals, by = "genotype")
     aesArgs2 <- list(x = "mean", y = "sqrt(static)",
                      color = if (is.null(colorBy)) NULL else colorBy)
-    plots$p2 <- ggplot(data = statDat, do.call(aes_string, args = aesArgs2)) +
-      geom_point() +
-      labs(x = "Mean", y = "Square root of\n Static stability")
+    plots$p2 <- ggplot2::ggplot(data = statDat,
+                                do.call(ggplot2::aes_string, args = aesArgs2)) +
+      ggplot2::geom_point() +
+      ggplot2::labs(x = "Mean", y = "Square root of\n Static stability")
   }
   if (!is.null(x$wricke)) {
     ## Create Wricke plot.
     wrickeDat <- merge(x$wricke, genoVals, by = "genotype")
     aesArgs3 <- list(x = "mean", y = "sqrt(wricke)",
                      color = if (is.null(colorBy)) NULL else colorBy)
-    plots$p3 <- ggplot(data = wrickeDat, do.call(aes_string, args = aesArgs3)) +
-      geom_point() +
-      labs(x = "Mean", y = "Square root of\n Wricke's ecovalence")
+    plots$p3 <- ggplot2::ggplot(data = wrickeDat,
+                                do.call(ggplot2::aes_string, args = aesArgs3)) +
+      ggplot2::geom_point() +
+      ggplot2::labs(x = "Mean", y = "Square root of\n Wricke's ecovalence")
   }
   ## Construct legend.
   if (!is.null(colorBy)) {
     ## Build plot to extract legend.
     ## Legend is always the same for all plots, take it from the first plot.
-    p1Gtable <- ggplot_gtable(ggplot_build(plots[[1]]))
+    p1Gtable <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(plots[[1]]))
     legendPos <- sapply(X = p1Gtable$grobs, FUN = `[[`, "name") == "guide-box"
     legend <- p1Gtable$grobs[[which(legendPos)]]
     ## Now remove the legend from all the plots.
     for (i in seq_along(plots)) {
-      plots[[i]] <- plots[[i]] + theme(legend.position = "none")
+      plots[[i]] <- plots[[i]] + ggplot2::theme(legend.position = "none")
     }
   } else {
     legend <- NULL
   }
   if (length(plots) == 3) {
     ## Create empty plot for bottom right grid position.
-    plots$p4 <- ggplot() +
-      theme(panel.background = element_blank())
+    plots$p4 <- ggplot2::ggplot() +
+      ggplot2::theme(panel.background = ggplot2::element_blank())
   }
   ## Convert plots to grob for outlining of axes.
-  plotsGr <- lapply(X = plots, FUN = ggplotGrob)
+  plotsGr <- lapply(X = plots, FUN = ggplot2::ggplotGrob)
   if (length(plotsGr) > 1) {
     ## At least two plots -> 1 row.
     tot <- gridExtra::gtable_cbind(plotsGr[[1]], plotsGr[[2]])

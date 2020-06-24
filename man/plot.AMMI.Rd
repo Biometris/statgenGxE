@@ -44,9 +44,9 @@ scale is outside this range.}
 
 \item{plotGeno}{Should genotypes be plotted?}
 
-\item{colorGenoBy}{A character string indicating a column in the \code{TD} used
-as input for the AMMI analysis by which the genotypes should be colored. If
-\code{NULL} all genotypes will be colored in black.}
+\item{colorGenoBy}{A character string indicating a column in the \code{TD}
+used as input for the AMMI analysis by which the genotypes should be colored.
+If \code{NULL} all genotypes will be colored in black.}
 
 \item{colGeno}{A character vector with plot colors for the genotypes. A
 single color when \code{colorGenoBy = NULL}, a vector of colors otherwise.}

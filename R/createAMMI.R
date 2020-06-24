@@ -141,9 +141,9 @@ summary.AMMI <- function(object,
 #' \code{0 <= scale <= 1}, and a warning will be issued if the specified
 #' scale is outside this range.
 #' @param plotGeno Should genotypes be plotted?
-#' @param colorGenoBy A character string indicating a column in the \code{TD} used
-#' as input for the AMMI analysis by which the genotypes should be colored. If
-#' \code{NULL} all genotypes will be colored in black.
+#' @param colorGenoBy A character string indicating a column in the \code{TD}
+#' used as input for the AMMI analysis by which the genotypes should be colored.
+#' If \code{NULL} all genotypes will be colored in black.
 #' @param colGeno A character vector with plot colors for the genotypes. A
 #' single color when \code{colorGenoBy = NULL}, a vector of colors otherwise.
 #' @param sizeGeno An numerical value indicating the text size for plotting the
@@ -518,35 +518,40 @@ plotAMMI1 <- function(loadings,
   } else {
     nrowGuide <- shapesGuide <- sizesGuide <- NULL
   }
-  p <- ggplot(totDat, aes_string(x = "x", y = "y", color = ".group")) +
+  p <- ggplot2::ggplot(totDat,
+                       ggplot2::aes_string(x = "x", y = "y",
+                                           color = ".group")) +
     ## Needed for a square plot output.
-    coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax),
-                ratio = plotRatio, clip = "off") +
-    scale_color_manual(breaks = colGroups, values = colNamed, name = NULL,
-                       guide =
-                         guide_legend(nrow = nrowGuide,
-                                      override.aes = list(shape = shapesGuide,
-                                                          size = sizesGuide))) +
+    ggplot2::coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax),
+                         ratio = plotRatio, clip = "off") +
+    ggplot2::scale_color_manual(breaks = colGroups, values = colNamed,
+                                name = NULL,
+                                guide = ggplot2::guide_legend(nrow = nrowGuide,
+                                                              override.aes = list(shape = shapesGuide,
+                                                                                  size = sizesGuide))) +
     ## Add reference axes.
-    geom_vline(aes(xintercept = overallMean), linetype = "dashed",
-               show.legend = FALSE) +
-    geom_hline(aes(yintercept = 0), linetype = "dashed", show.legend = FALSE) +
+    ggplot2::geom_vline(ggplot2::aes(xintercept = overallMean),
+                        linetype = "dashed", show.legend = FALSE) +
+    ggplot2::geom_hline(ggplot2::aes(yintercept = 0),
+                        linetype = "dashed", show.legend = FALSE) +
     ## Add labeling.
-    labs(x = "Main Effects", y = paste0("PC1 (", percPC1, "%)")) +
-    ggtitle(paste0(ifelse(GGE, "GGE", "AMMI1"),
-                   " plot for ", trait, " ", year)) +
-    theme(plot.title = element_text(hjust = 0.5),
-          panel.grid = element_blank())
+    ggplot2::labs(x = "Main Effects", y = paste0("PC1 (", percPC1, "%)")) +
+    ggplot2::ggtitle(paste0(ifelse(GGE, "GGE", "AMMI1"),
+                            " plot for ", trait, " ", year)) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
+                   panel.grid = ggplot2::element_blank())
   if (!is.null(pointDat)) {
     ## Plot genotypes as points.
-    p <- p + geom_point(data = pointDat, show.legend = !is.null(colorGenoBy))
+    p <- p + ggplot2::geom_point(data = pointDat,
+                                 show.legend = !is.null(colorGenoBy))
   }
   if (!is.null(textDat)) {
     ## Plot genotypes and environments as text.
-    p <- p + geom_text(data = textDat,
-                       aes_string(label = "rownames(textDat)", size = ".size"),
-                       show.legend = !is.null(colorEnvBy), vjust = 1) +
-      scale_size(range = range(textDat[[".size"]]), guide = FALSE)
+    p <- p + ggplot2::geom_text(data = textDat,
+                                ggplot2::aes_string(label = "rownames(textDat)",
+                                                    size = ".size"),
+                                show.legend = !is.null(colorEnvBy), vjust = 1) +
+      ggplot2::scale_size(range = range(textDat[[".size"]]), guide = FALSE)
   }
   return(p)
 }
@@ -693,39 +698,44 @@ plotAMMI2 <- function(loadings,
   } else {
     nrowGuide <- shapesGuide <- sizesGuide <- NULL
   }
-  p <- ggplot(totDat, aes_string(x = primAxis, y = secAxis, color = ".group")) +
+  p <- ggplot2::ggplot(totDat, ggplot2::aes_string(x = primAxis, y = secAxis,
+                                                   color = ".group")) +
     ## Needed for a square plot output.
-    coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax),
-                ratio = plotRatio, clip = "off") +
-    scale_color_manual(breaks = colGroups, values = colNamed, name = NULL,
-                       guide = guide_legend(nrow = nrowGuide,
-                                            override.aes = list(shape = shapesGuide,
-                                                                size = sizesGuide))) +
+    ggplot2::coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax),
+                         ratio = plotRatio, clip = "off") +
+    ggplot2::scale_color_manual(breaks = colGroups, values = colNamed,
+                                name = NULL,
+                                guide = ggplot2::guide_legend(nrow = nrowGuide,
+                                                              override.aes = list(shape = shapesGuide,
+                                                                                  size = sizesGuide))) +
     ## Add labeling.
-    labs(x = paste0(primAxis, " (", percPC1, "%)"),
-         y = paste0(secAxis, " (", percPC2, "%)")) +
-    ggtitle(paste0(ifelse(GGE, "GGE", "AMMI2"), " biplot for ", trait,
-                   " (", info, ") ", year)) +
-    theme(plot.title = element_text(hjust = 0.5),
-          panel.grid = element_blank())
+    ggplot2::labs(x = paste0(primAxis, " (", percPC1, "%)"),
+                  y = paste0(secAxis, " (", percPC2, "%)")) +
+    ggplot2::ggtitle(paste0(ifelse(GGE, "GGE", "AMMI2"), " biplot for ", trait,
+                            " (", info, ") ", year)) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
+                   panel.grid = ggplot2::element_blank())
   if (!is.null(pointDat)) {
     ## Plot genotypes as points.
-    p <- p + geom_point(data = pointDat, show.legend = !is.null(colorGenoBy))
+    p <- p + ggplot2::geom_point(data = pointDat,
+                                 show.legend = !is.null(colorGenoBy))
   }
   if (!is.null(textDat)) {
     ## Plot genotypes and environments as text.
-    p <- p + geom_text(data = textDat,
-                       aes_string(label = "rownames(textDat)", size = ".size",
-                                  vjust = ".vjust", hjust = ".hjust"),
-                       show.legend = !is.null(colorEnvBy)) +
-      scale_size(range = range(textDat[[".size"]]), guide = FALSE)
+    p <- p + ggplot2::geom_text(data = textDat,
+                                ggplot2::aes_string(label = "rownames(textDat)",
+                                                    size = ".size",
+                                                    vjust = ".vjust",
+                                                    hjust = ".hjust"),
+                                show.legend = !is.null(colorEnvBy)) +
+      ggplot2::scale_size(range = range(textDat[[".size"]]), guide = FALSE)
   }
   if (plotConvHull) {
     ## Compute convex hull for the points.
     convHulls <- genoDat[grDevices::chull(genoDat[, c(primAxis, secAxis)]), ]
     ## Add convex hull to plot as a polygon.
-    p <- p + geom_polygon(color = "darkolivegreen3",
-                          data = convHulls, alpha = 0.2)
+    p <- p + ggplot2::geom_polygon(color = "darkolivegreen3",
+                                   data = convHulls, alpha = 0.2)
     ## Lines from origin perpendicular to convex hull only for GGE2 plots.
     if (GGE) {
       ## Extract x and y coordinates for points on hull. Add first item to the
@@ -769,9 +779,10 @@ plotAMMI2 <- function(loadings,
       ## for ease of plotting.
       perpDat <- data.frame(xend = xNew, yend = yNew)
       ## Add perpendicular lines to plot as segments.
-      p <- p + geom_segment(aes_string(x = 0, y = 0, xend = "xend",
-                                       yend = "yend"),
-                            data = perpDat, col = "grey50", size = 0.6)
+      p <- p + ggplot2::geom_segment(ggplot2::aes_string(x = 0, y = 0,
+                                                         xend = "xend",
+                                                         yend = "yend"),
+                                     data = perpDat, col = "grey50", size = 0.6)
     }
   }
   if (plotEnv) {
@@ -779,11 +790,13 @@ plotAMMI2 <- function(loadings,
     ## Adding alpha = for transparency causes the arrows not being plotted
     ## after turning off clipping which is needed since labels may fall off
     ## the plot otherwise.
-    p <- p + geom_segment(data = envDat, aes_string(x = 0, y = 0,
-                                                    xend = primAxis,
-                                                    yend = secAxis),
-                          arrow = arrow(length = unit(0.2, "cm")),
-                          show.legend = FALSE)
+    p <- p +
+      ggplot2::geom_segment(data = envDat,
+                            ggplot2::aes_string(x = 0, y = 0,
+                                                xend = primAxis,
+                                                yend = secAxis),
+                            arrow = ggplot2::arrow(length = ggplot2::unit(0.2, "cm")),
+                            show.legend = FALSE)
   }
   return(p)
 }
