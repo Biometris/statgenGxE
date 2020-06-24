@@ -65,7 +65,7 @@ Imports:
     knitr,
     lme4,
     methods,
-    statgenSTA,
+    statgenSTA (>= 1.0.5),
     xtable
 Suggests: asreml(>= 3.0),
     rmarkdown,
