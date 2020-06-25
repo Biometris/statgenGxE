@@ -151,7 +151,7 @@ gxeAmmiHelp <- function(TD,
     stop("TD should be a valid object of class TD.\n")
   }
   trials <- chkTrials(trials, TD)
-  TDTot <- Reduce(f = rbind, x = TD[trials])
+  TDTot <- do.call(rbind, args = TD[trials])
   chkCol(trait, TDTot)
   chkCol("genotype", TDTot)
   chkCol("trial", TDTot)
@@ -234,6 +234,7 @@ gxeAmmiHelp <- function(TD,
     TDYear <- reshape(reshape(TDYear[c("trial", "genotype", trait)],
                               direction = "wide", timevar = "genotype",
                               idvar = "trial", v.names = trait))
+    TDYear <- TDYear[order(TDYear[["genotype"]], TDYear[["trial"]]), ]
     ## Impute missing values.
     if (any(is.na(TDYear[[trait]]))) {
       ## Transform data to genotype x trial matrix.
