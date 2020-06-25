@@ -206,13 +206,13 @@ test_that("AMMI plot colorGenoBy functions properly", {
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
   dat1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
   expect_equal(as.character(dat1_1[[".color"]]),
-               c("#4C00FF", "#00FF4D", "#FFFF00", "#FFFF00", "#FFFF00",
-                 "#FFFF00", "#FFFF00", "#4C00FF", "#4C00FF", "#4C00FF",
-                 "#4C00FF", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D"))
+               c("#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF",
+                 "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D",
+                 "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00"))
   dat1_2 <- p1_2$layers[geoms1_2 == "GeomPoint"][[1]]$data
   expect_equal(as.character(dat1_2[[".color"]]),
-               c("green", "blue", "red", "red", "red", "red", "red", "green",
-                 "green", "green", "green", "blue", "blue", "blue", "blue"))
+               c("green", "green", "green", "green", "green", "blue", "blue",
+                 "blue", "blue", "blue", "red", "red", "red", "red", "red"))
 
   ## AMMI2
   p1_1 <- plot(geAmmi, plotType = "AMMI2", colorGenoBy = "family")
@@ -222,13 +222,13 @@ test_that("AMMI plot colorGenoBy functions properly", {
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
   dat1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
   expect_equal(as.character(dat1_1[[".color"]]),
-               c("#4C00FF", "#00FF4D", "#FFFF00", "#FFFF00", "#FFFF00",
-                 "#FFFF00", "#FFFF00", "#4C00FF", "#4C00FF", "#4C00FF",
-                 "#4C00FF", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D"))
+               c("#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF",
+                 "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D",
+                 "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00"))
   dat1_2 <- p1_2$layers[geoms1_2 == "GeomPoint"][[1]]$data
   expect_equal(as.character(dat1_2[[".color"]]),
-               c("green", "blue", "red", "red", "red", "red", "red", "green",
-                 "green", "green", "green", "blue", "blue", "blue", "blue"))
+               c("green", "green", "green", "green", "green", "blue", "blue",
+                 "blue", "blue", "blue", "red", "red", "red", "red", "red"))
 })
 
 test_that("colorEnvBy combined with colorGenoBy functions properly", {
@@ -238,9 +238,9 @@ test_that("colorEnvBy combined with colorGenoBy functions properly", {
   datG1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
   datE1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
   expect_equal(as.character(datG1_1[[".color"]]),
-               c("#4C00FF", "#00FF4D", "#FFFF00", "#FFFF00", "#FFFF00",
-                 "#FFFF00", "#FFFF00", "#4C00FF", "#4C00FF", "#4C00FF",
-                 "#4C00FF", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D"))
+               c("#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF",
+                 "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D",
+                 "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00"))
   expect_equal(as.character(datE1_1[[".color"]]),
                c("#4C00FF", "#4C00FF", "#00E5FF"))
 
@@ -251,9 +251,9 @@ test_that("colorEnvBy combined with colorGenoBy functions properly", {
   datG1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
   datE1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
   expect_equal(as.character(datG1_1[[".color"]]),
-               c("#4C00FF", "#00FF4D", "#FFFF00", "#FFFF00", "#FFFF00",
-                 "#FFFF00", "#FFFF00", "#4C00FF", "#4C00FF", "#4C00FF",
-                 "#4C00FF", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D"))
+               c("#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF",
+                 "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D",
+                 "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00"))
   expect_equal(as.character(datE1_1[[".color"]]),
                c("#4C00FF", "#4C00FF", "#00E5FF"))
 })

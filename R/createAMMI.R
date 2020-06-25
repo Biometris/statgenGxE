@@ -426,7 +426,10 @@ plotAMMI1 <- function(loadings,
       ## Merge the colorGenoBy column to the data.
       genoDat <- merge(genoDat, unique(dat[c("genotype", colorGenoBy)]),
                        by.x = "row.names", by.y = "genotype")
-      genoDat[[colorGenoBy]] <- as.factor(genoDat[[colorGenoBy]])
+      if (!is.factor(genoDat[[colorGenoBy]])) {
+        genoDat[[colorGenoBy]] <- as.factor(genoDat[[colorGenoBy]])
+      }
+      genoDat <- genoDat[order(genoDat[[colorGenoBy]]), ]
       if (length(colGeno) == 0) {
         ## Get number of colors.
         ## Defaults to black for one color for genotypes and
@@ -458,7 +461,10 @@ plotAMMI1 <- function(loadings,
     if (!is.null(colorEnvBy)) {
       envDat <- merge(envDat, unique(dat[c("trial", colorEnvBy)]),
                       by.x = "row.names", by.y = "trial")
+      if (!is.factor(envDat[[colorEnvBy]])) {
       envDat[[colorEnvBy]] <- as.factor(envDat[[colorEnvBy]])
+      }
+      envDat <- envDat[order(envDat[[colorEnvBy]]), ]
       if (length(colEnv) == 0) {
         ## Get number of colors.
         ## Defaults to black for one color for environments and
@@ -602,7 +608,10 @@ plotAMMI2 <- function(loadings,
       ## Merge the colorGenoBy column to the data.
       genoDat <- merge(genoDat, unique(dat[c("genotype", colorGenoBy)]),
                        by.x = "row.names", by.y = "genotype")
-      genoDat[[colorGenoBy]] <- as.factor(genoDat[[colorGenoBy]])
+      if (!is.factor(genoDat[[colorGenoBy]])) {
+        genoDat[[colorGenoBy]] <- as.factor(genoDat[[colorGenoBy]])
+      }
+      genoDat <- genoDat[order(genoDat[[colorGenoBy]]), ]
       if (length(colGeno) == 0) {
         ## Get number of colors.
         ## Defaults to black for one color for genotypes and
@@ -636,7 +645,10 @@ plotAMMI2 <- function(loadings,
     if (!is.null(colorEnvBy)) {
       envDat <- merge(envDat, unique(dat[c("trial", colorEnvBy)]),
                       by.x = "row.names", by.y = "trial")
-      envDat[[colorEnvBy]] <- as.factor(envDat[[colorEnvBy]])
+      if (!is.factor(envDat[[colorEnvBy]])) {
+        envDat[[colorEnvBy]] <- as.factor(envDat[[colorEnvBy]])
+      }
+      envDat <- envDat[order(envDat[[colorEnvBy]]), ]
       if (length(colEnv) == 0) {
         ## Get number of colors.
         ## Defaults to black for one color for environments and
