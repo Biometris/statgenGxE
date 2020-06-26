@@ -308,7 +308,7 @@ gxeAmmiHelp <- function(TD,
     loadings <- pca$rotation
     scores <- pca$x
     ## For GGE assure loadings for PC1 are positive to assure proper plotting.
-    if (GGE && all(loadings[, "PC1"] < 0)) {
+    if (GGE && sum(loadings[, "PC1"] < 0) / nrow(loadings) > 0.6) {
       loadings[, "PC1"] <- -loadings[, "PC1"]
       scores[, "PC1"] <- -scores[, "PC1"]
     }
