@@ -175,7 +175,7 @@ test_that("vc function functions correctly", {
   vcVCLm <- vc(geVCLm)
   expect_is(vcVCLm, "data.frame")
   expect_named(vcVCLm, "component")
-  expect_equal(rownames(vcVCLm), c("genotype", "residual"))
+  expect_equal(rownames(vcVCLm), c("genotype", "residuals"))
   expect_equal(vcVCLm[["component"]],
                c(78.7850079727369, 309.69339127849))
 
@@ -184,7 +184,7 @@ test_that("vc function functions correctly", {
   vcVCAs <- vc(geVCAs)
   expect_is(vcVCAs, "data.frame")
   expect_named(vcVCAs, "component")
-  expect_equal(rownames(vcVCAs), c("genotype", "residual"))
+  expect_equal(rownames(vcVCAs), c("genotype", "residuals"))
   expect_equal(vcVCAs[["component"]],
                c(78.7960647165854, 309.736936464321))
 })

@@ -49,7 +49,6 @@ summary.varComp <- function(object,
     ## This might cut off the formula if it is longer than 500 character.
     ## This is however highly unlikely given the fixed structure of the models.
     fitModCall <- deparse(formula(getCall(object$fitMod)), width.cutoff = 500)
-
   } else if (object$engine == "asreml") {
     ## For asreml, rewrite the formula to match the display of formulas
     ## from lme4,
@@ -291,19 +290,26 @@ vc <- function(varComp) {
   if (!inherits(varComp, "varComp")) {
     stop(varComp, " should be an object of class varComp.\n")
   }
+  fitMod <- varComp$fitMod
   ## Extract variance component and rename so rows/columns to assure
   ## matching outputs for lme4/asreml.
   if (varComp$engine == "lme4") {
-    varcomps <- as.data.frame(lme4::VarCorr(varComp$fitMod))
+    modTerms <- colnames(attr(x = terms(getCall(fitMod)$formula,
+                                        keep.order = TRUE), which = "factors"))
+    modTerms <- gsub(pattern = "1 | ", replacement = "", x = modTerms,
+                     fixed = TRUE)
+    varcomps <- as.data.frame(lme4::VarCorr(fitMod))
     rownames(varcomps) <- varcomps[["grp"]]
-    rownames(varcomps)[nrow(varcomps)] <- "residual"
-    varcomps <- varcomps[c((nrow(varcomps)-1):1, nrow(varcomps)),
-                         "vcov", drop = FALSE]
+    rownames(varcomps)[nrow(varcomps)] <- "residuals"
+    modTermsRand <- modTerms[modTerms %in% rownames(varcomps)]
+    varcomps <- varcomps[c(modTermsRand, "residuals"), "vcov", drop = FALSE]
     colnames(varcomps) <- "component"
   } else if (varComp$engine == "asreml") {
-    varcomps <- summary(varComp$fitMod)$varcomp
-    rownames(varcomps)[nrow(varcomps)] <- "residual"
-    varcomps <- varcomps[, "component", drop = FALSE]
+    modTerms <- colnames(attr(x = terms(fitMod$call$random, keep.order = TRUE),
+                              which = "factors"))
+    varcomps <- summary(fitMod)$varcomp
+    rownames(varcomps)[nrow(varcomps)] <- "residuals"
+    varcomps <- varcomps[c(modTerms, "residuals"), "component", drop = FALSE]
   }
   return(varcomps)
 }

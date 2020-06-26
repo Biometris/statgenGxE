@@ -160,8 +160,7 @@ gxeVarComp <- function(TD,
                   if (!is.null(nestingFactor)) c(nestingFactor,
                                                  paste0(nestingFactor, ":trial")),
                   if (regionLocationYear) c("region", "region:loc", "year",
-                                            "region:year", "region:loc",
-                                            "region:loc:year"))
+                                            "region:year", "region:loc:year"))
   ## Check if the data contains replicates.
   repTab <- table(TDTot[c("genotype",
                           unlist(strsplit(x = tail(fixedTerms, 1), split = ":")))])
@@ -187,6 +186,19 @@ gxeVarComp <- function(TD,
                                       weights = if (useWt) TDTot[["wt"]]))
   aovFullFixedMod <- anova(fullFixedMod)
   rownames(aovFullFixedMod)[nrow(aovFullFixedMod)] <- "residuals"
+  ## Reorder terms to the original order in the model call.
+  modTerms <- c(fixedTerms, randTerms)
+  aovVars <- sapply(X = strsplit(x = rownames(aovFullFixedMod)[-nrow(aovFullFixedMod)],
+                                split = ":"), FUN = function(var) {
+                                  paste0(sort(var), collapse = "_")
+                                })
+  modVars <- sapply(X = strsplit(x = modTerms, split = ":"),
+                    FUN = function(var) {
+                      paste0(sort(var), collapse = "_")
+                    })
+  aovFullFixedMod <- aovFullFixedMod[c(match(modVars, aovVars),
+                                       nrow(aovFullFixedMod)), ]
+  rownames(aovFullFixedMod) <- c(modTerms, "residuals")
   ## Get all model terms as used by lm (might involve reordered terms).
   fullFixedLabs <- attr(x = terms(fullFixedMod), which = "term.labels")
   if (!all(fullFixedLabs %in% rownames(aovFullFixedMod))) {
@@ -242,8 +254,6 @@ gxeVarComp <- function(TD,
     rownames(fullRandVC)[nrow(fullRandVC)] <- "residuals"
     vcovTot <- sum(fullRandVC[["vcov"]])
     fullRandVC[["vcovPerc"]] <- fullRandVC[["vcov"]] / vcovTot
-    fullRandVC <- fullRandVC[c((nrow(fullRandVC)-1):1, nrow(fullRandVC)),
-                             c("vcov", "vcovPerc")]
   } else if (engine == "asreml") {
     ## Construct input for full random model.
     fullRandTxt <- paste("~", paste(c(fixedTerms, randTerms), collapse = "+"))
@@ -268,8 +278,21 @@ gxeVarComp <- function(TD,
     vcovTot <- sum(fullRandVC[["component"]])
     fullRandVC[["vcovPerc"]] <- fullRandVC[["component"]] / vcovTot
     colnames(fullRandVC)[colnames(fullRandVC) == "component"] <- "vcov"
-    fullRandVC <- fullRandVC[, c("vcov", "vcovPerc")]
+    modTerms <- colnames(attr(x = terms(eval(fullRandMod$call$random),
+                                        keep.order = TRUE), which = "factors"))
   }
+  ## Reorder rows and vars within terms in rownames to match orginal
+  ## function call.
+  VCVars <- sapply(X = strsplit(x = rownames(fullRandVC)[-nrow(fullRandVC)],
+                                split = ":"), FUN = function(var) {
+                                  paste0(sort(var), collapse = "_")
+                                })
+  randVars <- sapply(X = strsplit(x = modTerms, split = ":"),
+                    FUN = function(var) {
+                      paste0(sort(var), collapse = "_")
+                    })
+  fullRandVC <- fullRandVC[c(match(randVars, VCVars), nrow(fullRandVC)),
+                           c("vcov", "vcovPerc")]
   ## Create tables for diagnostics.
   diagTabs <- lapply(X = fixedTerms, FUN = function(fixedTerm) {
     fixedVars <- unlist(strsplit(x = fixedTerm, split = ":"))
