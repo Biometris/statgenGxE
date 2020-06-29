@@ -72,7 +72,7 @@ plot.varCov <- function(x,
                         title = paste("Heatmap for model:", x$choice),
                         ...,
                         output = TRUE) {
-  chkChar(title, len = 1)
+  chkChar(title, len = 1, null = FALSE)
   corMat <- cov2cor(x$vcov)
   PC1 <- princomp(corMat)$loadings[, 1]
   orderPC1 <- order(PC1)

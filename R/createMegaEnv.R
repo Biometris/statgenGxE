@@ -71,6 +71,7 @@ plot.megaEnv <- function(x,
                          title = paste("Scatterplots of mega environments for",
                                        x$trait),
                          output = TRUE) {
+  chkChar(title, len = 1, null = FALSE)
   engine <- match.arg(engine)
   if (!is.null(colorGenoBy)) {
     TDTot <- do.call(rbind, args = x$TD)

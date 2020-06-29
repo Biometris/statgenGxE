@@ -90,7 +90,7 @@ plot.stability <- function(x,
                            colGeno = NULL,
                            title = paste("Stability coefficients for", x$trait),
                            output = TRUE) {
-  chkChar(title, len = 1)
+  chkChar(title, len = 1, null = FALSE)
   TDTot <- do.call(rbind, x$TD)
   if (!is.null(colorGenoBy)) {
     chkCol(colorGenoBy, TDTot)
