@@ -165,7 +165,7 @@ test_that("AMMI plot colorEnvBy functions properly", {
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
   dat1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
   expect_equal(as.character(dat1_1[[".color"]]),
-               c("#4C00FF", "#4C00FF", "#00E5FF"))
+               c("#AA0DFE", "#AA0DFE", "#3283FE"))
   dat1_2 <- p1_2$layers[geoms1_2 == "GeomText"][[1]]$data
   expect_equal(as.character(dat1_2[[".color"]]),
                c("green", "green", "blue"))
@@ -178,7 +178,7 @@ test_that("AMMI plot colorEnvBy functions properly", {
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
   dat1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
   expect_equal(as.character(dat1_1[[".color"]]),
-               c("#4C00FF", "#4C00FF", "#00E5FF"))
+               c("#AA0DFE", "#AA0DFE", "#3283FE"))
   dat1_2 <- p1_2$layers[geoms1_2 == "GeomText"][[1]]$data
   expect_equal(as.character(dat1_2[[".color"]]),
                c("green", "green", "blue"))
@@ -206,9 +206,9 @@ test_that("AMMI plot colorGenoBy functions properly", {
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
   dat1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
   expect_equal(as.character(dat1_1[[".color"]]),
-               c("#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF",
-                 "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D",
-                 "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00"))
+               c("#1B9E77", "#1B9E77", "#1B9E77", "#1B9E77", "#1B9E77",
+                 "#D95F02", "#D95F02", "#D95F02", "#D95F02", "#D95F02",
+                 "#7570B3", "#7570B3", "#7570B3", "#7570B3", "#7570B3"))
   dat1_2 <- p1_2$layers[geoms1_2 == "GeomPoint"][[1]]$data
   expect_equal(as.character(dat1_2[[".color"]]),
                c("green", "green", "green", "green", "green", "blue", "blue",
@@ -222,9 +222,9 @@ test_that("AMMI plot colorGenoBy functions properly", {
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
   dat1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
   expect_equal(as.character(dat1_1[[".color"]]),
-               c("#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF",
-                 "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D",
-                 "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00"))
+               c("#1B9E77", "#1B9E77", "#1B9E77", "#1B9E77", "#1B9E77",
+                 "#D95F02", "#D95F02", "#D95F02", "#D95F02", "#D95F02",
+                 "#7570B3", "#7570B3", "#7570B3", "#7570B3", "#7570B3"))
   dat1_2 <- p1_2$layers[geoms1_2 == "GeomPoint"][[1]]$data
   expect_equal(as.character(dat1_2[[".color"]]),
                c("green", "green", "green", "green", "green", "blue", "blue",
@@ -238,11 +238,11 @@ test_that("colorEnvBy combined with colorGenoBy functions properly", {
   datG1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
   datE1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
   expect_equal(as.character(datG1_1[[".color"]]),
-               c("#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF",
-                 "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D",
-                 "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00"))
+               c("#1B9E77", "#1B9E77", "#1B9E77", "#1B9E77", "#1B9E77",
+                 "#D95F02", "#D95F02", "#D95F02", "#D95F02", "#D95F02",
+                 "#7570B3", "#7570B3", "#7570B3", "#7570B3", "#7570B3"))
   expect_equal(as.character(datE1_1[[".color"]]),
-               c("#4C00FF", "#4C00FF", "#00E5FF"))
+               c("#AA0DFE", "#AA0DFE", "#3283FE"))
 
   ## AMMI2
   p1_1 <- plot(geAmmi, plotType = "AMMI2", colorGenoBy = "family",
@@ -251,11 +251,11 @@ test_that("colorEnvBy combined with colorGenoBy functions properly", {
   datG1_1 <- p1_1$layers[geoms1_1 == "GeomPoint"][[1]]$data
   datE1_1 <- p1_1$layers[geoms1_1 == "GeomText"][[1]]$data
   expect_equal(as.character(datG1_1[[".color"]]),
-               c("#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF", "#4C00FF",
-                 "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D", "#00FF4D",
-                 "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00"))
+               c("#1B9E77", "#1B9E77", "#1B9E77", "#1B9E77", "#1B9E77",
+                 "#D95F02", "#D95F02", "#D95F02", "#D95F02", "#D95F02",
+                 "#7570B3", "#7570B3", "#7570B3", "#7570B3", "#7570B3"))
   expect_equal(as.character(datE1_1[[".color"]]),
-               c("#4C00FF", "#4C00FF", "#00E5FF"))
+               c("#AA0DFE", "#AA0DFE", "#3283FE"))
 })
 
 test_that("AMMI plot plotConvHull functions properly", {
