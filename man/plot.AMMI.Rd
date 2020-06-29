@@ -21,13 +21,14 @@
   envFactor = 1,
   primAxis = "PC1",
   secAxis = "PC2",
+  title = NULL,
   output = TRUE
 )
 }
 \arguments{
 \item{x}{An object of class AMMI}
 
-\item{...}{Further graphical parameters passed on to actual plot function.}
+\item{...}{Not used.}
 
 \item{plotType}{A character string indicating which plot should be made.
 Either "AMMI1" for an AMMI1 plot (genotype and
@@ -84,6 +85,8 @@ plotted on the primary axis of the AMMI2 plot. Has to be given as
 plotted on the secondary axis of the AMMI2 plot. Has to be given as
 \code{"PCn"} where n is the number of the principal component. n Has to
 differ from \code{primAxis}.}
+
+\item{title}{A character string used a title for the plot.}
 
 \item{output}{Should the plot be output to the current device? If
 \code{FALSE} only a list of ggplot objects is invisibly returned.}

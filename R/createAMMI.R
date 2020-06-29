@@ -128,7 +128,7 @@ summary.AMMI <- function(object,
 #' function returns an error.
 #'
 #' @param x An object of class AMMI
-#' @param ... Further graphical parameters passed on to actual plot function.
+#' @param ... Not used.
 #' @param plotType A character string indicating which plot should be made.
 #' Either "AMMI1" for an AMMI1 plot (genotype and
 #' environment means vs PC1) or "AMMI2" for an AMMI2 biplot (genotypes and
@@ -171,6 +171,7 @@ summary.AMMI <- function(object,
 #' plotted on the secondary axis of the AMMI2 plot. Has to be given as
 #' \code{"PCn"} where n is the number of the principal component. n Has to
 #' differ from \code{primAxis}.
+#' @param title A character string used a title for the plot.
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
@@ -213,6 +214,7 @@ plot.AMMI <- function(x,
                       envFactor = 1,
                       primAxis = "PC1",
                       secAxis = "PC2",
+                      title = NULL,
                       output = TRUE) {
   ## Checks.
   if (missing(plotType) && x$GGE) {
@@ -223,6 +225,7 @@ plot.AMMI <- function(x,
       plotType <- "AMMI2"
     }
   }
+  chkChar(title, len = 1)
   chkNum(scale, min = 0, max = 1, null = FALSE, incl = TRUE)
   if (plotGeno) {
     chkNum(sizeGeno, min = 0, null = FALSE, incl = TRUE)
@@ -291,10 +294,11 @@ plot.AMMI <- function(x,
                   overallMean = x$overallMean[[year]] * envFactor,
                   genoMean = x$genoMean[[year]] / envFactor,
                   envMean = x$envMean[[year]] * envFactor,
-                  trait = x$trait, dat = x$dat[[year]], GGE = x$GGE, year = year,
-                  scale = scale, plotGeno = plotGeno, colGeno = colGeno,
-                  sizeGeno = sizeGeno, plotEnv = plotEnv, colorEnvBy = colorEnvBy,
-                  colEnv = colEnv, sizeEnv = sizeEnv, colorGenoBy = colorGenoBy)
+                  trait = x$trait, dat = x$dat[[year]], GGE = x$GGE,
+                  year = year, scale = scale, plotGeno = plotGeno,
+                  colGeno = colGeno, sizeGeno = sizeGeno, plotEnv = plotEnv,
+                  colorEnvBy = colorEnvBy, colEnv = colEnv, sizeEnv = sizeEnv,
+                  colorGenoBy = colorGenoBy, title = title)
       }, simplify = FALSE)
     } else {
       ## Create a single AMMI1 plot.
@@ -309,7 +313,7 @@ plot.AMMI <- function(x,
                      sizeGeno = sizeGeno, plotEnv = plotEnv,
                      colorEnvBy = colorEnvBy,
                      colEnv = colEnv, sizeEnv = sizeEnv,
-                     colorGenoBy = colorGenoBy)
+                     colorGenoBy = colorGenoBy, title = title)
     }
   } else if (plotType == "AMMI2") {
     if (!is.character(primAxis) || length(primAxis) > 1 ||
@@ -358,7 +362,7 @@ plot.AMMI <- function(x,
                               sizeGeno = sizeGeno, plotConvHull = plotConvHull,
                               plotEnv = plotEnv, colEnv = colEnv,
                               colorEnvBy = colorEnvBy, sizeEnv = sizeEnv,
-                              colorGenoBy = colorGenoBy)
+                              colorGenoBy = colorGenoBy, title = title)
                   }, simplify = FALSE)
 
 
@@ -380,7 +384,7 @@ plot.AMMI <- function(x,
                      sizeGeno = sizeGeno, plotConvHull = plotConvHull,
                      plotEnv = plotEnv, colEnv = colEnv,
                      colorEnvBy = colorEnvBy, sizeEnv = sizeEnv,
-                     colorGenoBy = colorGenoBy)
+                     colorGenoBy = colorGenoBy, title = title)
     }
   }
   if (output) {
@@ -415,10 +419,14 @@ plotAMMI1 <- function(loadings,
                       plotEnv = TRUE,
                       colorEnvBy,
                       colEnv = NULL,
-                      sizeEnv) {
+                      sizeEnv,
+                      title = NULL) {
   percPC1 <- round(importance[2, 1] * 100, 1)
   ## Calculate lambda scale
   lam <- importance[1, 1] ^ scale
+  if (is.null(title)) {
+    title <- paste(ifelse(GGE, "GGE", "AMMI1"), "plot for", trait, year)
+  }
   if (plotGeno) {
     ## Create data.frame for genotypes.
     genoDat <- data.frame(type = "geno", x = genoMean, y = scores[, 1] / lam)
@@ -541,9 +549,8 @@ plotAMMI1 <- function(loadings,
     ggplot2::geom_hline(ggplot2::aes(yintercept = 0),
                         linetype = "dashed", show.legend = FALSE) +
     ## Add labeling.
-    ggplot2::labs(x = "Main Effects", y = paste0("PC1 (", percPC1, "%)")) +
-    ggplot2::ggtitle(paste0(ifelse(GGE, "GGE", "AMMI1"),
-                            " plot for ", trait, " ", year)) +
+    ggplot2::labs(x = "Main Effects", y = paste0("PC1 (", percPC1, "%)"),
+                  title = title) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
                    panel.grid = ggplot2::element_blank())
   if (!is.null(pointDat)) {
@@ -584,7 +591,8 @@ plotAMMI2 <- function(loadings,
                       colorEnvBy,
                       colEnv = NULL,
                       sizeEnv,
-                      colorGenoBy) {
+                      colorGenoBy,
+                      title = NULL) {
   percPC1 <- round(importance[2, primAxis] * 100, 1)
   percPC2 <- round(importance[2, secAxis] * 100, 1)
   if (scale == 1) {
@@ -595,6 +603,10 @@ plotAMMI2 <- function(loadings,
     info <- "symmetric scaling"
   } else {
     info <- paste0(round(importance[3, secAxis] * 100, 1), "%")
+  }
+  if (is.null(title)) {
+    title <- paste0(ifelse(GGE, "GGE", "AMMI2"), " biplot for ", trait,
+                    " (", info, ") ", year)
   }
   ## Calculate lambda scale.
   lam <- as.numeric(importance[1, c(primAxis, secAxis)])
@@ -722,9 +734,8 @@ plotAMMI2 <- function(loadings,
                                                                                   size = sizesGuide))) +
     ## Add labeling.
     ggplot2::labs(x = paste0(primAxis, " (", percPC1, "%)"),
-                  y = paste0(secAxis, " (", percPC2, "%)")) +
-    ggplot2::ggtitle(paste0(ifelse(GGE, "GGE", "AMMI2"), " biplot for ", trait,
-                            " (", info, ") ", year)) +
+                  y = paste0(secAxis, " (", percPC2, "%)"),
+                  title = title) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
                    panel.grid = ggplot2::element_blank())
   if (!is.null(pointDat)) {
