@@ -259,14 +259,11 @@ plot.FW <- function(x,
     order <- match.arg(order)
     response <- match.arg(response)
     lineDat <- merge(genoDat, envEffs, by = "trial")
-    if (colorGenoBy != ".colorGenoBy") {
-      lineDat[[colorGenoBy]] <- genoDat[[colorGenoBy]]
-    }
     lineDat <- ggplot2::remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
     yVar <- ifelse(response == "observed", "genoMean", "fitted")
     aesArgs <- list(x = "envMean", y = yVar, group = "genotype",
-                    color = if (is.null(colorGenoBy)) "genotype" else
+                    color = if (colorGenoBy == ".colorGenoBy") "genotype" else
                       enquote(colorGenoBy))
     ## Order descending can be achieved by reversing the x-axis.
     if (order == "descending") {
@@ -285,15 +282,17 @@ plot.FW <- function(x,
                                   sec.axis = ggplot2::dup_axis(name = "Environment",
                                                                breaks = envEffs[["envMean"]],
                                                                labels = envEffs[["trial"]])) +
-      ggplot2::scale_color_manual(values = colGeno) +
       ggplot2::geom_vline(xintercept = mean(TDTot[[trait]], na.rm = TRUE),
                           color = "red", linetype = "dashed") +
       ggplot2::coord_equal(xlim = plotLims, ylim = plotLims) +
-      ggplot2::theme(legend.position = if (colorGenoBy != ".colorGenoBy") "none" else "right",
+      ggplot2::theme(legend.position = if (colorGenoBy == ".colorGenoBy") "none" else "right",
                      plot.title = ggplot2::element_text(hjust = 0.5),
                      axis.text.x.top = ggplot2::element_text(angle = 90,
                                                              hjust = 1)) +
       ggplot2::labs(title = title, x = NULL, y = trait)
+    if (colorGenoBy != ".colorGenoBy") {
+      p <- p + ggplot2::scale_color_manual(values = colGeno)
+    }
     if (output) {
       plot(p)
     }
@@ -341,15 +340,13 @@ plot.FW <- function(x,
     plotDat <- data.frame(genotype = levels(TDTot[["genotype"]]),
                           trMin = plotDat[plotDat[["trial"]] == trialMin, "fitted"],
                           trMax = plotDat[plotDat[["trial"]] == trialMax, "fitted"])
-    if (!is.null(colorGenoBy)) {
-      plotDat <- merge(plotDat, unique(TDTot[!is.na(TDTot[[colorGenoBy]]),
-                                             c("genotype", colorGenoBy)]))
-    }
+    plotDat <- merge(plotDat, genoDat[, c("genotype", colorGenoBy)])
     ## Create scatter plot of fitted values.
     p <- ggplot2::ggplot(data = plotDat,
                          ggplot2::aes_string(x = "trMin", y = "trMax",
                                              color = colorGenoBy)) +
-      ggplot2::geom_point(na.rm = TRUE) +
+      ggplot2::geom_point(na.rm = TRUE,
+                          show.legend = colorGenoBy != ".colorGenoBy") +
       ggplot2::scale_color_manual(values = colGeno) +
       ggplot2::labs(x = paste("Fitted values for worst trial:", trialMin),
                     y = paste("Fitted values for best trial:", trialMax)) +
