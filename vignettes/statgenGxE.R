@@ -67,12 +67,12 @@ summary(dropsFW)
 ## ----plotFWScatter, fig.width=5, fig.height=4-------------------------------------------
 ## Create scatter plot for Finlay Wilkinson analysis.
 ## Color genotypes by geneticGroup.
-plot(dropsFW, plotType = "scatter", colorBy = "geneticGroup")
+plot(dropsFW, plotType = "scatter", colorGenoBy = "geneticGroup")
 
 ## ----plotFWLine, fig.width=5, fig.height=4----------------------------------------------
 ## Create line plot for Finlay Wilkinson analysis.
 ## Color genotypes by geneticGroup.
-plot(dropsFW, plotType = "line", colorBy = "geneticGroup")
+plot(dropsFW, plotType = "line", colorGenoBy = "geneticGroup")
 
 ## ----plotFWTrellis, fig.width=5, fig.height=4-------------------------------------------
 ## Create trellis plot for Finlay Wilkinson analysis.
@@ -82,7 +82,7 @@ plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347",
 ## ----plotFWScatterFit, fig.width=5, fig.height=4----------------------------------------
 ## Create scatter plot of fitted values for Finlay Wilkinson analysis.
 ## Color genotypes by geneticGroup.
-plot(dropsFW, plotType = "scatterFit", colorBy = "geneticGroup")
+plot(dropsFW, plotType = "scatterFit", colorGenoBy = "geneticGroup")
 
 ## ----geAmmi, R.options=list(digits=6)---------------------------------------------------
 ## Run gxeAmmi for grain.yield.
@@ -154,7 +154,7 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Create a scatter plot of predictions in mega environments.
   ## Color genotypes based on geneticGroup.
-  plot(dropsMegaEnv, engine = "asreml", colorBy = "geneticGroup")
+  plot(dropsMegaEnv, engine = "asreml", colorGenoBy = "geneticGroup")
 }
 
 ## ----geStab, R.options=list(digits=6)---------------------------------------------------
@@ -166,7 +166,7 @@ summary(dropsStab, pctGeno = 2)
 ## ----plotStab---------------------------------------------------------------------------
 ## Create plots for the different stability measures.
 ## Color genotypes by geneticGroup.
-plot(dropsStab, colorBy = "geneticGroup")
+plot(dropsStab, colorGenoBy = "geneticGroup")
 
 ## ----geVClme----------------------------------------------------------------------------
 ## Use lme4 for fitting the models - only compound symmetry.

@@ -176,7 +176,7 @@ Three types of plots can be made to investigate the output from the analysis. `p
 ```{r plotFWScatter, fig.width=5, fig.height=4}
 ## Create scatter plot for Finlay Wilkinson analysis.
 ## Color genotypes by geneticGroup.
-plot(dropsFW, plotType = "scatter", colorBy = "geneticGroup")
+plot(dropsFW, plotType = "scatter", colorGenoBy = "geneticGroup")
 ```
 
 With `plotType = "line"` a plot with fitted lines for all genotypes in the analysis is created. 
@@ -184,7 +184,7 @@ With `plotType = "line"` a plot with fitted lines for all genotypes in the analy
 ```{r plotFWLine, fig.width=5, fig.height=4}
 ## Create line plot for Finlay Wilkinson analysis.
 ## Color genotypes by geneticGroup.
-plot(dropsFW, plotType = "line", colorBy = "geneticGroup")
+plot(dropsFW, plotType = "line", colorGenoBy = "geneticGroup")
 ```
 
 `plotType = "trellis"` creates a trellis plot with observations and slopes per genotype. At most 64 genotypes are plotted. It is possible to select a subset of genotypes for plotting using the parameter `genotypes`.
@@ -200,7 +200,7 @@ plot(dropsFW, plotType = "trellis", genotypes = c("11430", "A3", "A310", "A347",
 ```{r plotFWScatterFit, fig.width=5, fig.height=4}
 ## Create scatter plot of fitted values for Finlay Wilkinson analysis.
 ## Color genotypes by geneticGroup.
-plot(dropsFW, plotType = "scatterFit", colorBy = "geneticGroup")
+plot(dropsFW, plotType = "scatterFit", colorGenoBy = "geneticGroup")
 ```
 
 ---
@@ -326,13 +326,13 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
 }
 ```
 
-The results of the predictions can be visualized in a scatterplot using the `plot` functions. This creates a similar plot to the one described in the [data preparation](#dp) section earlier in the vignette. However, now the predicted values for the genotypes in the different mega environments are displayed. The predictions are calculated inside the plot functions. By default lme4 is used for this. To change to asreml specify `engine = asreml`. Genotypes can be colored by the value of a variable in the TD object used for calculating the mega environments by specifying `colorBy`.
+The results of the predictions can be visualized in a scatterplot using the `plot` functions. This creates a similar plot to the one described in the [data preparation](#dp) section earlier in the vignette. However, now the predicted values for the genotypes in the different mega environments are displayed. The predictions are calculated inside the plot functions. By default lme4 is used for this. To change to asreml specify `engine = asreml`. Genotypes can be colored by the value of a variable in the TD object used for calculating the mega environments by specifying `colorGenoBy`.
 
 ```{r scatterMegaEnv}
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Create a scatter plot of predictions in mega environments.
   ## Color genotypes based on geneticGroup.
-  plot(dropsMegaEnv, engine = "asreml", colorBy = "geneticGroup")
+  plot(dropsMegaEnv, engine = "asreml", colorGenoBy = "geneticGroup")
 }
 ```
 
@@ -360,7 +360,7 @@ Plotting the results yields a scatter plot for the square root of each stability
 ```{r plotStab}
 ## Create plots for the different stability measures.
 ## Color genotypes by geneticGroup.
-plot(dropsStab, colorBy = "geneticGroup")
+plot(dropsStab, colorGenoBy = "geneticGroup")
 ```
 
 ---

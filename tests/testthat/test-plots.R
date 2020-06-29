@@ -320,7 +320,7 @@ test_that("AMMI plot gives correct output types when byYear = TRUE", {
 geFw <- gxeFw(TD = testTD, trait = "t1", maxIter = 30)
 
 test_that("general check in FW plot function properly", {
-  expect_error(plot(geFw, colorBy = "col"), "col has to be a column")
+  expect_error(plot(geFw, colorGenoBy = "col"), "col has to be a column")
 })
 
 test_that("FW plot gives correct output types", {
@@ -336,22 +336,22 @@ test_that("FW plot gives correct output types", {
   expect_is(p4, "ggplot")
 })
 
-test_that("Option colorBy in scatter plot functions correctly", {
-  p1 <- plot(geFw, colorBy = "family")
+test_that("Option colorGenoBy in scatter plot functions correctly", {
+  p1 <- plot(geFw, colorGenoBy = "family")
   expect_equal(p1[[1]]$labels$colour, "family")
   expect_equal(p1[[2]]$labels$colour, "family")
   expect_equal(p1[[3]]$labels$colour, "family")
 })
 
-test_that("Option colorBy in line plot functions correctly", {
-  p1 <- plot(geFw, plotType = "line", colorBy = "family")
+test_that("Option colorGenoBy in line plot functions correctly", {
+  p1 <- plot(geFw, plotType = "line", colorGenoBy = "family")
   expect_equal(p1$labels$colour, "family")
   ## With coloring plot should have a legend explicitly defined.
   expect_equal(p1$theme$legend.position, "right")
 })
 
-test_that("Option colorBy in scatterFit plot functions correctly", {
-  p1 <- plot(geFw, plotType = "scatterFit", colorBy = "family")
+test_that("Option colorGenoBy in scatterFit plot functions correctly", {
+  p1 <- plot(geFw, plotType = "scatterFit", colorGenoBy = "family")
   expect_equal(p1$labels$colour, "family")
 })
 
@@ -388,12 +388,12 @@ test_that("title functions correctly in stability plot", {
   expect_silent(plot(geStab, title = "Test"))
 })
 
-test_that("colorBy functions correctly in stability plot", {
+test_that("colorGenoBy functions correctly in stability plot", {
   geStab <- gxeStability(TD = testTD, trait = "t1")
   ## Actually just testing that it doesn't crash.
   ## Plots are returned as a list of plots,
   ## actual plotting, including legend, is done by grid.arrange
-  expect_silent(plot(geStab, colorBy = "family"))
+  expect_silent(plot(geStab, colorGenoBy = "family"))
 })
 
 ## varCov
@@ -431,9 +431,9 @@ test_that("megaEnv plot gives correct output types", {
   expect_equal(nrow(layout[grepl(pattern  = "pane", x = layout[["name"]]), ]), 4)
 })
 
-test_that("option colorBy in megaEnv plot functions correctly", {
+test_that("option colorGenoBy in megaEnv plot functions correctly", {
   expect_warning(p0 <- plot(geMegaEnv))
-  expect_warning(p <- plot(geMegaEnv, colorBy = "family"),
+  expect_warning(p <- plot(geMegaEnv, colorGenoBy = "family"),
                  "One should be cautious with the interpretation")
   ## New guide-box panel added.
   layout0 <- p0[[1]]$layout
