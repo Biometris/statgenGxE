@@ -90,7 +90,7 @@ summary.FW <- function(object, ...) {
 #' first 64 are plotted in the trellis plot.
 #'
 #' @param x An object of class FW.
-#' @param ... Further graphical parameters passed on to actual plot function.
+#' @param ... Not used.
 #' @param plotType A character string indicating which plot should be made.
 #' Either "scatter", "line" or "trellis" for creating a scatter
 #' plot of genotypic means, mse and sensitivities, a plot of fitted lines for
@@ -102,12 +102,13 @@ summary.FW <- function(object, ...) {
 #' @param response A character string specifying whether in the line plot the
 #' "predicted" or the "observed" data should be plotted. Ignored if
 #' \code{plotType} is not "line".
-#' @param colorBy A character string indicating a column in the \code{TD} used
-#' as input for the Finlay Wilkinson analysis by which the genotypes should be
-#' colored. If \code{NULL} all genotypes will be colored differently.
+#' @param colorGenoBy A character string indicating a column in the \code{TD}
+#' used as input for the Finlay Wilkinson analysis by which the genotypes
+#' should be colored. If \code{NULL} all genotypes will be colored differently.
 #' @param genotypes An optional character string containing the genotypes to
 #' be plotted in the trellis plot. If \code{NULL} all genotypes are plotted.
 #' If more than 64 genotypes are selected, only the first 64 are plotted.
+#' @param title A character string used a title for the plot.
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE}, only a list of ggplot objects is invisibly returned.
 #'
@@ -139,16 +140,17 @@ plot.FW <- function(x,
                     plotType = c("scatter", "line", "trellis", "scatterFit"),
                     order = c("ascending", "descending"),
                     response = c("predicted", "observed"),
-                    colorBy = NULL,
+                    colorGenoBy = NULL,
                     genotypes = NULL,
+                    title = NULL,
                     output = TRUE) {
   plotType <- match.arg(plotType)
+  chkChar(title, len = 1)
   trait <- x$trait
-  dotArgs <- list(...)
   envEffs <- x$envEffs[c("trial", "envMean")]
   TDTot <- do.call(rbind, x$TD)
-  if (!is.null(colorBy)) {
-    chkCol(colorBy, TDTot)
+  if (!is.null(colorGenoBy)) {
+    chkCol(colorGenoBy, TDTot)
   }
   TDTot[["fitted"]] <- round(x$fittedGeno, 10)
   TDTot <- merge(expand.grid(trial = levels(TDTot[["trial"]]),
@@ -157,31 +159,32 @@ plot.FW <- function(x,
   TDTot[["genoMean"]] <- ave(x = TDTot[[trait]], TDTot[["trial"]],
                              TDTot[["genotype"]], FUN = mean)
   genoVals <- unique(TDTot[c("trial", "genotype", "genoMean", "fitted",
-                             colorBy)])
-  plotTitle <- ifelse(!is.null(dotArgs$title), dotArgs$title,
-                      paste0("Finlay & Wilkinson analysis for ", trait))
+                             colorGenoBy)])
+  if (is.null(title)) {
+    title <- paste("Finlay & Wilkinson analysis for", trait)
+  }
   if (plotType == "scatter") {
     selCols = c(1:2, if (!all(is.na(x$estimates$MSdeviation))) 3, 4)
     scatterDat <- setNames(x$estimates[, c("genotype", "genMean",
                                            "MSdeviation", "sens")[selCols]],
                            c("genotype", "Mean", "MSDeviation",
                              "Sensitivity")[selCols])
-    if (!is.null(colorBy)) {
-      scatterDat <- merge(scatterDat, unique(TDTot[!is.na(TDTot[[colorBy]]),
-                                                   c("genotype", colorBy)]))
+    if (!is.null(colorGenoBy)) {
+      scatterDat <- merge(scatterDat, unique(TDTot[!is.na(TDTot[[colorGenoBy]]),
+                                                   c("genotype", colorGenoBy)]))
     }
     scatterDat <- ggplot2::remove_missing(scatterDat, na.rm = TRUE)
     ## Create plot of mean x mse. No x axis because of position in grid.
-    aesArgs1 <- list(x = "Mean", y = "sqrt(MSDeviation)",
-                     color = if (is.null(colorBy)) NULL else colorBy)
-    p1 <- ggplot2::ggplot(data = scatterDat,
-                          do.call(ggplot2::aes_string, args = aesArgs1)) +
+    p1 <-
+      ggplot2::ggplot(data = scatterDat,
+                      ggplot2::aes_string(x = "Mean", y = "sqrt(MSDeviation)",
+                                          color = colorGenoBy)) +
       ggplot2::geom_point() +
       ggplot2::theme(axis.title.x = ggplot2::element_blank(),
                      axis.text.x = ggplot2::element_blank(),
                      axis.ticks.x = ggplot2::element_blank()) +
       ggplot2::labs(y = "Square root of\n Mean Squared Deviation")
-    if (!is.null(colorBy)) {
+    if (!is.null(colorGenoBy)) {
       ## Build plot to extract legend.
       p1Gtable <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(p1))
       legendPos <- sapply(X = p1Gtable$grobs, FUN = `[[`, "name") == "guide-box"
@@ -193,14 +196,14 @@ plot.FW <- function(x,
     }
     ## Create plot of mean x sensitivity.
     aesArgs2 <- list(x = "Mean", y = "Sensitivity",
-                     color = if (is.null(colorBy)) NULL else colorBy)
+                     color = if (is.null(colorGenoBy)) NULL else colorGenoBy)
     p2 <- ggplot2::ggplot(data = scatterDat,
                           do.call(ggplot2::aes_string, args = aesArgs2)) +
       ggplot2::geom_point() +
       ggplot2::theme(legend.position = "none")
     ## Create plot of mse x sensitivity. No y axis because of position in grid.
     aesArgs3 <- list(x = "sqrt(MSDeviation)", y = "Sensitivity",
-                     color = if (is.null(colorBy)) NULL else colorBy)
+                     color = if (is.null(colorGenoBy)) NULL else colorGenoBy)
     p3 <- ggplot2::ggplot(data = scatterDat,
                           do.call(ggplot2::aes_string, args = aesArgs3)) +
       ggplot2::geom_point() +
@@ -225,7 +228,7 @@ plot.FW <- function(x,
     if (output) {
       # grid.arrange automatically plots the results.
       # Assign to variable to avoid double output plot.
-      p <- gridExtra::grid.arrange(tot, right = legend, top = plotTitle)
+      p <- gridExtra::grid.arrange(tot, right = legend, top = title)
     }
     invisible(list(p1 = p1, p2 = p2, p3 = p3))
     ## Set arguments for plot.
@@ -233,18 +236,15 @@ plot.FW <- function(x,
     order <- match.arg(order)
     response <- match.arg(response)
     lineDat <- merge(genoVals, envEffs, by = "trial")
-    if (!is.null(colorBy)) {
-      lineDat[[colorBy]] <- genoVals[[colorBy]]
+    if (!is.null(colorGenoBy)) {
+      lineDat[[colorGenoBy]] <- genoVals[[colorGenoBy]]
     }
     lineDat <- ggplot2::remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
     yVar <- ifelse(response == "observed", "genoMean", "fitted")
     aesArgs <- list(x = "envMean", y = yVar, group = "genotype",
-                    color = if (is.null(colorBy)) "genotype" else enquote(colorBy))
-    fixedArgs <- c("x", "y", "color", "title")
-    ## Add and overwrite args with custom args from ...
-    aesArgs <- utils::modifyList(aesArgs,
-                                 dotArgs[!names(dotArgs) %in% fixedArgs])
+                    color = if (is.null(colorGenoBy)) "genotype" else
+                      enquote(colorGenoBy))
     ## Order descending can be achieved by reversing the x-axis.
     if (order == "descending") {
       xTrans <- "reverse"
@@ -265,11 +265,11 @@ plot.FW <- function(x,
       ggplot2::geom_vline(xintercept = mean(TDTot[[trait]], na.rm = TRUE),
                           color = "red", linetype = "dashed") +
       ggplot2::coord_equal(xlim = plotLims, ylim = plotLims) +
-      ggplot2::theme(legend.position = if (is.null(colorBy)) "none" else "right",
+      ggplot2::theme(legend.position = if (is.null(colorGenoBy)) "none" else "right",
                      plot.title = ggplot2::element_text(hjust = 0.5),
                      axis.text.x.top = ggplot2::element_text(angle = 90,
                                                              hjust = 1)) +
-      ggplot2::labs(title = plotTitle, x = NULL, y = trait)
+      ggplot2::labs(title = title, x = NULL, y = trait)
     if (output) {
       plot(p)
     }
@@ -299,7 +299,7 @@ plot.FW <- function(x,
                          ggplot2::aes_string(x = "envMean", y = "fitted")) +
       ggplot2::facet_wrap(facets = "genotype") +
       ggplot2::labs(x = "Environment", y = trait) +
-      ggplot2::ggtitle(plotTitle) +
+      ggplot2::ggtitle(title) +
       ggplot2::theme(legend.position = "none",
                      plot.title = ggplot2::element_text(hjust = 0.5),
                      panel.spacing = ggplot2::unit(.2, "cm"),
@@ -317,19 +317,19 @@ plot.FW <- function(x,
     plotDat <- data.frame(genotype = levels(TDTot[["genotype"]]),
                           trMin = plotDat[plotDat[["trial"]] == trialMin, "fitted"],
                           trMax = plotDat[plotDat[["trial"]] == trialMax, "fitted"])
-    if (!is.null(colorBy)) {
-      plotDat <- merge(plotDat, unique(TDTot[!is.na(TDTot[[colorBy]]),
-                                             c("genotype", colorBy)]))
+    if (!is.null(colorGenoBy)) {
+      plotDat <- merge(plotDat, unique(TDTot[!is.na(TDTot[[colorGenoBy]]),
+                                             c("genotype", colorGenoBy)]))
     }
     ## Create scatter plot of fitted values.
     aesArgs <- list(x = "trMin", y = "trMax",
-                    color = if (is.null(colorBy)) NULL else colorBy)
+                    color = if (is.null(colorGenoBy)) NULL else colorGenoBy)
     p <- ggplot2::ggplot(data = plotDat,
                          do.call(ggplot2::aes_string, aesArgs)) +
       ggplot2::geom_point(na.rm = TRUE) +
       ggplot2::labs(x = paste("Fitted values for worst trial:", trialMin),
                     y = paste("Fitted values for best trial:", trialMax)) +
-      ggplot2::ggtitle(plotTitle) +
+      ggplot2::ggtitle(title) +
       ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
     if (output) {
       plot(p)

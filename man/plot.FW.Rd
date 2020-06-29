@@ -10,15 +10,16 @@
   plotType = c("scatter", "line", "trellis", "scatterFit"),
   order = c("ascending", "descending"),
   response = c("predicted", "observed"),
-  colorBy = NULL,
+  colorGenoBy = NULL,
   genotypes = NULL,
+  title = NULL,
   output = TRUE
 )
 }
 \arguments{
 \item{x}{An object of class FW.}
 
-\item{...}{Further graphical parameters passed on to actual plot function.}
+\item{...}{Not used.}
 
 \item{plotType}{A character string indicating which plot should be made.
 Either "scatter", "line" or "trellis" for creating a scatter
@@ -34,13 +35,15 @@ sensitivities. Ignored if \code{plotType} is not "line".}
 "predicted" or the "observed" data should be plotted. Ignored if
 \code{plotType} is not "line".}
 
-\item{colorBy}{A character string indicating a column in the \code{TD} used
-as input for the Finlay Wilkinson analysis by which the genotypes should be
-colored. If \code{NULL} all genotypes will be colored differently.}
+\item{colorGenoBy}{A character string indicating a column in the \code{TD}
+used as input for the Finlay Wilkinson analysis by which the genotypes
+should be colored. If \code{NULL} all genotypes will be colored differently.}
 
 \item{genotypes}{An optional character string containing the genotypes to
 be plotted in the trellis plot. If \code{NULL} all genotypes are plotted.
 If more than 64 genotypes are selected, only the first 64 are plotted.}
+
+\item{title}{A character string used a title for the plot.}
 
 \item{output}{Should the plot be output to the current device? If
 \code{FALSE}, only a list of ggplot objects is invisibly returned.}
