@@ -108,10 +108,16 @@ plot.stability <- function(x,
   }
   nColGeno <- nlevels(genoDat[[colorGenoBy]])
   if (length(colGeno) == 0) {
-    ## Get number of colors.
-    ## Defaults to black for one color for genotypes and
-    ## n topo.colors for n genotypes.
-    colGeno <- if (nColGeno == 1) "black" else topo.colors(nColGeno)
+    ## Defaults to black for one color for genotypes.
+    ## For more than one colors from statgen.genoColors are used.
+    ## Fall back to topo.colors if number of colors in option is too small.
+    if (nColGeno == 1) {
+      colGeno <- "black"
+    } else if (length(getOption("statgen.genoColors")) >= nColGeno) {
+      colGeno <- getOption("statgen.genoColors")[1:nColGeno]
+    } else {
+      colGeno <-  topo.colors(nColGeno)
+    }
   } else {
     nColGenoArg <- length(colGeno)
     if (nColGenoArg != nColGeno) {

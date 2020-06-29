@@ -438,12 +438,25 @@ plotAMMI1 <- function(loadings,
         genoDat[[colorGenoBy]] <- as.factor(genoDat[[colorGenoBy]])
       }
       genoDat <- genoDat[order(genoDat[[colorGenoBy]]), ]
+      nColGeno <- nlevels(genoDat[[colorGenoBy]])
       if (length(colGeno) == 0) {
-        ## Get number of colors.
-        ## Defaults to black for one color for genotypes and
-        ## n topo.colors for n genotypes.
-        nColGeno <- nlevels(genoDat[[colorGenoBy]])
-        colGeno <- if (nColGeno == 1) "black" else topo.colors(nColGeno)
+        ## Defaults to black for one color for genotypes.
+        ## For more than one colors from statgen.genoColors are used.
+        ## Fall back to topo.colors if number of colors in option is too small.
+        if (nColGeno == 1) {
+          colGeno <- "black"
+        } else if (length(getOption("statgen.genoColors")) >= nColGeno) {
+          colGeno <- getOption("statgen.genoColors")[1:nColGeno]
+        } else {
+          colGeno <-  topo.colors(nColGeno)
+        }
+      } else {
+        nColGenoArg <- length(colGeno)
+        if (nColGenoArg != nColGeno) {
+          stop("Number of colors provided doesn't match number of genotype groups:",
+               "\n", nColGenoArg, " colors provided, ", nColGeno,
+               " groups in data.\n")
+        }
       }
       ## Add group variable with contents of colorGenoBy.
       genoDat[[".group"]] <- genoDat[[colorGenoBy]]
@@ -470,15 +483,30 @@ plotAMMI1 <- function(loadings,
       envDat <- merge(envDat, unique(dat[c("trial", colorEnvBy)]),
                       by.x = "row.names", by.y = "trial")
       if (!is.factor(envDat[[colorEnvBy]])) {
-      envDat[[colorEnvBy]] <- as.factor(envDat[[colorEnvBy]])
+        envDat[[colorEnvBy]] <- as.factor(envDat[[colorEnvBy]])
       }
       envDat <- envDat[order(envDat[[colorEnvBy]]), ]
       if (length(colEnv) == 0) {
-        ## Get number of colors.
-        ## Defaults to black for one color for environments and
-        ## n topo.colors for n environments.
         nColEnv <- nlevels(envDat[[colorEnvBy]])
-        colEnv <- if (nColEnv == 1) "red" else topo.colors(nColEnv)
+        if (length(colEnv) == 0) {
+          ## Defaults to black for one color for genotypes.
+          ## For more than one colors from statgen.trialColors are used.
+          ## Fall back to topo.colors if number of colors in option is too small.
+          if (nColEnv == 1) {
+            colEnv <- "red"
+          } else if (length(getOption("statgen.trialColors")) >= nColEnv) {
+            colEnv <- getOption("statgen.trialColors")[1:nColEnv]
+          } else {
+            colEnv <-  topo.colors(nColEnv)
+          }
+        } else {
+          nColEnvArg <- length(colEnv)
+          if (nColEnvArg != nColEnv) {
+            stop("Number of colors provided doesn't match number of environment ",
+                 "groups:\n", nColEnvArg, " colors provided, ", nColEnv,
+                 " groups in data.\n")
+          }
+        }
       }
       ## Add group variable with contents of colorGenoBy.
       envDat[[".group"]] <- envDat[[colorEnvBy]]
@@ -624,12 +652,25 @@ plotAMMI2 <- function(loadings,
         genoDat[[colorGenoBy]] <- as.factor(genoDat[[colorGenoBy]])
       }
       genoDat <- genoDat[order(genoDat[[colorGenoBy]]), ]
+      nColGeno <- nlevels(genoDat[[colorGenoBy]])
       if (length(colGeno) == 0) {
-        ## Get number of colors.
-        ## Defaults to black for one color for genotypes and
-        ## n topo.colors for n genotypes.
-        nColGeno <- nlevels(genoDat[[colorGenoBy]])
-        colGeno <- if (nColGeno == 1) "black" else topo.colors(nColGeno)
+        ## Defaults to black for one color for genotypes.
+        ## For more than one colors from statgen.genoColors are used.
+        ## Fall back to topo.colors if number of colors in option is too small.
+        if (nColGeno == 1) {
+          colGeno <- "black"
+        } else if (length(getOption("statgen.genoColors")) >= nColGeno) {
+          colGeno <- getOption("statgen.genoColors")[1:nColGeno]
+        } else {
+          colGeno <-  topo.colors(nColGeno)
+        }
+      } else {
+        nColGenoArg <- length(colGeno)
+        if (nColGenoArg != nColGeno) {
+          stop("Number of colors provided doesn't match number of genotype groups:",
+               "\n", nColGenoArg, " colors provided, ", nColGeno,
+               " groups in data.\n")
+        }
       }
       ## Add group variable with contents of colorGenoBy.
       genoDat[[".group"]] <- genoDat[[colorGenoBy]]
@@ -661,12 +702,25 @@ plotAMMI2 <- function(loadings,
         envDat[[colorEnvBy]] <- as.factor(envDat[[colorEnvBy]])
       }
       envDat <- envDat[order(envDat[[colorEnvBy]]), ]
+      nColEnv <- nlevels(envDat[[colorEnvBy]])
       if (length(colEnv) == 0) {
-        ## Get number of colors.
-        ## Defaults to black for one color for environments and
-        ## n topo.colors for n environments.
-        nColEnv <- nlevels(envDat[[colorEnvBy]])
-        colEnv <- if (nColEnv == 1) "red" else topo.colors(nColEnv)
+        ## Defaults to black for one color for genotypes.
+        ## For more than one colors from statgen.trialColors are used.
+        ## Fall back to topo.colors if number of colors in option is too small.
+        if (nColEnv == 1) {
+          colEnv <- "red"
+        } else if (length(getOption("statgen.trialColors")) >= nColEnv) {
+          colEnv <- getOption("statgen.trialColors")[1:nColEnv]
+        } else {
+          colEnv <-  topo.colors(nColEnv)
+        }
+      } else {
+        nColEnvArg <- length(colEnv)
+        if (nColEnvArg != nColEnv) {
+          stop("Number of colors provided doesn't match number of environment ",
+               "groups:\n", nColEnvArg, " colors provided, ", nColEnv,
+               " groups in data.\n")
+        }
       }
       ## Add group variable with contents of colorGenoBy.
       envDat[[".group"]] <- envDat[[colorEnvBy]]
