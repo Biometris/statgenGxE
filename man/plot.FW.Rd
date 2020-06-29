@@ -11,8 +11,9 @@
   order = c("ascending", "descending"),
   response = c("predicted", "observed"),
   colorGenoBy = NULL,
+  colGeno = NULL,
   genotypes = NULL,
-  title = NULL,
+  title = paste("Finlay & Wilkinson analysis for", x$trait),
   output = TRUE
 )
 }
@@ -38,6 +39,9 @@ sensitivities. Ignored if \code{plotType} is not "line".}
 \item{colorGenoBy}{A character string indicating a column in the \code{TD}
 used as input for the Finlay Wilkinson analysis by which the genotypes
 should be colored. If \code{NULL} all genotypes will be colored differently.}
+
+\item{colGeno}{A character vector with plot colors for the genotypes. A
+single color when \code{colorGenoBy = NULL}, a vector of colors otherwise.}
 
 \item{genotypes}{An optional character string containing the genotypes to
 be plotted in the trellis plot. If \code{NULL} all genotypes are plotted.
