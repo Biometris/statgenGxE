@@ -88,7 +88,7 @@ plot.stability <- function(x,
                            ...,
                            colorGenoBy = NULL,
                            colGeno = NULL,
-                           title = NULL,
+                           title = paste("Stability coefficients for", x$trait),
                            output = TRUE) {
   chkChar(title, len = 1)
   TDTot <- do.call(rbind, x$TD)
@@ -96,9 +96,6 @@ plot.stability <- function(x,
     chkCol(colorGenoBy, TDTot)
   }
   chkChar(colGeno)
-  ## Construct title.
-  plotTitle <- ifelse(!is.null(title), title,
-                      paste("Stability coefficients for", x$trait))
   genoDat <- unique(TDTot[c("genotype", colorGenoBy)])
   if (!is.null(colorGenoBy)) {
     if (!is.factor(genoDat[[colorGenoBy]])) {
@@ -197,7 +194,7 @@ plot.stability <- function(x,
 
   if (output) {
     ## grid.arrange automatically plots the results.
-    tot <- gridExtra::grid.arrange(tot, right = legend, top = plotTitle)
+    tot <- gridExtra::grid.arrange(tot, right = legend, top = title)
   }
   invisible(plots)
 }

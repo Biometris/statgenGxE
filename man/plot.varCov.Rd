@@ -4,15 +4,17 @@
 \alias{plot.varCov}
 \title{Plot function for class varCov}
 \usage{
-\method{plot}{varCov}(x, ..., output = TRUE)
+\method{plot}{varCov}(x, title = paste("Heatmap for model:", x$choice), ..., output = TRUE)
 }
 \arguments{
 \item{x}{An object of class varCov}
 
-\item{...}{Not used}
+\item{title}{A character string used a title for the plot.}
+
+\item{...}{Not used.}
 
 \item{output}{Should the plot be output to the current device? If
-\code{FALSE} only a list of ggplot objects is invisibly returned.}
+\code{FALSE} only a ggplot object is invisibly returned.}
 }
 \description{
 Function for plotting a heatmap of the correlation matrix for objects of

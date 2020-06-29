@@ -54,9 +54,10 @@ summary.varCov <- function(object, ...) {
 #' class varCov.
 #'
 #' @param x An object of class varCov
-#' @param ... Not used
+#' @param ... Not used.
+#' @param title A character string used a title for the plot.
 #' @param output Should the plot be output to the current device? If
-#' \code{FALSE} only a list of ggplot objects is invisibly returned.
+#' \code{FALSE} only a ggplot object is invisibly returned.
 #'
 #' @examples
 #' \dontrun{
@@ -68,8 +69,10 @@ summary.varCov <- function(object, ...) {
 #'
 #' @export
 plot.varCov <- function(x,
+                        title = paste("Heatmap for model:", x$choice),
                         ...,
                         output = TRUE) {
+  chkChar(title, len = 1)
   corMat <- cov2cor(x$vcov)
   PC1 <- princomp(corMat)$loadings[, 1]
   orderPC1 <- order(PC1)
@@ -105,8 +108,7 @@ plot.varCov <- function(x,
     ## Remove grid behind text output.
     ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
                    panel.grid.minor = ggplot2::element_blank()) +
-    ggplot2::labs(title = paste("Heatmap for model:", x$choice), x = "", y = "",
-                  fill = "correlation") +
+    ggplot2::labs(title = title, x = "", y = "", fill = "correlation") +
     ## Fix coordinates to get a square sized plot.
     ggplot2::coord_fixed()
   if (output) {

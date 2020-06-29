@@ -4,7 +4,14 @@
 \alias{plot.stability}
 \title{Plot function for class stability}
 \usage{
-\method{plot}{stability}(x, ..., colorGenoBy = NULL, colGeno = NULL, title = NULL, output = TRUE)
+\method{plot}{stability}(
+  x,
+  ...,
+  colorGenoBy = NULL,
+  colGeno = NULL,
+  title = paste("Stability coefficients for", x$trait),
+  output = TRUE
+)
 }
 \arguments{
 \item{x}{An object of class stability.}
