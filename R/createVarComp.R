@@ -89,10 +89,11 @@ summary.varComp <- function(object,
 #' terms is shown in the plot.
 #'
 #' @param x An object of class varComp
+#' @param ... Not used.
 #' @param plotType A character string. Either "sd" to plot the standard
 #' deviation of the variance components, or "percVar" to plot the percentage of
 #' variance explained by each variance component.
-#' @param ... Not used
+#' @param title A character string used a title for the plot.
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a ggplot object is invisibly returned.
 #'
@@ -109,12 +110,19 @@ summary.varComp <- function(object,
 #'
 #' @export
 plot.varComp <- function(x,
-                         plotType = c("sd", "percVar"),
                          ...,
+                         plotType = c("sd", "percVar"),
+                         title = NULL,
                          output = TRUE) {
   plotType <- match.arg(plotType)
+  chkChar(title, len = 1)
   ## Extract mu from the fitted model.
   mu <- round(mean(fitted(x$fitMod)))
+  if (is.null(title)) {
+    title <- paste0(ifelse(plotType == "sd", "Standard deviations",
+                           "Percentage of variance explained"),
+                    " (general mean = ", mu, ")")
+  }
   ## The actual variable to plot depends on the plotType.
   plotVar <- if (plotType == "sd") "sd" else "vcovPerc"
   ## Extract var comps for random model and anova for fixed model.
@@ -172,15 +180,12 @@ plot.varComp <- function(x,
     ggplot2::annotation_custom(grid::textGrob("Source      df ", just = "right",
                                               gp = grid::gpar(size = 14)),
                                xmin = annoPosX, xmax = annoPosX,
-                               ymin = Inf, ymax = Inf)
+                               ymin = Inf, ymax = Inf) +
+    ggplot2::ggtitle(title)
   if (plotType == "sd") {
-    p <- p + ggplot2::labs(title = paste0("Standard deviations ",
-                                          "(general mean = ", mu, ")"),
-                           x = "Square root of variance estimate")
+    p <- p + ggplot2::labs(x = "Square root of variance estimate")
   } else if (plotType == "percVar") {
-    p <- p + ggplot2::labs(title = paste0("Percentage of variance explained ",
-                                          "(general mean = ", mu, ")"),
-                           x = "Percentage of variance explained")
+    p <- p + ggplot2::labs(x = "Percentage of variance explained")
   }
   if (output) {
     plot(p)

@@ -4,16 +4,18 @@
 \alias{plot.varComp}
 \title{Plot function for class varComp}
 \usage{
-\method{plot}{varComp}(x, plotType = c("sd", "percVar"), ..., output = TRUE)
+\method{plot}{varComp}(x, ..., plotType = c("sd", "percVar"), title = NULL, output = TRUE)
 }
 \arguments{
 \item{x}{An object of class varComp}
+
+\item{...}{Not used.}
 
 \item{plotType}{A character string. Either "sd" to plot the standard
 deviation of the variance components, or "percVar" to plot the percentage of
 variance explained by each variance component.}
 
-\item{...}{Not used}
+\item{title}{A character string used a title for the plot.}
 
 \item{output}{Should the plot be output to the current device? If
 \code{FALSE} only a ggplot object is invisibly returned.}
