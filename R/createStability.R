@@ -65,10 +65,13 @@ summary.stability <- function(object,
 #' stability measures against the means.
 #'
 #' @param x An object of class stability.
-#' @param ... Further arguments - not used.
-#' @param colorBy A character string indicating a column in the \code{TD} used
-#' as input for the stability analysis by which the genotypes should be
+#' @param ... Not used.
+#' @param colorGenoBy A character string indicating a column in the \code{TD}
+#' used as input for the stability analysis by which the genotypes should be
 #' colored. If \code{NULL} all genotypes will be colored black.
+#' @param colGeno A character vector with plot colors for the genotypes. A
+#' single color when \code{colorGenoBy = NULL}, a vector of colors otherwise.
+#' @param title A character string used a title for the plot.
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
@@ -83,58 +86,93 @@ summary.stability <- function(object,
 #' @export
 plot.stability <- function(x,
                            ...,
-                           colorBy = NULL,
+                           colorGenoBy = NULL,
+                           colGeno = NULL,
+                           title = NULL,
                            output = TRUE) {
-  dotArgs <- list(...)
+  chkChar(title, len = 1)
   TDTot <- do.call(rbind, x$TD)
-  if (!is.null(colorBy)) {
-    chkCol(colorBy, TDTot)
+  if (!is.null(colorGenoBy)) {
+    chkCol(colorGenoBy, TDTot)
   }
-  genoVals <- unique(TDTot[c("genotype", colorBy)])
+  chkChar(colGeno)
+  ## Construct title.
+  plotTitle <- ifelse(!is.null(title), title,
+                      paste("Stability coefficients for", x$trait))
+  genoDat <- unique(TDTot[c("genotype", colorGenoBy)])
+  if (!is.null(colorGenoBy)) {
+    if (!is.factor(genoDat[[colorGenoBy]])) {
+      genoDat[[colorGenoBy]] <- as.factor(genoDat[[colorGenoBy]])
+    }
+    genoDat <- genoDat[order(genoDat[[colorGenoBy]]), ]
+  } else {
+    genoDat[[".colorGenoBy"]] <- factor(1)
+    colorGenoBy <- ".colorGenoBy"
+  }
+  nColGeno <- nlevels(genoDat[[colorGenoBy]])
+  if (length(colGeno) == 0) {
+    ## Get number of colors.
+    ## Defaults to black for one color for genotypes and
+    ## n topo.colors for n genotypes.
+    colGeno <- if (nColGeno == 1) "black" else topo.colors(nColGeno)
+  } else {
+    nColGenoArg <- length(colGeno)
+    if (nColGenoArg != nColGeno) {
+      stop("Number of colors provided doesn't match number of genotype groups:",
+           "\n", nColGenoArg, " colors provided, ", nColGeno,
+           " groups in data.\n")
+    }
+  }
   plots <- vector(mode = "list")
   if (!is.null(x$superiority)) {
     ## Create superiority plot.
-    supDat <- merge(x$superiority, genoVals, by = "genotype")
-    aesArgs1 <- list(x = "mean", y = "sqrt(superiority)",
-                     color = if (is.null(colorBy)) NULL else colorBy)
-    plots$p1 <- ggplot2::ggplot(data = supDat,
-                                do.call(ggplot2::aes_string, args = aesArgs1)) +
+    supDat <- merge(x$superiority, genoDat, by = "genotype")
+    aesArgs1 <- list()
+    plots$p1 <-
+      ggplot2::ggplot(data = supDat,
+                      ggplot2::aes_string(x = "mean", y = "sqrt(superiority)",
+                                          color = colorGenoBy)) +
       ggplot2::geom_point() +
+      ggplot2::scale_color_manual(values = colGeno) +
       ggplot2::labs(x = "Mean", y = "Square root of\n Cultivar superiority")
   }
   if (!is.null(x$static)) {
     ## Create static plot.
-    statDat <- merge(x$static, genoVals, by = "genotype")
+    statDat <- merge(x$static, genoDat, by = "genotype")
     aesArgs2 <- list(x = "mean", y = "sqrt(static)",
-                     color = if (is.null(colorBy)) NULL else colorBy)
-    plots$p2 <- ggplot2::ggplot(data = statDat,
-                                do.call(ggplot2::aes_string, args = aesArgs2)) +
+                     color = if (is.null(colorGenoBy)) NULL else colorGenoBy)
+    plots$p2 <-
+      ggplot2::ggplot(data = statDat,
+                      ggplot2::aes_string(x = "mean", y = "sqrt(static)",
+                                          color = colorGenoBy)) +
       ggplot2::geom_point() +
+      ggplot2::scale_color_manual(values = colGeno) +
       ggplot2::labs(x = "Mean", y = "Square root of\n Static stability")
   }
   if (!is.null(x$wricke)) {
     ## Create Wricke plot.
-    wrickeDat <- merge(x$wricke, genoVals, by = "genotype")
-    aesArgs3 <- list(x = "mean", y = "sqrt(wricke)",
-                     color = if (is.null(colorBy)) NULL else colorBy)
-    plots$p3 <- ggplot2::ggplot(data = wrickeDat,
-                                do.call(ggplot2::aes_string, args = aesArgs3)) +
+    wrickeDat <- merge(x$wricke, genoDat, by = "genotype")
+    plots$p3 <-
+      ggplot2::ggplot(data = wrickeDat,
+                      ggplot2::aes_string(x = "mean", y = "sqrt(wricke)",
+                                          color = colorGenoBy)) +
       ggplot2::geom_point() +
+      ggplot2::scale_color_manual(values = colGeno) +
       ggplot2::labs(x = "Mean", y = "Square root of\n Wricke's ecovalence")
   }
   ## Construct legend.
-  if (!is.null(colorBy)) {
+  if (colorGenoBy != ".colorGenoBy") {
     ## Build plot to extract legend.
     ## Legend is always the same for all plots, take it from the first plot.
     p1Gtable <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(plots[[1]]))
     legendPos <- sapply(X = p1Gtable$grobs, FUN = `[[`, "name") == "guide-box"
     legend <- p1Gtable$grobs[[which(legendPos)]]
-    ## Now remove the legend from all the plots.
-    for (i in seq_along(plots)) {
-      plots[[i]] <- plots[[i]] + ggplot2::theme(legend.position = "none")
-    }
   } else {
     legend <- NULL
+  }
+  ## Now remove the legend from all the plots.
+  for (i in seq_along(plots)) {
+    plots[[i]] <- plots[[i]] + ggplot2::theme(legend.position = "none")
   }
   if (length(plots) == 3) {
     ## Create empty plot for bottom right grid position.
@@ -156,15 +194,10 @@ plot.stability <- function(x,
     r2 <- gridExtra::gtable_cbind(plotsGr[[3]], plotsGr[[4]])
     tot <- gridExtra::gtable_rbind(tot, r2)
   }
-  ## Construct title.
-  if (!is.null(dotArgs$title)) {
-    title <- dotArgs$title
-  } else {
-    title <- paste("Stability coefficients for", x$trait)
-  }
+
   if (output) {
     ## grid.arrange automatically plots the results.
-    tot <- gridExtra::grid.arrange(tot, right = legend, top = title)
+    tot <- gridExtra::grid.arrange(tot, right = legend, top = plotTitle)
   }
   invisible(plots)
 }

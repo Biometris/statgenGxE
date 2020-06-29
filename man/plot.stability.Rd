@@ -4,16 +4,21 @@
 \alias{plot.stability}
 \title{Plot function for class stability}
 \usage{
-\method{plot}{stability}(x, ..., colorBy = NULL, output = TRUE)
+\method{plot}{stability}(x, ..., colorGenoBy = NULL, colGeno = NULL, title = NULL, output = TRUE)
 }
 \arguments{
 \item{x}{An object of class stability.}
 
-\item{...}{Further arguments - not used.}
+\item{...}{Not used.}
 
-\item{colorBy}{A character string indicating a column in the \code{TD} used
-as input for the stability analysis by which the genotypes should be
+\item{colorGenoBy}{A character string indicating a column in the \code{TD}
+used as input for the stability analysis by which the genotypes should be
 colored. If \code{NULL} all genotypes will be colored black.}
+
+\item{colGeno}{A character vector with plot colors for the genotypes. A
+single color when \code{colorGenoBy = NULL}, a vector of colors otherwise.}
+
+\item{title}{A character string used a title for the plot.}
 
 \item{output}{Should the plot be output to the current device? If
 \code{FALSE} only a list of ggplot objects is invisibly returned.}
