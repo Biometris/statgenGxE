@@ -49,9 +49,10 @@ summary.megaEnv <- function(object,
 #' @param ... Further arguments to be passed on to underlying plot functions.
 #' @param engine A character string specifying the engine used for making the
 #' predictions on which the plots are based.
-#' @param colorBy A character string indicating a column in \code{TD} by which
-#' the genotypes in the scatter plots are colored. If \code{NULL} all genotypes
-#' are displayed in black.
+#' @param colorGenoBy A character string indicating a column in \code{TD} by
+#' which the genotypes in the scatter plots are colored. If \code{NULL} all
+#' genotypes are displayed in black.
+#' @param title A character string used a title for the plot.
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a ggtable object is invisibly returned.
 #'
@@ -66,24 +67,26 @@ summary.megaEnv <- function(object,
 plot.megaEnv <- function(x,
                          ...,
                          engine = c("lme4", "asreml"),
-                         colorBy = NULL,
+                         colorGenoBy = NULL,
+                         title = paste("Scatterplots of mega environments for",
+                                       x$trait),
                          output = TRUE) {
   engine <- match.arg(engine)
-  if (!is.null(colorBy)) {
+  if (!is.null(colorGenoBy)) {
     TDTot <- do.call(rbind, args = x$TD)
-    chkCol(column = colorBy, obj = TDTot)
+    chkCol(column = colorGenoBy, obj = TDTot)
   }
   pred <- predict(x, engine = engine)$predictedValue
   predLong <- reshape(pred, direction = "long",
                       varying = list(megaEnv = colnames(pred)),
                       ids = rownames(pred), idvar = "genotype",
                       timevar = "megaEnv", v.names = "pred")
-  if (!is.null(colorBy)) {
-    predLong <- merge(predLong, TDTot[c("genotype", colorBy)])
+  if (!is.null(colorGenoBy)) {
+    predLong <- merge(predLong, TDTot[c("genotype", colorGenoBy)])
   }
   predTD <- createTD(predLong, genotype = "genotype", trial = "megaEnv")
-  plot(predTD, plotType = "scatter", traits = "pred", colorGenoBy = colorBy,
-       title = paste("Scatterplots of mega environments for", x$trait))
+  plot(predTD, plotType = "scatter", traits = "pred", colorGenoBy = colorGenoBy,
+       title = title)
 }
 
 #' Compute BLUPS based on a set of mega environments

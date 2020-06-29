@@ -4,7 +4,14 @@
 \alias{plot.megaEnv}
 \title{Plot function for class megaEnv}
 \usage{
-\method{plot}{megaEnv}(x, ..., engine = c("lme4", "asreml"), colorBy = NULL, output = TRUE)
+\method{plot}{megaEnv}(
+  x,
+  ...,
+  engine = c("lme4", "asreml"),
+  colorGenoBy = NULL,
+  title = paste("Scatterplots of mega environments for", x$trait),
+  output = TRUE
+)
 }
 \arguments{
 \item{x}{An object of class megaEnv.}
@@ -14,9 +21,11 @@
 \item{engine}{A character string specifying the engine used for making the
 predictions on which the plots are based.}
 
-\item{colorBy}{A character string indicating a column in \code{TD} by which
-the genotypes in the scatter plots are colored. If \code{NULL} all genotypes
-are displayed in black.}
+\item{colorGenoBy}{A character string indicating a column in \code{TD} by
+which the genotypes in the scatter plots are colored. If \code{NULL} all
+genotypes are displayed in black.}
+
+\item{title}{A character string used a title for the plot.}
 
 \item{output}{Should the plot be output to the current device? If
 \code{FALSE} only a ggtable object is invisibly returned.}
