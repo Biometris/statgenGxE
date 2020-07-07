@@ -47,7 +47,7 @@ For most of the analyses a pdf report can be created automatically, see [Reporti
 
 # Data preparation {#dp}
 
-The use of the package is demonstrated using maize data from the European Union project DROPS (https://cordis.europa.eu/project/id/244374). The data is available from https://datae.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN [@Millet2019] and the relevant data set is included as data.frame in the statgenGxE package.
+The use of the package is demonstrated using maize data from the European Union project DROPS (https://cordis.europa.eu/project/id/244374). The data is available from https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN&version=2.0 [@Millet2019] and the relevant data set is included as data.frame in the statgenGxE package.
 
 The first step is loading the data into R. 
 ```{r loadData} 
@@ -55,7 +55,7 @@ data(dropsPheno)
 ```
 dropsPheno contains data for the genotypic means (Best Linear Unbiased Estimators, BLUEs), with one value per genotype per experiment, for a selection of 10 experiments from the full data set and eight traits. These 10 experiments form a good representation of the full set of experiments covering the five scenarios described in @Millet2016. For a more detailed description of the contents of the data see `help(dropsData)`.
 
-The input for GxE analysis in the statgenGxE package is an object of class TD (Trial Data). For a detailed description on how to construct such an object see the vignette of the statgenSTA package (`vignette("Modeling field trials using statgenSTA")`). For GxE analysis it is enough to specify the genotype and trial option of the createTD function.
+The input for GxE analysis in the statgenGxE package is an object of class TD (Trial Data). For a detailed description on how to construct such an object see the vignette of the statgenSTA package (`vignette("Modeling field trials using statgenSTA")`). For GxE analysis it is enough to specify the genotype and trial option of the `createTD` function.
 
 ```{r createTD}
 ## Create a TD object from dropsPheno.
@@ -68,7 +68,8 @@ Before doing any analysis, we can first have a look at the contents of the data.
 ## Create a box plot of dropsTD.
 ## Color the boxes based on the variable scenarioFull.
 ## Plot in  descending order.
-plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull",      orderBy = "descending")
+plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull", 
+     orderBy = "descending")
 ```
 
 From the plot it is clear that the trials in the hot, water deficient environments have a lower median and range than the other trials.
@@ -82,6 +83,20 @@ For further insight a scatter plot of the trials against each other can be made.
 plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "geneticGroup", 
      colorTrialBy = "scenarioFull")
 ```
+
+## Coloring of genotypes and trials
+
+In all plots the default colors for both genotypes and trials are chosen from a predefined color palette. For genotypes the color palette is "Dark 2", for trials it is "Alphabet". See [here](https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html) for an overview of these colors.    
+
+It is possible to specify different colors for genotypes and trials per plot using the options `colGeno` and `colTrial` respectively. Also, more conveniently, the default colors can be set using the options statgen.genoColors and statgen.trialColors.
+
+```{r colorOpts, eval=FALSE}
+## Set default colors for genotypes and trials.
+options("statgen.genoColors" = c("blue", "green", "yellow"))
+options("statgen.trialColors" = c("red", "brown", "purple"))
+```
+
+If a plot has more genotypes than the number of colors specified as default colors, the default colors will be ignored and `topo.colors` will be used instead. For trials this is done in a similar way.
 
 ---
 

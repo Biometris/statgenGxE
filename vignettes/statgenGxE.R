@@ -20,7 +20,8 @@ dropsTD <- statgenSTA::createTD(data = dropsPheno, genotype = "Variety_ID", tria
 ## Create a box plot of dropsTD.
 ## Color the boxes based on the variable scenarioFull.
 ## Plot in  descending order.
-plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull",      orderBy = "descending")
+plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull", 
+     orderBy = "descending")
 
 ## ----TDscatter, fig.dim = c(8.5, 8.5)---------------------------------------------------
 ## Create a scatter plot of dropsTD.
@@ -28,6 +29,11 @@ plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenario
 ## Color the histograms for trials based on the variable scenarioFull.
 plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "geneticGroup", 
      colorTrialBy = "scenarioFull")
+
+## ----colorOpts, eval=FALSE--------------------------------------------------------------
+#  ## Set default colors for genotypes and trials.
+#  options("statgen.genoColors" = c("blue", "green", "yellow"))
+#  options("statgen.trialColors" = c("red", "brown", "purple"))
 
 ## ----geVarComp, message=FALSE-----------------------------------------------------------
 ## Fit a model where trials are nested within locations
