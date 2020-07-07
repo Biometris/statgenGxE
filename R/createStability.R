@@ -116,7 +116,7 @@ plot.stability <- function(x,
     } else if (length(getOption("statgen.genoColors")) >= nColGeno) {
       colGeno <- getOption("statgen.genoColors")[1:nColGeno]
     } else {
-      colGeno <-  topo.colors(nColGeno)
+      colGeno <- topo.colors(nColGeno)
     }
   } else {
     nColGenoArg <- length(colGeno)

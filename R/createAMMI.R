@@ -448,7 +448,7 @@ plotAMMI1 <- function(loadings,
         } else if (length(getOption("statgen.genoColors")) >= nColGeno) {
           colGeno <- getOption("statgen.genoColors")[1:nColGeno]
         } else {
-          colGeno <-  topo.colors(nColGeno)
+          colGeno <- topo.colors(nColGeno)
         }
       } else {
         nColGenoArg <- length(colGeno)
@@ -486,26 +486,24 @@ plotAMMI1 <- function(loadings,
         envDat[[colorEnvBy]] <- as.factor(envDat[[colorEnvBy]])
       }
       envDat <- envDat[order(envDat[[colorEnvBy]]), ]
+      nColEnv <- nlevels(envDat[[colorEnvBy]])
       if (length(colEnv) == 0) {
-        nColEnv <- nlevels(envDat[[colorEnvBy]])
-        if (length(colEnv) == 0) {
-          ## Defaults to black for one color for genotypes.
-          ## For more than one colors from statgen.trialColors are used.
-          ## Fall back to topo.colors if number of colors in option is too small.
-          if (nColEnv == 1) {
-            colEnv <- "red"
-          } else if (length(getOption("statgen.trialColors")) >= nColEnv) {
-            colEnv <- getOption("statgen.trialColors")[1:nColEnv]
-          } else {
-            colEnv <-  topo.colors(nColEnv)
-          }
+        ## Defaults to red for one color for trials.
+        ## For more than one colors from statgen.trialColors are used.
+        ## Fall back to topo.colors if number of colors in option is too small.
+        if (nColEnv == 1) {
+          colEnv <- "red"
+        } else if (length(getOption("statgen.trialColors")) >= nColEnv) {
+          colEnv <- getOption("statgen.trialColors")[1:nColEnv]
         } else {
-          nColEnvArg <- length(colEnv)
-          if (nColEnvArg != nColEnv) {
-            stop("Number of colors provided doesn't match number of environment ",
-                 "groups:\n", nColEnvArg, " colors provided, ", nColEnv,
-                 " groups in data.\n")
-          }
+          colEnv <- topo.colors(nColEnv)
+        }
+      } else {
+        nColEnvArg <- length(colEnv)
+        if (nColEnvArg != nColEnv) {
+          stop("Number of colors provided doesn't match number of environment ",
+               "groups:\n", nColEnvArg, " colors provided, ", nColEnv,
+               " groups in data.\n")
         }
       }
       ## Add group variable with contents of colorGenoBy.
@@ -662,7 +660,7 @@ plotAMMI2 <- function(loadings,
         } else if (length(getOption("statgen.genoColors")) >= nColGeno) {
           colGeno <- getOption("statgen.genoColors")[1:nColGeno]
         } else {
-          colGeno <-  topo.colors(nColGeno)
+          colGeno <- topo.colors(nColGeno)
         }
       } else {
         nColGenoArg <- length(colGeno)
@@ -704,7 +702,7 @@ plotAMMI2 <- function(loadings,
       envDat <- envDat[order(envDat[[colorEnvBy]]), ]
       nColEnv <- nlevels(envDat[[colorEnvBy]])
       if (length(colEnv) == 0) {
-        ## Defaults to black for one color for genotypes.
+        ## Defaults to red for one color for trials.
         ## For more than one colors from statgen.trialColors are used.
         ## Fall back to topo.colors if number of colors in option is too small.
         if (nColEnv == 1) {
@@ -712,7 +710,7 @@ plotAMMI2 <- function(loadings,
         } else if (length(getOption("statgen.trialColors")) >= nColEnv) {
           colEnv <- getOption("statgen.trialColors")[1:nColEnv]
         } else {
-          colEnv <-  topo.colors(nColEnv)
+          colEnv <- topo.colors(nColEnv)
         }
       } else {
         nColEnvArg <- length(colEnv)
