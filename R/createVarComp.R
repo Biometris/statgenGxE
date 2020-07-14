@@ -314,7 +314,8 @@ vc <- function(varComp) {
                               which = "factors"))
     varcomps <- summary(fitMod)$varcomp
     rownames(varcomps)[nrow(varcomps)] <- "residuals"
-    varcomps <- varcomps[c(modTerms, "residuals"), "component", drop = FALSE]
+    varcomps <- varcomps[c(modTerms, "residuals"), c("component", "std.error")]
+    colnames(varcomps)[colnames(varcomps) == "std.error"] <- "stdError"
   }
   return(varcomps)
 }
