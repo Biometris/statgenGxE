@@ -62,10 +62,11 @@ test_that("anova table is correct", {
 })
 
 test_that("environmental effects are correct", {
-  expect_equal(as.numeric(as.matrix(geFw0$envEffs[, 2:5])),
+  expect_equal(as.numeric(as.matrix(geFw0$envEffs[, 2:6])),
                c(-0.359948234376616, 0.315591707750728, 0.0443565266258885,
                  0.491548965248676, 0.491548965248676, 0.491548965248676,
-                 79.2808002530758, 79.9563404813316, 79.685102978234, 3, 1, 2))
+                 79.2808002530758, 79.9563404813316, 79.685102978234,
+                 2.7254067956715, 3.03780904189166, 2.1933510119538,3, 1, 2))
 })
 
 test_that("settings for tolerance and maxIter work correctly", {

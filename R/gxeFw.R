@@ -246,8 +246,8 @@ gxeFw <- function(TD,
   ## Construct estimate data.frame.
   estimates <- data.frame(genotype = factor(levels(TDTot[["genotype"]]),
                                             labels = levels(TDTot[["genotype"]])),
-                          sens, se_sens = sigmaE, genMean, se_genMean = sigma,
-                          MSdeviation = mse, rank = rank(-sens),
+                          sens, rank = rank(-sens), se_sens = sigmaE, genMean,
+                          se_genMean = sigma, MSdeviation = mse,
                           row.names = 1:length(sens))[orderSens, ]
   ## Construct data.frame with trial effects.
   matchPos <- match(paste0("trial", levels(TDTot[["trial"]]), ":beta"),
@@ -259,18 +259,18 @@ gxeFw <- function(TD,
   seEnvEffs <- sqrt(diag(vcov(model2)[matchPos[!naPos], matchPos[!naPos]]))
   matchPos2 <- match(paste0("trial", levels(TDTot[["trial"]]), ":beta"),
                      names(envEffs))
-  if (!is.null(model1$na.action)) {
-    meansFitted <- tapply(X = model1$fitted,
-                          INDEX = TDTot[["trial"]][-model1$na.action],
-                          FUN = mean)
-  } else {
-    meansFitted <- tapply(X = model1$fitted, INDEX = TDTot[["trial"]],
-                          FUN = mean)
-  }
+  meansFitted <- tapply(X = fitted(model1), INDEX = TDTot[["trial"]],
+                        FUN = mean, na.rm = TRUE)
+  seMeansFitted <- tapply(X = fitted(model1), INDEX = TDTot[["trial"]],
+                          FUN = function(fit) {
+                            sd(fit, na.rm = TRUE) / sqrt(length(na.omit(fit)))
+                          })
   meansFitted <- meansFitted[matchPos2]
+  seMeansFitted <- seMeansFitted[matchPos2]
   envEffsSummary <- data.frame(trial = names(meansFitted), envEff = envEffs,
                                se_envEff = seEnvEffs,
                                envMean = as.vector(meansFitted),
+                               se_envMean = as.vector(seMeansFitted),
                                rank = rank(-meansFitted), row.names = NULL)
   return(createFW(estimates = estimates, anova = aovTable,
                   envEffs = envEffsSummary, TD = createTD(TDTot),
