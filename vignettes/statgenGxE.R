@@ -5,9 +5,9 @@ comment = "#>",
 fig.dim = c(7, 4)
 )
 library(statgenGxE)
-## Call requireNamespace here to prevent license output in first call in vignette.
-requireNamespace("asreml", quietly = TRUE)
-options(width = 90) 
+options(width = 90)
+options("statgen.trialColors" = c("#9E0142FF", "#35B779FF", "#B4DE2CFF",
+                                  "#006837FF", "#D53E4FFF"))
 
 ## ----loadData---------------------------------------------------------------------------
 data(dropsPheno)
@@ -20,7 +20,7 @@ dropsTD <- statgenSTA::createTD(data = dropsPheno, genotype = "Variety_ID", tria
 ## Create a box plot of dropsTD.
 ## Color the boxes based on the variable scenarioFull.
 ## Plot in  descending order.
-plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull", 
+plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenarioFull",
      orderBy = "descending")
 
 ## ----TDscatter, fig.dim = c(8.5, 8.5)---------------------------------------------------
@@ -28,7 +28,8 @@ plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenario
 ## Color the genotypes based on the variable geneticGroup.
 ## Color the histograms for trials based on the variable scenarioFull.
 plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "geneticGroup", 
-     colorTrialBy = "scenarioFull")
+     colorTrialBy = "scenarioFull", trialOrder = c("Gai12W", "Kar13R", "Kar12W", "Kar13W", 
+                                                   "Mar13R", "Mur13W", "Mur13R", "Ner12R", "Cam12R", "Cra12R"))
 
 ## ----colorOpts, eval=FALSE--------------------------------------------------------------
 #  ## Set default colors for genotypes and trials.
