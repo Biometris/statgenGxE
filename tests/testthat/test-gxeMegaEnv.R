@@ -19,7 +19,7 @@ test_that("mega environments are computed correctly", {
   expect_equal(dim(geMegaEnvTot), c(45, 7))
   expect_equal(as.numeric(geMegaEnvTot[["megaEnv"]]),
                rep(x = c(2, 1, 1), each = 15))
-  expect_equal(levels(geMegaEnvTot[["megaEnv"]]), c("1", "2"))
+  expect_equal(levels(geMegaEnvTot[["megaEnv"]]), c("megaEnv 1", "megaEnv 2"))
 })
 
 test_that("summary is computed correctly", {
@@ -34,7 +34,8 @@ geMegaEnvMinTot <- Reduce(f = rbind, x = geMegaEnvMin$TD)
 test_that("option method functions properly", {
   expect_equal(as.numeric(geMegaEnvMinTot[["megaEnv"]]),
                rep(x = c(3, 1, 2), each = 15))
-  expect_equal(levels(geMegaEnvMinTot[["megaEnv"]]), c("1", "2", "3"))
+  expect_equal(levels(geMegaEnvMinTot[["megaEnv"]]),
+               c("megaEnv 1", "megaEnv 2", "megaEnv 3"))
   summMin <- geMegaEnvMin$summTab
   expect_equal(as.character(summMin[["Winning genotype"]]),
                c("G10", "G6", "G7"))

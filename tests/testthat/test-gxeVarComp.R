@@ -183,7 +183,7 @@ test_that("vc function functions correctly", {
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   vcVCAs <- vc(geVCAs)
   expect_is(vcVCAs, "data.frame")
-  expect_named(vcVCAs, "component")
+  expect_named(vcVCAs, c("component", "stdError"))
   expect_equal(rownames(vcVCAs), c("genotype", "residuals"))
   expect_equal(vcVCAs[["component"]],
                c(78.7960647165854, 309.736936464321))
