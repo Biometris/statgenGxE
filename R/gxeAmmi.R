@@ -8,10 +8,10 @@
 #' enabling simultaneous plotting of genotypes and trials.\cr\cr
 #' The parameter \code{nPC} is used to indicate the number of principal
 #' components that is used in the principal component analysis (PCA). By setting
-#' this parameter to \code{NA} the algorithm determines the best number of
+#' this parameter to \code{NULL} the algorithm determines the best number of
 #' principal components (see Details).\cr\cr
-#' By specifying the parameter \code{asYear = true}, a separate analysis will be
-#' done for every year in the data. Combining the option with \code{nPC = NA}
+#' By specifying the parameter \code{byYear = TRUE}, a separate analysis will be
+#' done for every year in the data. Combining the option with \code{nPC = NULL}
 #' may result in different numbers of principal components per year. The AMMI
 #' estimates will still be returned as a single data.frame, but the other
 #' results will be either lists or arrays.
@@ -19,9 +19,9 @@
 #' First a linear model \eqn{trait = genotype + trial + \epsilon} is fitted with
 #' both genotype and trial fixed components in the model.\cr
 #' The residuals from the fitted model are then used in a PCA. If \code{nPC} is
-#' not \code{NA} a single PCA is done using \code{\link[stats]{prcomp}} with
+#' not \code{NULL} a single PCA is done using \code{\link[stats]{prcomp}} with
 #' maximum rank \code{nPC}.\cr
-#' In case \code{nPC = NA}, the PCA is first done with one PC. Then using
+#' In case \code{nPC = NULL}, the PCA is first done with one PC. Then using
 #' forward selection one by one the number of PCs is increased as long as the
 #' added component is significant in the analysis.\cr
 #' AMMI estimates are then computed using the results of the PCA.\cr
@@ -49,7 +49,7 @@
 #' \item{importance}{A data.frame containing the importance of the principal
 #' components.}
 #' \item{anova}{A data.frame containing anova scores of the AMMI analysis.}
-#' \item{fitted}{A matrix containing fitted values from the AMMI model.}
+#' \item{fitted}{A data.frame containing fitted values from the AMMI model.}
 #' \item{trait}{A character string containing the analyzed trait.}
 #' \item{envMean}{A numerical vector containing the environmental means.}
 #' \item{genoMean}{A numerical vector containing the genotypic means.}
@@ -103,10 +103,10 @@ gxeAmmi <- function(TD,
 #' enabling simultaneous plotting of genotypes and trials.\cr\cr
 #' The parameter \code{nPC} is used to indicate the number of principal
 #' components that is used in the principal component analysis (PCA). By setting
-#' this parameter to \code{NA} the algorithm determines the best number of
+#' this parameter to \code{NULL} the algorithm determines the best number of
 #' principal components (see Details).\cr\cr
-#' By specifying the parameter \code{asYear = true}, a separate analysis will be
-#' done for every year in the data. Combining the option with \code{nPC = NA}
+#' By specifying the parameter \code{byYear = TRUE}, a separate analysis will be
+#' done for every year in the data. Combining the option with \code{nPC = NULL}
 #' may result in different numbers of principal components per year. The GGE
 #' estimates will still be returned as a single data.frame, but the other
 #' results will be either lists or arrays.
@@ -114,9 +114,9 @@ gxeAmmi <- function(TD,
 #' First a linear model \eqn{trait = trial + \epsilon} is fitted with trial a
 #' fixed component in the model.\cr
 #' The residuals from the fitted model are then used in a PCA. If \code{nPC} is
-#' not \code{NA} a single PCA is done using \code{\link[stats]{prcomp}} with
+#' not \code{NULL} a single PCA is done using \code{\link[stats]{prcomp}} with
 #' maximum rank \code{nPC}.\cr
-#' In case \code{nPC = NA}, the PCA is first done with one PC. Then using
+#' In case \code{nPC = NULL}, the PCA is first done with one PC. Then using
 #' forward selection one by one the number of PCs is increased as long as the
 #' added component is significant in the analysis.\cr
 #' GGE estimates are then computed using the results of the PCA.\cr

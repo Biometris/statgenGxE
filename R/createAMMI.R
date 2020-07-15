@@ -69,19 +69,16 @@ print.AMMI <- function(x,
   } else {
     print(x$importance[, 1:ncol(x$envScores), drop = FALSE])
   }
-  ## For GGE analysis an anova table is meaningless and therefore not printed.
-  if (!x$GGE) {
-    cat("\nAnova",
-        "\n=====\n")
-    if (x$byYear) {
-      for (year in years) {
-        cat(paste(year, "\n"))
-        print(x$anova[[year]])
-        cat("\n")
-      }
-    } else {
-      print(x$anova)
+  cat("\nAnova",
+      "\n=====\n")
+  if (x$byYear) {
+    for (year in years) {
+      cat(paste(year, "\n"))
+      print(x$anova[[year]])
+      cat("\n")
     }
+  } else {
+    print(x$anova)
   }
   cat("\nEnvironment scores",
       "\n==================\n")
