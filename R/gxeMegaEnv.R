@@ -84,7 +84,8 @@ gxeMegaEnv <- function(TD,
                      do.call(method, args = list(trial[["fittedValue"]]))
                    })
   ## Create factor based on best genotypes.
-  megaFactor <- factor(winGeno, labels = "")
+  megaFactor <- factor(winGeno,
+                       labels = paste("megaEnv", seq_along(unique(winGeno))))
   ## Merge factor levels to original data.
   TDTot[["megaEnv"]] <- TDTot[["trial"]]
   levels(TDTot[["megaEnv"]]) <- as.character(megaFactor)
@@ -95,7 +96,7 @@ gxeMegaEnv <- function(TD,
     TDTot <- TDTot[-which(colnames(TDTot) == "year")]
   }
   ## Relevel megaEnv so it is in increasing order.
-  TDTot[["megaEnv"]] <- factor(as.numeric(as.character(TDTot[["megaEnv"]])))
+  TDTot[["megaEnv"]] <- factor(as.character(TDTot[["megaEnv"]]))
   TDOut <- createTD(TDTot)
   ## Create summary table.
   summTab <- data.frame("Mega factor" = megaFactor,

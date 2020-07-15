@@ -82,6 +82,8 @@ plot.megaEnv <- function(x,
                       varying = list(megaEnv = colnames(pred)),
                       ids = rownames(pred), idvar = "genotype",
                       timevar = "megaEnv", v.names = "pred")
+  predLong[["megaEnv"]] <- factor(predLong[["megaEnv"]],
+                                  labels = colnames(pred))
   if (!is.null(colorGenoBy)) {
     predLong <- merge(predLong, TDTot[c("genotype", colorGenoBy)])
   }
