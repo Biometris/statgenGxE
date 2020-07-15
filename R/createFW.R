@@ -156,7 +156,7 @@ plot.FW <- function(x,
     chkCol(colorGenoBy, TDTot)
   }
   chkChar(colGeno)
-  TDTot[["fitted"]] <- round(x$fittedGeno, 10)
+  TDTot[["fitted"]] <- round(x$fittedGeno[["fittedValue"]], 10)
   TDTot <- merge(expand.grid(trial = levels(TDTot[["trial"]]),
                              genotype = levels(TDTot[["genotype"]])),
                  TDTot, all.x = TRUE)

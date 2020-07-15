@@ -259,12 +259,13 @@ gxeFw <- function(TD,
   seEnvEffs <- sqrt(diag(vcov(model2)[matchPos[!naPos], matchPos[!naPos]]))
   matchPos2 <- match(paste0("trial", levels(TDTot[["trial"]]), ":beta"),
                      names(envEffs))
-  meansFitted <- tapply(X = fitted(model1), INDEX = TDTot[["trial"]],
-                        FUN = mean, na.rm = TRUE)
-  seMeansFitted <- tapply(X = fitted(model1), INDEX = TDTot[["trial"]],
-                          FUN = function(fit) {
-                            sd(fit, na.rm = TRUE) / sqrt(length(na.omit(fit)))
-                          })
+  predGeno <- predict(model1, se.fit = TRUE)
+  fittedGeno <- cbind(TDTot[c("trial", "genotype")], fittedValue = predGeno$fit,
+                      seFittedValue = predGeno$se.fit)
+  meansFitted <- tapply(X = fittedGeno[["fittedValue"]],
+                        INDEX = fittedGeno[["trial"]], FUN = mean, na.rm = TRUE)
+  seMeansFitted <- tapply(X = fittedGeno[["seFittedValue"]],
+                          INDEX = fittedGeno[["trial"]], FUN = mean, na.rm = TRUE)
   meansFitted <- meansFitted[matchPos2]
   seMeansFitted <- seMeansFitted[matchPos2]
   envEffsSummary <- data.frame(trial = names(meansFitted), envEff = envEffs,
@@ -274,7 +275,6 @@ gxeFw <- function(TD,
                                rank = rank(-meansFitted), row.names = NULL)
   return(createFW(estimates = estimates, anova = aovTable,
                   envEffs = envEffsSummary, TD = createTD(TDTot),
-                  fittedGeno = unname(fitted(model1)), trait = trait,
-                  nGeno = nGeno, nEnv = nlevels(TDTot[["trial"]]), tol = tol,
-                  iter = iter - 1))
+                  fittedGeno = fittedGeno, trait = trait, nGeno = nGeno,
+                  nEnv = nlevels(TDTot[["trial"]]), tol = tol, iter = iter - 1))
 }

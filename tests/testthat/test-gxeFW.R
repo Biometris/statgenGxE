@@ -15,7 +15,7 @@ test_that("output is of the right class", {
   expect_is(geFw0$anova, "data.frame")
   expect_is(geFw0$envEffs, "data.frame")
   expect_is(geFw0$TD, "TD")
-  expect_is(geFw0$fittedGeno ,"numeric")
+  expect_is(geFw0$fittedGeno ,"data.frame")
   expect_is(geFw0$trait, "character")
   expect_is(geFw0$nGeno, "integer")
   expect_is(geFw0$nEnv, "integer")
@@ -66,7 +66,7 @@ test_that("environmental effects are correct", {
                c(-0.359948234376616, 0.315591707750728, 0.0443565266258885,
                  0.491548965248676, 0.491548965248676, 0.491548965248676,
                  79.2808002530758, 79.9563404813316, 79.685102978234,
-                 2.7254067956715, 3.03780904189166, 2.1933510119538,3, 1, 2))
+                 16.3389129971191, 15.1077214075383, 10.1040179980979, 3, 1, 2))
 })
 
 test_that("settings for tolerance and maxIter work correctly", {
@@ -96,7 +96,8 @@ test_that("NA in trait causes no problems", {
   expect_is(geFw, "FW")
   expect_equal(dim(geFw$estimates), c(15, 7))
   expect_equal(is.na(c(geFw$TD[["E1"]][["t4"]], geFw$TD[["E2"]][["t4"]],
-                       geFw$TD[["E3"]][["t4"]])), is.na(geFw$fittedGeno))
+                       geFw$TD[["E3"]][["t4"]])),
+               is.na(geFw$fittedGeno[["fittedValue"]]))
 })
 
 test_that("option genotypes functions properly", {
