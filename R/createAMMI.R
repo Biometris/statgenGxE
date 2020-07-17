@@ -873,6 +873,37 @@ plotAMMI2 <- function(loadings,
   return(p)
 }
 
+#' Extract fitted values.
+#'
+#' Extract the fitted values for an object of class AMMI.
+#'
+#' @param object An object of class AMMI
+#' @param ... Not used.
+#'
+#' @export
+fitted.AMMI <- function(object,
+                        ...) {
+  return(object$fitted)
+}
+
+#' Extract residuals.
+#'
+#' Extract the residuals for the fitted AMMI model.
+#'
+#' @param object An object of class AMMI
+#' @param ... Not used.
+#'
+#' @export
+residuals.AMMI <- function(object,
+                           ...) {
+  trait <- object$trait
+  fittedGeno <- object$fitted
+  residGeno <- merge(fittedGeno, object$dat, by = c("trial", "genotype"))
+  residGeno[["residual"]] <- residGeno[["fittedValue"]] - residGeno[[trait]]
+  residGeno <- residGeno[c("trial", "genotype", "residual")]
+  return(residGeno)
+}
+
 #' Report method for class AMMI
 #'
 #' A pdf report will be created containing a summary of an AMMI object.
