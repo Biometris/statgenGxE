@@ -366,6 +366,38 @@ plot.FW <- function(x,
   }
 }
 
+#' Extract fitted values.
+#'
+#' Extract the fitted values for an object of class FW.
+#'
+#' @param object An object of class FW
+#' @param ... Not used.
+#'
+#' @export
+fitted.FW <- function(object,
+                      ...) {
+ return(object$fittedGeno)
+}
+
+#' Extract residuals.
+#'
+#' Extract the residuals for the fitted FW model.
+#'
+#' @param object An object of class FW
+#' @param ... Not used.
+#'
+#' @export
+residuals.FW <- function(object,
+                         ...) {
+  trait <- object$trait
+  fittedGeno <- object$fittedGeno
+  TDTot <- do.call(rbind, object$TD)
+  residGeno <- merge(fittedGeno, TDTot, by = c("trial", "genotype"))
+  residGeno[["residual"]] <- residGeno[["fittedValue"]] - residGeno[[trait]]
+  residGeno <- residGeno[c("trial", "genotype", "residual")]
+  return(residGeno)
+}
+
 #' Report method for class FW
 #'
 #' A pdf report will be created containing a summary of an FW object.
