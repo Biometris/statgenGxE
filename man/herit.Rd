@@ -17,12 +17,12 @@ genotype:location + genotype:location:trial the heritability is computed
 as\cr\cr
 \deqn{\sigma_G^2 / (\sigma_G^2 + \sigma_L^2 / l + \sigma_{LT}^2 / lt +
 \sigma_E^2 / ltr)}
-In this formula the \eqn{\sigma} terms stand for the standard deviations of the
-respective model terms, and the lower case letters for the number of levels
-for the respective model terms. So \eqn{\sigma_L} is the standard deviation for
-the location term in the model and \eqn{l} is the number of locations.
-\eqn{\sigma_E} corresponds to the residual standard deviation and \eqn{r} to the
-number of replicates.
+In this formula the \eqn{\sigma} terms stand for the standard deviations of
+the respective model terms, and the lower case letters for the number of
+levels for the respective model terms. So \eqn{\sigma_L} is the standard
+deviation for the location term in the model and \eqn{l} is the number of
+locations. \eqn{\sigma_E} corresponds to the residual standard deviation and
+\eqn{r} to the number of replicates.
 }
 \references{
 Atlin, G. N., Baker, R. J., McRae, K. B., & Lu, X. (2000).

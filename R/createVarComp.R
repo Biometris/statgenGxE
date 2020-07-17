@@ -329,12 +329,12 @@ vc <- function(varComp) {
 #' as\cr\cr
 #' \deqn{\sigma_G^2 / (\sigma_G^2 + \sigma_L^2 / l + \sigma_{LT}^2 / lt +
 #' \sigma_E^2 / ltr)}
-#' In this formula the \eqn{\sigma} terms stand for the standard deviations of the
-#' respective model terms, and the lower case letters for the number of levels
-#' for the respective model terms. So \eqn{\sigma_L} is the standard deviation for
-#' the location term in the model and \eqn{l} is the number of locations.
-#' \eqn{\sigma_E} corresponds to the residual standard deviation and \eqn{r} to the
-#' number of replicates.
+#' In this formula the \eqn{\sigma} terms stand for the standard deviations of
+#' the respective model terms, and the lower case letters for the number of
+#' levels for the respective model terms. So \eqn{\sigma_L} is the standard
+#' deviation for the location term in the model and \eqn{l} is the number of
+#' locations. \eqn{\sigma_E} corresponds to the residual standard deviation and
+#' \eqn{r} to the number of replicates.
 #'
 #' @param varComp An object of class varComp.
 #'
@@ -370,28 +370,122 @@ herit <- function(varComp) {
     modVars <- rownames(attr(x = terms(fitMod$call$random),
                              which = "factors"))[-1]
   }
+  ## Get median number for times genotypes are tested within modVars.
+  nLevModVars <- sapply(X = modVars, FUN = function(modVar) {
+    median(rowSums(table(modDat[["genotype"]], modDat[[modVar]]) > 0))
+  })
   for (term in modTerms[-c(1, length(modTerms))]) {
     ## Get variance for current term.
     sigmaTerm <- varcomps[term, "component"]
-    ## Get variables in current term, exclude gentype (always the first var).
+    ## Get variables in current term, exclude genotype (always the first var).
     termVars <- unlist(strsplit(x = term, split = ":"))[-1]
     ## Divide variance by product of #levels for all variables in current term.
-    ## Add that to numberator.
-    numerator <- numerator + sigmaTerm /
-      prod(sapply(X = termVars, FUN = function(termVar) {
-        nlevels(modDat[[termVar]])}))
+    ## Add that to numerator.
+    numerator <- numerator + sigmaTerm / prod(nLevModVars[termVars])
   }
+  nReps <- median(table(modDat[["genotype"]], modDat[["trial"]]))
   if (length(modVars) > 0) {
     ## Contribution for residual variance is computed by dividing sigmaRes by
-    ## product of #levels of all variables in random part of model.
-    numerator <- numerator + sigmaRes /
-      prod(sapply(X = modVars, FUN = function(modVar) {
-        nlevels(modDat[[modVar]])}))
+    ## product of #levels of all variables in random part of model and
+    ## #replicates.
+    numerator <- numerator + sigmaRes / prod(nLevModVars, nReps)
   } else {
-    ## No other variables in random part. Just add sigmaRes to numerator.
-    numerator <- numerator + sigmaRes
+    ## No other variables in random part.
+    ## Just divide sigmaRes by #replicates.
+    numerator <- numerator + sigmaRes / nReps
   }
   return(sigmaG / numerator)
+}
+
+#' Calculated the correlated response to selection
+#'
+#' Calculate the correlated response to selection (CRDR) based on the fitted
+#' model. The CRDR is calculated as described by Atlin et al. E.g. for a model
+#' with trials nested within scenarios, which has a random part that looks like
+#' this: genotype + genotype:scenario + genotype:scenario:trial the CRDR is
+#' calculated as:\cr\cr
+#' \deqn{H1 = \sigma_G^2 / (\sigma_G^2 + \sigma_S^2 / s + \sigma_{ST}^2 / st +
+#' \sigma_E^2 / str)}
+#' \deqn{H2 = (\sigma_G^2 + \sigma_S^2) / (\sigma_G^2 + \sigma_S^2 +
+#' \sigma_{ST}^2 / st + \sigma_E^2 / str)}
+#' \deqn{CRDR = (\sigma_G^2 / (\sigma_G^2 + \sigma_S^2)) * sqrt(H1 / H2)}
+#' In these formula the \eqn{\sigma} terms stand for the standard deviations of
+#' the respective model terms, and the lower case letters for the number of
+#' levels for the respective model terms. So \eqn{\sigma_S} is the standard
+#' deviation for the scenario term in the model and \eqn{s} is the number of
+#' scenario's \eqn{\sigma_E} corresponds to the residual standard deviation and
+#' \eqn{r} to the number of replicates.
+#'
+#' @inheritParams herit
+#'
+#' @references Atlin, G. N., Baker, R. J., McRae, K. B., & Lu, X. (2000).
+#' Selection response in subdivided target regions. Crop Science, 40(1), 7–13.
+#' \url{https://doi.org/10.2135/cropsci2000.4017}
+#'
+#' @export
+CRDR <- function(varComp) {
+  if (!inherits(varComp, "varComp")) {
+    stop(varComp, " should be an object of class varComp.\n")
+  }
+  H1 <- herit(varComp)
+  ## Extract fitted model and model data.
+  fitMod <- varComp$fitMod
+  modDat <- varComp$modDat
+  ## Get factor for computing H2
+  if (!is.null(varComp$nestingFactor)) {
+    H2factor <- paste0("genotype:", varComp$nestingFactor)
+  } else if (varComp$useRegionLocYear) {
+    H2factor <- "genotype:region"
+  }
+  ## Compute variance components.
+  varcomps <- vc(varComp)
+  ## Extract variance components for genotype, H2factor and residual.
+  sigmaG <- varcomps["genotype", "component"]
+  sigmaH2 <- varcomps[H2factor, "component"]
+  sigmaRes <- varcomps["residual", "component"]
+  ## Numerator is constructed by looping over all random model terms and
+  ## Adding their share. It always includes sigmaG and sigmaH2.
+  numerator <- sigmaG + sigmaH2
+  ## Get the terms used in the random part of the model.
+  modTerms <- rownames(varcomps)
+  ## Extract all variables used in the random part of the model.
+  ## They are needed for computing the contribution of the residual variance.
+  if (varComp$engine == "lme4") {
+    modVars <- rownames(attr(x = terms(fitMod, random.only = TRUE),
+                             which = "factors"))[-c(1, 2)]
+
+  } else if (varComp$engine == "asreml") {
+    modVars <- rownames(attr(x = terms(fitMod$call$random),
+                             which = "factors"))[-1]
+  }
+  ## Get median number for times genotypes are tested within modVars.
+  nLevModVars <- sapply(X = modVars, FUN = function(modVar) {
+    median(rowSums(table(modDat[["genotype"]], modDat[[modVar]]) > 0))
+  })
+  H2factorPos <- which(modTerms == H2factor)
+  for (term in modTerms[-c(1, H2factorPos, length(modTerms))]) {
+    ## Get variance for current term.
+    sigmaTerm <- varcomps[term, "component"]
+    ## Get variables in current term, exclude genotype (always the first var).
+    termVars <- unlist(strsplit(x = term, split = ":"))[-1]
+    ## Divide variance by product of #levels for all variables in current term.
+    ## Add that to numerator.
+    numerator <- numerator + sigmaTerm / prod(nLevModVars[termVars])
+  }
+  nReps <- median(table(modDat[["genotype"]], modDat[["trial"]]))
+  if (length(modVars) > 0) {
+    ## Contribution for residual variance is computed by dividing sigmaRes by
+    ## product of #levels of all variables in random part of model and
+    ## #replicates.
+    numerator <- numerator + sigmaRes / prod(nLevModVars, nReps)
+  } else {
+    ## No other variables in random part.
+    ## Just divide sigmaRes by #replicates.
+    numerator <- numerator + sigmaRes / nReps
+  }
+  H2 <- (sigmaG + sigmaH2) / numerator
+  r <- sigmaG / (sigmaG + sigmaH2)
+  return(r * sqrt(H1 / H2))
 }
 
 #' Get diagnostics for an object of class varComp
