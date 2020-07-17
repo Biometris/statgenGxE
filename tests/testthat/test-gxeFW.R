@@ -65,8 +65,8 @@ test_that("environmental effects are correct", {
   expect_equal(as.numeric(as.matrix(geFw0$envEffs[, 2:6])),
                c(-0.359948234376616, 0.315591707750728, 0.0443565266258885,
                  0.491548965248676, 0.491548965248676, 0.491548965248676,
-                 79.2808002530758, 79.9563404813316, 79.685102978234,
-                 16.3389129971191, 15.1077214075383, 10.1040179980979, 3, 1, 2))
+                 79.2808016613818, 79.9563378658385, 79.6851041854211,
+                 16.3388729087687, 15.107650810596, 10.1040248456418, 3, 1, 2))
 })
 
 test_that("settings for tolerance and maxIter work correctly", {
@@ -95,9 +95,7 @@ test_that("NA in trait causes no problems", {
   geFw <- gxeFw(testTD, trait = "t4", maxIter = 50)
   expect_is(geFw, "FW")
   expect_equal(dim(geFw$estimates), c(15, 7))
-  expect_equal(is.na(c(geFw$TD[["E1"]][["t4"]], geFw$TD[["E2"]][["t4"]],
-                       geFw$TD[["E3"]][["t4"]])),
-               is.na(geFw$fittedGeno[["fittedValue"]]))
+  expect_equal(sum(is.na(geFw$fittedGeno[["fittedValue"]])), 0)
 })
 
 test_that("option genotypes functions properly", {

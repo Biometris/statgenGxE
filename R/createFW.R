@@ -156,10 +156,10 @@ plot.FW <- function(x,
     chkCol(colorGenoBy, TDTot)
   }
   chkChar(colGeno)
-  TDTot[["fitted"]] <- round(x$fittedGeno[["fittedValue"]], 10)
-  TDTot <- merge(expand.grid(trial = levels(TDTot[["trial"]]),
-                             genotype = levels(TDTot[["genotype"]])),
-                 TDTot, all.x = TRUE)
+  fittedGeno <- x$fittedGeno
+  colnames(fittedGeno)[colnames(fittedGeno) == "fittedValue"] <- "fitted"
+  TDTot <- merge(fittedGeno, TDTot[c("trial", "genotype", colorGenoBy, trait)],
+                 all.x = TRUE)
   TDTot[["genoMean"]] <- ave(x = TDTot[[trait]], TDTot[["trial"]],
                              TDTot[["genotype"]], FUN = mean)
   genoDat <- unique(TDTot[c("trial", "genotype", "genoMean", "fitted",

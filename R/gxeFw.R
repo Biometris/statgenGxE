@@ -106,7 +106,7 @@ gxeFw <- function(TD,
   if (!is.null(genotypes)) {
     TDTot <- TDTot[TDTot[["genotype"]] %in% genotypes, ]
   }
-  ## Remove genotypes that contain only NAs
+  ## Remove genotypes that contain only NAs.
   allNA <- by(TDTot, TDTot[["genotype"]], FUN = function(x) {
     all(is.na(x[trait]))
   })
@@ -259,8 +259,13 @@ gxeFw <- function(TD,
   seEnvEffs <- sqrt(diag(vcov(model2)[matchPos[!naPos], matchPos[!naPos]]))
   matchPos2 <- match(paste0("trial", levels(TDTot[["trial"]]), ":beta"),
                      names(envEffs))
-  predGeno <- predict(model1, se.fit = TRUE)
-  fittedGeno <- cbind(TDTot[c("trial", "genotype")], fittedValue = predGeno$fit,
+  ## Create a full grid for making predictions.
+  fullDat <- expand.grid(trial = levels(TDTot[["trial"]]),
+                      genotype = levels(TDTot[["genotype"]]))
+  fullDat[["envEffs"]] <- envEffs
+  predGeno <- predict(model1, se.fit = TRUE, newdata = fullDat)
+  fittedGeno <- cbind(fullDat[c("trial", "genotype")],
+                      fittedValue = predGeno$fit,
                       seFittedValue = predGeno$se.fit)
   meansFitted <- tapply(X = fittedGeno[["fittedValue"]],
                         INDEX = fittedGeno[["trial"]], FUN = mean, na.rm = TRUE)
