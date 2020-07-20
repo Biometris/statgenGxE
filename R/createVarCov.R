@@ -24,13 +24,17 @@ createVarCov <- function(STA,
                          summary,
                          vcov,
                          criterion,
-                         engine) {
+                         engine,
+                         dat,
+                         trait) {
   varCov <- structure(list(STA = STA,
                            choice = choice,
                            summary = summary,
                            vcov = vcov,
                            criterion = criterion,
-                           engine = engine),
+                           engine = engine,
+                           dat = dat,
+                           trait = trait),
                       class = "varCov")
   attr(varCov, which = "timestamp") <- Sys.time()
   return(varCov)
@@ -115,6 +119,52 @@ plot.varCov <- function(x,
     plot(p)
   }
   invisible(p)
+}
+
+#' Extract fitted values.
+#'
+#' Extract the fitted values for an object of class varCov.
+#'
+#' @param object An object of class varCov
+#' @param ... Not used.
+#'
+#' @export
+fitted.varCov <- function(object,
+                          ...) {
+  engine <- object$engine
+  fitMod <- object$STA[[1]]$mFix[[1]]
+  modDat <- object$dat
+  if (engine == "lme4") {
+    fittedValue <- predict(fitMod, newdata = modDat)
+    fittedGeno <- cbind(modDat[c("trial", "genotype")], fittedValue)
+  } else if (engine == "asreml") {
+    fittedGeno <- predictAsreml(fitMod, classify = "trial:genotype",
+                                TD = modDat)$pvals
+    colnames(fittedGeno)[colnames(fittedGeno) == "predicted.value"] <-
+      "fittedValue"
+    colnames(fittedGeno)[colnames(fittedGeno) == "std.error"] <- "seFittedValue"
+    fittedGeno <- fittedGeno[c("trial", "genotype", "fittedValue", "seFittedValue")]
+  }
+  return(fittedGeno)
+}
+
+#' Extract residuals.
+#'
+#' Extract the residuals for the best model.
+#'
+#' @param object An object of class varCov
+#' @param ... Not used.
+#'
+#' @export
+residuals.varCov <- function(object,
+                             ...) {
+  trait <- object$trait
+  engine <- object$engine
+  fittedGeno <- fitted(object)
+  residGeno <- merge(fittedGeno, object$dat, by = c("trial", "genotype"))
+  residGeno[["residual"]] <- residGeno[["fittedValue"]] - residGeno[[trait]]
+  residGeno <- residGeno[c("trial", "genotype", "residual")]
+  return(residGeno)
 }
 
 #' Report method for class varCov

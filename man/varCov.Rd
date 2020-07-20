@@ -5,7 +5,7 @@
 \alias{createVarCov}
 \title{S3 class varCov}
 \usage{
-createVarCov(STA, choice, summary, vcov, criterion, engine)
+createVarCov(STA, choice, summary, vcov, criterion, engine, dat, trait)
 }
 \arguments{
 \item{STA}{An object of class STA, the best fitted model.}

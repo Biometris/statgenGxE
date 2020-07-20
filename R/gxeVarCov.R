@@ -278,17 +278,19 @@ gxeVarCov <- function(TD,
       stop("Failed to load 'asreml'.\n")
     }
   }
-  TDTot[["trial"]] <- rownames(bestTab)[1]
+  modDat <- TDTot
+  modDat[["trial"]] <- rownames(bestTab)[1]
   ## Create output.
   model <- setNames(list(list(mRand = NULL,
                               mFix = setNames(list(bestModel), trait),
-                              TD = createTD(TDTot), traits = trait,
+                              TD = createTD(modDat), traits = trait,
                               engine = engine, predicted = "trial")),
                     rownames(bestTab)[1])
   STA <- createSTA(models = model)
   res <- createVarCov(STA = STA, choice = rownames(bestTab)[1],
                       summary = bestTab, vcov = vcovBest,
-                      criterion = criterion, engine = engine)
+                      criterion = criterion, engine = engine, trait = trait,
+                      dat = TDTot)
   return(res)
 }
 
