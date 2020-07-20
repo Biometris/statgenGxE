@@ -43,6 +43,9 @@ The following types of analysis can be done using statgenGxE:
 
 For most of the analyses a pdf report can be created automatically, see [Reporting](#rep).
 
+
+*Note that due to technical restrictions the number of significant digits printed in tables throughout this vignette is not always optimal. In practice precision of the output can always be specified by the user.*
+
 ---
 
 # Data preparation {#dp}
@@ -81,8 +84,9 @@ For further insight a scatter plot of the trials against each other can be made.
 ## Color the genotypes based on the variable geneticGroup.
 ## Color the histograms for trials based on the variable scenarioFull.
 plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "geneticGroup", 
-     colorTrialBy = "scenarioFull", trialOrder = c("Gai12W", "Kar13R", "Kar12W", "Kar13W", 
-                                                   "Mar13R", "Mur13W", "Mur13R", "Ner12R", "Cam12R", "Cra12R"))
+     colorTrialBy = "scenarioFull", 
+     trialOrder = c("Gai12W", "Kar13R", "Kar12W", "Kar13W", "Mar13R", "Mur13W",
+                    "Mur13R", "Ner12R", "Cam12R", "Cra12R"))
 ```
 
 ## Coloring of genotypes and trials
@@ -116,7 +120,7 @@ Six different types of models can be fitted depending on the structure of the en
 | trials correspond to locations within regions across years | **trait** = region + region:location + year + region:year + region:location:year + **genotype + genotype:region + genotype:region:location + genotype:year + genotype:region:year + genotype:region:location:year** | `regionLocationYear = TRUE` |
 | trials are nested within scenarios | **trait** = scenario + scenario:trial + **genotype + genotype:scenario + genotype:scenario:trial** | `nestingFactor = "scenario"` |
 
-*Note that if the data contains replicates or weights are applied (using the option `useWt`) the last term for each model will be dropped, and replaced by a homogeneous residual.*    
+*Note that if the data contains replicates or weights are applied (using the option `useWt`) the last term for each model will be dropped, and replaced by a homogeneous residual. Multiple observations will then be treated as in in completely randomized design.*    
  
 All models can be fitted using either `lme4` or `asreml`. This can be specified using the `engine` parameter.   
 
@@ -140,6 +144,8 @@ Finally a mixed model is fitted as specified in the table above. Based on this m
 dropsVarComp <- gxeVarComp(TD = dropsTD, trait = "grain.yield", nestingFactor = "loc")
 summary(dropsVarComp)
 ```
+*Note that because the model is fitted with lme4, in this and further tables no standard errors are outputted. When using asreml for modeling standard errors will be available.*
+
 The diagnostics for the fitted model can be printed using the `diagnostics` function. This will print an incidence matrix of missing values for each of the terms in the random part of the fitted model.
 
 ```{r diag, eval=FALSE}
@@ -183,7 +189,9 @@ With the Finlay-Wilkinson Analysis [@Finlay1963] we describe genotype by environ
 
 The model fitted in the analysis is $y_{ij} = \mu + G_i + \beta_iE_j + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic effect, $\beta_i$ a sensitivity parameters, $E_j$ the environment effect and $\epsilon_{ij}$ a residual.
 
-In the statgenGxE package this analysis can be done using the `gxeFW` function. By default all trials in the `TD` object are used in the analysis, but this can be restricted using the parameter `trials`. The genotypes included in the analysis can be restricted using `genotypes`.
+In the statgenGxE package this analysis can be done using the `gxeFW` function. The model describe above is fitted using an alternating regression algorithm. First, using starting values for $beta$ and $G$, $E$ is estimated. Next, $E$ is assumed known and $beta$ and $G$ are estimated. This process is continued until convergence, i.e. untils the change in $beta$ between iterations is less then a specified tolerance (default 0.001). When estimating values missing values are estimated as wel.  
+
+By default all trials in the `TD` object are used in the analysis, but this can be restricted using the parameter `trials`. The genotypes included in the analysis can be restricted using `genotypes`.
 ```{r geFW, R.options=list(digits=6)}
 ## Perform a Finlay-Wilkinson analysis for all trials.
 dropsFW <- gxeFw(TD = dropsTD, trait = "grain.yield")
@@ -224,11 +232,14 @@ plot(dropsFW, plotType = "scatterFit", colorGenoBy = "geneticGroup")
 
 # AMMI Analysis {#am}
 
-The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with Multiplicative Interaction effects. The additive effects are the classical ANOVA main effects for genotype and environment, the multiplicative effects follow from a principal component analysis on the interaction residuals (=genotype by environment means after adjustment for additive genotype and environment effects). This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials.  
+The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with Multiplicative Interaction effects. The additive effects are the classical ANOVA main effects for genotype and environment, the multiplicative effects follow from a principal component analysis on the interaction residuals (= genotype by environment means after adjustment for additive genotype and environment effects). This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials. 
 
-The model fitted in the analysis is $y_{ij} = \mu + G_i + E_j + \Sigma_{m =1}^M\gamma_{mi}\delta_{mj} + \epsilon_{ij}$, where $M$ is the number of principal components, $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic effect, $E_j$ the environmental effect, $\gamma_{mi}$ the genotypic scores, $\delta_{mj}$ the environmental scores, and $\epsilon_{ij}$ a residual.
+If the data contains missing values, those are imputed first using an iterative regression algorithm. This algorithm regresses each environment in turn on all others. This process is repeated until the difference between the fitted values in subsequent iterations becomes sufficiently small (see `help(multMissing)` for further details).
+
+After imputation the model fitted in the analysis is $y_{ij} = \mu + G_i + E_j + \Sigma_{m =1}^M\gamma_{mi}\delta_{mj} + \epsilon_{ij}$, where $M$ is the number of principal components, $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic effect, $E_j$ the environmental effect, $\gamma_{mi}$ the genotypic scores, $\delta_{mj}$ the environmental scores, and $\epsilon_{ij}$ a residual.
 
 The AMMI analysis can be performed with the statgenGxE package using the function `gxeAmmi`. 
+
 ```{r geAmmi, R.options=list(digits=6)}
 ## Run gxeAmmi for grain.yield.
 dropsAm <- gxeAmmi(TD = dropsTD, trait = "grain.yield")
@@ -313,7 +324,7 @@ summary(dropsGGE)
 Options for plotting results of a GGE analysis are identical to those for an AMMI analysis. When a convex hull is plotted, lines from the origin perpendicular to the edges of the hull are added as well.
 ```{r plotGGE, fig.width=5, fig.height=5, out.width="75%"}
 ## Create a GGE2 biplot.
-plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
+plot(dropsGGE, plotType = "GGE2", plotConvHull = TRUE)
 ```
 
 ---
@@ -430,6 +441,26 @@ if (requireNamespace("asreml", quietly = TRUE)) {
 ```
   
 In the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue color a strong negative correlation. Environments are clustered by their correlations and ordered according to the results of the clustering. 
+
+---
+
+# Fitted values and residuals
+
+Fitted values and residuals for the models fitted using AMMI, GGE, Finlay-Wilkinson, and the selected variance-covariance model can be extracted using the functions `fitted` and `residuals` respectively. These can be useful for investigating the quality of the fitted model by e.g. creating diagnostic plots of fitted values against residuals. 
+
+```{r fitRes}
+## Extract the fitted values and residuals for the Finlay-Wilkinson model.
+fitFW <- fitted(dropsFW)
+resFW <- residuals(dropsFW)
+
+## Create a diagnostic plot of fitted values against residuals.
+fitResFW <- merge(fitFW, resFW, by = c("trial", "genotype"))
+ggplot2::ggplot(fitResFW, ggplot2::aes(x = fittedValue, y = residual,
+                                       color = trial)) +
+  ggplot2::geom_point()
+
+```
+
 
 ---
 

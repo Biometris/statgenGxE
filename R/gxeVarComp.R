@@ -278,6 +278,7 @@ gxeVarComp <- function(TD,
     vcovTot <- sum(fullRandVC[["component"]])
     fullRandVC[["vcovPerc"]] <- fullRandVC[["component"]] / vcovTot
     colnames(fullRandVC)[colnames(fullRandVC) == "component"] <- "vcov"
+    colnames(fullRandVC)[colnames(fullRandVC) == "std.error"] <- "stdError"
     modTerms <- colnames(attr(x = terms(eval(fullRandMod$call$random),
                                         keep.order = TRUE), which = "factors"))
   }
@@ -292,7 +293,8 @@ gxeVarComp <- function(TD,
                       paste0(sort(var), collapse = "_")
                     })
   fullRandVC <- fullRandVC[c(match(randVars, VCVars), nrow(fullRandVC)),
-                           c("vcov", "vcovPerc")]
+                           colnames(fullRandVC) %in%
+                             c("vcov", "stdError", "vcovPerc")]
   ## Create tables for diagnostics.
   diagTabs <- lapply(X = fixedTerms, FUN = function(fixedTerm) {
     fixedVars <- unlist(strsplit(x = fixedTerm, split = ":"))

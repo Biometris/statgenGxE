@@ -44,12 +44,13 @@ print.varComp <- function(x,
 #' @export
 summary.varComp <- function(object,
                             ...) {
-  if (object$engine == "lme4") {
+  engine <- object$engine
+  if (engine == "lme4") {
     ## Display model formula in text form.
     ## This might cut off the formula if it is longer than 500 character.
     ## This is however highly unlikely given the fixed structure of the models.
     fitModCall <- deparse(formula(getCall(object$fitMod)), width.cutoff = 500)
-  } else if (object$engine == "asreml") {
+  } else if (engine == "asreml") {
     ## For asreml, rewrite the formula to match the display of formulas
     ## from lme4,
     ## No changes needed in the fixed part.
@@ -66,8 +67,12 @@ summary.varComp <- function(object,
   fullRandVC <- object$fullRandVC
   ## Prevent scientific notation in variance component.
   fullRandVC[["vcov"]] <- sprintf("%1.2f", fullRandVC[["vcov"]])
+  if (engine == "asreml") {
+    fullRandVC[["stdError"]] <- sprintf("%1.3f", fullRandVC[["stdError"]])
+  }
   fullRandVC[["vcovPerc"]] <- sprintf("%1.2f %%", 100 * fullRandVC[["vcovPerc"]])
-  colnames(fullRandVC) <- c("component", "% variance expl.")
+  colnames(fullRandVC) <- c("component", if (engine == "asreml") "standard error",
+                            "% variance expl.")
   ## Print ANOVA for fully fixed model with alternative header.
   aovFullFixedMod <- object$aovFullFixedMod
   attr(x = aovFullFixedMod, which = "heading") <-

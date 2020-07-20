@@ -28,8 +28,9 @@ plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenario
 ## Color the genotypes based on the variable geneticGroup.
 ## Color the histograms for trials based on the variable scenarioFull.
 plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "geneticGroup", 
-     colorTrialBy = "scenarioFull", trialOrder = c("Gai12W", "Kar13R", "Kar12W", "Kar13W", 
-                                                   "Mar13R", "Mur13W", "Mur13R", "Ner12R", "Cam12R", "Cra12R"))
+     colorTrialBy = "scenarioFull", 
+     trialOrder = c("Gai12W", "Kar13R", "Kar12W", "Kar13W", "Mar13R", "Mur13W",
+                    "Mur13R", "Ner12R", "Cam12R", "Cra12R"))
 
 ## ----colorOpts, eval=FALSE--------------------------------------------------------------
 #  ## Set default colors for genotypes and trials.
@@ -139,7 +140,7 @@ summary(dropsGGE)
 
 ## ----plotGGE, fig.width=5, fig.height=5, out.width="75%"--------------------------------
 ## Create a GGE2 biplot.
-plot(dropsGGE, scale = 0.5, plotType = "GGE2", plotConvHull = TRUE)
+plot(dropsGGE, plotType = "GGE2", plotConvHull = TRUE)
 
 ## ----geMegaEnv, R.options=list(digits=5)------------------------------------------------
 ## Compute mega environments.
@@ -192,6 +193,18 @@ if (requireNamespace("asreml", quietly = TRUE)) {
 if (requireNamespace("asreml", quietly = TRUE)) {
   plot(dropsVC2)
 }
+
+## ----fitRes-----------------------------------------------------------------------------
+## Extract the fitted values and residuals for the Finlay-Wilkinson model.
+fitFW <- fitted(dropsFW)
+resFW <- residuals(dropsFW)
+
+## Create a diagnostic plot of fitted values against residuals.
+fitResFW <- merge(fitFW, resFW, by = c("trial", "genotype"))
+ggplot2::ggplot(fitResFW, ggplot2::aes(x = fittedValue, y = residual,
+                                       color = trial)) +
+  ggplot2::geom_point()
+
 
 ## ----reports, eval=FALSE----------------------------------------------------------------
 #  ## Create a report for the Finlay Wilkinson analysis.
