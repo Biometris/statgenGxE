@@ -414,11 +414,11 @@ herit <- function(varComp) {
 #' \deqn{H2 = (\sigma_G^2 + \sigma_S^2) / (\sigma_G^2 + \sigma_S^2 +
 #' \sigma_{ST}^2 / st + \sigma_E^2 / str)}
 #' \deqn{CRDR = (\sigma_G^2 / (\sigma_G^2 + \sigma_S^2)) * sqrt(H1 / H2)}
-#' In these formula the \eqn{\sigma} terms stand for the standard deviations of
+#' In these formulas the \eqn{\sigma} terms stand for the standard deviations of
 #' the respective model terms, and the lower case letters for the number of
 #' levels for the respective model terms. So \eqn{\sigma_S} is the standard
 #' deviation for the scenario term in the model and \eqn{s} is the number of
-#' scenario's \eqn{\sigma_E} corresponds to the residual standard deviation and
+#' scenarios. \eqn{\sigma_E} corresponds to the residual standard deviation and
 #' \eqn{r} to the number of replicates.
 #'
 #' @inheritParams herit
@@ -431,6 +431,10 @@ herit <- function(varComp) {
 CRDR <- function(varComp) {
   if (!inherits(varComp, "varComp")) {
     stop(varComp, " should be an object of class varComp.\n")
+  }
+  if (is.null(varComp$nestingFactor) && isFALSE(varComp$useRegionLocYear)) {
+    stop("CRDR can only be computed when a model is fitted with a nesting ",
+         "structure of when regions are included in the model.\n")
   }
   H1 <- herit(varComp)
   ## Extract fitted model and model data.
@@ -491,6 +495,57 @@ CRDR <- function(varComp) {
   H2 <- (sigmaG + sigmaH2) / numerator
   r <- sigmaG / (sigmaG + sigmaH2)
   return(r * sqrt(H1 / H2))
+}
+
+#' Compute different types of correlations.
+#'
+#' Compute three types of correlations for models fitted with a nesting factor.
+#' \itemize{
+#' \item{correlation between scenarios or environment types:
+#' \deqn{\sigma_G^2 / (\sigma_G^2 + \sigma_{GS}^2)}
+#' }
+#' \item{correlation between trials within scenarios or environment types:
+#' \deqn{(\sigma_G^2 + \sigma_{GS}^2) / (\sigma_G^2 + \sigma_{GS}^2 +
+#' \sigma_E^2 }
+#' }
+#' \item{correlation trials that belong to different scenarios/environment types:
+#' \deqn{\sigma_G^2 / (\sigma_G^2 + \sigma_{GS}^2 + \sigma_E^2}
+#' }
+#' }
+#' In these formulas the \eqn{\sigma} terms stand for the standard deviations of
+#' the respective model terms. So \eqn{\sigma_S} is the standard deviation for
+#' the scenario term in the model, \eqn{\sigma_{GS}} for the standard deviation
+#' of the genotype by scenario term and \eqn{\sigma_E} corresponds to the
+#' residual standard deviation.
+#'
+#' @inheritParams herit
+#'
+#' @return A list with three correlations.
+#'
+#' @export
+correlations <- function(varComp) {
+  if (!inherits(varComp, "varComp")) {
+    stop(varComp, " should be an object of class varComp.\n")
+  }
+  ## Get factor for computing correlations.
+  if (!is.null(varComp$nestingFactor)) {
+    corFactor <- paste0("genotype:", varComp$nestingFactor)
+  } else {
+    stop("correlations can only be computed when a model is fitted with a ",
+         "nesting structure.\n")
+  }
+  ## Compute variance components.
+  varComps <- vc(varComp)
+  varGeno <- varComps["genotype", "component"]
+  varCorFactor <- varComps[corFactor, "component"]
+  varRes <- varComps["residuals", "component"]
+  ## Compute correlation between scenarios.
+  rScen <- varGeno / (varGeno + varCorFactor)
+  ## Compute correlation between trials within scenarios.
+  rTrScen <- (varGeno + varCorFactor) / (varGeno + varCorFactor + varRes)
+  ## Compute correlattion between trials that belong to different scenarios.
+  rTrDiffScen <- varGeno / (varGeno + varCorFactor + varRes)
+  return(list(rScen = rScen, rTrScen = rTrScen, rTrDiffScen = rTrDiffScen))
 }
 
 #' Get diagnostics for an object of class varComp

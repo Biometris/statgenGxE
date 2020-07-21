@@ -20,11 +20,11 @@ calculated as:\cr\cr
 \deqn{H2 = (\sigma_G^2 + \sigma_S^2) / (\sigma_G^2 + \sigma_S^2 +
 \sigma_{ST}^2 / st + \sigma_E^2 / str)}
 \deqn{CRDR = (\sigma_G^2 / (\sigma_G^2 + \sigma_S^2)) * sqrt(H1 / H2)}
-In these formula the \eqn{\sigma} terms stand for the standard deviations of
+In these formulas the \eqn{\sigma} terms stand for the standard deviations of
 the respective model terms, and the lower case letters for the number of
 levels for the respective model terms. So \eqn{\sigma_S} is the standard
 deviation for the scenario term in the model and \eqn{s} is the number of
-scenario's \eqn{\sigma_E} corresponds to the residual standard deviation and
+scenarios. \eqn{\sigma_E} corresponds to the residual standard deviation and
 \eqn{r} to the number of replicates.
 }
 \references{
