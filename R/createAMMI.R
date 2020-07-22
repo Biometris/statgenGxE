@@ -555,12 +555,12 @@ plotAMMI1 <- function(loadings,
   } else {
     nrowGuide <- shapesGuide <- sizesGuide <- NULL
   }
+  lims <- c(min(xMin, yMin), max(xMax, yMax))
   p <- ggplot2::ggplot(totDat,
                        ggplot2::aes_string(x = "x", y = "y",
                                            color = ".group")) +
     ## Needed for a square plot output.
-    ggplot2::coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax),
-                         ratio = plotRatio, clip = "off") +
+    ggplot2::coord_equal(xlim = lims, ylim = lims, clip = "off") +
     ggplot2::scale_color_manual(breaks = colGroups, values = colNamed,
                                 name = NULL,
                                 guide = ggplot2::guide_legend(nrow = nrowGuide,
@@ -771,11 +771,11 @@ plotAMMI2 <- function(loadings,
   } else {
     nrowGuide <- shapesGuide <- sizesGuide <- NULL
   }
+  lims <- c(min(xMin, yMin), max(xMax, yMax))
   p <- ggplot2::ggplot(totDat, ggplot2::aes_string(x = primAxis, y = secAxis,
                                                    color = ".group")) +
     ## Needed for a square plot output.
-    ggplot2::coord_equal(xlim = c(xMin, xMax), ylim = c(yMin, yMax),
-                         ratio = plotRatio, clip = "off") +
+    ggplot2::coord_equal(xlim = lims, ylim = lims, clip = "off") +
     ggplot2::scale_color_manual(breaks = colGroups, values = colNamed,
                                 name = NULL,
                                 guide = ggplot2::guide_legend(nrow = nrowGuide,
@@ -831,18 +831,18 @@ plotAMMI2 <- function(loadings,
       ## plot area expansion is repeated but then in the y-direction.
       for (i in seq_along(xNew)) {
         if (xNew[i] > 0) {
-          xNewI <- xMax
-          yNewI <- slopesPerp[i] * xMax
+          xNewI <- lims[2]
+          yNewI <- slopesPerp[i] * lims[2]
         } else {
-          xNewI <- xMin
-          yNewI <- slopesPerp[i] * xMin
+          xNewI <- lims[1]
+          yNewI <- slopesPerp[i] * lims[1]
         }
-        if (yNewI < yMin) {
-          yNewI <- yMin
-          xNewI <- yMin / slopesPerp[i]
-        } else if (yNewI > yMax) {
-          yNewI <- yMax
-          xNewI <- yMax / slopesPerp[i]
+        if (yNewI < lims[1]) {
+          yNewI <- lims[1]
+          xNewI <- lims[1] / slopesPerp[i]
+        } else if (yNewI > lims[2]) {
+          yNewI <- lims[2]
+          xNewI <- lims[2] / slopesPerp[i]
         }
         xNew[i] <- xNewI
         yNew[i] <- yNewI

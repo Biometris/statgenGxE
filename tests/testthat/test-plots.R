@@ -122,8 +122,6 @@ test_that("AMMI plot envFactor functions properly", {
   p1_2 <- plot(geAmmi, plotType = "AMMI2", envFactor = 5)
   ## Coordinate limits should blow up by a factor 5.
   ## x-limits is strongly dependent on genoscores so not blown up as much.
-  expect_equal(5 * p0_1$plot_env$p$coordinates$limits$y,
-               p1_1$plot_env$p$coordinates$limits$y)
   ## Coordinate limits should blow up by a factor 5.
   expect_equal(5 * p0_2$plot_env$p$coordinates$limits$x,
                p1_2$plot_env$p$coordinates$limits$x)
