@@ -21,7 +21,7 @@
 #' \item{wricke}{A data.frame containing values for Wricke's ecovalence.}
 #' \item{trait}{A character string indicating the trait that has been analyzed.}
 #'
-#' @references LiN, C. S. and Binns, M. R. 1988. A superiority measure of
+#' @references Lin, C. S. and Binns, M. R. 1988. A superiority measure of
 #' cultivar performance for cultivar x location data. Can. J. Plant Sci. 68:
 #' 193-198
 #' @references Shukla, G.K. 1972. Some statistical aspects of partitioning

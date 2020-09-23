@@ -65,7 +65,7 @@ The input for GxE analysis in the statgenGxE package is an object of class TD (T
 dropsTD <- statgenSTA::createTD(data = dropsPheno, genotype = "Variety_ID", trial = "Experiment")
 ```
 
-Before doing any analysis, we can first have a look at the contents of the data. To do this a box plot can be made. Coloring the boxes by environmental scenario will provide valuable extra information.
+Before doing any analysis, we can first have a look at the contents of the data. To explore heterogeneity of genetic variance we can create a box plot. Coloring the boxes by environmental scenario will provide valuable extra information.
 
 ```{r TDbox}
 ## Create a box plot of dropsTD.
@@ -77,7 +77,7 @@ plot(dropsTD, plotType = "box", traits = "grain.yield", colorTrialBy = "scenario
 
 From the plot it is clear that the trials in the hot, water deficient environments have a lower median and range than the other trials.
 
-For further insight a scatter plot of the trials against each other can be made. 
+For further insight into the correlation structure between trials a scatter plot matrix can be made.
 
 ```{r TDscatter, fig.dim = c(8.5, 8.5)} 
 ## Create a scatter plot of dropsTD.
@@ -91,9 +91,9 @@ plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "genet
 
 ## Coloring of genotypes and trials
 
-In all plots the default colors for both genotypes and trials are chosen from a predefined color palette. For genotypes the color palette is "Dark 2", for trials it is "Alphabet". See [here](https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html) for an overview of these colors.    
+In all plots the default colors for both genotype groups and trial groups are chosen from a predefined color palette. For genotype groups the color palette is "Dark 2", for trial groups it is "Alphabet". See [here](https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html) for an overview of these colors.    
 
-It is possible to specify different colors for genotypes and trials per plot using the options `colGeno` and `colTrial` respectively. Also, more conveniently, the default colors can be set using the options statgen.genoColors and statgen.trialColors.
+It is possible to specify different colors for genotype groups and trial groups per plot using the options `colGeno` and `colTrial` respectively. Also, more conveniently, the default colors can be set using the options statgen.genoColors and statgen.trialColors.
 
 ```{r colorOpts, eval=FALSE}
 ## Set default colors for genotypes and trials.
@@ -109,39 +109,39 @@ If a plot has more genotype groups than the number of colors specified as defaul
 
 To investigate the structure of the genotype by environment data various mixed models can be fitted. In the statgenGxE package this can be done using the `gxeVarComp` function. 
 
-Six different types of models can be fitted depending on the structure of the environments in the data. These models are described in the table below, together with the parameters used in `gxeVarComp` to fit the model.
+Six different types of models can be fitted depending on the structure of the environments in the data. These models are described in the table below, together with the function parameters used in `gxeVarComp` to fit the model.
 
-| structure of environments | model | function parameters |
+| Structure of environments | Model | Function parameters |
 |:-----------|:-------------------|:------------|
-| environments correspond to trials | **trait** = trial + **genotype + genotype:trial** |
-| trials form a factorial structure of locations x years | **trait** = year + location + year:location + **genotype + genotype:year + genotype:location + genotype:year:location** | `locationYear = TRUE` |
-| trials are nested within year | **trait** = year + year:trial + **genotype + genotype:year + genotype:year:trial** | `nestingFactor = "year"` |
-| trials are nested within locations | **trait** = location + location:trial + **genotype + genotype:location + genotype:location:trial** | `nestingFactor = "loc"` |
-| trials correspond to locations within regions across years | **trait** = region + region:location + year + region:year + region:location:year + **genotype + genotype:region + genotype:region:location + genotype:year + genotype:region:year + genotype:region:location:year** | `regionLocationYear = TRUE` |
-| trials are nested within scenarios | **trait** = scenario + scenario:trial + **genotype + genotype:scenario + genotype:scenario:trial** | `nestingFactor = "scenario"` |
+| Environments correspond to trials | **trait** = trial + **genotype + genotype:trial** |
+| Trials form a factorial structure of locations x years | **trait** = year + location + year:location + **genotype + genotype:year + genotype:location + genotype:year:location** | `locationYear = TRUE` |
+| Trials are nested within year | **trait** = year + year:trial + **genotype + genotype:year + genotype:year:trial** | `nestingFactor = "year"` |
+| Trials are nested within locations | **trait** = location + location:trial + **genotype + genotype:location + genotype:location:trial** | `nestingFactor = "loc"` |
+| Trials correspond to locations within regions across years | **trait** = region + region:location + year + region:year + region:location:year + **genotype + genotype:region + genotype:region:location + genotype:year + genotype:region:year + genotype:region:location:year** | `regionLocationYear = TRUE` |
+| Trials are nested within scenarios | **trait** = scenario + scenario:trial + **genotype + genotype:scenario + genotype:scenario:trial** | `nestingFactor = "scenario"` |
 
-*Note that if the data contains replicates or weights are applied (using the option `useWt`) the last term for each model will be dropped, and replaced by a homogeneous residual. Multiple observations will then be treated as in in completely randomized design.*    
+*For data in the form of GxE means, the last random term in all models above will become a residual term. If the GxE means are provided together with weights, then a residual term will be added to the models above. Be aware that when plot data are provided as input data, the mixed model analysis will be based on the assumption of completely randomized trials, which in almost all cases will not be appropriate for multi-environment trials.*    
  
 All models can be fitted using either `lme4` or `asreml`. This can be specified using the `engine` parameter.   
 
-For diagnostics purposes and to identify the main sources of variation, all models are fitted three times:      
+For diagnostic purposes and to identify the main sources of variation, all models are fitted three times:      
 
-1. with all terms fixed 
-2. with all terms random
-3. as a mixed model, with the **bold** terms as random and the others as fixed
+1. With all terms fixed 
+2. With all terms random
+3. As a mixed model, with the **bold** terms as random and the others as fixed
 
 ### Model fitted with all terms as fixed {-}
 The function first fits a model where all model terms are included as fixed terms. Based on the ANOVA table of this model, terms in the fixed part of the model that are likely to give a problem when fitting the mixed model are removed because of the reduced connectivity and number of available observations to estimate that model term. Also a warning is printed if the mean sum of squares for a model term points to a possible zero variance component in the mixed model.    
 
 ### Model fitted with all terms as random {-}
-Then a model is fitted where all model terms are included as random terms. Based on the variance components in this model the percentage of variance explained by each of the model components is determined. This is printed in the model summary and plotted as standard deviations.    
+Then a model is fitted where all model terms are included as random terms. Based on the variance components in this model the percentage of variance explained by each of the model components is determined. The percentages of variance are printed in the model summary, together with the variance components. The latter are presented on a standard deviation scale.
 
 ### Mixed model {-}
-Finally a mixed model is fitted as specified in the table above. Based on this model variance components can be extracted, heritabilities on a line means basis can be computed and predictions can be made. It is also possible to plot the results.
+Finally a mixed model is fitted as specified in the table above. Based on this model, variance components can be extracted, heritabilities on a line mean basis (across all trials) can be computed and predictions can be made. It is also possible to plot the results.
 
 ```{r geVarComp, message=FALSE} 
-## Fit a model where trials are nested within locations
-dropsVarComp <- gxeVarComp(TD = dropsTD, trait = "grain.yield", nestingFactor = "loc")
+## Fit a model where trials are nested within scenarios.
+dropsVarComp <- gxeVarComp(TD = dropsTD, trait = "grain.yield", nestingFactor = "scenarioFull")
 summary(dropsVarComp)
 ```
 *Note that because the model is fitted with lme4, in this and further tables no standard errors are outputted. When using asreml for modeling standard errors will be available.*
@@ -173,12 +173,9 @@ Predictions for the mixed model can be made for model terms that represent diffe
 ## Predictions of the genotype main effect.
 predGeno <- predict(dropsVarComp)
 head(predGeno)
-## predictions at the level of genotype x trial.
-predGenoTrial <- predict(dropsVarComp, predictLevel = "trial")
+## predictions at the level of genotype x scenarioFull.
+predGenoTrial <- predict(dropsVarComp, predictLevel = "scenarioFull")
 head(predGenoTrial)
-## predictions at the level of genotype x location.
-predGenoLoc <- predict(dropsVarComp, predictLevel = "loc")
-head(predGenoLoc)
 ```
 
 ---
@@ -189,7 +186,7 @@ With the Finlay-Wilkinson Analysis [@Finlay1963] we describe genotype by environ
 
 The model fitted in the analysis is $y_{ij} = \mu + G_i + \beta_iE_j + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu$ is the general mean, $G_i$ is the genotypic effect, $\beta_i$ a sensitivity parameters, $E_j$ the environment effect and $\epsilon_{ij}$ a residual.
 
-In the statgenGxE package this analysis can be done using the `gxeFW` function. The model describe above is fitted using an alternating regression algorithm. First, using starting values for $beta$ and $G$, $E$ is estimated. Next, $E$ is assumed known and $beta$ and $G$ are estimated. This process is continued until convergence, i.e. untils the change in $beta$ between iterations is less then a specified tolerance (default 0.001). When estimating values missing values are estimated as wel.  
+In the statgenGxE package this analysis can be done using the `gxeFW` function. The model described above is fitted using an alternating regression algorithm. First, using starting values for $\beta_i$ and $G_i$, $E_j$ is estimated. Next, $E_j$ is assumed known and $\beta_i$ and $G_i$ are estimated. This process is continued until convergence, i.e. until the change in $\beta_i$ between iterations is less then a specified tolerance (default 0.001). When estimating parameters, missing observations are estimated as well.
 
 By default all trials in the `TD` object are used in the analysis, but this can be restricted using the parameter `trials`. The genotypes included in the analysis can be restricted using `genotypes`.
 ```{r geFW, R.options=list(digits=6)}
@@ -315,8 +312,8 @@ The model fitted in the GGE analysis is $y_{ij} = \mu + E_j + \gamma_{1i}\delta_
 
 The GGE analysis is done in statgenGxE by running the function `gxeGGE` which has identical options as the `gxeAmmi` function.
 
-```{r geGGE, R.options=list(digits=4)}
-## Run gxeAmmi with default settings.
+```{r geGGE, R.options=list(digits=6)}
+## Run gxeGGE with default settings.
 dropsGGE <- gxeGGE(TD = dropsTD, trait = "grain.yield")
 summary(dropsGGE) 
 ```
@@ -324,7 +321,7 @@ summary(dropsGGE)
 Options for plotting results of a GGE analysis are identical to those for an AMMI analysis. When a convex hull is plotted, lines from the origin perpendicular to the edges of the hull are added as well.
 ```{r plotGGE, fig.width=5, fig.height=5, out.width="75%"}
 ## Create a GGE2 biplot.
-plot(dropsGGE, plotType = "GGE2", plotConvHull = TRUE)
+plot(dropsGGE, plotType = "GGE2")
 ```
 
 ---
@@ -348,13 +345,16 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Compute BLUPs.
   ## Use asreml as engine for fitting model.
   geMegaEnvPred <- predict(dropsMegaEnv, engine = "asreml")
-  ## Display BLUPs and associated standard errors.
-  print(head(geMegaEnvPred$predictedValue))
-  print(head(geMegaEnvPred$standardError))
+  ## Display BLUPs.
+  head(geMegaEnvPred$predictedValue)
+}
+if (requireNamespace(package = "asreml", quietly = TRUE)) {
+  ## Display standard errors of the BLUPs.
+  head(geMegaEnvPred$standardError)
 }
 ```
 
-The results of the predictions can be visualized in a scatterplot using the `plot` functions. This creates a similar plot to the one described in the [data preparation](#dp) section earlier in the vignette. However, now the predicted values for the genotypes in the different mega environments are displayed. The predictions are calculated inside the plot functions. By default lme4 is used for this. To change to asreml specify `engine = asreml`. Genotypes can be colored by the value of a variable in the TD object used for calculating the mega environments by specifying `colorGenoBy`.
+The results of the predictions can be visualized in a scatter plot using the `plot` functions. This creates a similar plot to the one described in the [data preparation](#dp) section earlier in the vignette. However, now the predicted values for the genotypes in the different mega environments are displayed. The predictions are calculated inside the plot functions. By default lme4 is used for this. To change to asreml specify `engine = asreml`. Genotypes can be colored by the value of a variable in the TD object used for calculating the mega environments by specifying `colorGenoBy`.
 
 ```{r scatterMegaEnv}
 if (requireNamespace(package = "asreml", quietly = TRUE)) {
@@ -370,13 +370,13 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
 
 Different measures of stability can be calculated using the statgenGxE package, the cultivar-superiority measure of Lin & Binns [@Lin1988], Shukla's stability variance [@Shukla1972] and Wricke's ecovalence [@Wricke1962].
 
-The cultivar-superiority measure is the sum of the squares of the difference between genotypic mean in each environment and the mean of the best genotype, divided by twice the number of environments. Genotypes with the smallest values of the superiority tend to be more stable, and closer to the best genotype in each environment.
+The cultivar-superiority is a function of the sum of the squared differences between a cultivar's mean and the best cultivar's mean, where the sum is across trials.. Genotypes with the smallest values of the superiority tend to be more stable, and closer to the best genotype in each environment.
 
 Shukla's stability variance (static stability) is defined as the variance around the genotype's phenotypic mean across all environments. This provides a measure of the consistency of the genotype, without accounting for performance.
 
-Wricke's Ecovalence Stability Coefficient is the contribution of each genotype to the GxE sum of squares, in an unweighted analysis of the GxE means. A low value indicates that the genotype responds in a consistent manner to changes in environment; i.e. is stable from a dynamic point of view. Like static stability, the Wricke's Ecovalence does not account for genotype performance.
+Wricke's Ecovalence Stability Coefficient is the contribution of each genotype to the GxE sum of squares, in an unweighted analysis of the GxE means. A low value indicates that the genotype responds in a consistent manner to changes in environment; i.e. is stable from a dynamic point of view.
 
-To compute the stability measures use `gxeStability`. This will compute all three stability measures described above. This can be restricted by specifying one or more measure in `method`.
+To compute the stability measures use `gxeStability`. This will compute all three stability measures described above.
 
 ```{r geStab, R.options=list(digits=6)}
 ## Compute stability measures for dropsTD.
@@ -395,10 +395,10 @@ plot(dropsStab, colorGenoBy = "geneticGroup")
 
 # Modelling of heterogeneity of genetic variances and correlations{#vcov}
 
-The function `gxeVarCov` allows to fit linear mixed models of varying complexity. The objective of this function is to identify a model for the genetic variances and correlations across the trials that will help in quantifying genetic similarities between trials and in understanding the structure of genotype by environment interactions. The identified variance-covariance structure can be used as the random background in a multi-environment QTL model. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequentially to the genotype by environment data. The best fitting model is then identified.    
-The models fitted are of the form $y_{ij} = \mu_i + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu_i$ is the genotypic mean and $\epsilon_{ij}$ the residual genetic variation. This residual genetic variation is modeled in eight ways as described in the table below (see [@Boer2007]).
+The function `gxeVarCov` allows to fit linear mixed models of varying complexity to a set of trials without clear structure. When the trials can be organized by locations, years, regions or scenarios, then the mixed models in section [2](#vcomp) are more appropriate. The objective of this function is to identify a model for the genetic variances and correlations across the trials that will help in quantifying genetic similarities between trials and in understanding the structure of genotype by environment interactions. The identified variance-covariance structure can be used as the random background in a multi-environment QTL model. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequentially to the genotype by environment data. The best fitting model is then identified.    
+The models fitted are of the form $y_{ij} = \mu_j + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu_j$ is the environmental mean, and $\epsilon_{ij}$ represents mainly genetic variation, although some non-genetic variation may be included as well. The random term $\epsilon_{ij}$ is modeled in eight ways as described in the table below (see [@Boer2007]).
 
-|model | description | var($g_{ij}$) | cov($g_{ij}$;$g_{ik}$) | number of parameters|
+| Model | Description | var($g_{ij}$) | cov($g_{ij}$;$g_{ik}$) | Number of parameters|
 |:-----------|:-------------------|:------------|:------------|:-----------------|
 | identity | identity | $\sigma_G^2$ | 0 | 1 |
 | cs | compound symmetry | $\sigma_G^2 + \sigma_{GE}^2$ | $\sigma_{GE}^2$ | 2 |
@@ -432,7 +432,7 @@ if (requireNamespace("asreml", quietly = TRUE)) {
 
 *Note that for both factor analytic models to be fitted a minimum of five environments is needed. If the data contains less environments, those two models are skipped.*
 
-A heat map of the correlation between the environments based on the best fitted model can be plotted. 
+A heat map of the correlation between the environments based on the best fitted model can be plotted. It will be instructive to compare the fitted correlations of tis section with the 'observed' correlations in section [1](#dp) and the GGE biplot in section [5](#gge). Comparisons with the mixed models in section [2](#vcomp) are also relevant.
 
 ```{r geVCPlot}
 if (requireNamespace("asreml", quietly = TRUE)) {
@@ -461,12 +461,11 @@ ggplot2::ggplot(fitResFW, ggplot2::aes(x = fittedValue, y = residual,
 
 ```
 
-
 ---
 
 # Reporting{#rep}
 
-For most of the analyses described in this vignette a pdf report can be made using the `report` function. Such a report typically consists of an overview of the analysis and parameters used and the most interesting results and plots for the analysis. Except for this pdf report also the .tex file used to generate this report and a folder containing the figures in the report, are generated. This makes it possible to easily adapt the report to ones needs.
+For most of the analyses described in this vignette a pdf report can be made using the `report` function. Such a report typically consists of an overview of the analysis and parameters used and the most interesting results and plots for the analysis. Except for this pdf report also the .tex file used to generate this report and a folder containing the figures in the report, are generated. This will make it easy to adapt the report to the user's specific needs.
 
 *Note that all reports are created using pdflatex. If no installation is found by `Sys.which("pdflatex")` the report function will generate an error.*
 

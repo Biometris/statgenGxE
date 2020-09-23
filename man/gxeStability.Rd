@@ -64,7 +64,7 @@ summary(geStab2)
 
 }
 \references{
-LiN, C. S. and Binns, M. R. 1988. A superiority measure of
+Lin, C. S. and Binns, M. R. 1988. A superiority measure of
 cultivar performance for cultivar x location data. Can. J. Plant Sci. 68:
 193-198
 

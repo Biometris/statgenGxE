@@ -38,8 +38,8 @@ plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "genet
 #  options("statgen.trialColors" = c("red", "brown", "purple"))
 
 ## ----geVarComp, message=FALSE-----------------------------------------------------------
-## Fit a model where trials are nested within locations
-dropsVarComp <- gxeVarComp(TD = dropsTD, trait = "grain.yield", nestingFactor = "loc")
+## Fit a model where trials are nested within scenarios.
+dropsVarComp <- gxeVarComp(TD = dropsTD, trait = "grain.yield", nestingFactor = "scenarioFull")
 summary(dropsVarComp)
 
 ## ----diag, eval=FALSE-------------------------------------------------------------------
@@ -60,12 +60,9 @@ plot(dropsVarComp)
 ## Predictions of the genotype main effect.
 predGeno <- predict(dropsVarComp)
 head(predGeno)
-## predictions at the level of genotype x trial.
-predGenoTrial <- predict(dropsVarComp, predictLevel = "trial")
+## predictions at the level of genotype x scenarioFull.
+predGenoTrial <- predict(dropsVarComp, predictLevel = "scenarioFull")
 head(predGenoTrial)
-## predictions at the level of genotype x location.
-predGenoLoc <- predict(dropsVarComp, predictLevel = "loc")
-head(predGenoLoc)
 
 ## ----geFW, R.options=list(digits=6)-----------------------------------------------------
 ## Perform a Finlay-Wilkinson analysis for all trials.
@@ -133,14 +130,14 @@ plot(dropsAm, scale = 0.4, plotType = "AMMI2",
 ## Create an AMMI2 biplot with convex hull around the genotypes.
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy = "scenarioFull")
 
-## ----geGGE, R.options=list(digits=4)----------------------------------------------------
-## Run gxeAmmi with default settings.
+## ----geGGE, R.options=list(digits=6)----------------------------------------------------
+## Run gxeGGE with default settings.
 dropsGGE <- gxeGGE(TD = dropsTD, trait = "grain.yield")
 summary(dropsGGE) 
 
 ## ----plotGGE, fig.width=5, fig.height=5, out.width="75%"--------------------------------
 ## Create a GGE2 biplot.
-plot(dropsGGE, plotType = "GGE2", plotConvHull = TRUE)
+plot(dropsGGE, plotType = "GGE2")
 
 ## ----geMegaEnv, R.options=list(digits=5)------------------------------------------------
 ## Compute mega environments.
@@ -153,9 +150,12 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
   ## Compute BLUPs.
   ## Use asreml as engine for fitting model.
   geMegaEnvPred <- predict(dropsMegaEnv, engine = "asreml")
-  ## Display BLUPs and associated standard errors.
-  print(head(geMegaEnvPred$predictedValue))
-  print(head(geMegaEnvPred$standardError))
+  ## Display BLUPs.
+  head(geMegaEnvPred$predictedValue)
+}
+if (requireNamespace(package = "asreml", quietly = TRUE)) {
+  ## Display standard errors of the BLUPs.
+  head(geMegaEnvPred$standardError)
 }
 
 ## ----scatterMegaEnv---------------------------------------------------------------------
