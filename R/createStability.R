@@ -10,8 +10,6 @@
 #' @param wricke A data.frame containing values for Wricke's ecovalence.
 #' @param trait A character string indicating the trait that has been analyzed.
 #'
-#' @seealso \code{\link{plot.stability}}, \code{\link{report.stability}}
-#'
 #' @name stability
 NULL
 
@@ -75,14 +73,18 @@ summary.stability <- function(object,
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
-#' @return Plots of stability measures against means.
+#' @return A list of ggplot object is invisibly returned.
 #'
 #' @examples
 #' ## Compute three stability measures for TDMaize.
 #' geStab <- gxeStability(TD = TDMaize, trait = "yld")
+#'
 #' ## Create scatter plots of the computed stability measures against the means.
 #' plot(geStab)
 #'
+#' @family stability
+#'
+#' @importFrom grDevices topo.colors
 #' @export
 plot.stability <- function(x,
                            ...,
@@ -219,10 +221,12 @@ plot.stability <- function(x,
 #' @examples
 #' ## Compute three stability measures for TDMaize.
 #' geStab <- gxeStability(TD = TDMaize, trait = "yld")
-#' \dontrun{
+#' \donttest{
 #' ## Create a .pdf report summarizing the stability measures.
-#' report(geStab, outfile = "./testReports/reportStability.pdf")
+#' report(geStab, outfile = tempfile(fileext = ".pdf"))
 #' }
+#'
+#' @family stability
 #'
 #' @export
 report.stability <- function(x,

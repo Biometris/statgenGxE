@@ -85,3 +85,11 @@ plot(geFW, plotType = "trellis")
 plot(geFW, plotType = "scatterFit")
 
 }
+\seealso{
+Other Finlay-Wilkinson: 
+\code{\link{fitted.FW}()},
+\code{\link{gxeFw}()},
+\code{\link{report.FW}()},
+\code{\link{residuals.FW}()}
+}
+\concept{Finlay-Wilkinson}

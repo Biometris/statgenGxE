@@ -11,6 +11,26 @@
 
 \item{...}{Not used.}
 }
+\value{
+A data.frame with residuals.
+}
 \description{
 Extract the residuals for the fitted AMMI model.
 }
+\examples{
+## Run AMMI analysis on TDMaize.
+geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
+
+## Extract residuals.
+residAmmi <- residuals(geAmmi)
+head(residAmmi)
+
+}
+\seealso{
+Other AMMI: 
+\code{\link{fitted.AMMI}()},
+\code{\link{gxeAmmi}()},
+\code{\link{plot.AMMI}()},
+\code{\link{report.AMMI}()}
+}
+\concept{AMMI}

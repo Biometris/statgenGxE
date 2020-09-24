@@ -11,6 +11,26 @@
 
 \item{...}{Not used.}
 }
-\description{
-Extract the fitted values for an object of class FW.
+\value{
+A data.frame with fitted values.
 }
+\description{
+Extract the fitted values for a fitted Finlay-Wilkinson model.
+}
+\examples{
+## Run Finlay-Wilkinson analysis.
+geFW <- gxeFw(TD = TDMaize, trait = "yld")
+
+## Extract fitted values.
+fitFW <- fitted(geFW)
+head(fitFW)
+
+}
+\seealso{
+Other Finlay-Wilkinson: 
+\code{\link{gxeFw}()},
+\code{\link{plot.FW}()},
+\code{\link{report.FW}()},
+\code{\link{residuals.FW}()}
+}
+\concept{Finlay-Wilkinson}

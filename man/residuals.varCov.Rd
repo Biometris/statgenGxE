@@ -11,6 +11,28 @@
 
 \item{...}{Not used.}
 }
+\value{
+A data.frame with residuals.
+}
 \description{
 Extract the residuals for the best model.
 }
+\examples{
+\donttest{
+## Select the best variance-covariance model using asreml for modeling.
+geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+
+## Extract residuals from the model.
+residVarCov <- residuals(geVarCov)
+head(residVarCov)
+}
+
+}
+\seealso{
+Other varCov: 
+\code{\link{fitted.varCov}()},
+\code{\link{gxeVarCov}()},
+\code{\link{plot.varCov}()},
+\code{\link{report.varCov}()}
+}
+\concept{varCov}

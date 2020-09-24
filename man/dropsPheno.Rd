@@ -3,7 +3,7 @@
 \docType{data}
 \name{dropsPheno}
 \alias{dropsPheno}
-\title{DROPS data sets}
+\title{DROPS data set}
 \format{
 An object of class \code{data.frame} with 2460 rows and 20 columns.
 }
@@ -31,7 +31,7 @@ scenarios have been added to the data as well as a classification of the
 genotypes in four genetic groups.\cr\cr
 }
 \details{
-he data.frame contains the genotypic means  (Best Linear Unbiased Estimation,
+The data.frame contains the genotypic means  (Best Linear Unbiased Estimators,
 BLUEs), with one value per experiment  (Location × year × water regime) per
 genotype.\cr
 A data.frame with 2460 rows and 19 columns.\cr
@@ -42,11 +42,11 @@ for watered and R for rain-fed.}
 \item{parent1}{identifier of donor dent line}
 \item{Code_ID, Variety_ID, Accession_ID}{identifier of the genotype}
 \item{geno.panel}{project in which the genetic material was generated}
-\item{grain.yield}{genotypic mean for yield adjusted at 15\% grain moisture,
+\item{grain.yield}{genotypic mean for yield adjusted at 15\\% grain moisture,
 in ton per hectare (t ha^-1)}
 \item{grain.number}{genotypic mean for number of grain per square meter}
 \item{grain.weight}{genotypic mean for individual grain weight in milligram
- (mg)}
+(mg)}
 \item{anthesis}{genotypic mean for male flowering (pollen shed), in thermal
 time cumulated since emergence (d_20°C)}
 \item{silking}{genotypic mean for female flowering (silking emergence), in
@@ -72,7 +72,7 @@ scenarioWater and scenarioTemp}
 \references{
 Millet, E. J., Pommier, C., et al. (2019). A multi-site
 experiment in a network of European fields for assessing the maize yield
-response to environmental scenarios [Data set].
+response to environmental scenarios (Data set).
 \url{https://doi.org/10.15454/IASSTN}
 }
 \keyword{datasets}

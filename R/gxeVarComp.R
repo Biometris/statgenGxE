@@ -1,41 +1,25 @@
-#' Fit multi-environment mixed models to grouped or ungrouped sets of trials
+#' Mixed model analysis of GxE table of means
 #'
-#' This function fits a mixed model best fitting to the data in a TD object.
+#' @description This function fits a mixed model best fitting to the data in a TD object.
 #' The exact model fitted is determined by both the structure of the genotype by
 #' environment table of observations and the chosen parameters.\cr\cr
-#' Six different types of models can be fitted depending on the environmental
-#' dimensions of the data. The environmental dimensions are described below
-#' together with their corresponding models and which parameters to specify to
-#' fit them.
-#' \itemize{
-#' \item{environments correspond to trials\cr
-#' trait = trial + \strong{genotype + genotype:trial}}
-#' \item{trials form a factorial structure of locations x years\cr
-#' trait = year + location + year:location + \strong{genotype + genotype:year +
-#' genotype:location + genotype:year:location}\cr
-#' set \code{locationYear = TRUE}}
-#' \item{trials are nested within year\cr
-#' trait = year + year:trial + \strong{genotype + genotype:year +
-#' genotype:year:trial}\cr
-#' set \code{nestingFactor = "year"}}
-#' \item{trials are nested within locations\cr
-#' trait = location + location:trial + \strong{genotype + genotype:location +
-#' genotype:location:trial}\cr
-#' set \code{nestingFactor = "loc"}}
-#' \item{trials correspond to locations within regions across years\cr
-#' trait = region + region:location + year + region:year + region:location:year +
-#' \strong{genotype + genotype:region:location + genotype:year +
-#' genotype:region:year + genotype:region:location:year}\cr
-#' set \code{regionLocationYear = TRUE}}
-#' \item{trials are nested within scenarios\cr
-#' trait = scenario + scenario:trial + \strong{genotype + genotype:scenario +
-#' genotype:scenario:trial}\cr
-#' set \code{nestingFactor = "scenario"}}
-#' }
+#' Six different types of models can be fitted depending on the structure of
+#' the environments in the data. These models are described in the table below,
+#' together with the function parameters used in `gxeVarComp` to fit the model.
+#'
+#' | Structure of environments | Model | Function parameters |
+#' |:-----------|:-------------------|:------------|
+#' | Environments correspond to trials | **trait** = trial + **genotype + genotype:trial** |
+#' | Trials form a factorial structure of locations x years | **trait** = year + location + year:location + **genotype + genotype:year + genotype:location + genotype:year:location** | `locationYear = TRUE` |
+#' | Trials are nested within year | **trait** = year + year:trial + **genotype + genotype:year + genotype:year:trial** | `nestingFactor = "year"` |
+#' | Trials are nested within locations | **trait** = location + location:trial + **genotype + genotype:location + genotype:location:trial** | `nestingFactor = "loc"` |
+#' | Trials correspond to locations within regions across years | **trait** = region + region:location + year + region:year + region:location:year + **genotype + genotype:region + genotype:region:location + genotype:year + genotype:region:year + genotype:region:location:year** | `regionLocationYear = TRUE` |
+#' | Trials are nested within scenarios | **trait** = scenario + scenario:trial + **genotype + genotype:scenario + genotype:scenario:trial** | `nestingFactor = "scenario"` |
+#'
 #' In the models above the random part of the model is printed bold.\cr
-#' Note that if the data contains replicates or weights are applied (using the
-#' option \code{useWt}) the last model term will be dropped, and estimated as
-#' a homogeneous residual.\cr\cr
+#' For data in the form of GxE means, the last random term in all models above
+#' will become a residual term. If the GxE means are provided together with
+#' weights, then a residual term will be added to the models above.\cr\cr
 #' The function first fits a model where all model terms are included as fixed
 #' terms. Based on the ANOVA table of this model, terms in the fixed part of the
 #' model that are likely to give a problem when fitting the mixed model are
@@ -45,8 +29,9 @@
 #' component in the mixed model.\cr\cr
 #' Then a model is fitted where all model terms are included as random terms.
 #' Based on the variance components in this model the percentage of variance
-#' explained by each of the model components is determined. This is printed in
-#' the model summary and plotted as standard deviations of the estimate.\cr\cr
+#' explained by each of the model components is determined. The percentages of
+#' variance are printed in the model summary, together with the variance
+#' components. The latter are presented on a standard deviation scale.\cr\cr
 #' Finally a mixed model is fitted as specified in the overview above. Based on
 #' this mixed model variance components can be computed using \code{\link{vc}},
 #' heritabilies can be computed using \code{\link{herit}} and predictions can be
@@ -86,10 +71,6 @@
 #' \item{diagTabs}{A list of data.frame, one for each random model term,
 #' containing the missing combinations in the data for that term.}
 #'
-#' @seealso \code{\link{vc}}, \code{\link{herit}},
-#' \code{\link{predict.varComp}}, \code{\link{plot.varComp}},
-#' \code{\link{diagnostics}}
-#'
 #' @examples
 #' ## Fit a mixed model.
 #' geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
@@ -101,7 +82,10 @@
 #' plot(geVarComp)
 #'
 #' ## Generate predictions
-#' predict(geVarComp, predictLevel = "trial")
+#' pred <- predict(geVarComp, predictLevel = "trial")
+#' head(pred)
+#'
+#' @family Mixed model analysis
 #'
 #' @importFrom utils tail
 #' @export
@@ -163,7 +147,8 @@ gxeVarComp <- function(TD,
                                             "region:year", "region:loc:year"))
   ## Check if the data contains replicates.
   repTab <- table(TDTot[c("genotype",
-                          unlist(strsplit(x = tail(fixedTerms, 1), split = ":")))])
+                          unlist(strsplit(x = tail(fixedTerms, 1),
+                                          split = ":")))])
   hasReps <- any(repTab > 1)
   ## Random terms are genotype x fixedTerms.
   ## If there are no replicates or weights the final random term is the actual

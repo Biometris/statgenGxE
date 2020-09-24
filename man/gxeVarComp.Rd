@@ -2,7 +2,7 @@
 % Please edit documentation in R/gxeVarComp.R
 \name{gxeVarComp}
 \alias{gxeVarComp}
-\title{Fit multi-environment mixed models to grouped or ungrouped sets of trials}
+\title{Mixed model analysis of GxE table of means}
 \usage{
 gxeVarComp(
   TD,
@@ -64,39 +64,23 @@ containing the missing combinations in the data for that term.}
 This function fits a mixed model best fitting to the data in a TD object.
 The exact model fitted is determined by both the structure of the genotype by
 environment table of observations and the chosen parameters.\cr\cr
-Six different types of models can be fitted depending on the environmental
-dimensions of the data. The environmental dimensions are described below
-together with their corresponding models and which parameters to specify to
-fit them.
-\itemize{
-\item{environments correspond to trials\cr
-trait = trial + \strong{genotype + genotype:trial}}
-\item{trials form a factorial structure of locations x years\cr
-trait = year + location + year:location + \strong{genotype + genotype:year +
-genotype:location + genotype:year:location}\cr
-set \code{locationYear = TRUE}}
-\item{trials are nested within year\cr
-trait = year + year:trial + \strong{genotype + genotype:year +
-genotype:year:trial}\cr
-set \code{nestingFactor = "year"}}
-\item{trials are nested within locations\cr
-trait = location + location:trial + \strong{genotype + genotype:location +
-genotype:location:trial}\cr
-set \code{nestingFactor = "loc"}}
-\item{trials correspond to locations within regions across years\cr
-trait = region + region:location + year + region:year + region:location:year +
-\strong{genotype + genotype:region:location + genotype:year +
-genotype:region:year + genotype:region:location:year}\cr
-set \code{regionLocationYear = TRUE}}
-\item{trials are nested within scenarios\cr
-trait = scenario + scenario:trial + \strong{genotype + genotype:scenario +
-genotype:scenario:trial}\cr
-set \code{nestingFactor = "scenario"}}
+Six different types of models can be fitted depending on the structure of
+the environments in the data. These models are described in the table below,
+together with the function parameters used in \code{gxeVarComp} to fit the model.\tabular{lll}{
+   Structure of environments \tab Model \tab Function parameters \cr
+   Environments correspond to trials \tab \strong{trait} = trial + \strong{genotype + genotype:trial} \tab  \cr
+   Trials form a factorial structure of locations x years \tab \strong{trait} = year + location + year:location + \strong{genotype + genotype:year + genotype:location + genotype:year:location} \tab \code{locationYear = TRUE} \cr
+   Trials are nested within year \tab \strong{trait} = year + year:trial + \strong{genotype + genotype:year + genotype:year:trial} \tab \code{nestingFactor = "year"} \cr
+   Trials are nested within locations \tab \strong{trait} = location + location:trial + \strong{genotype + genotype:location + genotype:location:trial} \tab \code{nestingFactor = "loc"} \cr
+   Trials correspond to locations within regions across years \tab \strong{trait} = region + region:location + year + region:year + region:location:year + \strong{genotype + genotype:region + genotype:region:location + genotype:year + genotype:region:year + genotype:region:location:year} \tab \code{regionLocationYear = TRUE} \cr
+   Trials are nested within scenarios \tab \strong{trait} = scenario + scenario:trial + \strong{genotype + genotype:scenario + genotype:scenario:trial} \tab \code{nestingFactor = "scenario"} \cr
 }
+
+
 In the models above the random part of the model is printed bold.\cr
-Note that if the data contains replicates or weights are applied (using the
-option \code{useWt}) the last model term will be dropped, and estimated as
-a homogeneous residual.\cr\cr
+For data in the form of GxE means, the last random term in all models above
+will become a residual term. If the GxE means are provided together with
+weights, then a residual term will be added to the models above.\cr\cr
 The function first fits a model where all model terms are included as fixed
 terms. Based on the ANOVA table of this model, terms in the fixed part of the
 model that are likely to give a problem when fitting the mixed model are
@@ -106,8 +90,9 @@ mean sum of squares for a model term points to a possible zero variance
 component in the mixed model.\cr\cr
 Then a model is fitted where all model terms are included as random terms.
 Based on the variance components in this model the percentage of variance
-explained by each of the model components is determined. This is printed in
-the model summary and plotted as standard deviations of the estimate.\cr\cr
+explained by each of the model components is determined. The percentages of
+variance are printed in the model summary, together with the variance
+components. The latter are presented on a standard deviation scale.\cr\cr
 Finally a mixed model is fitted as specified in the overview above. Based on
 this mixed model variance components can be computed using \code{\link{vc}},
 heritabilies can be computed using \code{\link{herit}} and predictions can be
@@ -126,11 +111,18 @@ summary(geVarComp)
 plot(geVarComp)
 
 ## Generate predictions
-predict(geVarComp, predictLevel = "trial")
+pred <- predict(geVarComp, predictLevel = "trial")
+head(pred)
 
 }
 \seealso{
-\code{\link{vc}}, \code{\link{herit}},
-\code{\link{predict.varComp}}, \code{\link{plot.varComp}},
-\code{\link{diagnostics}}
+Other Mixed model analysis: 
+\code{\link{CRDR}()},
+\code{\link{correlations}()},
+\code{\link{diagnostics}()},
+\code{\link{herit}()},
+\code{\link{plot.varComp}()},
+\code{\link{predict.varComp}()},
+\code{\link{vc}()}
 }
+\concept{Mixed model analysis}

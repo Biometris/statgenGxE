@@ -47,13 +47,16 @@ variance and Wricke's (1962) ecovalence.
 \examples{
 ## Compute three stability measures for TDMaize.
 geStab <- gxeStability(TD = TDMaize, trait = "yld")
+
 ## Summarize results.
 summary(geStab)
+
 ## Create plot of the computed stability measures against the means.
 plot(geStab)
-\dontrun{
+
+\donttest{
 ## Create a .pdf report summarizing the stability measures.
-report(geStab, outfile = "./testReports/reportStability.pdf")
+report(geStab, outfile = tempfile(fileext = ".pdf"))
 }
 
 ## Compute Wricke's ecovalance for TDMaize with minimal values for yield as
@@ -76,6 +79,8 @@ streubreit in feldversuchen. Zeitschrift für Pflanzenzucht,
 v. 47, p. 92-96, 1962
 }
 \seealso{
-\code{\link{stability}}, \code{\link{plot.stability}},
-\code{\link{report.stability}}
+Other stability: 
+\code{\link{plot.stability}()},
+\code{\link{report.stability}()}
 }
+\concept{stability}

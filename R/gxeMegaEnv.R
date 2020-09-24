@@ -3,10 +3,10 @@
 #' This function fits an AMMI model and then using the fitted values produces
 #' a new factor clustering the trials. This factor is added as a column megaEnv
 #' to the input data. If a column megaEnv already exists this column is
-#' overwritten with a warning.\cr\
-#' Mega environments are created by grouping
-#' environments based on their best performing genotype; i.e. environments that
-#' share the same best genotype belong to the same mega environment.
+#' overwritten with a warning.\cr\cr
+#' Mega environments are created by grouping environments based on their best
+#' performing genotype; i.e. environments that share the same best genotype
+#' belong to the same mega environment.
 #'
 #' @inheritParams gxeAmmi
 #'
@@ -33,6 +33,8 @@
 #' @references Atlin, G. N., R. J. Baker, K. B. McRae, and X. Lu. 2000.
 #' Selection Response in Subdivided Target Regions. Crop Sci. 40:7-13.
 #' https://doi:10.2135/cropsci2000.4017
+#'
+#' @family mega environments
 #'
 #' @export
 gxeMegaEnv <- function(TD,

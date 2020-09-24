@@ -1,16 +1,10 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
 # statgenGxE
 
-R package for Genotype by Environment (GxE) analysis
-
-# Implemented functionality
-
-The following functionality has been implemented:
-
-* GxE analysis
-    * Selection of the best variance-covariance model
-    * AMMI analysis
-    * Finlay-Wilkinson anlysis
-    * Computation of mega environments based on AMMI results
-    * Stability measures
-
-* Plotting and reporting (.pdf and .tex) functions for most analyses.
+[![](https://www.r-pkg.org/badges/version/statgenGxE)](https://www.r-pkg.org/pkg/statgenGxE)
+[![CRAN RStudio mirror
+downloads](https://cranlogs.r-pkg.org/badges/statgenGxE)](https://www.r-pkg.org/pkg/statgenGxE)
+[![R-CMD-check](https://github.com/Biometris/statgenGxE/workflows/R-CMD-check/badge.svg)](https://github.com/Biometris/statgenGxE/actions?workflow=R-CMD-check)
+[![codecov](https://codecov.io/gh/Biometris/statgenGxE/branch/master/graph/badge.svg)](https://codecov.io/gh/Biometris/statgenGxE)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/createVarComp.R
 \name{CRDR}
 \alias{CRDR}
-\title{Calculated the correlated response to selection}
+\title{Calculate the correlated response to selection}
 \usage{
 CRDR(varComp)
 }
@@ -32,3 +32,14 @@ Atlin, G. N., Baker, R. J., McRae, K. B., & Lu, X. (2000).
 Selection response in subdivided target regions. Crop Science, 40(1), 7–13.
 \url{https://doi.org/10.2135/cropsci2000.4017}
 }
+\seealso{
+Other Mixed model analysis: 
+\code{\link{correlations}()},
+\code{\link{diagnostics}()},
+\code{\link{gxeVarComp}()},
+\code{\link{herit}()},
+\code{\link{plot.varComp}()},
+\code{\link{predict.varComp}()},
+\code{\link{vc}()}
+}
+\concept{Mixed model analysis}

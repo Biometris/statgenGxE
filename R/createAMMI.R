@@ -194,6 +194,8 @@ summary.AMMI <- function(object,
 #'
 #' @importFrom grDevices topo.colors
 #'
+#' @family AMMI
+#'
 #' @export
 plot.AMMI <- function(x,
                       ...,
@@ -880,6 +882,18 @@ plotAMMI2 <- function(loadings,
 #' @param object An object of class AMMI
 #' @param ... Not used.
 #'
+#' @return A data.frame with fitted values.
+#'
+#' @examples
+#' ## Run AMMI analysis on TDMaize.
+#' geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
+#'
+#' ## Extract fitted values.
+#' fitAmmi <- fitted(geAmmi)
+#' head(fitAmmi)
+#'
+#' @family AMMI
+#'
 #' @export
 fitted.AMMI <- function(object,
                         ...) {
@@ -892,6 +906,18 @@ fitted.AMMI <- function(object,
 #'
 #' @param object An object of class AMMI
 #' @param ... Not used.
+#'
+#' @return A data.frame with residuals.
+#'
+#' @examples
+#' ## Run AMMI analysis on TDMaize.
+#' geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
+#'
+#' ## Extract residuals.
+#' residAmmi <- residuals(geAmmi)
+#' head(residAmmi)
+#'
+#' @family AMMI
 #'
 #' @export
 residuals.AMMI <- function(object,
@@ -910,7 +936,7 @@ residuals.AMMI <- function(object,
 #' Simultaneously the same report will be created as a tex file.
 #'
 #' @param x An object of class AMMI.
-#' @param ... Further arguments passed on from other functions - not used yet.
+#' @param ... Not used.
 #' @param outfile A character string, the name and location of the output .pdf
 #' and .tex file for the report. If \code{NULL}, a report with a default name
 #' will be created in the current working directory.
@@ -920,10 +946,12 @@ residuals.AMMI <- function(object,
 #' @examples
 #' ## Run AMMI analysis on TDMaize.
 #' geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
-#' \dontrun{
+#' \donttest{
 #' ## Create a pdf report summarizing the results.
-#' report(geAmmi, outfile = "./testReports/reportAmmi.pdf")
+#' report(geAmmi, outfile = tempfile(fileext = ".pdf"))
 #' }
+#'
+#' @family AMMI
 #'
 #' @export
 report.AMMI <- function(x,

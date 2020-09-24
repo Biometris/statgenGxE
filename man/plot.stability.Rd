@@ -31,7 +31,7 @@ single color when \code{colorGenoBy = NULL}, a vector of colors otherwise.}
 \code{FALSE} only a list of ggplot objects is invisibly returned.}
 }
 \value{
-Plots of stability measures against means.
+A list of ggplot object is invisibly returned.
 }
 \description{
 Function for creating scatter plots of the square roots of the computed
@@ -40,7 +40,14 @@ stability measures against the means.
 \examples{
 ## Compute three stability measures for TDMaize.
 geStab <- gxeStability(TD = TDMaize, trait = "yld")
+
 ## Create scatter plots of the computed stability measures against the means.
 plot(geStab)
 
 }
+\seealso{
+Other stability: 
+\code{\link{gxeStability}()},
+\code{\link{report.stability}()}
+}
+\concept{stability}

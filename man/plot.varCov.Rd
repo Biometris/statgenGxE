@@ -21,7 +21,7 @@ Function for plotting a heatmap of the correlation matrix for objects of
 class varCov.
 }
 \examples{
-\dontrun{
+\donttest{
 ## Select the best variance-covariance model using asreml for modeling.
 geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
 ## Create a heatmap of the correlation matrix for the best model.
@@ -29,3 +29,11 @@ plot(geVarCov)
 }
 
 }
+\seealso{
+Other varCov: 
+\code{\link{fitted.varCov}()},
+\code{\link{gxeVarCov}()},
+\code{\link{report.varCov}()},
+\code{\link{residuals.varCov}()}
+}
+\concept{varCov}

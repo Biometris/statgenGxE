@@ -16,3 +16,22 @@ the random components in the fitted model.
 \description{
 Extract variance components from an object of class varComp.
 }
+\examples{
+## Fit a mixed model.
+geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+
+## Extract variance components.
+vc(geVarComp)
+
+}
+\seealso{
+Other Mixed model analysis: 
+\code{\link{CRDR}()},
+\code{\link{correlations}()},
+\code{\link{diagnostics}()},
+\code{\link{gxeVarComp}()},
+\code{\link{herit}()},
+\code{\link{plot.varComp}()},
+\code{\link{predict.varComp}()}
+}
+\concept{Mixed model analysis}

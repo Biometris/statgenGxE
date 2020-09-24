@@ -39,3 +39,14 @@ plot(geVarComp)
 plot(geVarComp, plotType = "percVar")
 
 }
+\seealso{
+Other Mixed model analysis: 
+\code{\link{CRDR}()},
+\code{\link{correlations}()},
+\code{\link{diagnostics}()},
+\code{\link{gxeVarComp}()},
+\code{\link{herit}()},
+\code{\link{predict.varComp}()},
+\code{\link{vc}()}
+}
+\concept{Mixed model analysis}

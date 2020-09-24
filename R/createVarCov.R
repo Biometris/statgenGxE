@@ -64,12 +64,14 @@ summary.varCov <- function(object, ...) {
 #' \code{FALSE} only a ggplot object is invisibly returned.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' ## Select the best variance-covariance model using asreml for modeling.
 #' geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
 #' ## Create a heatmap of the correlation matrix for the best model.
 #' plot(geVarCov)
 #' }
+#'
+#' @family varCov
 #'
 #' @export
 plot.varCov <- function(x,
@@ -128,6 +130,20 @@ plot.varCov <- function(x,
 #' @param object An object of class varCov
 #' @param ... Not used.
 #'
+#' @return A data.frame with fitted values.
+#'
+#' @examples
+#' \donttest{
+#' ## Select the best variance-covariance model using asreml for modeling.
+#' geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+#' ## Extract fitted values from the model.
+#'
+#' fitVarCov <- fitted(geVarCov)
+#' head(fitVarCov)
+#' }
+#'
+#' @family varCov
+#'
 #' @export
 fitted.varCov <- function(object,
                           ...) {
@@ -155,6 +171,20 @@ fitted.varCov <- function(object,
 #' @param object An object of class varCov
 #' @param ... Not used.
 #'
+#' @return A data.frame with residuals.
+#'
+#' @examples
+#' \donttest{
+#' ## Select the best variance-covariance model using asreml for modeling.
+#' geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+#'
+#' ## Extract residuals from the model.
+#' residVarCov <- residuals(geVarCov)
+#' head(residVarCov)
+#' }
+#'
+#' @family varCov
+#'
 #' @export
 residuals.varCov <- function(object,
                              ...) {
@@ -180,12 +210,16 @@ residuals.varCov <- function(object,
 #' @return A pdf and tex report.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' ## Select the best variance-covariance model using asreml for modeling.
 #' geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+#'
 #' ## Create a pdf report summarizing the results.
-#' report(geVarCov, outfile = "./testReports/reportVarCov.pdf")
+#' report(geVarCov, outfile = tempfile(fileext = ".pdf"))
 #' }
+#'
+#' @family varCov
+#'
 #' @export
 report.varCov <- function(x,
                           ...,

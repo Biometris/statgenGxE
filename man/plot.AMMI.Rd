@@ -123,3 +123,11 @@ geGGE <- gxeGGE(TD = TDMaize, trait = "yld")
 plot(geAmmi, plotType = "AMMI2", plotConvHull = TRUE)
 
 }
+\seealso{
+Other AMMI: 
+\code{\link{fitted.AMMI}()},
+\code{\link{gxeAmmi}()},
+\code{\link{report.AMMI}()},
+\code{\link{residuals.AMMI}()}
+}
+\concept{AMMI}

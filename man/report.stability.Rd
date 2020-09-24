@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{An object of class stability.}
 
-\item{...}{Further arguments passed on from other functions - not used yet.}
+\item{...}{Not used.}
 
 \item{outfile}{A character string, the name and location of the output .pdf
 and .tex file for the report. If \code{NULL}, a report with a default name
@@ -25,9 +25,15 @@ stability. Simultaneously the same report will be created as a tex file.
 \examples{
 ## Compute three stability measures for TDMaize.
 geStab <- gxeStability(TD = TDMaize, trait = "yld")
-\dontrun{
+\donttest{
 ## Create a .pdf report summarizing the stability measures.
-report(geStab, outfile = "./testReports/reportStability.pdf")
+report(geStab, outfile = tempfile(fileext = ".pdf"))
 }
 
 }
+\seealso{
+Other stability: 
+\code{\link{gxeStability}()},
+\code{\link{plot.stability}()}
+}
+\concept{stability}

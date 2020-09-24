@@ -1,7 +1,7 @@
 #' Finlay-Wilkinson analysis
 #'
 #' This function performs a Finlay-Wilkinson analysis of data classified by two
-#' factors. The function is based on the RJOINT funciton in GenStat.
+#' factors.
 #'
 #' @inheritParams gxeAmmi
 #'
@@ -59,8 +59,6 @@
 #' in a plant-breeding programme. Australian Journal of Agricultural
 #' Research, 14, 742-754.
 #'
-#' @seealso \code{\link{FW}}, \code{\link{plot.FW}}, \code{\link{report.FW}}
-#'
 #' @examples
 #' ## Run Finlay-Wilkinson analysis on TDMaize.
 #' geFW <- gxeFw(TDMaize, trait = "yld")
@@ -71,10 +69,12 @@
 #' ## Create a scatterplot of the results.
 #' plot(geFW, plotType = "scatter")
 #'
-#' \dontrun{
+#' \donttest{
 #' ## Create a report summarizing the results.
-#' report(geFW, outfile = "./testReports/reportFW.pdf")
+#' report(geFW, outfile = tempfile(fileext = ".pdf"))
 #' }
+#'
+#' @family Finlay-Wilkinson
 #'
 #' @export
 gxeFw <- function(TD,

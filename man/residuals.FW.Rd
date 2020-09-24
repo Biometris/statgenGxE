@@ -11,6 +11,26 @@
 
 \item{...}{Not used.}
 }
-\description{
-Extract the residuals for the fitted FW model.
+\value{
+A data.frame with residuals.
 }
+\description{
+Extract the residuals for a fitted Finlay-Wilkinson model.
+}
+\examples{
+## Run Finlay-Wilkinson analysis.
+geFW <- gxeFw(TD = TDMaize, trait = "yld")
+
+## Extract residuals.
+residFW <- residuals(geFW)
+head(residFW)
+
+}
+\seealso{
+Other Finlay-Wilkinson: 
+\code{\link{fitted.FW}()},
+\code{\link{gxeFw}()},
+\code{\link{plot.FW}()},
+\code{\link{report.FW}()}
+}
+\concept{Finlay-Wilkinson}

@@ -6,6 +6,36 @@
 #' variance (outside), heterogeneous compound symmetry (hcs),
 #' first order factor analytic (fa), second order factor analytic (fa2) and
 #' unstructured), and selects the best one using a goodness-of-fit criterion.
+#' See details for the exact models fitted.
+#'
+#' The models fitted are of the form \eqn{y_{ij} = \mu_j + \epsilon_{ij}}, where
+#' \eqn{y_{ij}} is the phenotypic value of genotype \eqn{i} in environment
+#' \eqn{j}, \eqn{\mu_j}
+#' is the environmental mean, and \eqn{\epsilon_{ij}} represents mainly genetic
+#' variation, although some non-genetic variation may be included as well.
+#' The random term \eqn{\epsilon_{ij}} is modeled in eight ways as described in
+#' the table below.
+#'
+#' | Model | Description | var(\eqn{g_{ij}}) | cov(\eqn{g_{ij}};\eqn{g_{ik}}) | Number of parameters|
+#' |:-----------|:-------------------|:------------|:------------|:-----------------|
+#' | identity | identity | \eqn{\sigma_G^2} | 0 | 1 |
+#' | cs | compound symmetry | \eqn{\sigma_G^2 + \sigma_{GE}^2$ | $\sigma_{GE}^2} | 2 |
+#' | diagonal | diagonal matrix (heteroscedastic) | \eqn{\sigma_{GE_j}^2} | 0 | \eqn{J} |
+#' | hcs | heterogeneous compound symmetry | \eqn{\sigma_G^2+\sigma_{GE_j}^2} | \eqn{\sigma_G^2} | \eqn{J+1} |
+#' | outside | heterogeneity outside | \eqn{\sigma_{G_j}^2} | \eqn{\theta} | \eqn{J+1} |
+#' | fa | first order factor analytic | \eqn{\lambda_{1j}^2+\sigma_{GE_j}^2} | \eqn{\lambda_{1j}\lambda_{1k}} | \eqn{2J} |
+#' | fa2 | second order factor analytic | \eqn{\lambda_{1j}^2+\lambda_{2j}^2+\sigma_{GE_j}^2} | \eqn{\lambda_{1j}\lambda_{1k}+\lambda_{2j}\lambda_{2k}} | \eqn{3J-1} |
+#' | unstructured | unstructured | \eqn{\sigma_{G_j}^2} | \eqn{\sigma_{G_{j,k}}^2} | \eqn{J(J+1)/2} |
+#'
+#' In this table \eqn{J} is the number of environments, \eqn{\sigma_G^2} the
+#' variance component for the genotype main effects, \eqn{\sigma_{GE}^2} the
+#' variance component for GxE interactions. \eqn{\sigma_{G_j}^2} and
+#' \eqn{\sigma_{GE_j}^2} are the environment specific variance components for
+#' the genotype main effects and GxE interaction in environment \eqn{j}.
+#' \eqn{\sigma_{G_{j,k}}^2} is the genetic covariance between environments
+#' \eqn{j} and \eqn{k}. \eqn{\theta} is the common correlation between
+#' environments and \eqn{\lambda_{1j}} and \eqn{\lambda_{2j}} are
+#' environment specific multiplicative parameters.
 #'
 #' @inheritParams gxeAmmi
 #'
@@ -13,7 +43,7 @@
 #' Either "lme4" or "asreml".
 #' @param criterion A string specifying a goodness-of-fit criterion. Either
 #' "AIC" or "BIC".
-#' @param ... Further arguments to be passed to \code{asreml}.
+#' @param ... Further arguments to be passed to the modeling engine.
 #'
 #' @note If \code{engine = "lme4"}, only the compound symmetry model can be
 #' fitted.
@@ -24,9 +54,11 @@
 #' \item{summary}{A data.frame with a summary of the fitted models.}
 #' \item{vcov}{The covariance matrix of the best fitted model.}
 #' \item{criterion}{A character string indicating the goodness-of-fit criterion
-#' used for determinening the best model, either "AIC" or "BIC".}
+#' used for determining the best model, either "AIC" or "BIC".}
 #' \item{engine}{A character string containing the engine used for
 #' the analysis.}
+#' \item{trait}{A character string containing the trait analyzed.}
+#' \item{dat}{A data.frame with the full data set used for the analysis.}
 #'
 #' @examples
 #' ## Select the best variance-covariance model using lme4 for modeling.
@@ -35,12 +67,12 @@
 #' ## Summarize results.
 #' summary(geVarCov)
 #'
-#' \dontrun{
+#' \donttest{
 #' ## Create a pdf report summarizing the results.
-#' report(geVarCov, outfile = "./testReports/reportVarCov.pdf")
+#' report(geVarCov, outfile = tempfile(fileext = ".pdf"))
 #' }
 #'
-#' \dontrun{
+#' \donttest{
 #' ## Select the best variance-covariance model using asreml for modeling.
 #' ## Use BIC as a goodness-of-fit criterion.
 #' geVarCov2 <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml",
@@ -51,6 +83,9 @@
 #' ## Plot a heatmap of the correlation matrix for the best model.
 #' plot(geVarCov2)
 #' }
+#'
+#' @family varCov
+#'
 #' @export
 gxeVarCov <- function(TD,
                       trials = names(TD),

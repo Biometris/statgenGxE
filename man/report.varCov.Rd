@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{An object of class varCov.}
 
-\item{...}{Further arguments passed on from other functions - not used yet.}
+\item{...}{Not used.}
 
 \item{outfile}{A character string, the name and location of the output .pdf
 and .tex file for the report. If \code{NULL}, a report with a default name
@@ -24,10 +24,20 @@ varCov. Simultaneously the same report will be created as a tex
 file.
 }
 \examples{
-\dontrun{
+\donttest{
 ## Select the best variance-covariance model using asreml for modeling.
 geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+
 ## Create a pdf report summarizing the results.
-report(geVarCov, outfile = "./testReports/reportVarCov.pdf")
+report(geVarCov, outfile = tempfile(fileext = ".pdf"))
 }
+
 }
+\seealso{
+Other varCov: 
+\code{\link{fitted.varCov}()},
+\code{\link{gxeVarCov}()},
+\code{\link{plot.varCov}()},
+\code{\link{residuals.varCov}()}
+}
+\concept{varCov}

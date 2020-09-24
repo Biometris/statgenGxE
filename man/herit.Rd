@@ -24,8 +24,27 @@ deviation for the location term in the model and \eqn{l} is the number of
 locations. \eqn{\sigma_E} corresponds to the residual standard deviation and
 \eqn{r} to the number of replicates.
 }
+\examples{
+## Fit a mixed model.
+geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+
+## Compute heritability.
+herit(geVarComp)
+
+}
 \references{
 Atlin, G. N., Baker, R. J., McRae, K. B., & Lu, X. (2000).
 Selection response in subdivided target regions. Crop Science, 40(1), 7–13.
 \url{https://doi.org/10.2135/cropsci2000.4017}
 }
+\seealso{
+Other Mixed model analysis: 
+\code{\link{CRDR}()},
+\code{\link{correlations}()},
+\code{\link{diagnostics}()},
+\code{\link{gxeVarComp}()},
+\code{\link{plot.varComp}()},
+\code{\link{predict.varComp}()},
+\code{\link{vc}()}
+}
+\concept{Mixed model analysis}

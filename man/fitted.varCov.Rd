@@ -11,6 +11,28 @@
 
 \item{...}{Not used.}
 }
+\value{
+A data.frame with fitted values.
+}
 \description{
 Extract the fitted values for an object of class varCov.
 }
+\examples{
+\donttest{
+## Select the best variance-covariance model using asreml for modeling.
+geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+## Extract fitted values from the model.
+
+fitVarCov <- fitted(geVarCov)
+head(fitVarCov)
+}
+
+}
+\seealso{
+Other varCov: 
+\code{\link{gxeVarCov}()},
+\code{\link{plot.varCov}()},
+\code{\link{report.varCov}()},
+\code{\link{residuals.varCov}()}
+}
+\concept{varCov}

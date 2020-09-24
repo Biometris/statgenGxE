@@ -17,3 +17,22 @@ Get the diagnostics for the model fitted. This will print a table of
 combinations missing in the data. For each random factor in the model a
 table is printed.
 }
+\examples{
+## Fit a mixed model.
+geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+
+## Display diagnostics.
+diagnostics(geVarComp)
+
+}
+\seealso{
+Other Mixed model analysis: 
+\code{\link{CRDR}()},
+\code{\link{correlations}()},
+\code{\link{gxeVarComp}()},
+\code{\link{herit}()},
+\code{\link{plot.varComp}()},
+\code{\link{predict.varComp}()},
+\code{\link{vc}()}
+}
+\concept{Mixed model analysis}

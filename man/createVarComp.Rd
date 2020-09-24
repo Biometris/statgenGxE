@@ -27,7 +27,4 @@ Function for creating objects of S3 class varComp.\cr
 \code{\link{print}}, \code{\link{summary}}, and \code{\link{plot}} methods
 are available.
 }
-\seealso{
-\code{\link{plot.varComp}}
-}
 \keyword{internal}

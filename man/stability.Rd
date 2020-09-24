@@ -22,7 +22,4 @@ Function for creating objects of S3 class stability.\cr
 \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
 \code{\link{report}} methods are available.
 }
-\seealso{
-\code{\link{plot.stability}}, \code{\link{report.stability}}
-}
 \keyword{internal}

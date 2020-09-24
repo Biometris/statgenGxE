@@ -1,4 +1,4 @@
-#' DROPS data sets
+#' DROPS data set
 #'
 #' This dataset comes from the European Union project DROPS (DROught-tolerant
 #' yielding PlantS). A panel of 256 maize hybrids was grown with two water
@@ -16,7 +16,7 @@
 #' scenarios have been added to the data as well as a classification of the
 #' genotypes in four genetic groups.\cr\cr
 #'
-#' he data.frame contains the genotypic means  (Best Linear Unbiased Estimation,
+#' The data.frame contains the genotypic means  (Best Linear Unbiased Estimators,
 #' BLUEs), with one value per experiment  (Location × year × water regime) per
 #' genotype.\cr
 #' A data.frame with 2460 rows and 19 columns.\cr
@@ -58,11 +58,11 @@
 #'
 #' @references Millet, E. J., Pommier, C., et al. (2019). A multi-site
 #' experiment in a network of European fields for assessing the maize yield
-#' response to environmental scenarios [Data set].
+#' response to environmental scenarios (Data set).
 #' \url{https://doi.org/10.15454/IASSTN}
 "dropsPheno"
 
-#' Field data for a maize experiment in Tlaltizapan, Mexico.
+#' Field data for a maize experiment in Tlaltizapan, Mexico
 #'
 #' A dataset converted into a TD object containing data corresponding to an
 #' F2 maize reference population from CIMMYT maize drought breeding program,
@@ -84,7 +84,7 @@
 #' @format A TD object, a list containing 8 data.frames, each with the following
 #' columns:
 #' \describe{
-#'   \item{trial}{trial, a combination of watering regime, year and nitrogen
+#'   \item{trial}{trial, a combination of water regime, year and nitrogen
 #'   treatment}
 #'   \item{genotype}{genotype}
 #'   \item{yld}{grain yield in tons}

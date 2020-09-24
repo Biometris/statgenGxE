@@ -9,7 +9,7 @@
   ...,
   engine = c("lme4", "asreml"),
   colorGenoBy = NULL,
-  title = paste("Scatterplots of mega environments for", x$trait),
+  title = paste("Scatterplot of mega environments for", x$trait),
   output = TRUE
 )
 }
@@ -42,3 +42,9 @@ geMegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
 plot(geMegaEnv)
 
 }
+\seealso{
+Other mega environments: 
+\code{\link{gxeMegaEnv}()},
+\code{\link{predict.megaEnv}()}
+}
+\concept{mega environments}

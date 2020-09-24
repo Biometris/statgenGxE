@@ -7,8 +7,6 @@
 #' @param fitMod A fitted variance components model.
 #' @param modDat A data.frame containing the data used in fitting the model.
 #'
-#' @seealso \code{\link{plot.varComp}}
-#'
 #' @keywords internal
 createVarComp <- function(fitMod,
                           modDat,
@@ -112,6 +110,8 @@ summary.varComp <- function(object,
 #' plot(geVarComp)
 #' ## Plot the percentage of variance explained.
 #' plot(geVarComp, plotType = "percVar")
+#'
+#' @family Mixed model analysis
 #'
 #' @export
 plot.varComp <- function(x,
@@ -220,10 +220,15 @@ plot.varComp <- function(x,
 #'
 #' ## Predictions at genotype level.
 #' predGeno <- predict(geVarComp)
+#' head(predGeno)
+#'
 #' ## Predictions at genotype x trial level.
 #' predGenoTrial <- predict(geVarComp, predictLevel = "trial")
+#' head(predGenoTrial)
 #'
 #' @importFrom stats predict
+#'
+#' @family Mixed model analysis
 #'
 #' @export
 predict.varComp <- function(object,
@@ -295,6 +300,15 @@ predict.varComp <- function(object,
 #' @return A data.frame with variance components and standard errors for
 #' the random components in the fitted model.
 #'
+#' @examples
+#' ## Fit a mixed model.
+#' geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+#'
+#' ## Extract variance components.
+#' vc(geVarComp)
+#'
+#' @family Mixed model analysis
+#'
 #' @export
 vc <- function(varComp) {
   if (!inherits(varComp, "varComp")) {
@@ -342,6 +356,15 @@ vc <- function(varComp) {
 #' \eqn{r} to the number of replicates.
 #'
 #' @param varComp An object of class varComp.
+#'
+#' @examples
+#' ## Fit a mixed model.
+#' geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+#'
+#' ## Compute heritability.
+#' herit(geVarComp)
+#'
+#' @family Mixed model analysis
 #'
 #' @references Atlin, G. N., Baker, R. J., McRae, K. B., & Lu, X. (2000).
 #' Selection response in subdivided target regions. Crop Science, 40(1), 7–13.
@@ -402,7 +425,7 @@ herit <- function(varComp) {
   return(sigmaG / numerator)
 }
 
-#' Calculated the correlated response to selection
+#' Calculate the correlated response to selection
 #'
 #' Calculate the correlated response to selection (CRDR) based on the fitted
 #' model. The CRDR is calculated as described by Atlin et al. E.g. for a model
@@ -426,6 +449,8 @@ herit <- function(varComp) {
 #' @references Atlin, G. N., Baker, R. J., McRae, K. B., & Lu, X. (2000).
 #' Selection response in subdivided target regions. Crop Science, 40(1), 7–13.
 #' \url{https://doi.org/10.2135/cropsci2000.4017}
+#'
+#' @family Mixed model analysis
 #'
 #' @export
 CRDR <- function(varComp) {
@@ -506,10 +531,11 @@ CRDR <- function(varComp) {
 #' }
 #' \item{correlation between trials within scenarios or environment types:
 #' \deqn{(\sigma_G^2 + \sigma_{GS}^2) / (\sigma_G^2 + \sigma_{GS}^2 +
-#' \sigma_E^2 }
+#' \sigma_E^2)}
 #' }
-#' \item{correlation trials that belong to different scenarios/environment types:
-#' \deqn{\sigma_G^2 / (\sigma_G^2 + \sigma_{GS}^2 + \sigma_E^2}
+#' \item{correlation between trials that belong to different
+#' scenarios/environment types:
+#' \deqn{\sigma_G^2 / (\sigma_G^2 + \sigma_{GS}^2 + \sigma_E^2)}
 #' }
 #' }
 #' In these formulas the \eqn{\sigma} terms stand for the standard deviations of
@@ -521,6 +547,8 @@ CRDR <- function(varComp) {
 #' @inheritParams herit
 #'
 #' @return A list with three correlations.
+#'
+#' @family Mixed model analysis
 #'
 #' @export
 correlations <- function(varComp) {
@@ -557,6 +585,15 @@ correlations <- function(varComp) {
 #' @param varComp An object of class varComp.
 #'
 #' @return A list of tables is invisibly returned.
+#'
+#' @examples
+#' ## Fit a mixed model.
+#' geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
+#'
+#' ## Display diagnostics.
+#' diagnostics(geVarComp)
+#'
+#' @family Mixed model analysis
 #'
 #' @export
 diagnostics <- function(varComp) {

@@ -82,7 +82,7 @@ analysis to converge.}
 }
 \description{
 This function performs a Finlay-Wilkinson analysis of data classified by two
-factors. The function is based on the RJOINT funciton in GenStat.
+factors.
 }
 \examples{
 ## Run Finlay-Wilkinson analysis on TDMaize.
@@ -94,9 +94,9 @@ summary(geFW)
 ## Create a scatterplot of the results.
 plot(geFW, plotType = "scatter")
 
-\dontrun{
+\donttest{
 ## Create a report summarizing the results.
-report(geFW, outfile = "./testReports/reportFW.pdf")
+report(geFW, outfile = tempfile(fileext = ".pdf"))
 }
 
 }
@@ -106,5 +106,10 @@ in a plant-breeding programme. Australian Journal of Agricultural
 Research, 14, 742-754.
 }
 \seealso{
-\code{\link{FW}}, \code{\link{plot.FW}}, \code{\link{report.FW}}
+Other Finlay-Wilkinson: 
+\code{\link{fitted.FW}()},
+\code{\link{plot.FW}()},
+\code{\link{report.FW}()},
+\code{\link{residuals.FW}()}
 }
+\concept{Finlay-Wilkinson}

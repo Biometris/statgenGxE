@@ -1,0 +1,90 @@
+home:
+  title: An R package for genotype by environment analysis
+
+navbar:
+  title: "statgenGxE"
+  left:
+    - icon: fa-home
+      href: index.html
+    - text: "Vignettes"
+      href: articles/index.html
+  right:
+    - icon: fa-newspaper-o
+      text: "news"
+      href: news/index.html
+    - icon: fa-file-code-o
+      text: "functions"
+      href: reference/index.html
+    - icon: fa-seedling
+      text: "other packages"
+      menu:
+        - text: "statgenSTA"
+          href: https://biometris.github.io/statgenSTA
+        - text: "statgenGWAS"
+          href: https://biometris.github.io/statgenGWAS
+    - icon: fa-github fa-lg
+      text: "github"
+      href: https://github.com/Biometris/statgenGxE
+
+
+articles:
+  - title: "Vignettes"
+    desc: >
+      This vignette provides a full description of the statgenGxE package
+      including a fully worked example.
+    contents:
+      - statgenGxE
+
+reference:
+- title: Mixed model analysis of GxE table of means
+- contents:
+  - gxeVarComp
+  - plot.varComp
+  - predict.varComp
+  - vc
+  - herit
+  - CRDR
+  - correlations
+  - diagnostics
+- title: Finlay-Wilkinson
+- contents:
+  - gxeFw
+  - plot.FW
+  - report.FW
+  - fitted.FW
+  - residuals.FW
+- title: AMMI
+- contents:
+  - gxeAmmi
+  - plot.AMMI
+  - report.AMMI
+  - fitted.AMMI
+  - residuals.AMMI
+- title: GGE
+- contents:
+  - gxeGGE
+- title: Identifying mega environments
+- contents:
+  - gxeMegaEnv
+  - plot.megaEnv
+  - predict.megaEnv
+- title: Stability measures
+- contents:
+  - gxeStability
+  - plot.stability
+  - report.stability
+- title: Modelling of heterogeneity of genetic variances and correlations
+- contents:
+  - gxeVarCov
+  - plot.varCov
+  - report.varCov
+  - fitted.varCov
+  - residuals.varCov
+- title: Example data
+- contents:
+  - dropsPheno
+  - TDMaize
+- title: Internal helper functions
+- contents:
+  - multMissing
+

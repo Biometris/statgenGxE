@@ -63,12 +63,14 @@ summary.megaEnv <- function(object,
 #' ## Create a scatter plot of predicted values.
 #' plot(geMegaEnv)
 #'
+#' @family mega environments
+#'
 #' @export
 plot.megaEnv <- function(x,
                          ...,
                          engine = c("lme4", "asreml"),
                          colorGenoBy = NULL,
-                         title = paste("Scatterplots of mega environments for",
+                         title = paste("Scatterplot of mega environments for",
                                        x$trait),
                          output = TRUE) {
   chkChar(title, len = 1, null = FALSE)
@@ -88,13 +90,14 @@ plot.megaEnv <- function(x,
     predLong <- merge(predLong, TDTot[c("genotype", colorGenoBy)])
   }
   predTD <- createTD(predLong, genotype = "genotype", trial = "megaEnv")
-  plot(predTD, plotType = "scatter", traits = "pred", colorGenoBy = colorGenoBy,
-       title = title)
+  p <- plot(predTD, plotType = "scatter", traits = "pred",
+            colorGenoBy = colorGenoBy, title = title, output = output)
+  invisible(p)
 }
 
 #' Compute BLUPS based on a set of mega environments
 #'
-#' This function calculates Best Lineair Unbiased Predictors (BLUPS) and
+#' This function calculates Best Linear Unbiased Predictors (BLUPS) and
 #' associated standard errors based on a set of mega environments.
 #'
 #' @inheritParams gxeAmmi
@@ -115,6 +118,10 @@ plot.megaEnv <- function(x,
 #'
 #' ## Compute BLUPS and standard errors for those mega environments.
 #' megaEnvPred <- predict(geMegaEnv)
+#' head(megaEnvPred$predictedValue)
+#' head(megaEnvPred$standardError)
+#'
+#' @family mega environments
 #'
 #' @export
 predict.megaEnv <- function(object,

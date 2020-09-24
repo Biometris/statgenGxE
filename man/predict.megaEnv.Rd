@@ -31,7 +31,7 @@ containing BLUPs per genotype per mega environment and \code{standardError}
 containing standard errors for those BLUPs.
 }
 \description{
-This function calculates Best Lineair Unbiased Predictors (BLUPS) and
+This function calculates Best Linear Unbiased Predictors (BLUPS) and
 associated standard errors based on a set of mega environments.
 }
 \examples{
@@ -40,5 +40,13 @@ geMegaEnv <- gxeMegaEnv(TD = TDMaize, trait = "yld")
 
 ## Compute BLUPS and standard errors for those mega environments.
 megaEnvPred <- predict(geMegaEnv)
+head(megaEnvPred$predictedValue)
+head(megaEnvPred$standardError)
 
 }
+\seealso{
+Other mega environments: 
+\code{\link{gxeMegaEnv}()},
+\code{\link{plot.megaEnv}()}
+}
+\concept{mega environments}

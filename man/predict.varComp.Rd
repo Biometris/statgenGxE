@@ -35,7 +35,21 @@ geVarComp <- gxeVarComp(TD = TDMaize, trait = "yld")
 
 ## Predictions at genotype level.
 predGeno <- predict(geVarComp)
+head(predGeno)
+
 ## Predictions at genotype x trial level.
 predGenoTrial <- predict(geVarComp, predictLevel = "trial")
+head(predGenoTrial)
 
 }
+\seealso{
+Other Mixed model analysis: 
+\code{\link{CRDR}()},
+\code{\link{correlations}()},
+\code{\link{diagnostics}()},
+\code{\link{gxeVarComp}()},
+\code{\link{herit}()},
+\code{\link{plot.varComp}()},
+\code{\link{vc}()}
+}
+\concept{Mixed model analysis}

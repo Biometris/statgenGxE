@@ -1,11 +1,14 @@
 #' AMMI analysis
 #'
 #' The Additive Main Effects and Multiplicative Interaction (AMMI) model fits
-#' a model which combines the Additive Main effects (i.e. genotype and trial)
-#' along with the Multiplicative Interaction effects. Then a principal component
-#' analysis is done on the residuals (multiplicative interaction). This results
-#' in an interaction characterized by Interaction Principal Components (IPCA)
-#' enabling simultaneous plotting of genotypes and trials.\cr\cr
+#' a model which involves the Additive Main effects (i.e. genotype and trial)
+#' along with Multiplicative Interaction effects. The additive effects are the
+#' classical ANOVA main effects for genotype and environment, the
+#' multiplicative effects follow from a principal component analysis on the
+#' interaction residuals (= genotype by environment means after adjustment for
+#' additive genotype and environment effects). This results in an interaction
+#' characterized by Interaction Principal Components (IPCA) enabling
+#' simultaneous plotting of genotypes and trials.\cr\cr
 #' The parameter \code{nPC} is used to indicate the number of principal
 #' components that is used in the principal component analysis (PCA). By setting
 #' this parameter to \code{NULL} the algorithm determines the best number of
@@ -57,9 +60,6 @@
 #' If \code{byYear} = \code{TRUE}, all returned items in the AMMI object except
 #' \code{fitted} will consist of a list of results by year.
 #'
-#' @seealso \code{\link{AMMI}}, \code{\link{plot.AMMI}},
-#' \code{\link{report.AMMI}}
-#'
 #' @references Gauch H.G. (1992) Statistical Analysis of Regional Yield Trials:
 #' AMMI Analysis of Factorial Designs. Elsevier, Amsterdam.
 #' @references Yan, W., Kang, M. (2002). GGE Biplot Analysis. Boca Raton: CRC
@@ -76,9 +76,11 @@
 #' plot(geAmmi, plotType = "AMMI2")
 #'
 #' ## Create a pdf report summarizing the results.
-#' \dontrun{
-#' report(geAmmi, outfile = "./testReports/reportAmmi.pdf")
+#' \donttest{
+#' report(geAmmi, outfile = tempfile(fileext = ".pdf"))
 #' }
+#'
+#' @family AMMI
 #'
 #' @export
 gxeAmmi <- function(TD,

@@ -136,6 +136,9 @@ summary.FW <- function(object, ...) {
 #' ## Create a scatter plot of fitted values for the worst and best trials.
 #' plot(geFW, plotType = "scatterFit")
 #'
+#' @family Finlay-Wilkinson
+#'
+#' @importFrom grDevices topo.colors
 #' @export
 plot.FW <- function(x,
                     ...,
@@ -368,10 +371,22 @@ plot.FW <- function(x,
 
 #' Extract fitted values.
 #'
-#' Extract the fitted values for an object of class FW.
+#' Extract the fitted values for a fitted Finlay-Wilkinson model.
 #'
 #' @param object An object of class FW
 #' @param ... Not used.
+#'
+#' @return A data.frame with fitted values.
+#'
+#' @examples
+#' ## Run Finlay-Wilkinson analysis.
+#' geFW <- gxeFw(TD = TDMaize, trait = "yld")
+#'
+#' ## Extract fitted values.
+#' fitFW <- fitted(geFW)
+#' head(fitFW)
+#'
+#' @family Finlay-Wilkinson
 #'
 #' @export
 fitted.FW <- function(object,
@@ -381,10 +396,22 @@ fitted.FW <- function(object,
 
 #' Extract residuals.
 #'
-#' Extract the residuals for the fitted FW model.
+#' Extract the residuals for a fitted Finlay-Wilkinson model.
 #'
 #' @param object An object of class FW
 #' @param ... Not used.
+#'
+#' @return A data.frame with residuals.
+#'
+#' @examples
+#' ## Run Finlay-Wilkinson analysis.
+#' geFW <- gxeFw(TD = TDMaize, trait = "yld")
+#'
+#' ## Extract residuals.
+#' residFW <- residuals(geFW)
+#' head(residFW)
+#'
+#' @family Finlay-Wilkinson
 #'
 #' @export
 residuals.FW <- function(object,
@@ -415,10 +442,13 @@ residuals.FW <- function(object,
 #' @examples
 #' ## Run Finlay-Wilkinson analysis on TDMaize.
 #' geFW <- gxeFw(TDMaize, trait = "yld")
-#' \dontrun{
+#'
+#' \donttest{
 #' ## Create a report summarizing the results.
-#' report(geFW, outfile = "./testReports/reportFW.pdf")
+#' report(geFW, outfile = tempfile(fileext = ".pdf"))
 #' }
+#'
+#' @family Finlay-Wilkinson
 #'
 #' @export
 report.FW <- function(x,

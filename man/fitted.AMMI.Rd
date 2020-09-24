@@ -11,6 +11,26 @@
 
 \item{...}{Not used.}
 }
+\value{
+A data.frame with fitted values.
+}
 \description{
 Extract the fitted values for an object of class AMMI.
 }
+\examples{
+## Run AMMI analysis on TDMaize.
+geAmmi <- gxeAmmi(TD = TDMaize, trait = "yld")
+
+## Extract fitted values.
+fitAmmi <- fitted(geAmmi)
+head(fitAmmi)
+
+}
+\seealso{
+Other AMMI: 
+\code{\link{gxeAmmi}()},
+\code{\link{plot.AMMI}()},
+\code{\link{report.AMMI}()},
+\code{\link{residuals.AMMI}()}
+}
+\concept{AMMI}
