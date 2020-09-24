@@ -48,6 +48,7 @@ test_that("lme4 model gives the correct output", {
 
 test_that("output is of the right class for asreml", {
   skip_on_cran()
+  skip_on_ci()
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   expect_is(geVCAs$fitMod, "asreml")
   expect_is(geVCAs$modDat, "data.frame")
@@ -111,6 +112,7 @@ test_that("predict function functions correctly", {
                  76.7380973356425, 77.6592935401848, 91.0158599711691))
 
   skip_on_cran()
+  skip_on_ci()
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   predVCAs <- predict(geVCAs)
   expect_is(predVCAs, "data.frame")
@@ -145,6 +147,7 @@ test_that("option predictLevel in predict function functions correctly", {
                  81.468659896413, 82.3898561009554, 95.7464225319397))
 
   skip_on_cran()
+  skip_on_ci()
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   predVCAsTr <- predict(geVCAs, predictLevel = "trial")
   expect_is(predVCAsTr, "data.frame")
@@ -180,6 +183,7 @@ test_that("vc function functions correctly", {
                c(78.7850079727369, 309.69339127849))
 
   skip_on_cran()
+  skip_on_ci()
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   vcVCAs <- vc(geVCAs)
   expect_is(vcVCAs, "data.frame")
@@ -207,6 +211,7 @@ test_that("herit function functions correctly", {
   expect_equal(heritVCLmNest, 0.337218682788646)
 
   skip_on_cran()
+  skip_on_ci()
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   heritVCAs <- herit(geVCAs)
   expect_is(heritVCAs, "numeric")

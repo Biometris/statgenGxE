@@ -5,6 +5,7 @@ context("Report")
 test_that("Test that createReport function only accepts correctly named output", {
   ## Reporting requires pdflatex which isn't available on cran.
   skip_on_cran()
+  skip_on_ci()
   geAmmi <- gxeAmmi(TD = BLUEs, trait = "t1")
   expect_error(report(geAmmi, outfile = tempfile(fileext = ".pd")),
                "Invalid output filename")
@@ -18,6 +19,7 @@ test_that("Test that createReport function only accepts correctly named output",
 test_that("FW report functions correctly", {
   ## Reporting requires pdflatex which isn't available on cran.
   skip_on_cran()
+  skip_on_ci()
   geFw <- gxeFw(TD = BLUEs, trait = "t1", maxIter = 30)
   expect_silent(report(geFw, outfile = tempfile(fileext = ".pdf")))
 })
@@ -27,6 +29,7 @@ test_that("FW report functions correctly", {
 test_that("Stability report functions correctly", {
   ## Reporting requires pdflatex which isn't available on cran.
   skip_on_cran()
+  skip_on_ci()
   geStab <- gxeStability(TD = BLUEs, trait = "t1")
   expect_silent(report(geStab, outfile = tempfile(fileext = ".pdf")))
 })
@@ -36,6 +39,7 @@ test_that("Stability report functions correctly", {
 test_that("varCov report functions correctly", {
   ## Reporting requires pdflatex which isn't available on cran.
   skip_on_cran()
+  skip_on_ci()
   geVarCov <- gxeVarCov(TD = BLUEs, trait = "t1")
   expect_silent(report(geVarCov, outfile = tempfile(fileext = ".pdf")))
 })

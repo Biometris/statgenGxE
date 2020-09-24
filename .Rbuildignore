@@ -4,11 +4,11 @@
 ^\.Rproj\.user$
 R/redundant
 ^data-raw$
-.gitlab-ci.yml
-.gitlab-ci.R
 ^README\.Rmd$
 ^README-.*\.png$
-^installed_deps$
-^.apt$
-^ci
 testScripts
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^pkgdown$
+^\.github$

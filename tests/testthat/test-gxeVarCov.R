@@ -22,6 +22,7 @@ test_that("output is of the right class for lme4", {
 
 test_that("output is of the right class for asreml", {
   skip_on_cran()
+  skip_on_ci()
   geVCAs <- gxeVarCov(TD = BLUEs, trait = "t1", engine = "asreml")
   expect_is(geVCAs, "varCov")
   expect_is(geVCAs$STA, "STA")
@@ -34,6 +35,7 @@ test_that("output is of the right class for asreml", {
 
 test_that("asreml model gives correct output", {
   skip_on_cran()
+  skip_on_ci()
   geVCAs <- gxeVarCov(TD = BLUEs, trait = "t1", engine = "asreml")
   summAs <- geVCAs$summary
   expect_equal(geVCAs$choice, "identity")
@@ -73,6 +75,7 @@ test_that("lme4 model gives correct output", {
 
 test_that("option criterion works properly", {
   skip_on_cran()
+  skip_on_ci()
   geVCAs <- gxeVarCov(TD = BLUEs, trait = "t1", engine = "asreml")
   geVCAsA <- gxeVarCov(TD = BLUEs, trait = "t1", engine = "asreml",
                         criterion = "AIC")
@@ -84,6 +87,7 @@ test_that("option criterion works properly", {
 
 test_that("models for fa and fa2 are fitted when #trials >= 5", {
   skip_on_cran()
+  skip_on_ci()
   expect_warning(capture_output(geVC <- gxeVarCov(TD = BLUEsYear, trait = "t1",
                                                    engine = "asreml")))
   expect_equal(rownames(geVC$summary),
