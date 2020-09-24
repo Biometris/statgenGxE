@@ -98,15 +98,17 @@ report(geVarCov, outfile = tempfile(fileext = ".pdf"))
 }
 
 \donttest{
-## Select the best variance-covariance model using asreml for modeling.
-## Use BIC as a goodness-of-fit criterion.
-geVarCov2 <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml",
-                       criterion = "BIC")
+if (requireNamespace("asreml", quietly = TRUE)) {
+  ## Select the best variance-covariance model using asreml for modeling.
+  ## Use BIC as a goodness-of-fit criterion.
+  geVarCov2 <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml",
+                         criterion = "BIC")
 
-summary(geVarCov2)
+  summary(geVarCov2)
 
-## Plot a heatmap of the correlation matrix for the best model.
-plot(geVarCov2)
+  ## Plot a heatmap of the correlation matrix for the best model.
+  plot(geVarCov2)
+  }
 }
 
 }

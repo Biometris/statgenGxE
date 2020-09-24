@@ -12,8 +12,6 @@
 #' used for determinening the best model.
 #' @param engine A character string containing the engine used for the analysis.
 #'
-#' @seealso \code{\link{plot.varCov}}, \code{\link{report.varCov}}
-#'
 #' @name varCov
 NULL
 
@@ -65,10 +63,13 @@ summary.varCov <- function(object, ...) {
 #'
 #' @examples
 #' \donttest{
-#' ## Select the best variance-covariance model using asreml for modeling.
-#' geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
-#' ## Create a heatmap of the correlation matrix for the best model.
-#' plot(geVarCov)
+#' if (requireNamespace("asreml", quietly = TRUE)) {
+#'   ## Select the best variance-covariance model using asreml for modeling.
+#'   geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+#'
+#'   ## Create a heatmap of the correlation matrix for the best model.
+#'   plot(geVarCov)
+#'   }
 #' }
 #'
 #' @family varCov
@@ -134,12 +135,14 @@ plot.varCov <- function(x,
 #'
 #' @examples
 #' \donttest{
-#' ## Select the best variance-covariance model using asreml for modeling.
-#' geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
-#' ## Extract fitted values from the model.
+#' if (requireNamespace("asreml", quietly = TRUE)) {
+#'   ## Select the best variance-covariance model using asreml for modeling.
+#'   geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+#'   ## Extract fitted values from the model.
 #'
-#' fitVarCov <- fitted(geVarCov)
-#' head(fitVarCov)
+#'   fitVarCov <- fitted(geVarCov)
+#'   head(fitVarCov)
+#'   }
 #' }
 #'
 #' @family varCov
@@ -176,11 +179,13 @@ fitted.varCov <- function(object,
 #' @examples
 #' \donttest{
 #' ## Select the best variance-covariance model using asreml for modeling.
-#' geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+#' if (requireNamespace("asreml", quietly = TRUE)) {
+#'   geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
 #'
-#' ## Extract residuals from the model.
-#' residVarCov <- residuals(geVarCov)
-#' head(residVarCov)
+#'   ## Extract residuals from the model.
+#'   residVarCov <- residuals(geVarCov)
+#'   head(residVarCov)
+#'   }
 #' }
 #'
 #' @family varCov
@@ -212,10 +217,12 @@ residuals.varCov <- function(object,
 #' @examples
 #' \donttest{
 #' ## Select the best variance-covariance model using asreml for modeling.
-#' geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+#' if (requireNamespace("asreml", quietly = TRUE)) {
+#'   geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
 #'
-#' ## Create a pdf report summarizing the results.
-#' report(geVarCov, outfile = tempfile(fileext = ".pdf"))
+#'   ## Create a pdf report summarizing the results.
+#'   report(geVarCov, outfile = tempfile(fileext = ".pdf"))
+#'   }
 #' }
 #'
 #' @family varCov

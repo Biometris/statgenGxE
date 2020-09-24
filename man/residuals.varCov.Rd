@@ -20,11 +20,13 @@ Extract the residuals for the best model.
 \examples{
 \donttest{
 ## Select the best variance-covariance model using asreml for modeling.
-geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+if (requireNamespace("asreml", quietly = TRUE)) {
+  geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
 
-## Extract residuals from the model.
-residVarCov <- residuals(geVarCov)
-head(residVarCov)
+  ## Extract residuals from the model.
+  residVarCov <- residuals(geVarCov)
+  head(residVarCov)
+  }
 }
 
 }

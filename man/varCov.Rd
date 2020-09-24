@@ -26,7 +26,4 @@ Function for creating objects of S3 class varCov.\cr
 \code{\link{print}}, \code{\link{summary}}, \code{\link{plot}} and
 \code{\link{report}} methods are available.
 }
-\seealso{
-\code{\link{plot.varCov}}, \code{\link{report.varCov}}
-}
 \keyword{internal}

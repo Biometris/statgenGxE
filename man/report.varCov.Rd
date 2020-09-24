@@ -26,10 +26,12 @@ file.
 \examples{
 \donttest{
 ## Select the best variance-covariance model using asreml for modeling.
-geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+if (requireNamespace("asreml", quietly = TRUE)) {
+  geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
 
-## Create a pdf report summarizing the results.
-report(geVarCov, outfile = tempfile(fileext = ".pdf"))
+  ## Create a pdf report summarizing the results.
+  report(geVarCov, outfile = tempfile(fileext = ".pdf"))
+  }
 }
 
 }

@@ -19,12 +19,14 @@ Extract the fitted values for an object of class varCov.
 }
 \examples{
 \donttest{
-## Select the best variance-covariance model using asreml for modeling.
-geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
-## Extract fitted values from the model.
+if (requireNamespace("asreml", quietly = TRUE)) {
+  ## Select the best variance-covariance model using asreml for modeling.
+  geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+  ## Extract fitted values from the model.
 
-fitVarCov <- fitted(geVarCov)
-head(fitVarCov)
+  fitVarCov <- fitted(geVarCov)
+  head(fitVarCov)
+  }
 }
 
 }

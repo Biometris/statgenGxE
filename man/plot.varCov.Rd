@@ -22,10 +22,13 @@ class varCov.
 }
 \examples{
 \donttest{
-## Select the best variance-covariance model using asreml for modeling.
-geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
-## Create a heatmap of the correlation matrix for the best model.
-plot(geVarCov)
+if (requireNamespace("asreml", quietly = TRUE)) {
+  ## Select the best variance-covariance model using asreml for modeling.
+  geVarCov <- gxeVarCov(TD = TDMaize, trait = "yld", engine = "asreml")
+
+  ## Create a heatmap of the correlation matrix for the best model.
+  plot(geVarCov)
+  }
 }
 
 }
