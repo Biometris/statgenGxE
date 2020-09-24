@@ -73,7 +73,7 @@ reference:
   - gxeStability
   - plot.stability
   - report.stability
-- title: Modelling of heterogeneity of genetic variances and correlations
+- title: Modeling of heterogeneity of genetic variances and correlations
 - contents:
   - gxeVarCov
   - plot.varCov

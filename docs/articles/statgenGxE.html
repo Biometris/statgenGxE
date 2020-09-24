@@ -124,7 +124,7 @@
 <li><a href="#gge">GGE Analysis</a></li>
 <li><a href="#me">Identifying mega environments</a></li>
 <li><a href="#st">Stability measures</a></li>
-<li><a href="#vcov">Modelling of heterogeneity of genetic variances and correlations</a></li>
+<li><a href="#vcov">Modeling of heterogeneity of genetic variances and correlations</a></li>
 </ul>
 <p>For most of the analyses a pdf report can be created automatically, see <a href="#rep">Reporting</a>.</p>
 <p><em>Note that due to technical restrictions the number of significant digits printed in tables throughout this vignette is not always optimal. In practice precision of the output can always be specified by the user.</em></p>
@@ -639,7 +639,7 @@
   <span class="co">## Display BLUPs.</span>
   <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw">geMegaEnvPred</span><span class="op">$</span><span class="kw">predictedValue</span>)
 }
-<span class="co">#&gt; License check Thu Sep 24 11:16:35 2020</span>
+<span class="co">#&gt; License check Thu Sep 24 15:40:10 2020</span>
 <span class="co">#&gt;       megaEnv 1 megaEnv 2 megaEnv 3 megaEnv 4</span>
 <span class="co">#&gt; 11430    6.4742    7.2043    7.1343    6.7571</span>
 <span class="co">#&gt; A3       5.9956    6.6085    6.7493    6.5720</span>
@@ -719,7 +719,7 @@
 </div>
 <div id="vcov" class="section level1">
 <h1 class="hasAnchor">
-<a href="#vcov" class="anchor"></a>Modelling of heterogeneity of genetic variances and correlations</h1>
+<a href="#vcov" class="anchor"></a>Modeling of heterogeneity of genetic variances and correlations</h1>
 <p>The function <code>gxeVarCov</code> allows to fit linear mixed models of varying complexity to a set of trials without clear structure. When the trials can be organized by locations, years, regions or scenarios, then the mixed models in section <a href="#vcomp">2</a> are more appropriate. The objective of this function is to identify a model for the genetic variances and correlations across the trials that will help in quantifying genetic similarities between trials and in understanding the structure of genotype by environment interactions. The identified variance-covariance structure can be used as the random background in a multi-environment QTL model. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to ‘lme4’, only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to ‘asreml’, complex variance-covariance structures will be fitted sequentially to the genotype by environment data. The best fitting model is then identified.<br>
 The models fitted are of the form <span class="math inline">\(y_{ij} = \mu_j + \epsilon_{ij}\)</span>, where <span class="math inline">\(y_{ij}\)</span> is the phenotypic value of genotype <span class="math inline">\(i\)</span> in environment <span class="math inline">\(j\)</span>, <span class="math inline">\(\mu_j\)</span> is the environmental mean, and <span class="math inline">\(\epsilon_{ij}\)</span> represents mainly genetic variation, although some non-genetic variation may be included as well. The random term <span class="math inline">\(\epsilon_{ij}\)</span> is modeled in eight ways as described in the table below (see <span class="citation">(Boer et al. 2007)</span>).</p>
 <table class="table">

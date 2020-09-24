@@ -178,13 +178,15 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='co'>## Select the best variance-covariance model using asreml for modeling.</span>
-<span class='kw'>geVarCov</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeVarCov.html'>gxeVarCov</a></span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>, engine = <span class='st'>"asreml"</span>)
-</div><div class='output co'>#&gt; License check Thu Sep 24 11:14:02 2020</div><div class='input'><span class='co'>## Extract fitted values from the model.</span>
+<span class='co'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span>(<span class='st'>"asreml"</span>, quietly = <span class='fl'>TRUE</span>)) {
+  <span class='co'>## Select the best variance-covariance model using asreml for modeling.</span>
+  <span class='kw'>geVarCov</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeVarCov.html'>gxeVarCov</a></span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>, engine = <span class='st'>"asreml"</span>)
+  <span class='co'>## Extract fitted values from the model.</span>
 
-<span class='kw'>fitVarCov</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/fitted.values.html'>fitted</a></span>(<span class='kw'>geVarCov</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>fitVarCov</span>)
-</div><div class='output co'>#&gt;   trial genotype fittedValue seFittedValue
+  <span class='kw'>fitVarCov</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/fitted.values.html'>fitted</a></span>(<span class='kw'>geVarCov</span>)
+  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>fitVarCov</span>)
+  }
+</div><div class='output co'>#&gt; License check Thu Sep 24 15:37:54 2020</div><div class='output co'>#&gt;   trial genotype fittedValue seFittedValue
 #&gt; 1 HN96b     G001    631.9933      47.89092
 #&gt; 2 HN96b     G002    429.7173      47.89092
 #&gt; 3 HN96b     G003    558.8454      47.89092

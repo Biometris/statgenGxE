@@ -39,7 +39,7 @@ The following types of analysis can be done using statgenGxE:
 * [GGE Analysis](#gge)
 * [Identifying mega environments](#me)
 * [Stability measures](#st)
-* [Modelling of heterogeneity of genetic variances and correlations](#vcov)
+* [Modeling of heterogeneity of genetic variances and correlations](#vcov)
 
 For most of the analyses a pdf report can be created automatically, see [Reporting](#rep).
 
@@ -393,7 +393,7 @@ plot(dropsStab, colorGenoBy = "geneticGroup")
 
 ---
 
-# Modelling of heterogeneity of genetic variances and correlations{#vcov}
+# Modeling of heterogeneity of genetic variances and correlations{#vcov}
 
 The function `gxeVarCov` allows to fit linear mixed models of varying complexity to a set of trials without clear structure. When the trials can be organized by locations, years, regions or scenarios, then the mixed models in section [2](#vcomp) are more appropriate. The objective of this function is to identify a model for the genetic variances and correlations across the trials that will help in quantifying genetic similarities between trials and in understanding the structure of genotype by environment interactions. The identified variance-covariance structure can be used as the random background in a multi-environment QTL model. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequentially to the genotype by environment data. The best fitting model is then identified.    
 The models fitted are of the form $y_{ij} = \mu_j + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu_j$ is the environmental mean, and $\epsilon_{ij}$ represents mainly genetic variation, although some non-genetic variation may be included as well. The random term $\epsilon_{ij}$ is modeled in eight ways as described in the table below (see [@Boer2007]).
