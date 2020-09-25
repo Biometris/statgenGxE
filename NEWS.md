@@ -1,3 +1,3 @@
-# statgenGxE 1.0.0
+# statgenGxE 1.0.1
 
 * Initial CRAN version
