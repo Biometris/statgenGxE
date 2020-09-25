@@ -78,11 +78,13 @@ plot(geFW, plotType = "line")
 ## Display trials in descending order.
 plot(geFW, plotType = "line", order = "descending", response = "observed")
 
+\donttest{
 ## Create a trellis plot.
 plot(geFW, plotType = "trellis")
 
 ## Create a scatter plot of fitted values for the worst and best trials.
 plot(geFW, plotType = "scatterFit")
+}
 
 }
 \seealso{

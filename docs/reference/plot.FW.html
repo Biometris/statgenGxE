@@ -78,7 +78,7 @@ first 64 are plotted in the trellis plot." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -259,12 +259,14 @@ If more than 64 genotypes are selected, only the first 64 are plotted.</p></td>
 <span class='co'>## Display trials in descending order.</span>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>geFW</span>, plotType = <span class='st'>"line"</span>, order = <span class='st'>"descending"</span>, response = <span class='st'>"observed"</span>)
 </div><div class='img'><img src='plot.FW-3.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># \donttest{</span>
 <span class='co'>## Create a trellis plot.</span>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>geFW</span>, plotType = <span class='st'>"trellis"</span>)
 </div><div class='img'><img src='plot.FW-4.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'>## Create a scatter plot of fitted values for the worst and best trials.</span>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>geFW</span>, plotType = <span class='st'>"scatterFit"</span>)
-</div><div class='img'><img src='plot.FW-5.png' alt='' width='700' height='433' /></div><div class='input'>
+</div><div class='img'><img src='plot.FW-5.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
+
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

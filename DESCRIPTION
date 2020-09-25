@@ -1,8 +1,8 @@
 Package: statgenGxE
 Type: Package
 Title: Genotype by Environment (GxE) Analysis
-Version: 1.0.0
-Date: 2020-05-29
+Version: 1.0.1
+Date: 2020-09-25
 Authors@R: c(person(given = "Bart-Jan", 
                     family = "van Rossum", 
                     email = "bart-jan.vanrossum@wur.nl", 
@@ -47,7 +47,8 @@ Authors@R: c(person(given = "Bart-Jan",
                     role = "ctb",
                     comment = c(ORCID = "0000-0001-6030-3933"))
             )
-Description: Genotype by environment (GxE) analysis of field trials. One of a
+Description: Genotype by environment (GxE) analysis for data of plant breeding 
+    experiments. One of a
     series of statistical genetic packages for streamlining the analysis of 
     typical plant breeding experiments developed by Biometris.
     Some functions have been created to be used in conjunction with the R 

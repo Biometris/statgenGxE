@@ -12,3 +12,5 @@ testScripts
 ^pkgdown$
 ^pkgdown$
 ^\.github$
+^CRAN-RELEASE$
+cran-comments.md
