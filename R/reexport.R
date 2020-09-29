@@ -8,3 +8,6 @@ createSTA <- getFromNamespace(x = "createSTA", ns = "statgenSTA")
 
 #' @keywords internal
 createReport <- getFromNamespace(x = "createReport", ns = "statgenSTA")
+
+#' @keywords internal
+tryCatchExt <- getFromNamespace(x = "tryCatchExt", ns = "statgenSTA")

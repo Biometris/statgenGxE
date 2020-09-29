@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -150,7 +150,7 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for FW</span>
-<span class='fu'><a href='https://rdrr.io/r/stats/residuals.html'>residuals</a></span>(<span class='kw'>object</span>, <span class='kw'>...</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/stats/residuals.html'>residuals</a></span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -178,11 +178,11 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Run Finlay-Wilkinson analysis.</span>
-<span class='kw'>geFW</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeFw.html'>gxeFw</a></span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>)
+<span class='va'>geFW</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeFw.html'>gxeFw</a></span><span class='op'>(</span>TD <span class='op'>=</span> <span class='va'>TDMaize</span>, trait <span class='op'>=</span> <span class='st'>"yld"</span><span class='op'>)</span>
 
 <span class='co'>## Extract residuals.</span>
-<span class='kw'>residFW</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/residuals.html'>residuals</a></span>(<span class='kw'>geFW</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>residFW</span>)
+<span class='va'>residFW</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/residuals.html'>residuals</a></span><span class='op'>(</span><span class='va'>geFW</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>residFW</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;   trial genotype     residual
 #&gt; 1 HN96b     G001 -114.9147404
 #&gt; 2 HN96b     G002  106.8573585

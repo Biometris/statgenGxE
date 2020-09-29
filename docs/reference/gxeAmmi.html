@@ -89,7 +89,7 @@ results will be either lists or arrays." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -183,16 +183,16 @@ estimates will still be returned as a single data.frame, but the other
 results will be either lists or arrays.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>gxeAmmi</span>(
-  <span class='kw'>TD</span>,
-  trials = <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='kw'>TD</span>),
-  <span class='kw'>trait</span>,
-  nPC = <span class='fl'>2</span>,
-  byYear = <span class='fl'>FALSE</span>,
-  center = <span class='fl'>TRUE</span>,
-  excludeGeno = <span class='kw'>NULL</span>,
-  useWt = <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>gxeAmmi</span><span class='op'>(</span>
+  <span class='va'>TD</span>,
+  trials <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>TD</span><span class='op'>)</span>,
+  <span class='va'>trait</span>,
+  nPC <span class='op'>=</span> <span class='fl'>2</span>,
+  byYear <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  center <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  excludeGeno <span class='op'>=</span> <span class='cn'>NULL</span>,
+  useWt <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -282,10 +282,10 @@ Press.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Run AMMI analysis on TDMaize.</span>
-<span class='kw'>geAmmi</span> <span class='op'>&lt;-</span> <span class='fu'>gxeAmmi</span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>)
+<span class='va'>geAmmi</span> <span class='op'>&lt;-</span> <span class='fu'>gxeAmmi</span><span class='op'>(</span>TD <span class='op'>=</span> <span class='va'>TDMaize</span>, trait <span class='op'>=</span> <span class='st'>"yld"</span><span class='op'>)</span>
 
 <span class='co'>## Summarize results.</span>
-<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='kw'>geAmmi</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>geAmmi</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; Principal components 
 #&gt; ====================
 #&gt;                              PC1       PC2
@@ -320,11 +320,11 @@ Press.</p>
 #&gt; SS92a -0.09087845 -0.4011956
 #&gt; SS94a -0.12049264 -0.1451358</div><div class='input'>
 <span class='co'>## Create a biplot of genotypes and environment interaction with PC1 and PC2.</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>geAmmi</span>, plotType = <span class='st'>"AMMI2"</span>)
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>geAmmi</span>, plotType <span class='op'>=</span> <span class='st'>"AMMI2"</span><span class='op'>)</span>
 </div><div class='input'>
 <span class='co'>## Create a pdf report summarizing the results.</span>
 <span class='co'># \donttest{</span>
-<span class='fu'><a href='https://rdrr.io/pkg/statgenSTA/man/report.html'>report</a></span>(<span class='kw'>geAmmi</span>, outfile = <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span>(fileext = <span class='st'>".pdf"</span>))
+<span class='fu'><a href='https://rdrr.io/pkg/statgenSTA/man/report.html'>report</a></span><span class='op'>(</span><span class='va'>geAmmi</span>, outfile <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span><span class='op'>(</span>fileext <span class='op'>=</span> <span class='st'>".pdf"</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='img'><img src='gxeAmmi-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
 
 </div></pre>

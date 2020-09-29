@@ -73,7 +73,7 @@ associated standard errors based on a set of mega environments." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -152,13 +152,13 @@ associated standard errors based on a set of mega environments.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for megaEnv</span>
-<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(
-  <span class='kw'>object</span>,
-  <span class='kw'>...</span>,
-  trials = <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='kw'>object</span><span class='op'>$</span><span class='kw'>TD</span>),
-  useYear = <span class='fl'>FALSE</span>,
-  engine = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"lme4"</span>, <span class='st'>"asreml"</span>)
-)</pre>
+<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span>
+  <span class='va'>object</span>,
+  <span class='va'>...</span>,
+  trials <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>object</span><span class='op'>$</span><span class='va'>TD</span><span class='op'>)</span>,
+  useYear <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  engine <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"lme4"</span>, <span class='st'>"asreml"</span><span class='op'>)</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -200,18 +200,18 @@ containing standard errors for those BLUPs.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Compute mega environments for TDMaize.</span>
-<span class='kw'>geMegaEnv</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeMegaEnv.html'>gxeMegaEnv</a></span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>)
+<span class='va'>geMegaEnv</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeMegaEnv.html'>gxeMegaEnv</a></span><span class='op'>(</span>TD <span class='op'>=</span> <span class='va'>TDMaize</span>, trait <span class='op'>=</span> <span class='st'>"yld"</span><span class='op'>)</span>
 
 <span class='co'>## Compute BLUPS and standard errors for those mega environments.</span>
-<span class='kw'>megaEnvPred</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='kw'>geMegaEnv</span>)
-</div><div class='output co'>#&gt; <span class='warning'>Warning: One should be cautious with the interpretation of predictions for mega environments that are based on less than 10 trials.</span></div><div class='output co'>#&gt; <span class='message'>boundary (singular) fit: see ?isSingular</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>megaEnvPred</span><span class='op'>$</span><span class='kw'>predictedValue</span>)
+<span class='va'>megaEnvPred</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span><span class='va'>geMegaEnv</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='warning'>Warning: One should be cautious with the interpretation of predictions for mega environments that are based on less than 10 trials.</span></div><div class='output co'>#&gt; <span class='message'>boundary (singular) fit: see ?isSingular</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>megaEnvPred</span><span class='op'>$</span><span class='va'>predictedValue</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;      megaEnv 1 megaEnv 2 megaEnv 3
 #&gt; G001  489.0515  483.5317  497.8785
 #&gt; G002  472.3096  491.5258  498.1123
 #&gt; G003  468.2102  457.0879  462.5265
 #&gt; G004  363.6653  361.1352  321.1292
 #&gt; G005  462.8374  465.0800  467.9159
-#&gt; G006  435.4026  419.0985  410.4387</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>megaEnvPred</span><span class='op'>$</span><span class='kw'>standardError</span>)
+#&gt; G006  435.4026  419.0985  410.4387</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>megaEnvPred</span><span class='op'>$</span><span class='va'>standardError</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;      megaEnv 1 megaEnv 2 megaEnv 3
 #&gt; G001  32.09261  38.36256  45.40008
 #&gt; G002  32.09261  38.36256  45.40008

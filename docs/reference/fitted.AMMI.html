@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -150,7 +150,7 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for AMMI</span>
-<span class='fu'><a href='https://rdrr.io/r/stats/fitted.values.html'>fitted</a></span>(<span class='kw'>object</span>, <span class='kw'>...</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/stats/fitted.values.html'>fitted</a></span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -178,11 +178,11 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Run AMMI analysis on TDMaize.</span>
-<span class='kw'>geAmmi</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeAmmi.html'>gxeAmmi</a></span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>)
+<span class='va'>geAmmi</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeAmmi.html'>gxeAmmi</a></span><span class='op'>(</span>TD <span class='op'>=</span> <span class='va'>TDMaize</span>, trait <span class='op'>=</span> <span class='st'>"yld"</span><span class='op'>)</span>
 
 <span class='co'>## Extract fitted values.</span>
-<span class='kw'>fitAmmi</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/fitted.values.html'>fitted</a></span>(<span class='kw'>geAmmi</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>fitAmmi</span>)
+<span class='va'>fitAmmi</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/fitted.values.html'>fitted</a></span><span class='op'>(</span><span class='va'>geAmmi</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>fitAmmi</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;   genotype trial fittedValue
 #&gt; 1     G001 HN96b    602.9904
 #&gt; 2     G002 HN96b    386.4668

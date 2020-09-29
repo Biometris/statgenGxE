@@ -75,7 +75,7 @@ year x location then genotype x trial level becomes genotype x year x location."
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -156,11 +156,11 @@ year x location then genotype x trial level becomes genotype x year x location.<
     </div>
 
     <pre class="usage"><span class='co'># S3 method for varComp</span>
-<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(
-  <span class='kw'>object</span>,
-  <span class='kw'>...</span>,
-  predictLevel = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"genotype"</span>, <span class='st'>"trial"</span>, <span class='kw'>object</span><span class='op'>$</span><span class='kw'>nestingFactor</span>)
-)</pre>
+<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span>
+  <span class='va'>object</span>,
+  <span class='va'>...</span>,
+  predictLevel <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"genotype"</span>, <span class='st'>"trial"</span>, <span class='va'>object</span><span class='op'>$</span><span class='va'>nestingFactor</span><span class='op'>)</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -198,11 +198,11 @@ for predictions at the level of genotype x nestingFactor level.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Fit a mixed model.</span>
-<span class='kw'>geVarComp</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeVarComp.html'>gxeVarComp</a></span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>)
+<span class='va'>geVarComp</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeVarComp.html'>gxeVarComp</a></span><span class='op'>(</span>TD <span class='op'>=</span> <span class='va'>TDMaize</span>, trait <span class='op'>=</span> <span class='st'>"yld"</span><span class='op'>)</span>
 
 <span class='co'>## Predictions at genotype level.</span>
-<span class='kw'>predGeno</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='kw'>geVarComp</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>predGeno</span>)
+<span class='va'>predGeno</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span><span class='va'>geVarComp</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>predGeno</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;   genotype predictedValue
 #&gt; 1     G001       500.1561
 #&gt; 2     G002       479.8132
@@ -211,8 +211,8 @@ for predictions at the level of genotype x nestingFactor level.</p></td>
 #&gt; 5     G005       466.8594
 #&gt; 6     G006       425.9303</div><div class='input'>
 <span class='co'>## Predictions at genotype x trial level.</span>
-<span class='kw'>predGenoTrial</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='kw'>geVarComp</span>, predictLevel = <span class='st'>"trial"</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>predGenoTrial</span>)
+<span class='va'>predGenoTrial</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span><span class='va'>geVarComp</span>, predictLevel <span class='op'>=</span> <span class='st'>"trial"</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>predGenoTrial</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;   genotype trial predictedValue
 #&gt; 1     G001 HN96b       529.1555
 #&gt; 2     G002 HN96b       508.8126

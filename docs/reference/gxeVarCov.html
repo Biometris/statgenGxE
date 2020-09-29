@@ -78,7 +78,7 @@ See details for the exact models fitted." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -161,14 +161,14 @@ unstructured), and selects the best one using a goodness-of-fit criterion.
 See details for the exact models fitted.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>gxeVarCov</span>(
-  <span class='kw'>TD</span>,
-  trials = <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='kw'>TD</span>),
-  <span class='kw'>trait</span>,
-  engine = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"lme4"</span>, <span class='st'>"asreml"</span>),
-  criterion = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"BIC"</span>, <span class='st'>"AIC"</span>),
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>gxeVarCov</span><span class='op'>(</span>
+  <span class='va'>TD</span>,
+  trials <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>TD</span><span class='op'>)</span>,
+  <span class='va'>trait</span>,
+  engine <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"lme4"</span>, <span class='st'>"asreml"</span><span class='op'>)</span>,
+  criterion <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"BIC"</span>, <span class='st'>"AIC"</span><span class='op'>)</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -261,30 +261,30 @@ fitted.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Select the best variance-covariance model using lme4 for modeling.</span>
-<span class='kw'>geVarCov</span> <span class='op'>&lt;-</span> <span class='fu'>gxeVarCov</span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>)
+<span class='va'>geVarCov</span> <span class='op'>&lt;-</span> <span class='fu'>gxeVarCov</span><span class='op'>(</span>TD <span class='op'>=</span> <span class='va'>TDMaize</span>, trait <span class='op'>=</span> <span class='st'>"yld"</span><span class='op'>)</span>
 
 <span class='co'>## Summarize results.</span>
-<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='kw'>geVarCov</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>geVarCov</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; Best model: cs, based on BIC.
 #&gt; </div><div class='output co'>#&gt;         AIC      BIC Deviance NParameters
 #&gt; cs 21005.28 21016.14 21001.28           2</div><div class='input'>
 <span class='co'># \donttest{</span>
 <span class='co'>## Create a pdf report summarizing the results.</span>
-<span class='fu'><a href='https://rdrr.io/pkg/statgenSTA/man/report.html'>report</a></span>(<span class='kw'>geVarCov</span>, outfile = <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span>(fileext = <span class='st'>".pdf"</span>))
+<span class='fu'><a href='https://rdrr.io/pkg/statgenSTA/man/report.html'>report</a></span><span class='op'>(</span><span class='va'>geVarCov</span>, outfile <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span><span class='op'>(</span>fileext <span class='op'>=</span> <span class='st'>".pdf"</span><span class='op'>)</span><span class='op'>)</span>
 <span class='co'># }</span>
 
 <span class='co'># \donttest{</span>
-<span class='co'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span>(<span class='st'>"asreml"</span>, quietly = <span class='fl'>TRUE</span>)) {
+<span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"asreml"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
   <span class='co'>## Select the best variance-covariance model using asreml for modeling.</span>
   <span class='co'>## Use BIC as a goodness-of-fit criterion.</span>
-  <span class='kw'>geVarCov2</span> <span class='op'>&lt;-</span> <span class='fu'>gxeVarCov</span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>, engine = <span class='st'>"asreml"</span>,
-                         criterion = <span class='st'>"BIC"</span>)
+  <span class='va'>geVarCov2</span> <span class='op'>&lt;-</span> <span class='fu'>gxeVarCov</span><span class='op'>(</span>TD <span class='op'>=</span> <span class='va'>TDMaize</span>, trait <span class='op'>=</span> <span class='st'>"yld"</span>, engine <span class='op'>=</span> <span class='st'>"asreml"</span>,
+                         criterion <span class='op'>=</span> <span class='st'>"BIC"</span><span class='op'>)</span>
 
-  <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='kw'>geVarCov2</span>)
+  <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>geVarCov2</span><span class='op'>)</span>
 
   <span class='co'>## Plot a heatmap of the correlation matrix for the best model.</span>
-  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>geVarCov2</span>)
-  }
+  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>geVarCov2</span><span class='op'>)</span>
+  <span class='op'>}</span>
 </div><div class='output co'>#&gt; Best model: outside, based on BIC.
 #&gt; </div><div class='img'><img src='gxeVarCov-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
 

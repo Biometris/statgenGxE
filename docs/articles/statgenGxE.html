@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -102,7 +102,7 @@
       <h1 data-toc-skip>Genotype by Environment analysis using statgenGxE</h1>
                         <h4 class="author">Bart-Jan van Rossum</h4>
             
-            <h4 class="date">2020-09-25</h4>
+            <h4 class="date">2020-09-28</h4>
       
       
       <div class="hidden name"><code>statgenGxE.Rmd</code></div>
@@ -136,22 +136,19 @@
 <p>The use of the package is demonstrated using maize data from the European Union project DROPS (<a href="https://cordis.europa.eu/project/id/244374" class="uri">https://cordis.europa.eu/project/id/244374</a>). The data is available from <a href="https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN&amp;version=2.0" class="uri">https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN&amp;version=2.0</a> <span class="citation">(Millet et al. 2019)</span> and the relevant data set is included as data.frame in the statgenGxE package.</p>
 <p>The first step is loading the data into R.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="kw">dropsPheno</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">dropsPheno</span><span class="op">)</span></pre></div>
 <p>dropsPheno contains data for the genotypic means (Best Linear Unbiased Estimators, BLUEs), with one value per genotype per experiment, for a selection of 10 experiments from the full data set and eight traits. These 10 experiments form a good representation of the full set of experiments covering the five scenarios described in <span class="citation">Millet et al. (2016)</span>. Throughout this vignette in all examples the trait grain.yield will be analyzed. For a more detailed description of the contents of the data see <code>help(dropsData)</code>.</p>
 <p>The input for GxE analysis in the statgenGxE package is an object of class TD (Trial Data). For a detailed description on how to construct such an object see the vignette of the statgenSTA package (<code>vignette("Modeling field trials using statgenSTA")</code>). For GxE analysis it is enough to specify the genotype and trial option of the <code>createTD</code> function.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit">
 <span class="co">## Create a TD object from dropsPheno.</span>
-<span class="kw">dropsTD</span> <span class="op">&lt;-</span> <span class="kw">statgenSTA</span>::<span class="fu"><a href="https://rdrr.io/pkg/statgenSTA/man/TD.html">createTD</a></span>(data = <span class="kw">dropsPheno</span>, genotype = <span class="st">"Variety_ID"</span>, trial = <span class="st">"Experiment"</span>)
-</pre></div>
+<span class="va">dropsTD</span> <span class="op">&lt;-</span> <span class="fu">statgenSTA</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/statgenSTA/man/TD.html">createTD</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">dropsPheno</span>, genotype <span class="op">=</span> <span class="st">"Variety_ID"</span>, trial <span class="op">=</span> <span class="st">"Experiment"</span><span class="op">)</span></pre></div>
 <p>Before doing any analysis, we can first have a look at the contents of the data. To explore heterogeneity of genetic variance we can create a box plot. Coloring the boxes by environmental scenario will provide valuable extra information.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit">
 <span class="co">## Create a box plot of dropsTD.</span>
 <span class="co">## Color the boxes based on the variable scenarioFull.</span>
 <span class="co">## Plot in  descending order.</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsTD</span>, plotType = <span class="st">"box"</span>, traits = <span class="st">"grain.yield"</span>, colorTrialBy = <span class="st">"scenarioFull"</span>,
-     orderBy = <span class="st">"descending"</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsTD</span>, plotType <span class="op">=</span> <span class="st">"box"</span>, traits <span class="op">=</span> <span class="st">"grain.yield"</span>, colorTrialBy <span class="op">=</span> <span class="st">"scenarioFull"</span>,
+     orderBy <span class="op">=</span> <span class="st">"descending"</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/TDbox-1.png" width="672"></p>
 <p>From the plot it is clear that the trials in the hot, water deficient environments have a lower median and range than the other trials.</p>
 <p>For further insight into the correlation structure between trials a scatter plot matrix can be made.</p>
@@ -159,11 +156,10 @@
 <span class="co">## Create a scatter plot of dropsTD.</span>
 <span class="co">## Color the genotypes based on the variable geneticGroup.</span>
 <span class="co">## Color the histograms for trials based on the variable scenarioFull.</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsTD</span>, plotType = <span class="st">"scatter"</span>, traits = <span class="st">"grain.yield"</span>, colorGenoBy = <span class="st">"geneticGroup"</span>, 
-     colorTrialBy = <span class="st">"scenarioFull"</span>, 
-     trialOrder = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Gai12W"</span>, <span class="st">"Kar13R"</span>, <span class="st">"Kar12W"</span>, <span class="st">"Kar13W"</span>, <span class="st">"Mar13R"</span>, <span class="st">"Mur13W"</span>,
-                    <span class="st">"Mur13R"</span>, <span class="st">"Ner12R"</span>, <span class="st">"Cam12R"</span>, <span class="st">"Cra12R"</span>))
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsTD</span>, plotType <span class="op">=</span> <span class="st">"scatter"</span>, traits <span class="op">=</span> <span class="st">"grain.yield"</span>, colorGenoBy <span class="op">=</span> <span class="st">"geneticGroup"</span>, 
+     colorTrialBy <span class="op">=</span> <span class="st">"scenarioFull"</span>, 
+     trialOrder <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Gai12W"</span>, <span class="st">"Kar13R"</span>, <span class="st">"Kar12W"</span>, <span class="st">"Kar13W"</span>, <span class="st">"Mar13R"</span>, <span class="st">"Mur13W"</span>,
+                    <span class="st">"Mur13R"</span>, <span class="st">"Ner12R"</span>, <span class="st">"Cam12R"</span>, <span class="st">"Cra12R"</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/TDscatter-1.png" width="816"></p>
 <div id="coloring-of-genotypes-and-trials" class="section level2">
 <h2 class="hasAnchor">
@@ -172,9 +168,8 @@
 <p>It is possible to specify different colors for genotype groups and trial groups per plot using the options <code>colGeno</code> and <code>colTrial</code> respectively. Also, more conveniently, the default colors can be set using the options statgen.genoColors and statgen.trialColors.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit">
 <span class="co">## Set default colors for genotypes and trials.</span>
-<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="st">"statgen.genoColors"</span> = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"blue"</span>, <span class="st">"green"</span>, <span class="st">"yellow"</span>))
-<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="st">"statgen.trialColors"</span> = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"red"</span>, <span class="st">"brown"</span>, <span class="st">"purple"</span>))
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span><span class="st">"statgen.genoColors"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"green"</span>, <span class="st">"yellow"</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span><span class="st">"statgen.trialColors"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"brown"</span>, <span class="st">"purple"</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p>If a plot has more genotype groups than the number of colors specified as default colors, the default colors will be ignored and <code>topo.colors</code> will be used instead. For trial groups this is done in a similar way.</p>
 <hr>
 </div>
@@ -264,8 +259,8 @@
 <p>Finally a mixed model is fitted as specified in the table above. Based on this model, variance components can be extracted, heritabilities on a line mean basis (across all trials) can be computed and predictions can be made. It is also possible to plot the results.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit">
 <span class="co">## Fit a model where trials are nested within scenarios.</span>
-<span class="kw">dropsVarComp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeVarComp.html">gxeVarComp</a></span>(TD = <span class="kw">dropsTD</span>, trait = <span class="st">"grain.yield"</span>, nestingFactor = <span class="st">"scenarioFull"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">dropsVarComp</span>)
+<span class="va">dropsVarComp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeVarComp.html">gxeVarComp</a></span><span class="op">(</span>TD <span class="op">=</span> <span class="va">dropsTD</span>, trait <span class="op">=</span> <span class="st">"grain.yield"</span>, nestingFactor <span class="op">=</span> <span class="st">"scenarioFull"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">dropsVarComp</span><span class="op">)</span>
 <span class="co">#&gt; Fitted model formula</span>
 <span class="co">#&gt; grain.yield ~ scenarioFull + scenarioFull:trial + (1 | genotype) + (1 | genotype:scenarioFull) </span>
 <span class="co">#&gt; </span>
@@ -285,36 +280,32 @@
 <span class="co">#&gt; genotype:scenarioFull  980  1034.0     1.1    1.4063 8.087e-09 ***</span>
 <span class="co">#&gt; residuals             1225   919.1     0.8                        </span>
 <span class="co">#&gt; ---</span>
-<span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span>
-</pre></div>
+<span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></pre></div>
 <p><em>Note that because the model is fitted with lme4, in this and further tables no standard errors are outputted. When using asreml for modeling standard errors will be available.</em></p>
 <p>The diagnostics for the fitted model can be printed using the <code>diagnostics</code> function. This will print an incidence matrix of missing values for each of the terms in the random part of the fitted model.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit">
 <span class="co">## Print diagnostics - output suppressed because of the large number of rows.</span>
-<span class="fu"><a href="../reference/diagnostics.html">diagnostics</a></span>(<span class="kw">dropsVarComp</span>)
-</pre></div>
+<span class="fu"><a href="../reference/diagnostics.html">diagnostics</a></span><span class="op">(</span><span class="va">dropsVarComp</span><span class="op">)</span></pre></div>
 <p>Extracting the variance components from the fitted model can be done using the <code>vc</code> function. The heritability (across trials) is computed using <code>herit</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit">
 <span class="co">## Extract variance components.</span>
-<span class="fu"><a href="../reference/vc.html">vc</a></span>(<span class="kw">dropsVarComp</span>)
+<span class="fu"><a href="../reference/vc.html">vc</a></span><span class="op">(</span><span class="va">dropsVarComp</span><span class="op">)</span>
 <span class="co">#&gt;                       component</span>
 <span class="co">#&gt; genotype                 0.8128</span>
 <span class="co">#&gt; genotype:scenarioFull    0.1665</span>
 <span class="co">#&gt; residuals                0.7444</span>
 <span class="co">## Compute heritability.</span>
-<span class="fu"><a href="../reference/herit.html">herit</a></span>(<span class="kw">dropsVarComp</span>)
-<span class="co">#&gt; [1] 0.8169</span>
-</pre></div>
+<span class="fu"><a href="../reference/herit.html">herit</a></span><span class="op">(</span><span class="va">dropsVarComp</span><span class="op">)</span>
+<span class="co">#&gt; [1] 0.8169</span></pre></div>
 <p>A plot can be made of the square roots of the variance component estimates. These are based on the fully random model.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit">
 <span class="co">## Plot the results of the fitted model.</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsVarComp</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsVarComp</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/VarCompPlot-1.png" width="672"> Predictions for the mixed model can be made for model terms that represent different levels of data aggregation; for the genotype main effect or for genotypic performance in grouped environments, or for genotypic performance in individual trials. These levels can be specified by the parameter <code>predictLevel</code>.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit">
 <span class="co">## Predictions of the genotype main effect.</span>
-<span class="kw">predGeno</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(<span class="kw">dropsVarComp</span>)
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw">predGeno</span>)
+<span class="va">predGeno</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">dropsVarComp</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">predGeno</span><span class="op">)</span>
 <span class="co">#&gt;   genotype predictedValue</span>
 <span class="co">#&gt; 1    11430          6.726</span>
 <span class="co">#&gt; 2       A3          6.334</span>
@@ -323,16 +314,15 @@
 <span class="co">#&gt; 5     A374          7.456</span>
 <span class="co">#&gt; 6     A375          6.658</span>
 <span class="co">## predictions at the level of genotype x scenarioFull.</span>
-<span class="kw">predGenoTrial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(<span class="kw">dropsVarComp</span>, predictLevel = <span class="st">"scenarioFull"</span>)
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw">predGenoTrial</span>)
+<span class="va">predGenoTrial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">dropsVarComp</span>, predictLevel <span class="op">=</span> <span class="st">"scenarioFull"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">predGenoTrial</span><span class="op">)</span>
 <span class="co">#&gt;   genotype scenarioFull predictedValue</span>
 <span class="co">#&gt; 1    11430      WW.Cool         10.537</span>
 <span class="co">#&gt; 2       A3      WW.Cool          9.701</span>
 <span class="co">#&gt; 3     A310      WW.Cool          9.633</span>
 <span class="co">#&gt; 4     A347      WW.Cool          8.999</span>
 <span class="co">#&gt; 5     A374      WW.Cool         11.001</span>
-<span class="co">#&gt; 6     A375      WW.Cool          9.981</span>
-</pre></div>
+<span class="co">#&gt; 6     A375      WW.Cool          9.981</span></pre></div>
 <hr>
 </div>
 </div>
@@ -345,8 +335,8 @@
 <p>By default all trials in the <code>TD</code> object are used in the analysis, but this can be restricted using the parameter <code>trials</code>. The genotypes included in the analysis can be restricted using <code>genotypes</code>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit">
 <span class="co">## Perform a Finlay-Wilkinson analysis for all trials.</span>
-<span class="kw">dropsFW</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeFw.html">gxeFw</a></span>(TD = <span class="kw">dropsTD</span>, trait = <span class="st">"grain.yield"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">dropsFW</span>)
+<span class="va">dropsFW</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeFw.html">gxeFw</a></span><span class="op">(</span>TD <span class="op">=</span> <span class="va">dropsTD</span>, trait <span class="op">=</span> <span class="st">"grain.yield"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">dropsFW</span><span class="op">)</span>
 <span class="co">#&gt; Environmental effects </span>
 <span class="co">#&gt; =====================</span>
 <span class="co">#&gt;     trial      envEff se_envEff  envMean se_envMean rank</span>
@@ -379,35 +369,30 @@
 <span class="co">#&gt;   DK78371A 1.29340    2 0.0904284 7.34072   0.280534    0.313889</span>
 <span class="co">#&gt;      PHG83 1.29337    3 0.0904284 7.79922   0.280534    1.447104</span>
 <span class="co">#&gt;      FR697 1.27416    4 0.0904284 7.48625   0.280534    0.917458</span>
-<span class="co">#&gt;  SC-Malawi 1.26473    5 0.0904284 7.12909   0.280534    1.272097</span>
-</pre></div>
+<span class="co">#&gt;  SC-Malawi 1.26473    5 0.0904284 7.12909   0.280534    1.272097</span></pre></div>
 <p>Four types of plots can be made to investigate the output from the analysis. <code>plotType = "scatter"</code> creates three scatter plots where genotypic mean, square root of the mean squared deviation and sensitivity are plotted against each other.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit">
 <span class="co">## Create scatter plot for Finlay Wilkinson analysis.</span>
 <span class="co">## Color genotypes by geneticGroup.</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsFW</span>, plotType = <span class="st">"scatter"</span>, colorGenoBy = <span class="st">"geneticGroup"</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsFW</span>, plotType <span class="op">=</span> <span class="st">"scatter"</span>, colorGenoBy <span class="op">=</span> <span class="st">"geneticGroup"</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/plotFWScatter-1.png" width="672"></p>
 <p>With <code>plotType = "line"</code> a plot with fitted lines for all genotypes in the analysis is created.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit">
 <span class="co">## Create line plot for Finlay Wilkinson analysis.</span>
 <span class="co">## Color genotypes by geneticGroup.</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsFW</span>, plotType = <span class="st">"line"</span>, colorGenoBy = <span class="st">"geneticGroup"</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsFW</span>, plotType <span class="op">=</span> <span class="st">"line"</span>, colorGenoBy <span class="op">=</span> <span class="st">"geneticGroup"</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/plotFWLine-1.png" width="672"></p>
 <p><code>plotType = "trellis"</code> creates a trellis plot with observations and slopes per genotype. At most 64 genotypes are plotted. It is possible to select a subset of genotypes for plotting using the parameter <code>genotypes</code>.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit">
 <span class="co">## Create trellis plot for Finlay Wilkinson analysis.</span>
 <span class="co">## Restrict to first 5 genotypes.</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsFW</span>, plotType = <span class="st">"trellis"</span>, genotypes = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"11430"</span>, <span class="st">"A3"</span>, <span class="st">"A310"</span>, <span class="st">"A347"</span>, <span class="st">"A374"</span>))
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsFW</span>, plotType <span class="op">=</span> <span class="st">"trellis"</span>, genotypes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"11430"</span>, <span class="st">"A3"</span>, <span class="st">"A310"</span>, <span class="st">"A347"</span>, <span class="st">"A374"</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/plotFWTrellis-1.png" width="672"></p>
 <p><code>plottType = "scatterFit"</code> creates a scatter plot of fitted values in the trial with the highest environmental effect against the fitted values in the trial with the lowest environmental effect.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit">
 <span class="co">## Create scatter plot of fitted values for Finlay Wilkinson analysis.</span>
 <span class="co">## Color genotypes by geneticGroup.</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsFW</span>, plotType = <span class="st">"scatterFit"</span>, colorGenoBy = <span class="st">"geneticGroup"</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsFW</span>, plotType <span class="op">=</span> <span class="st">"scatterFit"</span>, colorGenoBy <span class="op">=</span> <span class="st">"geneticGroup"</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/plotFWScatterFit-1.png" width="672"></p>
 <hr>
 </div>
@@ -420,8 +405,8 @@
 <p>The AMMI analysis can be performed with the statgenGxE package using the function <code>gxeAmmi</code>.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit">
 <span class="co">## Run gxeAmmi for grain.yield.</span>
-<span class="kw">dropsAm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeAmmi.html">gxeAmmi</a></span>(TD = <span class="kw">dropsTD</span>, trait = <span class="st">"grain.yield"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">dropsAm</span>)
+<span class="va">dropsAm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeAmmi.html">gxeAmmi</a></span><span class="op">(</span>TD <span class="op">=</span> <span class="va">dropsTD</span>, trait <span class="op">=</span> <span class="st">"grain.yield"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">dropsAm</span><span class="op">)</span>
 <span class="co">#&gt; Principal components </span>
 <span class="co">#&gt; ====================</span>
 <span class="co">#&gt;                            PC1     PC2</span>
@@ -456,13 +441,12 @@
 <span class="co">#&gt; Mar13R  0.0924811  0.1666174</span>
 <span class="co">#&gt; Mur13R -0.2854567  0.3230107</span>
 <span class="co">#&gt; Mur13W -0.3539324  0.5112075</span>
-<span class="co">#&gt; Ner12R  0.3593742 -0.1714703</span>
-</pre></div>
+<span class="co">#&gt; Ner12R  0.3593742 -0.1714703</span></pre></div>
 <p>With the default settings in the AMMI analysis a maximum of two principal components are used. This can be changed using the parameter <code>nPC</code> in the function. The number of principal components should be lower than the smallest of the number of genotypes or environments minus one. By specifying <code>nPC = NULL</code> the algorithm will determine the number of principal components by a method of forward selection.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit">
 <span class="co">## Run gxeAmmi. Let algorithm determine number of principal components.</span>
-<span class="kw">dropsAm2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeAmmi.html">gxeAmmi</a></span>(TD = <span class="kw">dropsTD</span>, trait = <span class="st">"grain.yield"</span>, nPC = <span class="kw">NULL</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">dropsAm2</span>)
+<span class="va">dropsAm2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeAmmi.html">gxeAmmi</a></span><span class="op">(</span>TD <span class="op">=</span> <span class="va">dropsTD</span>, trait <span class="op">=</span> <span class="st">"grain.yield"</span>, nPC <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">dropsAm2</span><span class="op">)</span>
 <span class="co">#&gt; Principal components </span>
 <span class="co">#&gt; ====================</span>
 <span class="co">#&gt;                            PC1     PC2     PC3      PC4      PC5      PC6      PC7</span>
@@ -502,26 +486,22 @@
 <span class="co">#&gt; Mar13R  0.0924811  0.1666174  0.3375440 -0.7634903  0.1925495  0.3287360  0.0748694</span>
 <span class="co">#&gt; Mur13R -0.2854567  0.3230107 -0.1777747  0.0157987  0.1310997  0.0625228 -0.0122844</span>
 <span class="co">#&gt; Mur13W -0.3539324  0.5112075 -0.3419304  0.0474776  0.1619466 -0.2876442 -0.0503901</span>
-<span class="co">#&gt; Ner12R  0.3593742 -0.1714703  0.2157025 -0.0714941  0.2394149 -0.7804873 -0.0598564</span>
-</pre></div>
+<span class="co">#&gt; Ner12R  0.3593742 -0.1714703  0.2157025 -0.0714941  0.2394149 -0.7804873 -0.0598564</span></pre></div>
 <p>From the summary it is clear that the final number of principal components, determined by forward selection, is seven.</p>
 <p>It is possible to exclude certain genotypes, e.g. outliers, from the analysis using the parameter <code>excludeGeno</code>.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit">
 <span class="co">## Run gxeAmmi with three principal components.</span>
 <span class="co">## Exclude genotypes 11430 and A3.</span>
-<span class="kw">dropsAm3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeAmmi.html">gxeAmmi</a></span>(TD = <span class="kw">dropsTD</span>, trait = <span class="st">"grain.yield"</span>, nPC = <span class="fl">3</span>, 
-                    excludeGeno = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"11430"</span>, <span class="st">"A3"</span>))
-</pre></div>
+<span class="va">dropsAm3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeAmmi.html">gxeAmmi</a></span><span class="op">(</span>TD <span class="op">=</span> <span class="va">dropsTD</span>, trait <span class="op">=</span> <span class="st">"grain.yield"</span>, nPC <span class="op">=</span> <span class="fl">3</span>, 
+                    excludeGeno <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"11430"</span>, <span class="st">"A3"</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p>If the data contains a column year, it is possible to fit a separate AMMI model for each year. This can be done by specifying the parameter <code>byYear = TRUE</code>. This will run an AMMI analysis for all years in the data without taking into account the data for the other years.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit">
 <span class="co">## Run gxeAmmi per year in the data.</span>
-<span class="kw">dropsAmYear</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeAmmi.html">gxeAmmi</a></span>(TD = <span class="kw">dropsTD</span>, trait = <span class="st">"grain.yield"</span>, byYear = <span class="fl">TRUE</span>)
-</pre></div>
+<span class="va">dropsAmYear</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeAmmi.html">gxeAmmi</a></span><span class="op">(</span>TD <span class="op">=</span> <span class="va">dropsTD</span>, trait <span class="op">=</span> <span class="st">"grain.yield"</span>, byYear <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></pre></div>
 <p>The results of the AMMI analysis can be displayed in two types of plot. “AMMI1” plots the first principal component against the main effects. “AMMI2” plots the second against the first principal component.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit">
 <span class="co">## Create an AMMI1 plot.</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsAm</span>, plotType = <span class="st">"AMMI1"</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsAm</span>, plotType <span class="op">=</span> <span class="st">"AMMI1"</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/plotAmmi1-1.png" width="75%"></p>
 <p>AMMI biplots appear in three forms <span class="citation">(Gower and Hand 1996)</span>:</p>
 <ol style="list-style-type: decimal">
@@ -531,24 +511,21 @@
 </ol>
 <div class="sourceCode" id="cb21"><pre class="downlit">
 <span class="co">## Create an AMMI2 biplot with symmetric scaling.</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsAm</span>, scale = <span class="fl">0.5</span>, plotType = <span class="st">"AMMI2"</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsAm</span>, scale <span class="op">=</span> <span class="fl">0.5</span>, plotType <span class="op">=</span> <span class="st">"AMMI2"</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/plotAmmi2-1.png" width="75%"></p>
 <p>The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axes specifying <code>primAxis</code> and <code>secAxis</code> Genotypes can be grouped and colored by a variable in the data using <code>colorGenoBy</code>. Specify custom colors in <code>colGeno</code>. Similarly for coloring environments use <code>colorEnvBy</code> and <code>colEnv</code>.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit">
 <span class="co">## Create an AMMI2 biplot.</span>
 <span class="co">## Color genotypes based on variable geneticGroup. Use custom colors.</span>
 <span class="co">## Color environments based on variable scenarioFull</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsAm</span>, scale = <span class="fl">0.4</span>, plotType = <span class="st">"AMMI2"</span>, 
-     colorGenoBy = <span class="st">"geneticGroup"</span>, colGeno = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"green"</span>, <span class="st">"yellow"</span>),
-     colorEnvBy = <span class="st">"scenarioFull"</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsAm</span>, scale <span class="op">=</span> <span class="fl">0.4</span>, plotType <span class="op">=</span> <span class="st">"AMMI2"</span>, 
+     colorGenoBy <span class="op">=</span> <span class="st">"geneticGroup"</span>, colGeno <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"green"</span>, <span class="st">"yellow"</span><span class="op">)</span>,
+     colorEnvBy <span class="op">=</span> <span class="st">"scenarioFull"</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/plotAmmiCol-1.png" width="75%"></p>
 <p>A convex hull can be plotted around the genotypes in an AMMI2 biplot.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit">
 <span class="co">## Create an AMMI2 biplot with convex hull around the genotypes.</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsAm</span>, scale = <span class="fl">0.4</span>, plotType = <span class="st">"AMMI2"</span>, plotConvHull = <span class="fl">TRUE</span>, colorEnvBy = <span class="st">"scenarioFull"</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsAm</span>, scale <span class="op">=</span> <span class="fl">0.4</span>, plotType <span class="op">=</span> <span class="st">"AMMI2"</span>, plotConvHull <span class="op">=</span> <span class="cn">TRUE</span>, colorEnvBy <span class="op">=</span> <span class="st">"scenarioFull"</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/plotAmmiConvHull-1.png" width="75%"></p>
 <p>Genotypes can be left out of the plot completely by setting <code>plotGeno = FALSE</code> and similarly <code>plotEnv = FALSE</code> assures no environments are plotted. For displaying genotypes by their names instead of points, use <code>sizeGeno</code> with a size larger than zero to indicate their text size. <code>envFactor</code> can be used to blow up the environmental scores in the plot. A value for <code>envFactor</code> between zero and one effectively blows up the genotypic scores. See <code><a href="../reference/plot.AMMI.html">help(plot.AMMI)</a></code> for full details on all plotting options.</p>
 <hr>
@@ -561,8 +538,8 @@
 <p>The GGE analysis is done in statgenGxE by running the function <code>gxeGGE</code> which has identical options as the <code>gxeAmmi</code> function.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit">
 <span class="co">## Run gxeGGE with default settings.</span>
-<span class="kw">dropsGGE</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeGGE.html">gxeGGE</a></span>(TD = <span class="kw">dropsTD</span>, trait = <span class="st">"grain.yield"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">dropsGGE</span>) 
+<span class="va">dropsGGE</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeGGE.html">gxeGGE</a></span><span class="op">(</span>TD <span class="op">=</span> <span class="va">dropsTD</span>, trait <span class="op">=</span> <span class="st">"grain.yield"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">dropsGGE</span><span class="op">)</span> 
 <span class="co">#&gt; Principal components </span>
 <span class="co">#&gt; ====================</span>
 <span class="co">#&gt;                            PC1     PC2</span>
@@ -596,13 +573,11 @@
 <span class="co">#&gt; Mar13R 0.275734 -0.0465212</span>
 <span class="co">#&gt; Mur13R 0.395051 -0.3667764</span>
 <span class="co">#&gt; Mur13W 0.409046 -0.5838223</span>
-<span class="co">#&gt; Ner12R 0.159916  0.3128596</span>
-</pre></div>
+<span class="co">#&gt; Ner12R 0.159916  0.3128596</span></pre></div>
 <p>Options for plotting results of a GGE analysis are identical to those for an AMMI analysis. When a convex hull is plotted, lines from the origin perpendicular to the edges of the hull are added as well.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit">
 <span class="co">## Create a GGE2 biplot.</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsGGE</span>, plotType = <span class="st">"GGE2"</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsGGE</span>, plotType <span class="op">=</span> <span class="st">"GGE2"</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/plotGGE-1.png" width="75%"></p>
 <hr>
 </div>
@@ -612,9 +587,9 @@
 <p>For the computation of mega environments, an AMMI-2 model is fitted and then, using the fitted values from this model, the environments are clustered. Mega environments are created by grouping environments based on their best performing genotype. Environments that share the same best genotype belong to the same mega environment.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit">
 <span class="co">## Compute mega environments.</span>
-<span class="kw">dropsMegaEnv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeMegaEnv.html">gxeMegaEnv</a></span>(TD = <span class="kw">dropsTD</span>, trait = <span class="st">"grain.yield"</span>)
+<span class="va">dropsMegaEnv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeMegaEnv.html">gxeMegaEnv</a></span><span class="op">(</span>TD <span class="op">=</span> <span class="va">dropsTD</span>, trait <span class="op">=</span> <span class="st">"grain.yield"</span><span class="op">)</span>
 <span class="co">## Summarize results.</span>
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">dropsMegaEnv</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">dropsMegaEnv</span><span class="op">)</span>
 <span class="co">#&gt; Mega environments based on grain.yield</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  Mega factor  Trial Winning genotype AMMI estimates</span>
@@ -627,19 +602,18 @@
 <span class="co">#&gt;    megaEnv 3 Gai12W           Lo1270        13.7960</span>
 <span class="co">#&gt;    megaEnv 4 Cam12R            PHG35         4.2604</span>
 <span class="co">#&gt;    megaEnv 4 Cra12R            PHG35         3.8492</span>
-<span class="co">#&gt;    megaEnv 4 Ner12R            PHG35         7.0998</span>
-</pre></div>
+<span class="co">#&gt;    megaEnv 4 Ner12R            PHG35         7.0998</span></pre></div>
 <p>As can be seen in the column Mega factor in the summary, four mega environments have been created, one for each of the winning genotypes “Lo1087”, “Lo1251”, “Lo1270” and “PHG35”.</p>
 <p>The values for the Best Linear Unbiased Predictors (BLUPs) and associated standard errors for the genotypes based on the calculated mega environments, can be computed using the function <code>predict</code> on the output. This can be done using either lme4 <span class="citation">(Bates et al. 2015)</span> or asreml <span class="citation">(Butler et al. 2017)</span> as an engine for fitting the model.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit">
-<span class="co">if</span> (<span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span>(package = <span class="st">"asreml"</span>, quietly = <span class="fl">TRUE</span>)) {
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"asreml"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
   <span class="co">## Compute BLUPs.</span>
   <span class="co">## Use asreml as engine for fitting model.</span>
-  <span class="kw">geMegaEnvPred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(<span class="kw">dropsMegaEnv</span>, engine = <span class="st">"asreml"</span>)
+  <span class="va">geMegaEnvPred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">dropsMegaEnv</span>, engine <span class="op">=</span> <span class="st">"asreml"</span><span class="op">)</span>
   <span class="co">## Display BLUPs.</span>
-  <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw">geMegaEnvPred</span><span class="op">$</span><span class="kw">predictedValue</span>)
-}
-<span class="co">#&gt; License check Fri Sep 25 07:59:51 2020</span>
+  <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">geMegaEnvPred</span><span class="op">$</span><span class="va">predictedValue</span><span class="op">)</span>
+<span class="op">}</span>
+<span class="co">#&gt; License check Mon Sep 28 15:28:03 2020</span>
 <span class="co">#&gt;       megaEnv 1 megaEnv 2 megaEnv 3 megaEnv 4</span>
 <span class="co">#&gt; 11430    6.4742    7.2043    7.1343    6.7571</span>
 <span class="co">#&gt; A3       5.9956    6.6085    6.7493    6.5720</span>
@@ -647,26 +621,24 @@
 <span class="co">#&gt; A347     5.1709    4.7004    5.6903    6.4463</span>
 <span class="co">#&gt; A374     7.5322    7.3081    7.3062    7.2980</span>
 <span class="co">#&gt; A375     6.3963    6.4869    6.8184    6.8900</span>
-<span class="co">if</span> (<span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span>(package = <span class="st">"asreml"</span>, quietly = <span class="fl">TRUE</span>)) {
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"asreml"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
   <span class="co">## Display standard errors of the BLUPs.</span>
-  <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw">geMegaEnvPred</span><span class="op">$</span><span class="kw">standardError</span>)
-}
+  <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">geMegaEnvPred</span><span class="op">$</span><span class="va">standardError</span><span class="op">)</span>
+<span class="op">}</span>
 <span class="co">#&gt;       megaEnv 1 megaEnv 2 megaEnv 3 megaEnv 4</span>
 <span class="co">#&gt; 11430   0.33316   0.42862    0.3732   0.27448</span>
 <span class="co">#&gt; A3      0.33316   0.42862    0.3732   0.27448</span>
 <span class="co">#&gt; A310    0.33316   0.42862    0.3732   0.27448</span>
 <span class="co">#&gt; A347    0.33316   0.42862    0.3732   0.27448</span>
 <span class="co">#&gt; A374    0.33316   0.42862    0.3732   0.27448</span>
-<span class="co">#&gt; A375    0.33316   0.42862    0.3732   0.27448</span>
-</pre></div>
+<span class="co">#&gt; A375    0.33316   0.42862    0.3732   0.27448</span></pre></div>
 <p>The results of the predictions can be visualized in a scatter plot using the <code>plot</code> functions. This creates a similar plot to the one described in the <a href="#dp">data preparation</a> section earlier in the vignette. However, now the predicted values for the genotypes in the different mega environments are displayed. The predictions are calculated inside the plot functions. By default lme4 is used for this. To change to asreml specify <code>engine = asreml</code>. Genotypes can be colored by the value of a variable in the TD object used for calculating the mega environments by specifying <code>colorGenoBy</code>.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit">
-<span class="co">if</span> (<span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span>(package = <span class="st">"asreml"</span>, quietly = <span class="fl">TRUE</span>)) {
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"asreml"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
   <span class="co">## Create a scatter plot of predictions in mega environments.</span>
   <span class="co">## Color genotypes based on geneticGroup.</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsMegaEnv</span>, engine = <span class="st">"asreml"</span>, colorGenoBy = <span class="st">"geneticGroup"</span>)
-}
-</pre></div>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsMegaEnv</span>, engine <span class="op">=</span> <span class="st">"asreml"</span>, colorGenoBy <span class="op">=</span> <span class="st">"geneticGroup"</span><span class="op">)</span>
+<span class="op">}</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/scatterMegaEnv-1.png" width="672"></p>
 <hr>
 </div>
@@ -680,9 +652,9 @@
 <p>To compute the stability measures use <code>gxeStability</code>. This will compute all three stability measures described above.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit">
 <span class="co">## Compute stability measures for dropsTD.</span>
-<span class="kw">dropsStab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeStability.html">gxeStability</a></span>(TD = <span class="kw">dropsTD</span>, trait = <span class="st">"grain.yield"</span>)
+<span class="va">dropsStab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeStability.html">gxeStability</a></span><span class="op">(</span>TD <span class="op">=</span> <span class="va">dropsTD</span>, trait <span class="op">=</span> <span class="st">"grain.yield"</span><span class="op">)</span>
 <span class="co">## In the summary print the top two percent of the genotypes.</span>
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">dropsStab</span>, pctGeno = <span class="fl">2</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">dropsStab</span>, pctGeno <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Cultivar-superiority measure (Top 2 % genotypes)</span>
 <span class="co">#&gt;  genotype    mean superiority</span>
@@ -706,14 +678,12 @@
 <span class="co">#&gt;    Lo1251 9.03024 24.1650</span>
 <span class="co">#&gt;   UH_P064 6.81195 22.9318</span>
 <span class="co">#&gt;    Lo1270 8.35135 22.2490</span>
-<span class="co">#&gt;     PHG83 7.79922 20.0827</span>
-</pre></div>
+<span class="co">#&gt;     PHG83 7.79922 20.0827</span></pre></div>
 <p>Plotting the results yields a scatter plot for the square root of each stability measure, plotted against the genotypic mean.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit">
 <span class="co">## Create plots for the different stability measures.</span>
 <span class="co">## Color genotypes by geneticGroup.</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsStab</span>, colorGenoBy = <span class="st">"geneticGroup"</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsStab</span>, colorGenoBy <span class="op">=</span> <span class="st">"geneticGroup"</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/plotStab-1.png" width="672"></p>
 <hr>
 </div>
@@ -800,19 +770,18 @@ The models fitted are of the form <span class="math inline">\(y_{ij} = \mu_j + \
 <p>The best model for the data is selected based on either the Akaike Information Criterion (AIC <span class="citation">(Akaike 1974)</span>) or the Baysian Information Criterion (BIC <span class="citation">(Schwarz 1978)</span>). Which criterion is used is determined by the parameter <code>criterion</code> in the function <code>gxeVarCov</code>.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit">
 <span class="co">## Use lme4 for fitting the models - only compound symmetry.</span>
-<span class="kw">dropsVC</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeVarCov.html">gxeVarCov</a></span>(TD = <span class="kw">dropsTD</span>, trait = <span class="st">"grain.yield"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">dropsVC</span>)
+<span class="va">dropsVC</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeVarCov.html">gxeVarCov</a></span><span class="op">(</span>TD <span class="op">=</span> <span class="va">dropsTD</span>, trait <span class="op">=</span> <span class="st">"grain.yield"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">dropsVC</span><span class="op">)</span>
 <span class="co">#&gt; Best model: cs, based on BIC.</span>
 <span class="co">#&gt;         AIC     BIC Deviance NParameters</span>
-<span class="co">#&gt; cs 7295.144 7306.76 7291.144           2</span>
-</pre></div>
+<span class="co">#&gt; cs 7295.144 7306.76 7291.144           2</span></pre></div>
 <div class="sourceCode" id="cb32"><pre class="downlit">
 <span class="co">## Use asreml for fitting the models - eight models fitted. </span>
 <span class="co">## Use AIC as criterion for determining the best model.</span>
-<span class="co">if</span> (<span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span>(<span class="st">"asreml"</span>, quietly = <span class="fl">TRUE</span>)) {
-  <span class="kw">dropsVC2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeVarCov.html">gxeVarCov</a></span>(TD = <span class="kw">dropsTD</span>, trait = <span class="st">"grain.yield"</span>, engine = <span class="st">"asreml"</span>, criterion = <span class="st">"AIC"</span>)
-  <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="kw">dropsVC2</span>)
-}
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span><span class="op">(</span><span class="st">"asreml"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">dropsVC2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeVarCov.html">gxeVarCov</a></span><span class="op">(</span>TD <span class="op">=</span> <span class="va">dropsTD</span>, trait <span class="op">=</span> <span class="st">"grain.yield"</span>, engine <span class="op">=</span> <span class="st">"asreml"</span>, criterion <span class="op">=</span> <span class="st">"AIC"</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">dropsVC2</span><span class="op">)</span>
+<span class="op">}</span>
 <span class="co">#&gt; Best model: unstructured, based on AIC.</span>
 <span class="co">#&gt;                   AIC      BIC Deviance NParameters</span>
 <span class="co">#&gt; unstructured 2142.065 2455.706 2032.065          55</span>
@@ -822,16 +791,14 @@ The models fitted are of the form <span class="math inline">\(y_{ij} = \mu_j + \
 <span class="co">#&gt; hcs          2775.819 2838.548 2753.819          11</span>
 <span class="co">#&gt; cs           2792.345 2803.750 2788.345           2</span>
 <span class="co">#&gt; diagonal     3637.959 3694.985 3617.959          10</span>
-<span class="co">#&gt; identity     3870.166 3875.869 3868.166           1</span>
-</pre></div>
+<span class="co">#&gt; identity     3870.166 3875.869 3868.166           1</span></pre></div>
 <p>As becomes clear from the summary, the best model based on AIC is the model with an unstructured variance-covariance structure. This indicates that GxE is present in the form of heterogeneity of genetic variances and correlations..</p>
 <p><em>Note that for both factor analytic models to be fitted a minimum of five environments is needed. If the data contains less environments, those two models are skipped.</em></p>
 <p>A heat map of the correlation between the environments based on the best fitted model can be plotted. It will be instructive to compare the fitted correlations of tis section with the ‘observed’ correlations in section <a href="#dp">1</a> and the GGE biplot in section <a href="#gge">5</a>. Comparisons with the mixed models in section <a href="#vcomp">2</a> are also relevant.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit">
-<span class="co">if</span> (<span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span>(<span class="st">"asreml"</span>, quietly = <span class="fl">TRUE</span>)) {
-  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span>(<span class="kw">dropsVC2</span>)
-}
-</pre></div>
+<span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span><span class="op">(</span><span class="st">"asreml"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">dropsVC2</span><span class="op">)</span>
+<span class="op">}</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/geVCPlot-1.png" width="672"></p>
 <p>In the plot correlations between environments are shown. A dark red color indicates a strong positive correlation between environments, a dark blue color a strong negative correlation. Environments are clustered by their correlations and ordered according to the results of the clustering.</p>
 <hr>
@@ -842,15 +809,14 @@ The models fitted are of the form <span class="math inline">\(y_{ij} = \mu_j + \
 <p>Fitted values and residuals for the models fitted using AMMI, GGE, Finlay-Wilkinson, and the selected variance-covariance model can be extracted using the functions <code>fitted</code> and <code>residuals</code> respectively. These can be useful for investigating the quality of the fitted model by e.g. creating diagnostic plots of fitted values against residuals.</p>
 <div class="sourceCode" id="cb34"><pre class="downlit">
 <span class="co">## Extract the fitted values and residuals for the Finlay-Wilkinson model.</span>
-<span class="kw">fitFW</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html">fitted</a></span>(<span class="kw">dropsFW</span>)
-<span class="kw">resFW</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/residuals.html">residuals</a></span>(<span class="kw">dropsFW</span>)
+<span class="va">fitFW</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html">fitted</a></span><span class="op">(</span><span class="va">dropsFW</span><span class="op">)</span>
+<span class="va">resFW</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/residuals.html">residuals</a></span><span class="op">(</span><span class="va">dropsFW</span><span class="op">)</span>
 
 <span class="co">## Create a diagnostic plot of fitted values against residuals.</span>
-<span class="kw">fitResFW</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span>(<span class="kw">fitFW</span>, <span class="kw">resFW</span>, by = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"trial"</span>, <span class="st">"genotype"</span>))
-<span class="kw">ggplot2</span>::<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw">fitResFW</span>, <span class="kw">ggplot2</span>::<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(x = <span class="kw">fittedValue</span>, y = <span class="kw">residual</span>,
-                                       color = <span class="kw">trial</span>)) <span class="op">+</span>
-  <span class="kw">ggplot2</span>::<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>()
-</pre></div>
+<span class="va">fitResFW</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span><span class="op">(</span><span class="va">fitFW</span>, <span class="va">resFW</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"trial"</span>, <span class="st">"genotype"</span><span class="op">)</span><span class="op">)</span>
+<span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">fitResFW</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">fittedValue</span>, y <span class="op">=</span> <span class="va">residual</span>,
+                                       color <span class="op">=</span> <span class="va">trial</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="op">)</span></pre></div>
 <p><img src="statgenGxE_files/figure-html/fitRes-1.png" width="672"></p>
 <hr>
 </div>
@@ -862,20 +828,19 @@ The models fitted are of the form <span class="math inline">\(y_{ij} = \mu_j + \
 <p>For the analysis done in the vignette the reports below can be made. Specify a file with .pdf extension as <code>outfile</code> to set the location where the report is written.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit">
 <span class="co">## Create a report for the Finlay Wilkinson analysis.</span>
-<span class="fu"><a href="https://rdrr.io/pkg/statgenSTA/man/report.html">report</a></span>(<span class="kw">dropsFW</span>, outfile = <span class="st">"./myReports/FWReport.pdf"</span>)
+<span class="fu"><a href="https://rdrr.io/pkg/statgenSTA/man/report.html">report</a></span><span class="op">(</span><span class="va">dropsFW</span>, outfile <span class="op">=</span> <span class="st">"./myReports/FWReport.pdf"</span><span class="op">)</span>
 
 <span class="co">## Create a report for the AMMI analysis.</span>
-<span class="fu"><a href="https://rdrr.io/pkg/statgenSTA/man/report.html">report</a></span>(<span class="kw">dropsAm</span>, outfile = <span class="st">"./myReports/AMMIReport.pdf"</span>)
+<span class="fu"><a href="https://rdrr.io/pkg/statgenSTA/man/report.html">report</a></span><span class="op">(</span><span class="va">dropsAm</span>, outfile <span class="op">=</span> <span class="st">"./myReports/AMMIReport.pdf"</span><span class="op">)</span>
 
 <span class="co">## Create a report for the GGE analysis.</span>
-<span class="fu"><a href="https://rdrr.io/pkg/statgenSTA/man/report.html">report</a></span>(<span class="kw">dropsGGE</span>, outfile = <span class="st">"./myReports/GGEReport.pdf"</span>)
+<span class="fu"><a href="https://rdrr.io/pkg/statgenSTA/man/report.html">report</a></span><span class="op">(</span><span class="va">dropsGGE</span>, outfile <span class="op">=</span> <span class="st">"./myReports/GGEReport.pdf"</span><span class="op">)</span>
 
 <span class="co">## Create a report for the stability analysis.</span>
-<span class="fu"><a href="https://rdrr.io/pkg/statgenSTA/man/report.html">report</a></span>(<span class="kw">dropsStab</span>, outfile = <span class="st">"./myReports/stabReport.pdf"</span>)
+<span class="fu"><a href="https://rdrr.io/pkg/statgenSTA/man/report.html">report</a></span><span class="op">(</span><span class="va">dropsStab</span>, outfile <span class="op">=</span> <span class="st">"./myReports/stabReport.pdf"</span><span class="op">)</span>
 
 <span class="co">## Create a report for the analysis of two-way GxE tables.</span>
-<span class="fu"><a href="https://rdrr.io/pkg/statgenSTA/man/report.html">report</a></span>(<span class="kw">dropsVC2</span>, outfile = <span class="st">"./myReports/varCompReport.pdf"</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/pkg/statgenSTA/man/report.html">report</a></span><span class="op">(</span><span class="va">dropsVC2</span>, outfile <span class="op">=</span> <span class="st">"./myReports/varCompReport.pdf"</span><span class="op">)</span></pre></div>
 <hr>
 <div id="references" class="section level2 unnumbered">
 <h2 class="hasAnchor">

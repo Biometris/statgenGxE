@@ -30,29 +30,33 @@ There were 2 NOTES:
     
     - asreml is a commercial R package that is used as one of two alternatives in some functions.
 
-## Notes from submitting version 1.0.0
+---
 
-* checking CRAN incoming feasibility ... NOTE  
+## Comments from submission v.1.0.1
 
-  Possibly mis-spelled words in DESCRIPTION:
-    Biometris (53:53)
-    GxE (3:33, 50:39)
-    
-  - These are spelled correctly.
+* Please do not start the description with "This package", package name, title or similar.
+
+  - Fixed.
+
+* If there are references describing the methods in your package, please add these in the description field of your DESCRIPTION file in the form authors (year) <doi:...> authors (year) <arXiv:...> authors (year, ISBN:...) or if those are not available: <https:...> with no space after 'doi:', 'arXiv:', 'https:' and angle brackets for auto-linking.
+(If you want to add a title as well please put it in quotes: "Title")
+
+  - Reference to article added.
+
+* Please always make sure to reset to user's options(), working directory or par() after you changed it in examples and vignettes and demos.
+e.g.:
+
+old <- options()
+options(digits = 3)
+...
+options(old)
+e.g.: Vignette
+
+  - Options are now reset at end of vignette.
+
+* Please do not modify the global environment (e.g. by using <<-) in your functions. This is not allowed by the CRAN policies.
+
+  - I did use <<-, but as far as I could see I was not modifying the global environment.
+
   
-  Found the following (possibly) invalid URLs:
-    URL: https://cordis.europa.eu/project/id/244374
-      From: inst/doc/statgenGxE.html
-      Status: Error
-      Message: libcurl error code 35:
-      	 schannel: next InitializeSecurityContext failed: SEC_E_ILLEGAL_MESSAGE    (0x80090326) - This error usually occurs when a fatal SSL/TLS alert is received (e.g. handshake failed).
-      	 
-  - The link works fine from a browser      	 
-
-** running examples for arch 'x64' ... [49s] NOTE
-Examples with CPU (user + system) or elapsed time > 10s
-         user system elapsed
-plot.FW 10.57   0.08   10.69
-
-  - Suppressed testing of some of the examples
 

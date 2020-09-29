@@ -79,7 +79,7 @@ function returns an error." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -164,26 +164,26 @@ function returns an error.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for AMMI</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(
-  <span class='kw'>x</span>,
-  <span class='kw'>...</span>,
-  plotType = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"AMMI1"</span>, <span class='st'>"AMMI2"</span>, <span class='st'>"GGE2"</span>),
-  scale = <span class='fl'>1</span>,
-  plotGeno = <span class='fl'>TRUE</span>,
-  colorGenoBy = <span class='kw'>NULL</span>,
-  colGeno = <span class='kw'>NULL</span>,
-  sizeGeno = <span class='fl'>0</span>,
-  plotConvHull = <span class='fl'>FALSE</span>,
-  plotEnv = <span class='fl'>TRUE</span>,
-  colorEnvBy = <span class='kw'>NULL</span>,
-  colEnv = <span class='kw'>NULL</span>,
-  sizeEnv = <span class='fl'>3</span>,
-  envFactor = <span class='fl'>1</span>,
-  primAxis = <span class='st'>"PC1"</span>,
-  secAxis = <span class='st'>"PC2"</span>,
-  title = <span class='kw'>NULL</span>,
-  output = <span class='fl'>TRUE</span>
-)</pre>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>...</span>,
+  plotType <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AMMI1"</span>, <span class='st'>"AMMI2"</span>, <span class='st'>"GGE2"</span><span class='op'>)</span>,
+  scale <span class='op'>=</span> <span class='fl'>1</span>,
+  plotGeno <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  colorGenoBy <span class='op'>=</span> <span class='cn'>NULL</span>,
+  colGeno <span class='op'>=</span> <span class='cn'>NULL</span>,
+  sizeGeno <span class='op'>=</span> <span class='fl'>0</span>,
+  plotConvHull <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  plotEnv <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  colorEnvBy <span class='op'>=</span> <span class='cn'>NULL</span>,
+  colEnv <span class='op'>=</span> <span class='cn'>NULL</span>,
+  sizeEnv <span class='op'>=</span> <span class='fl'>3</span>,
+  envFactor <span class='op'>=</span> <span class='fl'>1</span>,
+  primAxis <span class='op'>=</span> <span class='st'>"PC1"</span>,
+  secAxis <span class='op'>=</span> <span class='st'>"PC2"</span>,
+  title <span class='op'>=</span> <span class='cn'>NULL</span>,
+  output <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -305,20 +305,20 @@ biplot is returned invisibly.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Run AMMI analysis.</span>
-<span class='kw'>geAmmi</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeAmmi.html'>gxeAmmi</a></span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>)
+<span class='va'>geAmmi</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeAmmi.html'>gxeAmmi</a></span><span class='op'>(</span>TD <span class='op'>=</span> <span class='va'>TDMaize</span>, trait <span class='op'>=</span> <span class='st'>"yld"</span><span class='op'>)</span>
 
 <span class='co'>## Create an AMMI1 biplot.</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>geAmmi</span>)
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>geAmmi</span><span class='op'>)</span>
 </div><div class='img'><img src='plot.AMMI-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'>## Create an AMMI2 biplot.</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>geAmmi</span>, plotType = <span class='st'>"AMMI2"</span>)
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>geAmmi</span>, plotType <span class='op'>=</span> <span class='st'>"AMMI2"</span><span class='op'>)</span>
 </div><div class='img'><img src='plot.AMMI-2.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'>## Run GGE analysis.#'</span>
-<span class='kw'>geGGE</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeGGE.html'>gxeGGE</a></span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>)
+<span class='va'>geGGE</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeGGE.html'>gxeGGE</a></span><span class='op'>(</span>TD <span class='op'>=</span> <span class='va'>TDMaize</span>, trait <span class='op'>=</span> <span class='st'>"yld"</span><span class='op'>)</span>
 
 <span class='co'>## Create an GGE2 biplot.</span>
 <span class='co'>## Add a convex hull.</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>geAmmi</span>, plotType = <span class='st'>"AMMI2"</span>, plotConvHull = <span class='fl'>TRUE</span>)
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>geAmmi</span>, plotType <span class='op'>=</span> <span class='st'>"AMMI2"</span>, plotConvHull <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 </div><div class='img'><img src='plot.AMMI-3.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>
   </div>

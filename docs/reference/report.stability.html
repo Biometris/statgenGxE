@@ -73,7 +73,7 @@ stability. Simultaneously the same report will be created as a tex file." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -152,7 +152,7 @@ stability. Simultaneously the same report will be created as a tex file.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for stability</span>
-<span class='fu'><a href='https://rdrr.io/pkg/statgenSTA/man/report.html'>report</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>, outfile = <span class='kw'>NULL</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/pkg/statgenSTA/man/report.html'>report</a></span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span>, outfile <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -184,10 +184,10 @@ will be created in the current working directory.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Compute three stability measures for TDMaize.</span>
-<span class='kw'>geStab</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeStability.html'>gxeStability</a></span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>)
+<span class='va'>geStab</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeStability.html'>gxeStability</a></span><span class='op'>(</span>TD <span class='op'>=</span> <span class='va'>TDMaize</span>, trait <span class='op'>=</span> <span class='st'>"yld"</span><span class='op'>)</span>
 <span class='co'># \donttest{</span>
 <span class='co'>## Create a .pdf report summarizing the stability measures.</span>
-<span class='fu'><a href='https://rdrr.io/pkg/statgenSTA/man/report.html'>report</a></span>(<span class='kw'>geStab</span>, outfile = <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span>(fileext = <span class='st'>".pdf"</span>))
+<span class='fu'><a href='https://rdrr.io/pkg/statgenSTA/man/report.html'>report</a></span><span class='op'>(</span><span class='va'>geStab</span>, outfile <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span><span class='op'>(</span>fileext <span class='op'>=</span> <span class='st'>".pdf"</span><span class='op'>)</span><span class='op'>)</span>
 <span class='co'># }</span>
 
 </div></pre>

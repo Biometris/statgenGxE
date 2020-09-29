@@ -1,21 +1,3 @@
-#' Custom tryCatch to return result, errors and warnings.
-#' Copied from http://stackoverflow.com/a/24569739/2271856.
-#'
-#' @noRd
-#' @keywords internal
-tryCatchExt <- function(expr) {
-  warn <- err <- NULL
-  value <- withCallingHandlers(
-    tryCatch(expr, error = function(e) {
-      err <<- conditionMessage(e)
-      NULL
-    }), warning = function(w) {
-      warn <<- c(warn, conditionMessage(w))
-      invokeRestart("muffleWarning")
-    })
-  list(value = value, warning = warn, error = err)
-}
-
 #' Helper function for suppressing a single warning message.
 #'
 #' @noRd

@@ -73,7 +73,7 @@ environments." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -152,14 +152,14 @@ environments.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for megaEnv</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(
-  <span class='kw'>x</span>,
-  <span class='kw'>...</span>,
-  engine = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"lme4"</span>, <span class='st'>"asreml"</span>),
-  colorGenoBy = <span class='kw'>NULL</span>,
-  title = <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span>(<span class='st'>"Scatterplot of mega environments for"</span>, <span class='kw'>x</span><span class='op'>$</span><span class='kw'>trait</span>),
-  output = <span class='fl'>TRUE</span>
-)</pre>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>...</span>,
+  engine <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"lme4"</span>, <span class='st'>"asreml"</span><span class='op'>)</span>,
+  colorGenoBy <span class='op'>=</span> <span class='cn'>NULL</span>,
+  title <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='st'>"Scatterplot of mega environments for"</span>, <span class='va'>x</span><span class='op'>$</span><span class='va'>trait</span><span class='op'>)</span>,
+  output <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -202,10 +202,10 @@ genotypes are displayed in black.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Compute mega environments for TDMaize.</span>
-<span class='kw'>geMegaEnv</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeMegaEnv.html'>gxeMegaEnv</a></span>(TD = <span class='kw'>TDMaize</span>, trait = <span class='st'>"yld"</span>)
+<span class='va'>geMegaEnv</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gxeMegaEnv.html'>gxeMegaEnv</a></span><span class='op'>(</span>TD <span class='op'>=</span> <span class='va'>TDMaize</span>, trait <span class='op'>=</span> <span class='st'>"yld"</span><span class='op'>)</span>
 
 <span class='co'>## Create a scatter plot of predicted values.</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>geMegaEnv</span>)
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>geMegaEnv</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span class='warning'>Warning: One should be cautious with the interpretation of predictions for mega environments that are based on less than 10 trials.</span></div><div class='output co'>#&gt; <span class='message'>boundary (singular) fit: see ?isSingular</span></div><div class='img'><img src='plot.megaEnv-1.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>
   </div>

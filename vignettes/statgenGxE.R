@@ -5,7 +5,7 @@ comment = "#>",
 fig.dim = c(7, 4)
 )
 library(statgenGxE)
-options(width = 90)
+op <- options(width = 90)
 options("statgen.trialColors" = c("#9E0142FF", "#35B779FF", "#B4DE2CFF",
                                   "#006837FF", "#D53E4FFF"))
 
@@ -221,4 +221,7 @@ ggplot2::ggplot(fitResFW, ggplot2::aes(x = fittedValue, y = residual,
 #  
 #  ## Create a report for the analysis of two-way GxE tables.
 #  report(dropsVC2, outfile = "./myReports/varCompReport.pdf")
+
+## ----winddown, include = FALSE------------------------------------------------
+options(op)
 

@@ -9,7 +9,7 @@ downloads](https://cranlogs.r-pkg.org/badges/statgenGxE)](https://www.r-pkg.org/
 [![R-CMD-check](https://github.com/Biometris/statgenGxE/workflows/R-CMD-check/badge.svg)](https://github.com/Biometris/statgenGxE/actions?workflow=R-CMD-check)
 [![codecov](https://codecov.io/gh/Biometris/statgenGxE/branch/master/graph/badge.svg)](https://codecov.io/gh/Biometris/statgenGxE)
 
-**statgenGxE** is an R package providing functions fir Genotype by
+**statgenGxE** is an R package providing functions for Genotype by
 Environment (GxE) analysis for data of plant breeding experiments.
 
 The following types of analysis can be done using statgenGxE:
