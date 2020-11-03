@@ -70,7 +70,8 @@ test_that("lme4 model gives correct output", {
   expect_equivalent(geVCLm$vcov,
                     c(25.8985599502474, 5.25233386534017, 5.25233386534018,
                       5.25233386534017, 25.8985599502474, 5.25233386534018,
-                      5.25233386534018, 5.25233386534018, 25.8985599502474))
+                      5.25233386534018, 5.25233386534018, 25.8985599502474),
+                    tolerance = 1e-6)
 })
 
 test_that("option criterion works properly", {

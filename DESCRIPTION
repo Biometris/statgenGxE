@@ -1,8 +1,8 @@
 Package: statgenGxE
 Type: Package
 Title: Genotype by Environment (GxE) Analysis
-Version: 1.0.2
-Date: 2020-09-28
+Version: 1.0.3
+Date: 2020-11-03
 Authors@R: c(person(given = "Bart-Jan", 
                     family = "van Rossum", 
                     email = "bart-jan.vanrossum@wur.nl", 
@@ -75,3 +75,6 @@ Suggests: asreml(>= 3.0),
     testthat
 SystemRequirements: pdflatex    
 VignetteBuilder: knitr
+URL: https://biometris.github.io/statgenGxE/index.html, https://github.com/Biometris/statgenGxE/
+BugReports: https://github.com/Biometris/statgenGxE/issues
+
