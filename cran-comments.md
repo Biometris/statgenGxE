@@ -19,8 +19,6 @@ There were 2 NOTES:
 
   * checking CRAN incoming feasibility ... NOTE    
   
-    New submission
-
     Suggests or Enhances not in mainstream repositories: asreml
 
     - asreml is a commercial R package that is used as one of two alternatives in some functions.

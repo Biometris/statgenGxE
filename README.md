@@ -14,13 +14,13 @@ Environment (GxE) analysis for data of plant breeding experiments.
 
 The following types of analysis can be done using statgenGxE:
 
-  - Mixed model analysis of GxE table of means
-  - Finlay-Wilkinson Analysis
-  - AMMI Analysis
-  - GGE Analysis
-  - Identifying mega environments
-  - Stability measures
-  - Modeling of heterogeneity of genetic variances and correlations
+-   Mixed model analysis of GxE table of means
+-   Finlay-Wilkinson Analysis
+-   AMMI Analysis
+-   GGE Analysis
+-   Identifying mega environments
+-   Stability measures
+-   Modeling of heterogeneity of genetic variances and correlations
 
 statgenGxE has extensive options for summarizing and visualizing the
 results of the analyses. For a full overview of all options it is best
@@ -29,18 +29,14 @@ to read the
 
 ## Installation
 
-  - Install from CRAN:
-
-<!-- end list -->
+-   Install from CRAN:
 
 ``` r
 install.packages("statgenGxE")
 ```
 
-  - Install latest development version from GitHub (requires
+-   Install latest development version from GitHub (requires
     [remotes](https://github.com/r-lib/remotes) package):
-
-<!-- end list -->
 
 ``` r
 remotes::install_github("Biometris/statgenGxE", ref = "develop", dependencies = TRUE)
