@@ -27,7 +27,7 @@ options("statgen.trialColors" = c("#9E0142FF", "#35B779FF", "#B4DE2CFF",
 
 # The statgenGxE package {-}
 
-The statgenGxE package is developed as an easy-to-use package for Genotype by Environment (GxE) analysis for data of plant breeding experiments with many options for plotting and reporting the results of the analyses.  
+The statgenGxE package is developed as an easy-to-use package for Genotype by Environment (GxE) analysis for data of plant breeding experiments with many options for plotting and reporting the results of the analyses.
 
 This vignette describes how to perform the different types of analysis that are available in the package. The availability of functions in the package is based on the analyses described in @Malosetti2013. Further suggested reading is @vanEeuwijk2016.
 
