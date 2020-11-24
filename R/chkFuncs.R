@@ -77,9 +77,10 @@ chkTrials <- function(trials,
 #' @keywords internal
 chkCol <- function(column,
                    obj) {
-  if (is.null(column) || !is.character(column) || length(column) > 1 ||
-      !hasName(x = obj, name = column)) {
+  if (is.null(column) || !is.character(column) || length(column) > 1) {
+    stop(match.call()$column, " has to be a character string of length 1.\n")
+  }
+  if (!hasName(x = obj, name = column)) {
     stop(column, " has to be a column in ", deparse(substitute(obj)), ".\n")
   }
 }
-

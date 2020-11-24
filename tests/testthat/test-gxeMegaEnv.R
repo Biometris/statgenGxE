@@ -3,6 +3,8 @@ context("gxeMegaEnv")
 test_that("general checks in gxeMegaEnv function properly", {
   expect_error(gxeMegaEnv(1, trait = "t1"),
                "TD should be a valid object of class TD")
+  expect_error(gxeMegaEnv(testTD, trait = c("t1", "t1")),
+               "trait has to be a character string of length 1")
   expect_error(gxeMegaEnv(testTD, trait = "t5"),
                "t5 has to be a column in TD")
   expect_error(gxeMegaEnv(testTD, trait = "t1", byYear = TRUE),

@@ -3,6 +3,8 @@ context("gxeVarComp")
 test_that("general checks in gxeVarComp function properly", {
   expect_error(gxeVarComp(1, trait = "t1"),
                "TD should be a valid object of class TD")
+  expect_error(gxeVarComp(testTD, trait = c("t1", "t1")),
+               "trait has to be a character string of length 1")
   expect_error(gxeVarComp(BLUEs, trait = "t5"),
                "t5 has to be a column in TD")
   expect_error(gxeVarComp(BLUEs, trials = "E4", trait = "t1"),

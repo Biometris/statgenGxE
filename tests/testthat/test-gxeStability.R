@@ -3,6 +3,8 @@ context("gxeStability")
 test_that("general checks in gxeStability function properly", {
   expect_error(gxeStability(1, trait = "t1"),
                "TD should be a valid object of class TD")
+  expect_error(gxeStability(testTD, trait = c("t1", "t1")),
+               "trait has to be a character string of length 1")
   expect_error(gxeStability(testTD, trait = "t5"),
                "t5 has to be a column in TD")
 })

@@ -3,6 +3,8 @@ context("gxeAmmi")
 test_that("general checks in gxeAmmi function properly", {
   expect_error(gxeAmmi(1, trait = "t1"),
                "TD should be a valid object of class TD")
+  expect_error(gxeAmmi(testTD, trait = c("t1", "t1")),
+               "trait has to be a character string of length 1")
   expect_error(gxeAmmi(BLUEs, trait = "t5"),
                "t5 has to be a column in TD")
   expect_error(gxeAmmi(BLUEs, trials = "E4", trait = "t1"),
