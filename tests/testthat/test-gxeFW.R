@@ -109,3 +109,12 @@ test_that("option genotypes functions properly", {
   expect_is(geFw, "FW")
   expect_equal(dim(geFw$estimates), c(10, 7))
 })
+
+test_that("a user friendly warning is given for genotypes in single trial", {
+  testTD2 <- testTD
+  testTD2$E2 <- testTD2$E2[testTD2$E2[["genotype"]] != "G1", ]
+  testTD2$E3 <- testTD2$E3[testTD2$E3[["genotype"]] != "G1", ]
+  expect_warning(gxeFw(testTD2, trait = "t1"),
+                 c("following genotypes are present in only one trial"))
+  expect_silent(gxeFw(testTD2, trait = "t1", genotypes = paste0("G", 2:15)))
+})

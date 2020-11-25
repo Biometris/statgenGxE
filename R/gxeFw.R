@@ -111,8 +111,19 @@ gxeFw <- function(TD,
     all(is.na(x[trait]))
   })
   TDTot <- TDTot[!TDTot[["genotype"]] %in% names(allNA[allNA]), ]
-  ## Drop levels to make sure prcomp doesn't crash.
+  ## Drop levels.
   TDTot <- droplevels(TDTot)
+  ## Genotypes that are observed in only one trial will cause warnings when
+  ## making predictions based on the fitted model.
+  ## Check if the data contains such genotypes and give a user friendly
+  ## warning here.
+  genoTab <- table(unique(TDTot[c("genotype", "trial")]))
+  genoOneObs <- rownames(genoTab)[rowSums(genoTab) == 1]
+  if (length(genoOneObs) > 0) {
+    warning("The following genotypes are present in only one trial. ",
+            "This might give misleading predictions. Please check your data.\n",
+            paste(genoOneObs, collapse = ", "), call. = FALSE)
+  }
   ## Set wt to 1 if no weighting is used.
   if (!useWt) {
     TDTot[["wt"]] <- 1
@@ -261,9 +272,17 @@ gxeFw <- function(TD,
                      names(envEffs))
   ## Create a full grid for making predictions.
   fullDat <- expand.grid(trial = levels(TDTot[["trial"]]),
-                      genotype = levels(TDTot[["genotype"]]))
+                         genotype = levels(TDTot[["genotype"]]))
   fullDat[["envEffs"]] <- envEffs
-  predGeno <- predict(model1, se.fit = TRUE, newdata = fullDat)
+  ## Predict will give a warning if there a genotypes that are present
+  ## in only one trial. A more user friendly warning is shown earlier.
+  ## Therefor suppress this specific warning if this is the case.
+  if (length(genoOneObs) > 0) {
+    supprWarn(predGeno <- predict(model1, se.fit = TRUE, newdata = fullDat),
+              "may be misleading")
+  } else {
+    predGeno <- predict(model1, se.fit = TRUE, newdata = fullDat)
+  }
   fittedGeno <- cbind(fullDat[c("trial", "genotype")],
                       fittedValue = predGeno$fit,
                       seFittedValue = predGeno$se.fit)
