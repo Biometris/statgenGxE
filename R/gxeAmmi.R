@@ -290,7 +290,7 @@ gxeAmmiHelp <- function(TD,
           pcaOrig <- pca
           pca <- prcomp(x = na.omit(resids), retx = TRUE, center = center,
                         scale. = FALSE, rank. = i)
-          pcaAov <- pcaToAov(pca = pca, aov = aov)
+          pcaAov <- pcaToAov(pca = pca, aov = aov, GGE = GGE)
           ## When there are no degrees of freedom left for the residual variance
           ## Pr(>F) will be nan. In this case revert to the previous number of
           ## components as well.
@@ -303,9 +303,13 @@ gxeAmmiHelp <- function(TD,
       nPCYear <- ncol(pca$rotation)
     }
     ## Compute anova part for pca components.
-    pcaAov <- pcaToAov(pca = pca, aov = aov)
+    pcaAov <- pcaToAov(pca = pca, aov = aov, GGE = GGE)
     ## Create complete ANOVA table.
     aov <- rbind(aov, pcaAov)
+    ## For GGE, rename Interactions to GGE
+    if (GGE) {
+      rownames(aov)[rownames(aov) == "Interactions"] <- "GGE"
+    }
     ## Extract loadings and scores from pca.
     loadings <- pca$rotation
     scores <- pca$x
@@ -380,7 +384,8 @@ gxeAmmiHelp <- function(TD,
 
 #' @keywords internal
 pcaToAov <- function(pca,
-                     aov) {
+                     aov,
+                     GGE) {
   nPC <- ncol(pca$rotation)
   nEnv <- nrow(pca$rotation)
   nGeno <- nrow(pca$x)
@@ -388,7 +393,7 @@ pcaToAov <- function(pca,
                    dimnames = list(c(paste0("PC", 1:nPC), "Residuals"),
                                    colnames(aov)))
   ## Compute degrees of freedom and add to table.
-  dfPC <- nGeno + nEnv - 3 - (2 * (1:nPC - 1))
+  dfPC <- nGeno + nEnv - (2 * (1:nPC - 1)) - ifelse(GGE, 2, 3)
   dfResid <- aov["Interactions", "Df"] - sum(dfPC)
   pcaAov[, "Df"] <- c(dfPC, dfResid)
   ## Compute sum of squares for PC and residuals and add to table.
