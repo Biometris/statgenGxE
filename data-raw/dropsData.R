@@ -23,7 +23,7 @@ dropsPheno[["loc"]] <- substring(dropsPheno[["Experiment"]],
 
 ## Add scenario columns.
 scenario <- data.frame(Experiment = exps,
-                       scenarioWater = c("WW", "WD", "WW", "WW", "WW",
+                       scenarioWater = c("WD", "WD", "WW", "WW", "WW",
                                          "WW", "WD", "WW", "WW", "WD"),
                        scenarioTemp = c("Hot", "Hot", "Cool", "Cool",
                                         "Hot(Day)", "Hot(Day)", "Hot(Day)",
