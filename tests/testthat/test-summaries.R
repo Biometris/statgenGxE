@@ -60,7 +60,7 @@ test_that("megaEnv summary produces correct output", {
   geMegaEnv <- gxeMegaEnv(TD = BLUEs, trait = "t1")
   sumMegaEnv <- capture.output(summary(geMegaEnv))
   expect_true("Mega environments based on t1" %in% sumMegaEnv)
-  expect_true(" Mega factor Trial Winning genotype AMMI estimates" %in% sumMegaEnv)
+  expect_true(" Mega_factor Trial Winning_genotype AMMI_estimates" %in% sumMegaEnv)
 })
 
 test_that("varComp summary produces correct output", {

@@ -87,7 +87,7 @@ gxeMegaEnv <- function(TD,
                    })
   ## Create factor based on best genotypes.
   megaFactor <- factor(winGeno,
-                       labels = paste("megaEnv", seq_along(unique(winGeno))))
+                       labels = paste0("megaEnv_", seq_along(unique(winGeno))))
   ## Merge factor levels to original data.
   TDTot[["megaEnv"]] <- TDTot[["trial"]]
   levels(TDTot[["megaEnv"]]) <- as.character(megaFactor)
@@ -101,11 +101,10 @@ gxeMegaEnv <- function(TD,
   TDTot[["megaEnv"]] <- factor(as.character(TDTot[["megaEnv"]]))
   TDOut <- createTD(TDTot)
   ## Create summary table.
-  summTab <- data.frame("Mega factor" = megaFactor,
+  summTab <- data.frame("Mega_factor" = megaFactor,
                         Trial = names(winGeno),
-                        "Winning genotype" = as.character(winGeno),
-                        "AMMI estimates" = as.numeric(winGenoVal),
-                        check.names = FALSE)
+                        "Winning_genotype" = as.character(winGeno),
+                        "AMMI_estimates" = as.numeric(winGenoVal))
   summTab <- summTab[order(megaFactor), ]
   return(createMegaEnv(TD = TDOut, summTab = summTab, trait = trait))
 }

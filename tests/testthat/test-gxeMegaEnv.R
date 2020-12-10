@@ -21,13 +21,13 @@ test_that("mega environments are computed correctly", {
   expect_equal(dim(geMegaEnvTot), c(45, 7))
   expect_equal(as.numeric(geMegaEnvTot[["megaEnv"]]),
                rep(x = c(2, 1, 1), each = 15))
-  expect_equal(levels(geMegaEnvTot[["megaEnv"]]), c("megaEnv 1", "megaEnv 2"))
+  expect_equal(levels(geMegaEnvTot[["megaEnv"]]), c("megaEnv_1", "megaEnv_2"))
 })
 
 test_that("summary is computed correctly", {
   summ <- geMegaEnv$summTab
-  expect_equal(as.character(summ[["Winning genotype"]]), c("G2", "G2", "G9"))
-  expect_equal(summ[["AMMI estimates"]],
+  expect_equal(as.character(summ[["Winning_genotype"]]), c("G2", "G2", "G9"))
+  expect_equal(summ[["AMMI_estimates"]],
                c(111.48629093387, 119.206304548313, 126.941193543844))
 })
 
@@ -37,11 +37,11 @@ test_that("option method functions properly", {
   expect_equal(as.numeric(geMegaEnvMinTot[["megaEnv"]]),
                rep(x = c(3, 1, 2), each = 15))
   expect_equal(levels(geMegaEnvMinTot[["megaEnv"]]),
-               c("megaEnv 1", "megaEnv 2", "megaEnv 3"))
+               c("megaEnv_1", "megaEnv_2", "megaEnv_3"))
   summMin <- geMegaEnvMin$summTab
-  expect_equal(as.character(summMin[["Winning genotype"]]),
+  expect_equal(as.character(summMin[["Winning_genotype"]]),
                c("G10", "G6", "G7"))
-  expect_equal(summMin[["AMMI estimates"]],
+  expect_equal(summMin[["AMMI_estimates"]],
                c(46.7063274979725, 53.6811189560119, 49.8026925088618))
 })
 
