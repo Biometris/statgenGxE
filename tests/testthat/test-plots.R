@@ -48,7 +48,7 @@ test_that("AMMI plot plotType options function properly", {
   p1a <- plot(geAmmi, plotType = "AMMI2")
   p1b <- plot(geAmmi, plotType = "GGE2")
   p2 <- plot(geGGE)
-  expect_equal(p1a, p1b)
+  expect_equal(p1a, p1b, check.environment = FALSE)
   expect_equal(p2$labels$title, "GGE biplot for t1 (environment scaling) ")
 })
 
@@ -258,7 +258,8 @@ test_that("colorEnvBy combined with colorGenoBy functions properly", {
 
 test_that("AMMI plot plotConvHull functions properly", {
   ## plotConvHull should be ignored for AMMI1.
-  expect_equal(p0_1, plot(geAmmi, plotConvHull = TRUE))
+  expect_equal(p0_1, plot(geAmmi, plotConvHull = TRUE),
+               check.environment = FALSE)
   ## For AMMI2 there should be an extra layers.
   p1_2 <- plot(geAmmi, plotType = "AMMI2", plotConvHull = TRUE)
   geoms0_2 <- sapply(p0_2$layers, function(x) class(x$geom)[1])
