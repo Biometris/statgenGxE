@@ -168,6 +168,8 @@ summary.AMMI <- function(object,
 #' plotted on the secondary axis of the AMMI2 plot. Has to be given as
 #' \code{"PCn"} where n is the number of the principal component. n Has to
 #' differ from \code{primAxis}.
+#' @param rotatePC A character string indicating a genotype or environment that
+#' is to be aligned with the positive x-axis in the plot.
 #' @param title A character string used a title for the plot.
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
@@ -185,7 +187,7 @@ summary.AMMI <- function(object,
 #' ## Create an AMMI2 biplot.
 #' plot(geAmmi, plotType = "AMMI2")
 #'
-#' ## Run GGE analysis.#'
+#' ## Run GGE analysis.
 #' geGGE <- gxeGGE(TD = TDMaize, trait = "yld")
 #'
 #' ## Create an GGE2 biplot.
@@ -213,6 +215,7 @@ plot.AMMI <- function(x,
                       envFactor = 1,
                       primAxis = "PC1",
                       secAxis = "PC2",
+                      rotatePC = NULL,
                       title = NULL,
                       output = TRUE) {
   ## Checks.
@@ -283,6 +286,7 @@ plot.AMMI <- function(x,
     }
   }
   chkNum(envFactor, min = 0)
+  chkChar(rotatePC, len = 1)
   if (plotType == "AMMI1") {
     if (x$byYear) {
       ## Create a list of AMMI1 plots.
@@ -294,10 +298,10 @@ plot.AMMI <- function(x,
                   genoMean = x$genoMean[[year]] / envFactor,
                   envMean = x$envMean[[year]] * envFactor,
                   trait = x$trait, dat = x$dat[[year]], GGE = x$GGE,
-                  year = year, scale = scale, plotGeno = plotGeno,
-                  colGeno = colGeno, sizeGeno = sizeGeno, plotEnv = plotEnv,
-                  colorEnvBy = colorEnvBy, colEnv = colEnv, sizeEnv = sizeEnv,
-                  colorGenoBy = colorGenoBy, title = title)
+                  year = year, rotatePC = rotatePC, scale = scale,
+                  plotGeno = plotGeno, colGeno = colGeno, sizeGeno = sizeGeno,
+                  plotEnv = plotEnv, colorEnvBy = colorEnvBy, colEnv = colEnv,
+                  sizeEnv = sizeEnv, colorGenoBy = colorGenoBy, title = title)
       }, simplify = FALSE)
     } else {
       ## Create a single AMMI1 plot.
@@ -307,7 +311,8 @@ plot.AMMI <- function(x,
                      overallMean = x$overallMean * envFactor,
                      genoMean = x$genoMean / envFactor,
                      envMean = x$envMean * envFactor,
-                     trait = x$trait, dat = x$dat, GGE = x$GGE, scale = scale,
+                     trait = x$trait, dat = x$dat, GGE = x$GGE,
+                     rotatePC = rotatePC, scale = scale,
                      plotGeno = plotGeno, colGeno = colGeno,
                      sizeGeno = sizeGeno, plotEnv = plotEnv,
                      colorEnvBy = colorEnvBy,
@@ -356,6 +361,7 @@ plot.AMMI <- function(x,
                               importance = x$importance[[year]],
                               trait = x$trait, dat = x$dat[[year]], GGE = x$GGE,
                               year = year, primAxis = primAxis,
+                              rotatePC = rotatePC,
                               secAxis = secAxis, scale = scale,
                               plotGeno = plotGeno, colGeno = colGeno,
                               sizeGeno = sizeGeno, plotConvHull = plotConvHull,
@@ -379,8 +385,9 @@ plot.AMMI <- function(x,
                      scores = x$genoScores,
                      importance = x$importance, trait = x$trait, dat = x$dat,
                      GGE = x$GGE, primAxis = primAxis, secAxis = secAxis,
-                     scale = scale, plotGeno = plotGeno, colGeno = colGeno,
-                     sizeGeno = sizeGeno, plotConvHull = plotConvHull,
+                     rotatePC = rotatePC, scale = scale, plotGeno = plotGeno,
+                     colGeno = colGeno, sizeGeno = sizeGeno,
+                     plotConvHull = plotConvHull,
                      plotEnv = plotEnv, colEnv = colEnv,
                      colorEnvBy = colorEnvBy, sizeEnv = sizeEnv,
                      colorGenoBy = colorGenoBy, title = title)
@@ -410,6 +417,7 @@ plotAMMI1 <- function(loadings,
                       dat,
                       GGE,
                       year = "",
+                      rotatePC = NULL,
                       scale,
                       plotGeno = TRUE,
                       colorGenoBy,
@@ -522,6 +530,31 @@ plotAMMI1 <- function(loadings,
   } else {
     envDat <- NULL
   }
+  ## Create total data,frame for convenience.
+  totDat <- rbind(genoDat, envDat)
+  ## Rotate in such a way that the selected environment or genotype
+  ## is aligned with the positive x-axis.
+  if (!is.null(rotatePC)) {
+    ## Rotating around x value of overallMean.
+    totDat[["x"]] <- totDat[["x"]] + overallMean
+    genoDat[["x"]] <- genoDat[["x"]] + overallMean
+    envDat[["x"]] <- envDat[["x"]] + overallMean
+    ## Get the angle between the selected env/geno and the positive x-axis.
+    xRot <- totDat[rotatePC, "x"]
+    yRot <- totDat[rotatePC, "y"]
+    theta <- atan2(yRot, xRot)
+    ## Rotate clockwise over this angle.
+    totDat <- rotatePC(dat = totDat, theta = theta, primAxis = "x",
+                       secAxis = "y")
+    genoDat <- rotatePC(dat = genoDat, theta = theta, primAxis = "x",
+                        secAxis = "y")
+    envDat <- rotatePC(dat = envDat, theta = theta, primAxis = "x",
+                       secAxis = "y")
+    ## Rotating around x value of overallMean.
+    totDat[["x"]] <- totDat[["x"]] + overallMean
+    genoDat[["x"]] <- genoDat[["x"]] + overallMean
+    envDat[["x"]] <- envDat[["x"]] + overallMean
+  }
   ## Bind together so everything can be plotted in one go.
   ## This has to be done because only one color legend is allowed.
   ## Split between points and text data.
@@ -535,7 +568,7 @@ plotAMMI1 <- function(loadings,
   ## Create total data,frame for convenience.
   totDat <- rbind(genoDat, envDat)
   ## Get x and y limits and compute plotRatio from them.
-  ## This assures 1 unit on the x-asis is identical to 1 unit on the y-axis.
+  ## This assures 1 unit on the x-axis is identical to 1 unit on the y-axis.
   yMin <- min(totDat[["y"]])
   yMax <- max(totDat[["y"]])
   xMin <- min(totDat[["x"]])
@@ -588,7 +621,7 @@ plotAMMI1 <- function(loadings,
     p <- p + ggplot2::geom_text(data = textDat,
                                 ggplot2::aes_string(label = "rownames(textDat)",
                                                     size = ".size"),
-                                show.legend = !is.null(colorEnvBy), vjust = 1) +
+                                show.legend = !is.null(colorEnvBy), vjust = 0) +
       ggplot2::scale_size(range = range(textDat[[".size"]]), guide = FALSE)
   }
   return(p)
@@ -607,6 +640,7 @@ plotAMMI2 <- function(loadings,
                       year = "",
                       primAxis = "PC1",
                       secAxis = "PC2",
+                      rotatePC = NULL,
                       scale,
                       plotGeno = TRUE,
                       colGeno = NULL,
@@ -738,6 +772,23 @@ plotAMMI2 <- function(loadings,
   } else {
     envDat <- NULL
   }
+  ## Create total data,frame for convenience.
+  totDat <- rbind(genoDat, envDat)
+  ## Rotate in such a way that the selected environment or genotype
+  ## is aligned with the positive x-axis.
+  if (!is.null(rotatePC)) {
+    ## Get the angle between the selected env/geno and the positive x-axis.
+    xRot <- totDat[rotatePC, primAxis]
+    yRot <- totDat[rotatePC, secAxis]
+    theta <- atan2(yRot, xRot)
+    ## Rotate clockwise over this angle.
+    totDat <- rotatePC(dat = totDat, theta = theta, primAxis = primAxis,
+                       secAxis = secAxis)
+    genoDat <- rotatePC(dat = genoDat, theta = theta, primAxis = primAxis,
+                        secAxis = secAxis)
+    envDat <- rotatePC(dat = envDat, theta = theta, primAxis = primAxis,
+                       secAxis = secAxis)
+  }
   ## Bind together so everything can be plotted in one go.
   ## This has to be done because only one color legend is allowed.
   ## Split between points and text data.
@@ -748,8 +799,6 @@ plotAMMI2 <- function(loadings,
     pointDat <- NULL
     textDat <- rbind(genoDat, envDat)
   }
-  ## Create total data,frame for convenience.
-  totDat <- rbind(genoDat, envDat)
   ## Get x and y limits and compute plotRatio from them.
   ## This assures 1 unit on the x-asis is identical to 1 unit on the y-axis.
   yMin <- min(totDat[[secAxis]])
@@ -873,6 +922,23 @@ plotAMMI2 <- function(loadings,
                             show.legend = FALSE)
   }
   return(p)
+}
+
+#' Helper function for clockwise rotation over an angle of theta.
+#'
+#' @noRd
+#' @keywords internal
+rotatePC <- function(dat,
+                     primAxis,
+                     secAxis,
+                     theta) {
+  if (!is.null(dat)) {
+    rot1 <- dat[[primAxis]] * cos(theta) + dat[[secAxis]] * sin(theta)
+    rot2 <- - dat[[primAxis]] * sin(theta) + dat[[secAxis]] * cos(theta)
+    dat[[primAxis]] <- rot1
+    dat[[secAxis]] <- rot2
+  }
+  return(dat)
 }
 
 #' Extract fitted values.
