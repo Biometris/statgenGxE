@@ -192,7 +192,7 @@ summary.AMMI <- function(object,
 #'
 #' ## Create an GGE2 biplot.
 #' ## Add a convex hull.
-#' plot(geAmmi, plotType = "AMMI2", plotConvHull = TRUE)
+#' plot(geGGE, plotType = "GGE2", plotConvHull = TRUE)
 #'
 #' @importFrom grDevices topo.colors
 #'
@@ -781,14 +781,22 @@ plotAMMI2 <- function(loadings,
     xRot <- totDat[rotatePC, primAxis]
     yRot <- totDat[rotatePC, secAxis]
     theta <- atan2(yRot, xRot)
-    ## Rotate clockwise over this angle.
-    totDat <- rotatePC(dat = totDat, theta = theta, primAxis = primAxis,
-                       secAxis = secAxis)
-    genoDat <- rotatePC(dat = genoDat, theta = theta, primAxis = primAxis,
-                        secAxis = secAxis)
-    envDat <- rotatePC(dat = envDat, theta = theta, primAxis = primAxis,
-                       secAxis = secAxis)
+  } else if (GGE) {
+    ## Rotation to genotypic main effect as default for GGE.
+    xRot <- mean(envDat[, primAxis])
+    yRot <- mean(envDat[, secAxis])
+    theta <- atan2(yRot, xRot)
+  } else {
+    ## No rotation by default. Set angle to 0.
+    theta <- 0
   }
+  ## Rotate clockwise over this angle.
+  totDat <- rotatePC(dat = totDat, theta = theta, primAxis = primAxis,
+                     secAxis = secAxis)
+  genoDat <- rotatePC(dat = genoDat, theta = theta, primAxis = primAxis,
+                      secAxis = secAxis)
+  envDat <- rotatePC(dat = envDat, theta = theta, primAxis = primAxis,
+                     secAxis = secAxis)
   ## Bind together so everything can be plotted in one go.
   ## This has to be done because only one color legend is allowed.
   ## Split between points and text data.
