@@ -192,7 +192,7 @@ summary.AMMI <- function(object,
 #'
 #' ## Create an GGE2 biplot.
 #' ## Add a convex hull.
-#' plot(geGGE, plotType = "GGE2", plotConvHull = TRUE)
+#' plot(geGGE, plotType = "GGE2", scale = 0.5, plotConvHull = TRUE)
 #'
 #' @importFrom grDevices topo.colors
 #'
@@ -287,6 +287,10 @@ plot.AMMI <- function(x,
   }
   chkNum(envFactor, min = 0)
   chkChar(rotatePC, len = 1)
+  if (!is.null(rotatePC) && !rotatePC %in% x$dat[["genotype"]] &&
+      !rotatePC %in% x$dat[["trial"]]) {
+    stop("rotatePC should specify a genotype or trial present in data.\n")
+  }
   if (plotType == "AMMI1") {
     if (x$byYear) {
       ## Create a list of AMMI1 plots.
