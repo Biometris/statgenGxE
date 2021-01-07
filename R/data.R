@@ -54,12 +54,12 @@
 #' \item{geneticGroup}{the genetic group to which the genotype belongs}
 #' }
 #'
-#' @source \url{https://data.inrae.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN}
+#' @source \doi{10.15454/IASSTN}
 #'
 #' @references Millet, E. J., Pommier, C., et al. (2019). A multi-site
 #' experiment in a network of European fields for assessing the maize yield
 #' response to environmental scenarios (Data set).
-#' \url{https://doi.org/10.15454/IASSTN}
+#' \doi{10.15454/IASSTN}
 "dropsPheno"
 
 #' Field data for a maize experiment in Tlaltizapan, Mexico

@@ -30,7 +30,7 @@ scenarios. \eqn{\sigma_E} corresponds to the residual standard deviation and
 \references{
 Atlin, G. N., Baker, R. J., McRae, K. B., & Lu, X. (2000).
 Selection response in subdivided target regions. Crop Science, 40(1), 7–13.
-\url{https://doi.org/10.2135/cropsci2000.4017}
+\doi{10.2135/cropsci2000.4017}
 }
 \seealso{
 Other Mixed model analysis: 

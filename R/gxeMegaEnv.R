@@ -32,7 +32,7 @@
 #'
 #' @references Atlin, G. N., R. J. Baker, K. B. McRae, and X. Lu. 2000.
 #' Selection Response in Subdivided Target Regions. Crop Sci. 40:7-13.
-#' https://doi:10.2135/cropsci2000.4017
+#' \doi{10.2135/cropsci2000.4017}
 #'
 #' @family mega environments
 #'

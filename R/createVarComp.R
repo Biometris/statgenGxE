@@ -368,7 +368,7 @@ vc <- function(varComp) {
 #'
 #' @references Atlin, G. N., Baker, R. J., McRae, K. B., & Lu, X. (2000).
 #' Selection response in subdivided target regions. Crop Science, 40(1), 7–13.
-#' \url{https://doi.org/10.2135/cropsci2000.4017}
+#' \doi{10.2135/cropsci2000.4017}
 #'
 #' @export
 herit <- function(varComp) {
@@ -448,7 +448,7 @@ herit <- function(varComp) {
 #'
 #' @references Atlin, G. N., Baker, R. J., McRae, K. B., & Lu, X. (2000).
 #' Selection response in subdivided target regions. Crop Science, 40(1), 7–13.
-#' \url{https://doi.org/10.2135/cropsci2000.4017}
+#' \doi{10.2135/cropsci2000.4017}
 #'
 #' @family Mixed model analysis
 #'
