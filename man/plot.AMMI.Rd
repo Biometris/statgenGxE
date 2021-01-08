@@ -124,7 +124,7 @@ geGGE <- gxeGGE(TD = TDMaize, trait = "yld")
 
 ## Create an GGE2 biplot.
 ## Add a convex hull.
-plot(geGGE, plotType = "GGE2", plotConvHull = TRUE)
+plot(geGGE, plotType = "GGE2", scale = 0.5, plotConvHull = TRUE)
 
 }
 \seealso{
