@@ -73,7 +73,7 @@ associated standard errors based on a set of mega environments." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.4</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@ associated standard errors based on a set of mega environments." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home"></span>
+    <span class="fas fa-home"></span>
      
   </a>
 </li>
@@ -92,21 +92,21 @@ associated standard errors based on a set of mega environments." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="../news/index.html">
-    <span class="fa fa-newspaper-o"></span>
+    <span class="fas fa-newspaper-o"></span>
      
     news
   </a>
 </li>
 <li>
   <a href="../reference/index.html">
-    <span class="fa fa-file-code-o"></span>
+    <span class="fas fa-file-code-o"></span>
      
     functions
   </a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    <span class="fa fa-seedling"></span>
+    <span class="fas fa-seedling"></span>
      
     other packages
      
@@ -123,7 +123,7 @@ associated standard errors based on a set of mega environments." />
 </li>
 <li>
   <a href="https://github.com/Biometris/statgenGxE">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fas fa-github fa-lg"></span>
      
     github
   </a>
@@ -205,14 +205,14 @@ containing standard errors for those BLUPs.</p>
 <span class='co'>## Compute BLUPS and standard errors for those mega environments.</span>
 <span class='va'>megaEnvPred</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span><span class='va'>geMegaEnv</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span class='warning'>Warning: One should be cautious with the interpretation of predictions for mega environments that are based on less than 10 trials.</span></div><div class='output co'>#&gt; <span class='message'>boundary (singular) fit: see ?isSingular</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>megaEnvPred</span><span class='op'>$</span><span class='va'>predictedValue</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;      megaEnv 1 megaEnv 2 megaEnv 3
+</div><div class='output co'>#&gt;      megaEnv_1 megaEnv_2 megaEnv_3
 #&gt; G001  489.0515  483.5317  497.8785
 #&gt; G002  472.3096  491.5258  498.1123
 #&gt; G003  468.2102  457.0879  462.5265
 #&gt; G004  363.6653  361.1352  321.1292
 #&gt; G005  462.8374  465.0800  467.9159
 #&gt; G006  435.4026  419.0985  410.4387</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>megaEnvPred</span><span class='op'>$</span><span class='va'>standardError</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;      megaEnv 1 megaEnv 2 megaEnv 3
+</div><div class='output co'>#&gt;      megaEnv_1 megaEnv_2 megaEnv_3
 #&gt; G001  32.09261  38.36256  45.40008
 #&gt; G002  32.09261  38.36256  45.40008
 #&gt; G003  32.09261  38.36256  45.40008

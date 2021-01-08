@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statgenGxE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.4</span>
       </span>
     </div>
 
@@ -39,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home"></span>
+    <span class="fas fa-home"></span>
      
   </a>
 </li>
@@ -50,21 +50,21 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="../news/index.html">
-    <span class="fa fa-newspaper-o"></span>
+    <span class="fas fa-newspaper-o"></span>
      
     news
   </a>
 </li>
 <li>
   <a href="../reference/index.html">
-    <span class="fa fa-file-code-o"></span>
+    <span class="fas fa-file-code-o"></span>
      
     functions
   </a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    <span class="fa fa-seedling"></span>
+    <span class="fas fa-seedling"></span>
      
     other packages
      
@@ -81,7 +81,7 @@
 </li>
 <li>
   <a href="https://github.com/Biometris/statgenGxE">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fas fa-github fa-lg"></span>
      
     github
   </a>
@@ -96,14 +96,13 @@
 
       
 
-      </header><script src="statgenGxE_files/header-attrs-2.5/header-attrs.js"></script><link href="statgenGxE_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
-<script src="statgenGxE_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
+      </header><script src="statgenGxE_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Genotype by Environment analysis using statgenGxE</h1>
                         <h4 class="author">Bart-Jan van Rossum</h4>
             
-            <h4 class="date">2020-11-10</h4>
+            <h4 class="date">2021-01-08</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/Biometris/statgenGxE/blob/master/vignettes/statgenGxE.Rmd"><code>vignettes/statgenGxE.Rmd</code></a></small>
       <div class="hidden name"><code>statgenGxE.Rmd</code></div>
@@ -267,19 +266,19 @@
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Sources of variation</span>
 <span class="co">#&gt;                       component % variance expl.</span>
-<span class="co">#&gt; scenarioFull               7.03          49.39 %</span>
-<span class="co">#&gt; scenarioFull:trial         5.48          38.51 %</span>
-<span class="co">#&gt; genotype                   0.81           5.71 %</span>
-<span class="co">#&gt; genotype:scenarioFull      0.17           1.17 %</span>
-<span class="co">#&gt; residuals                  0.74           5.23 %</span>
+<span class="co">#&gt; scenarioFull              10.25          75.51 %</span>
+<span class="co">#&gt; scenarioFull:trial         1.58          11.64 %</span>
+<span class="co">#&gt; genotype                   0.82           6.02 %</span>
+<span class="co">#&gt; genotype:scenarioFull      0.38           2.77 %</span>
+<span class="co">#&gt; residuals                  0.55           4.06 %</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Analysis of Variance Table for fully fixed model</span>
-<span class="co">#&gt;                         Df  Sum Sq Mean Sq   F value    Pr(&gt;F)    </span>
-<span class="co">#&gt; scenarioFull             4 17405.4  4351.3 5799.7996 &lt; 2.2e-16 ***</span>
-<span class="co">#&gt; scenarioFull:trial       5  6271.9  1254.4 1671.9308 &lt; 2.2e-16 ***</span>
-<span class="co">#&gt; genotype               245  2320.6     9.5   12.6246 &lt; 2.2e-16 ***</span>
-<span class="co">#&gt; genotype:scenarioFull  980  1034.0     1.1    1.4063 8.087e-09 ***</span>
-<span class="co">#&gt; residuals             1225   919.1     0.8                        </span>
+<span class="co">#&gt;                         Df  Sum Sq Mean Sq  F value    Pr(&gt;F)    </span>
+<span class="co">#&gt; scenarioFull             4 21730.5  5432.6 9859.988 &lt; 2.2e-16 ***</span>
+<span class="co">#&gt; scenarioFull:trial       5  1946.8   389.4  706.658 &lt; 2.2e-16 ***</span>
+<span class="co">#&gt; genotype               245  2320.6     9.5   17.191 &lt; 2.2e-16 ***</span>
+<span class="co">#&gt; genotype:scenarioFull  980  1278.1     1.3    2.367 &lt; 2.2e-16 ***</span>
+<span class="co">#&gt; residuals             1225   674.9     0.6                       </span>
 <span class="co">#&gt; ---</span>
 <span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></code></pre></div>
 <p><em>Note that because the model is fitted with lme4, in this and further tables no standard errors are outputted. When using asreml for modeling standard errors will be available.</em></p>
@@ -292,12 +291,12 @@
 <code class="sourceCode R"><span class="co">## Extract variance components.</span>
 <span class="fu"><a href="../reference/vc.html">vc</a></span><span class="op">(</span><span class="va">dropsVarComp</span><span class="op">)</span>
 <span class="co">#&gt;                       component</span>
-<span class="co">#&gt; genotype                 0.8128</span>
-<span class="co">#&gt; genotype:scenarioFull    0.1665</span>
-<span class="co">#&gt; residuals                0.7444</span>
+<span class="co">#&gt; genotype                 0.8167</span>
+<span class="co">#&gt; genotype:scenarioFull    0.3766</span>
+<span class="co">#&gt; residuals                0.5510</span>
 <span class="co">## Compute heritability.</span>
 <span class="fu"><a href="../reference/herit.html">herit</a></span><span class="op">(</span><span class="va">dropsVarComp</span><span class="op">)</span>
-<span class="co">#&gt; [1] 0.8169</span></code></pre></div>
+<span class="co">#&gt; [1] 0.8149</span></code></pre></div>
 <p>A plot can be made of the square roots of the variance component estimates. These are based on the fully random model.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Plot the results of the fitted model.</span>
@@ -308,22 +307,22 @@
 <span class="va">predGeno</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">dropsVarComp</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">predGeno</span><span class="op">)</span>
 <span class="co">#&gt;   genotype predictedValue</span>
-<span class="co">#&gt; 1    11430          6.726</span>
-<span class="co">#&gt; 2       A3          6.334</span>
-<span class="co">#&gt; 3     A310          5.745</span>
-<span class="co">#&gt; 4     A347          5.604</span>
-<span class="co">#&gt; 5     A374          7.456</span>
-<span class="co">#&gt; 6     A375          6.658</span>
+<span class="co">#&gt; 1    11430          6.725</span>
+<span class="co">#&gt; 2       A3          6.319</span>
+<span class="co">#&gt; 3     A310          5.722</span>
+<span class="co">#&gt; 4     A347          5.576</span>
+<span class="co">#&gt; 5     A374          7.470</span>
+<span class="co">#&gt; 6     A375          6.650</span>
 <span class="co">## predictions at the level of genotype x scenarioFull.</span>
 <span class="va">predGenoTrial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">dropsVarComp</span>, predictLevel <span class="op">=</span> <span class="st">"scenarioFull"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">predGenoTrial</span><span class="op">)</span>
 <span class="co">#&gt;   genotype scenarioFull predictedValue</span>
-<span class="co">#&gt; 1    11430      WW.Cool         10.537</span>
-<span class="co">#&gt; 2       A3      WW.Cool          9.701</span>
-<span class="co">#&gt; 3     A310      WW.Cool          9.633</span>
-<span class="co">#&gt; 4     A347      WW.Cool          8.999</span>
-<span class="co">#&gt; 5     A374      WW.Cool         11.001</span>
-<span class="co">#&gt; 6     A375      WW.Cool          9.981</span></code></pre></div>
+<span class="co">#&gt; 1    11430      WW.Cool         10.681</span>
+<span class="co">#&gt; 2       A3      WW.Cool          9.504</span>
+<span class="co">#&gt; 3     A310      WW.Cool          9.793</span>
+<span class="co">#&gt; 4     A347      WW.Cool          8.751</span>
+<span class="co">#&gt; 5     A374      WW.Cool         10.970</span>
+<span class="co">#&gt; 6     A375      WW.Cool          9.775</span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -553,12 +552,12 @@
 <span class="co">#&gt; Analysis of Variance Table</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Response: grain.yield</span>
-<span class="co">#&gt;                Df Sum Sq Mean Sq  F value Pr(&gt;F)    </span>
-<span class="co">#&gt; Environment     9  23677  2630.8 1508.201 &lt;2e-16 ***</span>
-<span class="co">#&gt; Interactions 2450   4274     1.7                    </span>
-<span class="co">#&gt; PC1           253   2665    10.5   16.088 &lt;2e-16 ***</span>
-<span class="co">#&gt; PC2           251    335     1.3    2.036 &lt;2e-16 ***</span>
-<span class="co">#&gt; Residuals    1946   1274     0.7                    </span>
+<span class="co">#&gt;               Df Sum Sq Mean Sq  F value   Pr(&gt;F)    </span>
+<span class="co">#&gt; Environment    9  23677  2630.8 1508.201  &lt; 2e-16 ***</span>
+<span class="co">#&gt; GGE         2450   4274     1.7                      </span>
+<span class="co">#&gt; PC1          254   2665    10.5   16.008  &lt; 2e-16 ***</span>
+<span class="co">#&gt; PC2          252    335     1.3    2.026 2.22e-16 ***</span>
+<span class="co">#&gt; Residuals   1944   1274     0.7                      </span>
 <span class="co">#&gt; ---</span>
 <span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span>
 <span class="co">#&gt; </span>
@@ -593,17 +592,17 @@
 <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">dropsMegaEnv</span><span class="op">)</span>
 <span class="co">#&gt; Mega environments based on grain.yield</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt;  Mega factor  Trial Winning genotype AMMI estimates</span>
-<span class="co">#&gt;    megaEnv 1 Kar12W           Lo1087        12.4621</span>
-<span class="co">#&gt;    megaEnv 1 Mar13R           Lo1087        10.0328</span>
-<span class="co">#&gt;    megaEnv 1 Mur13R           Lo1087        10.4911</span>
-<span class="co">#&gt;    megaEnv 1 Mur13W           Lo1087        11.3054</span>
-<span class="co">#&gt;    megaEnv 2 Kar13R           Lo1251        13.6593</span>
-<span class="co">#&gt;    megaEnv 2 Kar13W           Lo1251        11.7879</span>
-<span class="co">#&gt;    megaEnv 3 Gai12W           Lo1270        13.7960</span>
-<span class="co">#&gt;    megaEnv 4 Cam12R            PHG35         4.2604</span>
-<span class="co">#&gt;    megaEnv 4 Cra12R            PHG35         3.8492</span>
-<span class="co">#&gt;    megaEnv 4 Ner12R            PHG35         7.0998</span></code></pre></div>
+<span class="co">#&gt;  Mega_factor  Trial Winning_genotype AMMI_estimates</span>
+<span class="co">#&gt;    megaEnv_1 Kar12W           Lo1087        12.4621</span>
+<span class="co">#&gt;    megaEnv_1 Mar13R           Lo1087        10.0328</span>
+<span class="co">#&gt;    megaEnv_1 Mur13R           Lo1087        10.4911</span>
+<span class="co">#&gt;    megaEnv_1 Mur13W           Lo1087        11.3054</span>
+<span class="co">#&gt;    megaEnv_2 Kar13R           Lo1251        13.6593</span>
+<span class="co">#&gt;    megaEnv_2 Kar13W           Lo1251        11.7879</span>
+<span class="co">#&gt;    megaEnv_3 Gai12W           Lo1270        13.7960</span>
+<span class="co">#&gt;    megaEnv_4 Cam12R            PHG35         4.2604</span>
+<span class="co">#&gt;    megaEnv_4 Cra12R            PHG35         3.8492</span>
+<span class="co">#&gt;    megaEnv_4 Ner12R            PHG35         7.0998</span></code></pre></div>
 <p>As can be seen in the column Mega factor in the summary, four mega environments have been created, one for each of the winning genotypes “Lo1087,” “Lo1251,” “Lo1270” and “PHG35.”</p>
 <p>The values for the Best Linear Unbiased Predictors (BLUPs) and associated standard errors for the genotypes based on the calculated mega environments, can be computed using the function <code>predict</code> on the output. This can be done using either lme4 <span class="citation">(Bates et al. 2015)</span> or asreml <span class="citation">(Butler et al. 2017)</span> as an engine for fitting the model.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
@@ -614,9 +613,9 @@
   <span class="co">## Display BLUPs.</span>
   <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">geMegaEnvPred</span><span class="op">$</span><span class="va">predictedValue</span><span class="op">)</span>
 <span class="op">}</span>
-<span class="co">#&gt; Online License checked out Tue Nov 10 08:17:54 2020</span>
-<span class="co">#&gt; Online License checked out Tue Nov 10 08:17:55 2020</span>
-<span class="co">#&gt;       megaEnv 1 megaEnv 2 megaEnv 3 megaEnv 4</span>
+<span class="co">#&gt; Online License checked out Fri Jan  8 11:34:14 2021</span>
+<span class="co">#&gt; Online License checked out Fri Jan  8 11:34:15 2021</span>
+<span class="co">#&gt;       megaEnv_1 megaEnv_2 megaEnv_3 megaEnv_4</span>
 <span class="co">#&gt; 11430    6.4742    7.2043    7.1343    6.7571</span>
 <span class="co">#&gt; A3       5.9956    6.6085    6.7493    6.5720</span>
 <span class="co">#&gt; A310     5.0941    4.3924    5.9140    6.8347</span>
@@ -627,7 +626,7 @@
   <span class="co">## Display standard errors of the BLUPs.</span>
   <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">geMegaEnvPred</span><span class="op">$</span><span class="va">standardError</span><span class="op">)</span>
 <span class="op">}</span>
-<span class="co">#&gt;       megaEnv 1 megaEnv 2 megaEnv 3 megaEnv 4</span>
+<span class="co">#&gt;       megaEnv_1 megaEnv_2 megaEnv_3 megaEnv_4</span>
 <span class="co">#&gt; 11430   0.33316   0.42862    0.3732   0.27448</span>
 <span class="co">#&gt; A3      0.33316   0.42862    0.3732   0.27448</span>
 <span class="co">#&gt; A310    0.33316   0.42862    0.3732   0.27448</span>
