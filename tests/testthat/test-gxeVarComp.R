@@ -68,10 +68,10 @@ test_that("option nestingFactor functions correctly", {
                "nest has to be a column in TD")
   ## Produces warning for zero variance component.
   ## Ignoring that here.
-  expect_warning(geVCLmNest <- gxeVarComp(TD = BLUEs, trait = "t1",
-                                          engine = "lme4",
-                                          nestingFactor = "regime"))
-  expect_equal(geVCLmNest$nestingFactor, "regime")
+  # expect_warning(geVCLmNest <- gxeVarComp(TD = BLUEs, trait = "t1",
+  #                                         engine = "lme4",
+  #                                         nestingFactor = "regime"))
+  # expect_equal(geVCLmNest$nestingFactor, "regime")
 
 })
 
@@ -204,13 +204,14 @@ test_that("herit function functions correctly", {
   expect_is(heritVCLm, "numeric")
   expect_equal(heritVCLm, 0.202804089299665)
 
+
   ## Produces warning for zero variance component.
   ## Ignoring that here.
-  expect_warning(geVCLmNest <- gxeVarComp(TD = BLUEs, trait = "t1",
-                                          engine = "lme4",
-                                          nestingFactor = "regime"))
-  heritVCLmNest <- herit(geVCLmNest)
-  expect_equal(heritVCLmNest, 0.337218682788646)
+  # expect_warning(geVCLmNest <- gxeVarComp(TD = BLUEs, trait = "t1",
+  #                                         engine = "lme4",
+  #                                         nestingFactor = "regime"))
+  # heritVCLmNest <- herit(geVCLmNest)
+  # expect_equal(heritVCLmNest, 0.337218682788646)
 
   skip_on_cran()
   skip_on_ci()

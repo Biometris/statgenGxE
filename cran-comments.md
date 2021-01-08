@@ -1,4 +1,4 @@
-## Release to correct test error for noLD by decreasing tolerance for one test.
+## Release to fix test errors on R 4.1. Also includes some minor fixes and improvements
 
 ----
 
@@ -27,8 +27,3 @@ There were 2 NOTES:
     Package suggested but not available for checking: 'asreml'
     
     - asreml is a commercial R package that is used as one of two alternatives in some functions.
-
-
-
-  
-

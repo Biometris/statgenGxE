@@ -8,7 +8,7 @@
 An object of class \code{data.frame} with 2460 rows and 20 columns.
 }
 \source{
-\url{https://data.inrae.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN}
+\doi{10.15454/IASSTN}
 }
 \usage{
 dropsPheno
