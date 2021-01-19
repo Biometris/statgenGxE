@@ -281,13 +281,13 @@ AMMI biplots appear in three forms [@Gower1996]:
 plot(dropsAm, scale = 0.5, plotType = "AMMI2")
 ```
 
-The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axes specifying `primAxis` and `secAxis`
+The AMMI plot function has many options to customize the plot. It is possible to plot different principal components on the axes specifying `primAxis` and `secAxis`.
 Genotypes can be grouped and colored by a variable in the data using `colorGenoBy`. Specify custom colors in `colGeno`. Similarly for coloring environments use `colorEnvBy` and `colEnv`.
   
 ```{r plotAmmiCol, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI2 biplot.
 ## Color genotypes based on variable geneticGroup. Use custom colors.
-## Color environments based on variable scenarioFull
+## Color environments based on variable scenarioFull.
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", 
      colorGenoBy = "geneticGroup", colGeno = c("red", "blue", "green", "yellow"),
      colorEnvBy = "scenarioFull")
@@ -298,6 +298,14 @@ A convex hull can be plotted around the genotypes in an AMMI2 biplot.
 ```{r plotAmmiConvHull, fig.width=5, fig.height=5, out.width="75%"}
 ## Create an AMMI2 biplot with convex hull around the genotypes.
 plot(dropsAm, scale = 0.4, plotType = "AMMI2", plotConvHull = TRUE, colorEnvBy = "scenarioFull")
+```
+
+For easier interpretation of the results shown in the biplots, it is possible to rotate the whole plot to a configuration specified by the user. This can be done by setting `rotatePC` to an environment or a genotype that should be aligned with the positive x-axis in the plot.
+```{r plotAmmiRotatePC, fig.width=5, fig.height=5, out.width="75%"}
+## Create an AMMI2 biplot.
+## Align environment Mur13W with the positive x-axis.
+plot(dropsAm, scale = 0.4, plotType = "AMMI2", colorEnvBy = "scenarioFull",
+     rotatePC = "Mur13W")
 ```
 
 Genotypes can be left out of the plot completely by setting `plotGeno = FALSE` and similarly `plotEnv = FALSE` assures no environments are plotted. For displaying genotypes by their names instead of points, use `sizeGeno` with a size larger than zero to indicate their text size. `envFactor` can be used to blow up the environmental scores in the plot. A value for `envFactor` between zero and one effectively blows up the genotypic scores. See `help(plot.AMMI)` for full details on all plotting options.
@@ -319,6 +327,8 @@ summary(dropsGGE)
 ```
 
 Options for plotting results of a GGE analysis are identical to those for an AMMI analysis. When a convex hull is plotted, lines from the origin perpendicular to the edges of the hull are added as well.
+
+With the default settings the plot is rotated such that the positive x-axis aligns with the genotypic main effect, the average of the directions of all environments. By doing this the y-axis shows the GxE.
 ```{r plotGGE, fig.width=5, fig.height=5, out.width="75%"}
 ## Create a GGE2 biplot.
 plot(dropsGGE, plotType = "GGE2")
