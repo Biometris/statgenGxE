@@ -185,7 +185,10 @@ summary.AMMI <- function(object,
 #' plot(geAmmi)
 #'
 #' ## Create an AMMI2 biplot.
-#' plot(geAmmi, plotType = "AMMI2")
+#' plot(geAmmi, plotType = "AMMI2", scale = 0.5)
+#'
+#' ## Create an AMMI2 biplot, with HN96b along the positive x-axis.
+#' plot(geAmmi, plotType = "AMMI2", scale = 0.5, rotatePC = "HN96b")
 #'
 #' ## Run GGE analysis.
 #' geGGE <- gxeGGE(TD = TDMaize, trait = "yld")
