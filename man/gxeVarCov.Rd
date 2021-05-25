@@ -61,7 +61,7 @@ The random term \eqn{\epsilon_{ij}} is modeled in eight ways as described in
 the table below.\tabular{lllll}{
    Model \tab Description \tab var(\eqn{g_{ij}}) \tab cov(\eqn{g_{ij}};\eqn{g_{ik}}) \tab Number of parameters \cr
    identity \tab identity \tab \eqn{\sigma_G^2} \tab 0 \tab 1 \cr
-   cs \tab compound symmetry \tab \eqn{\sigma_G^2 + \sigma_{GE}^2$ | $\sigma_{GE}^2} \tab 2 \tab  \cr
+   cs \tab compound symmetry \tab \eqn{\sigma_G^2 + \sigma_{GE}^2} \tab \eqn{\sigma_{GE}^2} \tab 2 \cr
    diagonal \tab diagonal matrix (heteroscedastic) \tab \eqn{\sigma_{GE_j}^2} \tab 0 \tab \eqn{J} \cr
    hcs \tab heterogeneous compound symmetry \tab \eqn{\sigma_G^2+\sigma_{GE_j}^2} \tab \eqn{\sigma_G^2} \tab \eqn{J+1} \cr
    outside \tab heterogeneity outside \tab \eqn{\sigma_{G_j}^2} \tab \eqn{\theta} \tab \eqn{J+1} \cr
