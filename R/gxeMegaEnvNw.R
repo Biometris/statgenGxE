@@ -132,10 +132,11 @@ gxeMegaEnvNw <- function(TD,
     if (!hasName(x = TDTot, name = "loc")) {
       TDTot[["loc"]] <- TDTot[["trial"]]
     }
+    TDTot <- droplevels(TDTot)
     ## Remove locations that appear only in one year.
     locYear <- table(TDTot[["loc"]], TDTot[["year"]])
-    rmLocs <- rownames(locYear)[rowSums(locYear > 0) == 1]
-    TDTot <- droplevels(TDTot[!TDTot[["loc"]] %in% rmLocs, ])
+    # rmLocs <- rownames(locYear)[rowSums(locYear > 0) == 1]
+    # TDTot <- droplevels(TDTot[!TDTot[["loc"]] %in% rmLocs, ])
     ## One by one remove locations that don't appear within a year with at
     ## least one other location.
     ## This needs to be done in steps since otherwise in many cases all
@@ -167,6 +168,8 @@ gxeMegaEnvNw <- function(TD,
     AMMI <- gxeAmmi(TD = createTD(TDTot), trait = trait, nPC = NULL,
                     byYear = TRUE)
     ammiRaw <- merge(fitted(AMMI), TDTot[c("genotype", "trial", "loc", "year")])
+    ## Remove years skipped in AMMI.
+    ammiRaw <- droplevels(ammiRaw)
     ## Compute quantile for determining best genotypes per year per location.
     quant <- tapply(X = ammiRaw[["fittedValue"]],
                     INDEX = list(ammiRaw[["year"]], ammiRaw[["loc"]]),
@@ -191,10 +194,17 @@ gxeMegaEnvNw <- function(TD,
       as.numeric(ammiQnt[["fittedValue"]] < ammiQnt[["qntValue"]])
     }
     ## Reshape data to get locations as header.
-    ammiLocTab <- table(ammiQnt[c("genotype", "year", "loc")])
+    ammiLocTab <- tapply(ammiQnt$fittedValue,
+                         list(ammiQnt$genotype, ammiQnt$year, ammiQnt$loc),
+                         FUN = I)
     ammiLocMat <- matrix(ammiLocTab, ncol = dim(ammiLocTab)[3],
                          dimnames = list(NULL, dimnames(ammiLocTab)[[3]]))
+    nonMissRows <- apply(X = ammiLocMat, MARGIN = 1, FUN = function(x) {
+      any(!is.na(x))
+    })
     ammiLoc <- cbind(expand.grid(dimnames(ammiLocTab)[1:2]), ammiLocMat)
+    ammiLoc <- ammiLoc[nonMissRows, ]
+    colnames(ammiLoc)[1:2] <- c("genotype", "year")
     ## Compute means and standard deviations.
     ## For sd division by n should be used so this cannot be done by sd().
     Xi = tapply(X = ammiQnt[["fittedValue"]],
@@ -208,6 +218,7 @@ gxeMegaEnvNw <- function(TD,
     r0 <- by(data = ammiLoc[, c(3:ncol(ammiLoc))], INDICES = ammiLoc[["year"]],
              FUN = cor, use = "pairwise.complete.obs")
     ## Form combinations of locations.
+    locs <- as.character(unique(TDTot[["loc"]]))
     combs <- combn(locs, m = 2)
     ## Compute correlations across years per genotype.
     ## If numbers of observations are similar per location x year this
@@ -249,15 +260,18 @@ gxeMegaEnvNw <- function(TD,
       sink()
       ## Extract variance components.
       vcReg <- summary(modReg)$varcomp$component
-      ## Compute number of locations.
-      nL <- length(unique(modDat[["loc"]]))
-      nY <- length(unique(modDat[["year"]]))
+      ## Compute mdian number of locations, years and megaEnv per genotype.
+      nR <- median(rowSums(table(modDat[["genotype"]], modDat[["megaEnv"]]) > 0))
+      nL <- median(rowSums(table(modDat[["genotype"]], modDat[["loc"]]) > 0))
+      nY <- median(rowSums(table(modDat[["genotype"]], modDat[["year"]]) > 0))
       ## Compute H2 over locations.
-      H2Loc <- vcReg[1] / (vcReg[1] + vcReg[2] / k + vcReg[3] / nY +
-                             vcReg[4] / (k * nY) + vcReg[5] / (k * nL))
+      H2Loc <- vcReg[1] / (vcReg[1] + (vcReg[2] / nR) + (vcReg[3] / nY) +
+                             (vcReg[4] / (nR * nY)) + (vcReg[5] / (nR * nL)) +
+                             (vcReg[6] / (nR * nL * nY)))
       ## Compute H2 over regions.
-      H2Reg <- (vcReg[1] + vcReg[2]) / (vcReg[1] + vcReg[2] + vcReg[3] / nY +
-                                          vcReg[4] / nY + vcReg[5] / nL)
+      H2Reg <- (vcReg[1] + vcReg[2]) / (vcReg[1] + vcReg[2] + (vcReg[3] / nY) +
+                                          (vcReg[4] / nY) + (vcReg[5] / nL) +
+                                          (vcReg[6] / (nL * nY)))
       ## Compute genetic correlation.
       rho <- vcReg[1] / sqrt(vcReg[1] * (vcReg[1] + vcReg[2]))
       ## Compute ratio CD/CR.
@@ -283,6 +297,7 @@ gxeMegaEnvNw <- function(TD,
     # attr(TDOut, "CRDR") <- CRDRMin
 
     summTab <- clustGrRes
+    attr(summTab, "CRDR") <- CRDRMin
   }
   return(createMegaEnv(TD = TDOut, summTab = summTab, trait = trait))
 }
@@ -325,7 +340,7 @@ combLocs <- function(l1,
   ## Extract correlations for l1 and l2 per year for list of correlations.
   rl1l2 <- sapply(X = r0, FUN = "[", l1, l2)
   ## Determine which observations should be included in calculation of r.
-  inclObs <- !is.na(rl1l2)
+  inclObs <- !is.null(rl1l2) & !is.na(rl1l2)
   ## Compute combined correlation.
   combCor(Xi = Xi[, l1][inclObs], Yi = Xi[, l2][inclObs],
           SXi = SXi[, l1][inclObs], SYi = SXi[, l2][inclObs],
