@@ -189,9 +189,9 @@ gxeMegaEnvNw <- function(TD,
     ## Replace values by 0 when lower than quantile value and 1 otherwise.
     ## Reverse the equation if low values are better for current trait.
     ammiQnt[["fittedValue"]] <- if (method == "max") {
-      as.numeric(ammiQnt[["fittedValue"]] > ammiQnt[["qntValue"]])
+      as.numeric(ammiQnt[["fittedValue"]] >= ammiQnt[["qntValue"]])
     } else {
-      as.numeric(ammiQnt[["fittedValue"]] < ammiQnt[["qntValue"]])
+      as.numeric(ammiQnt[["fittedValue"]] <= ammiQnt[["qntValue"]])
     }
     ## Reshape data to get locations as header.
     ammiLocTab <- tapply(ammiQnt$fittedValue,
@@ -233,9 +233,13 @@ gxeMegaEnvNw <- function(TD,
                      dimnames = list(locs, locs))
     corMat[lower.tri(corMat)] <- as.numeric(combs[3, ])
     ## Compute distances.
-    distMat <- as.dist(sqrt(1 - corMat ^ 2))
+    # distMat <- as.dist(sqrt(1 - corMat ^ 2))
+    distMat <- as.dist((1 - corMat)^2)
+    # distMat <- as.dist(corMat)
     ## Cluster locations.
-    tree <- hclust(distMat, method = "ward.D")
+    # tree <- hclust(distMat, method = "ward.D")
+    tree <- hclust(distMat, method = "average")
+    plot(tree)
     clustRes <- clustGrRes <- data.frame()
     CRDRMin <- Inf
     ## Create tempfile for diverting asreml output
