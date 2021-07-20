@@ -250,30 +250,36 @@ gxeMegaEnvNw <- function(TD,
       clustGr <- data.frame(megaEnv = factor(cutree(tree, k = k)))
       ## Merge cluster groups to data.
       modDat <- merge(TDTot, clustGr, by.x = "loc", by.y = "row.names")
-      ## Model with regions, one varcomp.
-      ## Fit model with regions.
+      # Model with regions, one varcomp.
+      # Fit model with regions.
+      asreml::asreml.options(extra = 5)
       modReg <- asreml::asreml(
-        fixed = formula(paste(trait, "~ 1 + year * loc")),
-        random = ~ genotype + genotype:megaEnv + genotype:loc + genotype:year,
-        data = modDat, maxiter = 50, trace = FALSE)
+        fixed = formula(paste(trait, "~ 1 + megaEnv + megaEnv:loc + year +",
+                              "megaEnv:year")), #+ megaEnv:loc:year
+        random = ~ genotype + genotype:megaEnv + genotype:megaEnv:loc +
+          genotype:year + genotype:megaEnv:year , #+ genotype:megaEnv:loc:year
+        data = modDat, maxiter = 200, trace = FALSE)
       ## Extract variance components.
       vcReg <- summary(modReg)$varcomp$component
       ## Compute median number of locations, years and megaEnv per genotype.
       nR <- median(rowSums(table(modDat[["genotype"]], modDat[["megaEnv"]]) > 0))
       nL <- median(rowSums(table(modDat[["genotype"]], modDat[["loc"]]) > 0))
       nY <- median(rowSums(table(modDat[["genotype"]], modDat[["year"]]) > 0))
-
-      nR <- length(unique(modDat$megaEnv))
-      nL <- length(unique(modDat$loc))
-
       ## Compute H2 over locations.
-      H2Loc <- vcReg[1] / (vcReg[1] + (vcReg[2] / nR) + (vcReg[3] / (nR * nL)))
+      H2Loc <- vcReg[1] / (vcReg[1] + (vcReg[2] / nR) + (vcReg[3] / (nR * nL)) +
+                             (vcReg[4] / (nY)) + (vcReg[5] / (nR * nY)) +
+                             (vcReg[6] / (nR * nY * nL)))
       ## Compute H2 over regions.
-      H2Reg <- vcReg[1] / (vcReg[1] + (vcReg[2]) + (vcReg[3] / (nR * nL)))
+      H2Reg <- (vcReg[1] + vcReg[2]) / (vcReg[1] + vcReg[2] + (vcReg[3] / (nR * nL)) +
+                                        (vcReg[4] / (nY)) + (vcReg[5] / (nR * nY)) +
+                                        (vcReg[6] / (nR * nY * nL)))
+
+
       ## Compute genetic correlation.
-      rho <- vcReg[1] / sqrt(vcReg[1] * (vcReg[1] + vcReg[2]))
+      rho <- vcReg[1] / (vcReg[1] + vcReg[2])
       ## Compute ratio CD/CR.
       CRDR <- rho * sqrt(H2Loc / H2Reg)
+      print(CRDR)
       if (CRDR < CRDRMin) {
         ## If CRDR is smaller than the previous minimum readjust values.
         clustGrRes <- clustGr

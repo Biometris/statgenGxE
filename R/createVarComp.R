@@ -411,7 +411,7 @@ herit <- function(varComp) {
     ## Add that to numerator.
     numerator <- numerator + sigmaTerm / prod(nLevModVars[termVars])
   }
-  nReps <- median(table(modDat[["genotype"]], modDat[["trial"]]))
+  nReps <- max(median(table(modDat[["genotype"]], modDat[["trial"]])), 1)
   if (length(modVars) > 0) {
     ## Contribution for residual variance is computed by dividing sigmaRes by
     ## product of #levels of all variables in random part of model and
@@ -506,7 +506,7 @@ CRDR <- function(varComp) {
     ## Add that to numerator.
     numerator <- numerator + sigmaTerm / prod(nLevModVars[termVars])
   }
-  nReps <- median(table(modDat[["genotype"]], modDat[["trial"]]))
+  nReps <- max(median(table(modDat[["genotype"]], modDat[["trial"]])), 1)
   if (length(modVars) > 0) {
     ## Contribution for residual variance is computed by dividing sigmaRes by
     ## product of #levels of all variables in random part of model and
