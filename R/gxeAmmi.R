@@ -244,11 +244,12 @@ gxeAmmiHelp <- function(TD,
                    INDEX = TDYear[, c("genotype", "trial")], FUN = I)
       if (sum(is.na(y0)) / length(y0) > 0.3) {
         if (byYear) {
-          warning("More than 30% missing values for ", year, ".\n",
+          warning("More than 30% missing values for ", year,
+                  " in genotype x trial matrix.\n",
                   "Year ", year, "skipped.\n", call. =  FALSE)
           next
         } else {
-          stop("More than 30% missing values.\n")
+          stop("More than 30% missing values in genotype x trial matrix.\n")
         }
       }
       ## Actual imputation.
