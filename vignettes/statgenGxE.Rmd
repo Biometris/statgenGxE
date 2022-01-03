@@ -419,8 +419,9 @@ The models fitted are of the form $y_{ij} = \mu_j + \epsilon_{ij}$, where $y_{ij
 | fa2 | second order factor analytic | $\lambda_{1j}^2+\lambda_{2j}^2+\sigma_{GE_j}^2$ | $\lambda_{1j}\lambda_{1k}+\lambda_{2j}\lambda_{2k}$ | $3J-1$ |
 | unstructured | unstructured | $\sigma_{G_j}^2$ | $\sigma_{G_{j,k}}^2$ | $J(J+1)/2$ |
 
-In this table $J$ is the number of environments, $\sigma_G^2$ the variance component for the genotype main effects, $\sigma_{GE}^2$ the variance component for GxE interactions. $\sigma_{G_j}^2$ and $\sigma_{GE_j}^2$ are the environment specific variance components for the genotype main effects and GxE interaction in environment $j$. $\sigma_{G_{j,k}}^2$ is the genetic covariance between environments $j$ and $k$. $\theta$ is the common correlation between environments and $\lambda_{1j}$ and $\lambda_{2j}$ are environment specific multiplicative
-parameters.
+In this table $J$ is the number of environments, $\sigma_G^2$ the variance component for the genotype main effects, $\sigma_{GE}^2$ the variance component for GxE interactions. $\sigma_{G_j}^2$ and $\sigma_{GE_j}^2$ are the environment specific variance components for the genotype main effects and GxE interaction in environment $j$. $\sigma_{G_{j,k}}^2$ is the genetic covariance between environments $j$ and $k$. $\theta$ is the common correlation between environments and $\lambda_{1j}$ and $\lambda_{2j}$ are environment specific multiplicative parameters.    
+
+It is possible to to select a subset of the models that will be fitted by specifying the `models` parameter in the `gxeVarCov` function.     
 
 The best model for the data is selected based on either the Akaike Information Criterion (AIC [@Akaike1974]) or the Baysian Information Criterion (BIC [@Schwarz1978]). Which criterion is used is determined by the parameter `criterion` in the function `gxeVarCov`.  
 

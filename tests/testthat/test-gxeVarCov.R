@@ -95,3 +95,15 @@ test_that("models for fa and fa2 are fitted when #trials >= 5", {
                c("identity", "cs", "diagonal", "hcs", "fa", "fa2",
                  "unstructured", "outside"))
 })
+
+test_that("option models works properly", {
+  skip_on_cran()
+  skip_on_ci()
+  expect_error(gxeVarCov(TD = BLUEs, trait = "t1", models = "fa"),
+               "With lme4 only compound symmetry")
+  geVCMod <- gxeVarCov(TD = BLUEs, trait = "t1",
+                      models = c("identity", "cs", "fa"),
+                      engine = "asreml")
+  summMod <- geVCMod$summary
+  expect_equal(rownames(summMod), c("identity", "cs", "fa"))
+})

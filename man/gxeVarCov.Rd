@@ -8,6 +8,8 @@ gxeVarCov(
   TD,
   trials = names(TD),
   trait,
+  models = c("identity", "cs", "diagonal", "hcs", "outside", "fa", "fa2",
+    "unstructured"),
   engine = c("lme4", "asreml"),
   criterion = c("BIC", "AIC"),
   ...
@@ -20,6 +22,8 @@ gxeVarCov(
 not supplied, all trials are used in the analysis.}
 
 \item{trait}{A character string specifying the trait to be analyzed.}
+
+\item{models}{A character vector specifying the models to be fitted.}
 
 \item{engine}{A character string specifying the engine used for modeling.
 Either "lme4" or "asreml".}
