@@ -209,8 +209,10 @@ plot.varComp <- function(x,
 #' @param ... Not used.
 #' @param predictLevel A character string, the level at which prediction should
 #' be made. Either "genotype" for prediction at genotype level, "trial" for
-#' predictions at genotype x trial level or the variable used as nesting factor
-#' for predictions at the level of genotype x nestingFactor level.
+#' predictions at genotype x trial level, the variable used as nesting factor
+#' for predictions at the level of genotype x nestingFactor level, or one or
+#' more of the extra terms used in the model. E.g. c("region", "year") for a
+#' model fitted with \code{regionLocationYear = TRUE}.
 #'
 #' @return A data.frame with predictions.
 #'
@@ -233,32 +235,22 @@ plot.varComp <- function(x,
 #' @export
 predict.varComp <- function(object,
                             ...,
-                            predictLevel = c("genotype", "trial",
-                                             object$nestingFactor)) {
-  predictLevel <- match.arg(predictLevel)
+                            predictLevel = "genotype") {
   ## Extract fitted model and model data from object.
   fitMod <- object$fitMod
   modDat <- object$modDat
   ## Variables for environment depend on the fitted model.
   ## Either trial or location x year.
   if (object$useLocYear) {
-    envVars <- c("loc", "year")
+    predVars <- c("genotype", "trial", "loc", "year")
   } else if (object$useRegionLocYear) {
-    envVars <- c("region", "loc", "year")
+    predVars <- c("genotype", "trial", "region", "loc", "year")
   } else {
-    envVars <- "trial"
+    predVars <- c("genotype", "trial")
   }
-  ## Construct vector of levels on which predictions should be made.
+  predLevels <- match.arg(predictLevel, choices = predVars, several.ok = TRUE)
   ## Always include genotype.
-  predLevels <- "genotype"
-  if (predictLevel == "trial") {
-    ## For predictLevel trial predict genotype x envVars.
-    predLevels <- c(predLevels, envVars)
-  } else if (!is.null(object$nestingFactor) &&
-             predictLevel == object$nestingFactor) {
-    ## For predictLevel nestingFactor predict genotype x nestingFactor variable.
-    predLevels <- c(predLevels, object$nestingFactor)
-  }
+  predLevels <- unique(c("genotype", predLevels))
   if (object$engine == "lme4") {
     ## Make predictions for all observations in the data.
     modDat[!is.na(modDat[[object$trait]]), "preds"] <- predict(fitMod)
