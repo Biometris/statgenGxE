@@ -27,29 +27,29 @@ test_that("output is of the right class", {
 
 est <- geFw0$estimates
 test_that("estimates are correct", {
-  expect_equal(as.numeric(est[["genotype"]]),
+  expect_equal(as.numeric(est[["Genotype"]]),
                c(6, 8, 4, 3, 14, 13, 2, 12, 10, 9, 7, 5, 11, 1, 15))
-  expect_equal(est[["sens"]],
+  expect_equal(est[["Sens"]],
                c(62.3138747318992, 52.5013357473576, 42.9936348166129,
                  20.0247179128608, 9.41449781293969, 2.74939616289115,
                  0.334277144158371, -3.66361671330498, -10.0806564687019,
                  -12.4729518166929, -15.1064789550751, -23.9800680568997,
                  -25.6910435690698, -28.1138405697322, -56.2230781792431))
-  expect_equal(est[["se_sens"]], rep(x = 35.9459727446209, times = 15))
-  expect_equal(est[["genMean"]],
+  expect_equal(est[["SE_Sens"]], rep(x = 35.9459727446209, times = 15))
+  expect_equal(est[["GenMean"]],
                c(91.7872252465452, 83.4522862345553, 81.6450754872636,
                  101.510790941064, 67.8350451590658, 66.99687610674,
                  60.9764611092266, 77.9806476129257, 94.3724639926346,
                  80.2868026830911, 61.7359582594057, 79.9881044999343,
                  75.6491629852527, 79.1537116210871, 91.2406066244149))
-  expect_equal(est[["se_genMean"]], rep(x = 9.97742872488619, times = 15))
+  expect_equal(est[["SE_GenMean"]], rep(x = 9.97742872488619, times = 15))
   expect_equal(est[["MSdeviation"]],
                c(406.745164521851, 968.590479155985, 573.634227710133,
                  1159.71455627792, 722.05950064614, 233.027744798405,
                  288.405921397104, 171.086587643299, 746.296717901325,
                  1072.4200985057, 237.144572332745, 769.683832455474,
                  650.098279945242, 820.784587275549, 139.725285849686))
-  expect_equal(est[["rank"]], 1:15)
+  expect_equal(est[["Rank"]], 1:15)
 })
 
 test_that("anova table is correct", {
@@ -84,13 +84,13 @@ test_that("settings for tolerance and maxIter work correctly", {
 
 test_that("option sorted sorts estimates correctly", {
   expect_equal(as.numeric(gxeFw(testTD, trait = "t1", maxIter = 30,
-                                sorted = "ascending")$estimates[["genotype"]]),
+                                sorted = "ascending")$estimates[["Genotype"]]),
                c(15, 1, 11, 5, 7, 9, 10, 12, 2, 13, 14, 3, 4, 8, 6))
   expect_equal(as.numeric(gxeFw(testTD, trait = "t1", maxIter = 30,
-                                sorted = "descending")$estimates[["genotype"]]),
+                                sorted = "descending")$estimates[["Genotype"]]),
                c(6, 8, 4, 3, 14, 13, 2, 12, 10, 9, 7, 5, 11, 1, 15))
   expect_equal(as.numeric(gxeFw(testTD, trait = "t1", maxIter = 30,
-                                sorted = "none")$estimates[["genotype"]]), 1:15)
+                                sorted = "none")$estimates[["Genotype"]]), 1:15)
 })
 
 test_that("NA in trait causes no problems", {

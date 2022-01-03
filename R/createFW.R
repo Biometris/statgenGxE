@@ -61,10 +61,10 @@ print.FW <- function(x, ...) {
   cat("\nAnova",
       "\n=====\n")
   print(x$anova)
-  if (all(x$estimates[["rank"]] == 1:nrow(x$estimates))) {
+  if (all(x$estimates[["Rank"]] == 1:nrow(x$estimates))) {
     cat("\nMost sensitive genotypes")
     cat("\n========================\n")
-  } else if (all(x$estimates[["rank"]] == nrow(x$estimates):1)) {
+  } else if (all(x$estimates[["Rank"]] == nrow(x$estimates):1)) {
     cat("\nLeast sensitive genotypes")
     cat("\n=========================\n")
   } else {
@@ -201,13 +201,14 @@ plot.FW <- function(x,
   }
   if (plotType == "scatter") {
     selCols = c(1:2, if (!all(is.na(x$estimates$MSdeviation))) 3, 4)
-    scatterDat <- x$estimates[, c("genotype", "genMean", "MSdeviation",
-                                  "sens")[selCols]]
-    scatterDat <- merge(scatterDat, genoDat[, c("genotype", colorGenoBy)])
+    scatterDat <- x$estimates[, c("Genotype", "GenMean", "MSdeviation",
+                                  "Sens")[selCols]]
+    scatterDat <- merge(scatterDat, genoDat[, c("genotype", colorGenoBy)],
+                        by.x = "Genotype", by.y = "genotype")
     scatterDat <- ggplot2::remove_missing(scatterDat, na.rm = TRUE)
     ## Create plot of mean x mse. No x axis because of position in grid.
     p1 <- ggplot2::ggplot(data = scatterDat,
-                          ggplot2::aes_string(x = "genMean",
+                          ggplot2::aes_string(x = "GenMean",
                                               y = "sqrt(MSdeviation)",
                                               color = colorGenoBy)) +
       ggplot2::geom_point() +
@@ -228,7 +229,7 @@ plot.FW <- function(x,
     p1 <- p1 + ggplot2::theme(legend.position = "none")
     ## Create plot of mean x sensitivity.
     p2 <- ggplot2::ggplot(data = scatterDat,
-                          ggplot2::aes_string(x = "genMean", y = "sens",
+                          ggplot2::aes_string(x = "GenMean", y = "Sens",
                                               color = colorGenoBy)) +
       ggplot2::geom_point() +
       ggplot2::scale_color_manual(values = colGeno) +
@@ -237,7 +238,7 @@ plot.FW <- function(x,
     ## Create plot of mse x sensitivity. No y axis because of position in grid.
     p3 <- ggplot2::ggplot(data = scatterDat,
                           ggplot2::aes_string(x = "sqrt(MSdeviation)",
-                                              y = "sens",
+                                              y = "Sens",
                                               color = colorGenoBy)) +
       ggplot2::geom_point() +
       ggplot2::scale_color_manual(values = colGeno) +

@@ -255,10 +255,11 @@ gxeFw <- function(TD,
     orderSens <- order(sens, decreasing = (sorted == "descending"))
   }
   ## Construct estimate data.frame.
-  estimates <- data.frame(genotype = factor(levels(TDTot[["genotype"]]),
+  estimates <- data.frame(Genotype = factor(levels(TDTot[["genotype"]]),
                                             labels = levels(TDTot[["genotype"]])),
-                          sens, rank = rank(-sens), se_sens = sigmaE, genMean,
-                          se_genMean = sigma, MSdeviation = mse,
+                          GenMean = genMean, SE_GenMean = sigma,
+                          Rank = rank(-sens), Sens = sens,
+                          SE_Sens = sigmaE, MSdeviation = mse,
                           row.names = 1:length(sens))[orderSens, ]
   ## Construct data.frame with trial effects.
   matchPos <- match(paste0("trial", levels(TDTot[["trial"]]), ":beta"),
