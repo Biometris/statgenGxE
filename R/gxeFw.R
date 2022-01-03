@@ -215,9 +215,11 @@ gxeFw <- function(TD,
   fProb <- pf(q = devr, df1 = rDf, df2 = rDf[4], lower.tail = FALSE)
   aovTable <- data.frame("Df" = rDf, "Sum Sq" = rDev, "Mean Sq" = mDev,
                          "F value" = devr, "Pr(>F)" = fProb,
-                         row.names = c("genotype", "trial", "Sensitivities",
+                         row.names = c("Genotype", "Trial", "Sensitivities",
                                        "Residual", "Total"),
                          check.names = FALSE)
+  aovTable <- aovTable[c("Trial", "Genotype", "Sensitivities", "Residual",
+                         "Total"), ]
   class(aovTable) <- c("anova", "data.frame")
   ## Extract sensitivity beta.
   sens <- as.vector(tapply(X = TDTot[["beta"]], INDEX = TDTot[["genotype"]],

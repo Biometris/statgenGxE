@@ -273,8 +273,9 @@ gxeAmmiHelp <- function(TD,
     ## Extract ANOVA table for linear model.
     aov <- anova(model)
     rownames(aov)[rownames(aov) == "genotype"] <- "Genotype"
-    rownames(aov)[rownames(aov) == "trial"] <- "Environment"
+    rownames(aov)[rownames(aov) == "trial"] <- "Trial"
     rownames(aov)[rownames(aov) == "Residuals"] <- "Interactions"
+    aov <- aov[c("Trial", if (!GGE) "Genotype", "Interactions"), ]
     ## Compute principal components.
     if (!is.null(nPC)) {
       ## nPC is given. Use this in principal components analysis.
