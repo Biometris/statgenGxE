@@ -131,36 +131,33 @@ plot.stability <- function(x,
   plots <- vector(mode = "list")
   if (!is.null(x$superiority)) {
     ## Create superiority plot.
-    supDat <- merge(x$superiority, genoDat, by = "genotype")
-    aesArgs1 <- list()
-    plots$p1 <-
-      ggplot2::ggplot(data = supDat,
-                      ggplot2::aes_string(x = "mean", y = "sqrt(superiority)",
-                                          color = colorGenoBy)) +
+    supDat <- merge(x$superiority, genoDat, by.x = "Genotype", by.y = "genotype")
+    plots$p1 <- ggplot2::ggplot(data = supDat,
+                                ggplot2::aes_string(x = "Mean",
+                                                    y = "sqrt(Superiority)",
+                                                    color = colorGenoBy)) +
       ggplot2::geom_point() +
       ggplot2::scale_color_manual(values = colGeno) +
       ggplot2::labs(x = "Mean", y = "Square root of\n Cultivar superiority")
   }
   if (!is.null(x$static)) {
     ## Create static plot.
-    statDat <- merge(x$static, genoDat, by = "genotype")
-    aesArgs2 <- list(x = "mean", y = "sqrt(static)",
-                     color = if (is.null(colorGenoBy)) NULL else colorGenoBy)
-    plots$p2 <-
-      ggplot2::ggplot(data = statDat,
-                      ggplot2::aes_string(x = "mean", y = "sqrt(static)",
-                                          color = colorGenoBy)) +
+    statDat <- merge(x$static, genoDat, by.x = "Genotype", by.y = "genotype")
+    plots$p2 <- ggplot2::ggplot(data = statDat,
+                                ggplot2::aes_string(x = "Mean",
+                                                    y = "sqrt(Static)",
+                                                    color = colorGenoBy)) +
       ggplot2::geom_point() +
       ggplot2::scale_color_manual(values = colGeno) +
       ggplot2::labs(x = "Mean", y = "Square root of\n Static stability")
   }
   if (!is.null(x$wricke)) {
     ## Create Wricke plot.
-    wrickeDat <- merge(x$wricke, genoDat, by = "genotype")
-    plots$p3 <-
-      ggplot2::ggplot(data = wrickeDat,
-                      ggplot2::aes_string(x = "mean", y = "sqrt(wricke)",
-                                          color = colorGenoBy)) +
+    wrickeDat <- merge(x$wricke, genoDat, by.x = "Genotype", by.y = "genotype")
+    plots$p3 <- ggplot2::ggplot(data = wrickeDat,
+                                ggplot2::aes_string(x = "Mean",
+                                                    y = "sqrt(Wricke)",
+                                                    color = colorGenoBy)) +
       ggplot2::geom_point() +
       ggplot2::scale_color_manual(values = colGeno) +
       ggplot2::labs(x = "Mean", y = "Square root of\n Wricke's ecovalence")

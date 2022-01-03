@@ -25,7 +25,7 @@ options("statgen.trialColors" = c("#9E0142FF", "#35B779FF", "#B4DE2CFF",
                                   "#006837FF", "#D53E4FFF"))
 ```
 
-# The statgenGxE package {-}
+## The statgenGxE package {-}
 
 The statgenGxE package is developed as an easy-to-use package for Genotype by Environment (GxE) analysis for data of plant breeding experiments with many options for plotting and reporting the results of the analyses.
 
@@ -48,7 +48,7 @@ For most of the analyses a pdf report can be created automatically, see [Reporti
 
 ---
 
-# Data preparation {#dp}
+## Data preparation {#dp}
 
 The use of the package is demonstrated using maize data from the European Union project DROPS (https://cordis.europa.eu/project/id/244374). The data is available from https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN&version=2.0 [@Millet2019] and the relevant data set is included as data.frame in the statgenGxE package.
 
@@ -89,7 +89,7 @@ plot(dropsTD, plotType = "scatter", traits = "grain.yield", colorGenoBy = "genet
                     "Mur13R", "Ner12R", "Cam12R", "Cra12R"))
 ```
 
-## Coloring of genotypes and trials
+### Coloring of genotypes and trials
 
 In all plots the default colors for both genotype groups and trial groups are chosen from a predefined color palette. For genotype groups the color palette is "Dark 2", for trial groups it is "Alphabet". See [here](https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html) for an overview of these colors.    
 
@@ -105,7 +105,7 @@ If a plot has more genotype groups than the number of colors specified as defaul
 
 ---
 
-# Mixed model analysis of GxE table of means {#vcomp}
+## Mixed model analysis of GxE table of means {#vcomp}
 
 To investigate the structure of the genotype by environment data various mixed models can be fitted. In the statgenGxE package this can be done using the `gxeVarComp` function. 
 
@@ -180,7 +180,7 @@ head(predGenoTrial)
 
 ---
 
-# Finlay-Wilkinson Analysis {#fw}
+## Finlay-Wilkinson Analysis {#fw}
 
 With the Finlay-Wilkinson Analysis [@Finlay1963] we describe genotype by environment interaction by the heterogeneity of the slopes of a regression of individual genotypic performance on an environmental index. The environmental index is the average of all genotypes in an environment. The intercept expresses general performance across all environments, the slope represents adaptability, and the residuals may indicate a measure for stability.
 
@@ -227,7 +227,7 @@ plot(dropsFW, plotType = "scatterFit", colorGenoBy = "geneticGroup")
 
 ---
 
-# AMMI Analysis {#am}
+## AMMI Analysis {#am}
 
 The Additive Main Effects and Multiplicative Interaction (AMMI) model fits a model which involves the Additive Main effects (i.e. genotype and trial) along with Multiplicative Interaction effects. The additive effects are the classical ANOVA main effects for genotype and environment, the multiplicative effects follow from a principal component analysis on the interaction residuals (= genotype by environment means after adjustment for additive genotype and environment effects). This results in an interaction characterized by Interaction Principal Components (IPCA) enabling simultaneous plotting of genotypes and trials. 
 
@@ -312,7 +312,7 @@ Genotypes can be left out of the plot completely by setting `plotGeno = FALSE` a
 
 ---
 
-# GGE Analysis {#gge}
+## GGE Analysis {#gge}
 
 A Genotype plus Genotype by Environment (GGE) analysis is very similar to an AMMI analysis. The difference is in the first step where, instead of genotype and environment, only environment is fitted as a main effect in the model. Therefore, the principal component analysis is performed on the genotype main effect and the interaction jointly. In essence, the GGE analysis fits a principal components model with two components to the two-way genotype by environment table with data centered per environment.
 
@@ -336,7 +336,7 @@ plot(dropsGGE, plotType = "GGE2")
 
 ---
 
-# Identifying mega environments {#me}
+## Identifying mega environments {#me}
 
 For the computation of mega environments, an AMMI-2 model is fitted and then, using the fitted values from this model, the environments are clustered.
 Mega environments are created by grouping environments based on their best performing genotype. Environments that share the same best genotype belong to the same mega environment.  
@@ -376,7 +376,7 @@ if (requireNamespace(package = "asreml", quietly = TRUE)) {
 
 ---
 
-# Stability measures {#st}
+## Stability measures {#st}
 
 Different measures of stability can be calculated using the statgenGxE package, the cultivar-superiority measure of Lin & Binns [@Lin1988], Shukla's stability variance [@Shukla1972] and Wricke's ecovalence [@Wricke1962].
 
@@ -403,9 +403,9 @@ plot(dropsStab, colorGenoBy = "geneticGroup")
 
 ---
 
-# Modeling of heterogeneity of genetic variances and correlations{#vcov}
+## Modeling of heterogeneity of genetic variances and correlations{#vcov}
 
-The function `gxeVarCov` allows to fit linear mixed models of varying complexity to a set of trials without clear structure. When the trials can be organized by locations, years, regions or scenarios, then the mixed models in section [2](#vcomp) are more appropriate. The objective of this function is to identify a model for the genetic variances and correlations across the trials that will help in quantifying genetic similarities between trials and in understanding the structure of genotype by environment interactions. The identified variance-covariance structure can be used as the random background in a multi-environment QTL model. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequentially to the genotype by environment data. The best fitting model is then identified.    
+The function `gxeVarCov` allows to fit linear mixed models of varying complexity to a set of trials without clear structure. When the trials can be organized by locations, years, regions or scenarios, then the mixed models in section [Mixed model analysis of GxE table of means](#vcomp) are more appropriate. The objective of this function is to identify a model for the genetic variances and correlations across the trials that will help in quantifying genetic similarities between trials and in understanding the structure of genotype by environment interactions. The identified variance-covariance structure can be used as the random background in a multi-environment QTL model. Models can be fitted using either lme4 or asreml as modeling engine. If the engine is set to 'lme4', only a model considering multiple variance components, but with a compound symmetry variance-covariance structure can be fitted. If the engine is set to 'asreml', complex variance-covariance structures will be fitted sequentially to the genotype by environment data. The best fitting model is then identified.    
 The models fitted are of the form $y_{ij} = \mu_j + \epsilon_{ij}$, where $y_{ij}$ is the phenotypic value of genotype $i$ in environment $j$, $\mu_j$ is the environmental mean, and $\epsilon_{ij}$ represents mainly genetic variation, although some non-genetic variation may be included as well. The random term $\epsilon_{ij}$ is modeled in eight ways as described in the table below (see [@Boer2007]).
 
 | Model | Description | var($g_{ij}$) | cov($g_{ij}$;$g_{ik}$) | Number of parameters|
@@ -442,7 +442,7 @@ if (requireNamespace("asreml", quietly = TRUE)) {
 
 *Note that for both factor analytic models to be fitted a minimum of five environments is needed. If the data contains less environments, those two models are skipped.*
 
-A heat map of the correlation between the environments based on the best fitted model can be plotted. It will be instructive to compare the fitted correlations of tis section with the 'observed' correlations in section [1](#dp) and the GGE biplot in section [5](#gge). Comparisons with the mixed models in section [2](#vcomp) are also relevant.
+A heat map of the correlation between the environments based on the best fitted model can be plotted. It will be instructive to compare the fitted correlations of this section with the 'observed' correlations in section [Data preparation](#dp) and the GGE biplot in section [GGE analysis](#gge). Comparisons with the mixed models in section [Mixed model analysis of GxE table of means](#vcomp) are also relevant.
 
 ```{r geVCPlot}
 if (requireNamespace("asreml", quietly = TRUE)) {
@@ -454,7 +454,7 @@ In the plot correlations between environments are shown. A dark red color indica
 
 ---
 
-# Fitted values and residuals
+## Fitted values and residuals
 
 Fitted values and residuals for the models fitted using AMMI, GGE, Finlay-Wilkinson, and the selected variance-covariance model can be extracted using the functions `fitted` and `residuals` respectively. These can be useful for investigating the quality of the fitted model by e.g. creating diagnostic plots of fitted values against residuals. 
 
@@ -473,7 +473,7 @@ ggplot2::ggplot(fitResFW, ggplot2::aes(x = fittedValue, y = residual,
 
 ---
 
-# Reporting{#rep}
+## Reporting{#rep}
 
 For most of the analyses described in this vignette a pdf report can be made using the `report` function. Such a report typically consists of an overview of the analysis and parameters used and the most interesting results and plots for the analysis. Except for this pdf report also the .tex file used to generate this report and a folder containing the figures in the report, are generated. This will make it easy to adapt the report to the user's specific needs.
 

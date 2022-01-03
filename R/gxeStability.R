@@ -143,7 +143,7 @@ gxeStability <- function(TD,
     }
     LBOut <- setNames(data.frame(factor(lab, levels = lab), Ei, LB,
                                  row.names = 1:nGeno)[orderLB, ],
-                      c("genotype", "mean", "superiority"))
+                      c("Genotype", "Mean", "Superiority"))
   }
   if ("static" %in% method) {
     if (sorted == "none") {
@@ -153,7 +153,7 @@ gxeStability <- function(TD,
     }
     SOut <- setNames(data.frame(factor(lab, levels = lab), Ei, S,
                                 row.names = 1:nGeno)[orderS, ],
-                     c("genotype", "mean", "static"))
+                     c("Genotype", "Mean", "Static"))
   }
   if ("wricke" %in% method) {
     if (sorted == "none") {
@@ -163,7 +163,7 @@ gxeStability <- function(TD,
     }
     WOut <- setNames(data.frame(factor(lab, levels = lab), Ei, W,
                                 row.names = 1:nGeno)[orderW, ],
-                     c("genotype", "mean", "wricke"))
+                     c("Genotype", "Mean", "Wricke"))
   }
   res <- createStability(superiority = if ("superiority" %in% method) LBOut,
                          static = if ("static" %in% method) SOut,

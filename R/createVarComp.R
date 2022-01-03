@@ -69,8 +69,8 @@ summary.varComp <- function(object,
     fullRandVC[["stdError"]] <- sprintf("%1.3f", fullRandVC[["stdError"]])
   }
   fullRandVC[["vcovPerc"]] <- sprintf("%1.2f %%", 100 * fullRandVC[["vcovPerc"]])
-  colnames(fullRandVC) <- c("component", if (engine == "asreml") "standard error",
-                            "% variance expl.")
+  colnames(fullRandVC) <- c("Component", if (engine == "asreml") "SE",
+                            "% Variance expl.")
   ## Print ANOVA for fully fixed model with alternative header.
   aovFullFixedMod <- object$aovFullFixedMod
   attr(x = aovFullFixedMod, which = "heading") <-
@@ -327,14 +327,14 @@ vc <- function(varComp) {
     rownames(varcomps)[nrow(varcomps)] <- "residuals"
     modTermsRand <- modTerms[modTerms %in% rownames(varcomps)]
     varcomps <- varcomps[c(modTermsRand, "residuals"), "vcov", drop = FALSE]
-    colnames(varcomps) <- "component"
+    colnames(varcomps) <- "Component"
   } else if (varComp$engine == "asreml") {
     modTerms <- colnames(attr(x = terms(fitMod$call$random, keep.order = TRUE),
                               which = "factors"))
     varcomps <- summary(fitMod)$varcomp
     rownames(varcomps)[nrow(varcomps)] <- "residuals"
     varcomps <- varcomps[c(modTerms, "residuals"), c("component", "std.error")]
-    colnames(varcomps)[colnames(varcomps) == "std.error"] <- "stdError"
+    colnames(varcomps) <- c("Component", "SE")
   }
   return(varcomps)
 }
@@ -381,8 +381,8 @@ herit <- function(varComp) {
   ## Compute variance components.
   varcomps <- vc(varComp)
   ## Extract variance components for genotype and residual.
-  sigmaG <- varcomps["genotype", "component"]
-  sigmaRes <- varcomps["residual", "component"]
+  sigmaG <- varcomps["genotype", "Component"]
+  sigmaRes <- varcomps["residual", "Component"]
   ## Numerator is constructed by looping over all random model terms and
   ## Adding their share. It always includes sigmaG.
   numerator <- sigmaG
@@ -404,7 +404,7 @@ herit <- function(varComp) {
   })
   for (term in modTerms[-c(1, length(modTerms))]) {
     ## Get variance for current term.
-    sigmaTerm <- varcomps[term, "component"]
+    sigmaTerm <- varcomps[term, "Component"]
     ## Get variables in current term, exclude genotype (always the first var).
     termVars <- unlist(strsplit(x = term, split = ":"))[-1]
     ## Divide variance by product of #levels for all variables in current term.

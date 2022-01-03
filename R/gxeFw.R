@@ -295,11 +295,11 @@ gxeFw <- function(TD,
                           INDEX = fittedGeno[["trial"]], FUN = mean, na.rm = TRUE)
   meansFitted <- meansFitted[matchPos2]
   seMeansFitted <- seMeansFitted[matchPos2]
-  envEffsSummary <- data.frame(trial = names(meansFitted), envEff = envEffs,
-                               se_envEff = seEnvEffs,
-                               envMean = as.vector(meansFitted),
-                               se_envMean = as.vector(seMeansFitted),
-                               rank = rank(-meansFitted), row.names = NULL)
+  envEffsSummary <- data.frame(Trial = names(meansFitted), EnvEff = envEffs,
+                               SE_EnvEff = seEnvEffs,
+                               EnvMean = as.vector(meansFitted),
+                               SE_EnvMean = as.vector(seMeansFitted),
+                               Rank = rank(-meansFitted), row.names = NULL)
   return(createFW(estimates = estimates, anova = aovTable,
                   envEffs = envEffsSummary, TD = createTD(TDTot),
                   fittedGeno = fittedGeno, trait = trait, nGeno = nGeno,
