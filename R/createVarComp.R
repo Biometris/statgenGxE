@@ -246,7 +246,7 @@ predict.varComp <- function(object,
   } else if (object$useRegionLocYear) {
     predVars <- c("genotype", "trial", "region", "loc", "year")
   } else {
-    predVars <- c("genotype", "trial")
+    predVars <- c("genotype", "trial", object$nestingFactor)
   }
   predLevels <- match.arg(predictLevel, choices = predVars, several.ok = TRUE)
   ## Always include genotype.
