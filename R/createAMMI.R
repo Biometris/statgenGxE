@@ -629,7 +629,7 @@ plotAMMI1 <- function(loadings,
                                 ggplot2::aes_string(label = "rownames(textDat)",
                                                     size = ".size"),
                                 show.legend = !is.null(colorEnvBy), vjust = 0) +
-      ggplot2::scale_size(range = range(textDat[[".size"]]), guide = FALSE)
+      ggplot2::scale_size(range = range(textDat[[".size"]]), guide = "none")
   }
   return(p)
 }
@@ -866,7 +866,7 @@ plotAMMI2 <- function(loadings,
                                                     vjust = ".vjust",
                                                     hjust = ".hjust"),
                                 show.legend = !is.null(colorEnvBy)) +
-      ggplot2::scale_size(range = range(textDat[[".size"]]), guide = FALSE)
+      ggplot2::scale_size(range = range(textDat[[".size"]]), guide = "none")
   }
   if (plotConvHull) {
     ## Compute convex hull for the points.
