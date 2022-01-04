@@ -308,7 +308,7 @@ gxeVarCov <- function(TD,
           bestTab[choice, "NParameters"] <- nPar
         }
       } # End loop over choices
-      bestTab <- bestTab[order(bestTab[, criterion]), ]
+      bestTab <- bestTab[order(bestTab[, criterion]), , drop = FALSE]
       bestModel <- models[[rownames(bestTab)[1]]]
       bestPred <- predictAsreml(model = bestModel, classify = "trial",
                                 TD = TDTot, maxiter = maxIter, ...)
