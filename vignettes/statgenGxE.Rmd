@@ -5,7 +5,6 @@ date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     toc: false
-    number_sections: true
 bibliography: bibliography.bib
 vignette: >
   %\VignetteIndexEntry{Genotype by Environment analysis using statgenGxE}
@@ -44,13 +43,13 @@ The following types of analysis can be done using statgenGxE:
 For most of the analyses a pdf report can be created automatically, see [Reporting](#rep).
 
 
-*Note that due to technical restrictions the number of significant digits printed in tables throughout this vignette is not always optimal. In practice precision of the output can always be specified by the user.*
+Note that due to technical restrictions the number of significant digits printed in tables throughout this vignette is not always optimal. In practice precision of the output can always be specified by the user.
 
 ---
 
 ## Data preparation {#dp}
 
-The use of the package is demonstrated using maize data from the European Union project DROPS (https://cordis.europa.eu/project/id/244374). The data is available from https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/IASSTN&version=2.0 [@Millet2019] and the relevant data set is included as data.frame in the statgenGxE package.
+The use of the package is demonstrated using maize data from the European Union project DROPS (https://cordis.europa.eu/project/id/244374). The data is available from https://doi.org/10.15454/IASSTN [@Millet2019] and the relevant data set is included as data.frame in the statgenGxE package.
 
 The first step is loading the data into R. 
 ```{r loadData} 
@@ -120,7 +119,7 @@ Six different types of models can be fitted depending on the structure of the en
 | Trials correspond to locations within regions across years | **trait** = region + region:location + year + region:year + region:location:year + **genotype + genotype:region + genotype:region:location + genotype:year + genotype:region:year + genotype:region:location:year** | `regionLocationYear = TRUE` |
 | Trials are nested within scenarios | **trait** = scenario + scenario:trial + **genotype + genotype:scenario + genotype:scenario:trial** | `nestingFactor = "scenario"` |
 
-*For data in the form of GxE means, the last random term in all models above will become a residual term. If the GxE means are provided together with weights, then a residual term will be added to the models above. Be aware that when plot data are provided as input data, the mixed model analysis will be based on the assumption of completely randomized trials, which in almost all cases will not be appropriate for multi-environment trials.*    
+For data in the form of GxE means, the last random term in all models above will become a residual term. If the GxE means are provided together with weights, then a residual term will be added to the models above. Be aware that when plot data are provided as input data, the mixed model analysis will be based on the assumption of completely randomized trials, which in almost all cases will not be appropriate for multi-environment trials.        
  
 All models can be fitted using either `lme4` or `asreml`. This can be specified using the `engine` parameter.   
 
@@ -144,7 +143,7 @@ Finally a mixed model is fitted as specified in the table above. Based on this m
 dropsVarComp <- gxeVarComp(TD = dropsTD, trait = "grain.yield", nestingFactor = "scenarioFull")
 summary(dropsVarComp)
 ```
-*Note that because the model is fitted with lme4, in this and further tables no standard errors are outputted. When using asreml for modeling standard errors will be available.*
+Note that because the model is fitted with lme4, in this and further tables no standard errors are outputted. When using asreml for modeling standard errors will be available.
 
 The diagnostics for the fitted model can be printed using the `diagnostics` function. This will print an incidence matrix of missing values for each of the terms in the random part of the fitted model.
 
@@ -441,7 +440,7 @@ if (requireNamespace("asreml", quietly = TRUE)) {
 ```
 `r if (exists("dropsVC2")) {"As becomes clear from the summary, the best model based on AIC is the model with an unstructured variance-covariance structure. This indicates that GxE is present in the form of heterogeneity of genetic variances and correlations.."  }` 
 
-*Note that for both factor analytic models to be fitted a minimum of five environments is needed. If the data contains less environments, those two models are skipped.*
+Note that for both factor analytic models to be fitted a minimum of five environments is needed. If the data contains less environments, those two models are skipped.
 
 A heat map of the correlation between the environments based on the best fitted model can be plotted. It will be instructive to compare the fitted correlations of this section with the 'observed' correlations in section [Data preparation](#dp) and the GGE biplot in section [GGE analysis](#gge). Comparisons with the mixed models in section [Mixed model analysis of GxE table of means](#vcomp) are also relevant.
 
@@ -478,7 +477,7 @@ ggplot2::ggplot(fitResFW, ggplot2::aes(x = fittedValue, y = residual,
 
 For most of the analyses described in this vignette a pdf report can be made using the `report` function. Such a report typically consists of an overview of the analysis and parameters used and the most interesting results and plots for the analysis. Except for this pdf report also the .tex file used to generate this report and a folder containing the figures in the report, are generated. This will make it easy to adapt the report to the user's specific needs.
 
-*Note that all reports are created using pdflatex. If no installation is found by `Sys.which("pdflatex")` the report function will generate an error.*
+Note that all reports are created using pdflatex. If no installation is found by `Sys.which("pdflatex")` the report function will generate an error.
 
 For the analysis done in the vignette the reports below can be made. Specify a file with .pdf extension as `outfile` to set the location where the report is written.
 
