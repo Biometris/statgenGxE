@@ -43,6 +43,7 @@ print.varComp <- function(x,
 summary.varComp <- function(object,
                             ...) {
   engine <- object$engine
+  trait <- object$trait
   if (engine == "lme4") {
     ## Display model formula in text form.
     ## This might cut off the formula if it is longer than 500 character.
@@ -71,14 +72,21 @@ summary.varComp <- function(object,
   fullRandVC[["vcovPerc"]] <- sprintf("%1.2f %%", 100 * fullRandVC[["vcovPerc"]])
   colnames(fullRandVC) <- c("Component", if (engine == "asreml") "SE",
                             "% Variance expl.")
-  ## Print ANOVA for fully fixed model with alternative header.
   aovFullFixedMod <- object$aovFullFixedMod
+  ## Construct fully fixed and fully random model formula from ANOVA.
+  modTerms <- rownames(aovFullFixedMod)[-nrow(aovFullFixedMod)]
+  fixModCall <- paste(trait, "~", paste0(modTerms, collapse = " + "))
+  randModCall <- paste(trait, "~",
+                       paste0("(1 | ", modTerms, ")", collapse = " + "))
+  ## Print ANOVA for fully fixed model with alternative header.
   attr(x = aovFullFixedMod, which = "heading") <-
-    "Analysis of Variance Table for fully fixed model"
+    paste("Analysis of Variance Table for fully fixed model:\n",
+          fixModCall, "\n")
   ## Print output.
-  cat("Fitted model formula\n")
-  cat(fitModCall, "\n\n")
-  cat("Sources of variation\n")
+  cat("Fitted model formula final mixed model\n\n")
+  cat("", fitModCall, "\n\n")
+  cat("Sources of variation for fully random model:\n")
+  cat("", randModCall, "\n\n")
   print(fullRandVC)
   cat("\n")
   print(aovFullFixedMod)
