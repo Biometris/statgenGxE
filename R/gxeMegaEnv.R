@@ -57,6 +57,7 @@ gxeMegaEnv <- function(TD,
   if (hasName(x = TDTot, name = "megaEnv")) {
     warning("TD already contains a column megaEnv. This column will",
             "be overwritten.\n", call. = FALSE)
+    TDTot <- TDTot[colnames(TDTot) != "megaEnv"]
   }
   ## Remove genotypes that contain only NAs
   allNA <- by(TDTot, TDTot[["genotype"]], FUN = function(x) {
@@ -83,16 +84,17 @@ gxeMegaEnv <- function(TD,
   ## Extract values for winning genotype per trial.
   winGenoVal <- by(data = AMMI$fitted, INDICES = AMMI$fitted[["trial"]],
                    FUN = function(trial) {
-                     do.call(method, args = list(trial[["fittedValue"]]))
+                     do.call(method, args = list(trial[["fittedValue"]],
+                                                 na.rm = TRUE))
                    })
-  ## Create factor based on best genotypes.
-  megaFactor <- factor(winGeno,
-                       labels = paste0("megaEnv_", seq_along(unique(winGeno))))
-  ## Merge factor levels to original data.
-  TDTot[["megaEnv"]] <- TDTot[["trial"]]
-  levels(TDTot[["megaEnv"]]) <- as.character(megaFactor)
   ## Reapply saved levels to ensure input and output TDTot are identical.
   levels(TDTot[["trial"]]) <- envLevels
+  ## Merge factor levels to original data.
+  ## Create factor based on best genotypes.
+  megaEnvLabs <- paste0("megaEnv_", seq_along(unique(winGeno)))
+  megaEnvDat <- data.frame(trial = names(winGeno),
+                           megaEnv = factor(winGeno, labels = megaEnvLabs))
+  TDTot <- merge(TDTot, megaEnvDat, by = "trial")
   ## If year was added, remove if before creating output.
   if (isTRUE(rmYear)) {
     TDTot <- TDTot[-which(colnames(TDTot) == "year")]
@@ -101,10 +103,10 @@ gxeMegaEnv <- function(TD,
   TDTot[["megaEnv"]] <- factor(as.character(TDTot[["megaEnv"]]))
   TDOut <- createTD(TDTot)
   ## Create summary table.
-  summTab <- data.frame("Mega_factor" = megaFactor,
+  summTab <- data.frame("Mega_factor" = megaEnvDat[["megaEnv"]],
                         Trial = names(winGeno),
                         "Winning_genotype" = as.character(winGeno),
                         "AMMI_estimates" = as.numeric(winGenoVal))
-  summTab <- summTab[order(megaFactor), ]
+  summTab <- summTab[order(megaEnvDat[["megaEnv"]]), ]
   return(createMegaEnv(TD = TDOut, summTab = summTab, trait = trait))
 }
