@@ -459,7 +459,7 @@ CRDR <- function(varComp) {
   }
   if (is.null(varComp$nestingFactor) && isFALSE(varComp$useRegionLocYear)) {
     stop("CRDR can only be computed when a model is fitted with a nesting ",
-         "structure of when regions are included in the model.\n")
+         "structure or when regions are included in the model.\n")
   }
   H1 <- herit(varComp)
   ## Extract fitted model and model data.
