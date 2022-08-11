@@ -19,7 +19,7 @@
 #' | Model | Description | var(\eqn{g_{ij}}) | cov(\eqn{g_{ij}};\eqn{g_{ik}}) | Number of parameters|
 #' |:-----------|:-------------------|:------------|:------------|:-----------------|
 #' | identity | identity | \eqn{\sigma_G^2} | 0 | 1 |
-#' | cs | compound symmetry | \eqn{\sigma_G^2 + \sigma_{GE}^2} | \eqn{\sigma_{GE}^2} | 2 |
+#' | cs | compound symmetry | \eqn{\sigma_G^2+\sigma_{GE}^2} | \eqn{\sigma_{GE}^2} | 2 |
 #' | diagonal | diagonal matrix (heteroscedastic) | \eqn{\sigma_{GE_j}^2} | 0 | \eqn{J} |
 #' | hcs | heterogeneous compound symmetry | \eqn{\sigma_G^2+\sigma_{GE_j}^2} | \eqn{\sigma_G^2} | \eqn{J+1} |
 #' | outside | heterogeneity outside | \eqn{\sigma_{G_j}^2} | \eqn{\theta} | \eqn{J+1} |

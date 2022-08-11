@@ -58,7 +58,7 @@ Description: Analysis of multi environment data of plant breeding experiments
 License: GPL
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
 Depends: R (>= 3.3)
 Imports: 
