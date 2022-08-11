@@ -14,3 +14,4 @@ testScripts
 ^\.github$
 ^CRAN-RELEASE$
 cran-comments.md
+.gitlab-ci.yml
