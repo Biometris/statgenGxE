@@ -154,7 +154,8 @@ predict.megaEnv <- function(object,
       }
       mr <- tryCatchExt(asreml::asreml(fixed = fixForm, random = randForm,
                                        data = TDTot, maxiter = 200,
-                                       trace = FALSE, ...))
+                                       trace = FALSE,
+                                       workspace = 160e7, ...))
       if (!is.null(mr$error)  || (!is.null(mr$warning) && !mr$value$converge)) {
         ## In case asreml gave an error return a data.frame with NAs.
         warning("asreml gave an error. Empty data.frame returned.\n")

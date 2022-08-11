@@ -244,6 +244,7 @@ gxeVarComp <- function(TD,
     fullRandTxt <- paste("~", paste(c(fixedTerms, randTerms), collapse = "+"))
     fullRandMod <- tryCatchExt(asreml::asreml(fixed = formula(paste0("`", trait, "`~ 1")),
                                               random = formula(fullRandTxt),
+                                              family = asreml::asr_gaussian(dispersion = 1),
                                               data = TDTot, weights = "wt",
                                               maxiter = maxIter, trace = FALSE))
     if (!is.null(fullRandMod$warning)) {
@@ -309,6 +310,7 @@ gxeVarComp <- function(TD,
       ## between asreml3 and asreml4. Usually only one or two arguments differ.
       ## Also some arguments are identical for all models
       modArgs0 <- list(fixed = formula(fixedTxt), random = formula(randTxt),
+                       family = asreml::asr_gaussian(dispersion = 1),
                        data = TDTot, weights = "wt", maxiter = maxIter,
                        trace = FALSE)
       modArgs <- modArgs0
