@@ -10,8 +10,8 @@ testScripts
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
-^pkgdown$
 ^\.github$
 ^CRAN-RELEASE$
 cran-comments.md
-.gitlab-ci.yml
+.yml
+^CRAN-SUBMISSION$
