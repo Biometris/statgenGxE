@@ -95,7 +95,8 @@
 
 
 
-<script src="statgenGxE_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Genotype by Environment analysis using statgenGxE</h1>
                         <h4 data-toc-skip class="author">Bart-Jan van Rossum</h4>
@@ -109,7 +110,7 @@
     
     
 <div class="section level2 unnumbered">
-<h2 id="the-statgengxe-package">The statgenGxE package<a class="anchor" aria-label="anchor" href="#the-statgengxe-package"></a>
+<h2 class="unnumbered" id="the-statgengxe-package">The statgenGxE package<a class="anchor" aria-label="anchor" href="#the-statgengxe-package"></a>
 </h2>
 <p>The statgenGxE package is developed as an easy-to-use package for Genotype by Environment (GxE) analysis for data of plant breeding experiments with many options for plotting and reporting the results of the analyses.</p>
 <p>This vignette describes how to perform the different types of analysis that are available in the package. The availability of functions in the package is based on the analyses described in <span class="citation">Malosetti, Ribaut, and van Eeuwijk (2013)</span>. Further suggested reading is <span class="citation">van Eeuwijk, Bustos-Korts, and Malosetti (2016)</span>.</p>
@@ -130,11 +131,11 @@
 <div class="section level2">
 <h2 id="dp">Data preparation<a class="anchor" aria-label="anchor" href="#dp"></a>
 </h2>
-<p>The use of the package is demonstrated using maize data from the European Union project DROPS (<a href="https://cordis.europa.eu/project/id/244374" class="external-link uri">https://cordis.europa.eu/project/id/244374</a>). The data is available from <a href="https://doi.org/10.15454/IASSTN" class="external-link uri">https://doi.org/10.15454/IASSTN</a> <span class="citation">(Millet et al. 2019)</span> and the relevant data set is included as data.frame in the statgenGxE package.</p>
+<p>The use of the package is demonstrated using maize data from the European Union project DROPS (<a href="https://cordis.europa.eu/project/id/244374" class="external-link uri">https://cordis.europa.eu/project/id/244374</a>). The data is available from <a href="https://doi.org/10.15454/IASSTN" class="external-link uri">https://doi.org/10.15454/IASSTN</a> <span class="citation">(E. J. Millet et al. 2019)</span> and the relevant data set is included as data.frame in the statgenGxE package.</p>
 <p>The first step is loading the data into R.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">dropsPheno</span><span class="op">)</span></span></code></pre></div>
-<p>dropsPheno contains data for the genotypic means (Best Linear Unbiased Estimators, BLUEs), with one value per genotype per experiment, for a selection of 10 experiments from the full data set and eight traits. These 10 experiments form a good representation of the full set of experiments covering the five scenarios described in <span class="citation">Millet et al. (2016)</span>. Throughout this vignette in all examples the trait grain.yield will be analyzed. For a more detailed description of the contents of the data see <code>help(dropsData)</code>.</p>
+<p>dropsPheno contains data for the genotypic means (Best Linear Unbiased Estimators, BLUEs), with one value per genotype per experiment, for a selection of 10 experiments from the full data set and eight traits. These 10 experiments form a good representation of the full set of experiments covering the five scenarios described in <span class="citation">E. Millet et al. (2016)</span>. Throughout this vignette in all examples the trait grain.yield will be analyzed. For a more detailed description of the contents of the data see <code>help(dropsData)</code>.</p>
 <p>The input for GxE analysis in the statgenGxE package is an object of class TD (Trial Data). For a detailed description on how to construct such an object see the vignette of the statgenSTA package (<code>vignette("Modeling field trials using statgenSTA")</code>). For GxE analysis it is enough to specify the genotype and trial option of the <code>createTD</code> function.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Create a TD object from dropsPheno.</span></span>
@@ -241,17 +242,17 @@
 <li>As a mixed model, with the <strong>bold</strong> terms as random and the others as fixed</li>
 </ol>
 <div class="section level3 unnumbered">
-<h3 id="model-fitted-with-all-terms-as-fixed">Model fitted with all terms as fixed<a class="anchor" aria-label="anchor" href="#model-fitted-with-all-terms-as-fixed"></a>
+<h3 class="unnumbered" id="model-fitted-with-all-terms-as-fixed">Model fitted with all terms as fixed<a class="anchor" aria-label="anchor" href="#model-fitted-with-all-terms-as-fixed"></a>
 </h3>
 <p>The function first fits a model where all model terms are included as fixed terms. Based on the ANOVA table of this model, terms in the fixed part of the model that are likely to give a problem when fitting the mixed model are removed because of the reduced connectivity and number of available observations to estimate that model term. Also a warning is printed if the mean sum of squares for a model term points to a possible zero variance component in the mixed model.</p>
 </div>
 <div class="section level3 unnumbered">
-<h3 id="model-fitted-with-all-terms-as-random">Model fitted with all terms as random<a class="anchor" aria-label="anchor" href="#model-fitted-with-all-terms-as-random"></a>
+<h3 class="unnumbered" id="model-fitted-with-all-terms-as-random">Model fitted with all terms as random<a class="anchor" aria-label="anchor" href="#model-fitted-with-all-terms-as-random"></a>
 </h3>
 <p>Then a model is fitted where all model terms are included as random terms. Based on the variance components in this model the percentage of variance explained by each of the model components is determined. The percentages of variance are printed in the model summary, together with the variance components. The latter are presented on a standard deviation scale.</p>
 </div>
 <div class="section level3 unnumbered">
-<h3 id="mixed-model">Mixed model<a class="anchor" aria-label="anchor" href="#mixed-model"></a>
+<h3 class="unnumbered" id="mixed-model">Mixed model<a class="anchor" aria-label="anchor" href="#mixed-model"></a>
 </h3>
 <p>Finally a mixed model is fitted as specified in the table above. Based on this model, variance components can be extracted, heritabilities on a line mean basis (across all trials) can be computed and predictions can be made. It is also possible to plot the results.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -827,50 +828,50 @@ The models fitted are of the form <span class="math inline">\(y_{ij} = \mu_j + \
 <hr>
 </div>
 <div class="section level2 unnumbered">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references">
-<div id="ref-Akaike1974">
-<p>Akaike, H. 1974. “A New Look at the Statistical Model Identification.” <em>IEEE Transactions on Automatic Control</em> 19 (6): 716–23. <a href="https://doi.org/10.1109/tac.1974.1100705" class="external-link">https://doi.org/10.1109/tac.1974.1100705</a>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Akaike1974" class="csl-entry">
+Akaike, H. 1974. <span>“A New Look at the Statistical Model Identification.”</span> <em><span>IEEE</span> Transactions on Automatic Control</em> 19 (6): 716–23. <a href="https://doi.org/10.1109/tac.1974.1100705" class="external-link">https://doi.org/10.1109/tac.1974.1100705</a>.
 </div>
-<div id="ref-Bates2015">
-<p>Bates, Douglas, Martin Mächler, Ben Bolker, and Steve Walker. 2015. “Fitting Linear Mixed-Effects Models Using Lme4.” <em>Journal of Statistical Software</em> 67 (1). <a href="https://doi.org/10.18637/jss.v067.i01" class="external-link">https://doi.org/10.18637/jss.v067.i01</a>.</p>
+<div id="ref-Bates2015" class="csl-entry">
+Bates, Douglas, Martin Mächler, Ben Bolker, and Steve Walker. 2015. <span>“Fitting Linear Mixed-Effects Models Using Lme4.”</span> <em>Journal of Statistical Software</em> 67 (1). <a href="https://doi.org/10.18637/jss.v067.i01" class="external-link">https://doi.org/10.18637/jss.v067.i01</a>.
 </div>
-<div id="ref-Boer2007">
-<p>Boer, Martin P., Deanne Wright, Lizhi Feng, Dean W. Podlich, Lang Luo, Mark Cooper, and Fred A. van Eeuwijk. 2007. “A Mixed-Model Quantitative Trait Loci (QTL) Analysis for Multiple-Environment Trial Data Using Environmental Covariables for QTL-by-Environment Interactions, with an Example in Maize.” <em>Genetics</em> 177 (3): 1801–13. <a href="https://doi.org/10.1534/genetics.107.071068" class="external-link">https://doi.org/10.1534/genetics.107.071068</a>.</p>
+<div id="ref-Boer2007" class="csl-entry">
+Boer, Martin P., Deanne Wright, Lizhi Feng, Dean W. Podlich, Lang Luo, Mark Cooper, and Fred A. van Eeuwijk. 2007. <span>“A Mixed-Model Quantitative Trait Loci (<span>QTL</span>) Analysis for Multiple-Environment Trial Data Using Environmental Covariables for <span>QTL</span>-by-Environment Interactions, with an Example in Maize.”</span> <em>Genetics</em> 177 (3): 1801–13. <a href="https://doi.org/10.1534/genetics.107.071068" class="external-link">https://doi.org/10.1534/genetics.107.071068</a>.
 </div>
-<div id="ref-Gilmour2017">
-<p>Butler, D. G., B. R. Cullis, A. R. Gilmour, B. G. Gogel, and R. Thompson. 2017. “ASReml-R Reference Manual Version 4.” <a href="https://vsni.co.uk/" class="external-link">https://vsni.co.uk/</a>.</p>
+<div id="ref-Gilmour2017" class="csl-entry">
+Butler, D. G., B. R. Cullis, A. R. Gilmour, B. G. Gogel, and R. Thompson. 2017. <span>“ASReml-r Reference Manual Version 4.”</span> <a href="https://vsni.co.uk/" class="external-link">https://vsni.co.uk/</a>.
 </div>
-<div id="ref-Finlay1963">
-<p>Finlay, KW, and GN Wilkinson. 1963. “The Analysis of Adaptation in a Plant-Breeding Programme.” <em>Australian Journal of Agricultural Research</em> 14 (6): 742. <a href="https://doi.org/10.1071/ar9630742" class="external-link">https://doi.org/10.1071/ar9630742</a>.</p>
+<div id="ref-Finlay1963" class="csl-entry">
+Finlay, KW, and GN Wilkinson. 1963. <span>“The Analysis of Adaptation in a Plant-Breeding Programme.”</span> <em>Australian Journal of Agricultural Research</em> 14 (6): 742. <a href="https://doi.org/10.1071/ar9630742" class="external-link">https://doi.org/10.1071/ar9630742</a>.
 </div>
-<div id="ref-Gower1996">
-<p>Gower, John, and David Hand. 1996. <em>Biplots</em>. London New York: Chapman &amp; Hall.</p>
+<div id="ref-Gower1996" class="csl-entry">
+Gower, John, and David Hand. 1996. <em>Biplots</em>. London New York: Chapman &amp; Hall.
 </div>
-<div id="ref-Lin1988">
-<p>Lin, C. S., and M. R. Binns. 1988. “A Superiority Measure of Cultivar Performance for Cultivar Location Data.” <em>Canadian Journal of Plant Science</em> 68 (1): 193–98. <a href="https://doi.org/10.4141/cjps88-018" class="external-link">https://doi.org/10.4141/cjps88-018</a>.</p>
+<div id="ref-Lin1988" class="csl-entry">
+Lin, C. S., and M. R. Binns. 1988. <span>“A Superiority Measure of Cultivar Performance for Cultivar Location Data.”</span> <em>Canadian Journal of Plant Science</em> 68 (1): 193–98. <a href="https://doi.org/10.4141/cjps88-018" class="external-link">https://doi.org/10.4141/cjps88-018</a>.
 </div>
-<div id="ref-Malosetti2013">
-<p>Malosetti, Marcos, Jean-Marcel Ribaut, and Fred A. van Eeuwijk. 2013. “The Statistical Analysis of Multi-Environment Data: Modeling Genotype-by-Environment Interaction and Its Genetic Basis.” <em>Frontiers in Physiology</em> 4. <a href="https://doi.org/10.3389/fphys.2013.00044" class="external-link">https://doi.org/10.3389/fphys.2013.00044</a>.</p>
+<div id="ref-Malosetti2013" class="csl-entry">
+Malosetti, Marcos, Jean-Marcel Ribaut, and Fred A. van Eeuwijk. 2013. <span>“The Statistical Analysis of Multi-Environment Data: Modeling Genotype-by-Environment Interaction and Its Genetic Basis.”</span> <em>Frontiers in Physiology</em> 4. <a href="https://doi.org/10.3389/fphys.2013.00044" class="external-link">https://doi.org/10.3389/fphys.2013.00044</a>.
 </div>
-<div id="ref-Millet2019">
-<p>Millet, Emilie J., Cyril Pommier, Mélanie Buy, Axel Nagel, Willem Kruijer, Therese Welz-Bolduan, Jeremy Lopez, et al. 2019. “A Multi-Site Experiment in a Network of European Fields for Assessing the Maize Yield Response to Environmental Scenarios.” Portail Data Inra. <a href="https://doi.org/10.15454/IASSTN" class="external-link">https://doi.org/10.15454/IASSTN</a>.</p>
+<div id="ref-Millet2019" class="csl-entry">
+Millet, Emilie J., Cyril Pommier, Mélanie Buy, Axel Nagel, Willem Kruijer, Therese Welz-Bolduan, Jeremy Lopez, et al. 2019. <span>“A Multi-Site Experiment in a Network of European Fields for Assessing the Maize Yield Response to Environmental Scenarios.”</span> Portail Data Inra. <a href="https://doi.org/10.15454/IASSTN" class="external-link">https://doi.org/10.15454/IASSTN</a>.
 </div>
-<div id="ref-Millet2016">
-<p>Millet, Emilie, Claude Welcker, Willem Kruijer, Sandra Negro, Stephane Nicolas, Sebastien Praud, Nicolas Ranc, et al. 2016. “Genome-Wide Analysis of Yield in Europe: Allelic Effects as Functions of Drought and Heat Scenarios.” <em>Plant Physiology</em>, July, pp.00621.2016. <a href="https://doi.org/10.1104/pp.16.00621" class="external-link">https://doi.org/10.1104/pp.16.00621</a>.</p>
+<div id="ref-Millet2016" class="csl-entry">
+Millet, Emilie, Claude Welcker, Willem Kruijer, Sandra Negro, Stephane Nicolas, Sebastien Praud, Nicolas Ranc, et al. 2016. <span>“Genome-Wide Analysis of Yield in Europe: Allelic Effects as Functions of Drought and Heat Scenarios.”</span> <em>Plant Physiology</em>, July, pp.00621.2016. <a href="https://doi.org/10.1104/pp.16.00621" class="external-link">https://doi.org/10.1104/pp.16.00621</a>.
 </div>
-<div id="ref-Schwarz1978">
-<p>Schwarz, Gideon. 1978. “Estimating the Dimension of a Model.” <em>The Annals of Statistics</em> 6 (2): 461–64. <a href="https://doi.org/10.1214/aos/1176344136" class="external-link">https://doi.org/10.1214/aos/1176344136</a>.</p>
+<div id="ref-Schwarz1978" class="csl-entry">
+Schwarz, Gideon. 1978. <span>“Estimating the Dimension of a Model.”</span> <em>The Annals of Statistics</em> 6 (2): 461–64. <a href="https://doi.org/10.1214/aos/1176344136" class="external-link">https://doi.org/10.1214/aos/1176344136</a>.
 </div>
-<div id="ref-Shukla1972">
-<p>Shukla, G K. 1972. “Some Statistical Aspects of Partitioning Genotype-Environmental Components of Variability.” <em>Heredity</em> 29 (2): 237–45. <a href="https://doi.org/10.1038/hdy.1972.87" class="external-link">https://doi.org/10.1038/hdy.1972.87</a>.</p>
+<div id="ref-Shukla1972" class="csl-entry">
+Shukla, G K. 1972. <span>“Some Statistical Aspects of Partitioning Genotype-Environmental Components of Variability.”</span> <em>Heredity</em> 29 (2): 237–45. <a href="https://doi.org/10.1038/hdy.1972.87" class="external-link">https://doi.org/10.1038/hdy.1972.87</a>.
 </div>
-<div id="ref-vanEeuwijk2016">
-<p>van Eeuwijk, Fred A., Daniela V. Bustos-Korts, and Marcos Malosetti. 2016. “What Should Students in Plant Breeding Know About the Statistical Aspects of Genotype Environment Interactions?” <em>Crop Science</em> 56 (5): 2119–40. <a href="https://doi.org/10.2135/cropsci2015.06.0375" class="external-link">https://doi.org/10.2135/cropsci2015.06.0375</a>.</p>
+<div id="ref-vanEeuwijk2016" class="csl-entry">
+van Eeuwijk, Fred A., Daniela V. Bustos-Korts, and Marcos Malosetti. 2016. <span>“What Should Students in Plant Breeding Know about the Statistical Aspects of Genotype <span></span> Environment Interactions?”</span> <em>Crop Science</em> 56 (5): 2119–40. <a href="https://doi.org/10.2135/cropsci2015.06.0375" class="external-link">https://doi.org/10.2135/cropsci2015.06.0375</a>.
 </div>
-<div id="ref-Wricke1962">
-<p>Wricke, G. 1962. “Evaluation Method for Recording Ecological Differences in Field Trials.” <em>Z Pflanzenzücht</em> 47: 92–96.</p>
+<div id="ref-Wricke1962" class="csl-entry">
+Wricke, G. 1962. <span>“Evaluation Method for Recording Ecological Differences in Field Trials.”</span> <em>Z Pflanzenzücht</em> 47: 92–96.
 </div>
 </div>
 </div>
