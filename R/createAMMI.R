@@ -599,8 +599,8 @@ plotAMMI1 <- function(loadings,
   }
   lims <- c(min(xMin, yMin), max(xMax, yMax))
   p <- ggplot2::ggplot(totDat,
-                       ggplot2::aes_string(x = "x", y = "y",
-                                           color = ".group")) +
+                       ggplot2::aes(x = .data[["x"]], y = .data[["y"]],
+                                    color = .data[[".group"]])) +
     ## Needed for a square plot output.
     ggplot2::coord_equal(xlim = lims, ylim = lims, clip = "off") +
     ggplot2::scale_color_manual(breaks = colGroups, values = colNamed,
@@ -626,8 +626,8 @@ plotAMMI1 <- function(loadings,
   if (!is.null(textDat)) {
     ## Plot genotypes and environments as text.
     p <- p + ggplot2::geom_text(data = textDat,
-                                ggplot2::aes_string(label = "rownames(textDat)",
-                                                    size = ".size"),
+                                ggplot2::aes(label = rownames(textDat),
+                                             size = .data[[".size"]]),
                                 show.legend = !is.null(colorEnvBy), vjust = 0) +
       ggplot2::scale_size(range = range(textDat[[".size"]]), guide = "none")
   }
@@ -838,8 +838,9 @@ plotAMMI2 <- function(loadings,
     nrowGuide <- shapesGuide <- sizesGuide <- NULL
   }
   lims <- c(min(xMin, yMin), max(xMax, yMax))
-  p <- ggplot2::ggplot(totDat, ggplot2::aes_string(x = primAxis, y = secAxis,
-                                                   color = ".group")) +
+  p <- ggplot2::ggplot(totDat, ggplot2::aes(x = .data[[primAxis]],
+                                            y = .data[[secAxis]],
+                                            color = .data[[".group"]])) +
     ## Needed for a square plot output.
     ggplot2::coord_equal(xlim = lims, ylim = lims, clip = "off") +
     ggplot2::scale_color_manual(breaks = colGroups, values = colNamed,
@@ -861,10 +862,10 @@ plotAMMI2 <- function(loadings,
   if (!is.null(textDat)) {
     ## Plot genotypes and environments as text.
     p <- p + ggplot2::geom_text(data = textDat,
-                                ggplot2::aes_string(label = "rownames(textDat)",
-                                                    size = ".size",
-                                                    vjust = ".vjust",
-                                                    hjust = ".hjust"),
+                                ggplot2::aes(label = rownames(textDat),
+                                             size = .data[[".size"]],
+                                             vjust = .data[[".vjust"]],
+                                             hjust = .data[[".hjust"]]),
                                 show.legend = !is.null(colorEnvBy)) +
       ggplot2::scale_size(range = range(textDat[[".size"]]), guide = "none")
   }
@@ -917,10 +918,11 @@ plotAMMI2 <- function(loadings,
       ## for ease of plotting.
       perpDat <- data.frame(xend = xNew, yend = yNew)
       ## Add perpendicular lines to plot as segments.
-      p <- p + ggplot2::geom_segment(ggplot2::aes_string(x = 0, y = 0,
-                                                         xend = "xend",
-                                                         yend = "yend"),
-                                     data = perpDat, col = "grey50", size = 0.6)
+      p <- p + ggplot2::geom_segment(ggplot2::aes(x = 0, y = 0,
+                                                  xend = .data[["xend"]],
+                                                  yend = .data[["yend"]]),
+                                     data = perpDat, col = "grey50",
+                                     linewidth = 0.6)
     }
   }
   if (plotEnv) {
@@ -930,9 +932,9 @@ plotAMMI2 <- function(loadings,
     ## the plot otherwise.
     p <- p +
       ggplot2::geom_segment(data = envDat,
-                            ggplot2::aes_string(x = 0, y = 0,
-                                                xend = primAxis,
-                                                yend = secAxis),
+                            ggplot2::aes(x = 0, y = 0,
+                                         xend = .data[[primAxis]],
+                                         yend = .data[[secAxis]]),
                             arrow = ggplot2::arrow(length = ggplot2::unit(0.2, "cm")),
                             show.legend = FALSE)
   }

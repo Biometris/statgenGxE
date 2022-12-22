@@ -1,4 +1,8 @@
-# statgenGxE 1.0.4.1
+# statgenGxE 1.0.5.9000
+
+* Functions no longer rely on soft-deprecated ggplot2 functions.
+
+# statgenGxE 1.0.5
 
 * The predict function for gxeVarComp output is extended so all variables in the fitted model can now be used for making predictions.
 * The plot functions for AMMI and GGE analysis now have an argument `rotatePC` allowing the specification of a trial that is aligned with the positive x-axis in the plot.

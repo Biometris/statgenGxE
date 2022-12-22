@@ -102,7 +102,9 @@ plot.varCov <- function(x,
   meltedCorMatLow <- meltedCorMat[as.numeric(meltedCorMat[["trial1"]]) >
                                     as.numeric(meltedCorMat[["trial2"]]), ]
   p <- ggplot2::ggplot(data = meltedCorMatLow,
-                       ggplot2::aes_string("trial1", "trial2", fill = "cor")) +
+                       ggplot2::aes(x = .data[["trial1"]],
+                                    y = .data[["trial2"]],
+                                    fill = .data[["cor"]])) +
     ggplot2::geom_tile(color = "white") +
     ggplot2::scale_y_discrete(position = "right") +
     ## Create a gradient scale.
