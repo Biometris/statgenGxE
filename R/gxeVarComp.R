@@ -208,6 +208,7 @@ gxeVarComp <- function(TD,
     randTermPos <- sapply(X = aovTermSets, FUN = setequal, randTermSet)
     ## Get MSS for current term.
     MSSRandTerm <- aovFullFixedMod[randTermPos, "Mean Sq"]
+    if (is.na(MSSRandTerm)) MSSRandTerm <- 0
     ## For all other terms in the ANOVA table that have the current term
     ## as a subset the MSS cannot be higher.
     ## If it is the corresponding variance component is possibly zero.
