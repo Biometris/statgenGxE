@@ -245,7 +245,7 @@ gxeVarComp <- function(TD,
     fullRandTxt <- paste("~", paste(c(fixedTerms, randTerms), collapse = "+"))
     fullRandMod <- tryCatchExt(asreml::asreml(fixed = formula(paste0("`", trait, "`~ 1")),
                                               random = formula(fullRandTxt),
-                                              family = asreml::asr_gaussian(dispersion = 1),
+                                              #family = asreml::asr_gaussian(dispersion = 1),
                                               data = TDTot, weights = "wt",
                                               maxiter = maxIter, trace = FALSE))
     if (!is.null(fullRandMod$warning)) {
