@@ -153,7 +153,7 @@ gxeVarComp <- function(TD,
   ## Random terms are genotype x fixedTerms.
   ## If there are no replicates or weights the final random term is the actual
   ## residual and therefore left out of the model.
-  if (hasReps || useWt) {
+  if (hasReps) { #} || useWt) {
     randTermIncl <- fixedTerms
   } else {
     randTermIncl <- fixedTerms[-length(fixedTerms)]
