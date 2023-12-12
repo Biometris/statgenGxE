@@ -15,17 +15,14 @@ A list with three correlations.
 \description{
 Compute three types of correlations for models fitted with a nesting factor.
 \itemize{
-\item{correlation between scenarios or environment types:
+\item correlation between scenarios or environment types:
 \deqn{\sigma_G^2 / (\sigma_G^2 + \sigma_{GS}^2)}
-}
-\item{correlation between trials within scenarios or environment types:
+\item correlation between trials within scenarios or environment types:
 \deqn{(\sigma_G^2 + \sigma_{GS}^2) / (\sigma_G^2 + \sigma_{GS}^2 +
 \sigma_E^2)}
-}
-\item{correlation between trials that belong to different
+\item correlation between trials that belong to different
 scenarios/environment types:
 \deqn{\sigma_G^2 / (\sigma_G^2 + \sigma_{GS}^2 + \sigma_E^2)}
-}
 }
 In these formulas the \eqn{\sigma} terms stand for the standard deviations of
 the respective model terms. So \eqn{\sigma_S} is the standard deviation for

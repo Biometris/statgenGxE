@@ -44,27 +44,27 @@ An object of class \code{\link{FW}}, a list containing:
 \item{estimates}{A data.frame containing the estimated values, with the
 following columns:
 \itemize{
-\item{genotype} {The name of the genotype.}
-\item{sens} {The estimate of the sensitivity.}
-\item{se_sens} {The standard error of the estimate of the sensitivity.}
-\item{genMean} {The estimate of the genotypic mean.}
-\item{se_genMean} {The standard error of the estimate of the genotypic
-mean.}
-\item{MSdeviation} {The mean square deviation about the line fitted to
-each genotype}
-\item{rank} {The rank of the genotype based on its sensitivity.}
+\item genotype: The name of the genotype.
+\item sens: The estimate of the sensitivity.
+\item se_sens: The standard error of the estimate of the sensitivity.
+\item genMean: The estimate of the genotypic mean.
+\item se_genMean: The standard error of the estimate of the genotypic
+mean.
+\item MSdeviation: The mean square deviation about the line fitted to
+each genotype
+\item rank: The rank of the genotype based on its sensitivity.
 }
 }
 \item{anova}{A data.frame containing anova scores of the FW analysis.}
 \item{envEffs}{A data.frame containing the environmental effects, with the
 following columns:
 \itemize{
-\item{trial} {The name of the trial.}
-\item{envEff} {The estimate of the environment effect.}
-\item{se_envEff} {The standard error of the estimate of the environment
-effect.}
-\item{envMean} {The estimate of the environment mean.}
-\item{rank} {The rank of the trial based on its mean.}
+\item trial: The name of the trial.
+\item envEff: The estimate of the environment effect.
+\item se_envEff: The standard error of the estimate of the environment
+effect.
+\item envMean: The estimate of the environment mean.
+\item rank: The rank of the trial based on its mean.
 }
 }
 \item{TD}{The object of class TD on which the analysis was performed.}
