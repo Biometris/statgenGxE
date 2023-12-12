@@ -409,8 +409,8 @@ The models fitted are of the form $y_{ij} = \mu_j + \epsilon_{ij}$, where $y_{ij
 
 | Model | Description | var($g_{ij}$) | cov($g_{ij}$;$g_{ik}$) | Number of parameters|
 |:-----------|:-------------------|:------------|:------------|:-----------------|
-| identity | identity | $\sigma_G^2$ | 0 | 1 |
-| cs | compound symmetry | $\sigma_G^2 + \sigma_{GE}^2$ | $\sigma_{GE}^2$ | 2 |
+| identity | identity | $\sigma_{GE}^2$ | 0 | 1 |
+| cs | compound symmetry | $\sigma_G^2 + \sigma_{GE}^2$ | $\sigma_G^2$ | 2 |
 | diagonal | diagonal matrix (heteroscedastic) | $\sigma_{GE_j}^2$ | 0 | $J$ |
 | hcs | heterogeneous compound symmetry | $\sigma_G^2+\sigma_{GE_j}^2$ | $\sigma_G^2$ | $J+1$ |
 | outside | heterogeneity outside | $\sigma_{G_j}^2$ | $\theta$ | $J+1$ |
