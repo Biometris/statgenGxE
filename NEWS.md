@@ -1,4 +1,4 @@
-# statgenGxE 1.0.5.9000
+# statgenGxE 1.0.6
 
 * Functions no longer rely on soft-deprecated ggplot2 functions.
 * A small bug is fixed that made plotting of `gxeVarComp` output impossible when using asreml for fitting the models.
