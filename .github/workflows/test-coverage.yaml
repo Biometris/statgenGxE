@@ -23,7 +23,8 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::covr
+          dependencies: '"hard"'
+          extra-packages: any::covr, any::testthat
           needs: coverage
 
       - name: Test coverage

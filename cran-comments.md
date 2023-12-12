@@ -1,10 +1,10 @@
-## Release to fix math rendering problems on R.4.2. Also includes a few extra options in the existing functions.
+## Some small bug fixes, removed use of deprecated dependency functions, and changes in documentation to silence CRAN check note.
 
 ----
 
 ## Test environments
 
-* local Windows 10 install, R 4.2.1
+* local Windows 10 install, R 4.3.2
 * Ubuntu (on github actions, devel and release)
 * macOS (on github actions, release)
 * R-hub (devel and release)
