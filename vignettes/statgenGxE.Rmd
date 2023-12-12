@@ -55,9 +55,9 @@ The first step is loading the data into R.
 ```{r loadData} 
 data(dropsPheno)
 ```
-dropsPheno contains data for the genotypic means (Best Linear Unbiased Estimators, BLUEs), with one value per genotype per experiment, for a selection of 10 experiments from the full data set and eight traits. These 10 experiments form a good representation of the full set of experiments covering the five scenarios described in @Millet2016. Throughout this vignette in all examples the trait grain.yield will be analyzed. For a more detailed description of the contents of the data see `help(dropsData)`.
+dropsPheno contains data for the genotypic means (Best Linear Unbiased Estimators, BLUEs), with one value per genotype per experiment, for a selection of 10 experiments from the full data set and eight traits. These 10 experiments form a good representation of the full set of experiments covering the five scenarios described in @Millet2016. Throughout this vignette in all examples the trait grain.yield will be analyzed. For a more detailed description of the contents of the data see `help(dropsPheno)`.
 
-The input for GxE analysis in the statgenGxE package is an object of class TD (Trial Data). For a detailed description on how to construct such an object see the vignette of the statgenSTA package (`vignette("Modeling field trials using statgenSTA")`). For GxE analysis it is enough to specify the genotype and trial option of the `createTD` function.
+The input for GxE analysis in the statgenGxE package is an object of class TD (Trial Data). For a detailed description on how to construct such an object see the vignette of the statgenSTA package (`vignette("statgenSTA")`). For GxE analysis it is enough to specify the genotype and trial option of the `createTD` function.
 
 ```{r createTD}
 ## Create a TD object from dropsPheno.
@@ -409,8 +409,8 @@ The models fitted are of the form $y_{ij} = \mu_j + \epsilon_{ij}$, where $y_{ij
 
 | Model | Description | var($g_{ij}$) | cov($g_{ij}$;$g_{ik}$) | Number of parameters|
 |:-----------|:-------------------|:------------|:------------|:-----------------|
-| identity | identity | $\sigma_G^2$ | 0 | 1 |
-| cs | compound symmetry | $\sigma_G^2 + \sigma_{GE}^2$ | $\sigma_{GE}^2$ | 2 |
+| identity | identity | $\sigma_{GE}^2$ | 0 | 1 |
+| cs | compound symmetry | $\sigma_G^2 + \sigma_{GE}^2$ | $\sigma_G^2$ | 2 |
 | diagonal | diagonal matrix (heteroscedastic) | $\sigma_{GE_j}^2$ | 0 | $J$ |
 | hcs | heterogeneous compound symmetry | $\sigma_G^2+\sigma_{GE_j}^2$ | $\sigma_G^2$ | $J+1$ |
 | outside | heterogeneity outside | $\sigma_{G_j}^2$ | $\theta$ | $J+1$ |

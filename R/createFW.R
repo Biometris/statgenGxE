@@ -208,9 +208,9 @@ plot.FW <- function(x,
     scatterDat <- ggplot2::remove_missing(scatterDat, na.rm = TRUE)
     ## Create plot of mean x mse. No x axis because of position in grid.
     p1 <- ggplot2::ggplot(data = scatterDat,
-                          ggplot2::aes_string(x = "GenMean",
-                                              y = "sqrt(MSdeviation)",
-                                              color = colorGenoBy)) +
+                          ggplot2::aes(x = .data[["GenMean"]],
+                                       y = sqrt(.data[["MSdeviation"]]),
+                                       color = .data[[colorGenoBy]])) +
       ggplot2::geom_point() +
       ggplot2::scale_color_manual(values = colGeno) +
       ggplot2::theme(axis.title.x = ggplot2::element_blank(),
@@ -229,17 +229,18 @@ plot.FW <- function(x,
     p1 <- p1 + ggplot2::theme(legend.position = "none")
     ## Create plot of mean x sensitivity.
     p2 <- ggplot2::ggplot(data = scatterDat,
-                          ggplot2::aes_string(x = "GenMean", y = "Sens",
-                                              color = colorGenoBy)) +
+                          ggplot2::aes(x = .data[["GenMean"]],
+                                       y = .data[["Sens"]],
+                                       color = .data[[colorGenoBy]])) +
       ggplot2::geom_point() +
       ggplot2::scale_color_manual(values = colGeno) +
       ggplot2::theme(legend.position = "none") +
       ggplot2::labs(x = "Mean", y = "Sensitivity")
     ## Create plot of mse x sensitivity. No y axis because of position in grid.
     p3 <- ggplot2::ggplot(data = scatterDat,
-                          ggplot2::aes_string(x = "sqrt(MSdeviation)",
-                                              y = "Sens",
-                                              color = colorGenoBy)) +
+                          ggplot2::aes(x = sqrt(.data[["MSdeviation"]]),
+                                       y = .data[["Sens"]],
+                                       color = .data[[colorGenoBy]])) +
       ggplot2::geom_point() +
       ggplot2::scale_color_manual(values = colGeno) +
       ggplot2::theme(legend.position = "none",
@@ -275,9 +276,6 @@ plot.FW <- function(x,
     lineDat <- ggplot2::remove_missing(lineDat, na.rm = TRUE)
     ## Set arguments for plot aesthetics.
     yVar <- ifelse(response == "observed", "genoMean", "fitted")
-    aesArgs <- list(x = "EnvMean", y = yVar, group = "genotype",
-                    color = if (colorGenoBy == ".colorGenoBy") "genotype" else
-                      enquote(colorGenoBy))
     ## Order descending can be achieved by reversing the x-axis.
     if (order == "descending") {
       xTrans <- "reverse"
@@ -285,12 +283,17 @@ plot.FW <- function(x,
       xTrans <- "identity"
     }
     plotLims <- range(c(lineDat[["EnvMean"]], lineDat[[yVar]]))
+    colorVar <- if (colorGenoBy == ".colorGenoBy") "genotype" else
+      enquote(colorGenoBy)
     ## Create plot.
-    p <- ggplot2::ggplot(data = lineDat,
-                         do.call(ggplot2::aes_string, args = aesArgs)) +
+    p <- ggplot2::ggplot(
+      data = lineDat,
+      ggplot2::aes(x = .data[["EnvMean"]], y = .data[[yVar]],
+                   group = .data[["genotype"]],
+                   color = .data[[colorVar]])) +
       ggplot2::geom_point() +
-      ggplot2::geom_line(ggplot2::aes_string(y = "fitted"),
-                         size = 0.5, alpha = 0.7) +
+      ggplot2::geom_line(ggplot2::aes(y = .data[["fitted"]]),
+                         linewidth = 0.5, alpha = 0.7) +
       ggplot2::scale_x_continuous(trans = xTrans,
                                   sec.axis = ggplot2::dup_axis(name = "Environment",
                                                                breaks = envEffs[["EnvMean"]],
@@ -329,10 +332,12 @@ plot.FW <- function(x,
     trellisDat <- trellisDat[order(trellisDat[["genotype"]],
                                    trellisDat[["EnvMean"]]), ]
     p <- ggplot2::ggplot(data = trellisDat,
-                         ggplot2::aes_string(x = "EnvMean", y = "genoMean")) +
+                         ggplot2::aes(x = .data[["EnvMean"]],
+                                      y = .data[["genoMean"]])) +
       ggplot2::geom_point() +
       ggplot2::geom_line(data = trellisDat,
-                         ggplot2::aes_string(x = "EnvMean", y = "fitted")) +
+                         ggplot2::aes(x = .data[["EnvMean"]],
+                                      y = .data[["fitted"]])) +
       ggplot2::facet_wrap(facets = "genotype") +
       ggplot2::labs(x = "Environment", y = trait) +
       ggplot2::ggtitle(title) +
@@ -356,8 +361,9 @@ plot.FW <- function(x,
     plotDat <- merge(plotDat, genoDat[, c("genotype", colorGenoBy)])
     ## Create scatter plot of fitted values.
     p <- ggplot2::ggplot(data = plotDat,
-                         ggplot2::aes_string(x = "trMin", y = "trMax",
-                                             color = colorGenoBy)) +
+                         ggplot2::aes(x = .data[["trMin"]],
+                                      y = .data[["trMax"]],
+                                      color = .data[[colorGenoBy]])) +
       ggplot2::geom_point(na.rm = TRUE,
                           show.legend = colorGenoBy != ".colorGenoBy") +
       ggplot2::scale_color_manual(values = colGeno) +
@@ -394,7 +400,7 @@ plot.FW <- function(x,
 #' @export
 fitted.FW <- function(object,
                       ...) {
- return(object$fittedGeno)
+  return(object$fittedGeno)
 }
 
 #' Extract residuals.

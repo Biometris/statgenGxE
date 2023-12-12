@@ -6,6 +6,7 @@
 #' @importFrom xtable xtable
 #' @importFrom utils hasName
 #' @importFrom statgenSTA createTD
+#' @importFrom rlang .data
 NULL
 
 statgenDefaultOptions <- list(

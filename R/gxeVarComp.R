@@ -153,7 +153,7 @@ gxeVarComp <- function(TD,
   ## Random terms are genotype x fixedTerms.
   ## If there are no replicates or weights the final random term is the actual
   ## residual and therefore left out of the model.
-  if (hasReps || useWt) {
+  if (hasReps) { #} || useWt) {
     randTermIncl <- fixedTerms
   } else {
     randTermIncl <- fixedTerms[-length(fixedTerms)]
@@ -208,6 +208,7 @@ gxeVarComp <- function(TD,
     randTermPos <- sapply(X = aovTermSets, FUN = setequal, randTermSet)
     ## Get MSS for current term.
     MSSRandTerm <- aovFullFixedMod[randTermPos, "Mean Sq"]
+    if (is.na(MSSRandTerm)) MSSRandTerm <- 0
     ## For all other terms in the ANOVA table that have the current term
     ## as a subset the MSS cannot be higher.
     ## If it is the corresponding variance component is possibly zero.
@@ -244,7 +245,7 @@ gxeVarComp <- function(TD,
     fullRandTxt <- paste("~", paste(c(fixedTerms, randTerms), collapse = "+"))
     fullRandMod <- tryCatchExt(asreml::asreml(fixed = formula(paste0("`", trait, "`~ 1")),
                                               random = formula(fullRandTxt),
-                                              family = asreml::asr_gaussian(dispersion = 1),
+                                              #family = asreml::asr_gaussian(dispersion = 1),
                                               data = TDTot, weights = "wt",
                                               maxiter = maxIter, trace = FALSE))
     if (!is.null(fullRandMod$warning)) {
@@ -306,16 +307,15 @@ gxeVarComp <- function(TD,
   } else if (engine == "asreml") {
     if (requireNamespace("asreml", quietly = TRUE)) {
       randTxt <- paste("~ ", paste(randTerms, collapse = "+"))
-      ## Put arguments for models in a list to make it easier to switch
-      ## between asreml3 and asreml4. Usually only one or two arguments differ.
-      ## Also some arguments are identical for all models
-      modArgs0 <- list(fixed = formula(fixedTxt), random = formula(randTxt),
+      ## Putting family argument in a list for some reason makes it impossible
+      ## to extract fitted values from asreml.
+      ## Since we only fit a single model here it can be called directly.
+      mr <- tryCatchExt(
+        asreml::asreml(fixed = formula(fixedTxt),
+                       random = formula(randTxt),
                        family = asreml::asr_gaussian(dispersion = 1),
                        data = TDTot, weights = "wt", maxiter = maxIter,
-                       trace = FALSE)
-      modArgs <- modArgs0
-      ## Fit the actual model.
-      mr <- tryCatchExt(do.call(asreml::asreml, modArgs))
+                       trace = FALSE))
       if (!is.null(mr$warning)) {
         ## Check if param 1% increase is significant. Remove warning if not.
         mr <- chkLastIter(mr)

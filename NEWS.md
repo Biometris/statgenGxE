@@ -1,9 +1,14 @@
-# statgenGxE 1.0.4.1
+# statgenGxE 1.0.6
 
-* The predict function for gxeVarComp output is extended so all variables in the fitted model can now be used for making predictions.
+* Functions no longer rely on soft-deprecated ggplot2 functions.
+* A small bug is fixed that made plotting of `gxeVarComp` output impossible when using asreml for fitting the models.
+
+# statgenGxE 1.0.5
+
+* The predict function for `gxeVarComp` output is extended so all variables in the fitted model can now be used for making predictions.
 * The plot functions for AMMI and GGE analysis now have an argument `rotatePC` allowing the specification of a trial that is aligned with the positive x-axis in the plot.
-* The gxeVarComp function now has an argument `models` allowing a subset of the available models to be fitted.
-* A small bug in gxeMegaEnv that sometimes caused NA for predicted values is fixed.
+* The `gxeVarCov` function now has an argument `models` allowing a subset of the available models to be fitted.
+* A small bug in `gxeMegaEnv` that sometimes caused NA for predicted values is fixed.
 * Some minor changes in order and capitalization of outputs.
 
 # statgenGxE 1.0.4
