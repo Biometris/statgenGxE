@@ -1,10 +1,10 @@
-## Some small bug fixes, removed use of deprecated dependency functions, and changes in documentation to silence CRAN check note.
+## Small change fixing test errors.
 
 ----
 
 ## Test environments
 
-* local Windows 10 install, R 4.3.2
+* local Windows 10 install, R 4.3.3
 * Ubuntu (on github actions, devel and release)
 * macOS (on github actions, release)
 * R-hub (devel and release)

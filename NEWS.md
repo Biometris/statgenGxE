@@ -1,3 +1,7 @@
+# statgenGxE 1.0.7
+
+* No user visual changes
+
 # statgenGxE 1.0.6
 
 * Functions no longer rely on soft-deprecated ggplot2 functions.
