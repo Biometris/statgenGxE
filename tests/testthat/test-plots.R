@@ -431,13 +431,11 @@ test_that("megaEnv plot gives correct output types", {
 })
 
 test_that("option colorGenoBy in megaEnv plot functions correctly", {
-  expect_warning(p0 <- plot(geMegaEnv))
   expect_warning(p <- plot(geMegaEnv, colorGenoBy = "family"),
                  "One should be cautious with the interpretation")
   ## New guide-box panel added.
-  layout0 <- p0[[1]]$layout
-  layout <- p[[1]]$layout
-  expect_equal(setdiff(layout[["name"]], layout0[["name"]]), "guide-box")
+  gbRight <- p$pred$grobs[[22]]
+  expect_equal(gbRight$layout[["name"]], c("guides", "legend.box.background"))
 })
 
 ## varComp
