@@ -170,7 +170,7 @@ escapeLatex = function(x, newlines = FALSE, spaces = FALSE) {
 #' @keywords internal
 asreml4 <- function() {
   if (requireNamespace("asreml", quietly = TRUE)) {
-    if (packageVersion("asreml")[1] >= 4) {
+    if (packageVersion("asreml") >= "4") {
       ## Calling license status apparently also activates the license if this
       ## was done once before.
       licenceStatus <- asreml::asreml.license.status(quiet = TRUE)
