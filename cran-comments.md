@@ -1,10 +1,10 @@
-## Small change fixing test errors.
+## Patch release for R 4.4.0
 
 ----
 
 ## Test environments
 
-* local Windows 10 install, R 4.3.3
+* local Windows 10 install, R 4.4.0
 * Ubuntu (on github actions, devel and release)
 * macOS (on github actions, release)
 * R-hub (devel and release)
