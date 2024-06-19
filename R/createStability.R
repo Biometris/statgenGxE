@@ -144,7 +144,7 @@ plot.stability <- function(x,
     ## Create static plot.
     statDat <- merge(x$static, genoDat, by.x = "Genotype", by.y = "genotype")
     plots$p2 <- ggplot2::ggplot(data = statDat,
-                                ggplot2::aes(x = "Mean",
+                                ggplot2::aes(x = Mean,
                                              y = sqrt(.data[["Static"]]),
                                              color = .data[[colorGenoBy]])) +
       ggplot2::geom_point() +
@@ -155,7 +155,7 @@ plot.stability <- function(x,
     ## Create Wricke plot.
     wrickeDat <- merge(x$wricke, genoDat, by.x = "Genotype", by.y = "genotype")
     plots$p3 <- ggplot2::ggplot(data = wrickeDat,
-                                ggplot2::aes(x = "Mean",
+                                ggplot2::aes(x = Mean,
                                              y = sqrt(.data[["Wricke"]]),
                                              color = .data[[colorGenoBy]])) +
       ggplot2::geom_point() +
