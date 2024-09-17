@@ -1,5 +1,6 @@
-# statgenGxE 1.0.8.9000
+# statgenGxE 1.0.9
 
+* A bug in `gxeFW` that in some cases caused negative sums of squares in the resulting anova table has been fixed.
 * A bug is fixed that caused the means in the stability plots to be plotted as a straight line.
 
 # statgenGxE 1.0.8
