@@ -33,8 +33,8 @@ analysis.}
 \item{nEnv}{A numerical value containing the number of environments in the
 analysis.}
 
-\item{TD}{The object of class \code{\link{TD}} on which the analysis was
-performed.}
+\item{TD}{The object of class \code{\link[statgenSTA]{TD}} on which the
+analysis was performed.}
 
 \item{fittedGeno}{The fitted values for the genotypes.}
 

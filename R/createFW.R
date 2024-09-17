@@ -7,8 +7,8 @@
 #' @param estimates A data.frame containing the estimated values.
 #' @param anova A data.frame containing anova scores of the FW analysis.
 #' @param envEffs A data.frame containing the environmental effects.
-#' @param TD The object of class \code{\link{TD}} on which the analysis was
-#' performed.
+#' @param TD The object of class \code{\link[statgenSTA]{TD}} on which the
+#' analysis was performed.
 #' @param fittedGeno The fitted values for the genotypes.
 #' @param trait A character value indicating the analysed trait.
 #' @param nGeno A numerical value containing the number of genotypes in the

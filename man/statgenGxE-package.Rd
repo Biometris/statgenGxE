@@ -6,7 +6,7 @@
 \alias{statgenGxE-package}
 \title{statgenGxE: Genotype by Environment (GxE) Analysis}
 \description{
-Analysis of multi environment data of plant breeding experiments following the analyses described in Malosetti, Ribaut, and van Eeuwijk (2013), \doi{10.3389/fphys.2013.00044}. One of a series of statistical genetic packages for streamlining the analysis of typical plant breeding experiments developed by Biometris. Some functions have been created to be used in conjunction with the R package 'asreml' for the 'ASReml' software, which can be obtained upon purchase from 'VSN' international (\url{https://vsni.co.uk/software/asreml-r}).
+Analysis of multi environment data of plant breeding experiments following the analyses described in Malosetti, Ribaut, and van Eeuwijk (2013), \doi{10.3389/fphys.2013.00044}. One of a series of statistical genetic packages for streamlining the analysis of typical plant breeding experiments developed by Biometris. Some functions have been created to be used in conjunction with the R package 'asreml' for the 'ASReml' software, which can be obtained upon purchase from 'VSN' international (\url{https://vsni.co.uk/software/asreml-r/}).
 }
 \seealso{
 Useful links:

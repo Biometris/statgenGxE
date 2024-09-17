@@ -13,7 +13,7 @@ gxeMegaEnv(
 )
 }
 \arguments{
-\item{TD}{An object of class \code{\link{TD}}.}
+\item{TD}{An object of class \code{\link[statgenSTA]{TD}}.}
 
 \item{trials}{A character string specifying the trials to be analyzed. If
 not supplied, all trials are used in the analysis.}

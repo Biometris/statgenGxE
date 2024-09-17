@@ -29,7 +29,7 @@
 #' added component is significant in the analysis.\cr
 #' AMMI estimates are then computed using the results of the PCA.\cr
 #'
-#' @param TD An object of class \code{\link{TD}}.
+#' @param TD An object of class \code{\link[statgenSTA]{TD}}.
 #' @param trials A character string specifying the trials to be analyzed. If
 #' not supplied, all trials are used in the analysis.
 #' @param trait A character string specifying the trait to be analyzed.
