@@ -5,92 +5,53 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="statgenGxE">
 <title>Genotype by Environment analysis using statgenGxE • statgenGxE</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js" integrity="sha512-7O5pXpc0oCRrxk8RUfDYFgn0nO1t+jLuIOQdOMRp4APB7uZ4vSjspzp5y6YDtDs4VzUSTbWzBFZ/LKJhnyFOKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Genotype by Environment analysis using statgenGxE">
-<meta property="og:description" content="statgenGxE">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Genotype by Environment analysis using statgenGxE">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
-    
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light" data-bs-theme="light"><div class="container">
-    
+
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+
     <a class="navbar-brand me-2" href="../index.html">statgenGxE</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.9</small>
 
-    
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item">
-  <a class="nav-link" href="../index.html">
-    <span class="fa fa-home"></span>
-     
-  </a>
-</li>
-<li class="active nav-item">
-  <a class="nav-link" href="../articles/index.html">Vignettes</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../index.html"><span class="fa fa-home"></span></a></li>
+<li class="active nav-item"><a class="nav-link" href="../articles/index.html">Vignettes</a></li>
       </ul>
-<form class="form-inline my-2 my-lg-0" role="search">
-        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
-</form>
-
-      <ul class="navbar-nav">
-<li class="nav-item">
-  <a class="nav-link" href="../news/index.html">
-    <span class="fa fa-newspaper-o"></span>
-     
-    news
-  </a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="../reference/index.html">
-    <span class="fa fa-file-code-o"></span>
-     
-    functions
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><a class="nav-link" href="../news/index.html"><span class="fa fa-newspaper-o"></span> news</a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html"><span class="fa fa-file-code-o"></span> functions</a></li>
 <li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown--other-packages">
-    <span class="fa fa-seedling"></span>
-     
-    other packages
-  </a>
-  <div class="dropdown-menu" aria-labelledby="dropdown--other-packages">
-    <a class="external-link dropdown-item" href="https://biometris.github.io/statgenSTA">statgenSTA</a>
-    <a class="external-link dropdown-item" href="https://biometris.github.io/statgenGWAS">statgenGWAS</a>
-    <a class="external-link dropdown-item" href="https://biometris.github.io/statgenHTP">statgenHTP</a>
-    <a class="external-link dropdown-item" href="https://biometris.github.io/statgenIBD">statgenIBD</a>
-    <a class="external-link dropdown-item" href="https://biometris.github.io/statgenMPP">statgenMPP</a>
-    <a class="external-link dropdown-item" href="https://biometris.github.io/statgenQTLxT">statgenQTLxT</a>
-    <a class="external-link dropdown-item" href="https://biometris.github.io/LMMsolver">LMMsolver</a>
-  </div>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-other-packages" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-seedling"></span> other packages</button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-other-packages">
+<li><a class="external-link dropdown-item" href="https://biometris.github.io/statgenSTA">statgenSTA</a></li>
+    <li><a class="external-link dropdown-item" href="https://biometris.github.io/statgenGWAS">statgenGWAS</a></li>
+    <li><a class="external-link dropdown-item" href="https://biometris.github.io/statgenHTP">statgenHTP</a></li>
+    <li><a class="external-link dropdown-item" href="https://biometris.github.io/statgenIBD">statgenIBD</a></li>
+    <li><a class="external-link dropdown-item" href="https://biometris.github.io/statgenMPP">statgenMPP</a></li>
+    <li><a class="external-link dropdown-item" href="https://biometris.github.io/statgenQTLxT">statgenQTLxT</a></li>
+    <li><a class="external-link dropdown-item" href="https://biometris.github.io/LMMsolver">LMMsolver</a></li>
+  </ul>
 </li>
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/Biometris/statgenGxE">
-    <span class="fa fa-github fa-lg"></span>
-     
-    github
-  </a>
-</li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/Biometris/statgenGxE"><span class="fa fa-github fa-lg"></span> github</a></li>
       </ul>
 </div>
 
-    
+
   </div>
 </nav><div class="container template-article">
 
@@ -99,13 +60,14 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="" class="logo" alt=""><h1>Genotype by Environment analysis using statgenGxE</h1>
+
+      <h1>Genotype by Environment analysis using statgenGxE</h1>
                         <h4 data-toc-skip class="author">Bart-Jan van
 Rossum</h4>
             
-            <h4 data-toc-skip class="date">2024-05-06</h4>
+            <h4 data-toc-skip class="date">2024-09-17</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/Biometris/statgenGxE/blob/HEAD/vignettes/statgenGxE.Rmd" class="external-link"><code>vignettes/statgenGxE.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Biometris/statgenGxE/blob/main/vignettes/statgenGxE.Rmd" class="external-link"><code>vignettes/statgenGxE.Rmd</code></a></small>
       <div class="d-none name"><code>statgenGxE.Rmd</code></div>
     </div>
 
@@ -440,16 +402,43 @@ is the average of all genotypes in an environment. The intercept
 expresses general performance across all environments, the slope
 represents adaptability, and the residuals may indicate a measure for
 stability.</p>
-<p>The model fitted in the analysis is <span class="math inline">\(y_{ij} = \mu + G_i + \beta_iE_j +
-\epsilon_{ij}\)</span>, where <span class="math inline">\(y_{ij}\)</span> is the phenotypic value of
-genotype <span class="math inline">\(i\)</span> in environment <span class="math inline">\(j\)</span>, <span class="math inline">\(\mu\)</span> is the general mean, <span class="math inline">\(G_i\)</span> is the genotypic effect, <span class="math inline">\(\beta_i\)</span> a sensitivity parameters, <span class="math inline">\(E_j\)</span> the environment effect and <span class="math inline">\(\epsilon_{ij}\)</span> a residual.</p>
+<p>The model fitted in the analysis is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mi>μ</mi><mo>+</mo><msub><mi>G</mi><mi>i</mi></msub><mo>+</mo><msub><mi>β</mi><mi>i</mi></msub><msub><mi>E</mi><mi>j</mi></msub><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">y_{ij} = \mu + G_i + \beta_iE_j + \epsilon_{ij}</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">y_{ij}</annotation></semantics></math>
+is the phenotypic value of genotype
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+in environment
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
+is the general mean,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>G</mi><mi>i</mi></msub><annotation encoding="application/x-tex">G_i</annotation></semantics></math>
+is the genotypic effect,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\beta_i</annotation></semantics></math>
+a sensitivity parameters,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mi>j</mi></msub><annotation encoding="application/x-tex">E_j</annotation></semantics></math>
+the environment effect and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\epsilon_{ij}</annotation></semantics></math>
+a residual.</p>
 <p>In the statgenGxE package this analysis can be done using the
 <code>gxeFW</code> function. The model described above is fitted using
 an alternating regression algorithm. First, using starting values for
-<span class="math inline">\(\beta_i\)</span> and <span class="math inline">\(G_i\)</span>, <span class="math inline">\(E_j\)</span> is estimated. Next, <span class="math inline">\(E_j\)</span> is assumed known and <span class="math inline">\(\beta_i\)</span> and <span class="math inline">\(G_i\)</span> are estimated. This process is
-continued until convergence, i.e. until the change in <span class="math inline">\(\beta_i\)</span> between iterations is less then a
-specified tolerance (default 0.001). When estimating parameters, missing
-observations are estimated as well.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\beta_i</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>G</mi><mi>i</mi></msub><annotation encoding="application/x-tex">G_i</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mi>j</mi></msub><annotation encoding="application/x-tex">E_j</annotation></semantics></math>
+is estimated. Next,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mi>j</mi></msub><annotation encoding="application/x-tex">E_j</annotation></semantics></math>
+is assumed known and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\beta_i</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>G</mi><mi>i</mi></msub><annotation encoding="application/x-tex">G_i</annotation></semantics></math>
+are estimated. This process is continued until convergence, i.e. until
+the change in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\beta_i</annotation></semantics></math>
+between iterations is less then a specified tolerance (default 0.001).
+When estimating parameters, missing observations are estimated as
+well.</p>
 <p>By default all trials in the <code>TD</code> object are used in the
 analysis, but this can be restricted using the parameter
 <code>trials</code>. The genotypes included in the analysis can be
@@ -457,20 +446,21 @@ restricted using <code>genotypes</code>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Perform a Finlay-Wilkinson analysis for all trials.</span></span>
 <span><span class="va">dropsFW</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gxeFw.html">gxeFw</a></span><span class="op">(</span>TD <span class="op">=</span> <span class="va">dropsTD</span>, trait <span class="op">=</span> <span class="st">"grain.yield"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in anova.lm(modelA): ANOVA F-tests on an essentially perfect fit are unreliable</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">dropsFW</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Environmental effects </span></span>
 <span><span class="co">#&gt; =====================</span></span>
 <span><span class="co">#&gt;     Trial      EnvEff SE_EnvEff  EnvMean SE_EnvMean Rank</span></span>
-<span><span class="co">#&gt; 1  Cam12R -4.93016532 0.0710838  1.97041   0.526746    9</span></span>
-<span><span class="co">#&gt; 2  Cra12R -5.41700099 0.0710838  1.48358   0.564494   10</span></span>
-<span><span class="co">#&gt; 3  Gai12W  4.29088420 0.0710838 11.19145   0.478808    1</span></span>
-<span><span class="co">#&gt; 4  Kar12W  2.81602440 0.0710838  9.71659   0.378874    3</span></span>
-<span><span class="co">#&gt; 5  Kar13R  2.98347060 0.0710838  9.88404   0.389212    2</span></span>
-<span><span class="co">#&gt; 6  Kar13W  1.14169667 0.0710838  8.04227   0.298929    4</span></span>
-<span><span class="co">#&gt; 7  Mar13R  0.83532848 0.0710838  7.73590   0.290526    5</span></span>
-<span><span class="co">#&gt; 8  Mur13R -0.00198925 0.0710838  6.89858   0.280534    7</span></span>
-<span><span class="co">#&gt; 9  Mur13W  0.53202700 0.0710838  7.43260   0.284630    6</span></span>
-<span><span class="co">#&gt; 10 Ner12R -2.25027579 0.0710838  4.65030   0.346565    8</span></span>
+<span><span class="co">#&gt; 1  Cam12R -4.93055131 0.0502677  1.97041   0.526746    9</span></span>
+<span><span class="co">#&gt; 2  Cra12R -5.41742682 0.0502677  1.48357   0.564494   10</span></span>
+<span><span class="co">#&gt; 3  Gai12W  4.29123502 0.0502677 11.19147   0.478809    1</span></span>
+<span><span class="co">#&gt; 4  Kar12W  2.81625299 0.0502677  9.71660   0.378874    3</span></span>
+<span><span class="co">#&gt; 5  Kar13R  2.98370143 0.0502677  9.88404   0.389212    2</span></span>
+<span><span class="co">#&gt; 6  Kar13W  1.14177738 0.0502677  8.04226   0.298928    4</span></span>
+<span><span class="co">#&gt; 7  Mar13R  0.83539922 0.0502677  7.73591   0.290526    5</span></span>
+<span><span class="co">#&gt; 8  Mur13R -0.00199929 0.0502677  6.89857   0.280534    7</span></span>
+<span><span class="co">#&gt; 9  Mur13W  0.53205627 0.0502677  7.43259   0.284630    6</span></span>
+<span><span class="co">#&gt; 10 Ner12R -2.25044489 0.0502677  4.65031   0.346564    8</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Anova </span></span>
 <span><span class="co">#&gt; =====</span></span>
@@ -486,11 +476,11 @@ restricted using <code>genotypes</code>.</p>
 <span><span class="co">#&gt; Most sensitive genotypes</span></span>
 <span><span class="co">#&gt; ========================</span></span>
 <span><span class="co">#&gt;   Genotype GenMean SE_GenMean Rank    Sens   SE_Sens MSdeviation</span></span>
-<span><span class="co">#&gt;     Lo1251 9.03024   0.280534    1 1.34779 0.0904284    1.507974</span></span>
-<span><span class="co">#&gt;   DK78371A 7.34072   0.280534    2 1.29340 0.0904284    0.313889</span></span>
-<span><span class="co">#&gt;      PHG83 7.79922   0.280534    3 1.29337 0.0904284    1.447104</span></span>
-<span><span class="co">#&gt;      FR697 7.48625   0.280534    4 1.27416 0.0904284    0.917458</span></span>
-<span><span class="co">#&gt;  SC-Malawi 7.12909   0.280534    5 1.26473 0.0904284    1.272097</span></span></code></pre></div>
+<span><span class="co">#&gt;     Lo1251 9.03024   0.280534    1 1.34769 0.0904213    1.507974</span></span>
+<span><span class="co">#&gt;   DK78371A 7.34072   0.280534    2 1.29330 0.0904213    0.313889</span></span>
+<span><span class="co">#&gt;      PHG83 7.79922   0.280534    3 1.29327 0.0904213    1.447104</span></span>
+<span><span class="co">#&gt;      FR697 7.48625   0.280534    4 1.27406 0.0904213    0.917458</span></span>
+<span><span class="co">#&gt;  SC-Malawi 7.12909   0.280534    5 1.26463 0.0904213    1.272097</span></span></code></pre></div>
 <p>Four types of plots can be made to investigate the output from the
 analysis. <code>plotType = "scatter"</code> creates three scatter plots
 where genotypic mean, square root of the mean squared deviation and
@@ -545,11 +535,28 @@ environment in turn on all others. This process is repeated until the
 difference between the fitted values in subsequent iterations becomes
 sufficiently small (see <code><a href="../reference/multMissing.html">help(multMissing)</a></code> for further
 details).</p>
-<p>After imputation the model fitted in the analysis is <span class="math inline">\(y_{ij} = \mu + G_i + E_j + \Sigma_{m
-=1}^M\gamma_{mi}\delta_{mj} + \epsilon_{ij}\)</span>, where <span class="math inline">\(M\)</span> is the number of principal components,
-<span class="math inline">\(y_{ij}\)</span> is the phenotypic value of
-genotype <span class="math inline">\(i\)</span> in environment <span class="math inline">\(j\)</span>, <span class="math inline">\(\mu\)</span> is the general mean, <span class="math inline">\(G_i\)</span> is the genotypic effect, <span class="math inline">\(E_j\)</span> the environmental effect, <span class="math inline">\(\gamma_{mi}\)</span> the genotypic scores, <span class="math inline">\(\delta_{mj}\)</span> the environmental scores, and
-<span class="math inline">\(\epsilon_{ij}\)</span> a residual.</p>
+<p>After imputation the model fitted in the analysis is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mi>μ</mi><mo>+</mo><msub><mi>G</mi><mi>i</mi></msub><mo>+</mo><msub><mi>E</mi><mi>j</mi></msub><mo>+</mo><msubsup><mi>Σ</mi><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></msubsup><msub><mi>γ</mi><mrow><mi>m</mi><mi>i</mi></mrow></msub><msub><mi>δ</mi><mrow><mi>m</mi><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">y_{ij} = \mu + G_i + E_j + \Sigma_{m =1}^M\gamma_{mi}\delta_{mj} + \epsilon_{ij}</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>
+is the number of principal components,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">y_{ij}</annotation></semantics></math>
+is the phenotypic value of genotype
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+in environment
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
+is the general mean,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>G</mi><mi>i</mi></msub><annotation encoding="application/x-tex">G_i</annotation></semantics></math>
+is the genotypic effect,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mi>j</mi></msub><annotation encoding="application/x-tex">E_j</annotation></semantics></math>
+the environmental effect,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mrow><mi>m</mi><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\gamma_{mi}</annotation></semantics></math>
+the genotypic scores,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>δ</mi><mrow><mi>m</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\delta_{mj}</annotation></semantics></math>
+the environmental scores, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\epsilon_{ij}</annotation></semantics></math>
+a residual.</p>
 <p>The AMMI analysis can be performed with the statgenGxE package using
 the function <code>gxeAmmi</code>.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -733,9 +740,9 @@ performed on the genotype main effect and the interaction jointly. In
 essence, the GGE analysis fits a principal components model with two
 components to the two-way genotype by environment table with data
 centered per environment.</p>
-<p>The model fitted in the GGE analysis is <span class="math inline">\(y_{ij} = \mu + E_j + \gamma_{1i}\delta_{1j} +
-\gamma_{2i}\delta_{2j} + \epsilon_{ij}\)</span>, where the parameters
-are as described in the AMMI analysis.</p>
+<p>The model fitted in the GGE analysis is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mi>μ</mi><mo>+</mo><msub><mi>E</mi><mi>j</mi></msub><mo>+</mo><msub><mi>γ</mi><mrow><mn>1</mn><mi>i</mi></mrow></msub><msub><mi>δ</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>γ</mi><mrow><mn>2</mn><mi>i</mi></mrow></msub><msub><mi>δ</mi><mrow><mn>2</mn><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">y_{ij} = \mu + E_j + \gamma_{1i}\delta_{1j} + \gamma_{2i}\delta_{2j} + \epsilon_{ij}</annotation></semantics></math>,
+where the parameters are as described in the AMMI analysis.</p>
 <p>The GGE analysis is done in statgenGxE by running the function
 <code>gxeGGE</code> which has identical options as the
 <code>gxeAmmi</code> function.</p>
@@ -937,14 +944,21 @@ variance-covariance structure can be fitted. If the engine is set to
 ‘asreml’, complex variance-covariance structures will be fitted
 sequentially to the genotype by environment data. The best fitting model
 is then identified.<br>
-The models fitted are of the form <span class="math inline">\(y_{ij} =
-\mu_j + \epsilon_{ij}\)</span>, where <span class="math inline">\(y_{ij}\)</span> is the phenotypic value of
-genotype <span class="math inline">\(i\)</span> in environment <span class="math inline">\(j\)</span>, <span class="math inline">\(\mu_j\)</span> is the environmental mean, and
-<span class="math inline">\(\epsilon_{ij}\)</span> represents mainly
-genetic variation, although some non-genetic variation may be included
-as well. The random term <span class="math inline">\(\epsilon_{ij}\)</span> is modeled in eight ways as
-described in the table below (see <span class="citation">(Boer et al.
-2007)</span>).</p>
+The models fitted are of the form
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>μ</mi><mi>j</mi></msub><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">y_{ij} = \mu_j + \epsilon_{ij}</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">y_{ij}</annotation></semantics></math>
+is the phenotypic value of genotype
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+in environment
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\mu_j</annotation></semantics></math>
+is the environmental mean, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\epsilon_{ij}</annotation></semantics></math>
+represents mainly genetic variation, although some non-genetic variation
+may be included as well. The random term
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\epsilon_{ij}</annotation></semantics></math>
+is modeled in eight ways as described in the table below (see <span class="citation">(Boer et al. 2007)</span>).</p>
 <table style="width:100%;" class="table">
 <colgroup>
 <col width="15%">
@@ -956,82 +970,93 @@ described in the table below (see <span class="citation">(Boer et al.
 <thead><tr class="header">
 <th align="left">Model</th>
 <th align="left">Description</th>
-<th align="left">var(<span class="math inline">\(g_{ij}\)</span>)</th>
-<th align="left">cov(<span class="math inline">\(g_{ij}\)</span>;<span class="math inline">\(g_{ik}\)</span>)</th>
+<th align="left">var(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>g</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">g_{ij}</annotation></semantics></math>)</th>
+<th align="left">cov(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>g</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">g_{ij}</annotation></semantics></math>;<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>g</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">g_{ik}</annotation></semantics></math>)</th>
 <th align="left">Number of parameters</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">identity</td>
 <td align="left">identity</td>
-<td align="left"><span class="math inline">\(\sigma_{GE}^2\)</span></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mrow><mi>G</mi><mi>E</mi></mrow><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_{GE}^2</annotation></semantics></math></td>
 <td align="left">0</td>
 <td align="left">1</td>
 </tr>
 <tr class="even">
 <td align="left">cs</td>
 <td align="left">compound symmetry</td>
-<td align="left"><span class="math inline">\(\sigma_G^2 +
-\sigma_{GE}^2\)</span></td>
-<td align="left"><span class="math inline">\(\sigma_G^2\)</span></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>σ</mi><mi>G</mi><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>σ</mi><mrow><mi>G</mi><mi>E</mi></mrow><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\sigma_G^2 + \sigma_{GE}^2</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mi>G</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_G^2</annotation></semantics></math></td>
 <td align="left">2</td>
 </tr>
 <tr class="odd">
 <td align="left">diagonal</td>
 <td align="left">diagonal matrix (heteroscedastic)</td>
-<td align="left"><span class="math inline">\(\sigma_{GE_j}^2\)</span></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mrow><mi>G</mi><msub><mi>E</mi><mi>j</mi></msub></mrow><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_{GE_j}^2</annotation></semantics></math></td>
 <td align="left">0</td>
-<td align="left"><span class="math inline">\(J\)</span></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>J</mi><annotation encoding="application/x-tex">J</annotation></semantics></math></td>
 </tr>
 <tr class="even">
 <td align="left">hcs</td>
 <td align="left">heterogeneous compound symmetry</td>
-<td align="left"><span class="math inline">\(\sigma_G^2+\sigma_{GE_j}^2\)</span></td>
-<td align="left"><span class="math inline">\(\sigma_G^2\)</span></td>
-<td align="left"><span class="math inline">\(J+1\)</span></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>σ</mi><mi>G</mi><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>σ</mi><mrow><mi>G</mi><msub><mi>E</mi><mi>j</mi></msub></mrow><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\sigma_G^2+\sigma_{GE_j}^2</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mi>G</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_G^2</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>J</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">J+1</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
 <td align="left">outside</td>
 <td align="left">heterogeneity outside</td>
-<td align="left"><span class="math inline">\(\sigma_{G_j}^2\)</span></td>
-<td align="left"><span class="math inline">\(\theta\)</span></td>
-<td align="left"><span class="math inline">\(J+1\)</span></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><msub><mi>G</mi><mi>j</mi></msub><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_{G_j}^2</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>J</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">J+1</annotation></semantics></math></td>
 </tr>
 <tr class="even">
 <td align="left">fa</td>
 <td align="left">first order factor analytic</td>
-<td align="left"><span class="math inline">\(\lambda_{1j}^2+\sigma_{GE_j}^2\)</span></td>
-<td align="left"><span class="math inline">\(\lambda_{1j}\lambda_{1k}\)</span></td>
-<td align="left"><span class="math inline">\(2J\)</span></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>λ</mi><mrow><mn>1</mn><mi>j</mi></mrow><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>σ</mi><mrow><mi>G</mi><msub><mi>E</mi><mi>j</mi></msub></mrow><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\lambda_{1j}^2+\sigma_{GE_j}^2</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub><msub><mi>λ</mi><mrow><mn>1</mn><mi>k</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\lambda_{1j}\lambda_{1k}</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>J</mi></mrow><annotation encoding="application/x-tex">2J</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
 <td align="left">fa2</td>
 <td align="left">second order factor analytic</td>
-<td align="left"><span class="math inline">\(\lambda_{1j}^2+\lambda_{2j}^2+\sigma_{GE_j}^2\)</span></td>
-<td align="left"><span class="math inline">\(\lambda_{1j}\lambda_{1k}+\lambda_{2j}\lambda_{2k}\)</span></td>
-<td align="left"><span class="math inline">\(3J-1\)</span></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>λ</mi><mrow><mn>1</mn><mi>j</mi></mrow><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>λ</mi><mrow><mn>2</mn><mi>j</mi></mrow><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>σ</mi><mrow><mi>G</mi><msub><mi>E</mi><mi>j</mi></msub></mrow><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\lambda_{1j}^2+\lambda_{2j}^2+\sigma_{GE_j}^2</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub><msub><mi>λ</mi><mrow><mn>1</mn><mi>k</mi></mrow></msub><mo>+</mo><msub><mi>λ</mi><mrow><mn>2</mn><mi>j</mi></mrow></msub><msub><mi>λ</mi><mrow><mn>2</mn><mi>k</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\lambda_{1j}\lambda_{1k}+\lambda_{2j}\lambda_{2k}</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mi>J</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">3J-1</annotation></semantics></math></td>
 </tr>
 <tr class="even">
 <td align="left">unstructured</td>
 <td align="left">unstructured</td>
-<td align="left"><span class="math inline">\(\sigma_{G_j}^2\)</span></td>
-<td align="left"><span class="math inline">\(\sigma_{G_{j,k}}^2\)</span></td>
-<td align="left"><span class="math inline">\(J(J+1)/2\)</span></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><msub><mi>G</mi><mi>j</mi></msub><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_{G_j}^2</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><msub><mi>G</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_{G_{j,k}}^2</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>J</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>J</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">J(J+1)/2</annotation></semantics></math></td>
 </tr>
 </tbody>
 </table>
-<p>In this table <span class="math inline">\(J\)</span> is the number of
-environments, <span class="math inline">\(\sigma_G^2\)</span> the
-variance component for the genotype main effects, <span class="math inline">\(\sigma_{GE}^2\)</span> the variance component for
-GxE interactions. <span class="math inline">\(\sigma_{G_j}^2\)</span>
-and <span class="math inline">\(\sigma_{GE_j}^2\)</span> are the
-environment specific variance components for the genotype main effects
-and GxE interaction in environment <span class="math inline">\(j\)</span>. <span class="math inline">\(\sigma_{G_{j,k}}^2\)</span> is the genetic
-covariance between environments <span class="math inline">\(j\)</span>
-and <span class="math inline">\(k\)</span>. <span class="math inline">\(\theta\)</span> is the common correlation between
-environments and <span class="math inline">\(\lambda_{1j}\)</span> and
-<span class="math inline">\(\lambda_{2j}\)</span> are environment
-specific multiplicative parameters.</p>
+<p>In this table
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>J</mi><annotation encoding="application/x-tex">J</annotation></semantics></math>
+is the number of environments,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mi>G</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_G^2</annotation></semantics></math>
+the variance component for the genotype main effects,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mrow><mi>G</mi><mi>E</mi></mrow><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_{GE}^2</annotation></semantics></math>
+the variance component for GxE interactions.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><msub><mi>G</mi><mi>j</mi></msub><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_{G_j}^2</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mrow><mi>G</mi><msub><mi>E</mi><mi>j</mi></msub></mrow><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_{GE_j}^2</annotation></semantics></math>
+are the environment specific variance components for the genotype main
+effects and GxE interaction in environment
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><msub><mi>G</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_{G_{j,k}}^2</annotation></semantics></math>
+is the genetic covariance between environments
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+is the common correlation between environments and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\lambda_{1j}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mrow><mn>2</mn><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\lambda_{2j}</annotation></semantics></math>
+are environment specific multiplicative parameters.</p>
 <p>It is possible to to select a subset of the models that will be
 fitted by specifying the <code>models</code> parameter in the
 <code>gxeVarCov</code> function.</p>
@@ -1211,7 +1236,7 @@ Differences in Field Trials.”</span> <em>Z Pflanzenzücht</em> 47: 92–96.
 </div>
 </div>
 </div>
-  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
 
@@ -1222,15 +1247,15 @@ Differences in Field Trials.”</span> <em>Z Pflanzenzücht</em> 47: 92–96.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
     </footer>
 </div>
 
-  
 
-  
+
+
 
   </body>
 </html>
