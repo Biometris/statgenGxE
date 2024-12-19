@@ -11,7 +11,6 @@ variables:
 before_script:
   - apt-get update
   - apt-get install -y --no-install-recommends ${APT_PKGS}
-  - apt-get install -y --no-install-recommends qpdf pandoc pandoc-citeproc
   - export PATH="/usr/local/lib/R/site-library/littler/examples/:${PATH}"
   - echo "options(Ncpus = $(nproc --all))" >> /usr/local/lib/R/etc/Rprofile.site
   - r -e "install.packages('devtools', method = 'wget')"
