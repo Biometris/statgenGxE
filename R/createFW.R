@@ -114,7 +114,7 @@ summary.FW <- function(object, ...) {
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE}, only a list of ggplot objects is invisibly returned.
 #'
-#' @return A plot depending on \code{plotType}.
+#' @returns A plot depending on \code{plotType}.
 #'
 #' @examples
 #' ## Run Finlay-Wilkinson analysis.
@@ -385,7 +385,7 @@ plot.FW <- function(x,
 #' @param object An object of class FW
 #' @param ... Not used.
 #'
-#' @return A data.frame with fitted values.
+#' @returns A data.frame with fitted values.
 #'
 #' @examples
 #' ## Run Finlay-Wilkinson analysis.
@@ -410,7 +410,7 @@ fitted.FW <- function(object,
 #' @param object An object of class FW
 #' @param ... Not used.
 #'
-#' @return A data.frame with residuals.
+#' @returns A data.frame with residuals.
 #'
 #' @examples
 #' ## Run Finlay-Wilkinson analysis.
@@ -446,7 +446,7 @@ residuals.FW <- function(object,
 #' should be sorted. Either \code{sens}(itivity), \code{genMean} (genotypic
 #' Mean) or \code{mse} (mean squared error).
 #'
-#' @return A pdf and tex report.
+#' @returns A pdf and tex report.
 #'
 #' @examples
 #' ## Run Finlay-Wilkinson analysis on TDMaize.

@@ -108,7 +108,7 @@ summary.varComp <- function(object,
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a ggplot object is invisibly returned.
 #'
-#' @return A ggplot object is invisibly returned.
+#' @returns A ggplot object is invisibly returned.
 #'
 #' @examples
 #' ## Fit a mixed model.
@@ -224,7 +224,7 @@ plot.varComp <- function(x,
 #' more of the extra terms used in the model. E.g. c("region", "year") for a
 #' model fitted with \code{regionLocationYear = TRUE}.
 #'
-#' @return A data.frame with predictions.
+#' @returns A data.frame with predictions.
 #'
 #' @examples
 #' ## Fit a mixed model.
@@ -299,7 +299,7 @@ predict.varComp <- function(object,
 #'
 #' @param varComp An object of class varComp.
 #'
-#' @return A data.frame with variance components and standard errors for
+#' @returns A data.frame with variance components and standard errors for
 #' the random components in the fitted model.
 #'
 #' @examples
@@ -545,7 +545,7 @@ CRDR <- function(varComp) {
 #'
 #' @inheritParams herit
 #'
-#' @return A list with three correlations.
+#' @returns A list with three correlations.
 #'
 #' @family Mixed model analysis
 #'
@@ -583,7 +583,7 @@ correlations <- function(varComp) {
 #'
 #' @param varComp An object of class varComp.
 #'
-#' @return A list of tables is invisibly returned.
+#' @returns A list of tables is invisibly returned.
 #'
 #' @examples
 #' ## Fit a mixed model.

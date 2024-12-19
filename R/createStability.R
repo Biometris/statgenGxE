@@ -73,7 +73,7 @@ summary.stability <- function(object,
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
-#' @return A list of ggplot object is invisibly returned.
+#' @returns A list of ggplot object is invisibly returned.
 #'
 #' @examples
 #' ## Compute three stability measures for TDMaize.
@@ -213,7 +213,7 @@ plot.stability <- function(x,
 #'
 #' @param x An object of class stability.
 #'
-#' @return A pdf and tex report.
+#' @returns A pdf and tex report.
 #'
 #' @examples
 #' ## Compute three stability measures for TDMaize.

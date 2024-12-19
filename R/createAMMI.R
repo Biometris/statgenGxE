@@ -174,7 +174,7 @@ summary.AMMI <- function(object,
 #' @param output Should the plot be output to the current device? If
 #' \code{FALSE} only a list of ggplot objects is invisibly returned.
 #'
-#' @return A biplot depending on \code{plotType}. The ggplot object for the
+#' @returns A biplot depending on \code{plotType}. The ggplot object for the
 #' biplot is returned invisibly.
 #'
 #' @examples
@@ -965,7 +965,7 @@ rotatePC <- function(dat,
 #' @param object An object of class AMMI
 #' @param ... Not used.
 #'
-#' @return A data.frame with fitted values.
+#' @returns A data.frame with fitted values.
 #'
 #' @examples
 #' ## Run AMMI analysis on TDMaize.
@@ -990,7 +990,7 @@ fitted.AMMI <- function(object,
 #' @param object An object of class AMMI
 #' @param ... Not used.
 #'
-#' @return A data.frame with residuals.
+#' @returns A data.frame with residuals.
 #'
 #' @examples
 #' ## Run AMMI analysis on TDMaize.
@@ -1024,7 +1024,7 @@ residuals.AMMI <- function(object,
 #' and .tex file for the report. If \code{NULL}, a report with a default name
 #' will be created in the current working directory.
 #'
-#' @return A pdf and tex report.
+#' @returns A pdf and tex report.
 #'
 #' @examples
 #' ## Run AMMI analysis on TDMaize.

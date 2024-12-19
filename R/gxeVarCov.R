@@ -49,7 +49,7 @@
 #' @note If \code{engine = "lme4"}, only the compound symmetry model can be
 #' fitted.
 #'
-#' @return An object of class \code{\link{varCov}}, a list object containing:
+#' @returns An object of class \code{\link{varCov}}, a list object containing:
 #' \item{STA}{An object of class STA containing the best fitted model.}
 #' \item{choice}{A character string indicating the best fitted model.}
 #' \item{summary}{A data.frame with a summary of the fitted models.}

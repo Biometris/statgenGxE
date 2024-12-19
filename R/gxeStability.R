@@ -13,7 +13,7 @@
 #' the best genotype. Either \code{"max"} or \code{"min"}.
 #' @param sorted A character string specifying the sorting order of the results.
 #'
-#' @return An object of class \code{\link{stability}}, a list containing:
+#' @returns An object of class \code{\link{stability}}, a list containing:
 #' \item{superiority}{A data.frame containing values for the
 #' cultivar-superiority measure of Lin and Binns.}
 #' \item{static}{A data.frame containing values for Shukla's stability

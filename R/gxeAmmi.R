@@ -46,7 +46,7 @@
 #' @param useWt Should weighting be used when modeling? Requires a column
 #' \code{wt} in \code{TD}.
 #'
-#' @return An object of class \code{\link{AMMI}}, a list containing:
+#' @returns An object of class \code{\link{AMMI}}, a list containing:
 #' \item{envScores}{A matrix with environmental scores.}
 #' \item{genoScores}{A matrix with genotypic scores.}
 #' \item{importance}{A data.frame containing the importance of the principal

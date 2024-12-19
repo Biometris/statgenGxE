@@ -24,7 +24,7 @@
 #' @param naStrings A character vector of strings which are to be interpreted
 #' as \code{NA} values.
 #'
-#' @return An object of the same class as the input \code{Y} with the
+#' @returns An object of the same class as the input \code{Y} with the
 #' missing values replaced by their estimates.
 #'
 #' @references Beale, E.M.L. & Little, R.J.A. (1975). Missing values in

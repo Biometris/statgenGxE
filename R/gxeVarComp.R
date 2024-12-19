@@ -56,7 +56,7 @@
 #' @param diagnostics Should diagnostics on missing combinations of model
 #' variables be printed?
 #'
-#' @return An object of class \code{varComp}, a list containing:
+#' @returns An object of class \code{varComp}, a list containing:
 #' \item{fitMod}{The fitted model.}
 #' \item{modDat}{A data.frame containing the data used when fitting the model.}
 #' \item{nestingFactor}{A name of the variable used as nesting variable in the

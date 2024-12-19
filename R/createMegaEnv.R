@@ -108,7 +108,7 @@ plot.megaEnv <- function(x,
 #' @param engine A character string specifying the engine used for modeling.
 #' @param ... Further parameters passed to either \code{asreml} or \code{lmer}.
 #'
-#' @return A list consisting of two data.frames, \code{predictedValue}
+#' @returns A list consisting of two data.frames, \code{predictedValue}
 #' containing BLUPs per genotype per mega environment and \code{standardError}
 #' containing standard errors for those BLUPs.
 #'

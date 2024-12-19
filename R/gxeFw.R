@@ -15,7 +15,7 @@
 #' @param sorted A character string specifying the sorting order of the
 #' estimated values in the output.
 #'
-#' @return An object of class \code{\link{FW}}, a list containing:
+#' @returns An object of class \code{\link{FW}}, a list containing:
 #' \item{estimates}{A data.frame containing the estimated values, with the
 #' following columns:
 #' \itemize{

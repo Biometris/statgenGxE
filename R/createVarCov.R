@@ -133,7 +133,7 @@ plot.varCov <- function(x,
 #' @param object An object of class varCov
 #' @param ... Not used.
 #'
-#' @return A data.frame with fitted values.
+#' @returns A data.frame with fitted values.
 #'
 #' @examples
 #' \donttest{
@@ -176,7 +176,7 @@ fitted.varCov <- function(object,
 #' @param object An object of class varCov
 #' @param ... Not used.
 #'
-#' @return A data.frame with residuals.
+#' @returns A data.frame with residuals.
 #'
 #' @examples
 #' \donttest{
@@ -214,7 +214,7 @@ residuals.varCov <- function(object,
 #'
 #' @param x An object of class varCov.
 #'
-#' @return A pdf and tex report.
+#' @returns A pdf and tex report.
 #'
 #' @examples
 #' \donttest{

@@ -13,7 +13,7 @@
 #' @param method A character string indicating the criterion to determine
 #' the best genotype per environment, either \code{"max"} or \code{"min"}.
 #'
-#' @return An object of class megaEnv, a list consisting of
+#' @returns An object of class megaEnv, a list consisting of
 #' \describe{
 #' \item{TD}{An object of class TD, the TD object used as input to the function
 #' with an extra column megaEnv.}
