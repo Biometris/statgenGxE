@@ -1,5 +1,6 @@
 template:
   bootstrap: 5
+  math-rendering: katex
 
 home:
   title: An R package for genotype by environment analysis

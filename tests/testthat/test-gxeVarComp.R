@@ -13,19 +13,21 @@ test_that("general checks in gxeVarComp function properly", {
 
 geVCLm <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "lme4")
 test_that("output structure is of the right class for lme4", {
-  expect_is(geVCLm, "varComp")
+  expect_s3_class(geVCLm, "varComp")
   expect_named(geVCLm, c("fitMod", "modDat", "trait", "nestingFactor",
                          "useLocYear", "useRegionLocYear", "fullRandVC",
-                         "aovFullFixedMod", "engine", "diagTabs"))
-  expect_is(geVCLm$fitMod, "merMod")
-  expect_is(geVCLm$modDat, "data.frame")
+                         "aovFullFixedMod", "engine", "nConfounding",
+                         "diagTabs"))
+  expect_s4_class(geVCLm$fitMod, "merMod")
+  expect_s3_class(geVCLm$modDat, "data.frame")
   expect_null(geVCLm$nestingFactor)
-  expect_is(geVCLm$useLocYear, "logical")
-  expect_is(geVCLm$useRegionLocYear, "logical")
-  expect_is(geVCLm$fullRandVC, "data.frame")
-  expect_is(geVCLm$aovFullFixedMod, "anova")
-  expect_is(geVCLm$engine, "character")
-  expect_is(geVCLm$diagTabs, "list")
+  expect_type(geVCLm$useLocYear, "logical")
+  expect_type(geVCLm$useRegionLocYear, "logical")
+  expect_s3_class(geVCLm$fullRandVC, "data.frame")
+  expect_s3_class(geVCLm$aovFullFixedMod, "anova")
+  expect_type(geVCLm$engine, "character")
+  expect_type(geVCLm$nConfounding, "integer")
+  expect_type(geVCLm$diagTabs, "list")
 })
 
 test_that("lme4 model gives the correct output", {
@@ -52,14 +54,16 @@ test_that("output is of the right class for asreml", {
   skip_on_cran()
   skip_on_ci()
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
-  expect_is(geVCAs$fitMod, "asreml")
-  expect_is(geVCAs$modDat, "data.frame")
+  expect_s3_class(geVCAs$fitMod, "asreml")
+  expect_s3_class(geVCAs$modDat, "data.frame")
   expect_null(geVCAs$nestingFactor)
-  expect_is(geVCAs$useLocYear, "logical")
-  expect_is(geVCAs$fullRandVC, "data.frame")
-  expect_is(geVCAs$aovFullFixedMod, "data.frame")
-  expect_is(geVCAs$engine, "character")
-  expect_is(geVCAs$diagTabs, "list")
+  expect_type(geVCAs$useLocYear, "logical")
+  expect_type(geVCAs$useRegionLocYear, "logical")
+  expect_s3_class(geVCAs$fullRandVC, "data.frame")
+  expect_s3_class(geVCAs$aovFullFixedMod, "anova")
+  expect_type(geVCAs$engine, "character")
+  expect_type(geVCAs$nConfounding, "integer")
+  expect_type(geVCAs$diagTabs, "list")
 })
 
 test_that("option nestingFactor functions correctly", {
@@ -88,7 +92,7 @@ test_that("option diagnostics functions correctly", {
                            diagnostics = TRUE),
                 "No missing combinations")
   expect_output(geVCLm2 <- gxeVarComp(TD = BLUEs2, trait = "t1",
-                           engine = "lme4", diagnostics = TRUE),
+                                      engine = "lme4", diagnostics = TRUE),
                 "1 missing combinations")
   expect_named(geVCLm2$diagTabs[[1]], c("genotype", "trial"))
   expect_equal(as.character(geVCLm2$diagTabs[[1]][["genotype"]]), "G1")
@@ -104,7 +108,7 @@ test_that("option diagnostics functions correctly", {
 
 test_that("predict function functions correctly", {
   predVCLm <- predict(geVCLm)
-  expect_is(predVCLm, "data.frame")
+  expect_s3_class(predVCLm, "data.frame")
   expect_named(predVCLm, c("genotype", "predictedValue"))
   expect_equal(predVCLm[["predictedValue"]],
                c(79.2972526743991, 76.7659940829781, 92.0192766258885,
@@ -117,7 +121,7 @@ test_that("predict function functions correctly", {
   skip_on_ci()
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   predVCAs <- predict(geVCAs)
-  expect_is(predVCAs, "data.frame")
+  expect_s3_class(predVCAs, "data.frame")
   expect_named(predVCAs, c("genotype", "predictedValue", "stdError"))
   expect_equal(predVCAs[["predictedValue"]],
                c(79.2972526743991, 76.7659940829781, 92.0192766258885,
@@ -129,7 +133,7 @@ test_that("predict function functions correctly", {
 
 test_that("option predictLevel in predict function functions correctly", {
   predVCLmTr <- predict(geVCLm, predictLevel = "trial")
-  expect_is(predVCLmTr, "data.frame")
+  expect_s3_class(predVCLmTr, "data.frame")
   expect_named(predVCLmTr, c("genotype", "trial", "predictedValue"))
   expect_equal(predVCLmTr[["predictedValue"]],
                c(77.4966006356938, 74.9653420442727, 90.2186245871831,
@@ -152,7 +156,7 @@ test_that("option predictLevel in predict function functions correctly", {
   skip_on_ci()
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   predVCAsTr <- predict(geVCAs, predictLevel = "trial")
-  expect_is(predVCAsTr, "data.frame")
+  expect_s3_class(predVCAsTr, "data.frame")
   expect_named(predVCAsTr, c("genotype", "trial", "predictedValue", "stdError"))
   expect_equal(predVCAsTr[["predictedValue"]],
                c(77.4966006205341, 76.3673421371746, 84.0278152200104,
@@ -178,7 +182,7 @@ test_that("vc function functions correctly", {
   expect_error(vc(1), "should be an object of class varComp")
 
   vcVCLm <- vc(geVCLm)
-  expect_is(vcVCLm, "data.frame")
+  expect_s3_class(vcVCLm, "data.frame")
   expect_named(vcVCLm, "Component")
   expect_equal(rownames(vcVCLm), c("genotype", "residuals"))
   expect_equal(vcVCLm[["Component"]],
@@ -188,11 +192,11 @@ test_that("vc function functions correctly", {
   skip_on_ci()
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   vcVCAs <- vc(geVCAs)
-  expect_is(vcVCAs, "data.frame")
+  expect_s3_class(vcVCAs, "data.frame")
   expect_named(vcVCAs, c("Component", "SE"))
   expect_equal(rownames(vcVCAs), c("genotype", "residuals"))
   expect_equal(vcVCAs[["Component"]],
-               c(78.7960647165854, 309.736936464321))
+               c(79.9663997429178, 306.149240165981))
 })
 
 ## herit function
@@ -201,8 +205,8 @@ test_that("herit function functions correctly", {
   expect_error(herit(1), "should be an object of class varComp")
 
   heritVCLm <- herit(geVCLm)
-  expect_is(heritVCLm, "numeric")
-  expect_equal(heritVCLm, 0.202804089299665)
+  expect_type(heritVCLm, "double")
+  expect_equal(heritVCLm, 0.432846277620034)
 
 
   ## Produces warning for zero variance component.
@@ -217,8 +221,8 @@ test_that("herit function functions correctly", {
   skip_on_ci()
   geVCAs <- gxeVarComp(TD = BLUEs, trait = "t1", engine = "asreml")
   heritVCAs <- herit(geVCAs)
-  expect_is(heritVCAs, "numeric")
-  expect_equal(heritVCAs, 0.202804046186792)
+  expect_type(heritVCAs, "double")
+  expect_equal(heritVCAs, 0.439336846186519)
 })
 
 ## diagnostics function
@@ -237,5 +241,4 @@ test_that("diagnostics function functions correctly", {
   geVCLm3 <- gxeVarComp(TD = BLUEs2, trait = "t1", engine = "lme4")
   expect_output(diagnostics(geVCLm3), "11 missing combinations")
 })
-
 

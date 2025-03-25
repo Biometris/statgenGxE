@@ -17,6 +17,7 @@ createVarComp <- function(fitMod,
                           fullRandVC,
                           aovFullFixedMod,
                           engine,
+                          nConfounding,
                           diagTabs) {
   varComp <- structure(list(fitMod = fitMod,
                             modDat = modDat,
@@ -27,6 +28,7 @@ createVarComp <- function(fitMod,
                             fullRandVC = fullRandVC,
                             aovFullFixedMod = aovFullFixedMod,
                             engine = engine,
+                            nConfounding = nConfounding,
                             diagTabs = diagTabs),
                        class = "varComp")
   attr(varComp, which = "timestamp") <- Sys.time()
@@ -333,9 +335,8 @@ vc <- function(varComp) {
   } else if (varComp$engine == "asreml") {
     modTerms <- colnames(attr(x = terms(fitMod$call$random, keep.order = TRUE),
                               which = "factors"))
-    varcomps <- summary(fitMod)$varcomp
-    rownames(varcomps)[nrow(varcomps)] <- "residuals"
-    varcomps <- varcomps[c(modTerms, "residuals"), c("component", "std.error")]
+    varcomps <- varComp$fullRandVC[c(modTerms, "residuals"),
+                                   c("vcov", "stdError")]
     colnames(varcomps) <- c("Component", "SE")
   }
   return(varcomps)
@@ -380,6 +381,7 @@ herit <- function(varComp) {
   ## Extract fitted model and model data.
   fitMod <- varComp$fitMod
   modDat <- varComp$modDat
+  nConfounding <- varComp$nConfounding
   ## Compute variance components.
   varcomps <- vc(varComp)
   ## Extract variance components for genotype and residual.
@@ -418,11 +420,11 @@ herit <- function(varComp) {
     ## Contribution for residual variance is computed by dividing sigmaRes by
     ## product of #levels of all variables in random part of model and
     ## #replicates.
-    numerator <- numerator + sigmaRes / prod(nLevModVars, nReps)
+    numerator <- numerator + sigmaRes / prod(nLevModVars, nReps, nConfounding)
   } else {
     ## No other variables in random part.
     ## Just divide sigmaRes by #replicates.
-    numerator <- numerator + sigmaRes / nReps
+    numerator <- numerator + sigmaRes / (nReps * nConfounding)
   }
   return(sigmaG / numerator)
 }
