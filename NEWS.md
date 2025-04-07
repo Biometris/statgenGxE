@@ -1,3 +1,7 @@
+# statgenGxE 1.0.10
+
+* A bug in `herit` has been fixed. For models were the last model term was removed due to confounding with the residual the heritabilitiy wasn't calculated correctly.
+
 # statgenGxE 1.0.9
 
 * A bug in `gxeFW` that in some cases caused negative sums of squares in the resulting anova table has been fixed.

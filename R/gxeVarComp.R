@@ -155,11 +155,11 @@ gxeVarComp <- function(TD,
   ## residual and therefore left out of the model.
   if (hasReps) { #} || useWt) {
     randTermIncl <- fixedTerms
-    nConfounding <- 1
+    confoundVars <- NULL
   } else {
     confoundTerm <- tail(fixedTerms, 1)
     randTermIncl <- fixedTerms[!fixedTerms == confoundTerm]
-    nConfounding <- length(unique(TDTot[[confoundTerm]]))
+    confoundVars <- unlist(strsplit(x = confoundTerm, split = ":"))
   }
   randTerms <- c("genotype",
                  if (length(randTermIncl) > 0) paste0("genotype:", randTermIncl))
@@ -362,7 +362,7 @@ gxeVarComp <- function(TD,
                        useRegionLocYear = regionLocationYear,
                        fullRandVC = fullRandVC,
                        aovFullFixedMod = aovFullFixedMod, engine = engine,
-                       nConfounding = nConfounding,
+                       confoundVars = confoundVars,
                        diagTabs = diagTabs)
   return(res)
 }

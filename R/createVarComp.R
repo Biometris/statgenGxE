@@ -17,7 +17,7 @@ createVarComp <- function(fitMod,
                           fullRandVC,
                           aovFullFixedMod,
                           engine,
-                          nConfounding,
+                          confoundVars,
                           diagTabs) {
   varComp <- structure(list(fitMod = fitMod,
                             modDat = modDat,
@@ -28,7 +28,7 @@ createVarComp <- function(fitMod,
                             fullRandVC = fullRandVC,
                             aovFullFixedMod = aovFullFixedMod,
                             engine = engine,
-                            nConfounding = nConfounding,
+                            confoundVars = confoundVars,
                             diagTabs = diagTabs),
                        class = "varComp")
   attr(varComp, which = "timestamp") <- Sys.time()
@@ -381,7 +381,7 @@ herit <- function(varComp) {
   ## Extract fitted model and model data.
   fitMod <- varComp$fitMod
   modDat <- varComp$modDat
-  nConfounding <- varComp$nConfounding
+  confoundVars <- varComp$confoundVars
   ## Compute variance components.
   varcomps <- vc(varComp)
   ## Extract variance components for genotype and residual.
@@ -402,6 +402,9 @@ herit <- function(varComp) {
     modVars <- rownames(attr(x = terms(fitMod$call$random),
                              which = "factors"))[-1]
   }
+  ## Add confounding variable to modVars for ease of computations.
+  ## This assures division is done by the correct number for the residual.
+  modVars <- unique(c(modVars, confoundVars))
   ## Get median number for times genotypes are tested within modVars.
   nLevModVars <- sapply(X = modVars, FUN = function(modVar) {
     median(rowSums(table(modDat[["genotype"]], modDat[[modVar]]) > 0))
@@ -420,11 +423,11 @@ herit <- function(varComp) {
     ## Contribution for residual variance is computed by dividing sigmaRes by
     ## product of #levels of all variables in random part of model and
     ## #replicates.
-    numerator <- numerator + sigmaRes / prod(nLevModVars, nReps, nConfounding)
+    numerator <- numerator + sigmaRes / prod(nLevModVars, nReps)
   } else {
     ## No other variables in random part.
     ## Just divide sigmaRes by #replicates.
-    numerator <- numerator + sigmaRes / (nReps * nConfounding)
+    numerator <- numerator + sigmaRes / nReps
   }
   return(sigmaG / numerator)
 }
@@ -478,9 +481,9 @@ CRDR <- function(varComp) {
   ## Compute variance components.
   varcomps <- vc(varComp)
   ## Extract variance components for genotype, H2factor and residual.
-  sigmaG <- varcomps["genotype", "component"]
-  sigmaH2 <- varcomps[H2factor, "component"]
-  sigmaRes <- varcomps["residual", "component"]
+  sigmaG <- varcomps["genotype", "Component"]
+  sigmaH2 <- varcomps[H2factor, "Component"]
+  sigmaRes <- varcomps["residual", "Component"]
   ## Numerator is constructed by looping over all random model terms and
   ## Adding their share. It always includes sigmaG and sigmaH2.
   numerator <- sigmaG + sigmaH2
@@ -503,7 +506,7 @@ CRDR <- function(varComp) {
   H2factorPos <- which(modTerms == H2factor)
   for (term in modTerms[-c(1, H2factorPos, length(modTerms))]) {
     ## Get variance for current term.
-    sigmaTerm <- varcomps[term, "component"]
+    sigmaTerm <- varcomps[term, "Component"]
     ## Get variables in current term, exclude genotype (always the first var).
     termVars <- unlist(strsplit(x = term, split = ":"))[-1]
     ## Divide variance by product of #levels for all variables in current term.
@@ -565,9 +568,9 @@ correlations <- function(varComp) {
   }
   ## Compute variance components.
   varComps <- vc(varComp)
-  varGeno <- varComps["genotype", "component"]
-  varCorFactor <- varComps[corFactor, "component"]
-  varRes <- varComps["residuals", "component"]
+  varGeno <- varComps["genotype", "Component"]
+  varCorFactor <- varComps[corFactor, "Component"]
+  varRes <- varComps["residuals", "Component"]
   ## Compute correlation between scenarios.
   rScen <- varGeno / (varGeno + varCorFactor)
   ## Compute correlation between trials within scenarios.
