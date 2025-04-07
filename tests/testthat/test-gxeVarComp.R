@@ -16,7 +16,7 @@ test_that("output structure is of the right class for lme4", {
   expect_s3_class(geVCLm, "varComp")
   expect_named(geVCLm, c("fitMod", "modDat", "trait", "nestingFactor",
                          "useLocYear", "useRegionLocYear", "fullRandVC",
-                         "aovFullFixedMod", "engine", "nConfounding",
+                         "aovFullFixedMod", "engine", "confoundVars",
                          "diagTabs"))
   expect_s4_class(geVCLm$fitMod, "merMod")
   expect_s3_class(geVCLm$modDat, "data.frame")
@@ -26,7 +26,7 @@ test_that("output structure is of the right class for lme4", {
   expect_s3_class(geVCLm$fullRandVC, "data.frame")
   expect_s3_class(geVCLm$aovFullFixedMod, "anova")
   expect_type(geVCLm$engine, "character")
-  expect_type(geVCLm$nConfounding, "integer")
+  expect_type(geVCLm$confoundVars, "character")
   expect_type(geVCLm$diagTabs, "list")
 })
 
@@ -62,7 +62,7 @@ test_that("output is of the right class for asreml", {
   expect_s3_class(geVCAs$fullRandVC, "data.frame")
   expect_s3_class(geVCAs$aovFullFixedMod, "anova")
   expect_type(geVCAs$engine, "character")
-  expect_type(geVCAs$nConfounding, "integer")
+  expect_type(geVCAs$confoundVars, "character")
   expect_type(geVCAs$diagTabs, "list")
 })
 
@@ -71,12 +71,12 @@ test_that("option nestingFactor functions correctly", {
                           nestingFactor = "nest"),
                "nest has to be a column in TD")
   ## Produces warning for zero variance component.
-  ## Ignoring that here.
-  # expect_warning(geVCLmNest <- gxeVarComp(TD = BLUEs, trait = "t1",
-  #                                         engine = "lme4",
-  #                                         nestingFactor = "regime"))
-  # expect_equal(geVCLmNest$nestingFactor, "regime")
-
+  ## Additionaly lme4 gives a related message. Ignoring that here.
+  expect_warning(geVCLmNest <- expect_message(gxeVarComp(TD = BLUEs, trait = "t1",
+                                                         engine = "lme4",
+                                                         nestingFactor = "regime")),
+                 "Possible zero variance components")
+  expect_equal(geVCLmNest$nestingFactor, "regime")
 })
 
 test_that("a warning is printed for likely zero variance components", {
@@ -124,11 +124,11 @@ test_that("predict function functions correctly", {
   expect_s3_class(predVCAs, "data.frame")
   expect_named(predVCAs, c("genotype", "predictedValue", "stdError"))
   expect_equal(predVCAs[["predictedValue"]],
-               c(79.2972526743991, 76.7659940829781, 92.0192766258885,
-                 82.2722003237363, 79.6753627428021, 88.8005912968726,
-                 74.9278421249584, 89.425738274789, 83.589545451119,
-                 87.6616579859464, 87.1402504519962, 78.4580309618727,
-                 76.7380973356425, 77.6592935401848, 91.0158599711691))
+               c(74.4223295766225, 68.585100222066, 103.760055840818,
+                 81.2827316729689, 75.2942733590616, 96.3375804962255,
+                 64.3462150272252, 97.7792057425648, 84.3206060622952,
+                 93.7111341197261, 92.5087380574763, 72.4870355565081,
+                 68.5207687021667, 70.6451006628306, 101.446118745798))
 })
 
 test_that("option predictLevel in predict function functions correctly", {
@@ -159,21 +159,21 @@ test_that("option predictLevel in predict function functions correctly", {
   expect_s3_class(predVCAsTr, "data.frame")
   expect_named(predVCAsTr, c("genotype", "trial", "predictedValue", "stdError"))
   expect_equal(predVCAsTr[["predictedValue"]],
-               c(77.4966006205341, 76.3673421371746, 84.0278152200104,
-                 74.9653420188325, 73.8360835354731, 81.4965566183088,
-                 90.2186246236927, 89.0893661403333, 96.749839223169,
-                 80.4715482819537, 79.3422897985942, 87.00276288143,
-                 77.8747106904727, 76.7454522071132, 84.405925289949,
-                 86.9999392816045, 85.870680798245, 93.5311538810808,
-                 73.1271900533473, 71.9979315699879, 79.6584046528236,
-                 87.6250862620599, 86.4958277787004, 94.1563008615362,
-                 81.7888934146866, 80.6596349313271, 88.3201080141629,
-                 85.8610059660526, 84.7317474826931, 92.3922205655289,
-                 85.3395984299848, 84.2103399466253, 91.8708130294611,
-                 76.6573789045992, 75.5281204212397, 83.1885935040755,
-                 74.9374452713836, 73.8081867880241, 81.4686598708599,
-                 75.8586414796673, 74.7293829963079, 82.3898560791436,
-                 89.215207964898, 88.0859494815386, 95.7464225643743))
+               c(72.6216775379172, 71.4924190545573, 79.1528921373931,
+                 66.7844481833606, 65.6551897000008, 73.3156627828366,
+                 101.959403802113, 100.830145318753, 108.490618401589,
+                 79.4820796342635, 78.3528211509037, 86.0132942337395,
+                 73.4936213203563, 72.3643628369964, 80.0248359198322,
+                 94.5369284575201, 93.4076699741603, 101.068143056996,
+                 62.5455629885198, 61.41630450516, 69.0767775879958,
+                 95.9785537038595, 94.8492952204996, 102.509768303335,
+                 82.5199540235898, 81.39069554023, 89.0511686230658,
+                 91.9104820810207, 90.7812235976609, 98.4416966804967,
+                 90.7080860187709, 89.5788275354111, 97.2393006182469,
+                 70.6863835178027, 69.5571250344429, 77.2175981172787,
+                 66.7201166634613, 65.5908581801015, 73.2513312629373,
+                 68.8444486241252, 67.7151901407654, 75.3756632236012,
+                 99.6454667070924, 98.5162082237326, 106.176681306568))
 })
 
 ## VC function
@@ -208,14 +208,14 @@ test_that("herit function functions correctly", {
   expect_type(heritVCLm, "double")
   expect_equal(heritVCLm, 0.432846277620034)
 
-
   ## Produces warning for zero variance component.
-  ## Ignoring that here.
-  # expect_warning(geVCLmNest <- gxeVarComp(TD = BLUEs, trait = "t1",
-  #                                         engine = "lme4",
-  #                                         nestingFactor = "regime"))
-  # heritVCLmNest <- herit(geVCLmNest)
-  # expect_equal(heritVCLmNest, 0.337218682788646)
+  ## Additionaly lme4 gives a related message. Ignoring that here.
+  expect_warning(geVCLmNest <- expect_message(gxeVarComp(TD = BLUEs, trait = "t1",
+                                                         engine = "lme4",
+                                                         nestingFactor = "regime")),
+                 "Possible zero variance components")
+  heritVCLmNest <- herit(geVCLmNest)
+  expect_equal(heritVCLmNest, 0.604176703866825)
 
   skip_on_cran()
   skip_on_ci()
@@ -223,6 +223,47 @@ test_that("herit function functions correctly", {
   heritVCAs <- herit(geVCAs)
   expect_type(heritVCAs, "double")
   expect_equal(heritVCAs, 0.439336846186519)
+})
+
+## CRDR function
+
+test_that("CRDR function functions correctly", {
+  expect_error(CRDR(geVCLm),
+               "CRDR can only be computed when a model is fitted with a nesting")
+
+  ## Produces warning for zero variance component.
+  ## Additionaly lme4 gives a related message. Ignoring that here.
+  expect_warning(geVCLmNest <- expect_message(gxeVarComp(TD = BLUEs, trait = "t1",
+                                                         engine = "lme4",
+                                                         nestingFactor = "regime")),
+                 "Possible zero variance components")
+
+  geCRDR <- CRDR(geVCLmNest)
+  expect_type(geCRDR, "double")
+  expect_equal(geCRDR, 1.33852403499764)
+})
+
+## correlations function
+
+test_that("correlations function functions correctly", {
+  expect_error(correlations(geVCLm),
+               "correlations can only be computed when a model is fitted with a nesting")
+
+  ## Produces warning for zero variance component.
+  ## Additionaly lme4 gives a related message. Ignoring that here.
+  expect_warning(geVCLmNest <- expect_message(gxeVarComp(TD = BLUEs, trait = "t1",
+                                                         engine = "lme4",
+                                                         nestingFactor = "regime")),
+                 "Possible zero variance components")
+
+  geCorr <- correlations(geVCLmNest)
+  expect_type(geCorr, "list")
+  expect_length(geCorr, 3)
+  expect_named(geCorr, c("rScen", "rTrScen", "rTrDiffScen"))
+  expect_type(geCorr[[1]], "double")
+  expect_type(geCorr[[2]], "double")
+  expect_type(geCorr[[3]], "double")
+  expect_equivalent(unlist(geCorr), c(1, 0.202803988292456, 0.202803988292456))
 })
 
 ## diagnostics function
