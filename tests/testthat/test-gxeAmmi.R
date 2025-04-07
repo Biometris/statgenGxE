@@ -231,3 +231,19 @@ test_that("output elements are of the right class when byYear = TRUE", {
   expect_named(geAmmiYear$anova, c("1", "2"))
   expect_is(geAmmiYear$anova[["1"]], "data.frame")
 })
+
+test_that("fitted function functions correctly", {
+  fitAmmi <- fitted(geAmmi)
+  expect_s3_class(fitAmmi, "data.frame")
+  expect_named(fitAmmi, c("genotype", "trial", "fittedValue"))
+  expect_equal(range(fitAmmi[["fittedValue"]]),
+               c(46.7063274979724, 126.941193543844))
+})
+
+test_that("residuals function functions correctly", {
+  residAmmi <- residuals(geAmmi)
+  expect_s3_class(residAmmi, "data.frame")
+  expect_named(residAmmi, c("trial", "genotype", "residual"))
+  expect_equal(range(residAmmi[["residual"]]),
+               c(-2.8421709430404e-14, 4.2632564145606e-14))
+})

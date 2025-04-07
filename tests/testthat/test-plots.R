@@ -22,6 +22,8 @@ test_that("general checks in ammi plot function properly", {
                "Invalid value provided for primAxis")
   expect_error(plot(geAmmi, plotType = "AMMI2", secAxis = "PCC"),
                "Invalid value provided for secAxis")
+  expect_error(plot(geAmmi, rotatePC = 1),
+               "rotatePC should be NULL or a character string.")
 })
 
 p0_1 <- plot(geAmmi)
@@ -312,6 +314,14 @@ test_that("AMMI plot gives correct output types when byYear = TRUE", {
   expect_named(p2, c("1", "2"))
   expect_is(p2[[1]], "ggplot")
   expect_is(p2[[2]], "ggplot")
+})
+
+test_that("AMMI plot rotatePC functions properly", {
+  p1_env <- plot(geAmmi, rotatePC = "E1")
+  p1_geno <- plot(geAmmi, rotatePC = "G1")
+  ## Rotation should rotate E1/G1 in such a way that y coordinate becomes 0.
+  expect_equal(p1_env[["data"]]["E1", "y"], 0)
+  expect_equal(p1_geno[["data"]]["G1", "y"], 0)
 })
 
 ## Finlay Wilkinson

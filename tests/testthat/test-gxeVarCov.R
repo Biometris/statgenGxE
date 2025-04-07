@@ -107,3 +107,20 @@ test_that("option models works properly", {
   summMod <- geVCMod$summary
   expect_equal(rownames(summMod), c("identity", "cs", "fa"))
 })
+
+test_that("fitted function functions correctly", {
+  fitVC <- fitted(geVCLm)
+  expect_s3_class(fitVC, "data.frame")
+  expect_named(fitVC, c("trial", "genotype", "fittedValue"))
+  expect_equal(range(fitVC[["fittedValue"]]),
+               c(71.9979316023911, 96.7498391872161))
+})
+
+test_that("residuals function functions correctly", {
+  residVC <- residuals(geVCLm)
+  expect_s3_class(residVC, "data.frame")
+  expect_named(residVC, c("trial", "genotype", "residual"))
+  expect_equal(range(residVC[["residual"]]),
+               c(-37.7259856108852, 29.5074745663481))
+})
+

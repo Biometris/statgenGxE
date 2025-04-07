@@ -117,3 +117,21 @@ test_that("a user friendly warning is given for genotypes in single trial", {
                  c("following genotypes are present in only one trial"))
   expect_silent(gxeFw(testTD2, trait = "t1", genotypes = paste0("G", 2:15)))
 })
+
+test_that("fitted function functions correctly", {
+  fitFw <- fitted(geFw0)
+  expect_s3_class(fitFw, "data.frame")
+  expect_named(fitFw, c("trial", "genotype", "fittedValue", "seFittedValue"))
+  expect_equal(range(fitFw[["fittedValue"]]),
+               c(56.9684320826274, 111.477880043659))
+  expect_equal(range(fitFw[["seFittedValue"]]),
+               c(10.1039980734598, 16.338872847896))
+})
+
+test_that("residuals function functions correctly", {
+  residFw <- residuals(geFw0)
+  expect_s3_class(residFw, "data.frame")
+  expect_named(residFw, c("trial", "genotype", "residual"))
+  expect_equal(range(residFw[["residual"]]),
+               c(-39.3018360590838, 41.7659848128505))
+})
