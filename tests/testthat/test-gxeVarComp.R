@@ -215,7 +215,7 @@ test_that("herit function functions correctly", {
                                                          nestingFactor = "regime")),
                  "Possible zero variance components")
   heritVCLmNest <- herit(geVCLmNest)
-  expect_equal(heritVCLmNest, 0.604176703866825)
+  expect_equal(heritVCLmNest, 0.432846124248366)
 
   skip_on_cran()
   skip_on_ci()
@@ -240,7 +240,7 @@ test_that("CRDR function functions correctly", {
 
   geCRDR <- CRDR(geVCLmNest)
   expect_type(geCRDR, "double")
-  expect_equal(geCRDR, 1.33852403499764)
+  expect_equal(geCRDR, 1.13295054520302)
 })
 
 ## correlations function

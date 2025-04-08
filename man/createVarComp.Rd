@@ -14,7 +14,7 @@ createVarComp(
   fullRandVC,
   aovFullFixedMod,
   engine,
-  nConfounding,
+  confoundVars,
   diagTabs
 )
 }
