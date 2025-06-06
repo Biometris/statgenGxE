@@ -138,7 +138,7 @@ Then a model is fitted where all model terms are included as random terms. Based
 ### Mixed model {-}
 Finally a mixed model is fitted as specified in the table above. Based on this model, variance components can be extracted, heritabilities on a line mean basis (across all trials) can be computed and predictions can be made. It is also possible to plot the results.
 
-```{r geVarComp, message=FALSE, eval='requireNamespace("Matrix)&&packageVersion("Matrix")>"1.3.0"'} 
+```{r geVarComp, message=FALSE, eval='requireNamespace("Matrix")&&packageVersion("Matrix")>"1.3.0"'} 
 ## Fit a model where trials are nested within scenarios.
 dropsVarComp <- gxeVarComp(TD = dropsTD, trait = "grain.yield", nestingFactor = "scenarioFull")
 summary(dropsVarComp)
@@ -154,7 +154,7 @@ diagnostics(dropsVarComp)
 
 Extracting the variance components from the fitted model can be done using the `vc` function. The heritability (across trials) is computed using `herit`.
 
-```{r vcHerit, R.options=list(digits=4), eval='requireNamespace("Matrix)&&packageVersion("Matrix")>"1.3.0"'}
+```{r vcHerit, R.options=list(digits=4), eval='requireNamespace("Matrix")&&packageVersion("Matrix")>"1.3.0"'}
 ## Extract variance components.
 vc(dropsVarComp)
 ## Compute heritability.
@@ -162,13 +162,13 @@ herit(dropsVarComp)
 ```
 
 A plot can be made of the square roots of the variance component estimates. These are based on the fully random model.
-```{r VarCompPlot, eval='requireNamespace("Matrix)&&packageVersion("Matrix")>"1.3.0"'}
+```{r VarCompPlot, eval='requireNamespace("Matrix")&&packageVersion("Matrix")>"1.3.0"'}
 ## Plot the results of the fitted model.
 plot(dropsVarComp)
 ```
 Predictions for the mixed model can be made for model terms that represent different levels of data aggregation; for the genotype main effect or for genotypic performance in grouped environments, or for genotypic performance in individual trials. These levels can be specified by the parameter `predictLevel`.
 
-```{r predict, R.options=list(digits=4), eval='requireNamespace("Matrix)&&packageVersion("Matrix")>"1.3.0"'}
+```{r predict, R.options=list(digits=4), eval='requireNamespace("Matrix")&&packageVersion("Matrix")>"1.3.0"'}
 ## Predictions of the genotype main effect.
 predGeno <- predict(dropsVarComp)
 head(predGeno)
