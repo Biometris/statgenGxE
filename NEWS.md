@@ -1,6 +1,7 @@
 # statgenGxE 1.0.10
 
 * A bug in `herit` has been fixed. For models were the last model term was removed due to confounding with the residual the heritabilitiy wasn't calculated correctly.
+* Tests are modified for compatibility with the upcoming version of ggplot2.
 
 # statgenGxE 1.0.9
 

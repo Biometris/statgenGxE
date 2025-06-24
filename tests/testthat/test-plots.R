@@ -87,10 +87,10 @@ test_that("AMMI plot sizeGeno functions properly", {
   geoms1_1 <- sapply(p1_1$layers, function(x) class(x$geom)[1])
   geoms0_2 <- sapply(p0_2$layers, function(x) class(x$geom)[1])
   geoms1_2 <- sapply(p1_2$layers, function(x) class(x$geom)[1])
-  expect_equal(geoms1_1[geoms0_1 == "GeomPoint"], "GeomText")
+  expect_equivalent(geoms1_1[geoms0_1 == "GeomPoint"], "GeomText")
   dat1_1 <- p1_1$layers[geoms0_1 == "GeomPoint"][[1]]$data
   expect_equal(unique(dat1_1[dat1_1[["type"]] == "geno", ".size"]), 5)
-  expect_equal(geoms1_2[geoms0_2 == "GeomPoint"], "GeomText")
+  expect_equivalent(geoms1_2[geoms0_2 == "GeomPoint"], "GeomText")
   dat1_2 <- p1_2$layers[geoms0_2 == "GeomPoint"][[1]]$data
   expect_equal(unique(dat1_1[dat1_1[["type"]] == "geno", ".size"]), 5)
 })
@@ -347,21 +347,22 @@ test_that("FW plot gives correct output types", {
 
 test_that("Option colorGenoBy in scatter plot functions correctly", {
   p1 <- plot(geFw, colorGenoBy = "family")
-  expect_equal(p1[[1]]$labels$colour, "family")
-  expect_equal(p1[[2]]$labels$colour, "family")
-  expect_equal(p1[[3]]$labels$colour, "family")
+  ggplot2::get_labs(p1[[1]])
+  expect_equal(ggplot2::get_labs(p1[[1]])$colour, "family")
+  expect_equal(ggplot2::get_labs(p1[[2]])$colour, "family")
+  expect_equal(ggplot2::get_labs(p1[[3]])$colour, "family")
 })
 
 test_that("Option colorGenoBy in line plot functions correctly", {
   p1 <- plot(geFw, plotType = "line", colorGenoBy = "family")
-  expect_equal(p1$labels$colour, "family")
+  expect_equal(ggplot2::get_labs(p1)$colour, "family")
   ## With coloring plot should have a legend explicitly defined.
   expect_equal(p1$theme$legend.position, "right")
 })
 
 test_that("Option colorGenoBy in scatterFit plot functions correctly", {
   p1 <- plot(geFw, plotType = "scatterFit", colorGenoBy = "family")
-  expect_equal(p1$labels$colour, "family")
+  expect_equal(ggplot2::get_labs(p1)$colour, "family")
 })
 
 test_that("option order in FW line plot functions properly", {
@@ -412,7 +413,7 @@ test_that("VarCov plot gives correct output types", {
   p <- plot(geVarCov)
   geoms <- sapply(p$layers, function(x) class(x$geom)[1])
   expect_is(p, "ggplot")
-  expect_equal(geoms, "GeomTile")
+  expect_equivalent(geoms, "GeomTile")
 })
 
 ## melting data in the plot function caused an error when trials have a
