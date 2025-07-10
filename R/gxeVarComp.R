@@ -104,6 +104,7 @@ gxeVarComp <- function(TD,
   }
   trials <- chkTrials(trials, TD)
   TDTot <- Reduce(f = rbind, x = TD[trials])
+  TDTot <- droplevels(TDTot)
   chkCol(trait, TDTot)
   chkCol("trial", TDTot)
   chkCol("genotype", TDTot)
