@@ -245,55 +245,125 @@ plot.varComp <- function(x,
 #' @family Mixed model analysis
 #'
 #' @export
-predict.varComp <- function(object,
-                            ...,
-                            predictLevel = "genotype") {
-  ## Extract fitted model and model data from object.
+predict.varComp <- function(object, predictLevel = "genotype"){
   fitMod <- object$fitMod
   modDat <- object$modDat
-  ## Variables for environment depend on the fitted model.
-  ## Either trial or location x year.
+
   if (object$useLocYear) {
     predVars <- c("genotype", "trial", "loc", "year")
-  } else if (object$useRegionLocYear) {
+  }
+  else if (object$useRegionLocYear) {
     predVars <- c("genotype", "trial", "region", "loc", "year")
-  } else {
+  }
+  else {
     predVars <- c("genotype", "trial", object$nestingFactor)
   }
   predLevels <- match.arg(predictLevel, choices = predVars, several.ok = TRUE)
-  ## Always include genotype.
   predLevels <- unique(c("genotype", predLevels))
+
   if (object$engine == "lme4") {
-    ## Make predictions for all observations in the data.
-    modDat[!is.na(modDat[[object$trait]]), "preds"] <- predict(fitMod)
-    ## Compute means per predict level.
-    preds <- aggregate(x = modDat[["preds"]], by = modDat[predLevels],
-                       FUN = mean, na.rm = TRUE)
-    ## Rename column to match asreml output.
-    colnames(preds)[ncol(preds)] <- "predictedValue"
-  } else if (object$engine == "asreml") {
-    ## Construct formula for classify used in predict.
+    genotype_name = row.names(ranef(fitMod)$genotype)
+
+    effects<- gsub("[)]","",gsub("[(1 |]","", strsplit(as.character(formula(fitMod))[3], "[+]")[[1]] ))
+    f <- strsplit(as.character(formula(fitMod))[3],"[[:blank:]]*\\+[[:blank:]]*")[[1]]
+    f <- f[!grepl("\\(1 \\|",f)]
+
+    # Case predictLevel="genotype"
+    if(predictLevel[1]=="genotype"){
+      mu=mean(predict(fitMod, re.form=NA))
+      preds<- mu + ranef(fitMod)$genotype  # mu + genotype
+      preds[,"genotype"]<-row.names(preds)
+      row.names(preds)<-1:nrow(preds)
+      preds<-preds[,c(2,1)]
+      colnames(preds)<-c("genotype","predictedValue")
+      # Case predictLevel="trial" or any combination of factor that correspond to trial
+    } else if(predictLevel[1]=="trial" | (length(predictLevel)==2 & (paste0(predictLevel[1],":", predictLevel[2])==tail(f, 1) | paste0(predictLevel[2],":", predictLevel[1])==tail(f, 1)))){
+      modDat[!is.na(modDat[[object$trait]]), "predictedValue"] <- predict(fitMod)
+      preds<- as.data.frame(modDat[,c("genotype","trial","predictedValue")]) # Y-residuals
+
+      if (length(predictLevel)==2){
+        preds[[predictLevel[1]]] <- fitMod@frame[,predictLevel[1]]
+        preds[[predictLevel[2]]] <- fitMod@frame[,predictLevel[2]]
+        preds <- preds[,c(1,4,5,3)]
+      }
+      # Case nestingFactor
+    } else if(length(predictLevel)==1){
+      if(!paste("genotype",predictLevel, sep=":") %in% effects){
+        stop(paste(paste("genotype",predictLevel, sep=":")," is not in the model formula"))
+      }
+      predictLevel_fixed<-as.data.frame(suppressMessages(emmeans::emmeans(fitMod,specs=predictLevel)))
+      if(any(is.na(predictLevel_fixed$emmean))){
+        stop("Some combinations are missing, prediction not estimable with our method")
+      }
+      #plevel<- as.character(predictLevel_fixed[,1])
+      #nr=length(plevel)*length(genotype_name)
+      preds <- expand.grid(setNames(list(genotype_name, unique(predictLevel_fixed[,1])), c("genotype",names(predictLevel_fixed[1]))))
+      preds <- setNames(merge.data.frame(predictLevel_fixed[,c(predictLevel,"emmean")], preds, by=predictLevel),  c(predictLevel,"emmean","genotype"))
+      gxE<-ranef(fitMod)[[paste("genotype",predictLevel, sep=":")]]
+      gxE <- setNames(data.frame(do.call(rbind,strsplit(row.names(gxE),split = "\\:")),gxE$`(Intercept)`),c("genotype",predictLevel,"gxE"))
+      preds <- merge.data.frame(gxE,
+                                preds,
+                                by=c("genotype",predictLevel),
+                                all.y = T)
+      preds <- data.frame(preds[,c("genotype",predictLevel)],predictedValue=preds$emmean+preds$gxE)
+      # Any other case with two factors in predictLevel - should be region,loc or region,year
+    } else if(length(predictLevel)==2){
+      if(!paste("genotype",predictLevel[1], predictLevel[2], sep=":") %in% effects){
+        stop(paste(paste("genotype",predictLevel[1], predictLevel[2], sep=":")," is not in the model formula"))
+      }
+      if(all(predictLevel%in%c("region","loc"))){
+        region_fixed <- as.data.frame(suppressMessages(emmeans::emmeans(fitMod,specs= as.formula("~ region + region:loc"))))
+      }
+      if(all(predictLevel%in%c("region","year"))){
+        region_fixed <- as.data.frame(suppressMessages(emmeans::emmeans(fitMod,specs= as.formula("~ region + year + region:year"))))
+      }
+      if(any(is.na(region_fixed$emmean))){
+        stop("Some combinations are missing, prediction not estimable with our method")
+      }
+
+      preds <- expand.grid(setNames(list(genotype_name, unique(region_fixed[,1]),unique(region_fixed[,2])), c("genotype",names(region_fixed[1:2]))))
+      preds <- setNames(merge.data.frame(region_fixed[,c(predictLevel,"emmean")], preds, by=predictLevel),  c(predictLevel,"emmean","genotype"))
+      gxF <- ranef(fitMod)[[paste0("genotype:region:",predictLevel[which(predictLevel!="region")])]]
+      gxF <- setNames(data.frame(do.call(rbind,strsplit(row.names(gxF),split = "\\:")),gxF$`(Intercept)`),c("genotype",predictLevel,"gxF"))
+      gxR <- ranef(fitMod)[["genotype:region"]]
+      gxR <- setNames(data.frame(do.call(rbind,strsplit(row.names(gxR),split = "\\:")),gxR$`(Intercept)`),c("genotype","region","gxR"))
+      preds <- merge.data.frame(gxR,
+                                merge.data.frame(gxF,
+                                                 preds,
+                                                 by=c("genotype",predictLevel),
+                                                 all.y = T),
+                                by=c("genotype","region"),
+                                all.y = T)
+      if (all(predictLevel%in%c("region","year"))){
+        gxY <- ranef(fitMod)[["genotype:year"]]
+        gxY <- setNames(data.frame(do.call(rbind,strsplit(row.names(gxY),split = "\\:")),gxY$`(Intercept)`),c("genotype","year","gxY"))
+        preds <- merge.data.frame(gxY,
+                                  preds,
+                                  by=c("genotype","year"),
+                                  all.y = T)
+      } else {
+        preds[["gxY"]] <- 0
+      }
+      preds <- data.frame(preds[,c("genotype",predictLevel)],predictedValue=preds$emmean+preds$gxF+preds$gxR+preds$gxY)
+
+    }
+
+  }  else if (object$engine == "asreml") {
     classForm <- paste0(predLevels, collapse = ":")
-    ## Only use observations that where present in the input data for making
-    ## predictions. All variables used in the model need to be included here.
-    presVars <- union(rownames(attr(terms(update(fitMod$call$fixed, "NULL ~ .")),
-                                    "factors")),
-                      rownames(attr(terms(fitMod$call$random), "factors")))
+    presVars <- union(rownames(attr(terms(update(fitMod$call$fixed,
+                                                 "NULL ~ .")), "factors")), rownames(attr(terms(fitMod$call$random),
+                                                                                          "factors")))
     preds <- predictAsreml(model = fitMod, classify = classForm,
-                           TD = modDat, present = presVars,
-                           vcov = FALSE)$pvals
-    ## In some cases NA predictions are returned for Estimable combinations.
-    ## Remove those.
+                           TD = modDat, present = presVars, vcov = FALSE)$pvals
     preds <- preds[preds[["status"]] == "Estimable", ]
-    ## Convert to data.frame to get rid of attributes.
-    ## Remove status column.
     preds <- as.data.frame(preds[, 1:(ncol(preds) - 1)])
-    ## Rename column to match lme4 output.
-    colnames(preds)[colnames(preds) %in% c("predicted.value", "std.error")] <-
-      c("predictedValue", "stdError")
+    colnames(preds)[colnames(preds) %in% c("predicted.value",
+                                           "std.error")] <- c("predictedValue", "stdError")
   }
+
   return(preds)
 }
+
 
 #' Extract variance components
 #'
