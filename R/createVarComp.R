@@ -249,17 +249,7 @@ predict.varComp <- function(object, predictLevel = "genotype"){
   fitMod <- object$fitMod
   modDat <- object$modDat
 
-  if (object$useLocYear) {
-    predVars <- c("genotype", "trial", "loc", "year")
-  }
-  else if (object$useRegionLocYear) {
-    predVars <- c("genotype", "trial", "region", "loc", "year")
-  }
-  else {
-    predVars <- c("genotype", "trial", object$nestingFactor)
-  }
-  predLevels <- match.arg(predictLevel, choices = predVars, several.ok = TRUE)
-  predLevels <- unique(c("genotype", predLevels))
+
 
   if (object$engine == "lme4") {
     genotype_name = row.names(ranef(fitMod)$genotype)
@@ -282,12 +272,21 @@ predict.varComp <- function(object, predictLevel = "genotype"){
       preds<- as.data.frame(modDat[,c("genotype","trial","predictedValue")]) # Y-residuals
 
       if (length(predictLevel)==2){
+        modDat$twopredictLevel<-paste(modDat[,predictLevel[1]], modDat[,predictLevel[2]],sep=":")
+        M <- table(modDat[,"trial"], modDat[,"twopredictLevel"])
+        if(!all(colSums(M > 0L) == 1L)){
+          warning(paste(  'In the data, trial does not correspond to ',predictLevel[1], "x", predictLevel[2], ", here, the predictions are by trial (not by",predictLevel[1], "x", predictLevel[2],")" ))
+        }
         preds[[predictLevel[1]]] <- fitMod@frame[,predictLevel[1]]
         preds[[predictLevel[2]]] <- fitMod@frame[,predictLevel[2]]
         preds <- preds[,c(1,4,5,3)]
       }
       # Case nestingFactor
     } else if(length(predictLevel)==1){
+      # M <- table(modDat[,predictLevel], modDat[,"trial"])
+      # if(!all(colSums(M > 0L) == 1L)){
+      #   stop(paste( 'In the data, trial is not nested within',predictLevel) )
+      # }
       if(!paste("genotype",predictLevel, sep=":") %in% effects){
         stop(paste(paste("genotype",predictLevel, sep=":")," is not in the model formula"))
       }
@@ -349,6 +348,17 @@ predict.varComp <- function(object, predictLevel = "genotype"){
     }
 
   }  else if (object$engine == "asreml") {
+    if (object$useLocYear) {
+      predVars <- c("genotype", "trial", "loc", "year")
+    }
+    else if (object$useRegionLocYear) {
+      predVars <- c("genotype", "trial", "region", "loc", "year")
+    }
+    else {
+      predVars <- c("genotype", "trial", object$nestingFactor)
+    }
+    predLevels <- match.arg(predictLevel, choices = predVars, several.ok = TRUE)
+    predLevels <- unique(c("genotype", predLevels))
     classForm <- paste0(predLevels, collapse = ":")
     presVars <- union(rownames(attr(terms(update(fitMod$call$fixed,
                                                  "NULL ~ .")), "factors")), rownames(attr(terms(fitMod$call$random),
