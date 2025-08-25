@@ -261,17 +261,63 @@ predict.varComp <- function(object,
     predVars <- c("genotype", "trial", object$nestingFactor)
   }
   predLevels <- match.arg(predictLevel, choices = predVars, several.ok = TRUE)
-  ## Always include genotype.
-  predLevels <- unique(c("genotype", predLevels))
+  if ((object$useLocYear || object$useRegionLocYear) &&
+      "trial" %in% predLevels) {
+    predLevels <- c(predLevels[predLevels != "trial"],
+                    if (object$useLocYear) c("loc", "year") else
+                      c("region", "loc", "year"))
+    predLevels <- unique(predLevels)
+    message("Trial predictions are made using the variables in the model ",
+            "that correspond to trial.\n")
+  }
   if (object$engine == "lme4") {
-    ## Make predictions for all observations in the data.
-    modDat[!is.na(modDat[[object$trait]]), "preds"] <- predict(fitMod)
-    ## Compute means per predict level.
-    preds <- aggregate(x = modDat[["preds"]], by = modDat[predLevels],
-                       FUN = mean, na.rm = TRUE)
-    ## Rename column to match asreml output.
-    colnames(preds)[ncol(preds)] <- "predictedValue"
+    fixedTerms <- attr(x = terms(fitMod), which = "term.labels")
+    randTerms <- names(lme4::getME(fitMod, "cnms"))
+    allTerms <- c(fixedTerms, randTerms)
+    genoEffects <- lme4::ranef(fitMod)[["genotype"]]
+    colnames(genoEffects) <- "g"
+    ## Predictions for genotypes.
+    if (length(predLevels) == 1 && predLevels == "genotype") {
+      mu <- as.data.frame(
+        suppressMessages(emmeans::emmeans(fitMod, specs = ~ 1)))$emmean
+      preds <- data.frame(genotype = rownames(genoEffects),
+                          predictedValue = mu + genoEffects[["g"]])
+    } else {
+      predLevels <- setdiff(predLevels, "genotype")
+      fixedEffects <- as.data.frame(
+        suppressMessages(emmeans::emmeans(fitMod, specs = predLevels)))
+      if (anyDuplicated(fixedEffects[predLevels])) {
+        stop("Some combinations are missing, prediction not estimable with our method.\n")
+      }
+      ## Set up prediction grid.
+      preds <- expand.grid(c(unique(modDat["genotype"]),
+                             sapply(X = predLevels,
+                                    FUN = function(x) unique(modDat[[x]]),
+                                    simplify = FALSE)))
+      ## Merge fixed effects.
+      preds <- merge(preds, fixedEffects, by = predLevels)
+      ## Merge genotypic main effects.
+      preds <- merge(preds, genoEffects, by.x = "genotype", by.y = "row.names")
+      ## Compute predictedValue.
+      preds[["predictedValue"]] <- preds[["emmean"]] + preds[["g"]]
+      ## Extract interaction effects and add their effects to the predictions.
+      for (randTerm in randTerms) {
+        terms <- setdiff(unlist(strsplit(randTerm, "\\:")), "genotype")
+        if (length(terms) == 0 || !all(terms %in% predLevels)) next
+        interActionEffect <- lme4::ranef(fitMod)[[randTerm]]
+        colnames(interActionEffect) <- "int"
+        preds[["interaction"]] <-
+          interaction(preds[c("genotype", terms)], sep = ":")
+        preds <- merge(preds, interActionEffect, by.x = "interaction",
+                       by.y = "row.names")
+        preds[["predictedValue"]] <- preds[["predictedValue"]] + preds[["int"]]
+        preds[["int"]] <- NULL
+      }
+      preds <- preds[c("genotype", predLevels, "predictedValue")]
+    }
   } else if (object$engine == "asreml") {
+    ## Always include genotype.
+    predLevels <- unique(c("genotype", predLevels))
     ## Construct formula for classify used in predict.
     classForm <- paste0(predLevels, collapse = ":")
     ## Only use observations that where present in the input data for making
@@ -294,6 +340,7 @@ predict.varComp <- function(object,
   }
   return(preds)
 }
+
 
 #' Extract variance components
 #'

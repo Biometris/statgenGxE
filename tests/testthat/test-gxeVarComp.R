@@ -136,21 +136,21 @@ test_that("option predictLevel in predict function functions correctly", {
   expect_s3_class(predVCLmTr, "data.frame")
   expect_named(predVCLmTr, c("genotype", "trial", "predictedValue"))
   expect_equal(predVCLmTr[["predictedValue"]],
-               c(77.4966006356938, 74.9653420442727, 90.2186245871831,
-                 80.4715482850309, 77.8747107040967, 86.9999392581672,
-                 73.127190086253, 87.6250862360836, 81.7888934124136,
-                 85.861005947241, 85.3395984132909, 76.6573789231674,
-                 74.9374452969371, 75.8586415014795, 89.2152079324637,
-                 76.3673421523339, 73.8360835609129, 89.0893661038233,
-                 79.3422898016711, 76.7454522207369, 85.8706807748074,
-                 71.9979316028932, 86.4958277527238, 80.6596349290537,
-                 84.7317474638811, 84.210339929931, 75.5281204398075,
-                 73.8081868135772, 74.7293830181196, 88.0859494491039,
-                 84.0278152351697, 81.4965566437486, 96.7498391866591,
-                 87.0027628845069, 84.4059253035727, 93.5311538576432,
-                 79.658404685729, 94.1563008355596, 88.3201080118895,
-                 92.3922205467169, 91.8708130127668, 83.1885935226433,
-                 81.468659896413, 82.3898561009554, 95.7464225319397))
+               c(77.4966006356938, 76.3673421523339, 84.0278152351697,
+                 74.9653420442727, 73.8360835609129, 81.4965566437486,
+                 96.7498391866591, 90.2186245871831, 89.0893661038233,
+                 80.4715482850309, 79.3422898016711, 87.0027628845069,
+                 84.4059253035727, 77.8747107040967, 76.7454522207369,
+                 93.5311538576432, 85.8706807748074, 86.9999392581672,
+                 71.9979316028932, 79.658404685729, 73.127190086253,
+                 87.6250862360836, 86.4958277527238, 94.1563008355596,
+                 88.3201080118895, 81.7888934124136, 80.6596349290537,
+                 92.3922205467169, 84.7317474638811, 85.861005947241,
+                 84.210339929931, 91.8708130127668, 85.3395984132909,
+                 76.6573789231674, 75.5281204398075, 83.1885935226433,
+                 73.8081868135772, 81.468659896413, 74.9374452969371,
+                 75.8586415014795, 74.7293830181196, 82.3898561009554,
+                 89.2152079324637, 88.0859494491039, 95.7464225319397))
 
   skip_on_cran()
   skip_on_ci()
@@ -209,7 +209,7 @@ test_that("herit function functions correctly", {
   expect_equal(heritVCLm, 0.432846277620034)
 
   ## Produces warning for zero variance component.
-  ## Additionaly lme4 gives a related message. Ignoring that here.
+  ## In addition lme4 gives a related message. Ignoring that here.
   expect_warning(geVCLmNest <- expect_message(gxeVarComp(TD = BLUEs, trait = "t1",
                                                          engine = "lme4",
                                                          nestingFactor = "regime")),
@@ -232,7 +232,7 @@ test_that("CRDR function functions correctly", {
                "CRDR can only be computed when a model is fitted with a nesting")
 
   ## Produces warning for zero variance component.
-  ## Additionaly lme4 gives a related message. Ignoring that here.
+  ## In addition lme4 gives a related message. Ignoring that here.
   expect_warning(geVCLmNest <- expect_message(gxeVarComp(TD = BLUEs, trait = "t1",
                                                          engine = "lme4",
                                                          nestingFactor = "regime")),
@@ -250,7 +250,7 @@ test_that("correlations function functions correctly", {
                "correlations can only be computed when a model is fitted with a nesting")
 
   ## Produces warning for zero variance component.
-  ## Additionaly lme4 gives a related message. Ignoring that here.
+  ## In addition lme4 gives a related message. Ignoring that here.
   expect_warning(geVCLmNest <- expect_message(gxeVarComp(TD = BLUEs, trait = "t1",
                                                          engine = "lme4",
                                                          nestingFactor = "regime")),
