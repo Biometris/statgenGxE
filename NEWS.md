@@ -1,3 +1,7 @@
+# statgenGxE 1.0.11
+
+* The method for making predictions from the output of `gxeVarComp` has been improved. When `lme4` is used for fitting variance component models the predictions for unbalanced data are more accurate now.
+
 # statgenGxE 1.0.10
 
 * A bug in `herit` has been fixed. For models were the last model term was removed due to confounding with the residual the heritabilitiy wasn't calculated correctly.

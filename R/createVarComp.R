@@ -271,6 +271,9 @@ predict.varComp <- function(object,
             "that correspond to trial.\n")
   }
   if (object$engine == "lme4") {
+    emmOptsOrig <- emmeans::get_emm_option("msg.nesting")
+    on.exit(emmeans::emm_options(msg.nesting = emmOptsOrig))
+    emmeans::emm_options(msg.nesting = FALSE)
     fixedTerms <- attr(x = terms(fitMod), which = "term.labels")
     randTerms <- names(lme4::getME(fitMod, "cnms"))
     allTerms <- c(fixedTerms, randTerms)
