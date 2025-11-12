@@ -1,0 +1,129 @@
+# statgenGxE
+
+[![](https://www.r-pkg.org/badges/version/statgenGxE)](https://www.r-pkg.org/pkg/statgenGxE)
+[![CRAN RStudio mirror
+downloads](https://cranlogs.r-pkg.org/badges/statgenGxE)](https://www.r-pkg.org/pkg/statgenGxE)
+[![R-CMD-check](https://github.com/Biometris/statgenGxE/actions/workflows/check.yaml/badge.svg)](https://github.com/Biometris/statgenGxE/actions/workflows/check.yaml)
+[![codecov](https://codecov.io/gh/Biometris/statgenGxE/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Biometris/statgenGxE)
+
+**statgenGxE** is an R package providing functions for Genotype by
+Environment (GxE) analysis for data of plant breeding experiments.
+
+The following types of analysis can be done using statgenGxE:
+
+- Mixed model analysis of GxE table of means
+- Finlay-Wilkinson Analysis
+- AMMI Analysis
+- GGE Analysis
+- Identifying mega environments
+- Stability measures
+- Modeling of heterogeneity of genetic variances and correlations
+
+statgenGxE has extensive options for summarizing and visualizing the
+results of the analyses. For a full overview of all options it is best
+to read the
+[**vignette**](https://biometris.github.io/statgenGxE/articles/statgenGxE.html)
+
+## Installation
+
+- Install from CRAN:
+
+``` r
+install.packages("statgenGxE")
+```
+
+- Install latest development version from GitHub (requires
+  [remotes](https://github.com/r-lib/remotes) package):
+
+``` r
+remotes::install_github("Biometris/statgenGxE", ref = "develop", dependencies = TRUE)
+```
+
+# Package index
+
+## Mixed model analysis of GxE table of means
+
+- [`gxeVarComp()`](gxeVarComp.md) : Mixed model analysis of GxE table of
+  means
+- [`plot(`*`<varComp>`*`)`](plot.varComp.md) : Plot function for class
+  varComp
+- [`predict(`*`<varComp>`*`)`](predict.varComp.md) : Predictions based
+  on a fitted varComp model.
+- [`vc()`](vc.md) : Extract variance components
+- [`herit()`](herit.md) : Calculate heritability
+- [`CRDR()`](CRDR.md) : Calculate the correlated response to selection
+- [`correlations()`](correlations.md) : Compute different types of
+  correlations.
+- [`diagnostics()`](diagnostics.md) : Get diagnostics for an object of
+  class varComp
+
+## Finlay-Wilkinson
+
+- [`gxeFw()`](gxeFw.md) : Finlay-Wilkinson analysis
+- [`plot(`*`<FW>`*`)`](plot.FW.md) : Plot function for class FW
+- [`report(`*`<FW>`*`)`](report.FW.md) : Report method for class FW
+- [`fitted(`*`<FW>`*`)`](fitted.FW.md) : Extract fitted values.
+- [`residuals(`*`<FW>`*`)`](residuals.FW.md) : Extract residuals.
+
+## AMMI
+
+- [`gxeAmmi()`](gxeAmmi.md) : AMMI analysis
+- [`plot(`*`<AMMI>`*`)`](plot.AMMI.md) : Plot function for class AMMI
+- [`report(`*`<AMMI>`*`)`](report.AMMI.md) : Report method for class
+  AMMI
+- [`fitted(`*`<AMMI>`*`)`](fitted.AMMI.md) : Extract fitted values.
+- [`residuals(`*`<AMMI>`*`)`](residuals.AMMI.md) : Extract residuals.
+
+## GGE
+
+- [`gxeGGE()`](gxeGGE.md) : GGE analysis
+
+## Identifying mega environments
+
+- [`gxeMegaEnv()`](gxeMegaEnv.md) : Form mega environments based on
+  fitted values from an AMMI model
+- [`plot(`*`<megaEnv>`*`)`](plot.megaEnv.md) : Plot function for class
+  megaEnv
+- [`predict(`*`<megaEnv>`*`)`](predict.megaEnv.md) : Compute BLUPS based
+  on a set of mega environments
+
+## Stability measures
+
+- [`gxeStability()`](gxeStability.md) : Calculate stability coefficients
+  for genotype-by-environment data
+- [`plot(`*`<stability>`*`)`](plot.stability.md) : Plot function for
+  class stability
+- [`report(`*`<stability>`*`)`](report.stability.md) : Report method for
+  class stability
+
+## Modeling of heterogeneity of genetic variances and correlations
+
+- [`gxeVarCov()`](gxeVarCov.md) : Selects the best variance-covariance
+  model for a set of trials
+- [`plot(`*`<varCov>`*`)`](plot.varCov.md) : Plot function for class
+  varCov
+- [`report(`*`<varCov>`*`)`](report.varCov.md) : Report method for class
+  varCov
+- [`fitted(`*`<varCov>`*`)`](fitted.varCov.md) : Extract fitted values.
+- [`residuals(`*`<varCov>`*`)`](residuals.varCov.md) : Extract
+  residuals.
+
+## Example data
+
+- [`dropsPheno`](dropsPheno.md) : DROPS data set
+- [`TDMaize`](TDMaize.md) : Field data for a maize experiment in
+  Tlaltizapan, Mexico
+
+## Internal helper functions
+
+- [`multMissing()`](multMissing.md) : Estimate missing values in
+  multivariate data
+
+# Articles
+
+### Vignettes
+
+This vignette provides a full description of the statgenGxE package
+including a fully worked example.
+
+- [Genotype by Environment analysis using statgenGxE](statgenGxE.md):
